@@ -1,0 +1,45 @@
+# Copyright 2025 Duc-Hung Ho.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "sql/authors.query.sql"
+    schema: "sql/authors.schema.sql"
+    gen:
+      go:
+        package: "authors"
+        out: "gen/authors"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+
+  - engine: "postgresql"
+    queries: "sql/news.query.sql"
+    schema: "sql/news.schema.sql"
+    gen:
+      go:
+        package: "news"
+        out: "gen/news"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+
+  - engine: "postgresql"
+    queries: "sql/users.query.sql"
+    schema: "sql/users.schema.sql"
+    gen:
+      go:
+        package: "users"
+        out: "gen/users"
+        sql_package: "pgx/v5"
+        emit_json_tags: true

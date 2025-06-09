@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="Go" enabled="true" />
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/cmd/apiserver/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/cmd/edge/v1/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/cmd/greeter/v1/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/apps/console/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/apps/web/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/packages/api/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/packages/api/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/ui/packages/ui/.turbo" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

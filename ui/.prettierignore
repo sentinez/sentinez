@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.next
+out
+pnpm-lock.yaml
+
+third_party
+
+packages/ui/

@@ -1,0 +1,86 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.core.greeter.v1;
+
+import "sentinez/v1/meta.proto";
+import "sentinez/core/greeter/shared/v1/greeter.proto";
+import "sentinez/v1/options.proto";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1;greeter";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Greeter Service";
+    version: "1.0";
+  };
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  security_definitions: {
+    security: {
+      key: "ApiKeyAuth";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "Authorization";
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "ApiKeyAuth";
+      value: {}
+    }
+  }
+};
+
+service GreeterService {
+  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
+    option (google.api.http) = {
+      get: "/greeter/say"
+    };
+
+    option (sentinez.v1.options) = {ignore: true};
+  }
+
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {
+      get: "/greeter/status"
+    };
+
+    option (sentinez.v1.options) = {ignore: true};
+  }
+}
+
+message SayHelloRequest {
+  sentinez.v1.Pages page = 1;
+  string name = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message SayHelloResponse {
+  sentinez.core.greeter.shared.v1.SayHelloResponse response = 1;
+}
+
+message StatusResponse {
+  string message = 1;
+}
+
+message StatusRequest {}

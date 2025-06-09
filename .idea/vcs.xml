@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/coreruleset" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/googleapi" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/grpc-gateway" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/protovalidate" vcs="Git" />
+  </component>
+</project>

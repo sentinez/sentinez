@@ -1,0 +1,3 @@
+cmd/edge/v1 directory is where you start the edge version 1
+
+go run cmd/edge/v1/main.go

@@ -1,0 +1,3 @@
+cmd/apiserver directory is where you start the API.
+
+go run cmd/apiserver/main.go

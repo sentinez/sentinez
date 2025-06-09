@@ -1,0 +1,20 @@
+services:
+  sentinez.edge:
+    container_name: sentinez.apiserver
+    hostname: sentinez.apiserver
+    image: sentinez/sentinez:latest
+    ports:
+      - "9000:9000"
+    networks:
+      - sentinez-network
+
+  sentinez.core.greeter.v1:
+    container_name: sentinez.core.greeter.v1
+    hostname: sentinez.core.greeter.v1
+    image: sentinez/sentinez.core.greeter:latest
+    networks:
+      - sentinez-network
+
+networks:
+  sentinez-network:
+    driver: bridge

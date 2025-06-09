@@ -1,0 +1,67 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package registrar provides all service declare.
+package registrar
+
+import (
+	"context"
+
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	"github.com/sentinez/sentinez/pkg/std/eventq"
+	"github.com/sentinez/sentinez/pkg/std/names"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+var _ httpgw.ServiceRegistrar = (*greeter)(nil)
+
+// NewGreeter creates a new greeter service to register handler to gateway
+func NewGreeter(server greeterpb.GreeterServiceServer) httpgw.ServiceRegistrar {
+	return &greeter{server: server}
+}
+
+// greeter represents the greeter service
+type greeter struct {
+	server greeterpb.GreeterServiceServer
+}
+
+// AcceptFromEndpoint implements httpgw.ServiceRegistrar.
+func (g *greeter) AcceptFromEndpoint(ctx context.Context,
+	server httpgw.Server) error {
+
+	eventq.Subscribe(ctx, names.GreeterV1.String(),
+		func(endpoint string) error {
+			opts := []grpc.DialOption{
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+			}
+
+			zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
+				names.GreeterV1.String(), "******")
+
+			return greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
+				ctx, server.RuntimeMux(), endpoint, opts)
+		})
+
+	return nil
+}
+
+// Accept accepts the greeter service
+func (g *greeter) Accept(ctx context.Context, server httpgw.Server) error {
+	return greeterpb.
+		RegisterGreeterServiceHandlerServer(ctx, server.RuntimeMux(), g.server)
+}

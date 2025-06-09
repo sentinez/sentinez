@@ -1,0 +1,19 @@
+{
+  "name": "@sentinez/api",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "axios": "^1.9.0"
+  },
+  "devDependencies": {
+    "@sentinez/eslint-config": "workspace:*",
+    "@sentinez/tsconfig": "workspace:*"
+  }
+}

@@ -1,0 +1,45 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package proxy ...
+package proxy
+
+import (
+	"strings"
+
+	"github.com/sentinez/sentinez/internal/edge/v1/origin"
+	"github.com/sentinez/sentinez/pkg/common/color"
+	httpxv1 "github.com/sentinez/sentinez/pkg/core/httpx/v1"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/valyala/fasthttp"
+)
+
+func Proxy(ctx httpxv1.Context) error {
+	path := ctx.Path()
+	target := origin.Source + path
+
+	if err := httpxv1.Do(ctx, target); err != nil {
+		zlog.Errorf(
+			"[EDGE] server::handler: failed to do http request: %v", err)
+
+		return ctx.String(fasthttp.StatusBadGateway,
+			"error forwarding request: "+err.Error())
+	}
+
+	ip := ctx.Request().RemoteAddr
+	zlog.Debugf("[EDGE] %s %s - %s", strings.ToUpper(ctx.Method()),
+		color.Blue.Add(ip), ctx.Path())
+
+	return nil
+}

@@ -1,0 +1,10 @@
+pkg/ is a collection of utility packages used by sentinez without being specific
+to sentinez itself. A package belongs here only if it could possibly be moved 
+out into its own repository in the future.
+  - common: contains custom packages from other libraries or packages with 
+    specific functionality
+  - core: implements all core packages runtime, providing a constructor 
+    injection mechanism for the entire application
+  - infra: contains infrastructure-related packages such as database, cache, etc.
+  - std: contains packages specifically made for the project, including config,
+    environment variables, and system error templates

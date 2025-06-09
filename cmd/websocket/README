@@ -1,0 +1,3 @@
+cmd/websocket directory is where you start the websocket
+
+go run cmd/websocket/main.go

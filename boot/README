@@ -1,0 +1,4 @@
+bootstrap: attach binary file when starting application
+  - SQL migration
+  - WAF coreruleset data
+  - API specification and swagger ui

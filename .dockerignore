@@ -1,0 +1,16 @@
+.github/
+.idea/
+.vscode/
+
+_dumpdata/
+dumpdata/
+
+bin/
+build/
+docs/
+third_party/
+tests/
+
+node_modules
+
+.env

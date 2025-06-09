@@ -1,0 +1,3 @@
+cmd/greeter/v1 directory is where you start the greeter version 1
+
+go run cmd/greeter/v1/main.go

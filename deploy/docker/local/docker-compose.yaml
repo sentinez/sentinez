@@ -1,0 +1,49 @@
+services:
+  sentinez.redis:
+    image: redis
+    container_name: sentinez.redis
+    hostname: sentinez.redis
+    ports:
+      - "6379:6379"
+    command: /bin/sh -c "redis-server --requirepass password"
+    volumes:
+      - ./_dumpdata/redis:/data
+    networks:
+      - sentinez-network
+
+  sentinez.timescale:
+    image: timescale/timescaledb:latest-pg16
+    hostname: sentinez.timescale
+    container_name: sentinez.timescale
+    ports:
+      - "5432:5432"
+    restart: on-failure:3
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: dev-sentinez
+    volumes:
+      - ./_dumpdata/timescale:/var/lib/timescale/data
+    networks:
+      - sentinez-network
+
+  sentinez.consul:
+    image: hashicorp/consul:latest
+    container_name: sentinez.consul
+    hostname: sentinez.consul
+    restart: unless-stopped
+    ports:
+      - "8500:8500"   # UI & API
+      - "8600:8600/udp" # DNS
+    command: "agent -dev -client=0.0.0.0"
+    volumes:
+      - ./_dumpdata:/consul/data
+    networks:
+      - sentinez-network
+
+volumes:
+  _dumpdata:
+
+networks:
+  sentinez-network:
+    driver: bridge
