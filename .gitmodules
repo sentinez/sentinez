@@ -1,0 +1,12 @@
+[submodule "_patches/coreruleset"]
+	path = _patches/coreruleset
+	url = https://github.com/coreruleset/coreruleset.git
+[submodule "_patches/grpc-gateway"]
+	path = _patches/grpc-gateway
+	url = https://github.com/grpc-ecosystem/grpc-gateway.git
+[submodule "_patches/protovalidate"]
+	path = _patches/protovalidate
+	url = https://github.com/bufbuild/protovalidate.git
+[submodule "_patches/googleapis"]
+	path = _patches/googleapis
+	url = https://github.com/googleapis/googleapis.git
