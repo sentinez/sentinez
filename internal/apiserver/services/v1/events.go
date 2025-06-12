@@ -1,6 +1,3 @@
-//go:build wireinject
-// +build wireinject
-
 // Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package dcvrhandler
-
-import (
-	"github.com/google/wire"
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	dcvrdomain "github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
-	dcvrrepo "github.com/sentinez/sentinez/internal/core/discovery/v1/repos"
-)
-
-func NewDefault() discoverypb.DiscoveryServiceServer {
-	wire.Build(
-		dcvrdomain.New,
-		dcvrrepo.New,
-		New,
-	)
-	return nil
-}
+package services
