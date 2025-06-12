@@ -16,23 +16,36 @@ package sentinez
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"google.golang.org/grpc/grpclog"
 
 	"go.uber.org/fx"
 )
 
 const timeout = 500 * time.Millisecond // 500 milliseconds
 
+var (
+	once sync.Once
+	log  zlog.Logger
+)
+
+func beforeStart() {
+	once.Do(func() {
+		log = zlog.NewConsole(zlog.LevelWarning)
+		grpclog.SetLoggerV2(log)
+	})
+}
+
 // runner functions called by fx.Invoke.
 // when the application starts, it will start the server
 func runner(lc fx.Lifecycle, srv Server) {
-	// init log
-	log := zlog.NewSystemLog()
+	beforeStart()
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

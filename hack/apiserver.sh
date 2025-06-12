@@ -15,9 +15,9 @@
 # limitations under the License.
 
 
-./cmd/edge/v1/bin/apiserver \
-    --log-level debug  \
-    --mode sanbox \
+./cmd/apiserver/bin/apiserver \
+    --log-level info  \
+    --mode prod \
     --address 0.0.0.0:9000 \
     --api-specs ./boot/api/specs/v1 \
     --swagger-ui ./boot/api/swagger
