@@ -3,7 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/coreruleset" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/_patches/googleapi" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/googleapis" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/grpc-gateway" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/protovalidate" vcs="Git" />
   </component>

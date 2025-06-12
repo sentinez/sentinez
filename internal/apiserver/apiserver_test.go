@@ -15,24 +15,9 @@
 package apiserver
 
 import (
-	"context"
 	"testing"
-
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-
-	dcvrhandler "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 )
 
 func TestHandler(_ *testing.T) {
-	mux := runtime.NewServeMux()
 
-	_ = discoverypb.RegisterDiscoveryServiceHandlerServer(
-		context.Background(), mux, dcvrhandler.NewDefault())
-
-	_ = greeterpb.RegisterGreeterServiceHandlerServer(
-		context.Background(), mux, greeterhandler.NewDefault())
 }

@@ -22,24 +22,19 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/std/zlog/internal"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"google.golang.org/grpc/grpclog"
 )
 
 var (
-	once   sync.Once
-	onceLL sync.Once
+	once sync.Once
 )
 
 var (
-	logcore  = NewLogger()
-	logLevel = internal.LevelDebug
+	_    Logger = (*zcore)(nil)
+	core        = NewConsole(LevelDebug)
 )
-
-var _ Logger = (*internal.Core)(nil)
 
 // Logger define default logger for logger
 type Logger interface {
@@ -65,55 +60,6 @@ type Logger interface {
 
 	V(l int) bool
 	Sync() error
-}
-
-// SystemLog define system logger, include grpclog wrapped
-type SystemLog interface{ Logger }
-
-// NewLogger creates a new logger instance.
-func NewLogger() Logger {
-	logger := newLogger().Sugar()
-
-	return internal.NewCore(logger, logLevel.Int())
-}
-
-// NewSystemLog init all system log,
-// like logger global variable, grpclog global variable
-func NewSystemLog() SystemLog {
-	once.Do(func() {
-		logger := newLogger().Sugar()
-		logcore = internal.NewCore(logger, logLevel.Int())
-
-		grpclog.SetLoggerV2(
-			internal.NewCore(logger, internal.LevelWarning.Int()))
-	})
-
-	return logcore
-}
-
-// SetLogLevel set logger default level
-func SetLogLevel(ll string) {
-	onceLL.Do(func() {
-		logLevel = getLogLevel(ll)
-	})
-}
-
-func getLogLevel(logLevel string) internal.Level {
-	level := internal.LevelDebug
-	switch logLevel {
-	case "debug":
-		level = internal.LevelDebug
-	case "info":
-		level = internal.LevelInfo
-	case "warn":
-		level = internal.LevelWarning
-	case "error":
-		level = internal.LevelError
-	default:
-		level = internal.LevelDebug
-	}
-
-	return level
 }
 
 // newLogger creates a new logger.
@@ -144,52 +90,65 @@ func newLogger() *zap.Logger {
 	return logger
 }
 
+func NewConsole(level Level) Logger {
+	logger := newLogger().Sugar()
+	return createZCore(logger, ToLevel(level.String()).Int())
+}
+
+// SetLogLevel set logger default level
+func SetLogLevel(ll string) {
+	once.Do(func() {
+		level := ToLevel(ll)
+		core = NewConsole(level)
+	})
+}
+
 // Info logs an info message.
 func Info(message ...any) {
-	logcore.Info(message...)
+	core.Info(message...)
 }
 
 // Infof logs an info message with a format.
 func Infof(template string, message ...any) {
-	logcore.Infof(template, message...)
+	core.Infof(template, message...)
 }
 
 // Debug logs a debug message.
 func Debug(message ...any) {
-	logcore.Debug(message...)
+	core.Debug(message...)
 }
 
 // Debugf logs a debug message.
 func Debugf(template string, message ...any) {
-	logcore.Debugf(template, message...)
+	core.Debugf(template, message...)
 }
 
 // Error logs an error message.
 func Error(message ...any) {
-	logcore.Error(message...)
+	core.Error(message...)
 }
 
 // Errorf logs an error message with a format.
 func Errorf(template string, message ...any) {
-	logcore.Errorf(template, message...)
+	core.Errorf(template, message...)
 }
 
 // Warn logs an warn message.
 func Warn(message ...any) {
-	logcore.Warning(message...)
+	core.Warning(message...)
 }
 
 // Warnf logs an error message with a format.
 func Warnf(template string, message ...any) {
-	logcore.Warningf(template, message...)
+	core.Warningf(template, message...)
 }
 
 // Fatal logs a fatal message.
 func Fatal(message ...any) {
-	logcore.Fatal(message...)
+	core.Fatal(message...)
 }
 
 // Fatalf logs a fatal message.
 func Fatalf(template string, message ...any) {
-	logcore.Fatalf(template, message...)
+	core.Fatalf(template, message...)
 }

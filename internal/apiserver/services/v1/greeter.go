@@ -12,57 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package registrar provides all service declare.
-package registrar
+// Package services provides all service declare.
+package services
 
 import (
 	"context"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/std/eventq"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
-var _ httpgw.ServiceRegistrar = (*discovery)(nil)
+var _ httpgw.ServiceRegistrar = (*greeter)(nil)
 
-// NewDiscovery creates a new Discovery service to register handler to gateway
-func NewDiscovery(
-	srv discoverypb.DiscoveryServiceServer) httpgw.ServiceRegistrar {
-	return &discovery{server: srv}
+// NewGreeter creates a new greeter service to register handler to gateway
+func NewGreeter(server greeterpb.GreeterServiceServer) httpgw.ServiceRegistrar {
+	return &greeter{server: server}
 }
 
-// discovery represents the discovery service
-type discovery struct {
-	server discoverypb.DiscoveryServiceServer
+// greeter represents the greeter service
+type greeter struct {
+	server greeterpb.GreeterServiceServer
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
-func (d *discovery) AcceptFromEndpoint(
-	ctx context.Context, server httpgw.Server) error {
+func (g *greeter) AcceptFromEndpoint(ctx context.Context,
+	server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.DiscoveryV1.String(),
+	eventq.Subscribe(ctx, names.GreeterV1.String(),
 		func(endpoint string) error {
 			opts := []grpc.DialOption{
 				grpc.WithTransportCredentials(insecure.NewCredentials()),
 			}
 
 			zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-				names.DiscoveryV1.String(), "******")
+				names.GreeterV1.String(), "******")
 
-			return discoverypb.RegisterDiscoveryServiceHandlerFromEndpoint(
+			return greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
 				ctx, server.RuntimeMux(), endpoint, opts)
 		})
 
 	return nil
 }
 
-// Accept accepts the Discovery service
-func (d *discovery) Accept(ctx context.Context, server httpgw.Server) error {
-	return discoverypb.RegisterDiscoveryServiceHandlerServer(
-		ctx, server.RuntimeMux(), d.server)
+// Accept accepts the greeter service
+func (g *greeter) Accept(ctx context.Context, server httpgw.Server) error {
+	return greeterpb.
+		RegisterGreeterServiceHandlerServer(ctx, server.RuntimeMux(), g.server)
 }

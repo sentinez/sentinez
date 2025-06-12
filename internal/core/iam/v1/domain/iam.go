@@ -26,8 +26,7 @@ import (
 var _ iamdomainpb.
 	IdentityAccessManagerDomainServiceServer = (*IdentityAccessManager)(nil)
 
-// NewDefault creates a new default Identity Access Manager domain service.
-func NewDefault() iamdomainpb.IdentityAccessManagerDomainServiceServer {
+func New() iamdomainpb.IdentityAccessManagerDomainServiceServer {
 	return &IdentityAccessManager{}
 }
 
