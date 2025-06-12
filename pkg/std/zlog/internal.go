@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package internal provides the logger for the package.
-package internal
+package zlog
 
 import (
 	"github.com/sentinez/sentinez/pkg/common/color"
@@ -46,6 +45,26 @@ func (l Level) Int() int {
 	return int(l)
 }
 
+func ToLevel(logLevel string) Level {
+	level := LevelDebug
+	switch logLevel {
+	case "debug":
+		level = LevelDebug
+	case "info":
+		level = LevelInfo
+	case "warn":
+		level = LevelWarning
+	case "error":
+		level = LevelError
+	case "fatal":
+		level = LevelFatal
+	default:
+		level = LevelDebug
+	}
+
+	return level
+}
+
 const (
 	// LevelDebug is the lowest level of verbosity.
 	LevelDebug Level = 0
@@ -65,122 +84,122 @@ const (
 
 var header = color.White.Add(">>> ")
 
-// Core is the logger for the package.
-type Core struct {
+// zcore is the logger for the package.
+type zcore struct {
 	Verbosity int
 	Logger    *zap.SugaredLogger
 }
 
-func (c *Core) addPrefix(args ...any) []any {
+func (c *zcore) addPrefix(args ...any) []any {
 	return append([]any{header}, args...)
 }
 
-func (c *Core) addPrefixFormat(format string) string {
+func (c *zcore) addPrefixFormat(format string) string {
 	return header + format
 }
 
 // Debug logs a debug message.
-func (c *Core) Debug(args ...any) {
+func (c *zcore) Debug(args ...any) {
 	if c.V(LevelDebug.Int()) {
 		c.Logger.Debug(c.addPrefix(args...)...)
 	}
 }
 
 // Debugln logs a debug message.
-func (c *Core) Debugln(args ...any) { c.Debug(args...) }
+func (c *zcore) Debugln(args ...any) { c.Debug(args...) }
 
 // Debugf logs a debug message with a format.
-func (c *Core) Debugf(format string, args ...any) {
+func (c *zcore) Debugf(format string, args ...any) {
 	if c.V(LevelDebug.Int()) {
 		c.Logger.Debugf(c.addPrefixFormat(format), args...)
 	}
 }
 
 // Info logs an info message.
-func (c *Core) Info(args ...any) {
+func (c *zcore) Info(args ...any) {
 	if c.V(LevelInfo.Int()) {
 		c.Logger.Info(c.addPrefix(args...)...)
 	}
 }
 
 // Infoln logs an info message.
-func (c *Core) Infoln(args ...any) {
+func (c *zcore) Infoln(args ...any) {
 	c.Info(args...)
 }
 
 // Infof logs an info message with a format.
-func (c *Core) Infof(format string, args ...any) {
+func (c *zcore) Infof(format string, args ...any) {
 	if c.V(LevelInfo.Int()) {
 		c.Logger.Infof(c.addPrefixFormat(format), args...)
 	}
 }
 
 // Warning logs a warning message.
-func (c *Core) Warning(args ...any) {
+func (c *zcore) Warning(args ...any) {
 	if c.V(LevelWarning.Int()) {
 		c.Logger.Warn(c.addPrefix(args...)...)
 	}
 }
 
 // Warningln logs a warning message.
-func (c *Core) Warningln(args ...any) {
+func (c *zcore) Warningln(args ...any) {
 	c.Warning(args...)
 }
 
 // Warningf logs a warning message with a format.s
-func (c *Core) Warningf(format string, args ...any) {
+func (c *zcore) Warningf(format string, args ...any) {
 	if c.V(LevelWarning.Int()) {
 		c.Logger.Warnf(c.addPrefixFormat(format), args...)
 	}
 }
 
 // Error logs an error message.
-func (c *Core) Error(args ...any) {
+func (c *zcore) Error(args ...any) {
 	if c.V(LevelError.Int()) {
 		c.Logger.Error(c.addPrefix(args...)...)
 	}
 }
 
 // Errorln logs an error message.
-func (c *Core) Errorln(args ...any) {
+func (c *zcore) Errorln(args ...any) {
 	c.Error(args...)
 }
 
 // Errorf logs an error message with a format.
-func (c *Core) Errorf(format string, args ...any) {
+func (c *zcore) Errorf(format string, args ...any) {
 	if c.V(LevelError.Int()) {
 		c.Logger.Errorf(c.addPrefixFormat(format), args...)
 	}
 }
 
 // Fatal logs a fatal message.
-func (c *Core) Fatal(args ...any) {
+func (c *zcore) Fatal(args ...any) {
 	if c.V(LevelFatal.Int()) {
 		c.Logger.Fatal(c.addPrefix(args...)...)
 	}
 }
 
 // Fatalln logs a fatal message.
-func (c *Core) Fatalln(args ...any) { c.Fatal(args...) }
+func (c *zcore) Fatalln(args ...any) { c.Fatal(args...) }
 
 // Fatalf logs a fatal message with a format.
-func (c *Core) Fatalf(format string, args ...any) {
+func (c *zcore) Fatalf(format string, args ...any) {
 	if c.V(LevelFatal.Int()) {
 		c.Logger.Fatalf(c.addPrefixFormat(format), args...)
 	}
 }
 
 // V reports whether verbosity level l is at least the requested verbose level.
-func (c *Core) V(l int) bool {
+func (c *zcore) V(l int) bool {
 	return l >= c.Verbosity
 }
 
 // Sync flushes the log.
-func (c *Core) Sync() error {
+func (c *zcore) Sync() error {
 	return c.Logger.Sync()
 }
 
-// NewCore creates a new Core.
-func NewCore(logger *zap.SugaredLogger, verbosity int) *Core {
-	return &Core{Logger: logger, Verbosity: verbosity}
+// createZCore creates a new Core.
+func createZCore(logger *zap.SugaredLogger, verbosity int) *zcore {
+	return &zcore{Logger: logger, Verbosity: verbosity}
 }
