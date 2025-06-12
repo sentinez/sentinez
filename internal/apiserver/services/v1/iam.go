@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package registrar
+package services
 
 import (
 	"context"
 
-	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/std/eventq"
 	"github.com/sentinez/sentinez/pkg/std/names"
@@ -27,39 +27,42 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var _ httpgw.ServiceRegistrar = (*tenant)(nil)
+var _ httpgw.ServiceRegistrar = (*identityAccessManagement)(nil)
 
-// NewTenant creates a new tenant service registrar.
-func NewTenant(srv tenantpb.TenantServiceServer) httpgw.ServiceRegistrar {
-	return &tenant{server: srv}
+// NewIAM creates a new iam service registrar.
+func NewIAM(
+	srv iampb.IdentityAccessManagementServiceServer) httpgw.ServiceRegistrar {
+	return &identityAccessManagement{server: srv}
 }
 
-// tenant is the tenant service registrar.
-type tenant struct {
-	server tenantpb.TenantServiceServer
+// identityAccessManagement is the identityAccessManagement service registrar.
+type identityAccessManagement struct {
+	server iampb.IdentityAccessManagementServiceServer
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
-func (t *tenant) AcceptFromEndpoint(
-	ctx context.Context, server httpgw.Server) error {
+func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
+	server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.TenantV1.String(), func(endpoint string) error {
+	eventq.Subscribe(ctx, names.AuthV1.String(), func(endpoint string) error {
 		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		}
 
 		zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-			names.TenantV1.String(), "******")
+			names.AuthV1.String(), "******")
 
-		return tenantpb.RegisterTenantServiceHandlerFromEndpoint(
+		return iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint(
 			ctx, server.RuntimeMux(), endpoint, opts)
 	})
 
 	return nil
 }
 
-// Accept to visit the tenant service.
-func (t *tenant) Accept(ctx context.Context, server httpgw.Server) error {
-	return tenantpb.
-		RegisterTenantServiceHandlerServer(ctx, server.RuntimeMux(), t.server)
+// Accept to visit the iam service.
+func (i *identityAccessManagement) Accept(ctx context.Context,
+	server httpgw.Server) error {
+
+	return iampb.RegisterIdentityAccessManagementServiceHandlerServer(ctx,
+		server.RuntimeMux(), i.server)
 }

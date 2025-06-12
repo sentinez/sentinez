@@ -1,7 +1,4 @@
-//go:build wireinject
-// +build wireinject
-
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,18 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package greeterhandler
-
-import (
-	"github.com/google/wire"
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-)
-
-func NewDefault() greeter.GreeterServiceServer {
-	wire.Build(
-		greeterdomain.New,
-		New,
-	)
-	return nil
-}
+package factory

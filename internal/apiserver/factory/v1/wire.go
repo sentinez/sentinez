@@ -15,45 +15,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package registrar
+package factory
 
 import (
 	"github.com/google/wire"
+
+	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
+
+	dcvrdomain "github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
 	dcvrhandler "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
+	dcvrrepo "github.com/sentinez/sentinez/internal/core/discovery/v1/repos"
+
+	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	iamhandlers "github.com/sentinez/sentinez/internal/core/iam/v1/handlers"
+
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
+
+	iamdomain "github.com/sentinez/sentinez/internal/core/iam/v1/domain"
+	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
+
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 )
 
 func NewDefaultDiscovery() httpgw.ServiceRegistrar {
 	wire.Build(
-		dcvrhandler.NewDefault,
-		NewDiscovery,
+		dcvrrepo.New,
+		dcvrdomain.New,
+		dcvrhandler.New,
+		services.NewDiscovery,
 	)
 	return nil
 }
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	wire.Build(
-		greeterhandler.NewDefault,
-		NewGreeter,
+		greeterdomain.New,
+		greeterhandler.New,
+		services.NewGreeter,
 	)
 	return nil
 }
 
 func NewDefaultIAM() httpgw.ServiceRegistrar {
 	wire.Build(
-		iamhandlers.NewDefault,
-		NewIAM,
+		iamdomain.New,
+		iamhandler.New,
+		services.NewIAM,
 	)
 	return nil
 }
 
 func NewDefaultTenant() httpgw.ServiceRegistrar {
 	wire.Build(
-		tenanthandler.NewDefault,
-		NewTenant,
+		tenanthandler.New,
+		services.NewTenant,
 	)
 	return nil
 }

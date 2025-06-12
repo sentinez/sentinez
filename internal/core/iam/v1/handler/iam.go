@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package iamhandlers provides the Identity Access Management service handler.
-package iamhandlers
+package iamhandler
 
 import (
 	"context"

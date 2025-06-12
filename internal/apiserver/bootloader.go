@@ -17,9 +17,9 @@ package apiserver
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/internal/apiserver/factory/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
-	"github.com/sentinez/sentinez/internal/apiserver/registrar/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -35,13 +35,13 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 
-	err := srv.visit(ctx) // registrar.NewDefaultDiscovery(),
+	err := srv.visit(ctx) // factory.NewDefaultDiscovery(),
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit discovery service: %v", err)
 		return err
 	}
 
-	err = srv.visitToEndpoint(ctx) // registrar.NewGreeter(),
+	err = srv.visitToEndpoint(ctx) // services.NewGreeter(),
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
 		return err
@@ -49,8 +49,8 @@ func (srv *Server) bootloader(ctx context.Context) error {
 
 	// embedded services directly into the apiserver
 	return srv.visit(ctx,
-		registrar.NewDefaultGreeter(),
-		registrar.NewDefaultIAM(),
-		registrar.NewDefaultTenant(),
+		factory.NewDefaultGreeter(),
+		factory.NewDefaultIAM(),
+		factory.NewDefaultTenant(),
 	)
 }
