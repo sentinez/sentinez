@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpx
+package httpv2mdw
 
-// Server is the interface that provides the basic methods for an HTTP server.
-type Server interface {
-	ListenAndServe(addr string) error
-	Shutdown() error
-}
+import (
+	httpxsecure "github.com/sentinez/sentinez/pkg/core/httpx/secure"
+	http2sec "github.com/sentinez/sentinez/pkg/core/httpx/secure/http2"
+	"github.com/valyala/fasthttp"
+)
 
-// Context is the interface that wraps the basic methods for an HTTP context.
-// It provides methods to handle HTTP requests and responses.
-type Context interface {
-	Path() string
-	String(statusCode int, body string) error
-	JSON(statusCode int, body []byte) error
+func Protected(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	waf := httpxsecure.NewFireWall()
+	return http2sec.WrapHandler(waf, next)
 }

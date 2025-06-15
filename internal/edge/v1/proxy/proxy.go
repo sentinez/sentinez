@@ -16,30 +16,39 @@
 package proxy
 
 import (
-	"strings"
+	"log"
 
 	"github.com/sentinez/sentinez/internal/edge/v1/origin"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxv1 "github.com/sentinez/sentinez/pkg/core/httpx/v1"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
 	"github.com/valyala/fasthttp"
+	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )
 
-func Proxy(ctx httpxv1.Context) error {
-	path := ctx.Path()
-	target := origin.Source + path
+func Handler(pool proxy.Pool) func(ctx *httpxv2.Context) error {
+	return func(ctx *httpxv2.Context) error {
+		proxyServer, err := pool.Get(origin.Source)
+		if err != nil {
+			log.Println("ProxyPoolHandler got an error: ", err)
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+			return err
+		}
+		defer func() { _ = pool.Put(proxyServer) }()
+		proxyServer.ServeHTTP(ctx.RequestCtx)
 
-	if err := httpxv1.Do(ctx, target); err != nil {
-		zlog.Errorf(
-			"[EDGE] server::handler: failed to do http request: %v", err)
+		return nil
+	}
+}
 
-		return ctx.String(fasthttp.StatusBadGateway,
-			"error forwarding request: "+err.Error())
+func factory(hostAddr string) (*proxy.ReverseProxy, error) {
+	return proxy.NewReverseProxyWith(proxy.WithAddress(hostAddr))
+}
+
+func NewChanPool() (proxy.Pool, error) {
+	initialCap, maxCap := 100, 1000
+	pool, err := proxy.NewChanPool(initialCap, maxCap, factory)
+	if err != nil {
+		return nil, err
 	}
 
-	ip := ctx.Request().RemoteAddr
-	zlog.Debugf("[EDGE] %s %s - %s", strings.ToUpper(ctx.Method()),
-		color.Blue.Add(ip), ctx.Path())
-
-	return nil
+	return pool, nil
 }

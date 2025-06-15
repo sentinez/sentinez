@@ -22,8 +22,7 @@ import (
 	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxv1 "github.com/sentinez/sentinez/pkg/core/httpx/v1"
-	"github.com/sentinez/sentinez/pkg/core/secure"
+	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -34,7 +33,7 @@ var (
 )
 
 var (
-	_ = sentinez.Inject(httpxv1.NewServer)
+	_ = sentinez.Inject(httpxv2.NewServer)
 )
 
 // Edge is the interface that wraps the basic Serve method.
@@ -43,7 +42,7 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server httpxv1.Server, flag *sentinezpb.FlagEdge) sentinez.Server {
+func New(server httpxv2.Server, flag *sentinezpb.FlagEdge) sentinez.Server {
 	return &Server{
 		core: server,
 		flag: flag,
@@ -54,7 +53,7 @@ func New(server httpxv1.Server, flag *sentinezpb.FlagEdge) sentinez.Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core httpxv1.Server
+	core httpxv2.Server
 	flag *sentinezpb.FlagEdge
 }
 
@@ -68,20 +67,18 @@ func (s *Server) Start(_ context.Context) error {
 	return s.Serve(s.flag.GetAddress())
 }
 
-func (s *Server) handler(ctx httpxv1.Context) error {
-	return chainServe(ctx,
-		proxy.Proxy,
-	)
-}
-
 // Serve starts the server and listens on the given address.
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 	zlog.Infof("[HTTP] LISTEN: %s", color.Magenta.Add(s.flag.GetAddress()))
 
-	s.core.Use(secure.ProtectServerH1)
+	// s.core.Use(httpv2mdw.Protected)
 
-	s.core.Handle(s.handler)
+	poolProxy, err := proxy.NewChanPool()
+	if err != nil {
+		return err
+	}
+	s.core.Handle(proxy.Handler(poolProxy))
 
 	return s.core.ListenAndServe(addr)
 }

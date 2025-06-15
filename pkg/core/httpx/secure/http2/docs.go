@@ -12,18 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpx
-
-// Server is the interface that provides the basic methods for an HTTP server.
-type Server interface {
-	ListenAndServe(addr string) error
-	Shutdown() error
-}
-
-// Context is the interface that wraps the basic methods for an HTTP context.
-// It provides methods to handle HTTP requests and responses.
-type Context interface {
-	Path() string
-	String(statusCode int, body string) error
-	JSON(statusCode int, body []byte) error
-}
+// Package http2sec implement interceptor for fasthttp library
+// base on coraza/http
+// ref: https://github.com/corazawaf/coraza/tree/main/http
+package http2sec

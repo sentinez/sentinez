@@ -23,7 +23,8 @@ var _ Server = (*server)(nil)
 
 type Server interface {
 	httpx.Server
-	Handle(fn func(ctx Context) error)
+	Use(mdw ...func(handler fasthttp.RequestHandler) fasthttp.RequestHandler)
+	Handle(fn func(ctx *Context) error)
 }
 
 // NewServer creates a new fasthttp server instance.
@@ -37,15 +38,27 @@ func NewServer() Server {
 // server implements the Server interface.
 type server struct {
 	core *fasthttp.Server
+	mdw  []func(handler fasthttp.RequestHandler) fasthttp.RequestHandler
 }
 
-func (s *server) Handle(fn func(ctx Context) error) {
-	s.core.Handler = func(ctx *fasthttp.RequestCtx) {
+func (s *server) Use(
+	mdw ...func(handler fasthttp.RequestHandler) fasthttp.RequestHandler) {
+	s.mdw = append(s.mdw, mdw...)
+}
+
+func (s *server) Handle(fn func(ctx *Context) error) {
+	final := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
 		if err := fn(c); err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		}
 	}
+
+	for _, mdw := range s.mdw {
+		final = mdw(final)
+	}
+
+	s.core.Handler = final
 }
 
 // Shutdown implements platform.Server.

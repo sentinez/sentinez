@@ -16,4 +16,4 @@
 package origin
 
 // Source is the temporary source of the uri
-const Source = "https://avatars.githubusercontent.com/"
+const Source = "localhost:3000"
