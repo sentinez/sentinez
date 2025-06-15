@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
+package httpv1mdw
 
 import (
-	httpxv1 "github.com/sentinez/sentinez/pkg/core/httpx/v1"
+	"net/http"
+
+	txhttp "github.com/corazawaf/coraza/v3/http"
+	httpxsecure "github.com/sentinez/sentinez/pkg/core/httpx/secure"
 )
 
-type handler func(httpxv1.Context) error
-
-func chainServe(ctx httpxv1.Context, handlers ...handler) error {
-	for _, handler := range handlers {
-		if err := handler(ctx); err != nil {
-			return err
-		}
-	}
-	return nil
+func Protected(next http.Handler) http.Handler {
+	waf := httpxsecure.NewFireWall()
+	return txhttp.WrapHandler(waf, next)
 }

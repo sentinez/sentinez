@@ -22,47 +22,38 @@ import (
 
 // NewContext creates a new FastHTTP context.
 // It implements the Context interface.
-func NewContext(ctx *fasthttp.RequestCtx) Context {
-	return &httpContext{
-		core: ctx,
+func NewContext(ctx *fasthttp.RequestCtx) *Context {
+	return &Context{
+		RequestCtx: ctx,
 	}
 }
 
-type Context interface {
+type IContext interface {
 	httpx.Context
-	AsCore() *fasthttp.RequestCtx
 }
 
-type httpContext struct {
-	core *fasthttp.RequestCtx
+type Context struct {
+	*fasthttp.RequestCtx
 }
 
-func (c *httpContext) Method() string {
-	return string(c.core.Method())
+func (c *Context) Path() string {
+	return string(c.Request.URI().PathOriginal())
 }
 
-func (c *httpContext) AsCore() *fasthttp.RequestCtx {
-	return c.core
-}
+func (c *Context) String(statusCode int, body string) error {
+	c.SetContentType("text/plain; charset=utf-8")
+	c.SetStatusCode(statusCode)
 
-func (c *httpContext) Path() string {
-	return string(c.core.Request.URI().PathOriginal())
-}
-
-func (c *httpContext) String(statusCode int, body string) error {
-	c.core.SetContentType("text/plain; charset=utf-8")
-	c.core.SetStatusCode(statusCode)
-
-	_, err := c.core.WriteString(body)
+	_, err := c.WriteString(body)
 
 	return err
 }
 
-func (c *httpContext) JSON(statusCode int, body []byte) error {
-	c.core.SetContentType("application/json")
-	c.core.SetStatusCode(statusCode)
+func (c *Context) JSON(statusCode int, body []byte) error {
+	c.SetContentType("application/json")
+	c.SetStatusCode(statusCode)
 
-	_, err := c.core.Write(body)
+	_, err := c.Write(body)
 
 	return err
 }

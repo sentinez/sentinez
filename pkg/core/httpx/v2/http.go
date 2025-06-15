@@ -29,16 +29,22 @@ func acquireResponse() *fasthttp.Response {
 // Do perform an HTTP request using the provided context and URI.
 func Do(ctx Context, uri string) error {
 	req := acquireRequest()
-	ctx.AsCore().Request.CopyTo(req)
-	req.SetRequestURI(uri)
-
 	resp := acquireResponse()
+
+	ctx.Request.CopyTo(req)
+	req.SetRequestURI(uri)
 
 	if err := fasthttp.Do(req, resp); err != nil {
 		return err
 	}
 
-	resp.CopyTo(&ctx.AsCore().Response)
+	ctx.SetStatusCode(resp.StatusCode())
+
+	resp.Header.VisitAll(func(k, v []byte) {
+		ctx.Response.Header.SetBytesKV(k, v)
+	})
+
+	ctx.Response.SetBodyRaw(resp.Body())
 
 	fasthttp.ReleaseRequest(req)
 	fasthttp.ReleaseResponse(resp)

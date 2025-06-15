@@ -15,11 +15,9 @@
 package httpxsecure
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
-	txhttp "github.com/corazawaf/coraza/v3/http"
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -29,11 +27,7 @@ var (
 	lock sync.Mutex
 )
 
-func init() {
-	_ = createFireWall()
-}
-
-func createFireWall() coraza.WAF {
+func NewFireWall() coraza.WAF {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -54,8 +48,4 @@ func createFireWall() coraza.WAF {
 func logError(err types.MatchedRule) {
 	msg := err.ErrorLog()
 	zlog.Debugf("[%s] %s", err.Rule().Severity(), msg)
-}
-
-func ProtectServerH1(next http.Handler) http.Handler {
-	return txhttp.WrapHandler(waf, next)
 }
