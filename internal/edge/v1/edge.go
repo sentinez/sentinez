@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -72,7 +73,7 @@ func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 	zlog.Infof("[HTTP] LISTEN: %s", color.Magenta.Add(s.flag.GetAddress()))
 
-	// s.core.Use(httpv2mdw.Protected)
+	s.core.Use(httpv2mdw.Protected)
 
 	poolProxy, err := proxy.NewChanPool()
 	if err != nil {
