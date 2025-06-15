@@ -72,7 +72,7 @@ func WrapHandler(
 			return
 		}
 
-		processRequest := processRequestWrapper(r)
+		processRequest := processRequestInterruption(r)
 		if err := processRequest(ctx, tx); err != nil {
 			debugLogger(tx, err, "Failed to process request")
 			return
@@ -80,8 +80,7 @@ func WrapHandler(
 
 		next(ctx)
 
-		processResponse := processResponseWrapper(ctx, tx)
-		if err := processResponse(tx); err != nil {
+		if err := processResponse(ctx, tx); err != nil {
 			debugLogger(tx, err, "Failed to process response")
 			return
 		}
@@ -95,7 +94,7 @@ func postProcess(tx types.Transaction) {
 	}
 }
 
-func processRequestWrapper(r *http.Request,
+func processRequestInterruption(r *http.Request,
 ) func(*fasthttp.RequestCtx, types.Transaction) error {
 
 	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
@@ -225,28 +224,26 @@ func canRequestBodyAccessible(req *http.Request,
 	return nil, nil
 }
 
-func processResponseWrapper(ctx *fasthttp.RequestCtx, tx types.Transaction,
-) func(types.Transaction) error {
+func processResponse(ctx *fasthttp.RequestCtx,
+	tx types.Transaction) error {
 
-	i := interceptor{ctx: ctx, tx: tx, statusCode: fasthttp.StatusOK,
+	i := interceptor{ctx: ctx, tx: tx, statusCode: ctx.Response.StatusCode(),
 		proto: string(ctx.Request.Header.Protocol()),
 	}
 
-	return func(tx types.Transaction) error {
-		if tx.IsInterrupted() {
-			return nil
-		}
-
-		i.WriteHeader(ctx.Response.StatusCode())
-		if _, err := i.Write(ctx.Response.Body()); err != nil {
-			return err
-		}
-
-		return canAccessResponseBody(ctx, tx, &i)
+	if tx.IsInterrupted() {
+		return nil
 	}
+
+	i.WriteHeader(ctx.Response.StatusCode())
+	if _, err := i.Write(ctx.Response.Body()); err != nil {
+		return err
+	}
+
+	return doAccessResponseBody(ctx, tx, &i)
 }
 
-func canAccessResponseBody(ctx *fasthttp.RequestCtx, tx types.Transaction,
+func doAccessResponseBody(ctx *fasthttp.RequestCtx, tx types.Transaction,
 	i *interceptor) error {
 	if tx.IsResponseBodyAccessible() && tx.IsResponseBodyProcessable() {
 		it, err := tx.ProcessResponseBody()
