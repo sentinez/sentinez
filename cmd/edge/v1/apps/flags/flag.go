@@ -1,10 +1,10 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package apps provides the app setting for apiserver service
-package apps
+// Package edgeflags provides the app setting for apiserver service
+package edgeflags
 
 import (
 	"sync"
@@ -28,7 +28,8 @@ import (
 var onceEdge sync.Once
 
 var edgeFlags = &sentinez.FlagEdge{
-	Address: "0.0.0.0:7777",
+	Address:  "0.0.0.0:7777",
+	RulePath: "./boot/rules/default.conf",
 }
 
 // ParseFlag flag args for grpc service
@@ -38,6 +39,9 @@ func ParseFlag() *sentinez.FlagEdge {
 
 		pflag.StringVarP(&edgeFlags.Address, "address", "a",
 			edgeFlags.GetAddress(), "host address")
+
+		pflag.StringVar(&edgeFlags.RulePath, "rule_path",
+			edgeFlags.RulePath, "crs .config file path")
 	})
 
 	_ = flags.Parse()

@@ -252,6 +252,8 @@ func (m *FlagEdge) Validate() error {
 
 	// no validation rules for Address
 
+	// no validation rules for RulePath
+
 	return nil
 }
 

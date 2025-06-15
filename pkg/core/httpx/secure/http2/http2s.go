@@ -61,6 +61,7 @@ func WrapHandler(
 		return next
 	}
 	newTX := decorNewTransaction(waf)
+
 	return func(ctx *fasthttp.RequestCtx) {
 		r := new(http.Request)
 		convertRequestContext(ctx, r)
@@ -72,8 +73,8 @@ func WrapHandler(
 			return
 		}
 
-		processRequest := processRequestInterruption(r)
-		if err := processRequest(ctx, tx); err != nil {
+		processRequests := processRequestInterruption(r)
+		if err := processRequests(ctx, tx); err != nil {
 			debugLogger(tx, err, "Failed to process request")
 			return
 		}
@@ -103,10 +104,13 @@ func processRequestInterruption(r *http.Request,
 
 			return err
 		} else if it != nil {
-			zlog.Debugf("processing request : %v", it)
+			zlog.Debugf("processing request: "+
+				"action= %s, status= %d, data= %s, ruleID= %d",
+				it.Action, it.Status, it.Data, it.RuleID)
+
 			code := obtainStatusCodeFromInterruptionOrDefault(it, http.StatusOK)
-			zlog.Debugf("interruption code: %d", code)
 			ctx.SetStatusCode(code)
+			zlog.Debugf("interruption code: %d", code)
 
 			return fmt.Errorf("interrupted request with code: %d", code)
 		}

@@ -24,9 +24,9 @@ import (
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )
 
-func Handler(pool proxy.Pool) func(ctx *httpxv2.Context) error {
+func Handler(pool proxy.Pool, path string) func(ctx *httpxv2.Context) error {
 	return func(ctx *httpxv2.Context) error {
-		proxyServer, err := pool.Get(origin.Source)
+		proxyServer, err := pool.Get(origin.Source(path))
 		if err != nil {
 			log.Println("ProxyPoolHandler got an error: ", err)
 			ctx.SetStatusCode(fasthttp.StatusInternalServerError)

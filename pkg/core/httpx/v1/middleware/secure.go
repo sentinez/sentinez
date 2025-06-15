@@ -21,7 +21,9 @@ import (
 	httpxsecure "github.com/sentinez/sentinez/pkg/core/httpx/secure"
 )
 
-func Protected(next http.Handler) http.Handler {
-	waf := httpxsecure.NewFireWall()
-	return txhttp.WrapHandler(waf, next)
+func Protected(ruleConfPath string) func(next http.Handler) http.Handler {
+	waf := httpxsecure.NewFireWall(ruleConfPath)
+	return func(next http.Handler) http.Handler {
+		return txhttp.WrapHandler(waf, next)
+	}
 }

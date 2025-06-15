@@ -15,5 +15,25 @@
 // Package origin provides the origin source of the uri
 package origin
 
-// Source is the temporary source of the uri
-const Source = "localhost:3000"
+import (
+	"sync"
+
+	edgeconfig "github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
+)
+
+var pathMap sync.Map
+
+func SetOrigin(config *edgeconfig.Routes) {
+	for _, route := range config.Routes {
+		pathMap.Store(route.PathPrefix, route.Target)
+	}
+}
+
+func Source(path string) string {
+	target, ok := pathMap.Load(path)
+	if !ok {
+		return ""
+	}
+
+	return target.(string)
+}
