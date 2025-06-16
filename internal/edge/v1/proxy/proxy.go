@@ -26,7 +26,7 @@ import (
 
 func Handler(pool proxy.Pool) func(ctx *httpxv2.Context) error {
 	return func(ctx *httpxv2.Context) error {
-		proxyServer, err := pool.Get(origin.Source)
+		proxyServer, err := pool.Get(origin.Source("/"))
 		if err != nil {
 			log.Println("ProxyPoolHandler got an error: ", err)
 			ctx.SetStatusCode(fasthttp.StatusInternalServerError)

@@ -12,40 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxsecure
+package edgeconfig
 
 import (
-	"sync"
-
-	"github.com/corazawaf/coraza/v3"
-	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"gopkg.in/yaml.v3"
+	"os"
 )
 
-var (
-	waf  coraza.WAF
-	lock sync.Mutex
-)
-
-func NewFireWall(confPath string) coraza.WAF {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if waf == nil {
-		var err error
-		waf, err = coraza.NewWAF(coraza.NewWAFConfig().
-			WithErrorCallback(logError).
-			WithDirectivesFromFile(confPath))
-		if err != nil {
-			zlog.Errorf("Failed to create WAF: %v", err)
-			return nil
-		}
-	}
-
-	return waf
+type Routes struct {
+	Routes []Route `yaml:"routes"`
 }
 
-func logError(err types.MatchedRule) {
-	msg := err.ErrorLog()
-	zlog.Debugf("[%s] %s", err.Rule().Severity(), msg)
+type Route struct {
+	PathPrefix string `yaml:"path_prefix"`
+	Target     string `yaml:"target"`
+}
+
+func LoadRoutesFromYAML(filename string) *Routes {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		zlog.Fatal(err)
+	}
+
+	var cfg Routes
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		zlog.Fatal(err)
+	}
+
+	return &cfg
 }
