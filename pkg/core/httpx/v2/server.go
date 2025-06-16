@@ -47,18 +47,28 @@ func (s *server) Use(
 }
 
 func (s *server) Handle(fn func(ctx *Context) error) {
-	final := func(ctx *fasthttp.RequestCtx) {
+	handler := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
 		if err := fn(c); err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		}
 	}
 
-	for _, mdw := range s.mdw {
-		final = mdw(final)
+	// Apply middleware in reverse order (last added wraps the inner)
+	for i := len(s.mdw) - 1; i >= 0; i-- {
+		handler = s.mdw[i](handler)
 	}
 
-	s.core.Handler = final
+	// Apply fixed final wrapper (e.g., Server header)
+	final := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return func(ctx *fasthttp.RequestCtx) {
+			// Set a custom Server header
+			ctx.Response.Header.Set("Server", "sentinez.edge/fasthttp")
+			next(ctx)
+		}
+	}
+
+	s.core.Handler = final(handler)
 }
 
 // Shutdown implements platform.Server.

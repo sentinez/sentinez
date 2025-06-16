@@ -88,9 +88,9 @@ func (s *Server) Serve(addr string) error {
 		return err
 	}
 
-	s.core.Handle(proxy.Handler(poolProxy, "/"))
+	s.core.Handle(proxy.Handler(poolProxy))
 
-	zlog.Infof("[%s] boost!!!", color.Blue.Add("FastHTTP"))
-	zlog.Infof("[HTTP] listen on: %s", color.Magenta.Add(s.flag.GetAddress()))
+	zlog.Infof("[%s] boost on: %s", color.Blue.Add("fasthttp"),
+		color.Magenta.Add(s.flag.GetAddress()))
 	return s.core.ListenAndServe(addr)
 }
