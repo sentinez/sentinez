@@ -63,7 +63,7 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 	final := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		return func(ctx *fasthttp.RequestCtx) {
 			// Set a custom Server header
-			ctx.Response.Header.Set("Server", "sentinez.edge/fasthttp")
+			ctx.Response.Header.Set("Server", "sentinez")
 			next(ctx)
 		}
 	}
