@@ -86,7 +86,8 @@ func newLogger() *zap.Logger {
 	core := zapcore.NewCore(
 		consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel)
 
-	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
+	logger := zap.New(core, zap.AddCaller(),
+		zap.AddCallerSkip(2), zap.AddStacktrace(zapcore.FatalLevel))
 	return logger
 }
 

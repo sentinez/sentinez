@@ -18,8 +18,8 @@ package main
 import (
 	"context"
 
-	edgeconfig "github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
+	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 
 	"github.com/sentinez/sentinez/internal/edge/v1"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
@@ -27,8 +27,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func loadYaml() *edgeconfig.Routes {
-	return edgeconfig.LoadRoutesFromYAML("./cmd/edge/v1/proxy.yaml")
+func loadYaml() *edgeyaml.Routes {
+	return edgeyaml.LoadRoutesFromYAML("./cmd/edge/v1/proxy.yaml")
 }
 
 func main() {

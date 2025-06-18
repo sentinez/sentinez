@@ -16,39 +16,41 @@
 package proxy
 
 import (
-	"log"
-
-	"github.com/sentinez/sentinez/internal/edge/v1/origin"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )
 
-func Handler(pool proxy.Pool) func(ctx *httpxv2.Context) error {
-	return func(ctx *httpxv2.Context) error {
-		proxyServer, err := pool.Get(origin.Source("/"))
-		if err != nil {
-			log.Println("ProxyPoolHandler got an error: ", err)
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-			return err
-		}
-		defer func() { _ = pool.Put(proxyServer) }()
-		proxyServer.ServeHTTP(ctx.RequestCtx)
-
-		return nil
-	}
+type Proxy struct {
+	pool proxy.Pool
 }
 
 func factory(hostAddr string) (*proxy.ReverseProxy, error) {
-	return proxy.NewReverseProxyWith(proxy.WithAddress(hostAddr))
+	return proxy.NewReverseProxyWith(
+		proxy.WithAddress(hostAddr),
+	)
 }
 
-func NewChanPool() (proxy.Pool, error) {
+func New() (*Proxy, error) {
 	initialCap, maxCap := 100, 1000
 	pool, err := proxy.NewChanPool(initialCap, maxCap, factory)
 	if err != nil {
 		return nil, err
 	}
 
-	return pool, nil
+	return &Proxy{pool: pool}, nil
+}
+
+func (p *Proxy) ServeHTTP(ctx *httpxv2.Context, target string) error {
+	proxyServer, err := p.pool.Get(target)
+	if err != nil {
+		zlog.Debug("[edge] proxy got an error: ", err)
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		return err
+	}
+	defer func() { _ = p.pool.Put(proxyServer) }()
+	proxyServer.ServeHTTP(ctx.RequestCtx)
+
+	return nil
 }

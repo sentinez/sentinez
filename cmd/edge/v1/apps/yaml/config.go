@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edgeconfig
+package edgeyaml
 
 import (
+	"os"
+
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type Routes struct {
@@ -25,8 +26,8 @@ type Routes struct {
 }
 
 type Route struct {
-	PathPrefix string `yaml:"path_prefix"`
-	Target     string `yaml:"target"`
+	Location  string `yaml:"location"`
+	ProxyPass string `yaml:"proxy_pass"`
 }
 
 func LoadRoutesFromYAML(filename string) *Routes {

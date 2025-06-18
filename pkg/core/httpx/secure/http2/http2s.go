@@ -73,16 +73,16 @@ func WrapHandler(
 			return
 		}
 
-		processRequests := processRequestInterruption(r)
+		processRequests := processInterruptionWithRequest(r)
 		if err := processRequests(ctx, tx); err != nil {
-			debugLogger(tx, err, "Failed to process request")
+			debugLogger(tx, err, "failed to process request")
 			return
 		}
 
 		next(ctx)
 
 		if err := processResponse(ctx, tx); err != nil {
-			debugLogger(tx, err, "Failed to process response")
+			debugLogger(tx, err, "failed to process response")
 			return
 		}
 	}
@@ -91,11 +91,11 @@ func WrapHandler(
 func postProcess(tx types.Transaction) {
 	tx.ProcessLogging()
 	if err := tx.Close(); err != nil {
-		debugLogger(tx, err, "Failed to close transaction")
+		debugLogger(tx, err, "failed to close transaction")
 	}
 }
 
-func processRequestInterruption(r *http.Request,
+func processInterruptionWithRequest(r *http.Request,
 ) func(*fasthttp.RequestCtx, types.Transaction) error {
 
 	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
@@ -230,68 +230,44 @@ func canRequestBodyAccessible(req *http.Request,
 
 func processResponse(ctx *fasthttp.RequestCtx,
 	tx types.Transaction) error {
-
-	i := interceptor{ctx: ctx, tx: tx, statusCode: ctx.Response.StatusCode(),
-		proto: string(ctx.Request.Header.Protocol()),
-	}
+	i := interceptor{tx: tx, proto: string(ctx.Request.Header.Protocol())}
 
 	if tx.IsInterrupted() {
 		return nil
 	}
 
-	i.WriteHeader(ctx.Response.StatusCode())
-	if _, err := i.Write(ctx.Response.Body()); err != nil {
+	it, err := i.WriteResponseBody(ctx)
+	if err != nil {
 		return err
 	}
 
-	return doAccessResponseBody(ctx, tx, &i)
-}
+	if it != nil {
+		ctx.Response.Reset()
+		code := obtainStatusCodeFromInterruptionOrDefault(
+			it,
+			ctx.Response.StatusCode(),
+		)
+		ctx.Response.Header.Set("Content-Length", "0")
+		ctx.Response.SetStatusCode(code)
 
-func doAccessResponseBody(ctx *fasthttp.RequestCtx, tx types.Transaction,
-	i *interceptor) error {
-	if tx.IsResponseBodyAccessible() && tx.IsResponseBodyProcessable() {
-		it, err := tx.ProcessResponseBody()
-		if err != nil {
-			i.overrideWriteHeader(fasthttp.StatusInternalServerError)
-			i.flushWriteHeader()
-
-			return err
-		}
-		if it != nil {
-			code := obtainStatusCodeFromInterruptionOrDefault(it, i.statusCode)
-
-			i.cleanHeaders()
-			i.overrideWriteHeader(code)
-			i.flushWriteHeader()
-
-			ctx.Response.Reset()
-			ctx.Response.Header.Set("Content-Length", "0")
-			ctx.SetStatusCode(code)
-			if _, err := ctx.Write([]byte("access denied")); err != nil {
-				zlog.Errorf("failed to write response body: %v", err)
-			}
-
-			return fmt.Errorf("interrupted response with code: %d", code)
+		if _, err := ctx.Write([]byte("access denied")); err != nil {
+			zlog.Errorf("failed to write response body: %v", err)
 		}
 
-		return releaseBodyReader(ctx, tx, i)
+		return nil
 	}
 
-	return nil
+	return releaseBodyReader(ctx, tx)
 }
 
-func releaseBodyReader(ctx *fasthttp.RequestCtx, tx types.Transaction,
-	i *interceptor) error {
+func releaseBodyReader(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
 
 	reader, err := tx.ResponseBodyReader()
 	if err != nil {
-		i.overrideWriteHeader(fasthttp.StatusInternalServerError)
-		i.flushWriteHeader()
-
+		ctx.SetStatusCode(http.StatusInternalServerError)
 		return fmt.Errorf("failed to release resp body reader: %v", err)
 	}
 
-	i.flushWriteHeader()
 	if _, err = io.Copy(ctx, reader); err != nil {
 		return fmt.Errorf("failed to copy the resp body: %v", err)
 	}
