@@ -18,17 +18,16 @@ package edge
 import (
 	"context"
 
-	edgeconfig "github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
-	"github.com/sentinez/sentinez/internal/edge/v1/origin"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
+	"github.com/sentinez/sentinez/internal/edge/v1/routing"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var (
@@ -47,7 +46,7 @@ type Edge interface {
 
 // New creates a new Edge Server instance.
 func New(server httpxv2.Server,
-	flag *sentinezpb.FlagEdge, conf *edgeconfig.Routes) sentinez.Server {
+	flag *sentinezpb.FlagEdge, conf *edgeyaml.Routes) sentinez.Server {
 	return &Server{
 		core:   server,
 		flag:   flag,
@@ -60,7 +59,7 @@ func New(server httpxv2.Server,
 // All traffic will be handled by this server.
 type Server struct {
 	core   httpxv2.Server
-	config *edgeconfig.Routes
+	config *edgeyaml.Routes
 	flag   *sentinezpb.FlagEdge
 }
 
@@ -78,19 +77,21 @@ func (s *Server) Start(_ context.Context) error {
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 
-	origin.SetOrigin(s.config)
-
 	protected := httpv2mdw.Protected(s.flag.GetRulePath())
 	s.core.Use(protected)
 
-	poolProxy, err := proxy.NewChanPool()
+	proxyInst, err := proxy.New()
 	if err != nil {
+		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
 	}
+	routing.Store(proxyInst, s.config)
+	s.core.Handle(routing.Match())
 
-	s.core.Handle(proxy.Handler(poolProxy))
+	zlog.Infof("[%s] boost on: %s",
+		color.Blue.Add("fasthttp"),
+		color.Magenta.Add(s.flag.GetAddress()),
+	)
 
-	zlog.Infof("[%s] boost on: %s", color.Blue.Add("fasthttp"),
-		color.Magenta.Add(s.flag.GetAddress()))
 	return s.core.ListenAndServe(addr)
 }

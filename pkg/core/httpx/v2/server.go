@@ -50,7 +50,7 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 	handler := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
 		if err := fn(c); err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		}
 	}
 
@@ -59,16 +59,8 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 		handler = s.mdw[i](handler)
 	}
 
-	// Apply fixed final wrapper (e.g., Server header)
-	final := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
-		return func(ctx *fasthttp.RequestCtx) {
-			// Set a custom Server header
-			ctx.Response.Header.Set("Server", "sentinez")
-			next(ctx)
-		}
-	}
-
-	s.core.Handler = final(handler)
+	s.core.Handler = handler
+	s.core.Name = "sentinez"
 }
 
 // Shutdown implements platform.Server.

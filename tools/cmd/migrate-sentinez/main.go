@@ -11,7 +11,7 @@ import (
 
 func runMigrations(action string, step int) error {
 	return migratepgx.Run(
-		"file://../boot/migrations",
+		"file://../boot/migrations/timescale",
 		os.Getenv("SENTINEZ_PUBLIC_TIMESCALEDB_URL"),
 		action,
 		step,
