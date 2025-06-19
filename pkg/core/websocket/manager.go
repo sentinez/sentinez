@@ -22,12 +22,12 @@ import (
 
 func NewManager() *Manager {
 	return &Manager{
-		clients: sync.New[string, *websocket.Conn](),
+		clients: sync.NewMap[string, *websocket.Conn](),
 	}
 }
 
 type Manager struct {
-	clients *sync.MapX[string, *websocket.Conn]
+	clients *sync.Map[string, *websocket.Conn]
 }
 
 func (m *Manager) AddClient(id string, conn *websocket.Conn) {

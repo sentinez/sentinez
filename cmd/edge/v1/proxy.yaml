@@ -1,3 +1,7 @@
 routes:
-  - location: /
-    proxy_pass: localhost:8080
+  - location: /v1
+    proxy_pass: localhost:3000
+
+  - location: /_next
+    proxy_pass: localhost:3000
+    static: true

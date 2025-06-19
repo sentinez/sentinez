@@ -16,6 +16,8 @@
 package proxy
 
 import (
+	"time"
+
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
@@ -29,6 +31,7 @@ type Proxy struct {
 func factory(hostAddr string) (*proxy.ReverseProxy, error) {
 	return proxy.NewReverseProxyWith(
 		proxy.WithAddress(hostAddr),
+		proxy.WithTimeout(10*time.Second),
 	)
 }
 

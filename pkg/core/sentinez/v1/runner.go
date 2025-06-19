@@ -37,7 +37,7 @@ var (
 
 func beforeStart() {
 	once.Do(func() {
-		log = zlog.NewConsole(zlog.LevelWarning)
+		log = zlog.NewConsole(zlog.LevelError)
 		grpclog.SetLoggerV2(log)
 	})
 }

@@ -35,13 +35,17 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 
-	err := srv.visit(ctx) // factory.NewDefaultDiscovery(),
+	err := srv.visit(ctx,
+		factory.NewDefaultDiscovery(),
+	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit discovery service: %v", err)
 		return err
 	}
 
-	err = srv.visitToEndpoint(ctx) // services.NewGreeter(),
+	err = srv.visitToEndpoint(ctx,
+		factory.NewDefaultGreeter(),
+	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
 		return err
@@ -49,7 +53,6 @@ func (srv *Server) bootloader(ctx context.Context) error {
 
 	// embedded services directly into the apiserver
 	return srv.visit(ctx,
-		factory.NewDefaultGreeter(),
 		factory.NewDefaultIAM(),
 		factory.NewDefaultTenant(),
 	)

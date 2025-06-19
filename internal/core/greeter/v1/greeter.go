@@ -74,6 +74,6 @@ func (g *Greeter) Start(_ context.Context) error {
 		Addr:        g.flag.GetAddress(),
 		GatewayAddr: g.flag.GetGatewayAddress(),
 		Name:        names.GreeterV1.String(),
-		TTL:         time.Minute * 5,
+		TTL:         time.Second * 30,
 	})
 }

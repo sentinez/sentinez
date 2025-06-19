@@ -112,7 +112,6 @@ If you set your `user.name` and `user.email` git configs, you can sign your comm
 - `/docs`: documentation.
 - `/hack`: scripts used by developers.
 - `/internal`: internal packages, main business logic, not exported.
+- `/mods`: modules outside the main tree
 - `/pkg`: common packages, shared with external modules.
-- `/plugins`: modules outside the main tree
-- `/third_party`: all repo submodules needed to generate go code from proto file
 - `/ui`: main application web ui based on monorepo
