@@ -28,7 +28,7 @@ node_modules
 .pnp.*
 .yarn/*
 !.yarn/patches
-!.yarn/mods
+!.yarn/plugins
 !.yarn/releases
 !.yarn/versions
 
