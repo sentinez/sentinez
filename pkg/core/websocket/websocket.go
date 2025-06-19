@@ -21,12 +21,12 @@ import (
 
 func New() *WebSocket {
 	return &WebSocket{
-		routers: sync.MapX[string, func(httpxv1.Context) error]{},
+		routers: sync.Map[string, func(httpxv1.Context) error]{},
 	}
 }
 
 type WebSocket struct {
-	routers sync.MapX[string, func(httpxv1.Context) error]
+	routers sync.Map[string, func(httpxv1.Context) error]
 }
 
 func (ws *WebSocket) HandlerFunc(

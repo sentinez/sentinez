@@ -29,7 +29,7 @@ var onceEdge sync.Once
 
 var edgeFlags = &sentinez.FlagEdge{
 	Address:  "0.0.0.0:7777",
-	RulePath: "./boot/rules/block.conf",
+	RulePath: "./boot/rules/default.conf",
 }
 
 // ParseFlag flag args for grpc service

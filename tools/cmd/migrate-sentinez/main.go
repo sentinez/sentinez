@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	_ "github.com/joho/godotenv/autoload"
-	migratepgx "github.com/sentinez/sentinez/plugins/migrate/pgx"
+	migratepgx "github.com/sentinez/sentinez/mods/migrate/pgx"
 )
 
 func runMigrations(action string, step int) error {

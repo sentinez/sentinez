@@ -22,46 +22,37 @@ import (
 
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
+	syncx "github.com/sentinez/sentinez/pkg/common/sync"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
 	"github.com/valyala/fasthttp"
 )
 
 var (
-	route     sync.Map
+	dynamic   *syncx.Map[string, string]
+	static    *syncx.Map[string, string]
 	proxyInst *proxy.Proxy
+	once      sync.Once
 )
+
+func init() {
+	once.Do(func() {
+		dynamic = syncx.NewMap[string, string]()
+		static = syncx.NewMap[string, string]()
+	})
+}
 
 func Store(proxy *proxy.Proxy, config *edgeyaml.Routes) {
 	proxyInst = proxy
+
 	for _, routeConfig := range config.Routes {
 		// Store the path and target in the sync.Map
-		route.Store(routeConfig.Location, routeConfig.ProxyPass)
-	}
-}
-
-func match(ctx *httpxv2.Context) (string, error) {
-	pathRequest := ctx.Path()
-	targetRequest := ""
-
-	route.Range(func(location, proxyPass any) bool {
-		if strings.HasPrefix(pathRequest, location.(string)) {
-			targetRequest = proxyPass.(string)
-			// Remove the path prefix from the request path
-			remainingPath := strings.TrimPrefix(pathRequest, location.(string))
-			ctx.Request.URI().SetPath(remainingPath)
-
-			return false
+		if routeConfig.Static {
+			static.Store(routeConfig.Location, routeConfig.ProxyPass)
+			continue
 		}
 
-		return true
-	})
-
-	if targetRequest == "" {
-		// If no route matches, return an error
-		return "", fmt.Errorf("%s", "not found")
+		dynamic.Store(routeConfig.Location, routeConfig.ProxyPass)
 	}
-
-	return targetRequest, nil
 }
 
 func Match() func(ctx *httpxv2.Context) error {
@@ -78,4 +69,41 @@ func Match() func(ctx *httpxv2.Context) error {
 
 		return proxyInst.ServeHTTP(ctx, target)
 	}
+}
+
+func match(ctx *httpxv2.Context) (string, error) {
+	pathRequest := ctx.Path()
+	targetRequest := ""
+
+	location := firstPrefix(pathRequest)
+	proxyPass, ok := dynamic.Load(location)
+	if ok {
+		targetRequest = proxyPass
+		remainingPath := strings.TrimPrefix(pathRequest, location)
+		ctx.Request.URI().SetPath(remainingPath)
+	}
+
+	if !ok {
+		proxyPass, ok = static.Load(location)
+		if ok {
+			targetRequest = proxyPass
+		}
+	}
+
+	if targetRequest == "" {
+		// If no route matches, return an error
+		return "", fmt.Errorf("%s", "not found")
+	}
+
+	return targetRequest, nil
+}
+
+func firstPrefix(path string) string {
+	path = strings.TrimPrefix(path, "/")
+	parts := strings.SplitN(path, "/", 2)
+
+	if len(parts) > 0 && parts[0] != "" {
+		return "/" + parts[0]
+	}
+	return "/"
 }

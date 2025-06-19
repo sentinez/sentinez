@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/plugins/sdk
+module github.com/sentinez/sentinez/mods/sdk
 
 go 1.24.2
 

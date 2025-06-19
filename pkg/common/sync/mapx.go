@@ -18,15 +18,15 @@ import (
 	"sync"
 )
 
-func New[K comparable, V any]() *MapX[K, V] {
-	return &MapX[K, V]{}
+func NewMap[K comparable, V any]() *Map[K, V] {
+	return &Map[K, V]{}
 }
 
-type MapX[K comparable, V any] struct {
+type Map[K comparable, V any] struct {
 	core sync.Map
 }
 
-func (m *MapX[K, V]) Load(key K) (value V, ok bool) {
+func (m *Map[K, V]) Load(key K) (value V, ok bool) {
 	var empty V
 	raw, ok := m.core.Load(key)
 	if !ok {
@@ -36,15 +36,15 @@ func (m *MapX[K, V]) Load(key K) (value V, ok bool) {
 	return raw.(V), true
 }
 
-func (m *MapX[K, V]) Store(key K, value V) {
+func (m *Map[K, V]) Store(key K, value V) {
 	m.core.Store(key, value)
 }
 
-func (m *MapX[K, V]) Delete(key K) {
+func (m *Map[K, V]) Delete(key K) {
 	m.core.Delete(key)
 }
 
-func (m *MapX[K, V]) Range(f func(key K, value V) bool) {
+func (m *Map[K, V]) Range(f func(key K, value V) bool) {
 	m.core.Range(func(k, v any) bool {
 		typedKey, ok1 := k.(K)
 		typedVal, ok2 := v.(V)
@@ -56,7 +56,7 @@ func (m *MapX[K, V]) Range(f func(key K, value V) bool) {
 	})
 }
 
-func (m *MapX[K, V]) Keys() []K {
+func (m *Map[K, V]) Keys() []K {
 	var keys []K
 	m.core.Range(func(k, _ any) bool {
 		keys = append(keys, k.(K))
@@ -66,7 +66,7 @@ func (m *MapX[K, V]) Keys() []K {
 	return keys
 }
 
-func (m *MapX[K, V]) Values() []V {
+func (m *Map[K, V]) Values() []V {
 	var values []V
 	m.core.Range(func(_, v any) bool {
 		values = append(values, v.(V))
@@ -76,6 +76,6 @@ func (m *MapX[K, V]) Values() []V {
 	return values
 }
 
-func (m *MapX[K, V]) Clear() {
+func (m *Map[K, V]) Clear() {
 	m.core.Clear()
 }

@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/plugins/queries
+module github.com/sentinez/sentinez/mods/queries
 
 go 1.24.2
 
