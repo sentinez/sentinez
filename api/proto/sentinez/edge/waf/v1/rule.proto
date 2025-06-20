@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package sentinez.edge.waf.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1;waf";
+
+message CoreRulesets {
+  repeated Rule rules = 1;
+}
+
+message Rule {
+  RuleAction actions = 1;
+  string configuration = 2;
+}
+
+message RuleAction {
+  string statement = 1;
+  RuleAction children = 2;
+  RuleActionField fields = 3;
+}
+
+message RuleActionField {
+  repeated string id = 1;
+  repeated string logdata = 2;
+  repeated string msg = 3;
+  repeated string phase = 4;
+  repeated string setvar = 5;
+  repeated string severity= 6;
+  repeated string t = 7;
+  repeated string var = 8;
+}

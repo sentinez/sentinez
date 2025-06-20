@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/mods/seclang
+module github.com/sentinez/sentinez/mods/ruleparser
 
 go 1.24.2
 

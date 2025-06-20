@@ -1,0 +1,192 @@
+{
+  "rules": [
+    {
+      "actions": {
+        "statement": "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"id:901340,phase:1,pass,nolog,noauditlog\"",
+        "fields": {
+          "id": [
+            "901340"
+          ],
+          "phase": [
+            "1"
+          ]
+        },
+        "children": null
+      },
+      "configuration": "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"id:901340,phase:1,pass,nolog,noauditlog\"",
+      "action": {
+        "statement": "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"id:901340,phase:1,pass,nolog,noauditlog\"",
+        "fields": {
+          "id": [
+            "901340"
+          ],
+          "phase": [
+            "1"
+          ]
+        },
+        "children": null
+      }
+    },
+    {
+      "actions": {
+        "statement": "SecRuleTX:enforce_bodyproc_urlencoded\"@eq1\"\"id:901350,phase:1,pass,chain\"",
+        "fields": {
+          "id": [
+            "901350"
+          ],
+          "phase": [
+            "1"
+          ]
+        },
+        "children": {
+          "statement": "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"t:none\"",
+          "fields": {
+            "t": [
+              "none"
+            ]
+          },
+          "children": null
+        }
+      },
+      "configuration": "SecRuleTX:enforce_bodyproc_urlencoded\"@eq1\"\"id:901350,phase:1,pass,chain\" SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"t:none\"",
+      "action": {
+        "statement": "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"t:none\"",
+        "fields": {
+          "t": [
+            "none"
+          ]
+        },
+        "children": null
+      }
+    },
+    {
+      "actions": {
+        "statement": "SecRuleTX:sampling_rnd100\"!@lt%{tx.sampling_percentage}\"\"id:901450,phase:1,pass,log,noauditlog,msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',ver:'OWASP_CRS/4.0.0-rc1'\"",
+        "fields": {
+          "id": [
+            "901450"
+          ],
+          "msg": [
+            "'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}'"
+          ],
+          "phase": [
+            "1"
+          ],
+          "ver": [
+            "'OWASP_CRS/4.0.0-rc1'"
+          ]
+        },
+        "children": null
+      },
+      "configuration": "SecRuleTX:sampling_rnd100\"!@lt%{tx.sampling_percentage}\"\"id:901450,phase:1,pass,log,noauditlog,msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',ver:'OWASP_CRS/4.0.0-rc1'\"",
+      "action": {
+        "statement": "SecRuleTX:sampling_rnd100\"!@lt%{tx.sampling_percentage}\"\"id:901450,phase:1,pass,log,noauditlog,msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',ver:'OWASP_CRS/4.0.0-rc1'\"",
+        "fields": {
+          "id": [
+            "901450"
+          ],
+          "msg": [
+            "'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}'"
+          ],
+          "phase": [
+            "1"
+          ],
+          "ver": [
+            "'OWASP_CRS/4.0.0-rc1'"
+          ]
+        },
+        "children": null
+      }
+    },
+    {
+      "actions": {
+        "statement": "SecRuleREQUEST_HEADERS:Referer\"@rx^[^#]+\"\"id:932205,phase:1,block,capture,t:none,t:lowercase,t:urlDecodeUni,msg:'RCE Bypass Technique',logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',tag:'application-multi',tag:'language-multi',tag:'platform-multi',tag:'attack-rce',tag:'paranoia-level/2',tag:'OWASP_CRS',tag:'capec/1000/152/248/88',tag:'PCI/6.5.2',ver:'OWASP_CRS/4.0.1-dev',severity:'CRITICAL',setvar:'tx.932205_matched_var_name=%{matched_var_name}',chain\"",
+        "fields": {
+          "id": [
+            "932205"
+          ],
+          "logdata": [
+            "'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}'"
+          ],
+          "msg": [
+            "'RCE Bypass Technique'"
+          ],
+          "phase": [
+            "1"
+          ],
+          "setvar": [
+            "'tx.932205_matched_var_name=%{matched_var_name}'"
+          ],
+          "severity": [
+            "'CRITICAL'"
+          ],
+          "t": [
+            "none",
+            "lowercase",
+            "urlDecodeUni"
+          ],
+          "tag": [
+            "'application-multi'",
+            "'language-multi'",
+            "'platform-multi'",
+            "'attack-rce'",
+            "'paranoia-level/2'",
+            "'OWASP_CRS'",
+            "'capec/1000/152/248/88'",
+            "'PCI/6.5.2'"
+          ],
+          "ver": [
+            "'OWASP_CRS/4.0.1-dev'"
+          ]
+        },
+        "children": {
+          "statement": "SecRuleTX:0\"@rx^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\"\"capture,t:none,t:urlDecodeUni,chain\"",
+          "fields": {
+            "t": [
+              "none",
+              "urlDecodeUni"
+            ]
+          },
+          "children": {
+            "statement": "SecRuleTX:1\"@rx/\"\"t:none,t:urlDecodeUni,chain\"",
+            "fields": {
+              "t": [
+                "none",
+                "urlDecodeUni"
+              ]
+            },
+            "children": {
+              "statement": "SecRuleTX:1\"@rx\\s\"\"t:none,t:urlDecodeUni,setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
+              "fields": {
+                "setvar": [
+                  "'tx.rce_score=+%{tx.critical_anomaly_score}'",
+                  "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"
+                ],
+                "t": [
+                  "none",
+                  "urlDecodeUni"
+                ]
+              },
+              "children": null
+            }
+          }
+        }
+      },
+      "configuration": "SecRuleREQUEST_HEADERS:Referer\"@rx^[^#]+\"\"id:932205,phase:1,block,capture,t:none,t:lowercase,t:urlDecodeUni,msg:'RCE Bypass Technique',logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',tag:'application-multi',tag:'language-multi',tag:'platform-multi',tag:'attack-rce',tag:'paranoia-level/2',tag:'OWASP_CRS',tag:'capec/1000/152/248/88',tag:'PCI/6.5.2',ver:'OWASP_CRS/4.0.1-dev',severity:'CRITICAL',setvar:'tx.932205_matched_var_name=%{matched_var_name}',chain\" SecRuleTX:0\"@rx^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\"\"capture,t:none,t:urlDecodeUni,chain\" SecRuleTX:1\"@rx/\"\"t:none,t:urlDecodeUni,chain\" SecRuleTX:1\"@rx\\s\"\"t:none,t:urlDecodeUni,setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
+      "action": {
+        "statement": "SecRuleTX:1\"@rx\\s\"\"t:none,t:urlDecodeUni,setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
+        "fields": {
+          "setvar": [
+            "'tx.rce_score=+%{tx.critical_anomaly_score}'",
+            "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"
+          ],
+          "t": [
+            "none",
+            "urlDecodeUni"
+          ]
+        },
+        "children": null
+      }
+    }
+  ]
+}
