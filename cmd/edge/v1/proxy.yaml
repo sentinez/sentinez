@@ -5,3 +5,6 @@ routes:
   - location: /_next
     proxy_pass: localhost:3000
     static: true
+
+  - location: /
+    proxy_pass: badcheese.com
