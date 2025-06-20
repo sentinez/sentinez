@@ -17,6 +17,7 @@ package routing
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"sync"
 
@@ -24,7 +25,6 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	syncx "github.com/sentinez/sentinez/pkg/common/sync"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
-	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -58,13 +58,13 @@ func Store(proxy *proxy.Proxy, config *edgeyaml.Routes) {
 func Match() func(ctx *httpxv2.Context) error {
 	return func(ctx *httpxv2.Context) error {
 		if proxyInst == nil {
-			return ctx.String(fasthttp.StatusInternalServerError,
+			return ctx.String(http.StatusInternalServerError,
 				"proxy not initialized")
 		}
 
 		target, err := match(ctx)
 		if err != nil {
-			return ctx.String(fasthttp.StatusNotFound, "not found")
+			return ctx.String(http.StatusNotFound, "not found")
 		}
 
 		return proxyInst.ServeHTTP(ctx, target)

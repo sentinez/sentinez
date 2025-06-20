@@ -16,11 +16,11 @@
 package proxy
 
 import (
+	"net/http"
 	"time"
 
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )
 
@@ -49,7 +49,7 @@ func (p *Proxy) ServeHTTP(ctx *httpxv2.Context, target string) error {
 	proxyServer, err := p.pool.Get(target)
 	if err != nil {
 		zlog.Debug("[edge] proxy got an error: ", err)
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetStatusCode(http.StatusInternalServerError)
 		return err
 	}
 	defer func() { _ = p.pool.Put(proxyServer) }()
