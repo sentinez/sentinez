@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/mods/ruleparser
+module github.com/sentinez/sentinez/plugins/ruleparser
 
 go 1.24.2
 

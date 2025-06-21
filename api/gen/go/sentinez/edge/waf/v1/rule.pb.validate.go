@@ -120,10 +120,10 @@ func (m *Rule) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetActions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleValidationError{
-				field:  "Action",
+				field:  "Actions",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -131,6 +131,8 @@ func (m *Rule) Validate() error {
 	}
 
 	// no validation rules for Configuration
+
+	// no validation rules for ConfigurationBase64
 
 	return nil
 }

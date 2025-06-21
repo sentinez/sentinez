@@ -11,6 +11,7 @@ message CoreRulesets {
 message Rule {
   RuleAction actions = 1;
   string configuration = 2;
+  string configuration_base64 = 3;
 }
 
 message RuleAction {
@@ -28,4 +29,5 @@ message RuleActionField {
   repeated string severity= 6;
   repeated string t = 7;
   repeated string var = 8;
+  repeated string tag = 9;
 }

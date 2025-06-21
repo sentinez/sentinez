@@ -1,11 +1,13 @@
-package seclang
+package ruleparser
 
 import (
+	"encoding/base64"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/mods/ruleparser/parser"
+	"github.com/sentinez/sentinez/plugins/ruleparser/parser"
 )
 
 type ParserResult struct {
@@ -13,9 +15,10 @@ type ParserResult struct {
 }
 
 type Rule struct {
-	Actions       *Action `json:"actions"`
-	Configuration string  `json:"configuration"`
-	Action        *Action `json:"action"`
+	Actions             *Action `json:"actions"`
+	Configuration       string  `json:"configuration"`
+	Action              *Action `json:"action"`
+	ConfigurationBase64 string  `json:"configuration_base64"`
 }
 
 type Action struct {
@@ -75,8 +78,10 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 			return
 		}
 	}
+	configuration := removeFullLineComments(ctx.GetText())
+	confBase64 := base64.StdEncoding.EncodeToString([]byte(configuration))
 
-	stmt := Rule{Configuration: removeFullLineComments(ctx.GetText())}
+	stmt := Rule{Configuration: configuration, ConfigurationBase64: confBase64}
 	stmt.Actions = &Action{
 		Fields:    make(map[string][]string),
 		Statement: stmt.Configuration,
@@ -110,14 +115,20 @@ func (l *TreeShapeListener) EnterAction_value(ctx *parser.Action_valueContext) {
 }
 
 func removeFullLineComments(input string) string {
+	log.Println("before removing comments:", input)
+
 	var result []string
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "#") || trimmed == "" {
-			continue // bỏ qua comment hoặc dòng trống
+			continue
 		}
 		result = append(result, line)
 	}
-	return strings.Join(result, "\n")
+
+	input = strings.Join(result, "\n")
+	log.Println("after removing comments:", input)
+
+	return input
 }

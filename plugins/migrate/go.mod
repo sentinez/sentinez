@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/mods/migrate
+module github.com/sentinez/sentinez/plugins/migrate
 
 go 1.24.2
 

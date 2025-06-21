@@ -4,7 +4,8 @@ go 1.24.2
 
 replace (
 	github.com/sentinez/sentinez/api => ../api
-	github.com/sentinez/sentinez/mods/migrate => ../mods/migrate
+	github.com/sentinez/sentinez/plugins/migrate => ../plugins/migrate
+	github.com/sentinez/sentinez/plugins/ruleparser => ../plugins/ruleparser
 )
 
 require (
@@ -15,7 +16,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/mods/migrate v0.0.0
+	github.com/sentinez/sentinez/plugins/migrate v0.0.0
+	github.com/sentinez/sentinez/plugins/ruleparser v0.0.0
 	github.com/vektra/mockery/v2 v2.53.2
 	google.golang.org/grpc v1.70.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1

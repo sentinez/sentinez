@@ -19,10 +19,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	iammodel "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/models/v1"
-	"github.com/sentinez/sentinez/mods/queries/gen/users"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/sql"
 	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/plugins/queries/gen/users"
 )
 
 var (

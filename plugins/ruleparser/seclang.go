@@ -1,4 +1,4 @@
-package seclang
+package ruleparser
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/mods/ruleparser/parser"
+	"github.com/sentinez/sentinez/plugins/ruleparser/parser"
 )
 
 func WriteJSONToFile(filename string, data any) error {
@@ -23,10 +23,10 @@ func WriteJSONToFile(filename string, data any) error {
 	return nil
 }
 
-func Parse(inputPath, outputPath string) error {
+func Parse(inputPath string) (*ParserResult, error) {
 	input, err := antlr.NewFileStream(inputPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	lexer := parser.NewSecLangLexer(input)
 
@@ -47,7 +47,7 @@ func Parse(inputPath, outputPath string) error {
 
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	WriteJSONToFile(outputPath, listener.results)
+	// WriteJSONToFile(outputPath, listener.results)
 
-	return nil
+	return &listener.results, nil
 }

@@ -1,4 +1,4 @@
-package seclang
+package ruleparser
 
 import (
 	"os"
@@ -11,10 +11,12 @@ func TestGenerate(t *testing.T) {
 	inputPath := "testdata/test_41_negated_operator_n.conf"
 	outputPath := "testdata/test_41_negated_operator_n.json"
 
-	err := Parse(inputPath, outputPath)
+	result, err := Parse(inputPath)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
+
+	WriteJSONToFile(outputPath, result)
 
 	// Check if the output file was created
 	if _, err := os.Stat(outputPath); os.IsNotExist(err) {
