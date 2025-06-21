@@ -47,7 +47,7 @@ var crs = &waf.CoreRulesets{
 				{{- end }}
 			},
 			Configuration: {{ .Configuration | printf "%q" }},
-			ConfigurationBase64: "{{ .ConfigurationBase64 }}",
+			ConfigurationBase64: "{{ .Configuration | base64Encode }}",
 		},
 		{{- end }}
 	},

@@ -15,6 +15,7 @@
 package httpxsecure
 
 import (
+	"os"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
@@ -27,17 +28,21 @@ var (
 	lock sync.Mutex
 )
 
-func NewFireWall(confPath string) coraza.WAF {
+func NewFireWall(confPath string, ruleRoot string) coraza.WAF {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if waf == nil {
 		var err error
-		waf, err = coraza.NewWAF(coraza.NewWAFConfig().
+
+		rootFS := os.DirFS(ruleRoot)
+		conf := coraza.NewWAFConfig().WithRootFS(rootFS).
 			WithErrorCallback(logError).
-			WithDirectivesFromFile(confPath))
+			WithDirectivesFromFile(confPath)
+
+		waf, err = coraza.NewWAF(conf)
 		if err != nil {
-			zlog.Errorf("Failed to create WAF: %v", err)
+			zlog.Errorf("failed to create WAF: %v", err)
 			return nil
 		}
 	}

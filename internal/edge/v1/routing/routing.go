@@ -16,7 +16,6 @@
 package routing
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -25,6 +24,8 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	syncx "github.com/sentinez/sentinez/pkg/common/sync"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	"github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var (
@@ -64,6 +65,7 @@ func Match() func(ctx *httpxv2.Context) error {
 
 		target, err := match(ctx)
 		if err != nil {
+			zlog.Debug("[edge] routing match error: ", err)
 			return ctx.String(http.StatusNotFound, "not found")
 		}
 
@@ -91,8 +93,10 @@ func match(ctx *httpxv2.Context) (string, error) {
 	}
 
 	if targetRequest == "" {
-		// If no route matches, return an error
-		return "", fmt.Errorf("%s", "not found")
+		targetRequest, ok = dynamic.Load("/")
+		if !ok {
+			return "", errors.F("not found: %s", pathRequest)
+		}
 	}
 
 	return targetRequest, nil

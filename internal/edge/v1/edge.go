@@ -77,7 +77,7 @@ func (s *Server) Start(_ context.Context) error {
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 
-	protected := httpv2mdw.Protected(s.flag.GetRulePath())
+	protected := httpv2mdw.Protected(s.flag.GetRulePath(), s.flag.GetRuleRoot())
 	s.core.Use(protected)
 
 	proxyInst, err := proxy.New()

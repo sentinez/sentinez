@@ -20,10 +20,10 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func Protected(configRulePath string,
+func Protected(configRulePath string, ruleRoot string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
 
-	waf := httpxsecure.NewFireWall(configRulePath)
+	waf := httpxsecure.NewFireWall(configRulePath, ruleRoot)
 
 	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		return http2sec.WrapHandler(waf, next)

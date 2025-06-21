@@ -1,9 +1,7 @@
 package ruleparser
 
 import (
-	"encoding/base64"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -61,15 +59,21 @@ func (t *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 }
 
 func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
+	start := ctx.GetStart().GetStart() // start char index
+	stop := ctx.GetStop().GetStop()
+	inputStream := ctx.GetStart().GetInputStream()
+	raw := inputStream.GetText(start, stop)
+	processed := removeFullLineComments(raw)
+
 	if len(l.results.Rules) > 0 {
 		latest := l.results.Rules[len(l.results.Rules)-1]
 		if strings.HasSuffix(latest.Configuration, "chain\"") {
-			latest.Configuration += " " + ctx.GetText()
+			latest.Configuration += "\n" + processed
 			l.results.Rules[len(l.results.Rules)-1] = latest
 
 			action := &Action{
 				Fields:    make(map[string][]string),
-				Statement: ctx.GetText(),
+				Statement: processed,
 			}
 			current := action
 			l.results.Rules[len(l.results.Rules)-1].Action.Children = action
@@ -78,10 +82,9 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 			return
 		}
 	}
-	configuration := removeFullLineComments(ctx.GetText())
-	confBase64 := base64.StdEncoding.EncodeToString([]byte(configuration))
 
-	stmt := Rule{Configuration: configuration, ConfigurationBase64: confBase64}
+	configuration := processed
+	stmt := Rule{Configuration: configuration}
 	stmt.Actions = &Action{
 		Fields:    make(map[string][]string),
 		Statement: stmt.Configuration,
@@ -115,8 +118,6 @@ func (l *TreeShapeListener) EnterAction_value(ctx *parser.Action_valueContext) {
 }
 
 func removeFullLineComments(input string) string {
-	log.Println("before removing comments:", input)
-
 	var result []string
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
@@ -128,7 +129,5 @@ func removeFullLineComments(input string) string {
 	}
 
 	input = strings.Join(result, "\n")
-	log.Println("after removing comments:", input)
-
 	return input
 }

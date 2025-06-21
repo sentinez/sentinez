@@ -19,9 +19,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"go/format"
-	"log"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -31,14 +29,22 @@ import (
 	templatez "github.com/sentinez/sentinez/tools/template"
 )
 
-func GenerateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
+func base64Encode(input string) string {
+	return base64.StdEncoding.EncodeToString([]byte(input))
+}
+
+func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
 
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	tmpl, err := template.New("sentinez_rules").Parse(templatez.SentinezRule)
+	tmpl := template.New("sentinez_rules").Funcs(template.FuncMap{
+		"base64Encode": base64Encode,
+	})
+
+	tmpl, err := tmpl.Parse(templatez.SentinezRuleFunc)
 	if err != nil {
 		return err
 	}
@@ -57,16 +63,8 @@ func GenerateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
 	return os.WriteFile(outputPath, formatted, 0644)
 }
 
-func main() {
-	var out = ""
-	flag.StringVar(&out, "out", out, "directory for the generated rules file")
-	flag.Parse()
-
-	if out != "" {
-		out = out + "/"
-	}
-
-	result, err := ruleparser.Parse("testdata/test_41_negated_operator_n.conf")
+func parse() *waf.CoreRulesets {
+	result, err := ruleparser.Parse("testdata/REQUEST-932-APPLICATION-ATTACK-RCE.conf")
 	if err != nil {
 		panic(err)
 	}
@@ -81,18 +79,21 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Parsed Rules:", rules.GetRules()[0].GetConfiguration())
+	return &rules
+}
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(rules.GetRules()[0].GetConfigurationBase64())
-	if err != nil {
-		log.Fatalf("decode failed: %v", err)
+func main() {
+	var out = ""
+	flag.StringVar(&out, "out", out, "directory for the generated rules file")
+	flag.Parse()
+
+	if out != "" {
+		out = out + "/"
 	}
-	decodedStatement := string(decodedBytes)
 
-	rule := fmt.Sprintf("%s", decodedStatement)
-	fmt.Println("Decoded Rule:", rule)
+	rules := parse()
 
-	err = GenerateRulesGoFile(out+"sentinez_rules.gen.go", &rules)
+	err := generateRulesGoFile(out+"sentinez_rules_func.gen.go", rules)
 	if err != nil {
 		panic(err)
 	}

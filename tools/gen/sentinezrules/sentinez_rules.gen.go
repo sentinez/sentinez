@@ -9,67 +9,43 @@ var crs = &waf.CoreRulesets{
 	Rules: []*waf.Rule{
 		{
 			Actions: &waf.RuleAction{
-				Statement: "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"id:901340,phase:1,pass,nolog,noauditlog\"# Force body processor URLENCODED\nSecRuleTX:enforce_bodyproc_urlencoded\"@eq1\"\"id:901350,phase:1,pass,chain\"SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"t:none\"SecRuleTX:sampling_rnd100\"!@lt%{tx.sampling_percentage}\"\"id:901450,phase:1,pass,log,noauditlog,msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',ver:'OWASP_CRS/4.0.0-rc1'\"SecRuleREQUEST_HEADERS:Referer\"@rx^[^#]+\"\"id:932205,phase:1,block,capture,t:none,t:lowercase,t:urlDecodeUni,msg:'RCE Bypass Technique',logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',tag:'application-multi',tag:'language-multi',tag:'platform-multi'",
+				Statement: "SecRule REQBODY_PROCESSOR \"!@rx (?:URLENCODED|MULTIPART|XML|JSON)\" \\\n    \"id:901340,\\\n    phase:1,\\\n    pass,\\\n    nolog,\\\n    noauditlog\"",
 				Fields:    &waf.RuleActionField{Id: []string{"901340"}, Phase: []string{"1"}},
 			},
-			Configuration:       "SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"id:901340,phase:1,pass,nolog,noauditlog\"# Force body processor URLENCODED\nSecRuleTX:enforce_bodyproc_urlencoded\"@eq1\"\"id:901350,phase:1,pass,chain\"SecRuleREQBODY_PROCESSOR\"!@rx(?:URLENCODED|MULTIPART|XML|JSON)\"\"t:none\"SecRuleTX:sampling_rnd100\"!@lt%{tx.sampling_percentage}\"\"id:901450,phase:1,pass,log,noauditlog,msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',ver:'OWASP_CRS/4.0.0-rc1'\"SecRuleREQUEST_HEADERS:Referer\"@rx^[^#]+\"\"id:932205,phase:1,block,capture,t:none,t:lowercase,t:urlDecodeUni,msg:'RCE Bypass Technique',logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',tag:'application-multi',tag:'language-multi',tag:'platform-multi'",
-			ConfigurationBase64: "U2VjUnVsZVJFUUJPRFlfUFJPQ0VTU09SIiFAcngoPzpVUkxFTkNPREVEfE1VTFRJUEFSVHxYTUx8SlNPTikiImlkOjkwMTM0MCxwaGFzZToxLHBhc3Msbm9sb2csbm9hdWRpdGxvZyIjIEZvcmNlIGJvZHkgcHJvY2Vzc29yIFVSTEVOQ09ERUQKU2VjUnVsZVRYOmVuZm9yY2VfYm9keXByb2NfdXJsZW5jb2RlZCJAZXExIiJpZDo5MDEzNTAscGhhc2U6MSxwYXNzLGNoYWluIlNlY1J1bGVSRVFCT0RZX1BST0NFU1NPUiIhQHJ4KD86VVJMRU5DT0RFRHxNVUxUSVBBUlR8WE1MfEpTT04pIiJ0Om5vbmUiU2VjUnVsZVRYOnNhbXBsaW5nX3JuZDEwMCIhQGx0JXt0eC5zYW1wbGluZ19wZXJjZW50YWdlfSIiaWQ6OTAxNDUwLHBoYXNlOjEscGFzcyxsb2csbm9hdWRpdGxvZyxtc2c6J1NhbXBsaW5nOiBEaXNhYmxlIHRoZSBydWxlIGVuZ2luZSBiYXNlZCBvbiBzYW1wbGluZ19wZXJjZW50YWdlICV7VFguc2FtcGxpbmdfcGVyY2VudGFnZX0gYW5kIHJhbmRvbSBudW1iZXIgJXtUWC5zYW1wbGluZ19ybmQxMDB9Jyx2ZXI6J09XQVNQX0NSUy80LjAuMC1yYzEnIlNlY1J1bGVSRVFVRVNUX0hFQURFUlM6UmVmZXJlciJAcnheW14jXSsiImlkOjkzMjIwNSxwaGFzZToxLGJsb2NrLGNhcHR1cmUsdDpub25lLHQ6bG93ZXJjYXNlLHQ6dXJsRGVjb2RlVW5pLG1zZzonUkNFIEJ5cGFzcyBUZWNobmlxdWUnLGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4yfSBmb3VuZCB3aXRoaW4gJXtUWC45MzIyMDVfTUFUQ0hFRF9WQVJfTkFNRX06ICV7TUFUQ0hFRF9WQVJ9Jyx0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyx0YWc6J2xhbmd1YWdlLW11bHRpJyx0YWc6J3BsYXRmb3JtLW11bHRpJw==",
+			Configuration:       "SecRule REQBODY_PROCESSOR \"!@rx (?:URLENCODED|MULTIPART|XML|JSON)\" \\\n    \"id:901340,\\\n    phase:1,\\\n    pass,\\\n    nolog,\\\n    noauditlog\"",
+			ConfigurationBase64: "U2VjUnVsZSBSRVFCT0RZX1BST0NFU1NPUiAiIUByeCAoPzpVUkxFTkNPREVEfE1VTFRJUEFSVHxYTUx8SlNPTikiIFwKICAgICJpZDo5MDEzNDAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIG5vbG9nLFwKICAgIG5vYXVkaXRsb2ci",
 		},
 		{
 			Actions: &waf.RuleAction{
-				Statement: ":'attack-rce',tag:'paranoia-level/2',tag:'OWASP_CRS',tag:'capec/1000/152/248/88',tag:'PCI/6.5.2',ver:'OWASP_CRS/4.0.1-dev',severity:'CRITICAL',setvar:'tx.932205_matched_var_name=%{matched_var_name}',chain\"SecRuleTX:0\"@rx^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\"\"capture,t:none,t:urlDecodeUni,chain\"SecRuleTX:1\"@rx/\"\"t:none,t:urlDecodeUni,chain\"SecRuleTX:1\"@rx\\s\"\"t:none,t:urlDecodeUni,setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
-				Fields:    &waf.RuleActionField{Id: []string{"901350"}, Phase: []string{"1"}},
+				Statement: "SecRule TX:enforce_bodyproc_urlencoded \"@eq 1\" \\\n    \"id:901350,\\\n    phase:1,\\\n    pass,\\\n    chain\"",
+				Children: &waf.RuleAction{
+					Statement: "SecRule REQBODY_PROCESSOR \"!@rx (?:URLENCODED|MULTIPART|XML|JSON)\" \\\n        \"t:none\"",
+					Fields:    &waf.RuleActionField{T: []string{"none"}},
+				},
+				Fields: &waf.RuleActionField{Id: []string{"901350"}, Phase: []string{"1"}},
 			},
-			Configuration:       ":'attack-rce',tag:'paranoia-level/2',tag:'OWASP_CRS',tag:'capec/1000/152/248/88',tag:'PCI/6.5.2',ver:'OWASP_CRS/4.0.1-dev',severity:'CRITICAL',setvar:'tx.932205_matched_var_name=%{matched_var_name}',chain\"SecRuleTX:0\"@rx^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\"\"capture,t:none,t:urlDecodeUni,chain\"SecRuleTX:1\"@rx/\"\"t:none,t:urlDecodeUni,chain\"SecRuleTX:1\"@rx\\s\"\"t:none,t:urlDecodeUni,setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
-			ConfigurationBase64: "OidhdHRhY2stcmNlJyx0YWc6J3BhcmFub2lhLWxldmVsLzInLHRhZzonT1dBU1BfQ1JTJyx0YWc6J2NhcGVjLzEwMDAvMTUyLzI0OC84OCcsdGFnOidQQ0kvNi41LjInLHZlcjonT1dBU1BfQ1JTLzQuMC4xLWRldicsc2V2ZXJpdHk6J0NSSVRJQ0FMJyxzZXR2YXI6J3R4LjkzMjIwNV9tYXRjaGVkX3Zhcl9uYW1lPSV7bWF0Y2hlZF92YXJfbmFtZX0nLGNoYWluIlNlY1J1bGVUWDowIkByeF5bXlwuXStcLlteO1w/XStbO1w/XSguKihbJ1wqXD9ceDVjYF1bXlxuL10rL3wvW14vXSs/WydcKlw/XHg1Y2BdfFwkWyEjXCRcKFwqXC0wLTlcPy1cW19hLVx7XSkpIiJjYXB0dXJlLHQ6bm9uZSx0OnVybERlY29kZVVuaSxjaGFpbiJTZWNSdWxlVFg6MSJAcngvIiJ0Om5vbmUsdDp1cmxEZWNvZGVVbmksY2hhaW4iU2VjUnVsZVRYOjEiQHJ4XHMiInQ6bm9uZSx0OnVybERlY29kZVVuaSxzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwyPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
+			Configuration:       "SecRule TX:enforce_bodyproc_urlencoded \"@eq 1\" \\\n    \"id:901350,\\\n    phase:1,\\\n    pass,\\\n    chain\"\nSecRule REQBODY_PROCESSOR \"!@rx (?:URLENCODED|MULTIPART|XML|JSON)\" \\\n        \"t:none\"",
+			ConfigurationBase64: "U2VjUnVsZSBUWDplbmZvcmNlX2JvZHlwcm9jX3VybGVuY29kZWQgIkBlcSAxIiBcCiAgICAiaWQ6OTAxMzUwLFwKICAgIHBoYXNlOjEsXAogICAgcGFzcyxcCiAgICBjaGFpbiIKU2VjUnVsZSBSRVFCT0RZX1BST0NFU1NPUiAiIUByeCAoPzpVUkxFTkNPREVEfE1VTFRJUEFSVHxYTUx8SlNPTikiIFwKICAgICAgICAidDpub25lIg==",
 		},
 		{
 			Actions: &waf.RuleAction{
-				Statement: "",
-				Fields:    &waf.RuleActionField{T: []string{"none"}},
-			},
-			Configuration:       "",
-			ConfigurationBase64: "",
-		},
-		{
-			Actions: &waf.RuleAction{
-				Statement: "",
+				Statement: "SecRule TX:sampling_rnd100 \"!@lt %{tx.sampling_percentage}\" \\\n    \"id:901450,\\\n    phase:1,\\\n    pass,\\\n    log,\\\n    noauditlog,\\\n    msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',\\\n    ver:'OWASP_CRS/4.0.0-rc1'\"",
 				Fields:    &waf.RuleActionField{Id: []string{"901450"}, Msg: []string{"'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}'"}, Phase: []string{"1"}},
 			},
-			Configuration:       "",
-			ConfigurationBase64: "",
+			Configuration:       "SecRule TX:sampling_rnd100 \"!@lt %{tx.sampling_percentage}\" \\\n    \"id:901450,\\\n    phase:1,\\\n    pass,\\\n    log,\\\n    noauditlog,\\\n    msg:'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}',\\\n    ver:'OWASP_CRS/4.0.0-rc1'\"",
+			ConfigurationBase64: "U2VjUnVsZSBUWDpzYW1wbGluZ19ybmQxMDAgIiFAbHQgJXt0eC5zYW1wbGluZ19wZXJjZW50YWdlfSIgXAogICAgImlkOjkwMTQ1MCxcCiAgICBwaGFzZToxLFwKICAgIHBhc3MsXAogICAgbG9nLFwKICAgIG5vYXVkaXRsb2csXAogICAgbXNnOidTYW1wbGluZzogRGlzYWJsZSB0aGUgcnVsZSBlbmdpbmUgYmFzZWQgb24gc2FtcGxpbmdfcGVyY2VudGFnZSAle1RYLnNhbXBsaW5nX3BlcmNlbnRhZ2V9IGFuZCByYW5kb20gbnVtYmVyICV7VFguc2FtcGxpbmdfcm5kMTAwfScsXAogICAgdmVyOidPV0FTUF9DUlMvNC4wLjAtcmMxJyI=",
 		},
 		{
 			Actions: &waf.RuleAction{
-				Statement: "",
-				Fields:    &waf.RuleActionField{Id: []string{"932205"}, Logdata: []string{"'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}'"}, Msg: []string{"'RCE Bypass Technique'"}, Phase: []string{"1"}, Setvar: []string{"'tx.932205_matched_var_name=%{matched_var_name}'"}, Severity: []string{"'CRITICAL'"}, T: []string{"none", "lowercase", "urlDecodeUni"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'capec/1000/152/248/88'", "'PCI/6.5.2'"}},
+				Statement: "SecRule REQUEST_HEADERS:Referer \"@rx ^[^#]+\" \\\n    \"id:932205,\\\n    phase:1,\\\n    block,\\\n    capture,\\\n    t:none,t:lowercase,t:urlDecodeUni,\\\n    msg:'RCE Bypass Technique',\\\n    logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',\\\n    tag:'application-multi',\\\n    tag:'language-multi',\\\n    tag:'platform-multi',\\\n    tag:'attack-rce',\\\n    tag:'paranoia-level/2',\\\n    tag:'OWASP_CRS',\\\n    tag:'capec/1000/152/248/88',\\\n    tag:'PCI/6.5.2',\\\n    ver:'OWASP_CRS/4.0.1-dev',\\\n    severity:'CRITICAL',\\\n    setvar:'tx.932205_matched_var_name=%{matched_var_name}',\\\n    chain\"",
+				Children: &waf.RuleAction{
+					Statement: "SecRule TX:0 \"@rx ^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\" \\\n        \"capture,\\\n        t:none,t:urlDecodeUni,\\\n        chain\"",
+					Fields:    &waf.RuleActionField{T: []string{"none", "urlDecodeUni"}},
+				},
+				Fields: &waf.RuleActionField{Id: []string{"932205"}, Logdata: []string{"'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}'"}, Msg: []string{"'RCE Bypass Technique'"}, Phase: []string{"1"}, Setvar: []string{"'tx.932205_matched_var_name=%{matched_var_name}'"}, Severity: []string{"'CRITICAL'"}, T: []string{"none", "lowercase", "urlDecodeUni"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'capec/1000/152/248/88'", "'PCI/6.5.2'"}},
 			},
-			Configuration:       "",
-			ConfigurationBase64: "",
-		},
-		{
-			Actions: &waf.RuleAction{
-				Statement: "",
-				Fields:    &waf.RuleActionField{T: []string{"none", "urlDecodeUni"}},
-			},
-			Configuration:       "",
-			ConfigurationBase64: "",
-		},
-		{
-			Actions: &waf.RuleAction{
-				Statement: "",
-				Fields:    &waf.RuleActionField{T: []string{"none", "urlDecodeUni"}},
-			},
-			Configuration:       "",
-			ConfigurationBase64: "",
-		},
-		{
-			Actions: &waf.RuleAction{
-				Statement: "",
-				Fields:    &waf.RuleActionField{Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, T: []string{"none", "urlDecodeUni"}},
-			},
-			Configuration:       "",
-			ConfigurationBase64: "",
+			Configuration:       "SecRule REQUEST_HEADERS:Referer \"@rx ^[^#]+\" \\\n    \"id:932205,\\\n    phase:1,\\\n    block,\\\n    capture,\\\n    t:none,t:lowercase,t:urlDecodeUni,\\\n    msg:'RCE Bypass Technique',\\\n    logdata:'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}',\\\n    tag:'application-multi',\\\n    tag:'language-multi',\\\n    tag:'platform-multi',\\\n    tag:'attack-rce',\\\n    tag:'paranoia-level/2',\\\n    tag:'OWASP_CRS',\\\n    tag:'capec/1000/152/248/88',\\\n    tag:'PCI/6.5.2',\\\n    ver:'OWASP_CRS/4.0.1-dev',\\\n    severity:'CRITICAL',\\\n    setvar:'tx.932205_matched_var_name=%{matched_var_name}',\\\n    chain\"\nSecRule TX:0 \"@rx ^[^\\.]+\\.[^;\\?]+[;\\?](.*(['\\*\\?\\x5c`][^\\n/]+/|/[^/]+?['\\*\\?\\x5c`]|\\$[!#\\$\\(\\*\\-0-9\\?-\\[_a-\\{]))\" \\\n        \"capture,\\\n        t:none,t:urlDecodeUni,\\\n        chain\"\nSecRule TX:1 \"@rx /\" \\\n            \"t:none,t:urlDecodeUni,\\\n            chain\"\nSecRule TX:1 \"@rx \\s\" \\\n                \"t:none,t:urlDecodeUni,\\\n                setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',\\\n                setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
+			ConfigurationBase64: "U2VjUnVsZSBSRVFVRVNUX0hFQURFUlM6UmVmZXJlciAiQHJ4IF5bXiNdKyIgXAogICAgImlkOjkzMjIwNSxcCiAgICBwaGFzZToxLFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLHQ6dXJsRGVjb2RlVW5pLFwKICAgIG1zZzonUkNFIEJ5cGFzcyBUZWNobmlxdWUnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4yfSBmb3VuZCB3aXRoaW4gJXtUWC45MzIyMDVfTUFUQ0hFRF9WQVJfTkFNRX06ICV7TUFUQ0hFRF9WQVJ9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMicsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4Lzg4JyxcCiAgICB0YWc6J1BDSS82LjUuMicsXAogICAgdmVyOidPV0FTUF9DUlMvNC4wLjEtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHguOTMyMjA1X21hdGNoZWRfdmFyX25hbWU9JXttYXRjaGVkX3Zhcl9uYW1lfScsXAogICAgY2hhaW4iClNlY1J1bGUgVFg6MCAiQHJ4IF5bXlwuXStcLlteO1w/XStbO1w/XSguKihbJ1wqXD9ceDVjYF1bXlxuL10rL3wvW14vXSs/WydcKlw/XHg1Y2BdfFwkWyEjXCRcKFwqXC0wLTlcPy1cW19hLVx7XSkpIiBcCiAgICAgICAgImNhcHR1cmUsXAogICAgICAgIHQ6bm9uZSx0OnVybERlY29kZVVuaSxcCiAgICAgICAgY2hhaW4iClNlY1J1bGUgVFg6MSAiQHJ4IC8iIFwKICAgICAgICAgICAgInQ6bm9uZSx0OnVybERlY29kZVVuaSxcCiAgICAgICAgICAgIGNoYWluIgpTZWNSdWxlIFRYOjEgIkByeCBccyIgXAogICAgICAgICAgICAgICAgInQ6bm9uZSx0OnVybERlY29kZVVuaSxcCiAgICAgICAgICAgICAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgICAgICAgICAgICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwyPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		},
 	},
 }
