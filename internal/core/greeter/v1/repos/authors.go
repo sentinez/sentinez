@@ -17,7 +17,7 @@ package greeterrepo
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/mods/queries/gen/authors"
+	"github.com/sentinez/sentinez/pkg/auto/queries/gen/authors"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/sql"
 

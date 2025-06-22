@@ -15,10 +15,16 @@
 package httpxsecure
 
 import (
+	"bytes"
+	"encoding/base64"
+	"os"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
+	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
+	"github.com/sentinez/sentinez/pkg/auto/rules"
+	rulev4160 "github.com/sentinez/sentinez/pkg/auto/rules/v4-16-0"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -27,22 +33,56 @@ var (
 	lock sync.Mutex
 )
 
-func NewFireWall(confPath string) coraza.WAF {
+func NewFireWall(ruleRoot string) coraza.WAF {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if waf == nil {
 		var err error
-		waf, err = coraza.NewWAF(coraza.NewWAFConfig().
+
+		rootFS := os.DirFS(ruleRoot)
+		conf := coraza.NewWAFConfig().WithRootFS(rootFS).
 			WithErrorCallback(logError).
-			WithDirectivesFromFile(confPath))
+			WithDirectives(loadCoreRulesets())
+
+		waf, err = coraza.NewWAF(conf)
 		if err != nil {
-			zlog.Errorf("Failed to create WAF: %v", err)
+			zlog.Errorf("failed to create WAF: %v", err)
 			return nil
+		}
+
+		if waf != nil {
+			zlog.Debug("WAF initialized successfully")
 		}
 	}
 
 	return waf
+}
+
+func loadCoreRulesets() string {
+	var buf bytes.Buffer
+
+	loadRulesBuffer(&buf, rules.Default)
+	loadRulesBuffer(&buf, rules.Setup)
+	loadRulesBuffer(&buf, rulev4160.Request932ApplicationAttackRce)
+
+	return buf.String()
+}
+
+func loadRulesBuffer(buf *bytes.Buffer, rulesets map[string]*wafpb.Rule) {
+	for _, rule := range rulesets {
+		if rule == nil {
+			continue
+		}
+
+		conf, err := base64.StdEncoding.DecodeString(rule.Configuration)
+		if err != nil {
+			continue
+		}
+
+		_, _ = buf.Write(conf)
+		_, _ = buf.WriteString("\n")
+	}
 }
 
 func logError(err types.MatchedRule) {

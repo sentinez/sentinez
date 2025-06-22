@@ -39,5 +39,5 @@ message FlagGRPCService {
 
 message FlagEdge {
   string address = 1 [(buf.validate.field).string.host_and_port = true];
-  string rule_path = 2;
+  string rule_root = 2;
 }

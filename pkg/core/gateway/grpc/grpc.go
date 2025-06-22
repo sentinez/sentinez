@@ -20,13 +20,13 @@ import (
 	"fmt"
 
 	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	"github.com/sentinez/sentinez/mods/sdk/discovery/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/plugins/sdk/discovery/v1"
 
 	"google.golang.org/grpc"
 )

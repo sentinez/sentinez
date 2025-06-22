@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	authors "github.com/sentinez/sentinez/mods/queries/gen/authors"
+	authors "github.com/sentinez/sentinez/pkg/auto/queries/gen/authors"
 
 	mock "github.com/stretchr/testify/mock"
 )
