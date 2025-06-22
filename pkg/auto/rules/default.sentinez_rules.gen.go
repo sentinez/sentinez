@@ -6,16 +6,16 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 )
 
-const DefaultV = ""
+const DefaultVersion = ""
 
 var Default = map[string]*waf.Rule{
-	"1":      _1(),
-	"100":    _100(),
-	"933150": _933150(),
+	"1":      R1(),
+	"100":    R100(),
+	"933150": R933150(),
 }
 
-// _1 returns rule with ID 1
-func _1() *waf.Rule {
+// R1 returns rule with ID 1
+func R1() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTOmlkICJAZXEgMCIgImlkOjEsIHBoYXNlOjEsZGVueSwgc3RhdHVzOjQwMyxtc2c6J0ludmFsaWQgaWQnLGxvZyxhdWRpdGxvZyI=",
@@ -26,8 +26,8 @@ func _1() *waf.Rule {
 	}
 }
 
-// _100 returns rule with ID 100
-func _100() *waf.Rule {
+// R100 returns rule with ID 100
+func R100() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX0JPRFkgIkBjb250YWlucyBwYXNzd29yZCIgImlkOjEwMCwgcGhhc2U6MixkZW55LCBzdGF0dXM6NDAzLG1zZzonSW52YWxpZCByZXF1ZXN0IGJvZHknLGxvZyxhdWRpdGxvZyI=",
@@ -38,8 +38,8 @@ func _100() *waf.Rule {
 	}
 }
 
-// _933150 returns rule with ID 933150
-func _933150() *waf.Rule {
+// R933150 returns rule with ID 933150
+func R933150() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTICJAcG1Gcm9tRmlsZSBwaHAtZnVuY3Rpb24tbmFtZXMtOTMzMTUwLmRhdGEiIFwKICAgICJpZDo5MzMxNTAscGhhc2U6MixibG9jayxtc2c6J1BIUCBmdW5jdGlvbiBpbmplY3Rpb24gZGV0ZWN0ZWQnIg==",

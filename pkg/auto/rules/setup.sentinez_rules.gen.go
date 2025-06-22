@@ -6,16 +6,16 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 )
 
-const SetupVOWASP_CRS_4_16_0_dev = "OWASP_CRS/4.16.0-dev"
+const SetupVersion = "OWASP_CRS/4.16.0-dev"
 
 var Setup = map[string]*waf.Rule{
-	"900000": OWASP_CRS_4_16_0_dev_900000(),
-	"900001": OWASP_CRS_4_16_0_dev_900001(),
-	"900990": OWASP_CRS_4_16_0_dev_900990(),
+	"900000": R900000(),
+	"900001": R900001(),
+	"900990": R900990(),
 }
 
-// OWASP_CRS_4_16_0_dev_900000 returns rule with ID 900000
-func OWASP_CRS_4_16_0_dev_900000() *waf.Rule {
+// R900000 returns rule with ID 900000
+func R900000() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5ibG9ja2luZ19wYXJhbm9pYV9sZXZlbD00Ig==",
@@ -26,8 +26,8 @@ func OWASP_CRS_4_16_0_dev_900000() *waf.Rule {
 	}
 }
 
-// OWASP_CRS_4_16_0_dev_900001 returns rule with ID 900001
-func OWASP_CRS_4_16_0_dev_900001() *waf.Rule {
+// R900001 returns rule with ID 900001
+func R900001() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5kZXRlY3Rpb25fcGFyYW5vaWFfbGV2ZWw9NCI=",
@@ -38,8 +38,8 @@ func OWASP_CRS_4_16_0_dev_900001() *waf.Rule {
 	}
 }
 
-// OWASP_CRS_4_16_0_dev_900990 returns rule with ID 900990
-func OWASP_CRS_4_16_0_dev_900990() *waf.Rule {
+// R900990 returns rule with ID 900990
+func R900990() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V0dmFyOnR4LmNyc19zZXR1cF92ZXJzaW9uPTQxNjAi",
