@@ -4,7 +4,6 @@ go 1.24.2
 
 replace (
 	github.com/sentinez/sentinez/api => ./api
-	github.com/sentinez/sentinez/plugins/queries => ./plugins/queries
 	github.com/sentinez/sentinez/plugins/sdk => ./plugins/sdk
 )
 
@@ -22,7 +21,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/plugins/queries v0.0.0
 	github.com/sentinez/sentinez/plugins/sdk v0.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0

@@ -29,7 +29,6 @@ var onceEdge sync.Once
 
 var edgeFlags = &sentinez.FlagEdge{
 	Address:  "0.0.0.0:7777",
-	RulePath: "./default.conf",
 	RuleRoot: "./boot/coreruleset",
 }
 
@@ -40,9 +39,6 @@ func ParseFlag() *sentinez.FlagEdge {
 
 		pflag.StringVarP(&edgeFlags.Address, "address", "a",
 			edgeFlags.GetAddress(), "host address")
-
-		pflag.StringVar(&edgeFlags.RulePath, "rule_path",
-			edgeFlags.RulePath, "crs .config file path")
 
 		pflag.StringVar(&edgeFlags.RuleRoot, "rule_root",
 			edgeFlags.RuleRoot, "crs root path for rules")

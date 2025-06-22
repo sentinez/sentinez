@@ -9,14 +9,15 @@ import (
 )
 
 type ParserResult struct {
-	Rules []Rule `json:"rules"`
+	Version string `json:"version"`
+	Rules   []Rule `json:"rules"`
 }
 
 type Rule struct {
-	Actions             *Action `json:"actions"`
-	Configuration       string  `json:"configuration"`
-	Action              *Action `json:"action"`
-	ConfigurationBase64 string  `json:"configuration_base64"`
+	Actions       *Action `json:"actions"`
+	Configuration string  `json:"configuration"`
+	Action        *Action `json:"action"`
+	Level         string  `json:"level"`
 }
 
 type Action struct {
@@ -99,7 +100,8 @@ func (l *TreeShapeListener) ExitStmt(ctx *parser.StmtContext) {
 }
 
 func (l *TreeShapeListener) EnterAction(ctx *parser.ActionContext) {
-	mapp := l.results.Rules[len(l.results.Rules)-1].Action.Fields
+	latest := len(l.results.Rules) - 1
+	mapp := l.results.Rules[latest].Action.Fields
 	action := strings.SplitN(ctx.GetText(), ":", 2)
 	if len(action) > 1 {
 		_, ok := mapp[action[0]]
@@ -107,6 +109,15 @@ func (l *TreeShapeListener) EnterAction(ctx *parser.ActionContext) {
 			mapp[action[0]] = []string{}
 		}
 		mapp[action[0]] = append(mapp[action[0]], strings.TrimSpace(action[1]))
+
+		processed := strings.TrimSuffix(strings.TrimPrefix(action[1], "'"), "'")
+		if action[0] == "ver" && l.results.Version == "" {
+			l.results.Version = processed
+		}
+		if strings.Contains(action[1], "paranoia-level") {
+			l.results.Rules[latest].Level = processed
+		}
+
 	}
 }
 

@@ -41,6 +41,8 @@ func (m *CoreRulesets) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Name
+
 	for idx, item := range m.GetRules() {
 		_, _ = idx, item
 
@@ -55,6 +57,8 @@ func (m *CoreRulesets) Validate() error {
 		}
 
 	}
+
+	// no validation rules for Version
 
 	return nil
 }
@@ -132,7 +136,7 @@ func (m *Rule) Validate() error {
 
 	// no validation rules for Configuration
 
-	// no validation rules for ConfigurationBase64
+	// no validation rules for Level
 
 	return nil
 }

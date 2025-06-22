@@ -20,17 +20,28 @@ import (
 	"encoding/json"
 	"flag"
 	"go/format"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 	"github.com/sentinez/sentinez/plugins/ruleparser"
 	templatez "github.com/sentinez/sentinez/tools/template"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func base64Encode(input string) string {
 	return base64.StdEncoding.EncodeToString([]byte(input))
+}
+
+func normalizeVersion(input string) string {
+	input = strings.ReplaceAll(input, ".", "_")
+	input = strings.ReplaceAll(input, "/", "_")
+	input = strings.ReplaceAll(input, "-", "_")
+	return input
 }
 
 func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
@@ -41,7 +52,8 @@ func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
 	}
 
 	tmpl := template.New("sentinez_rules").Funcs(template.FuncMap{
-		"base64Encode": base64Encode,
+		"base64Encode":     base64Encode,
+		"normalizeVersion": normalizeVersion,
 	})
 
 	tmpl, err := tmpl.Parse(templatez.SentinezRuleFunc)
@@ -63,8 +75,24 @@ func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
 	return os.WriteFile(outputPath, formatted, 0644)
 }
 
-func parse() *waf.CoreRulesets {
-	result, err := ruleparser.Parse("testdata/REQUEST-932-APPLICATION-ATTACK-RCE.conf")
+func PascalCaseFileName(filePath string) string {
+	caser := cases.Title(language.English)
+
+	name := normalizeFineName(filePath)
+	name = strings.ToLower(name)
+	nameArr := strings.Split(name, "_")
+
+	result := ""
+	for _, val := range nameArr {
+		result += caser.String(val)
+	}
+
+	return result
+}
+
+func parse(filePath string) *waf.CoreRulesets {
+
+	result, err := ruleparser.Parse(filePath)
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +102,7 @@ func parse() *waf.CoreRulesets {
 		panic(err)
 	}
 
-	var rules waf.CoreRulesets
+	rules := waf.CoreRulesets{Name: PascalCaseFileName(filePath)}
 	if err = json.Unmarshal(data, &rules); err != nil {
 		panic(err)
 	}
@@ -82,18 +110,36 @@ func parse() *waf.CoreRulesets {
 	return &rules
 }
 
+func normalizeFineName(file string) string {
+	elements := strings.Split(file, "/")
+
+	configFile := elements[0]
+	if len(elements) > 0 {
+		configFile = elements[len(elements)-1]
+	}
+
+	name := strings.Split(configFile, ".")
+	return strings.ReplaceAll(name[0], "-", "_")
+}
+
 func main() {
-	var out = ""
+	var out, file = "", ""
 	flag.StringVar(&out, "out", out, "directory for the generated rules file")
+	flag.StringVar(&file, "file", file, "coreruleset configuration file")
 	flag.Parse()
+
+	if file == "" {
+		log.Fatal("missing input coreruleset file config path")
+	}
 
 	if out != "" {
 		out = out + "/"
 	}
 
-	rules := parse()
+	rules := parse(file)
 
-	err := generateRulesGoFile(out+"sentinez_rules_func.gen.go", rules)
+	name := out + normalizeFineName(file)
+	err := generateRulesGoFile(name+".sentinez_rules.gen.go", rules)
 	if err != nil {
 		panic(err)
 	}
