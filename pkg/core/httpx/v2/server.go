@@ -59,7 +59,7 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 		handler = s.mdw[i](handler)
 	}
 
-	s.core.Handler = fasthttp.CompressHandler(handler)
+	s.core.Handler = handler
 }
 
 // Shutdown implements platform.Server.
