@@ -37,6 +37,18 @@ func base64Encode(input string) string {
 	return base64.StdEncoding.EncodeToString([]byte(input))
 }
 
+func normalizeName(input string) string {
+	caser := cases.Title(language.English)
+
+	names := strings.Split(input, " ")
+	result := ""
+	for _, val := range names {
+		result += caser.String(val)
+	}
+
+	return result
+}
+
 func normalizeVersion(input string) string {
 	input = strings.ReplaceAll(input, ".", "_")
 	input = strings.ReplaceAll(input, "/", "_")
@@ -54,6 +66,7 @@ func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
 	tmpl := template.New("sentinez_rules").Funcs(template.FuncMap{
 		"base64Encode":     base64Encode,
 		"normalizeVersion": normalizeVersion,
+		"normalizeName":    normalizeName,
 	})
 
 	tmpl, err := tmpl.Parse(templatez.SentinezRuleFunc)

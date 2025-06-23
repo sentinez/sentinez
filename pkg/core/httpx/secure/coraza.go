@@ -62,14 +62,24 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 func loadCoreRulesets() string {
 	var buf bytes.Buffer
 
-	loadRulesBuffer(&buf, rules.Default)
-	loadRulesBuffer(&buf, rules.Setup)
-	loadRulesBuffer(&buf, rulev4160.Request932ApplicationAttackRce)
+	// load(&buf, rules.Default)
+
+	// load setup rules
+	load(&buf, rules.Setup)
+
+	// load rules from v4.16.0
+	load(&buf, rulev4160.Request901Initialization)
+
+	// load core rulesets
+	load(&buf, rulev4160.Request932ApplicationAttackRce)
+
+	// load evaluation rules
+	load(&buf, rulev4160.Request949BlockingEvaluation)
 
 	return buf.String()
 }
 
-func loadRulesBuffer(buf *bytes.Buffer, rulesets map[string]*wafpb.Rule) {
+func load(buf *bytes.Buffer, rulesets map[string]*wafpb.Rule) {
 	for _, rule := range rulesets {
 		if rule == nil {
 			continue

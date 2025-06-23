@@ -5,7 +5,7 @@ var SentinezRuleFunc = `
 // Copyright 2025 Duc-Hung Ho
 package rules
 
-import (	
+import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 )
 
@@ -14,20 +14,25 @@ import (
 const {{ .Name }}Version = {{ .Version | printf "%q" }}
 
 var {{ .Name }} = map[string]*waf.Rule{
-	{{- range .Rules }}
-	{{- $ids := .Actions.Fields.Id }}
+	{{- range $i, $rule := .Rules }}
+	{{- $ids := $rule.Actions.Fields.Id }}
 	{{- if $ids }}
 	"{{ index $ids 0 }}": R{{ index $ids 0 }}(),
+	{{- else }}
+	"{{ $.Name }}_auto_{{ $i }}": {{ $.Name }}_auto_{{ $i }}(),
 	{{- end }}
-	{{- end }}
+	{{ end }}
 }
 
-{{- range .Rules }}
-{{- $rule := . }}
-{{- $ids := .Actions.Fields.Id }}
+{{ range $i, $rule := .Rules }}
+{{- $ids := $rule.Actions.Fields.Id }}
 {{- if $ids }}
 // R{{ index $ids 0 }} returns rule with ID {{ index $ids 0 }}
 func R{{ index $ids 0 }}() *waf.Rule {
+{{- else }}
+// {{ $.Name }}_auto_{{ $i }} returns rule without ID
+func {{ $.Name }}_auto_{{ $i }}() *waf.Rule {
+{{- end }}
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: {{ $rule.Actions.Statement | base64Encode | printf "%q" }},
@@ -37,6 +42,11 @@ func R{{ index $ids 0 }}() *waf.Rule {
 				{{- if $rule.Actions.Fields.Msg }}Msg: []string{ {{ range $rule.Actions.Fields.Msg }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Phase }}Phase: []string{ {{ range $rule.Actions.Fields.Phase }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Tag }}Tag: []string{ {{ range $rule.Actions.Fields.Tag }}{{ printf "%q" . }},{{ end }} },{{ end }}
+				{{- if $rule.Actions.Fields.T }}T: []string{ {{ range $rule.Actions.Fields.T }}{{ printf "%q" . }},{{ end }} },{{ end }}
+				{{- if $rule.Actions.Fields.Ver }}Ver: []string{ {{ range $rule.Actions.Fields.Ver }}{{ printf "%q" . }},{{ end }} },{{ end }}
+				{{- if $rule.Actions.Fields.Severity }}Severity: []string{ {{ range $rule.Actions.Fields.Severity }}{{ printf "%q" . }},{{ end }} },{{ end }}
+				{{- if $rule.Actions.Fields.Setvar }}Setvar: []string{ {{ range $rule.Actions.Fields.Setvar }}{{ printf "%q" . }},{{ end }} },{{ end }}
+				{{- if $rule.Actions.Fields.Logdata }}Logdata: []string{ {{ range $rule.Actions.Fields.Logdata }}{{ printf "%q" . }},{{ end }} },{{ end }}
 			},
 			{{- end }}
 		},
@@ -44,7 +54,6 @@ func R{{ index $ids 0 }}() *waf.Rule {
 		Level: {{ $rule.Level | printf "%q" }},
 	}
 }
-{{ end -}}
-{{ end -}}
+{{- end }}
 
 `
