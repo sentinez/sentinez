@@ -3,6 +3,34 @@
   "rules": [
     {
       "actions": {
+        "statement": "SecRuleEngine On",
+        "fields": {},
+        "children": null
+      },
+      "configuration": "SecRuleEngine On",
+      "action": {
+        "statement": "SecRuleEngine On",
+        "fields": {},
+        "children": null
+      },
+      "level": ""
+    },
+    {
+      "actions": {
+        "statement": "SecRequestBodyAccess On",
+        "fields": {},
+        "children": null
+      },
+      "configuration": "SecRequestBodyAccess On",
+      "action": {
+        "statement": "SecRequestBodyAccess On",
+        "fields": {},
+        "children": null
+      },
+      "level": ""
+    },
+    {
+      "actions": {
         "statement": "SecRule REQBODY_PROCESSOR \"!@rx (?:URLENCODED|MULTIPART|XML|JSON)\" \\\n    \"id:901340,\\\n    phase:1,\\\n    pass,\\\n    nolog,\\\n    noauditlog\"",
         "fields": {
           "id": [

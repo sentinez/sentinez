@@ -25,3 +25,11 @@ ruleparser-sentinez \
 ruleparser-sentinez \
     -out pkg/auto/rules \
     -file boot/coreruleset/default.conf
+
+ruleparser-sentinez \
+    -out pkg/auto/rules/v4-16-0 \
+    -file _patches/coreruleset/rules/REQUEST-901-INITIALIZATION.conf
+
+ruleparser-sentinez \
+    -out pkg/auto/rules/v4-16-0 \
+    -file _patches/coreruleset/rules/REQUEST-949-BLOCKING-EVALUATION.conf

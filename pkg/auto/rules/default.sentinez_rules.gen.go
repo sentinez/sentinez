@@ -9,9 +9,27 @@ import (
 const DefaultVersion = ""
 
 var Default = map[string]*waf.Rule{
-	"1":      R1(),
-	"100":    R100(),
+	"Default_auto_0": Default_auto_0(),
+
+	"1": R1(),
+
+	"Default_auto_2": Default_auto_2(),
+
+	"100": R100(),
+
 	"933150": R933150(),
+}
+
+// Default_auto_0 returns rule without ID
+func Default_auto_0() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjRGVidWdMb2cgL2Rldi9zdGRvdXQ=",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjRGVidWdMb2cgL2Rldi9zdGRvdXQ=",
+		Level:         "",
+	}
 }
 
 // R1 returns rule with ID 1
@@ -22,6 +40,18 @@ func R1() *waf.Rule {
 			Fields:    &waf.RuleActionField{Id: []string{"1"}, Msg: []string{"'Invalid id'"}, Phase: []string{"1"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTOmlkICJAZXEgMCIgImlkOjEsIHBoYXNlOjEsZGVueSwgc3RhdHVzOjQwMyxtc2c6J0ludmFsaWQgaWQnLGxvZyxhdWRpdGxvZyI=",
+		Level:         "",
+	}
+}
+
+// Default_auto_2 returns rule without ID
+func Default_auto_2() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
 		Level:         "",
 	}
 }

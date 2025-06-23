@@ -143,7 +143,7 @@ func processRequest(tx types.Transaction,
 	}
 
 	if it != nil {
-		zlog.Debugf("processing request body : %v", it)
+		zlog.Debugf("processing request body : %+v", it)
 		return it, nil
 	}
 

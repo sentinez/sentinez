@@ -65,6 +65,9 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 	inputStream := ctx.GetStart().GetInputStream()
 	raw := inputStream.GetText(start, stop)
 	processed := removeFullLineComments(raw)
+	if processed == "" {
+		return // skip empty statements
+	}
 
 	if len(l.results.Rules) > 0 {
 		latest := l.results.Rules[len(l.results.Rules)-1]

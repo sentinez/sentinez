@@ -6,22 +6,124 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 )
 
-const SetupVersion = "OWASP_CRS/4.16.0-dev"
+const SetupVersion = ""
 
 var Setup = map[string]*waf.Rule{
+	"Setup_auto_0": Setup_auto_0(),
+
+	"Setup_auto_1": Setup_auto_1(),
+
+	"Setup_auto_2": Setup_auto_2(),
+
+	"Setup_auto_3": Setup_auto_3(),
+
 	"900000": R900000(),
+
 	"900001": R900001(),
+
+	"900010": R900010(),
+
+	"900100": R900100(),
+
+	"900110": R900110(),
+
+	"900115": R900115(),
+
+	"900120": R900120(),
+
+	"900130": R900130(),
+
+	"900200": R900200(),
+
+	"900220": R900220(),
+
+	"900230": R900230(),
+
+	"900240": R900240(),
+
+	"900250": R900250(),
+
+	"900255": R900255(),
+
+	"900280": R900280(),
+
+	"900300": R900300(),
+
+	"900310": R900310(),
+
+	"900320": R900320(),
+
+	"900330": R900330(),
+
+	"900340": R900340(),
+
+	"900350": R900350(),
+
+	"900400": R900400(),
+
+	"900950": R900950(),
+
+	"Setup_auto_27": Setup_auto_27(),
+
 	"900990": R900990(),
+}
+
+// Setup_auto_0 returns rule without ID
+func Setup_auto_0() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUnVsZUVuZ2luZSBPbg==",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUnVsZUVuZ2luZSBPbg==",
+		Level:         "",
+	}
+}
+
+// Setup_auto_1 returns rule without ID
+func Setup_auto_1() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+		Level:         "",
+	}
+}
+
+// Setup_auto_2 returns rule without ID
+func Setup_auto_2() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6MSxsb2csYXVkaXRsb2cscGFzcyI=",
+			Fields:    &waf.RuleActionField{Phase: []string{"1"}},
+		},
+		Configuration: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6MSxsb2csYXVkaXRsb2cscGFzcyI=",
+		Level:         "",
+	}
+}
+
+// Setup_auto_3 returns rule without ID
+func Setup_auto_3() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6Mixsb2csYXVkaXRsb2cscGFzcyI=",
+			Fields:    &waf.RuleActionField{Phase: []string{"2"}},
+		},
+		Configuration: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6Mixsb2csYXVkaXRsb2cscGFzcyI=",
+		Level:         "",
+	}
 }
 
 // R900000 returns rule with ID 900000
 func R900000() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5ibG9ja2luZ19wYXJhbm9pYV9sZXZlbD00Ig==",
-			Fields:    &waf.RuleActionField{Id: []string{"900000"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}},
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYmxvY2tpbmdfcGFyYW5vaWFfbGV2ZWw9NCI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900000"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.blocking_paranoia_level=4"}},
 		},
-		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5ibG9ja2luZ19wYXJhbm9pYV9sZXZlbD00Ig==",
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYmxvY2tpbmdfcGFyYW5vaWFfbGV2ZWw9NCI=",
 		Level:         "",
 	}
 }
@@ -30,10 +132,274 @@ func R900000() *waf.Rule {
 func R900001() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5kZXRlY3Rpb25fcGFyYW5vaWFfbGV2ZWw9NCI=",
-			Fields:    &waf.RuleActionField{Id: []string{"900001"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}},
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZGV0ZWN0aW9uX3BhcmFub2lhX2xldmVsPTQi",
+			Fields:    &waf.RuleActionField{Id: []string{"900001"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.detection_paranoia_level=4"}},
 		},
-		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICB0YWc6J09XQVNQX0NSUycsXAogICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgIHNldHZhcjp0eC5kZXRlY3Rpb25fcGFyYW5vaWFfbGV2ZWw9NCI=",
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZGV0ZWN0aW9uX3BhcmFub2lhX2xldmVsPTQi",
+		Level:         "",
+	}
+}
+
+// R900010 returns rule with ID 900010
+func R900010() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5mb3JjZV9ib2R5cHJvY191cmxlbmNvZGVkPTEi",
+			Fields:    &waf.RuleActionField{Id: []string{"900010"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enforce_bodyproc_urlencoded=1"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5mb3JjZV9ib2R5cHJvY191cmxlbmNvZGVkPTEi",
+		Level:         "",
+	}
+}
+
+// R900100 returns rule with ID 900100
+func R900100() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JpdGljYWxfYW5vbWFseV9zY29yZT01LFwKICAgc2V0dmFyOnR4LmVycm9yX2Fub21hbHlfc2NvcmU9NCxcCiAgIHNldHZhcjp0eC53YXJuaW5nX2Fub21hbHlfc2NvcmU9MyxcCiAgIHNldHZhcjp0eC5ub3RpY2VfYW5vbWFseV9zY29yZT0yIg==",
+			Fields:    &waf.RuleActionField{Id: []string{"900100"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.critical_anomaly_score=5", "tx.error_anomaly_score=4", "tx.warning_anomaly_score=3", "tx.notice_anomaly_score=2"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JpdGljYWxfYW5vbWFseV9zY29yZT01LFwKICAgc2V0dmFyOnR4LmVycm9yX2Fub21hbHlfc2NvcmU9NCxcCiAgIHNldHZhcjp0eC53YXJuaW5nX2Fub21hbHlfc2NvcmU9MyxcCiAgIHNldHZhcjp0eC5ub3RpY2VfYW5vbWFseV9zY29yZT0yIg==",
+		Level:         "",
+	}
+}
+
+// R900110 returns rule with ID 900110
+func R900110() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01LFwKICAgc2V0dmFyOnR4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfdGhyZXNob2xkPTQi",
+			Fields:    &waf.RuleActionField{Id: []string{"900110"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.inbound_anomaly_score_threshold=5", "tx.outbound_anomaly_score_threshold=4"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01LFwKICAgc2V0dmFyOnR4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfdGhyZXNob2xkPTQi",
+		Level:         "",
+	}
+}
+
+// R900115 returns rule with ID 900115
+func R900115() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExNSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgucmVwb3J0aW5nX2xldmVsPTQi",
+			Fields:    &waf.RuleActionField{Id: []string{"900115"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.reporting_level=4"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExNSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgucmVwb3J0aW5nX2xldmVsPTQi",
+		Level:         "",
+	}
+}
+
+// R900120 returns rule with ID 900120
+func R900120() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZWFybHlfYmxvY2tpbmc9MSI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900120"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.early_blocking=1"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZWFybHlfYmxvY2tpbmc9MSI=",
+		Level:         "",
+	}
+}
+
+// R900130 returns rule with ID 900130
+func R900130() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5hYmxlX2RlZmF1bHRfY29sbGVjdGlvbnM9MSI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900130"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enable_default_collections=1"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5hYmxlX2RlZmF1bHRfY29sbGVjdGlvbnM9MSI=",
+		Level:         "",
+	}
+}
+
+// R900200 returns rule with ID 900200
+func R900200() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
+			Fields:    &waf.RuleActionField{Id: []string{"900200"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_methods=GET HEAD POST OPTIONS'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
+		Level:         "",
+	}
+}
+
+// R900220 returns rule with ID 900220
+func R900220() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900220"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json|'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
+		Level:         "",
+	}
+}
+
+// R900230 returns rule with ID 900230
+func R900230() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900230"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_http_versions=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0 HTTP/3 HTTP/3.0'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
+		Level:         "",
+	}
+}
+
+// R900240 returns rule with ID 900240
+func R900240() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
+			Fields:    &waf.RuleActionField{Id: []string{"900240"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_extensions=.asa/ .asax/ .ascx/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .rdb/ .resources/ .resx/ .sql/ .swp/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
+		Level:         "",
+	}
+}
+
+// R900250 returns rule with ID 900250
+func R900250() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900250"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_basic=/content-encoding/ /proxy/ /lock-token/ /content-range/ /if/ /x-http-method-override/ /x-http-method/ /x-method-override/'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
+		Level:         "",
+	}
+}
+
+// R900255 returns rule with ID 900255
+func R900255() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900255"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_extended=/accept-charset/'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
+		Level:         "",
+	}
+}
+
+// R900280 returns rule with ID 900280
+func R900280() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900280"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1| |iso-8859-15| |windows-1252|'"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
+		Level:         "",
+	}
+}
+
+// R900300 returns rule with ID 900300
+func R900300() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X251bV9hcmdzPTI1NSI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900300"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_num_args=255"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X251bV9hcmdzPTI1NSI=",
+		Level:         "",
+	}
+}
+
+// R900310 returns rule with ID 900310
+func R900310() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX25hbWVfbGVuZ3RoPTEwMCI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900310"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_name_length=100"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX25hbWVfbGVuZ3RoPTEwMCI=",
+		Level:         "",
+	}
+}
+
+// R900320 returns rule with ID 900320
+func R900320() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX2xlbmd0aD00MDAi",
+			Fields:    &waf.RuleActionField{Id: []string{"900320"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_length=400"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX2xlbmd0aD00MDAi",
+		Level:         "",
+	}
+}
+
+// R900330 returns rule with ID 900330
+func R900330() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgudG90YWxfYXJnX2xlbmd0aD02NDAwMCI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900330"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.total_arg_length=64000"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgudG90YWxfYXJnX2xlbmd0aD02NDAwMCI=",
+		Level:         "",
+	}
+}
+
+// R900340 returns rule with ID 900340
+func R900340() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X2ZpbGVfc2l6ZT0xMDQ4NTc2Ig==",
+			Fields:    &waf.RuleActionField{Id: []string{"900340"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_file_size=1048576"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X2ZpbGVfc2l6ZT0xMDQ4NTc2Ig==",
+		Level:         "",
+	}
+}
+
+// R900350 returns rule with ID 900350
+func R900350() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY29tYmluZWRfZmlsZV9zaXplcz0xMDQ4NTc2Ig==",
+			Fields:    &waf.RuleActionField{Id: []string{"900350"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.combined_file_sizes=1048576"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY29tYmluZWRfZmlsZV9zaXplcz0xMDQ4NTc2Ig==",
+		Level:         "",
+	}
+}
+
+// R900400 returns rule with ID 900400
+func R900400() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDQwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguc2FtcGxpbmdfcGVyY2VudGFnZT0xMDAi",
+			Fields:    &waf.RuleActionField{Id: []string{"900400"}, Phase: []string{"1"}, Setvar: []string{"tx.sampling_percentage=100"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDQwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguc2FtcGxpbmdfcGVyY2VudGFnZT0xMDAi",
+		Level:         "",
+	}
+}
+
+// R900950 returns rule with ID 900950
+func R900950() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3ZhbGlkYXRlX3V0ZjhfZW5jb2Rpbmc9MSI=",
+			Fields:    &waf.RuleActionField{Id: []string{"900950"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_validate_utf8_encoding=1"}},
+		},
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3ZhbGlkYXRlX3V0ZjhfZW5jb2Rpbmc9MSI=",
+		Level:         "",
+	}
+}
+
+// Setup_auto_27 returns rule without ID
+func Setup_auto_27() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjQ29sbGVjdGlvblRpbWVvdXQgNjAw",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjQ29sbGVjdGlvblRpbWVvdXQgNjAw",
 		Level:         "",
 	}
 }
@@ -42,10 +408,10 @@ func R900001() *waf.Rule {
 func R900990() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V0dmFyOnR4LmNyc19zZXR1cF92ZXJzaW9uPTQxNjAi",
-			Fields:    &waf.RuleActionField{Id: []string{"900990"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}},
+			Statement: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
+			Fields:    &waf.RuleActionField{Id: []string{"900990"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_setup_version=400"}},
 		},
-		Configuration: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V0dmFyOnR4LmNyc19zZXR1cF92ZXJzaW9uPTQxNjAi",
+		Configuration: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
 		Level:         "",
 	}
 }
