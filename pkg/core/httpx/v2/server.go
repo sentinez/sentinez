@@ -70,5 +70,6 @@ func (s *server) Shutdown() error {
 // ListenAndServe implements platform.Server.
 func (s *server) ListenAndServe(addr string) error {
 	s.core.Name = "sentinez"
+	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
 	return s.core.ListenAndServe(addr)
 }

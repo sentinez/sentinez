@@ -79,13 +79,17 @@ func (i *interceptor) WriteResponseBody(
 func obtainStatusCodeFromInterruptionOrDefault(
 	it *types.Interruption, defaultStatusCode int) int {
 
-	if it.Action == "deny" {
-		statusCode := it.Status
-		if statusCode == 0 {
-			statusCode = 403
-		}
-
-		return statusCode
+	if it == nil {
+		return defaultStatusCode
 	}
+
+	if it.Status != 0 {
+		return it.Status
+	}
+
+	if it.Action == "deny" || it.Action == "block" {
+		return fasthttp.StatusForbidden
+	}
+
 	return defaultStatusCode
 }

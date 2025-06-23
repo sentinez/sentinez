@@ -104,17 +104,21 @@ func processRequestHandler(r *http.Request,
 
 			return err
 		} else if it != nil {
-			zlog.Debugf("processing req: action=%s, status=%d, ruleID=%d",
+			zlog.Debugf("[processing] req: action=%s, status=%d, ruleID=%d",
 				it.Action, it.Status, it.RuleID)
 
 			code := obtainStatusCodeFromInterruptionOrDefault(
 				it,
 				ctx.Response.StatusCode(),
 			)
-			ctx.SetStatusCode(code)
-			zlog.Debugf("interruption code: %d", code)
+			zlog.Debugf("[block] %s: %d", ctx.Request.URI().RequestURI(), code)
 
-			return fmt.Errorf("interrupted request with code: %d", code)
+			ctx.SetStatusCode(code)
+			if _, err := ctx.Write([]byte("access denied")); err != nil {
+				zlog.Errorf("failed to write response body: %v", err)
+			}
+
+			return fmt.Errorf("[interrupted] request with code: %d", code)
 		}
 
 		return nil

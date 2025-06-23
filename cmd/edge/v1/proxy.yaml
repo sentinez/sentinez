@@ -5,3 +5,7 @@ routes:
 
   - location: /
     proxy_pass: badcheese.com
+    static: true
+
+  - location: /api
+    proxy_pass: localhost:8080
