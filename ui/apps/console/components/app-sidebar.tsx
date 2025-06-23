@@ -29,6 +29,7 @@ import {
   BreadcrumbSeparator,
 } from '@sentinez/ui/components/breadcrumb';
 import { cn } from '@sentinez/ui/lib/utils';
+import Link from 'next/link';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
@@ -113,11 +114,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <a href="/console">
+                <Link href="/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image src="/assets/cels.png" alt="logo" width={100} height={100} />
                   </div>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

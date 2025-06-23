@@ -73,7 +73,7 @@ func WrapHandler(
 			return
 		}
 
-		processRequests := processInterruptionWithRequest(r)
+		processRequests := processRequestHandler(r)
 		if err := processRequests(ctx, tx); err != nil {
 			debugLogger(tx, err, "failed to process request")
 			return
@@ -95,7 +95,7 @@ func postProcess(tx types.Transaction) {
 	}
 }
 
-func processInterruptionWithRequest(r *http.Request,
+func processRequestHandler(r *http.Request,
 ) func(*fasthttp.RequestCtx, types.Transaction) error {
 
 	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
@@ -104,15 +104,21 @@ func processInterruptionWithRequest(r *http.Request,
 
 			return err
 		} else if it != nil {
-			zlog.Debugf("processing request: "+
-				"action= %s, status= %d, data= %s, ruleID= %d",
-				it.Action, it.Status, it.Data, it.RuleID)
+			zlog.Debugf("[processing] req: action=%s, status=%d, ruleID=%d",
+				it.Action, it.Status, it.RuleID)
 
-			code := obtainStatusCodeFromInterruptionOrDefault(it, http.StatusOK)
+			code := obtainStatusCodeFromInterruptionOrDefault(
+				it,
+				ctx.Response.StatusCode(),
+			)
+			zlog.Debugf("[block] %s: %d", ctx.Request.URI().RequestURI(), code)
+
 			ctx.SetStatusCode(code)
-			zlog.Debugf("interruption code: %d", code)
+			if _, err := ctx.Write([]byte("access denied")); err != nil {
+				zlog.Errorf("failed to write response body: %v", err)
+			}
 
-			return fmt.Errorf("interrupted request with code: %d", code)
+			return fmt.Errorf("[interrupted] request with code: %d", code)
 		}
 
 		return nil
@@ -131,19 +137,17 @@ func debugLogger(tx types.Transaction, err error, msg string) {
 func processRequest(tx types.Transaction,
 	req *http.Request) (*types.Interruption, error) {
 
-	processRequestConnection(req, tx)
-
-	if in := processRequestHeader(req, tx); in != nil {
-		return in, nil
+	if it := processRequestHeader(req, tx); it != nil {
+		zlog.Debugf("security req header: action=%s, id=%d",
+			it.Action, it.RuleID)
+		return it, nil
 	}
 
-	it, err := processRequestBody(req, tx)
-	if err != nil {
+	if it, err := processRequestBody(req, tx); err != nil {
 		return nil, err
-	}
 
-	if it != nil {
-		zlog.Debugf("processing request body : %+v", it)
+	} else if it != nil {
+		zlog.Debugf("security req body: action=%s, id=%d", it.Action, it.RuleID)
 		return it, nil
 	}
 
@@ -152,6 +156,8 @@ func processRequest(tx types.Transaction,
 
 func processRequestHeader(req *http.Request,
 	tx types.Transaction) *types.Interruption {
+
+	processRequestConnection(req, tx)
 
 	if req.Host != "" {
 		tx.AddRequestHeader("Host", req.Host)

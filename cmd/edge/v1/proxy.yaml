@@ -1,10 +1,11 @@
 routes:
   - location: /v1
     proxy_pass: localhost:3000
-
-  - location: /_next
-    proxy_pass: localhost:3000
     static: true
 
   - location: /
     proxy_pass: badcheese.com
+    static: true
+
+  - location: /api
+    proxy_pass: localhost:8080

@@ -59,7 +59,7 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 		handler = s.mdw[i](handler)
 	}
 
-	s.core.Handler = fasthttp.CompressHandler(handler)
+	s.core.Handler = handler
 }
 
 // Shutdown implements platform.Server.
@@ -70,5 +70,6 @@ func (s *server) Shutdown() error {
 // ListenAndServe implements platform.Server.
 func (s *server) ListenAndServe(addr string) error {
 	s.core.Name = "sentinez"
+	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
 	return s.core.ListenAndServe(addr)
 }

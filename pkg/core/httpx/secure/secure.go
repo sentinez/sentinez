@@ -25,6 +25,7 @@ import (
 	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
 	"github.com/sentinez/sentinez/pkg/auto/rules"
 	rulev4160 "github.com/sentinez/sentinez/pkg/auto/rules/v4-16-0"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -42,7 +43,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 
 		rootFS := os.DirFS(ruleRoot)
 		conf := coraza.NewWAFConfig().WithRootFS(rootFS).
-			WithErrorCallback(logError).
+			WithErrorCallback(callback).
 			WithDirectives(loadCoreRulesets())
 
 		waf, err = coraza.NewWAF(conf)
@@ -52,7 +53,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 		}
 
 		if waf != nil {
-			zlog.Debug("WAF initialized successfully")
+			zlog.Debugf("[%s] initialized successfully", color.Red.Add("WAF"))
 		}
 	}
 
@@ -62,7 +63,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 func loadCoreRulesets() string {
 	var buf bytes.Buffer
 
-	// load(&buf, rules.Default)
+	load(&buf, rules.Default)
 
 	// load setup rules
 	load(&buf, rules.Setup)
@@ -91,11 +92,11 @@ func load(buf *bytes.Buffer, rulesets map[string]*wafpb.Rule) {
 		}
 
 		_, _ = buf.Write(conf)
-		_, _ = buf.WriteString("\n")
+		_, _ = buf.WriteString("\n\n")
 	}
 }
 
-func logError(err types.MatchedRule) {
+func callback(err types.MatchedRule) {
 	msg := err.ErrorLog()
 	zlog.Debugf("[%s] %s", err.Rule().Severity(), msg)
 }
