@@ -19,7 +19,6 @@ import (
 
 	"github.com/sentinez/sentinez/pkg/auto/queries/gen/authors"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/sql"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -42,18 +41,40 @@ type IAuthors interface {
 
 // NewAuthor creates a new database repository.
 func NewAuthor(pgCon *pgx.Conn) *Authors {
-	storage := sql.New[authors.Author, int64](pgCon, "authors")
 
 	return &Authors{
-		SQL:   storage,
 		query: authors.New(pgCon),
 	}
 }
 
 // Authors repository
 type Authors struct {
-	*sql.SQL[authors.Author, int64]
 	query *authors.Queries
+}
+
+// Count implements IAuthors.
+func (a *Authors) Count(ctx context.Context) (int64, error) {
+	panic("unimplemented")
+}
+
+// Delete implements IAuthors.
+func (a *Authors) Delete(ctx context.Context, id int64) error {
+	panic("unimplemented")
+}
+
+// Exists implements IAuthors.
+func (a *Authors) Exists(ctx context.Context, id int64) (bool, error) {
+	panic("unimplemented")
+}
+
+// Get implements IAuthors.
+func (a *Authors) Get(ctx context.Context, id int64) (authors.Author, error) {
+	panic("unimplemented")
+}
+
+// GetAll implements IAuthors.
+func (a *Authors) GetAll(ctx context.Context) ([]authors.Author, error) {
+	panic("unimplemented")
 }
 
 // Create method implement sql.SQL.Create

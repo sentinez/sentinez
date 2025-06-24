@@ -17,12 +17,12 @@ package usersrepo
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	sql "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5/pgxpool"
 	iammodel "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/models/v1"
 	"github.com/sentinez/sentinez/pkg/auto/queries/gen/users"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/sql"
-	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgresdb"
 )
 
 var (
@@ -41,16 +41,70 @@ type IUser interface {
 	Count(ctx context.Context) (int64, error)
 }
 
-func New(pgCon *pgx.Conn) IUser {
-	storage := sql.New[*iammodel.Users, string](pgCon, table.Users)
-
+func New(pool *pgxpool.Pool) IUser {
 	return &Users{
-		SQL:   storage,
-		query: users.New(pgCon),
+		query:   users.New(pool),
+		storage: postgresdb.New[*iammodel.Users](pool),
 	}
 }
 
 type Users struct {
-	*sql.SQL[*iammodel.Users, string]
-	query *users.Queries
+	query   *users.Queries
+	storage database.Database[*iammodel.Users]
+}
+
+// Count implements IUser.
+func (u *Users) Count(ctx context.Context) (int64, error) {
+	panic("unimplemented")
+
+}
+
+// Create implements IUser.
+func (u *Users) Create(ctx context.Context, user *iammodel.Users) (*iammodel.Users, error) {
+	panic("unimplemented")
+}
+
+// Delete implements IUser.
+func (u *Users) Delete(ctx context.Context, id string) error {
+	panic("unimplemented")
+}
+
+// Exists implements IUser.
+func (u *Users) Exists(ctx context.Context, id string) (bool, error) {
+	panic("unimplemented")
+}
+
+// Get implements IUser.
+func (u *Users) Get(ctx context.Context, id string) (*iammodel.Users, error) {
+	panic("unimplemented")
+}
+
+// GetAll implements IUser.
+func (u *Users) GetAll(ctx context.Context) ([]*iammodel.Users, error) {
+	query := sql.Select("*").From("users")
+
+	return u.storage.CollectRows(ctx, query, scan)
+}
+
+// Update implements IUser.
+func (u *Users) Update(ctx context.Context, id string, user *iammodel.Users) (*iammodel.Users, error) {
+	panic("unimplemented")
+}
+
+func scan(rows database.Rows) ([]*iammodel.Users, error) {
+	var users []*iammodel.Users
+
+	for rows.Next() {
+		var user iammodel.Users
+		if err := rows.Scan(); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
