@@ -8,6 +8,38 @@ import (
 
 const SetupVersion = ""
 
+var SetupOrder = []func() *waf.Rule{
+	Setup_auto_0,
+	Setup_auto_1,
+	Setup_auto_2,
+	Setup_auto_3,
+	R900000,
+	R900001,
+	R900010,
+	R900100,
+	R900110,
+	R900115,
+	R900120,
+	R900130,
+	R900200,
+	R900220,
+	R900230,
+	R900240,
+	R900250,
+	R900255,
+	R900280,
+	R900300,
+	R900310,
+	R900320,
+	R900330,
+	R900340,
+	R900350,
+	R900400,
+	R900950,
+	Setup_auto_27,
+	R900990,
+}
+
 var Setup = map[string]*waf.Rule{
 	"Setup_auto_0": Setup_auto_0(),
 

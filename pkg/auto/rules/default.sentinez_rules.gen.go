@@ -8,6 +8,14 @@ import (
 
 const DefaultVersion = ""
 
+var DefaultOrder = []func() *waf.Rule{
+	Default_auto_0,
+	R1,
+	Default_auto_2,
+	R100,
+	R933150,
+}
+
 var Default = map[string]*waf.Rule{
 	"Default_auto_0": Default_auto_0(),
 

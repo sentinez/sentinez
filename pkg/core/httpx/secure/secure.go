@@ -15,17 +15,13 @@
 package httpxsecure
 
 import (
-	"bytes"
-	"encoding/base64"
 	"os"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
-	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
-	"github.com/sentinez/sentinez/pkg/auto/rules"
-	rulev4160 "github.com/sentinez/sentinez/pkg/auto/rules/v4-16-0"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	secrule "github.com/sentinez/sentinez/pkg/core/httpx/secure/rule"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -44,7 +40,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 		rootFS := os.DirFS(ruleRoot)
 		conf := coraza.NewWAFConfig().WithRootFS(rootFS).
 			WithErrorCallback(callback).
-			WithDirectives(loadCoreRulesets())
+			WithDirectives(secrule.Load())
 
 		waf, err = coraza.NewWAF(conf)
 		if err != nil {
@@ -58,42 +54,6 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 	}
 
 	return waf
-}
-
-func loadCoreRulesets() string {
-	var buf bytes.Buffer
-
-	// load(&buf, rules.Default)
-
-	// load setup rules
-	load(&buf, rules.Setup)
-
-	// load rules from v4.16.0
-	load(&buf, rulev4160.Request901Initialization)
-
-	// load core rulesets
-	load(&buf, rulev4160.Request932ApplicationAttackRce)
-
-	// load evaluation rules
-	load(&buf, rulev4160.Request949BlockingEvaluation)
-
-	return buf.String()
-}
-
-func load(buf *bytes.Buffer, rulesets map[string]*wafpb.Rule) {
-	for _, rule := range rulesets {
-		if rule == nil {
-			continue
-		}
-
-		conf, err := base64.StdEncoding.DecodeString(rule.Configuration)
-		if err != nil {
-			continue
-		}
-
-		_, _ = buf.Write(conf)
-		_, _ = buf.WriteString("\n\n")
-	}
 }
 
 func callback(err types.MatchedRule) {

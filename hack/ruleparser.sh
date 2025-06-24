@@ -20,7 +20,7 @@ ruleparser-sentinez \
 
 ruleparser-sentinez \
     -out pkg/auto/rules \
-    -file boot/rules/v4-16-0/setup.conf
+    -file boot/rules/setup.conf
 
 ruleparser-sentinez \
     -out pkg/auto/rules \
@@ -37,3 +37,7 @@ ruleparser-sentinez \
 ruleparser-sentinez \
     -out pkg/auto/rules/v4-16-0 \
     -file boot/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+
+ruleparser-sentinez \
+    -out pkg/auto/rules \
+    -file boot/rules/audit.conf
