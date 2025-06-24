@@ -15,4 +15,4 @@
 # limitations under the License.
 
 # use in root project
-mkdir -p ./boot/coreruleset && cp ./_patches/coreruleset/rules/*.data ./boot/coreruleset
+mkdir -p ./boot/resources && cp ./_patches/coreruleset/rules/*.data ./boot/resources

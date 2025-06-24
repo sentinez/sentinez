@@ -16,20 +16,20 @@
 
 ruleparser-sentinez \
     -out pkg/auto/rules/v4-16-0 \
-    -file _patches/coreruleset/rules/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -file boot/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
     -out pkg/auto/rules \
-    -file boot/coreruleset/setup.conf
+    -file boot/rules/v4-16-0/setup.conf
 
 ruleparser-sentinez \
     -out pkg/auto/rules \
-    -file boot/coreruleset/default.conf
+    -file boot/rules/default.conf
 
 ruleparser-sentinez \
     -out pkg/auto/rules/v4-16-0 \
-    -file _patches/coreruleset/rules/REQUEST-901-INITIALIZATION.conf
+    -file boot/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
     -out pkg/auto/rules/v4-16-0 \
-    -file _patches/coreruleset/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -file boot/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
