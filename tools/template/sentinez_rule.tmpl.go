@@ -13,6 +13,17 @@ import (
 
 const {{ .Name }}Version = {{ .Version | printf "%q" }}
 
+var {{ .Name }}Order = []func() *waf.Rule{
+	{{- range $i, $rule := .Rules }}
+	{{- $ids := $rule.Actions.Fields.Id }}
+	{{- if $ids }}
+	R{{ index $ids 0 }},
+	{{- else }}
+	{{ $.Name }}_auto_{{ $i }},
+	{{- end }}
+	{{- end }}
+}
+
 var {{ .Name }} = map[string]*waf.Rule{
 	{{- range $i, $rule := .Rules }}
 	{{- $ids := $rule.Actions.Fields.Id }}

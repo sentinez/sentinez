@@ -8,6 +8,41 @@ import (
 
 const Request901InitializationVersion = "OWASP_CRS/4.16.0-dev"
 
+var Request901InitializationOrder = []func() *waf.Rule{
+	Request901Initialization_auto_0,
+	R901001,
+	R901100,
+	R901110,
+	R901111,
+	R901115,
+	R901120,
+	R901125,
+	R901130,
+	R901140,
+	R901141,
+	R901142,
+	R901143,
+	R901160,
+	R901162,
+	R901168,
+	R901163,
+	R901164,
+	R901165,
+	R901171,
+	R901167,
+	R901169,
+	R901170,
+	R901200,
+	R901320,
+	R901340,
+	R901350,
+	R901400,
+	R901410,
+	R901450,
+	Request901Initialization_auto_30,
+	R901500,
+}
+
 var Request901Initialization = map[string]*waf.Rule{
 	"Request901Initialization_auto_0": Request901Initialization_auto_0(),
 

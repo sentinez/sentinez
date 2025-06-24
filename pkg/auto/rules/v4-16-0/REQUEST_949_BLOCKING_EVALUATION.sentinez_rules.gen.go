@@ -8,6 +8,39 @@ import (
 
 const Request949BlockingEvaluationVersion = "OWASP_CRS/4.16.0-dev"
 
+var Request949BlockingEvaluationOrder = []func() *waf.Rule{
+	R949052,
+	R949152,
+	R949053,
+	R949153,
+	R949054,
+	R949154,
+	R949055,
+	R949155,
+	R949059,
+	R949159,
+	R949060,
+	R949160,
+	R949061,
+	R949161,
+	R949062,
+	R949162,
+	R949063,
+	R949163,
+	Request949BlockingEvaluation_auto_18,
+	R949111,
+	R949110,
+	R949011,
+	R949012,
+	R949013,
+	R949014,
+	R949015,
+	R949016,
+	R949017,
+	R949018,
+	Request949BlockingEvaluation_auto_29,
+}
+
 var Request949BlockingEvaluation = map[string]*waf.Rule{
 	"949052": R949052(),
 

@@ -25,6 +25,7 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
+	"github.com/sentinez/sentinez/pkg/auto/templ"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
@@ -47,12 +48,16 @@ func decorNewTransaction(waf coraza.WAF) func(*http.Request) types.Transaction {
 	return newTX
 }
 
-func convertRequestContext(ctx *fasthttp.RequestCtx, r *http.Request) {
+func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
+	r := new(http.Request)
+
 	if err := fasthttpadaptor.ConvertRequest(ctx, r, true); err != nil {
 		ctx.Error("failed to convert request context",
 			fasthttp.StatusInternalServerError)
-		return
+		return nil
 	}
+
+	return r
 }
 
 func WrapHandler(
@@ -63,8 +68,7 @@ func WrapHandler(
 	newTX := decorNewTransaction(waf)
 
 	return func(ctx *fasthttp.RequestCtx) {
-		r := new(http.Request)
-		convertRequestContext(ctx, r)
+		r := convertRequestContext(ctx)
 		tx := newTX(r)
 		defer postProcess(tx)
 
@@ -81,6 +85,7 @@ func WrapHandler(
 
 		next(ctx)
 
+		processResponse := processResponseHandler(r)
 		if err := processResponse(ctx, tx); err != nil {
 			debugLogger(tx, err, "failed to process response")
 			return
@@ -101,21 +106,24 @@ func processRequestHandler(r *http.Request,
 	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
 		if it, err := processRequest(tx, r); err != nil {
 			zlog.Debugf("failed to process request: %v", err)
-
 			return err
 		} else if it != nil {
 			zlog.Debugf("[processing] req: action=%s, status=%d, ruleID=%d",
 				it.Action, it.Status, it.RuleID)
 
-			code := obtainStatusCodeFromInterruptionOrDefault(
-				it,
+			code := obtainStatusCodeFromInterruptionOrDefault(it,
 				ctx.Response.StatusCode(),
 			)
 			zlog.Debugf("[block] %s: %d", ctx.Request.URI().RequestURI(), code)
 
 			ctx.SetStatusCode(code)
-			if _, err := ctx.Write([]byte("access denied")); err != nil {
-				zlog.Errorf("failed to write response body: %v", err)
+			ctx.SetContentType("text/html; charset=utf-8")
+
+			if err := templ.Forbidden().
+				Render(r.Context(), ctx.Response.BodyWriter()); err != nil {
+				ctx.SetStatusCode(http.StatusInternalServerError)
+
+				return fmt.Errorf("failed to render forbidden: %w", err)
 			}
 
 			return fmt.Errorf("[interrupted] request with code: %d", code)
@@ -234,36 +242,37 @@ func canRequestBodyAccessible(req *http.Request,
 	return nil, nil
 }
 
-func processResponse(ctx *fasthttp.RequestCtx,
-	tx types.Transaction) error {
-	i := interceptor{tx: tx, proto: string(ctx.Request.Header.Protocol())}
-
-	if tx.IsInterrupted() {
-		return nil
-	}
-
-	it, err := i.WriteResponseBody(ctx)
-	if err != nil {
-		return err
-	}
-
-	if it != nil {
-		ctx.Response.Reset()
-		code := obtainStatusCodeFromInterruptionOrDefault(
-			it,
-			ctx.Response.StatusCode(),
-		)
-		ctx.Response.Header.Set("Content-Length", "0")
-		ctx.Response.SetStatusCode(code)
-
-		if _, err := ctx.Write([]byte("access denied")); err != nil {
-			zlog.Errorf("failed to write response body: %v", err)
+func processResponseHandler(
+	r *http.Request) func(*fasthttp.RequestCtx, types.Transaction) error {
+	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
+		if tx.IsInterrupted() {
+			return nil
 		}
 
-		return nil
-	}
+		i := interceptor{tx: tx, proto: string(ctx.Request.Header.Protocol())}
+		it, err := i.WriteResponseBody(ctx)
+		if err != nil {
+			return err
+		}
 
-	return releaseBodyReader(ctx, tx)
+		if it != nil {
+			ctx.Response.Reset()
+			code := obtainStatusCodeFromInterruptionOrDefault(it,
+				ctx.Response.StatusCode(),
+			)
+
+			ctx.Response.SetStatusCode(code)
+			ctx.SetContentType("text/html; charset=utf-8")
+			if err := templ.Forbidden().
+				Render(r.Context(), ctx.Response.BodyWriter()); err != nil {
+				ctx.SetStatusCode(http.StatusInternalServerError)
+
+				return fmt.Errorf("failed to render forbidden: %w", err)
+			}
+			return nil
+		}
+		return releaseBodyReader(ctx, tx)
+	}
 }
 
 func releaseBodyReader(ctx *fasthttp.RequestCtx, tx types.Transaction) error {

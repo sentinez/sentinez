@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	github.com/a-h/templ v0.3.898
 	github.com/bufbuild/protovalidate-go v0.9.2
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
