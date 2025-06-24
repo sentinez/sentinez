@@ -26,6 +26,10 @@ ruleparser-sentinez \
     -out pkg/auto/rules \
     -file boot/rules/default.conf
 
+# ruleparser-sentinez \
+#     -out pkg/auto/rules \
+#     -file boot/rules/modsecurity.conf
+
 ruleparser-sentinez \
     -out pkg/auto/rules/v4-16-0 \
     -file boot/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf

@@ -1,0 +1,21 @@
+package templ
+
+templ headerComponent(title string) {
+	<head><title>{ title }</title></head>
+}
+
+templ contentComponent(title string, body templ.Component) {
+	<body>
+		<div>
+			@body
+		</div>
+	</body>
+}
+
+templ contentPage(title string, body templ.Component) {
+    <!DOCTYPE html>
+	<html lang="en">
+		@headerComponent(title)
+		@contentComponent(title, body)
+	</html>
+}

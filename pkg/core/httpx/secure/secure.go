@@ -63,7 +63,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 func loadCoreRulesets() string {
 	var buf bytes.Buffer
 
-	load(&buf, rules.Default)
+	// load(&buf, rules.Default)
 
 	// load setup rules
 	load(&buf, rules.Setup)
