@@ -36,7 +36,7 @@ type clickHouse[T any] struct {
 
 // BeginTx implements database.Database.
 func (c *clickHouse[T]) BeginTx(
-	ctx context.Context) (database.Transaction[T], error) {
+	_ context.Context) (database.Transaction[T], error) {
 	return nil, errors.F("[sentinez] clickhouse transaction not supported")
 }
 
@@ -54,7 +54,7 @@ func (c *clickHouse[T]) CollectRows(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	return scan(rows)
 }
@@ -72,7 +72,7 @@ func (c *clickHouse[T]) Collect(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	return scan(rows)
 }
@@ -94,8 +94,8 @@ func (c *clickHouse[T]) Exec(ctx context.Context,
 }
 
 // WithTx implements database.Database.
-func (c *clickHouse[T]) WithTx(ctx context.Context,
-	fn func(database.Transaction[T]) error) error {
+func (c *clickHouse[T]) WithTx(_ context.Context,
+	_ func(database.Transaction[T]) error) error {
 
 	return errors.F("[sentinez] clickhouse transaction not supported")
 }

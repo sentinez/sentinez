@@ -9,7 +9,7 @@ import (
 const Request901InitializationVersion = "OWASP_CRS/4.16.0-dev"
 
 var Request901InitializationOrder = []func() *waf.Rule{
-	Request901Initialization_auto_0,
+	Request901InitializationMaker_0,
 	R901001,
 	R901100,
 	R901110,
@@ -39,12 +39,12 @@ var Request901InitializationOrder = []func() *waf.Rule{
 	R901400,
 	R901410,
 	R901450,
-	Request901Initialization_auto_30,
+	Request901InitializationMaker_30,
 	R901500,
 }
 
 var Request901Initialization = map[string]*waf.Rule{
-	"Request901Initialization_auto_0": Request901Initialization_auto_0(),
+	"Request901InitializationMaker_0": Request901InitializationMaker_0(),
 
 	"901001": R901001(),
 
@@ -104,13 +104,13 @@ var Request901Initialization = map[string]*waf.Rule{
 
 	"901450": R901450(),
 
-	"Request901Initialization_auto_30": Request901Initialization_auto_30(),
+	"Request901InitializationMaker_30": Request901InitializationMaker_30(),
 
 	"901500": R901500(),
 }
 
-// Request901Initialization_auto_0 returns rule without ID
-func Request901Initialization_auto_0() *waf.Rule {
+// Request901InitializationMaker_0 returns rule without ID
+func Request901InitializationMaker_0() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjQ29tcG9uZW50U2lnbmF0dXJlICJPV0FTUF9DUlMvNC4xNi4wLWRldiI=",
@@ -469,8 +469,8 @@ func R901450() *waf.Rule {
 	}
 }
 
-// Request901Initialization_auto_30 returns rule without ID
-func Request901Initialization_auto_30() *waf.Rule {
+// Request901InitializationMaker_30 returns rule without ID
+func Request901InitializationMaker_30() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjTWFya2VyICJFTkQtU0FNUExJTkci",

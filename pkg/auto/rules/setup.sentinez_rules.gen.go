@@ -9,10 +9,10 @@ import (
 const SetupVersion = ""
 
 var SetupOrder = []func() *waf.Rule{
-	Setup_auto_0,
-	Setup_auto_1,
-	Setup_auto_2,
-	Setup_auto_3,
+	SetupMaker_0,
+	SetupMaker_1,
+	SetupMaker_2,
+	SetupMaker_3,
 	R900000,
 	R900001,
 	R900010,
@@ -36,18 +36,18 @@ var SetupOrder = []func() *waf.Rule{
 	R900350,
 	R900400,
 	R900950,
-	Setup_auto_27,
+	SetupMaker_27,
 	R900990,
 }
 
 var Setup = map[string]*waf.Rule{
-	"Setup_auto_0": Setup_auto_0(),
+	"SetupMaker_0": SetupMaker_0(),
 
-	"Setup_auto_1": Setup_auto_1(),
+	"SetupMaker_1": SetupMaker_1(),
 
-	"Setup_auto_2": Setup_auto_2(),
+	"SetupMaker_2": SetupMaker_2(),
 
-	"Setup_auto_3": Setup_auto_3(),
+	"SetupMaker_3": SetupMaker_3(),
 
 	"900000": R900000(),
 
@@ -95,13 +95,13 @@ var Setup = map[string]*waf.Rule{
 
 	"900950": R900950(),
 
-	"Setup_auto_27": Setup_auto_27(),
+	"SetupMaker_27": SetupMaker_27(),
 
 	"900990": R900990(),
 }
 
-// Setup_auto_0 returns rule without ID
-func Setup_auto_0() *waf.Rule {
+// SetupMaker_0 returns rule without ID
+func SetupMaker_0() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUnVsZUVuZ2luZSBPbg==",
@@ -112,8 +112,8 @@ func Setup_auto_0() *waf.Rule {
 	}
 }
 
-// Setup_auto_1 returns rule without ID
-func Setup_auto_1() *waf.Rule {
+// SetupMaker_1 returns rule without ID
+func SetupMaker_1() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
@@ -124,8 +124,8 @@ func Setup_auto_1() *waf.Rule {
 	}
 }
 
-// Setup_auto_2 returns rule without ID
-func Setup_auto_2() *waf.Rule {
+// SetupMaker_2 returns rule without ID
+func SetupMaker_2() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6MSxsb2csYXVkaXRsb2cscGFzcyI=",
@@ -136,8 +136,8 @@ func Setup_auto_2() *waf.Rule {
 	}
 }
 
-// Setup_auto_3 returns rule without ID
-func Setup_auto_3() *waf.Rule {
+// SetupMaker_3 returns rule without ID
+func SetupMaker_3() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6Mixsb2csYXVkaXRsb2cscGFzcyI=",
@@ -424,8 +424,8 @@ func R900950() *waf.Rule {
 	}
 }
 
-// Setup_auto_27 returns rule without ID
-func Setup_auto_27() *waf.Rule {
+// SetupMaker_27 returns rule without ID
+func SetupMaker_27() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjQ29sbGVjdGlvblRpbWVvdXQgNjAw",

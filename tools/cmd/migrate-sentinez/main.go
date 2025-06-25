@@ -15,41 +15,72 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
 
+	flag "github.com/spf13/pflag"
+
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	migratepgx "github.com/sentinez/sentinez/plugins/migrate/pgx"
 )
 
-func runMigrations(action string, step int) error {
-	return migratepgx.Run(
-		"file://../boot/migrations/timescale",
-		os.Getenv("SENTINEZ_PUBLIC_TIMESCALEDB_URL"),
-		action,
-		step,
-	)
+var (
+	timescale  = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_TIMESCALEDB.String())
+	postgresql = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_POSTGRESQL.String())
+	clickhouse = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_CLICKHOUSE.String())
+)
+
+var sourceFileMap = map[string]string{
+	timescale:  "file://../boot/migrations/timescale",
+	postgresql: "file://../boot/migrations/postgresql",
+	clickhouse: "file://../boot/migrations/clickhouse",
+}
+
+func runMigrations(srcFile, dbUrl, action string, step int) error {
+	return migratepgx.Run(srcFile, dbUrl, action, step)
 }
 
 func main() {
-	args := os.Args
 
-	var types = "pgx"
+	var driver = "postgresql"
 
-	flag.StringVar(&types, "driver", types, "driver type: pgx")
+	var usageDriver = "postgresql|timescale|clickhouse"
+
+	flag.StringVarP(&driver, "driver", "d", driver, usageDriver)
+
+	flag.Usage = func() {
+		fmt.Println("Usage:")
+		fmt.Println("  go run cmd/migrate-sentinez/main.go up --driver=postgresql")
+		fmt.Println("  go run cmd/migrate-sentinez/main.go down [steps] --driver=clickhouse")
+		fmt.Println("Options:")
+		flag.PrintDefaults()
+
+		os.Exit(0)
+	}
+
 	flag.Parse()
 
+	args := os.Args
 	if len(args) < 2 {
 		fmt.Println("Usage:")
 		fmt.Println("  go run cmd/migrate-sentinez/main.go up")
 		fmt.Println("  go run cmd/migrate-sentinez/main.go down [steps]")
-		os.Exit(1)
+
+		return
 	}
 
 	action := args[1]
 	step := 1 // default step for "down"
+
+	if action == "help" {
+		fmt.Println("Usage:")
+		fmt.Println("  go run cmd/migrate-sentinez/main.go up")
+		fmt.Println("  go run cmd/migrate-sentinez/main.go down [steps]")
+
+		return
+	}
 
 	if action == "down" && len(args) >= 3 {
 		n, err := strconv.Atoi(args[2])
@@ -58,10 +89,24 @@ func main() {
 		}
 	}
 
-	switch types {
-	case "pgx":
-		if err := runMigrations(action, step); err != nil {
+	switch driver {
+	case "postgresql":
+		src := sourceFileMap[postgresql]
+		if err := runMigrations(src, postgresql, action, step); err != nil {
 			panic(err)
 		}
+	case "timescale":
+		src := sourceFileMap[timescale]
+		if err := runMigrations(src, timescale, action, step); err != nil {
+			panic(err)
+		}
+	case "clickhouse":
+		src := sourceFileMap[clickhouse]
+		if err := runMigrations(src, clickhouse, action, step); err != nil {
+			panic(err)
+		}
+	default:
+		fmt.Printf("Unknown driver type: %s\n", driver)
+		fmt.Println("Supported types: posgresql, timescale, clickhouse")
 	}
 }

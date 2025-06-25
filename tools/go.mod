@@ -18,6 +18,7 @@ require (
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/plugins/migrate v0.0.0
 	github.com/sentinez/sentinez/plugins/ruleparser v0.0.0
+	github.com/spf13/pflag v1.0.6
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/text v0.23.0
 	google.golang.org/grpc v1.70.0
@@ -249,7 +250,6 @@ require (
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.2.0 // indirect

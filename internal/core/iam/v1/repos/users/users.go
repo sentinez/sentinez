@@ -55,27 +55,37 @@ type Users struct {
 
 // Count implements IUser.
 func (u *Users) Count(ctx context.Context) (int64, error) {
+	_ = ctx
 	panic("unimplemented")
-
 }
 
 // Create implements IUser.
-func (u *Users) Create(ctx context.Context, user *iammodel.Users) (*iammodel.Users, error) {
+func (u *Users) Create(ctx context.Context,
+	user *iammodel.Users) (*iammodel.Users, error) {
+
+	_, _ = ctx, user
+
 	panic("unimplemented")
 }
 
 // Delete implements IUser.
 func (u *Users) Delete(ctx context.Context, id string) error {
+	_, _ = ctx, id
+
 	panic("unimplemented")
 }
 
 // Exists implements IUser.
 func (u *Users) Exists(ctx context.Context, id string) (bool, error) {
+	_, _ = ctx, id
+
 	panic("unimplemented")
 }
 
 // Get implements IUser.
 func (u *Users) Get(ctx context.Context, id string) (*iammodel.Users, error) {
+	_, _ = ctx, id
+
 	panic("unimplemented")
 }
 
@@ -87,7 +97,10 @@ func (u *Users) GetAll(ctx context.Context) ([]*iammodel.Users, error) {
 }
 
 // Update implements IUser.
-func (u *Users) Update(ctx context.Context, id string, user *iammodel.Users) (*iammodel.Users, error) {
+func (u *Users) Update(ctx context.Context,
+	id string, user *iammodel.Users) (*iammodel.Users, error) {
+
+	_, _, _ = ctx, id, user
 	panic("unimplemented")
 }
 

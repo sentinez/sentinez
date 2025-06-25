@@ -14,9 +14,9 @@ type ParserResult struct {
 }
 
 type Rule struct {
+	current       *Action
 	Actions       *Action `json:"actions"`
 	Configuration string  `json:"configuration"`
-	Action        *Action `json:"action"`
 	Level         string  `json:"level"`
 }
 
@@ -54,7 +54,7 @@ func (c *CustomErrorListener) SyntaxError(recognizer antlr.Recognizer, offending
 	c.Errors = append(c.Errors, err)
 }
 
-func (t *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
+func (l *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 	// if you need to debug, enable this one below
 	// fmt.Println("Entering rule:", ctx.GetText())
 }
@@ -80,8 +80,8 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 				Statement: processed,
 			}
 			current := action
-			l.results.Rules[len(l.results.Rules)-1].Action.Children = action
-			l.results.Rules[len(l.results.Rules)-1].Action = current
+			l.results.Rules[len(l.results.Rules)-1].current.Children = action
+			l.results.Rules[len(l.results.Rules)-1].current = current
 
 			return
 		}
@@ -93,7 +93,7 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 		Fields:    make(map[string][]string),
 		Statement: stmt.Configuration,
 	}
-	stmt.Action = stmt.Actions
+	stmt.current = stmt.Actions
 
 	l.results.Rules = append(l.results.Rules, stmt)
 }
@@ -104,7 +104,7 @@ func (l *TreeShapeListener) ExitStmt(ctx *parser.StmtContext) {
 
 func (l *TreeShapeListener) EnterAction(ctx *parser.ActionContext) {
 	latest := len(l.results.Rules) - 1
-	mapp := l.results.Rules[latest].Action.Fields
+	mapp := l.results.Rules[latest].current.Fields
 	action := strings.SplitN(ctx.GetText(), ":", 2)
 	if len(action) > 1 {
 		_, ok := mapp[action[0]]
