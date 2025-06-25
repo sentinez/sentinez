@@ -43,10 +43,10 @@ func runMigrations(srcFile, dbUrl, action string, step int) error {
 }
 
 func main() {
-
-	var driver = "postgresql"
-
-	var usageDriver = "postgresql|timescale|clickhouse"
+	var (
+		driver      = "postgresql"
+		usageDriver = "postgresql|timescale|clickhouse"
+	)
 
 	flag.StringVarP(&driver, "driver", "d", driver, usageDriver)
 
@@ -107,6 +107,6 @@ func main() {
 		}
 	default:
 		fmt.Printf("Unknown driver type: %s\n", driver)
-		fmt.Println("Supported types: posgresql, timescale, clickhouse")
+		fmt.Println("Supported types: postgresql, timescale, clickhouse")
 	}
 }
