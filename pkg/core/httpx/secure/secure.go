@@ -49,7 +49,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 		}
 
 		if waf != nil {
-			zlog.Debugf("[%s] initialized successfully", color.Red.Add("WAF"))
+			zlog.Infof("%s initialized successfully", color.Cyan.Add("[WAF]"))
 		}
 	}
 
@@ -57,6 +57,9 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 }
 
 func callback(err types.MatchedRule) {
+	zlog.Warnf("[%s] %s id=%d msg='%s'",
+		err.Rule().Severity(), err.URI(), err.Rule().ID(), err.Message())
+
 	msg := err.ErrorLog()
 	zlog.Debugf("[%s] %s", err.Rule().Severity(), msg)
 }

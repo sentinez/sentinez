@@ -40,7 +40,11 @@ func (m *Config) Validate() error {
 		return nil
 	}
 
-	// no validation rules for TimescaleUrl
+	// no validation rules for TimescaleUri
+
+	// no validation rules for PostgresqlUri
+
+	// no validation rules for ClickhouseUri
 
 	return nil
 }

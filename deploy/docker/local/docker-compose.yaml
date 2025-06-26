@@ -21,9 +21,25 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: dev-sentinez
+      POSTGRES_DB: sentinez
     volumes:
       - ./_dumpdata/timescale:/var/lib/timescale/data
+    networks:
+      - sentinez-network
+
+  sentinez.postgres:
+    image: postgres:16
+    container_name: sentinez.postgres
+    hostname: sentinez.postgres
+    ports:
+      - "5432:5432"
+    restart: on-failure:3
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: sentinez
+    volumes:
+      - ./_dumpdata/postgres:/var/lib/postgresql/data
     networks:
       - sentinez-network
 

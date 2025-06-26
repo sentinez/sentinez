@@ -30,14 +30,18 @@ var once sync.Once
 func Default() *sentinez.Config {
 	once.Do(func() {
 		conf = &sentinez.Config{
-			TimescaleUrl: getPublicEnv(
-				sentinez.SentinezPublic_SENTINEZ_PUBLIC_TIMESCALEDB_URL),
+			TimescaleUri: getPublicEnv(
+				sentinez.STNZPublic_STNZ_PUBLIC_TIMESCALEDB),
+			PostgresqlUri: getPublicEnv(
+				sentinez.STNZPublic_STNZ_PUBLIC_POSTGRESQL),
+			ClickhouseUri: getPublicEnv(
+				sentinez.STNZPublic_STNZ_PUBLIC_CLICKHOUSE),
 		}
 	})
 
 	return conf
 }
 
-func getPublicEnv(key sentinez.SentinezPublic) string {
+func getPublicEnv(key sentinez.STNZPublic) string {
 	return os.Getenv(key.String())
 }

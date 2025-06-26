@@ -57,7 +57,7 @@ var Request932ApplicationAttackRceOrder = []func() *waf.Rule{
 	R932331,
 	R932017,
 	R932018,
-	Request932ApplicationAttackRce_auto_48,
+	Request932ApplicationAttackRceMaker_48,
 }
 
 var Request932ApplicationAttackRce = map[string]*waf.Rule{
@@ -157,7 +157,7 @@ var Request932ApplicationAttackRce = map[string]*waf.Rule{
 
 	"932018": R932018(),
 
-	"Request932ApplicationAttackRce_auto_48": Request932ApplicationAttackRce_auto_48(),
+	"Request932ApplicationAttackRceMaker_48": Request932ApplicationAttackRceMaker_48(),
 }
 
 // R932011 returns rule with ID 932011
@@ -736,8 +736,8 @@ func R932018() *waf.Rule {
 	}
 }
 
-// Request932ApplicationAttackRce_auto_48 returns rule without ID
-func Request932ApplicationAttackRce_auto_48() *waf.Rule {
+// Request932ApplicationAttackRceMaker_48 returns rule without ID
+func Request932ApplicationAttackRceMaker_48() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjTWFya2VyICJFTkQtUkVRVUVTVC05MzItQVBQTElDQVRJT04tQVRUQUNLLVJDRSI=",

@@ -9,27 +9,27 @@ import (
 const DefaultVersion = ""
 
 var DefaultOrder = []func() *waf.Rule{
-	Default_auto_0,
+	DefaultMaker_0,
 	R1,
-	Default_auto_2,
+	DefaultMaker_2,
 	R100,
 	R933150,
 }
 
 var Default = map[string]*waf.Rule{
-	"Default_auto_0": Default_auto_0(),
+	"DefaultMaker_0": DefaultMaker_0(),
 
 	"1": R1(),
 
-	"Default_auto_2": Default_auto_2(),
+	"DefaultMaker_2": DefaultMaker_2(),
 
 	"100": R100(),
 
 	"933150": R933150(),
 }
 
-// Default_auto_0 returns rule without ID
-func Default_auto_0() *waf.Rule {
+// DefaultMaker_0 returns rule without ID
+func DefaultMaker_0() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjRGVidWdMb2cgL2Rldi9zdGRvdXQ=",
@@ -52,8 +52,8 @@ func R1() *waf.Rule {
 	}
 }
 
-// Default_auto_2 returns rule without ID
-func Default_auto_2() *waf.Rule {
+// DefaultMaker_2 returns rule without ID
+func DefaultMaker_2() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",

@@ -29,7 +29,7 @@ func forbidden() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><h1>403 Forbidden</h1><p>You do not have permission to access this resource.</p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display: flex; align-items: center; padding: 2rem;\"><img src=\"https://i.imgur.com/GXItvHZ.png\" alt=\"Logo\" style=\"max-width: 120px; margin-right: 2rem;\"><div><h1>403 Forbidden</h1><p>You do not have permission to access this resource.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

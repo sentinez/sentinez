@@ -85,11 +85,12 @@ func (s *Server) Serve(addr string) error {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
 	}
+
 	routing.Store(proxyInst, s.config)
 	s.core.Handle(routing.Match())
 
-	zlog.Infof("[%s] boost on: %s",
-		color.Blue.Add("fasthttp"),
+	zlog.Infof("%s engine boost on: %s",
+		color.Blue.Add("[FastHTTP]"),
 		color.Magenta.Add(s.flag.GetAddress()),
 	)
 

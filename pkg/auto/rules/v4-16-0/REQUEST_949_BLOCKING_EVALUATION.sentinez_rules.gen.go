@@ -27,7 +27,7 @@ var Request949BlockingEvaluationOrder = []func() *waf.Rule{
 	R949162,
 	R949063,
 	R949163,
-	Request949BlockingEvaluation_auto_18,
+	Request949BlockingEvaluationMaker_18,
 	R949111,
 	R949110,
 	R949011,
@@ -38,7 +38,7 @@ var Request949BlockingEvaluationOrder = []func() *waf.Rule{
 	R949016,
 	R949017,
 	R949018,
-	Request949BlockingEvaluation_auto_29,
+	Request949BlockingEvaluationMaker_29,
 }
 
 var Request949BlockingEvaluation = map[string]*waf.Rule{
@@ -78,7 +78,7 @@ var Request949BlockingEvaluation = map[string]*waf.Rule{
 
 	"949163": R949163(),
 
-	"Request949BlockingEvaluation_auto_18": Request949BlockingEvaluation_auto_18(),
+	"Request949BlockingEvaluationMaker_18": Request949BlockingEvaluationMaker_18(),
 
 	"949111": R949111(),
 
@@ -100,7 +100,7 @@ var Request949BlockingEvaluation = map[string]*waf.Rule{
 
 	"949018": R949018(),
 
-	"Request949BlockingEvaluation_auto_29": Request949BlockingEvaluation_auto_29(),
+	"Request949BlockingEvaluationMaker_29": Request949BlockingEvaluationMaker_29(),
 }
 
 // R949052 returns rule with ID 949052
@@ -319,8 +319,8 @@ func R949163() *waf.Rule {
 	}
 }
 
-// Request949BlockingEvaluation_auto_18 returns rule without ID
-func Request949BlockingEvaluation_auto_18() *waf.Rule {
+// Request949BlockingEvaluationMaker_18 returns rule without ID
+func Request949BlockingEvaluationMaker_18() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjTWFya2VyICJCRUdJTi1SRVFVRVNULUJMT0NLSU5HLUVWQUwi",
@@ -451,8 +451,8 @@ func R949018() *waf.Rule {
 	}
 }
 
-// Request949BlockingEvaluation_auto_29 returns rule without ID
-func Request949BlockingEvaluation_auto_29() *waf.Rule {
+// Request949BlockingEvaluationMaker_29 returns rule without ID
+func Request949BlockingEvaluationMaker_29() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjTWFya2VyICJFTkQtUkVRVUVTVC05NDktQkxPQ0tJTkctRVZBTFVBVElPTiI=",

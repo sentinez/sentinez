@@ -8,18 +8,25 @@ import (
 
 const Test41NegatedOperatorNVersion = "OWASP_CRS/4.0.0-rc1"
 
-var Test41NegatedOperatorN = map[string]*waf.Rule{
-	"auto_0": R_auto_0(),
+var Test41NegatedOperatorNOrder = []func() *waf.Rule{
+	Test41NegatedOperatorNMaker_0,
+	Test41NegatedOperatorNMaker_1,
+	R901350,
+	R901450,
+}
 
-	"auto_1": R_auto_1(),
+var Test41NegatedOperatorN = map[string]*waf.Rule{
+	"Test41NegatedOperatorNMaker_0": Test41NegatedOperatorNMaker_0(),
+
+	"Test41NegatedOperatorNMaker_1": Test41NegatedOperatorNMaker_1(),
 
 	"901350": R901350(),
 
 	"901450": R901450(),
 }
 
-// R_auto_0 returns rule without ID
-func R_auto_0() *waf.Rule {
+// Test41NegatedOperatorNMaker_0 returns rule without ID
+func Test41NegatedOperatorNMaker_0() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUnVsZUVuZ2luZSBPbg==",
@@ -30,8 +37,8 @@ func R_auto_0() *waf.Rule {
 	}
 }
 
-// R_auto_1 returns rule without ID
-func R_auto_1() *waf.Rule {
+// Test41NegatedOperatorNMaker_1 returns rule without ID
+func Test41NegatedOperatorNMaker_1() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
 			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",

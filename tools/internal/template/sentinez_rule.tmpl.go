@@ -19,7 +19,7 @@ var {{ .Name }}Order = []func() *waf.Rule{
 	{{- if $ids }}
 	R{{ index $ids 0 }},
 	{{- else }}
-	{{ $.Name }}_auto_{{ $i }},
+	{{ $.Name }}Maker_{{ $i }},
 	{{- end }}
 	{{- end }}
 }
@@ -30,7 +30,7 @@ var {{ .Name }} = map[string]*waf.Rule{
 	{{- if $ids }}
 	"{{ index $ids 0 }}": R{{ index $ids 0 }}(),
 	{{- else }}
-	"{{ $.Name }}_auto_{{ $i }}": {{ $.Name }}_auto_{{ $i }}(),
+	"{{ $.Name }}Maker_{{ $i }}": {{ $.Name }}Maker_{{ $i }}(),
 	{{- end }}
 	{{ end }}
 }
@@ -41,8 +41,8 @@ var {{ .Name }} = map[string]*waf.Rule{
 // R{{ index $ids 0 }} returns rule with ID {{ index $ids 0 }}
 func R{{ index $ids 0 }}() *waf.Rule {
 {{- else }}
-// {{ $.Name }}_auto_{{ $i }} returns rule without ID
-func {{ $.Name }}_auto_{{ $i }}() *waf.Rule {
+// {{ $.Name }}Maker_{{ $i }} returns rule without ID
+func {{ $.Name }}Maker_{{ $i }}() *waf.Rule {
 {{- end }}
 	return &waf.Rule{
 		Actions: &waf.RuleAction{

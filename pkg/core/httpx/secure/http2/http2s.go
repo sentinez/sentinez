@@ -114,7 +114,6 @@ func processRequestHandler(r *http.Request,
 			code := obtainStatusCodeFromInterruptionOrDefault(it,
 				ctx.Response.StatusCode(),
 			)
-			zlog.Debugf("[block] %s: %d", ctx.Request.URI().RequestURI(), code)
 
 			ctx.SetStatusCode(code)
 			ctx.SetContentType("text/html; charset=utf-8")
@@ -146,7 +145,7 @@ func processRequest(tx types.Transaction,
 	req *http.Request) (*types.Interruption, error) {
 
 	if it := processRequestHeader(req, tx); it != nil {
-		zlog.Debugf("security req header: action=%s, id=%d",
+		zlog.Debugf("[security] req header action=%s id=%d",
 			it.Action, it.RuleID)
 		return it, nil
 	}
@@ -155,7 +154,7 @@ func processRequest(tx types.Transaction,
 		return nil, err
 
 	} else if it != nil {
-		zlog.Debugf("security req body: action=%s, id=%d", it.Action, it.RuleID)
+		zlog.Debugf("[security] req body action=%s id=%d", it.Action, it.RuleID)
 		return it, nil
 	}
 
