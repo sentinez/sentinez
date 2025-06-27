@@ -5,8 +5,6 @@ routes:
     
   - match_prefix: /
     target: badcheese.com
-    rewrite: /
 
   - match_prefix: /api
     target: localhost:8080
-    rewrite: /
