@@ -30,7 +30,7 @@ import (
 
 var (
 	dynamic   *syncx.Map[string, string]
-	static    *syncx.Map[string, string]
+	rewrite   *syncx.Map[string, string]
 	proxyInst *proxy.Proxy
 	once      sync.Once
 )
@@ -38,7 +38,7 @@ var (
 func init() {
 	once.Do(func() {
 		dynamic = syncx.NewMap[string, string]()
-		static = syncx.NewMap[string, string]()
+		rewrite = syncx.NewMap[string, string]()
 	})
 }
 
@@ -46,13 +46,27 @@ func Store(proxy *proxy.Proxy, config *edgeyaml.Routes) {
 	proxyInst = proxy
 
 	for _, routeConfig := range config.Routes {
-		// Store the path and target in the sync.Map
-		if routeConfig.Static {
-			static.Store(routeConfig.Location, routeConfig.ProxyPass)
+		zlog.Debugf(
+			"[edge] routing store: %s -> %s (rewrite: %s)",
+			routeConfig.MatchPrefix, routeConfig.Target, routeConfig.Rewrite,
+		)
+
+		target, ok := dynamic.Load(routeConfig.MatchPrefix)
+		if ok && target != "" {
+			zlog.Warnf(
+				"[edge] duplicate prefix: %s -> %s (new: %s), ignoring",
+				routeConfig.MatchPrefix, target, routeConfig.Target,
+			)
+
 			continue
 		}
 
-		dynamic.Store(routeConfig.Location, routeConfig.ProxyPass)
+		if routeConfig.Rewrite == "" {
+			routeConfig.Rewrite = routeConfig.MatchPrefix
+		}
+
+		dynamic.Store(routeConfig.MatchPrefix, routeConfig.Target)
+		rewrite.Store(routeConfig.MatchPrefix, routeConfig.Rewrite)
 	}
 }
 
@@ -65,44 +79,53 @@ func Match() func(ctx *httpxv2.Context) error {
 
 		target, err := match(ctx)
 		if err != nil {
-			zlog.Debug("[edge] routing match error: ", err)
+			zlog.Error("[edge] routing match error: ", err)
 			return ctx.String(http.StatusNotFound, "not found")
 		}
 
-		return proxyInst.ServeHTTP(ctx, target)
+		if err := proxyInst.ServeHTTP(ctx, target); err != nil {
+			zlog.Error("[edge] routing proxy error: ", err)
+			return ctx.String(http.StatusInternalServerError, err.Error())
+		}
+
+		return nil
 	}
 }
 
 func match(ctx *httpxv2.Context) (string, error) {
-	pathRequest := ctx.Path()
-	targetRequest := ""
+	path := ctx.Path()
+	matchPrefix := prefixPath(path)
+	origin := ""
 
-	location := firstPrefix(pathRequest)
-	proxyPass, ok := dynamic.Load(location)
+	rewritePrefix, ok := rewrite.Load(matchPrefix)
+	if !ok || rewritePrefix == "" {
+		rewritePrefix = matchPrefix
+	}
+
+	target, ok := dynamic.Load(matchPrefix)
 	if ok {
-		targetRequest = proxyPass
-		remainingPath := strings.TrimPrefix(pathRequest, location)
+		zlog.Debugf(
+			"[edge] routing match: %s -> %s (prefix: %s)",
+			rewritePrefix, target, matchPrefix,
+		)
+
+		remainingPath := strings.TrimPrefix(path, matchPrefix) + rewritePrefix
 		ctx.Request.URI().SetPath(remainingPath)
+		origin = target
+
+		return target, nil
 	}
 
-	if !ok {
-		proxyPass, ok = static.Load(location)
-		if ok {
-			targetRequest = proxyPass
+	if origin == "" {
+		if origin, ok = dynamic.Load("/"); ok {
+			return origin, nil
 		}
 	}
 
-	if targetRequest == "" {
-		targetRequest, ok = dynamic.Load("/")
-		if !ok {
-			return "", errors.F("not found: %s", pathRequest)
-		}
-	}
-
-	return targetRequest, nil
+	return "", errors.F("not found: %s", path)
 }
 
-func firstPrefix(path string) string {
+func prefixPath(path string) string {
 	path = strings.TrimPrefix(path, "/")
 	parts := strings.SplitN(path, "/", 2)
 

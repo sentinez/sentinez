@@ -1,10 +1,12 @@
 routes:
-  - location: /v1
-    proxy_pass: localhost:3000
-    static: true
+  - match_prefix: /v1
+    target: localhost:3000
+    rewrite: /v1
     
-  - location: /
-    proxy_pass: badcheese.com
+  - match_prefix: /
+    target: badcheese.com
+    rewrite: /
 
-  - location: /api
-    proxy_pass: localhost:8080
+  - match_prefix: /api
+    target: localhost:8080
+    rewrite: /
