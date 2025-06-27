@@ -26,9 +26,9 @@ type Routes struct {
 }
 
 type Route struct {
-	Location  string `yaml:"location"`
-	ProxyPass string `yaml:"proxy_pass"`
-	Static    bool   `yaml:"static"`
+	MatchPrefix string `yaml:"match_prefix"`
+	Target      string `yaml:"target"`
+	Rewrite     string `yaml:"rewrite"`
 }
 
 func LoadRoutesFromYAML(filename string) *Routes {
