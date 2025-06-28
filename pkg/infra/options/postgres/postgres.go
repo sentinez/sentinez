@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS %s (
 
 func TableKV(pool *pgxpool.Pool, name string) error {
 	sql := fmt.Sprintf(queryExec, name)
-	zlog.Debug("[postgres] executing", sql)
 
 	_, err := pool.Exec(context.Background(), sql)
 	if err != nil {
