@@ -7,6 +7,7 @@
 package factory
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
 	"github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
@@ -15,8 +16,10 @@ import (
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/handler"
+	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 	"github.com/sentinez/sentinez/pkg/core/gateway/http"
+	"github.com/sentinez/sentinez/pkg/infra/utils"
 )
 
 // Injectors from wire.go:
@@ -36,11 +39,19 @@ func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	return serviceRegistrar
 }
 
-func NewDefaultIAM() httpgw.ServiceRegistrar {
-	identityAccessManagerDomainServiceServer := iamdomains.New()
+func NewDefaultIAM(conf *sentinez.Config) (httpgw.ServiceRegistrar, error) {
+	pool, err := utils.NewPgxPool(conf)
+	if err != nil {
+		return nil, err
+	}
+	iUser, err := usersrepo.New(pool)
+	if err != nil {
+		return nil, err
+	}
+	identityAccessManagerDomainServiceServer := iamdomains.New(iUser)
 	identityAccessManagementServiceServer := iamhandler.New(identityAccessManagerDomainServiceServer)
 	serviceRegistrar := services.NewIAM(identityAccessManagementServiceServer)
-	return serviceRegistrar
+	return serviceRegistrar, nil
 }
 
 func NewDefaultTenant() httpgw.ServiceRegistrar {

@@ -16,19 +16,44 @@ package postgresdb
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
 
-func New[T any](pool *pgxpool.Pool) database.Database[T] {
+const exec = `
+	CREATE TABLE IF NOT EXISTS %s (
+		id TEXT PRIMARY KEY,
+		data JSONB NOT NULL,
+		created_at TIMESTAMPTZ DEFAULT NOW(),
+		updated_at TIMESTAMPTZ DEFAULT NOW()
+	);
+`
+
+func New[T any](pool *pgxpool.Pool,
+	tableName string) (database.Database[T], error) {
+
+	if table.IsValidTableName(tableName) == false {
+		return nil, fmt.Errorf("invalid table name: %s", tableName)
+	}
+
+	sql := fmt.Sprintf(exec, strings.ReplaceAll(tableName, ".", "_"))
+	if _, err := pool.Exec(context.Background(), sql); err != nil {
+		zlog.Debug("[postgresdb] create err: ", err)
+		return nil, fmt.Errorf("failed to create table %s", tableName)
+	}
+
 	return &postgres[T]{
 		pool: pool,
-	}
+	}, nil
 }
 
 type postgres[T any] struct {

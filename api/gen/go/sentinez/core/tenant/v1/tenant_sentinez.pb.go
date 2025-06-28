@@ -11,18 +11,5 @@ import (
 
 var (
 	_ sentinez.Empty
+	_ fmt.Stringer
 )
-
-const ASCII = `
-              _____                      
-_____________ __  /________ ______       
-__  ___/_  _ \_  __/__  __ \___  /       SENTINEZ // TENANT
-_(__  ) /  __// /_  _  / / /__  /_       ------------
-/____/  \___/ \__/  /_/ /_/ _____/       sentinez.core.tenant.v1
-                                         
-`
-
-// PrintASCII the ASCII art to the console.
-func PrintASCII() {
-	fmt.Print(ASCII)
-}

@@ -18,7 +18,6 @@ package iamhandler
 import (
 	"context"
 
-	iamdmpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/domain/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -26,19 +25,19 @@ import (
 var _ iampb.
 	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
-func New(domain iamdmpb.IdentityAccessManagerDomainServiceServer,
+func New(domain iampb.IdentityAccessManagerDomainServiceServer,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
 		domain: domain,
 	}
 }
 
-// IdentityAccessManagement implement iam.IAMServiceServer
+// IdentityAccessManagement implement iampb.IAMServiceServer
 type IdentityAccessManagement struct {
-	domain iamdmpb.IdentityAccessManagerDomainServiceServer
+	domain iampb.IdentityAccessManagerDomainServiceServer
 }
 
-// CreateAccount implements iam.IAMServiceServer.
+// CreateAccount implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	req *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
 
@@ -47,7 +46,7 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	panic("unimplemented")
 }
 
-// CreateUser implements iam.IAMServiceServer.
+// CreateUser implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	req *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
@@ -56,7 +55,7 @@ func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	panic("unimplemented")
 }
 
-// Login implements iam.IAMServiceServer.
+// Login implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
@@ -65,7 +64,7 @@ func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	panic("unimplemented")
 }
 
-// Status implements iam.IAMServiceServer.
+// Status implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
@@ -73,6 +72,6 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	_ = ctx
 
 	return &iampb.StatusResponse{
-		Message: "OK",
+		Msg: "OK",
 	}, nil
 }

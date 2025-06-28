@@ -26,16 +26,7 @@ import (
 
 // NewPgxPool create new pool connection for multiple query
 func NewPgxPool(conf *sentinezpb.Config) (*pgxpool.Pool, error) {
-	_ = conf
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
-		"conf.DbUser",
-		"conf.DbPassword",
-		"conf.DbHost",
-		"conf.DbPort",
-		"conf.DbName",
-	)
-
-	return pgxpool.New(context.Background(), dsn)
+	return pgxpool.New(context.Background(), conf.GetPostgresqlUri())
 }
 
 // NewPgxConn create new connection for single query

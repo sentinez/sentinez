@@ -33,140 +33,6 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on CreateUserRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *CreateUserRequest) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	return nil
-}
-
-// CreateUserRequestValidationError is the validation error returned by
-// CreateUserRequest.Validate if the designated constraints aren't met.
-type CreateUserRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e CreateUserRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e CreateUserRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e CreateUserRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e CreateUserRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e CreateUserRequestValidationError) ErrorName() string {
-	return "CreateUserRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e CreateUserRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sCreateUserRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = CreateUserRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = CreateUserRequestValidationError{}
-
-// Validate checks the field values on CreateUserResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
-func (m *CreateUserResponse) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	return nil
-}
-
-// CreateUserResponseValidationError is the validation error returned by
-// CreateUserResponse.Validate if the designated constraints aren't met.
-type CreateUserResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e CreateUserResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e CreateUserResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e CreateUserResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e CreateUserResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e CreateUserResponseValidationError) ErrorName() string {
-	return "CreateUserResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e CreateUserResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sCreateUserResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = CreateUserResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = CreateUserResponseValidationError{}
-
 // Validate checks the field values on LoginRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
@@ -431,22 +297,20 @@ var _ interface {
 	ErrorName() string
 } = CreateAccountResponseValidationError{}
 
-// Validate checks the field values on StatusResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *StatusResponse) Validate() error {
+// Validate checks the field values on CreateUserRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *CreateUserRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for Message
-
 	return nil
 }
 
-// StatusResponseValidationError is the validation error returned by
-// StatusResponse.Validate if the designated constraints aren't met.
-type StatusResponseValidationError struct {
+// CreateUserRequestValidationError is the validation error returned by
+// CreateUserRequest.Validate if the designated constraints aren't met.
+type CreateUserRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -454,22 +318,24 @@ type StatusResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e StatusResponseValidationError) Field() string { return e.field }
+func (e CreateUserRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e StatusResponseValidationError) Reason() string { return e.reason }
+func (e CreateUserRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e StatusResponseValidationError) Cause() error { return e.cause }
+func (e CreateUserRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e StatusResponseValidationError) Key() bool { return e.key }
+func (e CreateUserRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e StatusResponseValidationError) ErrorName() string { return "StatusResponseValidationError" }
+func (e CreateUserRequestValidationError) ErrorName() string {
+	return "CreateUserRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e StatusResponseValidationError) Error() string {
+func (e CreateUserRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -481,14 +347,14 @@ func (e StatusResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sStatusResponse.%s: %s%s",
+		"invalid %sCreateUserRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = StatusResponseValidationError{}
+var _ error = CreateUserRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -496,7 +362,74 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = StatusResponseValidationError{}
+} = CreateUserRequestValidationError{}
+
+// Validate checks the field values on CreateUserResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateUserResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// CreateUserResponseValidationError is the validation error returned by
+// CreateUserResponse.Validate if the designated constraints aren't met.
+type CreateUserResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateUserResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateUserResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateUserResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateUserResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateUserResponseValidationError) ErrorName() string {
+	return "CreateUserResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateUserResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateUserResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateUserResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateUserResponseValidationError{}
 
 // Validate checks the field values on StatusRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
@@ -562,3 +495,70 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StatusRequestValidationError{}
+
+// Validate checks the field values on StatusResponse with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *StatusResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Msg
+
+	return nil
+}
+
+// StatusResponseValidationError is the validation error returned by
+// StatusResponse.Validate if the designated constraints aren't met.
+type StatusResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StatusResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StatusResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StatusResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StatusResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StatusResponseValidationError) ErrorName() string { return "StatusResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e StatusResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStatusResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StatusResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StatusResponseValidationError{}
