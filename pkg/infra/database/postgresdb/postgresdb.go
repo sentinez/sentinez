@@ -29,24 +29,17 @@ import (
 
 var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
 
-const exec = `
-	CREATE TABLE IF NOT EXISTS %s (
-		id TEXT PRIMARY KEY,
-		data JSONB NOT NULL,
-		created_at TIMESTAMPTZ DEFAULT NOW(),
-		updated_at TIMESTAMPTZ DEFAULT NOW()
-	);
-`
-
-func New[T any](pool *pgxpool.Pool,
-	tableName string) (database.Database[T], error) {
+func New[T any](
+	pool *pgxpool.Pool,
+	tableName string,
+	opt func(pool *pgxpool.Pool, name string) error,
+) (database.Database[T], error) {
 
 	if table.IsValidTableName(tableName) == false {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
 	}
 
-	sql := fmt.Sprintf(exec, strings.ReplaceAll(tableName, ".", "_"))
-	if _, err := pool.Exec(context.Background(), sql); err != nil {
+	if err := opt(pool, strings.ReplaceAll(tableName, ".", "_")); err != nil {
 		zlog.Debug("[postgresdb] create err: ", err)
 		return nil, fmt.Errorf("failed to create table %s", tableName)
 	}

@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/auto/queries/gen/users"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresdb"
+	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
 	"github.com/sentinez/sentinez/pkg/std/table"
 )
 
@@ -45,7 +46,7 @@ type IUser interface {
 func New(pool *pgxpool.Pool) (IUser, error) {
 	tableName := table.Table(table.Users)
 
-	storage, err := postgresdb.New[*iam.Users](pool, tableName)
+	storage, err := postgresdb.New[*iam.Users](pool, tableName, pgopt.TableKV)
 	if err != nil {
 		return nil, err
 	}
