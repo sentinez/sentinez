@@ -42,8 +42,13 @@ func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.Generated
 	g.P("\n")
 	g.P("var (")
 	g.P("\t_ sentinez.Empty")
+	g.P("\t_ fmt.Stringer")
 	g.P(")")
 	g.P("\n")
+
+	if !isFirstFileInPackage(gen, file) {
+		return nil
+	}
 
 	ascii(g, file)
 	return g
@@ -85,4 +90,14 @@ func figuregen(header string, footer string) string {
 	}
 
 	return v
+}
+
+// isFirstFileInPackage returns true if the file is the first in its Go package.
+func isFirstFileInPackage(gen *protogen.Plugin, file *protogen.File) bool {
+	for _, f := range gen.Files {
+		if f.GoImportPath == file.GoImportPath {
+			return f == file
+		}
+	}
+	return false
 }

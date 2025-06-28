@@ -14,9 +14,13 @@
 
 syntax = "proto3";
 
-package sentinez.core.iam.models.v1;
+package sentinez.core.iam.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/models/v1;models";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
+
+message Accounts {
+
+}
 
 message Users {
 

@@ -36,13 +36,20 @@ protoc \
   -I"$SENTINEZ_PATH"/api/third_party/googleapis \
   -I"$SENTINEZ_PATH"/api/third_party/grpc-gateway \
   -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
-  --openapiv2_out="$SENTINEZ_OPENAPI_OUT" \
   --grpc-gateway_out="$SENTINEZ_GEN_OUT" \
   --go_out="$SENTINEZ_GEN_OUT" \
   --go-grpc_out=require_unimplemented_servers=false:"$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
   --go-sentinez_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto || exit 1
+
+protoc \
+  -I"$SENTINEZ_PATH"/api/proto \
+  -I"$SENTINEZ_PATH"/api/third_party/googleapis \
+  -I"$SENTINEZ_PATH"/api/third_party/grpc-gateway \
+  -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
+  --openapiv2_out="$SENTINEZ_OPENAPI_OUT" \
+  "$(pwd)"/tenant.proto || exit 1
 
 OLDPWD=$(pwd)
 

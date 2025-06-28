@@ -16,19 +16,37 @@ package postgresdb
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
 
-func New[T any](pool *pgxpool.Pool) database.Database[T] {
+func New[T any](
+	pool *pgxpool.Pool,
+	tableName string,
+	opt func(pool *pgxpool.Pool, name string) error,
+) (database.Database[T], error) {
+
+	if table.IsValidTableName(tableName) == false {
+		return nil, fmt.Errorf("invalid table name: %s", tableName)
+	}
+
+	if err := opt(pool, strings.ReplaceAll(tableName, ".", "_")); err != nil {
+		zlog.Debug("[postgresdb] create err: ", err)
+		return nil, fmt.Errorf("failed to create table %s", tableName)
+	}
+
 	return &postgres[T]{
 		pool: pool,
-	}
+	}, nil
 }
 
 type postgres[T any] struct {

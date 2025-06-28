@@ -16,13 +16,30 @@ package table
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/sentinez/sentinez/pkg/std/flags"
 )
 
-func Wrapper(tableName string) string {
-	return fmt.Sprintf("%s.%s", flags.Parse().Mode, tableName)
+func Table(tableName string) string {
+	return fmt.Sprintf("%s.sentinez.%s", flags.Parse().Mode, tableName)
 }
+
+func IsValidTableName(tableName string) bool {
+	matched, err := regexp.MatchString(pattern, tableName)
+	if err != nil {
+		fmt.Println("Regex error:", err)
+		return false
+	}
+
+	if matched {
+		return true
+	}
+
+	return false
+}
+
+const pattern = `^(dev|sandbox|production)\.sentinez\.[a-z]+$`
 
 const (
 	Users   = "users"

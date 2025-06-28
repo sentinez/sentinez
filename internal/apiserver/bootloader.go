@@ -20,6 +20,7 @@ import (
 	"github.com/sentinez/sentinez/internal/apiserver/factory/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
+	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -51,9 +52,25 @@ func (srv *Server) bootloader(ctx context.Context) error {
 		return err
 	}
 
-	// embedded services directly into the apiserver
-	return srv.visit(ctx,
-		factory.NewDefaultIAM(),
-		factory.NewDefaultTenant(),
-	)
+	services, err := srv.boot()
+	if err != nil {
+		return err
+	}
+	return srv.visit(ctx, services...)
+}
+
+//nolint:funlen
+func (srv *Server) boot() ([]httpgw.ServiceRegistrar, error) {
+	var services []httpgw.ServiceRegistrar
+
+	iam, err := factory.NewDefaultIAM(srv.config)
+	if err != nil {
+		zlog.Errorf("apiserver: failed to create IAM service: %v", err)
+		return nil, err
+	}
+
+	services = append(services, iam)
+	services = append(services, factory.NewDefaultTenant())
+
+	return services, nil
 }

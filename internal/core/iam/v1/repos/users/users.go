@@ -19,38 +19,47 @@ import (
 
 	sql "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
-	iammodel "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/models/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/auto/queries/gen/users"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresdb"
+	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
+	"github.com/sentinez/sentinez/pkg/std/table"
 )
 
 var (
-	_ database.Repository[*iammodel.Users, string] = (*Users)(nil)
-	_ IUser                                        = (*Users)(nil)
+	_ database.Repository[*iam.Users, string] = (*Users)(nil)
+	_ IUser                                   = (*Users)(nil)
 )
 
 type IUser interface {
-	Create(ctx context.Context, user *iammodel.Users) (*iammodel.Users, error)
+	Create(ctx context.Context, user *iam.Users) (*iam.Users, error)
 	Update(ctx context.Context,
-		id string, user *iammodel.Users) (*iammodel.Users, error)
-	Get(ctx context.Context, id string) (*iammodel.Users, error)
-	GetAll(ctx context.Context) ([]*iammodel.Users, error)
+		id string, user *iam.Users) (*iam.Users, error)
+	Get(ctx context.Context, id string) (*iam.Users, error)
+	GetAll(ctx context.Context) ([]*iam.Users, error)
 	Delete(ctx context.Context, id string) error
 	Exists(ctx context.Context, id string) (bool, error)
 	Count(ctx context.Context) (int64, error)
 }
 
-func New(pool *pgxpool.Pool) IUser {
+func New(pool *pgxpool.Pool) (IUser, error) {
+	tableName := table.Table(table.Users)
+
+	storage, err := postgresdb.New[*iam.Users](pool, tableName, pgopt.TableKV)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Users{
 		query:   users.New(pool),
-		storage: postgresdb.New[*iammodel.Users](pool),
-	}
+		storage: storage,
+	}, nil
 }
 
 type Users struct {
 	query   *users.Queries
-	storage database.Database[*iammodel.Users]
+	storage database.Database[*iam.Users]
 }
 
 // Count implements IUser.
@@ -61,7 +70,7 @@ func (u *Users) Count(ctx context.Context) (int64, error) {
 
 // Create implements IUser.
 func (u *Users) Create(ctx context.Context,
-	user *iammodel.Users) (*iammodel.Users, error) {
+	user *iam.Users) (*iam.Users, error) {
 
 	_, _ = ctx, user
 
@@ -83,14 +92,14 @@ func (u *Users) Exists(ctx context.Context, id string) (bool, error) {
 }
 
 // Get implements IUser.
-func (u *Users) Get(ctx context.Context, id string) (*iammodel.Users, error) {
+func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
 	_, _ = ctx, id
 
 	panic("unimplemented")
 }
 
 // GetAll implements IUser.
-func (u *Users) GetAll(ctx context.Context) ([]*iammodel.Users, error) {
+func (u *Users) GetAll(ctx context.Context) ([]*iam.Users, error) {
 	query := sql.Select("*").From("users")
 
 	return u.storage.CollectRows(ctx, query, scan)
@@ -98,17 +107,17 @@ func (u *Users) GetAll(ctx context.Context) ([]*iammodel.Users, error) {
 
 // Update implements IUser.
 func (u *Users) Update(ctx context.Context,
-	id string, user *iammodel.Users) (*iammodel.Users, error) {
+	id string, user *iam.Users) (*iam.Users, error) {
 
 	_, _, _ = ctx, id, user
 	panic("unimplemented")
 }
 
-func scan(rows database.Rows) ([]*iammodel.Users, error) {
-	var users []*iammodel.Users
+func scan(rows database.Rows) ([]*iam.Users, error) {
+	var users []*iam.Users
 
 	for rows.Next() {
-		var user iammodel.Users
+		var user iam.Users
 		if err := rows.Scan(); err != nil {
 			return nil, err
 		}

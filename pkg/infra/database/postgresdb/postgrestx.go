@@ -28,7 +28,7 @@ type PostgresTx[T any] struct {
 	tx pgx.Tx
 }
 
-// Collect implements database.Transaction.
+// CollectRows implements database.Transaction.
 func (p *PostgresTx[T]) CollectRows(ctx context.Context,
 	builder database.SQLBuilder,
 	_ func(database.Rows) ([]T, error)) ([]T, error) {

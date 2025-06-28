@@ -19,6 +19,9 @@ package factory
 
 import (
 	"github.com/google/wire"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/pkg/infra/utils"
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
@@ -56,13 +59,15 @@ func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	return nil
 }
 
-func NewDefaultIAM() httpgw.ServiceRegistrar {
+func NewDefaultIAM(conf *sentinez.Config) (httpgw.ServiceRegistrar, error) {
 	wire.Build(
+		utils.NewPgxPool,
+		usersrepo.New,
 		iamdomain.New,
 		iamhandler.New,
 		services.NewIAM,
 	)
-	return nil
+	return nil, nil
 }
 
 func NewDefaultTenant() httpgw.ServiceRegistrar {

@@ -19,26 +19,30 @@ package iamdomains
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/domain/v1"
-	iamdomainpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/domain/v1"
+	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 )
 
-var _ iamdomainpb.
+var _ iam.
 	IdentityAccessManagerDomainServiceServer = (*IdentityAccessManager)(nil)
 
-func New() iamdomainpb.IdentityAccessManagerDomainServiceServer {
-	return &IdentityAccessManager{}
+func New(users usersrepo.IUser) iam.IdentityAccessManagerDomainServiceServer {
+	return &IdentityAccessManager{
+		users: users,
+	}
 }
 
 // IdentityAccessManager implements the Identity Access Manager domain service.
 type IdentityAccessManager struct {
+	users usersrepo.IUser
 }
 
 // CreateUser implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) CreateUser(
+func (iam *IdentityAccessManager) DomainCreateUser(
 	ctx context.Context,
-	req *iamdomainpb.CreateUserRequest,
-) (*iamdomainpb.CreateUserResponse, error) {
+	req *iam.DomainCreateUserRequest,
+) (*iam.DomainCreateUserResponse, error) {
 
 	_, _ = ctx, req
 
@@ -47,8 +51,8 @@ func (iam *IdentityAccessManager) CreateUser(
 }
 
 // GetUser implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) GetUser(ctx context.Context,
-	req *iamdomainpb.GetUserRequest) (*iamdomainpb.GetUserResponse, error) {
+func (iam *IdentityAccessManager) DomainGetUser(ctx context.Context,
+	req *iam.DomainGetUserRequest) (*iam.DomainGetUserResponse, error) {
 
 	_, _ = ctx, req
 
@@ -57,8 +61,8 @@ func (iam *IdentityAccessManager) GetUser(ctx context.Context,
 }
 
 // ListUsers implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) ListUsers(ctx context.Context,
-	req *iamdomainpb.ListUsersRequest) (*iamdomainpb.ListUsersResponse, error) {
+func (iam *IdentityAccessManager) DomainListUsers(ctx context.Context,
+	req *iam.DomainListUsersRequest) (*iam.DomainListUsersResponse, error) {
 
 	_, _ = ctx, req
 
@@ -67,10 +71,10 @@ func (iam *IdentityAccessManager) ListUsers(ctx context.Context,
 }
 
 // DeleteUser implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) DeleteUser(
+func (iam *IdentityAccessManager) DomainDeleteUser(
 	ctx context.Context,
-	req *iamdomainpb.DeleteUserRequest,
-) (*iamdomainpb.DeleteUserResponse, error) {
+	req *iam.DomainDeleteUserRequest,
+) (*iam.DomainDeleteUserResponse, error) {
 
 	_, _ = ctx, req
 
@@ -79,10 +83,10 @@ func (iam *IdentityAccessManager) DeleteUser(
 }
 
 // UpdateUser implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) UpdateUser(
+func (iam *IdentityAccessManager) DomainUpdateUser(
 	ctx context.Context,
-	req *iamdomainpb.UpdateUserRequest,
-) (*iamdomainpb.UpdateUserResponse, error) {
+	req *iam.DomainUpdateUserRequest,
+) (*iam.DomainUpdateUserResponse, error) {
 
 	_, _ = ctx, req
 
@@ -91,8 +95,8 @@ func (iam *IdentityAccessManager) UpdateUser(
 }
 
 // Status implements domain.IdentityAccessManagerDomainServiceServer.
-func (iam *IdentityAccessManager) Status(ctx context.Context,
-	req *domain.StatusRequest) (*domain.StatusResponse, error) {
+func (iam *IdentityAccessManager) DomainStatus(ctx context.Context,
+	req *iam.DomainStatusRequest) (*iam.DomainStatusResponse, error) {
 
 	_, _ = ctx, req
 
