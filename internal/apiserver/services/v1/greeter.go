@@ -57,10 +57,9 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 		}
 
 		resp, err := disc.Discover(ctx,
-			&discovery.DiscoverRequest{Name: names.GreeterV1.String()})
-
+			&discovery.DiscoverRequest{Name: names.GreeterV1.String()},
+		)
 		if err != nil {
-			zlog.Errorf("[apiserver] err: %v", err)
 			return
 		}
 
