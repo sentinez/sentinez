@@ -25,10 +25,6 @@ import (
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
-	dcvrdomain "github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
-	dcvrhandler "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
-	dcvrrepo "github.com/sentinez/sentinez/internal/core/discovery/v1/repos"
-
 	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 
@@ -39,16 +35,6 @@ import (
 
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 )
-
-func NewDefaultDiscovery() httpgw.ServiceRegistrar {
-	wire.Build(
-		dcvrrepo.New,
-		dcvrdomain.New,
-		dcvrhandler.New,
-		services.NewDiscovery,
-	)
-	return nil
-}
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	wire.Build(

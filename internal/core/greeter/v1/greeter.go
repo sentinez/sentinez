@@ -17,7 +17,6 @@ package greeter
 
 import (
 	"context"
-	"time"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
@@ -26,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
-	"github.com/sentinez/sentinez/pkg/std/names"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // make sure Greeter implement sentinez.Server
@@ -61,19 +60,15 @@ type Greeter struct {
 }
 
 // Start implements IGreeter, override sentinez.Server.Start
-func (g *Greeter) Start(_ context.Context) error {
+func (g *Greeter) Start(ctx context.Context) error {
 	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {
 		return err
 	}
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.srv)
+	zlog.Debugf("greeter service started on %s", g.flag.GetAddress())
 
-	return g.Serve(&grpcgw.ServiceInfo{
-		Config:      g.config,
-		Addr:        g.flag.GetAddress(),
-		GatewayAddr: g.flag.GetGatewayAddress(),
-		Name:        names.GreeterV1.String(),
-		TTL:         time.Second * 30,
-	})
+	go Resolver(ctx, g.flag)
+	return g.Serve(g.flag.GetAddress())
 }

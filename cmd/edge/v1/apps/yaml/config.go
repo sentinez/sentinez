@@ -15,32 +15,39 @@
 package edgeyaml
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"gopkg.in/yaml.v3"
 )
 
-type Routes struct {
-	Routes []Route `yaml:"routes"`
+type Config struct {
+	Proxy ProxyConfig `yaml:"proxy"`
 }
 
-type Route struct {
+type ProxyConfig struct {
+	Tenant string        `yaml:"tenant"`
+	Routes []RouteConfig `yaml:"routes"`
+}
+
+type RouteConfig struct {
 	MatchPrefix string `yaml:"match_prefix"`
 	Target      string `yaml:"target"`
-	Rewrite     string `yaml:"rewrite"`
+	Rewrite     string `yaml:"rewrite,omitempty"`
 }
 
-func LoadRoutesFromYAML(filename string) *Routes {
+func LoadRoutesFromYAML(filename string) *Config {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		zlog.Fatal(err)
 	}
 
-	var cfg Routes
+	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		zlog.Fatal(err)
 	}
 
+	fmt.Println("[edge] loaded routes from YAML:", cfg)
 	return &cfg
 }

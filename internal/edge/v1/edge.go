@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
 	"github.com/sentinez/sentinez/pkg/common/color"
@@ -46,7 +47,7 @@ type Edge interface {
 
 // New creates a new Edge Server instance.
 func New(server httpxv2.Server,
-	flag *sentinezpb.FlagEdge, conf *edgeyaml.Routes) sentinez.Server {
+	flag *sentinezpb.FlagEdge, conf *edgeyaml.Config) sentinez.Server {
 	return &Server{
 		core:   server,
 		flag:   flag,
@@ -59,7 +60,7 @@ func New(server httpxv2.Server,
 // All traffic will be handled by this server.
 type Server struct {
 	core   httpxv2.Server
-	config *edgeyaml.Routes
+	config *edgeyaml.Config
 	flag   *sentinezpb.FlagEdge
 }
 
@@ -74,10 +75,14 @@ func (s *Server) Start(_ context.Context) error {
 }
 
 // Serve starts the server and listens on the given address.
+//
+//nolint:funlen
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 
 	protected := httpv2mdw.Protected(s.flag.GetRuleRoot())
+	host := logic.Host(s.flag.GetHost())
+	s.core.Use(host)
 	s.core.Use(protected)
 
 	proxyInst, err := proxy.New()
@@ -85,8 +90,8 @@ func (s *Server) Serve(addr string) error {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
 	}
-
 	routing.Store(proxyInst, s.config)
+
 	s.core.Handle(routing.Match())
 
 	zlog.Infof("%s engine boost on: %s",

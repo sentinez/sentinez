@@ -9,9 +9,6 @@ package factory
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
-	"github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
-	"github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
-	"github.com/sentinez/sentinez/internal/core/discovery/v1/repos"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/domain"
@@ -23,14 +20,6 @@ import (
 )
 
 // Injectors from wire.go:
-
-func NewDefaultDiscovery() httpgw.ServiceRegistrar {
-	discovery := dcvrrepo.New()
-	dcvrdomainDiscovery := dcvrdomain.New(discovery)
-	discoveryServiceServer := dcvrhandler.New(dcvrdomainDiscovery)
-	serviceRegistrar := services.NewDiscovery(discoveryServiceServer)
-	return serviceRegistrar
-}
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	iGreeter := greeterdomain.New()

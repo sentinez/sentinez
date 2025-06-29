@@ -42,10 +42,10 @@ func init() {
 	})
 }
 
-func Store(proxy *proxy.Proxy, config *edgeyaml.Routes) {
+func Store(proxy *proxy.Proxy, config *edgeyaml.Config) {
 	proxyInst = proxy
 
-	for _, routeConfig := range config.Routes {
+	for _, routeConfig := range config.Proxy.Routes {
 		zlog.Debugf(
 			"[edge] routing store: %s -> %s (rewrite: %s)",
 			routeConfig.MatchPrefix, routeConfig.Target, routeConfig.Rewrite,

@@ -11,6 +11,7 @@ import (
 
 var (
 	_ sentinez.Empty
+	_ fmt.Stringer
 )
 
 const ASCII = `

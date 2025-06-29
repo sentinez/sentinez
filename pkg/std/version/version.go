@@ -35,7 +35,7 @@ var (
 	GoVersion = runtime.Version()
 
 	// Name is the full name of the project.
-	Name = "SENTINEZ"
+	Name = "sentinez"
 
 	// Code is the code of the project.
 	Code = "STNZ"

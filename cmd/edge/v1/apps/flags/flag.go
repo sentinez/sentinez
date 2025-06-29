@@ -28,8 +28,9 @@ import (
 var onceEdge sync.Once
 
 var edgeFlags = &sentinez.FlagEdge{
-	Address:  "0.0.0.0:7777",
+	Address:  ":7777",
 	RuleRoot: "./boot/resources",
+	Host:     "localhost",
 }
 
 // ParseFlag flag args for grpc service

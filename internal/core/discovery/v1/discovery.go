@@ -16,15 +16,51 @@
 package discovery
 
 import (
-	dcvrdomain "github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
-	dcvrhandler "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
-	dcvrrepo "github.com/sentinez/sentinez/internal/core/discovery/v1/repos"
+	"context"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
+	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	dischdl "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
+	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var (
-	// discovery dependency repo - domain - controller
-	_ = sentinez.Inject(dcvrrepo.New)
-	_ = sentinez.Inject(dcvrdomain.New)
-	_ = sentinez.Inject(dcvrhandler.New)
-)
+// make sure Discovery implement sentinez.Server
+// it will start by sentinez.runner through sentinez.Server
+var _ sentinez.Server = (*Discovery)(nil)
+
+var _ = sentinez.Inject(dischdl.New)
+
+// New creates a new discovery module.
+func New(srv discovery.DiscoveryServiceServer, conf *sentinezpb.Config,
+	flag *sentinezpb.FlagGRPCService) sentinez.Server {
+
+	return &Discovery{
+		Server: grpcgw.NewDefault(),
+		srv:    srv,
+		config: conf,
+		flag:   flag,
+	}
+}
+
+// Discovery implements DiscoveryServiceServer.
+type Discovery struct {
+	*grpcgw.Server // inherit grpc.Server
+	config         *sentinezpb.Config
+	flag           *sentinezpb.FlagGRPCService
+	srv            discovery.DiscoveryServiceServer
+}
+
+func (g *Discovery) Start(_ context.Context) error {
+	discovery.PrintASCII()
+	if err := protobuf.Validate(g.config); err != nil {
+		return err
+	}
+
+	discovery.RegisterDiscoveryServiceServer(g.AsServer(), g.srv)
+	zlog.Debugf("discovery service started on %s", g.flag.GetAddress())
+
+	return g.Serve(g.flag.GetAddress())
+}
