@@ -35,16 +35,7 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	// NOTE: Make sure the gRPC server is running properly and accessible
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
-
-	err := srv.visit(ctx,
-		factory.NewDefaultDiscovery(),
-	)
-	if err != nil {
-		zlog.Errorf("apiserver: failed to visit discovery service: %v", err)
-		return err
-	}
-
-	err = srv.visitToEndpoint(ctx,
+	err := srv.visitToEndpoint(ctx,
 		factory.NewDefaultGreeter(),
 	)
 	if err != nil {

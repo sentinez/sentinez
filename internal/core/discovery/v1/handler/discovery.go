@@ -13,16 +13,16 @@
 // limitations under the License.
 
 // Package dcvrhandler provides a service discovery for the sentinez.
-package dcvrhandler
+package dischdl
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 
+	"github.com/google/uuid"
 	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	dcvrdomain "github.com/sentinez/sentinez/internal/core/discovery/v1/domain"
-	"github.com/sentinez/sentinez/pkg/common/uuid"
-	"github.com/sentinez/sentinez/pkg/std/errors"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	consulclient "github.com/sentinez/sentinez/pkg/std/client/consul"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -30,50 +30,71 @@ import (
 var _ discoverypb.DiscoveryServiceServer = (*Discovery)(nil)
 
 // New create new instance
-func New(svc dcvrdomain.Discovery) discoverypb.DiscoveryServiceServer {
+func New() discoverypb.DiscoveryServiceServer {
+	client, _ := consulclient.New("http://localhost:8500")
 	return &Discovery{
-		service: svc,
+		client: client,
 	}
 }
 
 // Discovery is a service registry for the sentinez.
 type Discovery struct {
 	discoverypb.UnimplementedDiscoveryServiceServer
-	service dcvrdomain.Discovery
+	client *consulclient.Client
 }
 
 // Register registers the service to the service registry.
-func (dcv *Discovery) Register(ctx context.Context,
+func (dcv *Discovery) Register(_ context.Context,
 	req *discoverypb.RegisterRequest) (*discoverypb.RegisterResponse, error) {
-	id := uuid.Generate()
 
-	if err := dcv.service.RegisterService(ctx, id, req); err != nil {
-		zlog.Errorf("discovery.Register service error: %s", err)
-		return nil, errors.StatusInternalError
+	id := uuid.New().String()
+	err := dcv.client.RegisterWithTTL(id,
+		req.GetName(),
+		req.GetAddress(),
+		int(req.GetPort()),
+		req.GetTtl().AsDuration(),
+	)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &discoverypb.RegisterResponse{
 		Id:      id,
 		Name:    req.GetName(),
 		Address: req.GetAddress(),
+		Port:    req.GetPort(),
 	}, nil
 }
 
 // Heartbeat is used to send heartbeat to the service registry.
-func (dcv *Discovery) Heartbeat(ctx context.Context,
+func (dcv *Discovery) Heartbeat(_ context.Context,
 	request *discoverypb.HeartbeatRequest) (*emptypb.Empty, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	if err := dcv.client.SendHeartbeat(request.GetId()); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 // Discover used to discover the service registry.
-func (dcv *Discovery) Discover(ctx context.Context,
+func (dcv *Discovery) Discover(_ context.Context,
 	req *discoverypb.DiscoverRequest) (*discoverypb.DiscoverResponse, error) {
-	_ = ctx
-	_ = req
+
+	insts, err := dcv.client.Discover(req.GetName())
+	if err != nil {
+		return nil, err
+	}
+
+	if len(insts) == 0 {
+		return nil, fmt.Errorf("service %s unavailable", req.GetName())
+	}
+
+	ans := insts[rand.Intn(len(insts))]
+
 	return &discoverypb.DiscoverResponse{
-		Name: req.GetName(),
+		Name:    req.GetName(),
+		Address: fmt.Sprintf("%s:%d", ans.Address, ans.Port),
 	}, nil
 }

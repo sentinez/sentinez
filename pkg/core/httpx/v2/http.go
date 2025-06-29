@@ -15,6 +15,8 @@
 package httpxv2
 
 import (
+	"net/http"
+
 	"github.com/valyala/fasthttp"
 )
 
@@ -50,4 +52,10 @@ func Do(ctx Context, uri string) error {
 	fasthttp.ReleaseResponse(resp)
 
 	return nil
+}
+
+func Forbidden(ctx *fasthttp.RequestCtx) {
+	ctx.SetStatusCode(http.StatusForbidden)
+	ctx.SetBodyString("Access denied")
+	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
 }

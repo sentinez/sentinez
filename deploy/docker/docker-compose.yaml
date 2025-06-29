@@ -57,6 +57,15 @@ services:
     networks:
       - sentinez-network
 
+  sentinez.nats:
+    image: nats:latest
+    hostname: sentinez.nats
+    container_name: sentinez.nats
+    ports:
+      - "4222:4222"  # client port
+      - "8222:8222"  # monitoring port
+    # command: -js # Enable JetStream
+
 volumes:
   _dumpdata:
 

@@ -1,10 +1,12 @@
-routes:
-  - match_prefix: /v1
-    target: localhost:3000
-    rewrite: /v1
-    
-  - match_prefix: /
-    target: badcheese.com
+proxy:
+  tenant: badcheese
+  routes:
+    - match_prefix: /v1
+      target: localhost:3000
+      rewrite: /v1
 
-  - match_prefix: /api
-    target: localhost:8080
+    - match_prefix: /
+      target: badcheese.com
+
+    - match_prefix: /api
+      target: localhost:8080

@@ -17,10 +17,13 @@ package services
 
 import (
 	"context"
+	"time"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/eventq"
+	"github.com/sentinez/sentinez/pkg/std/grpc/client"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
@@ -44,18 +47,28 @@ type greeter struct {
 func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 	server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.GreeterV1.String(),
-		func(endpoint string) error {
-			opts := []grpc.DialOption{
-				grpc.WithTransportCredentials(insecure.NewCredentials()),
-			}
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+	cron.Start(ctx, time.Second*10, func() {
+		disc, err := client.NewDiscoveryClient()
+		if err != nil {
+			return
+		}
 
-			zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-				names.GreeterV1.String(), "******")
+		resp, err := disc.Discover(ctx,
+			&discovery.DiscoverRequest{Name: names.GreeterV1.String()})
+		if err != nil {
+			return
+		}
 
-			return greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
-				ctx, server.RuntimeMux(), endpoint, opts)
-		})
+		err = greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
+			ctx, server.RuntimeMux(), resp.GetAddress(), opts)
+		if err == nil {
+			zlog.Debug("[apiserver] greeter service: ", resp.GetAddress())
+		}
+
+	})
 
 	return nil
 }

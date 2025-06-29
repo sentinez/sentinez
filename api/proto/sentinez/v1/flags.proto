@@ -38,6 +38,9 @@ message FlagGRPCService {
 }
 
 message FlagEdge {
-  string address = 1 [(buf.validate.field).string.host_and_port = true];
-  string rule_root = 2;
+  string address = 1 [(buf.validate.field).string = {
+    pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
+  }];
+  string host = 2 [(buf.validate.field).string.hostname = true];
+  string rule_root = 3;
 }

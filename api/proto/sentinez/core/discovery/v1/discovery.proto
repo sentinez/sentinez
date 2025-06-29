@@ -73,19 +73,21 @@ service DiscoveryService {
 }
 
 message HeartbeatRequest {
-  string address = 1 [(buf.validate.field).string.address = true];
+  string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 message RegisterRequest {
   string name = 1 [(buf.validate.field).string.pattern = "^sentinez\\."];
-  string address = 2 [(buf.validate.field).string.host_and_port = true];
-  google.protobuf.Duration ttl = 3 [(buf.validate.field).duration.gt = {seconds: 0}];
+  string address = 2 [(buf.validate.field).string.address = true];
+  int32 port = 3 [(buf.validate.field).int32.gte = 1000];
+  google.protobuf.Duration ttl = 4 [(buf.validate.field).duration.gt = {seconds: 0}];
 }
 
 message RegisterResponse {
   string id = 1;
   string name = 2 [(buf.validate.field).string.pattern = "^sentinez\\."];
-  string address = 3 [(buf.validate.field).string.host_and_port = true];
+  string address = 3 [(buf.validate.field).string.address = true];
+  int32 port = 4 [(buf.validate.field).int32.gte = 1000];
 }
 
 message DiscoverRequest {

@@ -159,7 +159,7 @@
     "v1HeartbeatRequest": {
       "type": "object",
       "properties": {
-        "address": {
+        "id": {
           "type": "string"
         }
       }
@@ -172,6 +172,10 @@
         },
         "address": {
           "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
         },
         "ttl": {
           "type": "string"
@@ -189,6 +193,10 @@
         },
         "address": {
           "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     }

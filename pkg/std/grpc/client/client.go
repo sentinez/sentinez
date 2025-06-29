@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -44,4 +45,20 @@ func NewGreeterClient(_ context.Context,
 	}
 
 	return greeter.NewGreeterServiceClient(conn), nil
+}
+
+func NewDiscoveryClient() (discovery.DiscoveryServiceClient, error) {
+	endpoint := ":8888"
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		zlog.Errorf("failed to create discovery client connection: %v", err)
+		return nil, fmt.Errorf("grpc.NewClient : %v", err)
+	}
+
+	return discovery.NewDiscoveryServiceClient(conn), nil
 }

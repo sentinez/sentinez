@@ -41,7 +41,7 @@ func (m *HeartbeatRequest) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Address
+	// no validation rules for Id
 
 	return nil
 }
@@ -111,6 +111,8 @@ func (m *RegisterRequest) Validate() error {
 	// no validation rules for Name
 
 	// no validation rules for Address
+
+	// no validation rules for Port
 
 	if v, ok := interface{}(m.GetTtl()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
@@ -192,6 +194,8 @@ func (m *RegisterResponse) Validate() error {
 	// no validation rules for Name
 
 	// no validation rules for Address
+
+	// no validation rules for Port
 
 	return nil
 }

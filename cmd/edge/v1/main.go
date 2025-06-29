@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func loadYaml() *edgeyaml.Routes {
+func loadYaml() *edgeyaml.Config {
 	return edgeyaml.LoadRoutesFromYAML("./cmd/edge/v1/proxy.yaml")
 }
 

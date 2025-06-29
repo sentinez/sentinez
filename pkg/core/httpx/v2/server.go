@@ -16,6 +16,7 @@ package httpxv2
 
 import (
 	"github.com/sentinez/sentinez/pkg/core/httpx"
+	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/valyala/fasthttp"
 )
 
@@ -69,7 +70,7 @@ func (s *server) Shutdown() error {
 
 // ListenAndServe implements platform.Server.
 func (s *server) ListenAndServe(addr string) error {
-	s.core.Name = "sentinez"
+	s.core.Name = version.Name
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
 	return s.core.ListenAndServe(addr)
 }

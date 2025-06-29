@@ -67,7 +67,7 @@ greeter.build:
 greeter.run: SENTINEZ_OUT ?= greeter
 greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
-	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
+	./cmd/greeter/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8001
 
 greeter.build.image: TAG ?= sentinez/sentinez.core.greeter
 greeter.build.image:
