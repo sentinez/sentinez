@@ -27,7 +27,7 @@ require (
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
-	github.com/valyala/fasthttp v1.61.0
+	github.com/valyala/fasthttp v1.62.0
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.27.0

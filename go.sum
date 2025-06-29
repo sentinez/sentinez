@@ -293,8 +293,8 @@ github.com/valllabh/ocsf-schema-golang v1.0.3 h1:eR8k/3jP/OOqB8LRCtdJ4U+vlgd/gk5
 github.com/valllabh/ocsf-schema-golang v1.0.3/go.mod h1:sZ3as9xqm1SSK5feFWIR2CuGeGRhsM7TR1MbpBctzPk=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
-github.com/valyala/fasthttp v1.61.0 h1:VV08V0AfoRaFurP1EWKvQQdPTZHiUzaVoulX1aBDgzU=
-github.com/valyala/fasthttp v1.61.0/go.mod h1:wRIV/4cMwUPWnRcDno9hGnYZGh78QzODFfo1LTUhBog=
+github.com/valyala/fasthttp v1.62.0 h1:8dKRBX/y2rCzyc6903Zu1+3qN0H/d2MsxPPmVNamiH0=
+github.com/valyala/fasthttp v1.62.0/go.mod h1:FCINgr4GKdKqV8Q0xv8b+UxPV+H/O5nNFo3D+r54Htg=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.1.1/go.mod h1:RaEWvsqvNKKvBPvcKeFjrG2cJqOkHTiyTpzz23ni57g=
 github.com/xdg-go/stringprep v1.0.3/go.mod h1:W3f5j4i+9rC0kuIEJL0ky1VpHXQU3ocBgklLGvcBnW8=
