@@ -57,15 +57,13 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 		}
 
 		resp, err := disc.Discover(ctx,
-			&discovery.DiscoverRequest{Name: names.GreeterV1.String()},
-		)
+			&discovery.DiscoverRequest{Name: names.GreeterV1.String()},)
 		if err != nil {
 			return
 		}
 
 		err = greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
 			ctx, server.RuntimeMux(), resp.GetAddress(), opts)
-
 		if err == nil {
 			zlog.Debug("[apiserver] greeter service: ", resp.GetAddress())
 		}
