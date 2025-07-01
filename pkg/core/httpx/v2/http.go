@@ -42,8 +42,9 @@ func Do(ctx Context, uri string) error {
 
 	ctx.SetStatusCode(resp.StatusCode())
 
-	resp.Header.VisitAll(func(k, v []byte) {
+	resp.Header.All()(func(k, v []byte) bool {
 		ctx.Response.Header.SetBytesKV(k, v)
+		return true
 	})
 
 	ctx.Response.SetBodyRaw(resp.Body())

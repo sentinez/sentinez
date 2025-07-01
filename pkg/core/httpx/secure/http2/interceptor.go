@@ -35,8 +35,9 @@ func (i *interceptor) WriteResponseHeader(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	ctx.Response.Header.VisitAll(func(k, v []byte) {
+	ctx.Response.Header.All()(func(k, v []byte) bool {
 		i.tx.AddResponseHeader(string(k), string(v))
+		return true
 	})
 
 	if it := i.tx.ProcessResponseHeaders(
