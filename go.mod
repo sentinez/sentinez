@@ -27,7 +27,7 @@ require (
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
-	github.com/valyala/fasthttp v1.61.0
+	github.com/valyala/fasthttp v1.63.0
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.27.0
@@ -40,7 +40,7 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.5-20250219170025-d39267d9df8f.1 // indirect
 	cel.dev/expr v0.20.0 // indirect
 	github.com/ClickHouse/ch-go v0.66.1 // indirect
-	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/corazawaf/libinjection-go v0.2.2 // indirect
