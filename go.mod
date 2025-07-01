@@ -2,10 +2,7 @@ module github.com/sentinez/sentinez
 
 go 1.24.2
 
-replace (
-	github.com/sentinez/sentinez/api => ./api
-	github.com/sentinez/sentinez/plugins/sdk => ./plugins/sdk
-)
+replace github.com/sentinez/sentinez/api => ./api
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
