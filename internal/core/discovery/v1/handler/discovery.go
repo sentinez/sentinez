@@ -18,10 +18,10 @@ package dischdl
 import (
 	"context"
 	"fmt"
-	"math/rand"
 
 	"github.com/google/uuid"
 	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
+	"github.com/sentinez/sentinez/internal/core/discovery/v1/resolver"
 	consulclient "github.com/sentinez/sentinez/pkg/std/client/consul"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -33,14 +33,16 @@ var _ discoverypb.DiscoveryServiceServer = (*Discovery)(nil)
 func New() discoverypb.DiscoveryServiceServer {
 	client, _ := consulclient.New("http://localhost:8500")
 	return &Discovery{
-		client: client,
+		client:   client,
+		resolver: resolver.New(client),
 	}
 }
 
 // Discovery is a service registry for the sentinez.
 type Discovery struct {
 	discoverypb.UnimplementedDiscoveryServiceServer
-	client *consulclient.Client
+	client   *consulclient.Client
+	resolver *resolver.Resolver
 }
 
 // Register registers the service to the service registry.
@@ -82,16 +84,10 @@ func (dcv *Discovery) Heartbeat(_ context.Context,
 func (dcv *Discovery) Discover(_ context.Context,
 	req *discoverypb.DiscoverRequest) (*discoverypb.DiscoverResponse, error) {
 
-	insts, err := dcv.client.Discover(req.GetName())
+	ans, err := dcv.resolver.PickInstance(req.GetName())
 	if err != nil {
 		return nil, err
 	}
-
-	if len(insts) == 0 {
-		return nil, fmt.Errorf("service %s unavailable", req.GetName())
-	}
-
-	ans := insts[rand.Intn(len(insts))]
 
 	return &discoverypb.DiscoverResponse{
 		Name:    req.GetName(),

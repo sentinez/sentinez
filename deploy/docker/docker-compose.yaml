@@ -47,7 +47,7 @@ services:
     image: hashicorp/consul:latest
     container_name: sentinez.consul
     hostname: sentinez.consul
-    restart: unless-stopped
+    restart: on-failure:3
     ports:
       - "8500:8500"   # UI & API
       - "8600:8600/udp" # DNS
