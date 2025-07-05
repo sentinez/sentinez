@@ -22,14 +22,14 @@ import (
 	flag "github.com/spf13/pflag"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	migratepgx "github.com/sentinez/sentinez/plugins/migrate/pgx"
 )
 
 var (
-	timescale  = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_TIMESCALEDB.String())
-	postgresql = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_POSTGRESQL.String())
-	clickhouse = os.Getenv(sentinez.STNZPublic_STNZ_PUBLIC_CLICKHOUSE.String())
+	timescale  = os.Getenv(common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB.String())
+	postgresql = os.Getenv(common.STNZPublic_STNZ_PUBLIC_POSTGRESQL.String())
+	clickhouse = os.Getenv(common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE.String())
 )
 
 var sourceFileMap = map[string]string{

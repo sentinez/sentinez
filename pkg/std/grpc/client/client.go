@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -30,7 +30,7 @@ import (
 
 // NewGreeterClient creates a new greeter grpc client.
 func NewGreeterClient(_ context.Context,
-	_ *sentinez.Config) (greeter.GreeterServiceClient, error) {
+	_ *common.Config) (greeter.GreeterServiceClient, error) {
 
 	endpoint := ":8000"
 

@@ -18,8 +18,8 @@ package apps
 import (
 	"sync"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/spf13/pflag"
@@ -27,13 +27,13 @@ import (
 
 var onceGRPCService sync.Once
 
-var grpcServiceFlags = &sentinez.FlagGRPCService{
+var grpcServiceFlags = &common.FlagGRPCService{
 	GatewayAddress: "http://0.0.0.0:9000",
 	Address:        "127.0.0.1:8888",
 }
 
 // ParseFlag flag args for grpc service
-func ParseFlag() *sentinez.FlagGRPCService {
+func ParseFlag() *common.FlagGRPCService {
 	onceGRPCService.Do(func() {
 		flags.SetConsole(discovery.ASCII, names.DiscoveryV1, "dev")
 

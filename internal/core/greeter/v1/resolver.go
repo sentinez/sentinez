@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/std/grpc/client"
 	"github.com/sentinez/sentinez/pkg/std/names"
@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
-func Resolver(ctx context.Context, flag *sentinezpb.FlagGRPCService) {
+func Resolver(ctx context.Context, flag *common.FlagGRPCService) {
 	addr, port, err := net.SplitHostPort(flag.GetAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)

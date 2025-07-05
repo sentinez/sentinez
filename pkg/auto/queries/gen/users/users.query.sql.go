@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const count = `-- name: Count :one
+SELECT COUNT(*) FROM users
+`
+
+func (q *Queries) Count(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, count)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const delete = `-- name: Delete :exec
 DELETE FROM users
 WHERE id = $1
@@ -17,6 +28,20 @@ WHERE id = $1
 func (q *Queries) Delete(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, delete, id)
 	return err
+}
+
+const exists = `-- name: Exists :one
+SELECT EXISTS (
+    SELECT 1 FROM users
+    WHERE id = $1
+) AS exists
+`
+
+func (q *Queries) Exists(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, exists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const get = `-- name: Get :one
@@ -70,4 +95,54 @@ func (q *Queries) GetMany(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const insert = `-- name: Insert :one
+INSERT INTO users (name, username, email, password)
+VALUES ($1, $2, $3, $4)
+RETURNING id
+`
+
+type InsertParams struct {
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (q *Queries) Insert(ctx context.Context, arg InsertParams) (int32, error) {
+	row := q.db.QueryRow(ctx, insert,
+		arg.Name,
+		arg.Username,
+		arg.Email,
+		arg.Password,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
+const update = `-- name: Update :exec
+UPDATE users
+SET name = $1, username = $2, email = $3, password = $4, updated_at = CURRENT_TIMESTAMP
+WHERE id = $5
+`
+
+type UpdateParams struct {
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	ID       int32  `json:"id"`
+}
+
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) error {
+	_, err := q.db.Exec(ctx, update,
+		arg.Name,
+		arg.Username,
+		arg.Email,
+		arg.Password,
+		arg.ID,
+	)
+	return err
 }

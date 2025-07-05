@@ -5,7 +5,7 @@
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
 ### 🛡️ Sentinez
-WAAS // WAF as a Service
+WAF // Anti DDOS, Layer 7 protector
 
 > [!WARNING]
 > Please keep in mind that ***Sentinez*** is still under active development

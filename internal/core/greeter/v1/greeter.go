@@ -18,8 +18,8 @@ package greeter
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
@@ -40,8 +40,8 @@ var (
 )
 
 // New creates a new Greeter module.
-func New(srv greeter.GreeterServiceServer, conf *sentinezpb.Config,
-	flag *sentinezpb.FlagGRPCService) sentinez.Server {
+func New(srv greeter.GreeterServiceServer, conf *common.Config,
+	flag *common.FlagGRPCService) sentinez.Server {
 
 	return &Greeter{
 		Server: grpcgw.NewDefault(),
@@ -54,8 +54,8 @@ func New(srv greeter.GreeterServiceServer, conf *sentinezpb.Config,
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
 	*grpcgw.Server // inherit grpc.Server
-	config         *sentinezpb.Config
-	flag           *sentinezpb.FlagGRPCService
+	config         *common.Config
+	flag           *common.FlagGRPCService
 	srv            greeter.GreeterServiceServer
 }
 

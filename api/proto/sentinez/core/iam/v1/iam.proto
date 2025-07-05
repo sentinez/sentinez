@@ -16,8 +16,7 @@ syntax = "proto3";
 
 package sentinez.core.iam.v1;
 
-//import "sentinez/v1/meta.proto";
-import "sentinez/v1/options.proto";
+import "sentinez/common/v1/options.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 //import "buf/validate/validate.proto";
@@ -55,7 +54,7 @@ service IdentityAccessManagementService {
   // private method bellow
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 
 
@@ -66,7 +65,7 @@ service IdentityAccessManagementService {
       get: "/iam/status"
     };
 
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
@@ -75,7 +74,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 
   rpc Login(LoginRequest) returns (LoginResponse) {
@@ -84,7 +83,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 }
 

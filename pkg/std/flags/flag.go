@@ -20,7 +20,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
@@ -39,14 +39,14 @@ var (
 )
 
 // flags global variable
-var flags = &sentinez.Flag{
+var flags = &common.Flag{
 	Name:     "sentinez.server.default",
 	Mode:     "dev",
 	LogLevel: "debug",
 }
 
 // Parse flag args
-func Parse() *sentinez.Flag {
+func Parse() *common.Flag {
 	once.Do(func() {
 		pflag.StringVarP(&flags.Mode, "mode", "m",
 			flags.GetMode(), "run mode (dev|prod|sandbox)")

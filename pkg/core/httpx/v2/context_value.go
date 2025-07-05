@@ -18,8 +18,7 @@ package httpxv2
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
 )
 
@@ -29,9 +28,9 @@ type SentinezContextKey int
 const contextKey SentinezContextKey = 0
 
 // NewCtxValue returns a new context with the given message
-func NewCtxValue(msg *sentinezpb.Context) context.Context {
+func NewCtxValue(msg *common.Context) context.Context {
 	if msg == nil {
-		msg = &sentinezpb.Context{}
+		msg = &common.Context{}
 	}
 
 	ctx := context.Background()
@@ -41,13 +40,13 @@ func NewCtxValue(msg *sentinezpb.Context) context.Context {
 }
 
 // Value returns the context value.
-func Value(ctx context.Context) (*sentinez.Context, bool) {
+func Value(ctx context.Context) (*common.Context, bool) {
 	msgBin, ok := ctx.Value(contextKey).([]byte)
 	if !ok {
 		return nil, false
 	}
 
-	var msg sentinez.Context
+	var msg common.Context
 	if err := proto.Unmarshal(msgBin, &msg); err != nil {
 		return nil, false
 	}

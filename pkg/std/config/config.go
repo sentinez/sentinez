@@ -20,28 +20,28 @@ import (
 	"sync"
 
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 )
 
-var conf *sentinez.Config
+var conf *common.Config
 var once sync.Once
 
 // Default returns the environment.
-func Default() *sentinez.Config {
+func Default() *common.Config {
 	once.Do(func() {
-		conf = &sentinez.Config{
+		conf = &common.Config{
 			TimescaleUri: getPublicEnv(
-				sentinez.STNZPublic_STNZ_PUBLIC_TIMESCALEDB),
+				common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB),
 			PostgresqlUri: getPublicEnv(
-				sentinez.STNZPublic_STNZ_PUBLIC_POSTGRESQL),
+				common.STNZPublic_STNZ_PUBLIC_POSTGRESQL),
 			ClickhouseUri: getPublicEnv(
-				sentinez.STNZPublic_STNZ_PUBLIC_CLICKHOUSE),
+				common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE),
 		}
 	})
 
 	return conf
 }
 
-func getPublicEnv(key sentinez.STNZPublic) string {
+func getPublicEnv(key common.STNZPublic) string {
 	return os.Getenv(key.String())
 }
