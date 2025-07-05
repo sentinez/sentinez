@@ -15,8 +15,8 @@
 package httpv2mdw
 
 import (
-	httpxsecure "github.com/sentinez/sentinez/pkg/core/httpx/secure"
-	http2sec "github.com/sentinez/sentinez/pkg/core/httpx/secure/http2"
+	httpxsecure "github.com/sentinez/sentinez/pkg/core/dmz/secure"
+	http2sec "github.com/sentinez/sentinez/pkg/core/dmz/secure/http2"
 	"github.com/valyala/fasthttp"
 )
 

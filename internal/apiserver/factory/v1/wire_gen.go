@@ -7,7 +7,7 @@
 package factory
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
@@ -28,7 +28,7 @@ func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	return serviceRegistrar
 }
 
-func NewDefaultIAM(conf *sentinez.Config) (httpgw.ServiceRegistrar, error) {
+func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	pool, err := utils.NewPgxPool(conf)
 	if err != nil {
 		return nil, err

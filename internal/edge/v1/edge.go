@@ -18,8 +18,8 @@ package edge
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
@@ -47,7 +47,7 @@ type Edge interface {
 
 // New creates a new Edge Server instance.
 func New(server httpxv2.Server,
-	flag *sentinezpb.FlagEdge, conf *edgeyaml.Config) sentinez.Server {
+	flag *common.FlagEdge, conf *edgeyaml.Config) sentinez.Server {
 	return &Server{
 		core:   server,
 		flag:   flag,
@@ -61,7 +61,7 @@ func New(server httpxv2.Server,
 type Server struct {
 	core   httpxv2.Server
 	config *edgeyaml.Config
-	flag   *sentinezpb.FlagEdge
+	flag   *common.FlagEdge
 }
 
 // Shutdown implements v1.Server.
@@ -82,6 +82,7 @@ func (s *Server) Serve(addr string) error {
 
 	protected := httpv2mdw.Protected(s.flag.GetRuleRoot())
 	host := logic.Host(s.flag.GetHost())
+
 	s.core.Use(host)
 	s.core.Use(protected)
 
@@ -90,6 +91,7 @@ func (s *Server) Serve(addr string) error {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
 	}
+
 	routing.Store(proxyInst, s.config)
 
 	s.core.Handle(routing.Match())

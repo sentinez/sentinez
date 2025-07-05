@@ -18,7 +18,7 @@ package apps
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
@@ -28,14 +28,14 @@ import (
 var onceAPIServer sync.Once
 
 // apiServerFlags global variable
-var apiServerFlags = &sentinez.FlagAPIServer{
+var apiServerFlags = &common.FlagAPIServer{
 	ApiSpecsPath: "boot/api/specs/v1",
 	SwaggerPath:  "boot/api/swagger",
 	Address:      "0.0.0.0:9000",
 }
 
 // ParseFlag flag args for apiserver service
-func ParseFlag() *sentinez.FlagAPIServer {
+func ParseFlag() *common.FlagAPIServer {
 	onceAPIServer.Do(func() {
 		console := version.FigureGen(
 			"SENTINEZ // API SERVER", names.APIServer.String())

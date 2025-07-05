@@ -16,8 +16,8 @@ syntax = "proto3";
 
 package sentinez.core.tenant.v1;
 
-import "sentinez/v1/meta.proto";
-import "sentinez/v1/options.proto";
+import "sentinez/common/v1/meta.proto";
+import "sentinez/common/v1/options.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
@@ -57,7 +57,7 @@ service TenantService {
       get: "/tenant/say"
     };
 
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
@@ -65,12 +65,12 @@ service TenantService {
       get: "/tenant/status"
     };
 
-    option (sentinez.v1.options) = {ignore: true};
+    option (sentinez.common.v1.options) = {ignore: true};
   }
 }
 
 message SayHelloRequest {
-  sentinez.v1.Pages page = 1;
+  sentinez.common.v1.Pages page = 1;
   string name = 2 [(buf.validate.field).string.min_len = 1];
 }
 

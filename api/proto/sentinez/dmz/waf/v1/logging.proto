@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package sentinez.dmz.waf.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/waf/v1;waf";
+
+import "google/protobuf/timestamp.proto";
+import "sentinez/dmz/waf/v1/types.proto";
+
+message CustomRuleLog {
+  string id = 1;
+
+  string resource_owner_id = 2;
+  string request_domain = 3;
+  string resource_domain = 4;
+
+  // Match info
+  string ray_id = 10;
+  string rule_id = 11;
+  string rule_name = 12;
+  sentinez.dmz.waf.v1.Policy action = 13;
+  string expression = 14;
+  sentinez.dmz.waf.v1.Group service_type = 15;
+
+  // Request info
+  string client_ip = 21;
+  int32 asn = 22;
+  string city = 23;
+  string country = 24;
+  string continent = 25;
+
+  string http_user_agent = 30;
+  string http_version = 31;
+  string http_method = 32;
+  string http_host = 33;
+  string http_path = 34;
+  string http_query = 35;
+
+  string request_url = 36;
+  string http_headers = 37;
+
+  int64 request_bytes = 40;
+  int64 response_bytes = 41;
+
+  google.protobuf.Timestamp request_time = 50;
+  google.protobuf.Timestamp response_time = 51;
+}
+
+message SystemRuleLog {
+  string id = 1;
+
+  string resource_owner_id = 2;
+  string request_domain = 3;
+  string resource_domain = 4;
+  string resource_id = 5;
+
+  // Match info
+  string ray_id = 10;
+  repeated string rule_ids = 11;
+  repeated string rule_names = 12;
+  sentinez.dmz.waf.v1.Policy action = 13;
+  repeated string expressions = 14;
+  sentinez.dmz.waf.v1.Group service_type = 15;
+  repeated string rule_severities = 16;
+
+  // Request info
+  string client_ip = 21;
+  int32 asn = 22;
+  string city = 23;
+  string country = 24;
+  string continent = 25;
+
+  string http_user_agent = 30;
+  string http_version = 31;
+  string http_method = 32;
+  string http_host = 33;
+  string http_path = 34;
+  string http_query = 35;
+
+  string request_url = 36;
+  string http_headers = 37;
+
+  int64 request_bytes = 40;
+  int64 response_bytes = 41;
+
+  google.protobuf.Timestamp request_time = 50;
+  google.protobuf.Timestamp response_time = 51;
+}
+
+message SystemAgentRuleLog {
+  string id = 1;
+
+  string resource_owner_id = 2;
+  string request_domain = 3;
+  string resource_domain = 4;
+  string resource_id = 5;
+
+  // Match info
+  string ray_id = 10;
+  repeated string rule_ids = 11;
+  repeated string rule_names = 12;
+  sentinez.dmz.waf.v1.Policy action = 13;
+  repeated string expressions = 14;
+  sentinez.dmz.waf.v1.Group service_type = 15;
+  repeated string rule_severities = 16;
+
+  // Request info
+  string client_ip = 21;
+  int32 asn = 22;
+  string city = 23;
+  string country = 24;
+  string continent = 25;
+
+  string http_user_agent = 30;
+  string http_version = 31;
+  string http_method = 32;
+  string http_host = 33;
+  string http_path = 34;
+  string http_query = 35;
+
+  string request_url = 36;
+  string http_headers = 37;
+
+  int64 request_bytes = 40;
+  int64 response_bytes = 41;
+
+  google.protobuf.Timestamp request_time = 50;
+  google.protobuf.Timestamp response_time = 51;
+}

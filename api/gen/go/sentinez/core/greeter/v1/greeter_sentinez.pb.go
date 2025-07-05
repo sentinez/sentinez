@@ -6,11 +6,12 @@ package greeter
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 )
 
 var (
-	_ sentinez.Empty
+	_ common.Empty
+	_ fmt.Stringer
 )
 
 const ASCII = `

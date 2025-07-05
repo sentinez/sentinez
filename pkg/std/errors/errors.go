@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,32 +28,32 @@ import (
 
 var (
 	forbidden = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_FORBIDDEN,
-		sentinez.Errors_ERRORS_FORBIDDEN.String())
+		common.Errors_ERRORS_FORBIDDEN,
+		common.Errors_ERRORS_FORBIDDEN.String())
 
 	unspecified = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_UNSPECIFIED,
-		sentinez.Errors_ERRORS_UNSPECIFIED.String())
+		common.Errors_ERRORS_UNSPECIFIED,
+		common.Errors_ERRORS_UNSPECIFIED.String())
 
 	internalError = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_INTERNAL_ERROR,
-		sentinez.Errors_ERRORS_INTERNAL_ERROR.String())
+		common.Errors_ERRORS_INTERNAL_ERROR,
+		common.Errors_ERRORS_INTERNAL_ERROR.String())
 
 	notFound = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_NOT_FOUND,
-		sentinez.Errors_ERRORS_NOT_FOUND.String())
+		common.Errors_ERRORS_NOT_FOUND,
+		common.Errors_ERRORS_NOT_FOUND.String())
 
 	unauthorized = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_UNAUTHORIZED,
-		sentinez.Errors_ERRORS_UNAUTHORIZED.String())
+		common.Errors_ERRORS_UNAUTHORIZED,
+		common.Errors_ERRORS_UNAUTHORIZED.String())
 
 	invalidData = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_INVALID_DATA,
-		sentinez.Errors_ERRORS_INVALID_DATA.String())
+		common.Errors_ERRORS_INVALID_DATA,
+		common.Errors_ERRORS_INVALID_DATA.String())
 
 	unimplemented = fmt.Sprintf("%s-%d: %s", version.Code,
-		sentinez.Errors_ERRORS_UNIMPLEMENTED,
-		sentinez.Errors_ERRORS_UNIMPLEMENTED.String())
+		common.Errors_ERRORS_UNIMPLEMENTED,
+		common.Errors_ERRORS_UNIMPLEMENTED.String())
 )
 
 var (

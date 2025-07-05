@@ -18,8 +18,8 @@ package discovery
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
 	dischdl "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
@@ -34,8 +34,8 @@ var _ sentinez.Server = (*Discovery)(nil)
 var _ = sentinez.Inject(dischdl.New)
 
 // New creates a new discovery module.
-func New(srv discovery.DiscoveryServiceServer, conf *sentinezpb.Config,
-	flag *sentinezpb.FlagGRPCService) sentinez.Server {
+func New(srv discovery.DiscoveryServiceServer, conf *common.Config,
+	flag *common.FlagGRPCService) sentinez.Server {
 
 	return &Discovery{
 		Server: grpcgw.NewDefault(),
@@ -48,8 +48,8 @@ func New(srv discovery.DiscoveryServiceServer, conf *sentinezpb.Config,
 // Discovery implements DiscoveryServiceServer.
 type Discovery struct {
 	*grpcgw.Server // inherit grpc.Server
-	config         *sentinezpb.Config
-	flag           *sentinezpb.FlagGRPCService
+	config         *common.Config
+	flag           *common.FlagGRPCService
 	srv            discovery.DiscoveryServiceServer
 }
 

@@ -18,7 +18,7 @@ package apiserver
 import (
 	"context"
 
-	sentinezpb "github.com/sentinez/sentinez/api/gen/go/sentinez/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
@@ -39,8 +39,8 @@ var _ sentinez.Server = (*Server)(nil)
 // Example:
 //
 //	var _ = sentinez.Inject(dcvrhandler.New)
-func New(conf *sentinezpb.Config,
-	flag *sentinezpb.FlagAPIServer) (sentinez.Server, error) {
+func New(conf *common.Config,
+	flag *common.FlagAPIServer) (sentinez.Server, error) {
 
 	srv := &Server{
 		server: httpgw.New(),
@@ -67,14 +67,14 @@ func New(conf *sentinezpb.Config,
 type Server struct {
 	// config is the configuration of the apiserver app, load environment
 	// variables from .env file
-	config *sentinezpb.Config
+	config *common.Config
 
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
 	server httpgw.Server
 
 	// flag option for the apiserver
-	flag *sentinezpb.FlagAPIServer
+	flag *common.FlagAPIServer
 }
 
 // visitToEndpoint all service to external grpc server
