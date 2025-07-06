@@ -21,12 +21,8 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/internal/edge/v1/logic"
-	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
-	"github.com/sentinez/sentinez/internal/edge/v1/routing"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
-	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
 	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -80,21 +76,10 @@ func (s *Server) Start(_ context.Context) error {
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 
-	protected := httpv2mdw.Protected(s.flag.GetRuleRoot())
-	host := logic.Host(s.flag.GetHost())
-
-	s.core.Use(host)
-	s.core.Use(protected)
-
-	proxyInst, err := proxy.New()
-	if err != nil {
-		zlog.Errorf("failed to create proxy instance: %v", err)
+	if err := s.bootloader(context.Background()); err != nil {
+		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}
-
-	routing.Store(proxyInst, s.config)
-
-	s.core.Handle(routing.Match())
 
 	zlog.Infof("%s engine boost on: %s",
 		color.Blue.Add("[FastHTTP]"),

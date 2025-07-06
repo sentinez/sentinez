@@ -17,9 +17,11 @@ syntax = "proto3";
 package sentinez.core.iam.v1;
 
 import "sentinez/common/v1/options.proto";
+import "sentinez/core/iam/v1/model.proto";
+import "sentinez/common/v1/meta.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
-//import "buf/validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
@@ -53,9 +55,11 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service IdentityAccessManagementService {
   // private method bellow
 
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    option (sentinez.common.v1.options) = {ignore: true};
-  }
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse){}
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
 
 
   // public method bellow
@@ -89,27 +93,37 @@ service IdentityAccessManagementService {
 
 
 message LoginRequest {
+  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
+    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
+  }}];
 
+  string password = 2 [(buf.validate.field).string.min_len = 8];
 }
 
 message LoginResponse {
-
+  sentinez.core.iam.v1.Users user = 1;
 }
 
 message CreateAccountRequest {
-
+  string username = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string full_name = 2 [(buf.validate.field).required = true];
+  string password = 3 [(buf.validate.field).string.min_len = 8];
+  string email = 4 [(buf.validate.field).string.email = true];
+  string phone_number = 5 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
 message CreateAccountResponse {
-
+  string account_id = 1;
 }
 
 message CreateUserRequest {
-
+  string full_name = 1 [(buf.validate.field).required = true];
+  string email = 2 [(buf.validate.field).string.email = true];
+  string phone_number = 3 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
 message CreateUserResponse {
-
+  string user_id = 1;
 }
 
 message StatusRequest {
@@ -119,3 +133,42 @@ message StatusRequest {
 message StatusResponse {
  string msg = 1;
 }
+
+message UpdateUserRequest {
+  string full_name = 10 [(buf.validate.field).required = true];
+  string email = 11 [(buf.validate.field).string.email = true];
+  string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
+}
+
+message UpdateUserResponse {
+  sentinez.core.iam.v1.Users user = 1;
+}
+
+message GetUserRequest {
+  string id = 1 [(buf.validate.field) = { required: false, string: {
+    prefix: "stnz.users.",
+  }}];
+
+  string username = 2 [(buf.validate.field).required = false];
+}
+
+message GetUserResponse {
+  sentinez.core.iam.v1.Users user = 1;
+}
+
+message ListUsersRequest {
+  sentinez.common.v1.Pages page = 1;
+  repeated string ids = 10;
+  repeated string phone_numbers = 11;
+  repeated string emails = 12;
+}
+
+message ListUsersResponse {
+  repeated sentinez.core.iam.v1.Users users = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1 [(buf.validate.field).string.prefix = "stnz.users."];
+}
+
+message DeleteUserResponse {}

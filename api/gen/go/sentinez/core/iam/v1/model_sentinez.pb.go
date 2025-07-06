@@ -13,3 +13,17 @@ var (
 	_ common.Empty
 	_ fmt.Stringer
 )
+
+const ASCII = `
+              _____                      
+_____________ __  /________ ______       
+__  ___/_  _ \_  __/__  __ \___  /       SENTINEZ // IAM
+_(__  ) /  __// /_  _  / / /__  /_       ------------
+/____/  \___/ \__/  /_/ /_/ _____/       sentinez.core.iam.v1
+                                         
+`
+
+// PrintASCII the ASCII art to the console.
+func PrintASCII() {
+	fmt.Print(ASCII)
+}
