@@ -1,11 +1,16 @@
-<img src="./docs/assets/cels.png" alt="sentinez" width="120px">
+
+
+# Sentinez
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](http://www.apache.org/licenses/LICENSE-2.0)
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by-sa/4.0/)
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
-### 🛡️ Sentinez
-WAF // Anti DDoS, Layer 7 protector
+<img src="https://i.imgur.com/5Z8Qm77.png" alt="sentinez" width="300px">
+
+---
+
+### 🛡️ WAF, Anti DDoS, Layer 7 protector
 
 > [!WARNING]
 > Please keep in mind that ***Sentinez*** is still under active development
@@ -23,8 +28,7 @@ WAF // Anti DDoS, Layer 7 protector
 - Realtime logs of rejected requests
 - Provides a console interface for data visualization
 
-#### How to Build and Run
-
+How to build and run:  
 **Requirements** before build and run:
 - NodeJS 20.9.0
 - Go 1.24.2
