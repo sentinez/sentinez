@@ -17,46 +17,35 @@ package greeterhandler
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	domainpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/domain/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
-	"github.com/sentinez/sentinez/pkg/common/copier"
-	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // New creates a new Greeter module.
-func New(biz greeterdomain.IGreeter) greeter.GreeterServiceServer {
-	return &Greeter{
-		domain: biz,
-	}
+func New() greeter.GreeterServiceServer {
+	return &Greeter{}
 }
 
 // Greeter is the module for Greeter.
 type Greeter struct {
 	greeter.UnimplementedGreeterServiceServer
-	domain domainpb.GreeterDomainServiceServer
 }
 
 // SayHello implements GreeterServer.
 func (g *Greeter) SayHello(ctx context.Context,
 	msg *greeter.SayHelloRequest) (*greeter.SayHelloResponse, error) {
 
-	var SayHelloReq domainpb.SayHelloRequest
-	if err := copier.CopyProtoMessage(msg, &SayHelloReq); err != nil {
-		zlog.Error(err)
+	zlog.Debugf("greeter.SayHello: req = %v", msg)
 
-		return nil, errors.StatusInvalidData
-	}
-
-	sayHelloResp, err := g.domain.SayHello(ctx, &SayHelloReq)
-	if err != nil {
-		return nil, err
-	}
+	resp := fmt.Sprintf("Hello %s! Current time is %s",
+		msg.Name, time.Now().Format(time.DateTime),
+	)
 
 	return &greeter.SayHelloResponse{
-		Response: sayHelloResp.Response,
+		Message: resp,
 	}, nil
 }
 

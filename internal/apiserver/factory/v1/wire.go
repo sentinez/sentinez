@@ -27,7 +27,6 @@ import (
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
@@ -39,7 +38,6 @@ import (
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	wire.Build(
-		greeterdomain.New,
 		greeterhandler.New,
 		services.NewGreeter,
 	)

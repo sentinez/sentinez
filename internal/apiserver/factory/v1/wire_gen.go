@@ -9,7 +9,6 @@ package factory
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
-	"github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
@@ -23,8 +22,7 @@ import (
 // Injectors from wire.go:
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
-	iGreeter := greeterdomain.New()
-	greeterServiceServer := greeterhandler.New(iGreeter)
+	greeterServiceServer := greeterhandler.New()
 	serviceRegistrar := services.NewGreeter(greeterServiceServer)
 	return serviceRegistrar
 }

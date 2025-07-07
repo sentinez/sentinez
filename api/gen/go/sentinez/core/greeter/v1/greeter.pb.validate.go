@@ -118,15 +118,7 @@ func (m *SayHelloResponse) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetResponse()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SayHelloResponseValidationError{
-				field:  "Response",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Message
 
 	return nil
 }

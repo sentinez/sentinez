@@ -20,7 +20,6 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
@@ -36,7 +35,6 @@ var _ sentinez.Server = (*Greeter)(nil)
 // This is a dependency injection pattern.
 var (
 	_ = sentinez.Inject(greeterhandler.New)
-	_ = sentinez.Inject(greeterdomain.New)
 )
 
 // New creates a new Greeter module.
