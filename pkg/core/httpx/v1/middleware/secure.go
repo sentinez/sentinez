@@ -18,12 +18,13 @@ import (
 	"net/http"
 
 	txhttp "github.com/corazawaf/coraza/v3/http"
-	httpxsecure "github.com/sentinez/sentinez/pkg/core/dmz/secure"
+	"github.com/sentinez/sentinez/pkg/core/dmz/secure"
 )
 
 func Protected(ruleRoot string) func(next http.Handler) http.Handler {
 
-	waf := httpxsecure.NewFireWall(ruleRoot)
+	waf := secure.NewFireWall(ruleRoot)
+
 	return func(next http.Handler) http.Handler {
 		return txhttp.WrapHandler(waf, next)
 	}

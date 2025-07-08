@@ -15,7 +15,7 @@
 package httpv2mdw
 
 import (
-	httpxsecure "github.com/sentinez/sentinez/pkg/core/dmz/secure"
+	"github.com/sentinez/sentinez/pkg/core/dmz/secure"
 	http2sec "github.com/sentinez/sentinez/pkg/core/dmz/secure/http2"
 	"github.com/valyala/fasthttp"
 )
@@ -23,7 +23,7 @@ import (
 func Protected(ruleRoot string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
 
-	waf := httpxsecure.NewFireWall(ruleRoot)
+	waf := secure.NewFireWall(ruleRoot)
 
 	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		return http2sec.WrapHandler(waf, next)
