@@ -1,6 +1,6 @@
 
 
-# Sentinez
+# Sentinez Guide
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](http://www.apache.org/licenses/LICENSE-2.0)
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by-sa/4.0/)
