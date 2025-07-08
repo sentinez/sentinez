@@ -19,7 +19,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -27,7 +27,7 @@ import (
 
 var (
 	// Ensure httpServer implements Server.
-	_ sentinez.Server = (*httpServer)(nil)
+	_ stnz.Server = (*httpServer)(nil)
 
 	// Ensure httpServer implements HttpServer.
 	_ Server = (*httpServer)(nil)

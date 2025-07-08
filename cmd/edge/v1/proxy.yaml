@@ -1,5 +1,5 @@
 proxy:
-  tenant: badcheese
+  namespace: badcheese
   routes:
     - match_prefix: /v1
       target: localhost:3000

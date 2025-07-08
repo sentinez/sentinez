@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package sentinez provides the core setting for the application
-package sentinez
+// Package stnz provides the core setting for the application
+package stnz
 
 import (
 	"context"
 )
 
 // Application represents the application when all constructor was build
-// by sentinez.Build() start the app, it will start the server and provide all
+// by stnz.Build() start the app, it will start the server and provide all
 // constructor needed
 type Application interface {
 	Run(ctx context.Context) error

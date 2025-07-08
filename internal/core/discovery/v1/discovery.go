@@ -23,19 +23,19 @@ import (
 	dischdl "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure Discovery implement sentinez.Server
-// it will start by sentinez.runner through sentinez.Server
-var _ sentinez.Server = (*Discovery)(nil)
+// make sure Discovery implement stnz.Server
+// it will start by stnz.runner through stnz.Server
+var _ stnz.Server = (*Discovery)(nil)
 
-var _ = sentinez.Inject(dischdl.New)
+var _ = stnz.Inject(dischdl.New)
 
 // New creates a new discovery module.
 func New(srv discovery.DiscoveryServiceServer, conf *common.Config,
-	flag *common.FlagGRPCService) sentinez.Server {
+	flag *common.FlagGRPCService) stnz.Server {
 
 	return &Discovery{
 		Server: grpcgw.NewDefault(),

@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -28,17 +28,17 @@ import (
 
 // Build and run main application with environment variable
 // Remember to inject all layers of the application by
-// sentinez.Inject() function
+// stnz.Inject() function
 //
 // Example:
 //
-// _ = sentinez.Inject(controllers.New)
+// _ = stnz.Inject(controllers.New)
 func main() {
 	if err := flags.Validate(apps.ParseFlag()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	app := sentinez.Build(greeter.New, config.Default, apps.ParseFlag)
+	app := stnz.Build(greeter.New, config.Default, apps.ParseFlag)
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

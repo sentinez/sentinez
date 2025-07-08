@@ -22,7 +22,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -36,7 +36,7 @@ func main() {
 		zlog.Fatal(err)
 	}
 
-	app := sentinez.Build(edge.New, edgeflags.ParseFlag, loadYaml)
+	app := stnz.Build(edge.New, edgeflags.ParseFlag, loadYaml)
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

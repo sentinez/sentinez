@@ -19,7 +19,7 @@ import (
 	"context"
 
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 
 	"google.golang.org/grpc"
@@ -30,7 +30,7 @@ var (
 	_ ServiceServer = (*Server)(nil)
 
 	// Ensure Server implements Server.
-	_ sentinez.Server = (*Server)(nil)
+	_ stnz.Server = (*Server)(nil)
 )
 
 // ServiceServer is a gRPC service server.

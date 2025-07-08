@@ -23,23 +23,23 @@ import (
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure Greeter implement sentinez.Server
-// it will start by sentinez.runner through sentinez.Server
-var _ sentinez.Server = (*Greeter)(nil)
+// make sure Greeter implement stnz.Server
+// it will start by stnz.runner through stnz.Server
+var _ stnz.Server = (*Greeter)(nil)
 
 // inject all dependencies to the greeter
 // This is a dependency injection pattern.
 var (
-	_ = sentinez.Inject(greeterhandler.New)
+	_ = stnz.Inject(greeterhandler.New)
 )
 
 // New creates a new Greeter module.
 func New(srv greeter.GreeterServiceServer, conf *common.Config,
-	flag *common.FlagGRPCService) sentinez.Server {
+	flag *common.FlagGRPCService) stnz.Server {
 
 	return &Greeter{
 		Server: grpcgw.NewDefault(),
@@ -57,7 +57,7 @@ type Greeter struct {
 	srv            greeter.GreeterServiceServer
 }
 
-// Start implements IGreeter, override sentinez.Server.Start
+// Start implements IGreeter, override stnz.Server.Start
 func (g *Greeter) Start(ctx context.Context) error {
 	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {

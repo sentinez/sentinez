@@ -18,12 +18,12 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/internal/websocket"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func main() {
-	app := sentinez.Build(websocket.New)
+	app := stnz.Build(websocket.New)
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

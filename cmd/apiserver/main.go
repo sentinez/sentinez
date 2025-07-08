@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/apiserver/apps"
 	"github.com/sentinez/sentinez/internal/apiserver"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -28,11 +28,11 @@ import (
 
 // Build and run the main application with environment variables.
 // Remember to inject all layers of the application using the
-// sentinez.Inject() function.
+// stnz.Inject() function.
 //
 // Example:
 //
-//	_ = sentinez.Inject(controllers.New)
+//	_ = stnz.Inject(controllers.New)
 //
 // This is the sentinez apiserver application, it will automatically
 // connect to other services via gRPC. Run the application along with
@@ -44,14 +44,14 @@ import (
 //
 // Run the application using the Makefile command
 //
-//	make run.apiserver // start sentinez apiserver
-//	make run.<service> // start service
+//	make apiserver.run // start sentinez apiserver
+//	make <service>.run // start service
 func main() {
 	if err := flags.Validate(apps.ParseFlag()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	app := sentinez.Build(apiserver.New, config.Default, apps.ParseFlag)
+	app := stnz.Build(apiserver.New, config.Default, apps.ParseFlag)
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

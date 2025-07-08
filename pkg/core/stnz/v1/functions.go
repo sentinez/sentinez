@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sentinez
+package stnz
 
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1/internal"
+	"github.com/sentinez/sentinez/pkg/core/stnz/v1/internal"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
