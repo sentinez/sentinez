@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpv2mdw
+package httpxf1mdw
 
 import (
 	"github.com/sentinez/sentinez/pkg/core/dmz/secure"

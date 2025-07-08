@@ -19,12 +19,12 @@ import (
 
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
-	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
+	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/httpx/f1/middleware"
 )
 
 func (s *Server) bootloader(_ context.Context) error {
 
-	protected := httpv2mdw.Protected(s.flag.GetRuleRoot())
+	protected := httpxf1mdw.Protected(s.flag.GetRuleRoot())
 	host := logic.Host(s.flag.GetHost())
 
 	s.core.Use(host)

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpxv2 provides the HTTP context interface and its implementation.
-package httpxv2
+// Package httpxf1 provides the HTTP context interface and its implementation.
+package httpxf1
 
 import (
 	"github.com/sentinez/sentinez/pkg/core/httpx"

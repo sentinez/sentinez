@@ -16,21 +16,21 @@ package websocket
 
 import (
 	"github.com/sentinez/sentinez/pkg/common/sync"
-	httpxv1 "github.com/sentinez/sentinez/pkg/core/httpx/v1"
+	httpx1 "github.com/sentinez/sentinez/pkg/core/httpx/h1"
 )
 
 func New() *WebSocket {
 	return &WebSocket{
-		routers: sync.Map[string, func(httpxv1.Context) error]{},
+		routers: sync.Map[string, func(httpx1.Context) error]{},
 	}
 }
 
 type WebSocket struct {
-	routers sync.Map[string, func(httpxv1.Context) error]
+	routers sync.Map[string, func(httpx1.Context) error]
 }
 
 func (ws *WebSocket) HandlerFunc(
-	path string, handler func(httpxv1.Context) error) {
+	path string, handler func(httpx1.Context) error) {
 
 	_, ok := ws.routers.Load(path)
 	if ok {
@@ -42,16 +42,16 @@ func (ws *WebSocket) HandlerFunc(
 
 func (ws *WebSocket) ListenAndServe(addr string) error {
 	ws.routers.Range(
-		func(path string, handler func(httpxv1.Context) error) bool {
-			httpxv1.HandlerFunc(path, handler)
+		func(path string, handler func(httpx1.Context) error) bool {
+			httpx1.HandlerFunc(path, handler)
 			return true
 		})
 
 	ws.routers.Clear()
 
-	return httpxv1.ListenAndServe(addr)
+	return httpx1.ListenAndServe(addr)
 }
 
 func (ws *WebSocket) Shutdown() error {
-	return httpxv1.Shutdown()
+	return httpx1.Shutdown()
 }

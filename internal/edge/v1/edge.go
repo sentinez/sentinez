@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -33,7 +33,7 @@ var (
 )
 
 var (
-	_ = stnz.Inject(httpxv2.NewServer)
+	_ = stnz.Inject(httpxf1.NewServer)
 )
 
 // Edge is the interface that wraps the basic Serve method.
@@ -42,7 +42,7 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server httpxv2.Server,
+func New(server httpxf1.Server,
 	flag *common.FlagEdge, conf *edgeyaml.Config) stnz.Server {
 	return &Server{
 		core:   server,
@@ -55,7 +55,7 @@ func New(server httpxv2.Server,
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core   httpxv2.Server
+	core   httpxf1.Server
 	config *edgeyaml.Config
 	flag   *common.FlagEdge
 }

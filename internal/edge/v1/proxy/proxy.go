@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"time"
 
-	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )
@@ -45,7 +45,7 @@ func New() (*Proxy, error) {
 	return &Proxy{pool: pool}, nil
 }
 
-func (p *Proxy) ServeHTTP(ctx *httpxv2.Context, target string) error {
+func (p *Proxy) ServeHTTP(ctx *httpxf1.Context, target string) error {
 	proxyServer, err := p.pool.Get(target)
 	if err != nil {
 		zlog.Debug("[edge] proxy got an error: ", err)
