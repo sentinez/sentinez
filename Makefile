@@ -58,7 +58,6 @@ apiserver.build.image: TAG ?= sentinez/sentinez
 apiserver.build.image:
 	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
 
-
 greeter.build: SENTINEZ_OUT ?= greeter
 greeter.build:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1
@@ -82,3 +81,8 @@ edge.build: SENTINEZ_OUT ?= edge
 edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
 	@echo "[DONE]  SENTINEZ: gateway.edge.v1 ... ok"
+
+discovery.run: SENTINEZ_OUT ?= discovery
+discovery.run:
+	@go build -ldflags="-s -w" -o ./cmd/discovery/v1/bin/$(SENTINEZ_OUT) ./cmd/discovery/v1 && \
+	./cmd/discovery/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8888

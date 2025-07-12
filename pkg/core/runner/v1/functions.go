@@ -12,39 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stnz
+package runner
 
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1/internal"
-	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
 
 	"go.uber.org/fx"
 )
-
-// Build builds the application.
-// The application is built by providing the constructors.
-func Build(constructors ...any) Application {
-	zlog.SetLogLevel(flags.Parse().GetLogLevel())
-
-	for _, constructor := range constructors {
-		internal.Provide(constructor)
-	}
-
-	// disable log: use fx.NopLogger
-	if flags.Parse().GetMode() != "dev" {
-		return &sentinez{
-			engine: fx.New(
-				internal.Option(), fx.Invoke(runner), fx.NopLogger),
-		}
-	}
-
-	return &sentinez{
-		engine: fx.New(internal.Option(), fx.Invoke(runner)),
-	}
-}
 
 // InjectLifeCycle injects the given constructor into the application with
 // lifecycle hooks.

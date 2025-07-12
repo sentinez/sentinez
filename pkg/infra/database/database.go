@@ -19,6 +19,12 @@ import (
 	"context"
 )
 
+type StorageOption int
+
+const (
+	StorageKV StorageOption = iota
+)
+
 // Repository provides the interface for the database.
 type Repository[T any, ID comparable] interface {
 	Create(ctx context.Context, entity T) (T, error)
@@ -71,3 +77,16 @@ type Rows interface {
 type ExecResult interface {
 	RowsAffected() int64
 }
+
+type Reference struct {
+	FromField string
+	ToTable   string
+	ToField   string
+}
+
+type Table struct {
+	References    map[string]Reference // table name -> references
+	StorageOption StorageOption
+}
+
+type Option func(*Table)

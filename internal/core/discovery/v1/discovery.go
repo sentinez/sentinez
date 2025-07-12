@@ -23,34 +23,42 @@ import (
 	dischdl "github.com/sentinez/sentinez/internal/core/discovery/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure Discovery implement stnz.Server
-// it will start by stnz.runner through stnz.Server
-var _ stnz.Server = (*Discovery)(nil)
+// make sure Discovery implement runner.Server
+// it will start by runner.runner through runner.Server
+var _ runner.Server = (*Discovery)(nil)
 
-var _ = stnz.Inject(dischdl.New)
+type Service struct {
+	*grpcgw.Server
+	handler discovery.DiscoveryServiceServer
+}
+
+func NewService() *Service {
+	return &Service{
+		Server:  grpcgw.NewDefault(),
+		handler: dischdl.New(),
+	}
+}
 
 // New creates a new discovery module.
-func New(srv discovery.DiscoveryServiceServer, conf *common.Config,
-	flag *common.FlagGRPCService) stnz.Server {
+func New(srv *Service, conf *common.Config,
+	flag *common.FlagGRPCService) runner.Server {
 
 	return &Discovery{
-		Server: grpcgw.NewDefault(),
-		srv:    srv,
-		config: conf,
-		flag:   flag,
+		Service: srv,
+		config:  conf,
+		flag:    flag,
 	}
 }
 
 // Discovery implements DiscoveryServiceServer.
 type Discovery struct {
-	*grpcgw.Server // inherit grpc.Server
-	config         *common.Config
-	flag           *common.FlagGRPCService
-	srv            discovery.DiscoveryServiceServer
+	*Service
+	config *common.Config
+	flag   *common.FlagGRPCService
 }
 
 func (g *Discovery) Start(_ context.Context) error {
@@ -59,7 +67,7 @@ func (g *Discovery) Start(_ context.Context) error {
 		return err
 	}
 
-	discovery.RegisterDiscoveryServiceServer(g.AsServer(), g.srv)
+	discovery.RegisterDiscoveryServiceServer(g.AsServer(), g.handler)
 	zlog.Debugf("discovery service started on %s", g.flag.GetAddress())
 
 	return g.Serve(g.flag.GetAddress())

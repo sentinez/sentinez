@@ -23,17 +23,13 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var (
-	_ Edge        = (*Server)(nil)
-	_ stnz.Server = (*Server)(nil)
-)
-
-var (
-	_ = stnz.Inject(httpxf1.NewServer)
+	_ Edge          = (*Server)(nil)
+	_ runner.Server = (*Server)(nil)
 )
 
 // Edge is the interface that wraps the basic Serve method.
@@ -43,7 +39,7 @@ type Edge interface {
 
 // New creates a new Edge Server instance.
 func New(server httpxf1.Server,
-	flag *common.FlagEdge, conf *edgeyaml.Config) stnz.Server {
+	flag *common.FlagEdge, conf *edgeyaml.Config) runner.Server {
 	return &Server{
 		core:   server,
 		flag:   flag,

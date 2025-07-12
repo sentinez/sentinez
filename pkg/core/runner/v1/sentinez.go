@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stnz
+package runner
 
 import (
 	"context"
@@ -20,17 +20,54 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
+	"github.com/sentinez/sentinez/pkg/std/flags"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"go.uber.org/fx"
 )
 
+// Runner represents the application when all constructor was build
+// by runner.Build() start the app, it will start the server and provide all
+// constructor needed
+type Runner[srv any] interface {
+	Build(start func(srv) (Server, error)) Runner[srv]
+	Run(ctx context.Context) error
+}
+
+func New[srv any](fn func() srv) Runner[srv] {
+	internal.Provide(fn)
+	return &sentinez[srv]{
+		engine: fx.New(internal.Option()),
+	}
+}
+
 // sentinez represents the container with uber/fx frameworks.
 // manage the lifecycle of the application.
-type sentinez struct {
+type sentinez[srv any] struct {
 	engine *fx.App
 }
 
+// Build builds the application.
+// The application is built by providing the constructors.
+func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
+	zlog.SetLogLevel(flags.Parse().GetLogLevel())
+
+	internal.Provide(start)
+
+	// disable log: use fx.NopLogger
+	if flags.Parse().GetMode() != "dev" {
+		return &sentinez[srv]{
+			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
+		}
+	}
+
+	return &sentinez[srv]{
+		engine: fx.New(internal.Option(), fx.Invoke(runner)),
+	}
+}
+
 // Run the app with the given context.
-func (s *sentinez) Run(ctx context.Context) error {
+func (s *sentinez[srv]) Run(ctx context.Context) error {
 	err := make(chan error)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -49,7 +86,7 @@ func (s *sentinez) Run(ctx context.Context) error {
 }
 
 // onStart the app with the given context.
-func (s *sentinez) onStart(ctx context.Context, errChan chan<- error) {
+func (s *sentinez[srv]) onStart(ctx context.Context, errChan chan<- error) {
 	// if the error is not nil, return the error to err channel end goroutine 1
 	if err := s.engine.Start(ctx); err != nil {
 		errChan <- err
@@ -57,7 +94,7 @@ func (s *sentinez) onStart(ctx context.Context, errChan chan<- error) {
 }
 
 // onStop the app with the given context.
-func (s *sentinez) onStop(
+func (s *sentinez[srv]) onStop(
 	ctx context.Context, sigChan <-chan os.Signal, errChan chan<- error) {
 
 	// wait for the signal interrupt from the OS

@@ -19,7 +19,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -27,7 +27,7 @@ import (
 
 var (
 	// Ensure httpServer implements Server.
-	_ stnz.Server = (*httpServer)(nil)
+	_ runner.Server = (*httpServer)(nil)
 
 	// Ensure httpServer implements HttpServer.
 	_ Server = (*httpServer)(nil)
@@ -47,6 +47,13 @@ type Server interface {
 func New(opts ...runtime.ServeMuxOption) Server {
 	return &httpServer{
 		runtimeMux: runtime.NewServeMux(opts...),
+		httpMux:    http.NewServeMux(),
+	}
+}
+
+func NewDefault() Server {
+	return &httpServer{
+		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
 	}
 }

@@ -20,9 +20,10 @@ import (
 
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -36,7 +37,11 @@ func main() {
 		zlog.Fatal(err)
 	}
 
-	app := stnz.Build(edge.New, edgeflags.ParseFlag, loadYaml)
+	app := runner.New(httpxf1.NewServer).
+		Build(func(srv httpxf1.Server) (runner.Server, error) {
+			return edge.New(srv, edgeflags.ParseFlag(), loadYaml()), nil
+		})
+
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

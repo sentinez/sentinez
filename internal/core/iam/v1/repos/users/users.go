@@ -46,7 +46,9 @@ type IUser interface {
 func New(pool *pgxpool.Pool) (IUser, error) {
 	tableName := table.Table(table.Users)
 
-	storage, err := postgresdb.New[*iam.Users](pool, tableName, pgopt.TableKV)
+	storage, err := postgresdb.New[*iam.Users](pool, tableName,
+		pgopt.WithStorageOption(database.StorageKV),
+	)
 	if err != nil {
 		return nil, err
 	}

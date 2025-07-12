@@ -18,12 +18,18 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/internal/websocket"
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	wscore "github.com/sentinez/sentinez/pkg/core/websocket"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func main() {
-	app := stnz.Build(websocket.New)
+
+	app := runner.New(wscore.New).
+		Build(func(ws *wscore.WebSocket) (runner.Server, error) {
+			return websocket.New(ws), nil
+		})
+
 	if err := app.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}

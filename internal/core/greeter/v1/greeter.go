@@ -23,48 +23,52 @@ import (
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure Greeter implement stnz.Server
-// it will start by stnz.runner through stnz.Server
-var _ stnz.Server = (*Greeter)(nil)
+// make sure Greeter implement runner.Server
+// it will start by runner/v1.runner through runner.Server
+var _ runner.Server = (*Greeter)(nil)
 
-// inject all dependencies to the greeter
-// This is a dependency injection pattern.
-var (
-	_ = stnz.Inject(greeterhandler.New)
-)
+type Service struct {
+	*grpcgw.Server
+	handler greeter.GreeterServiceServer
+}
+
+func NewService() *Service {
+	return &Service{
+		Server:  grpcgw.NewDefault(),
+		handler: greeterhandler.New(),
+	}
+}
 
 // New creates a new Greeter module.
-func New(srv greeter.GreeterServiceServer, conf *common.Config,
-	flag *common.FlagGRPCService) stnz.Server {
+func New(srv *Service,
+	conf *common.Config, flag *common.FlagGRPCService) runner.Server {
 
 	return &Greeter{
-		Server: grpcgw.NewDefault(),
-		srv:    srv,
-		config: conf,
-		flag:   flag,
+		Service: srv,
+		config:  conf,
+		flag:    flag,
 	}
 }
 
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
-	*grpcgw.Server // inherit grpc.Server
-	config         *common.Config
-	flag           *common.FlagGRPCService
-	srv            greeter.GreeterServiceServer
+	*Service
+	config *common.Config
+	flag   *common.FlagGRPCService
 }
 
-// Start implements IGreeter, override stnz.Server.Start
+// Start implements IGreeter, override runner.Server.Start
 func (g *Greeter) Start(ctx context.Context) error {
 	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {
 		return err
 	}
 
-	greeter.RegisterGreeterServiceServer(g.AsServer(), g.srv)
+	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 	zlog.Debugf("greeter service started on %s", g.flag.GetAddress())
 
 	go Resolver(ctx, g.flag)

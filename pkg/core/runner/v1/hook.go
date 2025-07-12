@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package stnz provides a way to add hooks to the application lifecycle.
-package stnz
+// Package runner provides a way to add hooks to the application lifecycle.
+package runner
 
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/core/stnz/v1/internal"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
 	"go.uber.org/fx"
 )
 
