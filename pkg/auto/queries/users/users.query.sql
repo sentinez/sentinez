@@ -23,8 +23,8 @@ DELETE FROM users
 WHERE id = $1;
 
 -- name: Insert :one
-INSERT INTO users (data)
-VALUES ($1::jsonb)
+INSERT INTO users (id, data)
+VALUES ($1, $2::jsonb)
 RETURNING id;
 
 -- name: Update :exec

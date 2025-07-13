@@ -139,13 +139,18 @@ func (q *Queries) GetPage(ctx context.Context, arg GetPageParams) ([]User, error
 }
 
 const insert = `-- name: Insert :one
-INSERT INTO users (data)
-VALUES ($1::jsonb)
+INSERT INTO users (id, data)
+VALUES ($1, $2::jsonb)
 RETURNING id
 `
 
-func (q *Queries) Insert(ctx context.Context, dollar_1 []byte) (string, error) {
-	row := q.db.QueryRow(ctx, insert, dollar_1)
+type InsertParams struct {
+	ID      string `json:"id"`
+	Column2 []byte `json:"column_2"`
+}
+
+func (q *Queries) Insert(ctx context.Context, arg InsertParams) (string, error) {
+	row := q.db.QueryRow(ctx, insert, arg.ID, arg.Column2)
 	var id string
 	err := row.Scan(&id)
 	return id, err

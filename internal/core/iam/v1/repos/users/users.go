@@ -47,6 +47,7 @@ type IUser interface {
 
 	// extra methods
 	List(ctx context.Context, req *iam.ListUsersRequest) ([]*iam.Users, error)
+	GetByUsernameOrEmail(ctx context.Context, input string) (*iam.Users, error)
 }
 
 func New(pool *pgxpool.Pool) (IUser, error) {
@@ -70,6 +71,23 @@ type Users struct {
 	tableName string
 	query     *users.Queries
 	storage   database.Database[*iam.Users]
+}
+
+// GetByUsernameOrEmail implements IUser.
+func (u *Users) GetByUsernameOrEmail(ctx context.Context,
+	input string) (*iam.Users, error) {
+
+	user, err := u.query.GetByUsernameOrEmail(ctx, []byte(input))
+	if err != nil {
+		return nil, err
+	}
+
+	var result iam.Users
+	if err := protojson.Unmarshal(user.Data, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 // List implements IUser.
@@ -128,14 +146,17 @@ func (u *Users) Count(ctx context.Context) (int64, error) {
 func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
-	user.Id = uuid.Generate(table.Users)
+	user.Id = uuid.Generate(u.tableName)
 
 	data, err := protojson.Marshal(user)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = u.query.Insert(ctx, data)
+	_, err = u.query.Insert(ctx, users.InsertParams{
+		ID:      user.GetId(),
+		Column2: data,
+	})
 	if err != nil {
 		return nil, err
 	}

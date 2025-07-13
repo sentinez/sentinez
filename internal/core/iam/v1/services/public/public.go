@@ -18,33 +18,48 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 )
 
-func New(users usersrepo.IUser) *IAMPublicService {
+func New(
+	users usersrepo.IUser,
+	account accountrepo.IAccount,
+) *IAMPublicService {
 	return &IAMPublicService{
-		users: users,
+		users:    users,
+		accounts: account,
 	}
 }
 
 type IAMPublicService struct {
-	users usersrepo.IUser
+	users    usersrepo.IUser
+	accounts accountrepo.IAccount
 }
 
 func (srv *IAMPublicService) Status(ctx context.Context,
 	request *iam.StatusRequest) (*iam.StatusResponse, error) {
 	_ = ctx
 	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	return &iam.StatusResponse{Msg: "OK"}, nil
 }
 
 func (srv *IAMPublicService) CreateAccount(ctx context.Context,
 	request *iam.CreateAccountRequest) (*iam.CreateAccountResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	acc, err := srv.accounts.Create(ctx, &iam.Accounts{
+		Email:    request.GetEmail(),
+		Username: request.GetUsername(),
+		Password: request.GetPassword(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.CreateAccountResponse{
+		AccountId: acc.GetId(),
+	}, nil
 }
 
 func (srv *IAMPublicService) Login(ctx context.Context,

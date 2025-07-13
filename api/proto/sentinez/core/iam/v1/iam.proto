@@ -135,6 +135,10 @@ message StatusResponse {
 }
 
 message UpdateUserRequest {
+  string id = 1 [(buf.validate.field) = { required: false, string: {
+    prefix: "stnz.users.",
+  }}];
+  
   string full_name = 10 [(buf.validate.field).required = true];
   string email = 11 [(buf.validate.field).string.email = true];
   string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
