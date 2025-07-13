@@ -45,24 +45,32 @@ type IdentityAccessManagement struct {
 
 func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
 	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
 	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }

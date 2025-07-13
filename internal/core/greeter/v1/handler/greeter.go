@@ -35,7 +35,7 @@ type Greeter struct {
 }
 
 // SayHello implements GreeterServer.
-func (g *Greeter) SayHello(ctx context.Context,
+func (g *Greeter) SayHello(_ context.Context,
 	msg *greeter.SayHelloRequest) (*greeter.SayHelloResponse, error) {
 
 	zlog.Debugf("greeter.SayHello: req = %v", msg)

@@ -30,6 +30,7 @@ import (
 
 var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
 
+//nolint:funlen
 func New[T any](pool *pgxpool.Pool, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 

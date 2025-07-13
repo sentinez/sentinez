@@ -12,15 +12,35 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const (
+	ColumnID   = "id"
+	ColumnData = "data"
+)
+
+const queryExec = `
+	CREATE TABLE IF NOT EXISTS %s (
+		id TEXT PRIMARY KEY,
+		data JSONB NOT NULL,
+		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	);
+`
+
+const alterQuery = `
+	ALTER TABLE %s
+	ADD CONSTRAINT %s FOREIGN KEY (%s)
+	REFERENCES %s(%s)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE;
+`
+
+const checkConstraint = `
+	SELECT 1
+	FROM pg_constraint
+	WHERE conname = $1;
+`
+
 func TableKV(pool *pgxpool.Pool, name string) error {
-	const queryExec = `
-		CREATE TABLE IF NOT EXISTS %s (
-			id TEXT PRIMARY KEY,
-			data JSONB NOT NULL,
-			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-		);
-	`
 	sql := fmt.Sprintf(queryExec, name)
 
 	_, err := pool.Exec(context.Background(), sql)
@@ -33,16 +53,10 @@ func TableKV(pool *pgxpool.Pool, name string) error {
 }
 
 func Reference(pool *pgxpool.Pool,
-	fromTable, fromField, toTable, toField string,
-) error {
+	fromTable, fromField, toTable, toField string) error {
 	ctx := context.Background()
 	constraintName := fmt.Sprintf("fk_%s_%s", fromTable, fromField)
 
-	const checkConstraint = `
-		SELECT 1
-		FROM pg_constraint
-		WHERE conname = $1;
-	`
 	var exists int
 	err := pool.QueryRow(ctx, checkConstraint, constraintName).Scan(&exists)
 	if err == nil {
@@ -56,13 +70,6 @@ func Reference(pool *pgxpool.Pool,
 		return errors.F("[pgopt] failed to check constraint existence: %w", err)
 	}
 
-	const alterQuery = `
-		ALTER TABLE %s
-		ADD CONSTRAINT %s FOREIGN KEY (%s)
-		REFERENCES %s(%s)
-		ON DELETE CASCADE
-		ON UPDATE CASCADE;
-	`
 	sql := fmt.Sprintf(alterQuery,
 		fromTable, constraintName, fromField, toTable, toField)
 

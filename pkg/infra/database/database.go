@@ -17,6 +17,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 )
 
 type StorageOption int
@@ -29,8 +31,8 @@ const (
 type Repository[T any, ID comparable] interface {
 	Create(ctx context.Context, entity T) (T, error)
 	Get(ctx context.Context, id ID) (T, error)
-	GetAll(ctx context.Context) ([]T, error)
-	Update(ctx context.Context, id ID, entity T) (T, error)
+	GetMany(ctx context.Context, page *common.Pages) ([]T, error)
+	Update(ctx context.Context, entity T) (T, error)
 	Delete(ctx context.Context, id ID) error
 	Exists(ctx context.Context, id ID) (bool, error)
 	Count(ctx context.Context) (int64, error)

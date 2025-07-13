@@ -33,32 +33,47 @@ type IAMPrivateService struct {
 
 func (srv *IAMPrivateService) CreateUser(ctx context.Context,
 	request *iam.CreateUserRequest) (*iam.CreateUserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+
+	user, err := srv.users.Create(ctx, &iam.Users{
+		FullName:    request.FullName,
+		Email:       request.Email,
+		PhoneNumber: request.PhoneNumber,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.CreateUserResponse{UserId: user.Id}, nil
 }
 
 func (srv *IAMPrivateService) GetUser(ctx context.Context,
 	request *iam.GetUserRequest) (*iam.GetUserResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (srv *IAMPrivateService) ListUsers(ctx context.Context,
 	request *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (srv *IAMPrivateService) DeleteUser(ctx context.Context,
 	request *iam.DeleteUserRequest) (*iam.DeleteUserResponse, error) {
-
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (srv *IAMPrivateService) UpdateUser(ctx context.Context,
 	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
-
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }

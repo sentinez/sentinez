@@ -12,5 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package greeterrepo provides the database repository for the greeter service.
-package greeterrepo
+// Package database provides the database interface.
+package database
+
+func GetOffset(pageIndex, pageSize int) int {
+	if pageIndex < 1 {
+		pageIndex = 1
+	}
+	return (pageIndex - 1) * pageSize
+}

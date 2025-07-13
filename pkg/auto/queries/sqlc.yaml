@@ -15,31 +15,11 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "sql/authors.query.sql"
-    schema: "sql/authors.schema.sql"
-    gen:
-      go:
-        package: "authors"
-        out: "gen/authors"
-        sql_package: "pgx/v5"
-        emit_json_tags: true
-
-  - engine: "postgresql"
-    queries: "sql/news.query.sql"
-    schema: "sql/news.schema.sql"
-    gen:
-      go:
-        package: "news"
-        out: "gen/news"
-        sql_package: "pgx/v5"
-        emit_json_tags: true
-
-  - engine: "postgresql"
-    queries: "sql/users.query.sql"
-    schema: "sql/users.schema.sql"
+    queries: "users/users.query.sql"
+    schema: "users/users.schema.sql"
     gen:
       go:
         package: "users"
-        out: "gen/users"
+        out: "users/"
         sql_package: "pgx/v5"
         emit_json_tags: true

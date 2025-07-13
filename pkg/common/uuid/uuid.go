@@ -17,15 +17,12 @@ package uuid
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/sentinez/sentinez/pkg/std/version"
 
 	"github.com/google/uuid"
 )
 
 // Generate generates a new UUID and returns it as a string.
-func Generate() string {
+func Generate(prefix string) string {
 	id := uuid.New()
-	return fmt.Sprintf("%s-%s", strings.ToLower(version.Code), id.String())
+	return fmt.Sprintf("%s_%s", prefix, id.String())
 }

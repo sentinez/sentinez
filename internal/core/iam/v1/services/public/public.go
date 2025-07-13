@@ -33,21 +33,24 @@ type IAMPublicService struct {
 
 func (srv *IAMPublicService) Status(ctx context.Context,
 	request *iam.StatusRequest) (*iam.StatusResponse, error) {
-
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (srv *IAMPublicService) CreateAccount(ctx context.Context,
 	request *iam.CreateAccountRequest) (*iam.CreateAccountResponse, error) {
-
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
 
 func (srv *IAMPublicService) Login(ctx context.Context,
 	request *iam.LoginRequest) (*iam.LoginResponse, error) {
-
+	_ = ctx
+	_ = request
 	//TODO implement me
 	panic("implement me")
 }
