@@ -18,6 +18,9 @@ package iamhandler
 import (
 	"context"
 
+	privateservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
+	publicservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
+
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -25,16 +28,51 @@ import (
 var _ iampb.
 	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
-func New(domain iampb.IdentityAccessManagerDomainServiceServer,
+func New(
+	public *publicservice.IAMPublicService,
+	private *privateservice.IAMPrivateService,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
-		domain: domain,
+		public:  public,
+		private: private,
 	}
 }
 
-// IdentityAccessManagement implement iampb.IAMServiceServer
 type IdentityAccessManagement struct {
-	domain iampb.IdentityAccessManagerDomainServiceServer
+	public  *publicservice.IAMPublicService
+	private *privateservice.IAMPrivateService
+}
+
+func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
+	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
+	_ = ctx
+	_ = request
+	//TODO implement me
+	panic("implement me")
+}
+
+func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
+	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
+	_ = ctx
+	_ = request
+	//TODO implement me
+	panic("implement me")
+}
+
+func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
+	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
+	_ = ctx
+	_ = request
+	//TODO implement me
+	panic("implement me")
+}
+
+func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
+	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
+	_ = ctx
+	_ = request
+	//TODO implement me
+	panic("implement me")
 }
 
 // CreateAccount implements iampb.IAMServiceServer.

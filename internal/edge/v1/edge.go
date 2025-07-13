@@ -21,23 +21,15 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/internal/edge/v1/logic"
-	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
-	"github.com/sentinez/sentinez/internal/edge/v1/routing"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
-	httpv2mdw "github.com/sentinez/sentinez/pkg/core/httpx/v2/middleware"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var (
-	_ Edge            = (*Server)(nil)
-	_ sentinez.Server = (*Server)(nil)
-)
-
-var (
-	_ = sentinez.Inject(httpxv2.NewServer)
+	_ Edge          = (*Server)(nil)
+	_ runner.Server = (*Server)(nil)
 )
 
 // Edge is the interface that wraps the basic Serve method.
@@ -46,8 +38,8 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server httpxv2.Server,
-	flag *common.FlagEdge, conf *edgeyaml.Config) sentinez.Server {
+func New(server httpxf1.Server,
+	flag *common.FlagEdge, conf *edgeyaml.Config) runner.Server {
 	return &Server{
 		core:   server,
 		flag:   flag,
@@ -59,7 +51,7 @@ func New(server httpxv2.Server,
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core   httpxv2.Server
+	core   httpxf1.Server
 	config *edgeyaml.Config
 	flag   *common.FlagEdge
 }
@@ -80,21 +72,10 @@ func (s *Server) Start(_ context.Context) error {
 func (s *Server) Serve(addr string) error {
 	edge.PrintASCII()
 
-	protected := httpv2mdw.Protected(s.flag.GetRuleRoot())
-	host := logic.Host(s.flag.GetHost())
-
-	s.core.Use(host)
-	s.core.Use(protected)
-
-	proxyInst, err := proxy.New()
-	if err != nil {
-		zlog.Errorf("failed to create proxy instance: %v", err)
+	if err := s.bootloader(context.Background()); err != nil {
+		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}
-
-	routing.Store(proxyInst, s.config)
-
-	s.core.Handle(routing.Match())
 
 	zlog.Infof("%s engine boost on: %s",
 		color.Blue.Add("[FastHTTP]"),

@@ -18,16 +18,18 @@ package logic
 import (
 	"strings"
 
-	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/valyala/fasthttp"
 )
 
 func Host(hostname string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
+
 	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+
 		return func(ctx *fasthttp.RequestCtx) {
 			if !isValidSingleLevelSubdomain(string(ctx.Host()), hostname) {
-				httpxv2.Forbidden(ctx)
+				httpxf1.Forbidden(ctx)
 				return
 			}
 

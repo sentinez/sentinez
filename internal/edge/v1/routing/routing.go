@@ -23,7 +23,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	syncx "github.com/sentinez/sentinez/pkg/common/sync"
-	httpxv2 "github.com/sentinez/sentinez/pkg/core/httpx/v2"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -35,6 +35,8 @@ var (
 	once      sync.Once
 )
 
+type Router struct{}
+
 func init() {
 	once.Do(func() {
 		dynamic = syncx.NewMap[string, string]()
@@ -42,7 +44,7 @@ func init() {
 	})
 }
 
-func Store(proxy *proxy.Proxy, config *edgeyaml.Config) {
+func (r *Router) Store(proxy *proxy.Proxy, config *edgeyaml.Config) *Router {
 	proxyInst = proxy
 
 	for _, routeConfig := range config.Proxy.Routes {
@@ -68,10 +70,28 @@ func Store(proxy *proxy.Proxy, config *edgeyaml.Config) {
 		dynamic.Store(routeConfig.MatchPrefix, routeConfig.Target)
 		rewrite.Store(routeConfig.MatchPrefix, routeConfig.Rewrite)
 	}
+
+	return &Router{}
 }
 
-func Match() func(ctx *httpxv2.Context) error {
-	return func(ctx *httpxv2.Context) error {
+func Serve(conf *edgeyaml.Config, server httpxf1.Server) error {
+	proxyInst, err := proxy.New()
+	if err != nil {
+		zlog.Errorf("failed to create proxy instance: %v", err)
+		return err
+	}
+
+	r := &Router{}
+
+	handler := r.Store(proxyInst, conf).Match()
+
+	server.Handle(handler)
+
+	return nil
+}
+
+func (r *Router) Match() func(ctx *httpxf1.Context) error {
+	return func(ctx *httpxf1.Context) error {
 		if proxyInst == nil {
 			return ctx.String(http.StatusInternalServerError,
 				"proxy not initialized")
@@ -92,7 +112,7 @@ func Match() func(ctx *httpxv2.Context) error {
 	}
 }
 
-func match(ctx *httpxv2.Context) (string, error) {
+func match(ctx *httpxf1.Context) (string, error) {
 	path := ctx.Path()
 	matchPrefix := prefixPath(path)
 	origin := ""

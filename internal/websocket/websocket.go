@@ -19,18 +19,18 @@ import (
 	"context"
 
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/core/websocket"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var _ sentinez.Server = (*WebSocket)(nil)
+var _ runner.Server = (*WebSocket)(nil)
 
-func New() sentinez.Server {
+func New(ws *websocket.WebSocket) runner.Server {
 	return &WebSocket{
-		core: websocket.New(),
+		core: ws,
 	}
 }
 
@@ -42,7 +42,7 @@ func (w *WebSocket) router() {
 	w.core.HandlerFunc("/ws", wshandlers.Handler)
 }
 
-// Start implements sentinez.Server.
+// Start implements runner.Server.
 func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
@@ -53,7 +53,7 @@ func (w *WebSocket) Start(_ context.Context) error {
 	return w.core.ListenAndServe(":7778")
 }
 
-// Shutdown implements sentinez.Server.
+// Shutdown implements runner.Server.
 func (w *WebSocket) Shutdown(_ context.Context) error {
 	return w.core.Shutdown()
 }

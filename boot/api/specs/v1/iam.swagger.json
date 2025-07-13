@@ -137,24 +137,128 @@
       "additionalProperties": {}
     },
     "v1CreateAccountRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        }
+      }
     },
     "v1CreateAccountResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "accountId": {
+          "type": "string"
+        }
+      }
     },
     "v1CreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1DeleteUserResponse": {
       "type": "object"
+    },
+    "v1GetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1Users"
+        }
+      }
+    },
+    "v1ListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Users"
+          }
+        }
+      }
     },
     "v1LoginRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "emailOrUsername": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
     },
     "v1LoginResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1Users"
+        }
+      }
+    },
+    "v1Pages": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "type": "boolean"
+        }
+      }
     },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
         "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v1UpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1Users"
+        }
+      }
+    },
+    "v1Users": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
           "type": "string"
         }
       }

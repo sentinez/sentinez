@@ -21,29 +21,29 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure apiserver implement sentinez.Server
-// v1.runner will be start application through sentinez.Server interface
-var _ sentinez.Server = (*Server)(nil)
+// make sure apiserver implement runner.Server
+// v1.runner will be start application through runner.Server interface
+var _ runner.Server = (*Server)(nil)
 
-// New creates a new gateway app and returns a sentinez.Server interface.
+// New creates a new gateway app and returns a runner.Server interface.
 // This constructor is based on dependency injection. When you add parameters
-// (e.g., svc dcvrhandler.Discovery), you must use the sentinez.Inject
+// (e.g., svc dcvrhandler.Discovery), you must use the runner.Inject
 // to inject the constructor of the object into the sentinez framework.
 //
 // Example:
 //
-//	var _ = sentinez.Inject(dcvrhandler.New)
-func New(conf *common.Config,
-	flag *common.FlagAPIServer) (sentinez.Server, error) {
+//	var _ = runner.Inject(dcvrhandler.New)
+func New(server httpgw.Server,
+	conf *common.Config, flag *common.FlagAPIServer) (runner.Server, error) {
 
 	srv := &Server{
-		server: httpgw.New(),
+		server: server,
 		config: conf,
 		flag:   flag,
 	}
@@ -120,7 +120,7 @@ func (srv *Server) Start(_ context.Context) error {
 	// return errors.F("apiserver: failed to listen and serve")
 }
 
-// Shutdown implements sentinez.Server.
+// Shutdown implements runner.Server.
 func (srv *Server) Shutdown(ctx context.Context) error {
 	return srv.server.Shutdown(ctx)
 }

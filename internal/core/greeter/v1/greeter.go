@@ -20,53 +20,55 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
-	"github.com/sentinez/sentinez/pkg/core/sentinez/v1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure Greeter implement sentinez.Server
-// it will start by sentinez.runner through sentinez.Server
-var _ sentinez.Server = (*Greeter)(nil)
+// make sure Greeter implement runner.Server
+// it will start by runner/v1.runner through runner.Server
+var _ runner.Server = (*Greeter)(nil)
 
-// inject all dependencies to the greeter
-// This is a dependency injection pattern.
-var (
-	_ = sentinez.Inject(greeterhandler.New)
-	_ = sentinez.Inject(greeterdomain.New)
-)
+type Service struct {
+	*grpcgw.Server
+	handler greeter.GreeterServiceServer
+}
+
+func NewService() *Service {
+	return &Service{
+		Server:  grpcgw.NewDefault(),
+		handler: greeterhandler.New(),
+	}
+}
 
 // New creates a new Greeter module.
-func New(srv greeter.GreeterServiceServer, conf *common.Config,
-	flag *common.FlagGRPCService) sentinez.Server {
+func New(srv *Service,
+	conf *common.Config, flag *common.FlagGRPCService) runner.Server {
 
 	return &Greeter{
-		Server: grpcgw.NewDefault(),
-		srv:    srv,
-		config: conf,
-		flag:   flag,
+		Service: srv,
+		config:  conf,
+		flag:    flag,
 	}
 }
 
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
-	*grpcgw.Server // inherit grpc.Server
-	config         *common.Config
-	flag           *common.FlagGRPCService
-	srv            greeter.GreeterServiceServer
+	*Service
+	config *common.Config
+	flag   *common.FlagGRPCService
 }
 
-// Start implements IGreeter, override sentinez.Server.Start
+// Start implements IGreeter, override runner.Server.Start
 func (g *Greeter) Start(ctx context.Context) error {
 	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {
 		return err
 	}
 
-	greeter.RegisterGreeterServiceServer(g.AsServer(), g.srv)
+	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 	zlog.Debugf("greeter service started on %s", g.flag.GetAddress())
 
 	go Resolver(ctx, g.flag)

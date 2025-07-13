@@ -17,7 +17,6 @@ syntax = "proto3";
 package sentinez.core.greeter.v1;
 
 import "sentinez/common/v1/meta.proto";
-import "sentinez/core/greeter/shared/v1/greeter.proto";
 import "sentinez/common/v1/options.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -76,7 +75,7 @@ message SayHelloRequest {
 }
 
 message SayHelloResponse {
-  sentinez.core.greeter.shared.v1.SayHelloResponse response = 1;
+  string message = 1;
 }
 
 message StatusResponse {

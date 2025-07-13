@@ -40,7 +40,7 @@ var (
 
 // flags global variable
 var flags = &common.Flag{
-	Name:     "sentinez.server.default",
+	Name:     "stnz.Server.default",
 	Mode:     "dev",
 	LogLevel: "debug",
 }

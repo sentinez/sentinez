@@ -40,6 +40,14 @@ func (m *Accounts) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for Email
+
 	return nil
 }
 
@@ -103,6 +111,14 @@ func (m *Users) Validate() error {
 	if m == nil {
 		return nil
 	}
+
+	// no validation rules for Id
+
+	// no validation rules for FullName
+
+	// no validation rules for Email
+
+	// no validation rules for PhoneNumber
 
 	return nil
 }

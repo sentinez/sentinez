@@ -27,8 +27,8 @@ type Config struct {
 }
 
 type ProxyConfig struct {
-	Tenant string        `yaml:"tenant"`
-	Routes []RouteConfig `yaml:"routes"`
+	Namespace string        `yaml:"namespace"`
+	Routes    []RouteConfig `yaml:"routes"`
 }
 
 type RouteConfig struct {

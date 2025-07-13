@@ -21,16 +21,16 @@ import (
 	"github.com/google/wire"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	privateservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
+	publicservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
-	greeterdomain "github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 
-	iamdomain "github.com/sentinez/sentinez/internal/core/iam/v1/domain"
 	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
@@ -38,7 +38,6 @@ import (
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
 	wire.Build(
-		greeterdomain.New,
 		greeterhandler.New,
 		services.NewGreeter,
 	)
@@ -49,7 +48,8 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	wire.Build(
 		utils.NewPgxPool,
 		usersrepo.New,
-		iamdomain.New,
+		publicservice.New,
+		privateservice.New,
 		iamhandler.New,
 		services.NewIAM,
 	)

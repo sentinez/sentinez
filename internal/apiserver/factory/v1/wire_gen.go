@@ -9,11 +9,11 @@ package factory
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
-	"github.com/sentinez/sentinez/internal/core/greeter/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	"github.com/sentinez/sentinez/internal/core/iam/v1/domain"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
+	"github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
 	"github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 	"github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
@@ -22,8 +22,7 @@ import (
 // Injectors from wire.go:
 
 func NewDefaultGreeter() httpgw.ServiceRegistrar {
-	iGreeter := greeterdomain.New()
-	greeterServiceServer := greeterhandler.New(iGreeter)
+	greeterServiceServer := greeterhandler.New()
 	serviceRegistrar := services.NewGreeter(greeterServiceServer)
 	return serviceRegistrar
 }
@@ -37,8 +36,9 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	if err != nil {
 		return nil, err
 	}
-	identityAccessManagerDomainServiceServer := iamdomains.New(iUser)
-	identityAccessManagementServiceServer := iamhandler.New(identityAccessManagerDomainServiceServer)
+	iamPublicService := publicservice.New(iUser)
+	iamPrivateService := privateservice.New(iUser)
+	identityAccessManagementServiceServer := iamhandler.New(iamPublicService, iamPrivateService)
 	serviceRegistrar := services.NewIAM(identityAccessManagementServiceServer)
 	return serviceRegistrar, nil
 }

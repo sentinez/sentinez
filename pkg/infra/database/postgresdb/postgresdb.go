@@ -23,25 +23,46 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
 
-func New[T any](
-	pool *pgxpool.Pool,
-	tableName string,
-	opt func(pool *pgxpool.Pool, name string) error,
-) (database.Database[T], error) {
+//nolint:funlen
+func New[T any](pool *pgxpool.Pool, tableName string,
+	opts ...database.Option) (database.Database[T], error) {
 
 	if table.IsValidTableName(tableName) == false {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
 	}
 
-	if err := opt(pool, strings.ReplaceAll(tableName, ".", "_")); err != nil {
-		zlog.Debug("[postgresdb] create err: ", err)
-		return nil, fmt.Errorf("failed to create table %s", tableName)
+	table := database.Table{}
+	for _, opt := range opts {
+		opt(&table)
+	}
+
+	switch table.StorageOption {
+	case database.StorageKV:
+		if err := pgopt.TableKV(
+			pool, strings.ReplaceAll(tableName, ".", "_"),
+		); err != nil {
+			zlog.Debug("[postgresdb] create err: ", err)
+
+			return nil, fmt.Errorf("failed to create table %s", tableName)
+		}
+	}
+
+	for _, ref := range table.References {
+		err := pgopt.Reference(pool,
+			tableName, ref.FromField, ref.ToTable, ref.ToField)
+		if err != nil {
+			zlog.Debug("[postgresdb] reference err: ", err)
+
+			return nil, fmt.Errorf("failed to create reference %s.%s -> %s.%s",
+				tableName, ref.FromField, ref.ToTable, ref.ToField)
+		}
 	}
 
 	return &postgres[T]{
