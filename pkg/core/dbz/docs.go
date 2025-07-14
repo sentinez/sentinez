@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
-
-import (
-	"context"
-
-	"github.com/sentinez/sentinez/internal/websocket"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	wscore "github.com/sentinez/sentinez/pkg/core/wsz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-)
-
-func main() {
-
-	app := runner.New(wscore.New).
-		Build(func(ws *wscore.WebSocket) (runner.Server, error) {
-			return websocket.New(ws), nil
-		})
-
-	if err := app.Run(context.Background()); err != nil {
-		zlog.Fatal(err)
-	}
-}
+package dbz

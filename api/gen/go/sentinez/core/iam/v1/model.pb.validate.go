@@ -42,6 +42,8 @@ func (m *Accounts) Validate() error {
 
 	// no validation rules for Id
 
+	// no validation rules for UserId
+
 	// no validation rules for Username
 
 	// no validation rules for Password

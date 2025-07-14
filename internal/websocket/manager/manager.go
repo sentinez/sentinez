@@ -17,17 +17,17 @@ package manager
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/core/websocket"
+	"github.com/sentinez/sentinez/pkg/core/wsz"
 )
 
 var (
-	manager *websocket.Manager
+	manager *wsz.Manager
 	once    sync.Once
 )
 
-func Manager() *websocket.Manager {
+func Manager() *wsz.Manager {
 	once.Do(func() {
-		manager = websocket.NewManager()
+		manager = wsz.NewManager()
 	})
 
 	return manager
