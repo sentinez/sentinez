@@ -24,9 +24,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/auto/queries/accounts"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgresdb"
-	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
-	"github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -42,10 +40,9 @@ type IAccount interface {
 	Get(ctx context.Context, id string) (*iam.Accounts, error)
 	GetMany(ctx context.Context, page *common.Pages) ([]*iam.Accounts, error)
 	Delete(ctx context.Context, id string) error
-	Exists(ctx context.Context, id string) (bool, error)
-	Count(ctx context.Context) (int64, error)
 
 	// extra methods
+
 	GetByUsernameOrEmail(
 		ctx context.Context, input string) (*iam.Accounts, error)
 }
@@ -53,9 +50,7 @@ type IAccount interface {
 func New(pool *pgxpool.Pool) (IAccount, error) {
 	tableName := table.Table(table.Account)
 
-	storage, err := postgresdb.New[*iam.Accounts](pool, tableName,
-		pgopt.WithStorageOption(database.StorageKV),
-	)
+	storage, err := postgresz.New(pool, tableName, &iam.Accounts{})
 	if err != nil {
 		return nil, err
 	}
@@ -90,11 +85,6 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	return &result, nil
 }
 
-// Count implements IAccount.
-func (acc *Accounts) Count(_ context.Context) (int64, error) {
-	return -1, errors.ErrUnimplemented
-}
-
 // Create implements IAccount.
 func (acc *Accounts) Create(ctx context.Context,
 	account *iam.Accounts) (*iam.Accounts, error) {
@@ -118,16 +108,6 @@ func (acc *Accounts) Create(ctx context.Context,
 // Delete implements IAccount.
 func (acc *Accounts) Delete(ctx context.Context, id string) error {
 	return acc.query.Delete(ctx, id)
-}
-
-// Exists implements IAccount.
-func (acc *Accounts) Exists(ctx context.Context, id string) (bool, error) {
-	account, err := acc.query.GetByID(ctx, id)
-	if err != nil || account.ID == "" {
-		return false, err
-	}
-
-	return true, nil
 }
 
 // Get implements IAccount.

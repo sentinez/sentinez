@@ -19,30 +19,23 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-)
-
-type StorageOption int
-
-const (
-	StorageKV StorageOption = iota
+	"google.golang.org/protobuf/proto"
 )
 
 // Repository provides the interface for the database.
-type Repository[T any, ID comparable] interface {
+type Repository[T proto.Message, ID comparable] interface {
 	Create(ctx context.Context, entity T) (T, error)
 	Get(ctx context.Context, id ID) (T, error)
 	GetMany(ctx context.Context, page *common.Pages) ([]T, error)
 	Update(ctx context.Context, entity T) (T, error)
 	Delete(ctx context.Context, id ID) error
-	Exists(ctx context.Context, id ID) (bool, error)
-	Count(ctx context.Context) (int64, error)
 }
 
 type SQLBuilder interface {
 	ToSql() (string, []any, error)
 }
 
-type Database[T any] interface {
+type Database[T proto.Message] interface {
 	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
 
 	CollectRows(ctx context.Context,
@@ -55,7 +48,7 @@ type Database[T any] interface {
 	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
 }
 
-type Transaction[T any] interface {
+type Transaction[T proto.Message] interface {
 	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
 
 	CollectRows(ctx context.Context,
@@ -87,8 +80,7 @@ type Reference struct {
 }
 
 type Table struct {
-	References    map[string]Reference // table name -> references
-	StorageOption StorageOption
+	References map[string]Reference // table name -> references
 }
 
 type Option func(*Table)

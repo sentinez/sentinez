@@ -12,25 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package clickhousedb
+package clickhousez
 
 import (
 	"context"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/errors"
+	"google.golang.org/protobuf/proto"
 )
 
-var _ database.Database[struct{}] = (*clickHouse[struct{}])(nil)
+var _ database.Database[*common.Empty] = (*clickHouse[*common.Empty])(nil)
 
-func New[T any](conn clickhouse.Conn) database.Database[T] {
+func New[T proto.Message](conn clickhouse.Conn) database.Database[T] {
 	return &clickHouse[T]{
 		conn: conn,
 	}
 }
 
-type clickHouse[T any] struct {
+type clickHouse[T proto.Message] struct {
 	conn clickhouse.Conn
 }
 
@@ -40,7 +42,7 @@ func (c *clickHouse[T]) BeginTx(
 	return nil, errors.F("[sentinez] clickhouse transaction not supported")
 }
 
-// Collect implements database.Database.
+// CollectRows implements database.Database.
 func (c *clickHouse[T]) CollectRows(ctx context.Context,
 	builder database.SQLBuilder,
 	scan func(database.Rows) ([]T, error)) ([]T, error) {

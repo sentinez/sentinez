@@ -12,30 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresdb
+package postgresz
 
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"google.golang.org/protobuf/proto"
 )
 
-var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
+var _ database.Database[*common.Empty] = (*postgres[*common.Empty])(nil)
 
 //nolint:funlen
-func New[T any](pool *pgxpool.Pool, tableName string,
+func New[T proto.Message](pool *pgxpool.Pool, tableName string, schema T,
 	opts ...database.Option) (database.Database[T], error) {
 
 	if table.IsValidTableName(tableName) == false {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
+	}
+
+	err := syncProtoToPostgres(context.Background(), pool, tableName, schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
 	table := database.Table{}
@@ -43,19 +48,8 @@ func New[T any](pool *pgxpool.Pool, tableName string,
 		opt(&table)
 	}
 
-	switch table.StorageOption {
-	case database.StorageKV:
-		if err := pgopt.TableKV(
-			pool, strings.ReplaceAll(tableName, ".", "_"),
-		); err != nil {
-			zlog.Debug("[postgresdb] create err: ", err)
-
-			return nil, fmt.Errorf("failed to create table %s", tableName)
-		}
-	}
-
 	for _, ref := range table.References {
-		err := pgopt.Reference(pool,
+		err := Reference(pool,
 			tableName, ref.FromField, ref.ToTable, ref.ToField)
 		if err != nil {
 			zlog.Debug("[postgresdb] reference err: ", err)
@@ -65,12 +59,10 @@ func New[T any](pool *pgxpool.Pool, tableName string,
 		}
 	}
 
-	return &postgres[T]{
-		pool: pool,
-	}, nil
+	return &postgres[T]{pool: pool}, nil
 }
 
-type postgres[T any] struct {
+type postgres[T proto.Message] struct {
 	pool *pgxpool.Pool
 }
 

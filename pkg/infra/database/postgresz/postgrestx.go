@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresdb
+package postgresz
 
 import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 )
 
-var _ database.Transaction[struct{}] = (*PostgresTx[struct{}])(nil)
+var _ database.Transaction[*common.Empty] = (*PostgresTx[*common.Empty])(nil)
 
 type PostgresTx[T any] struct {
 	tx pgx.Tx

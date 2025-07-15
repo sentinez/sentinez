@@ -12,4 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package dbz
+package postgresz
+
+const alterQuery = `
+	ALTER TABLE %s
+	ADD CONSTRAINT %s FOREIGN KEY (%s)
+	REFERENCES %s(%s)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE;
+`
+
+const checkConstraint = `
+	SELECT 1
+	FROM pg_constraint
+	WHERE conname = $1;
+`
