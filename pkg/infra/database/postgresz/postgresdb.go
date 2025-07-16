@@ -12,65 +12,64 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresdb
+package postgresz
 
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+
+	"github.com/jmoiron/sqlx"
+	"google.golang.org/protobuf/proto"
 )
 
-var _ database.Database[struct{}] = (*postgres[struct{}])(nil)
+var _ database.Database[*common.Empty] = (*postgres[*common.Empty])(nil)
 
 //nolint:funlen
-func New[T any](pool *pgxpool.Pool, tableName string,
+func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 
 	if table.IsValidTableName(tableName) == false {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
 	}
 
-	table := database.Table{}
+	tb := database.Table{}
 	for _, opt := range opts {
-		opt(&table)
+		opt(&tb)
 	}
 
-	switch table.StorageOption {
-	case database.StorageKV:
-		if err := pgopt.TableKV(
-			pool, strings.ReplaceAll(tableName, ".", "_"),
-		); err != nil {
-			zlog.Debug("[postgresdb] create err: ", err)
-
-			return nil, fmt.Errorf("failed to create table %s", tableName)
-		}
+	err := syncProtoToPostgresJSONB(
+		context.Background(),
+		pool,
+		tableName,
+		tb.Index,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
-	for _, ref := range table.References {
-		err := pgopt.Reference(pool,
+	for _, ref := range tb.References {
+		err := Reference(pool,
 			tableName, ref.FromField, ref.ToTable, ref.ToField)
 		if err != nil {
-			zlog.Debug("[postgresdb] reference err: ", err)
+			zlog.Debug("[postgresz] reference err: ", err)
 
 			return nil, fmt.Errorf("failed to create reference %s.%s -> %s.%s",
 				tableName, ref.FromField, ref.ToTable, ref.ToField)
 		}
 	}
 
-	return &postgres[T]{
-		pool: pool,
-	}, nil
+	return &postgres[T]{pool: pool}, nil
 }
 
-type postgres[T any] struct {
+type postgres[T proto.Message] struct {
 	pool *pgxpool.Pool
 }
 
@@ -86,21 +85,27 @@ func (p *postgres[T]) BeginTx(
 	return &PostgresTx[T]{tx: tx}, nil
 }
 
-// Collect implements database.Database.
+// CollectRows implements database.Database.
 func (p *postgres[T]) CollectRows(ctx context.Context,
 	builder database.SQLBuilder,
-	_ func(database.Rows) ([]T, error)) ([]T, error) {
+	fn func(database.Rows) ([]T, error)) ([]T, error) {
 
-	sqlStr, args, err := builder.ToSql()
+	query, args, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := p.pool.Query(ctx, sqlStr, args...)
+	query = sqlx.Rebind(sqlx.DOLLAR, query)
+
+	rows, err := p.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
+	if fn != nil {
+		return fn(rows)
+	}
 
 	return pgx.CollectRows(rows, pgx.RowToStructByName[T])
 }
@@ -109,12 +114,14 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 func (p *postgres[T]) Collect(ctx context.Context,
 	builder database.SQLBuilder, _ func(database.Row) (*T, error)) (*T, error) {
 
-	sqlStr, args, err := builder.ToSql()
+	query, args, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := p.pool.Query(ctx, sqlStr, args...)
+	query = sqlx.Rebind(sqlx.DOLLAR, query)
+
+	rows, err := p.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,11 +139,14 @@ func (p *postgres[T]) Collect(ctx context.Context,
 func (p *postgres[T]) Exec(ctx context.Context,
 	builder database.SQLBuilder) (database.ExecResult, error) {
 
-	sqlStr, args, err := builder.ToSql()
+	query, args, err := builder.ToSql()
 	if err != nil {
 		return pgconn.CommandTag{}, err
 	}
-	result, err := p.pool.Exec(ctx, sqlStr, args...)
+
+	query = sqlx.Rebind(sqlx.DOLLAR, query)
+
+	result, err := p.pool.Exec(ctx, query, args...)
 	if err != nil {
 		return pgconn.CommandTag{}, err
 	}

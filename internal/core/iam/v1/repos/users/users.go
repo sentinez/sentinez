@@ -25,9 +25,9 @@ import (
 	"github.com/sentinez/sentinez/pkg/auto/queries/users"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgresdb"
-	pgopt "github.com/sentinez/sentinez/pkg/infra/options/postgres"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
 	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -42,19 +42,19 @@ type IUser interface {
 	Get(ctx context.Context, id string) (*iam.Users, error)
 	GetMany(ctx context.Context, page *common.Pages) ([]*iam.Users, error)
 	Delete(ctx context.Context, id string) error
-	Exists(ctx context.Context, id string) (bool, error)
-	Count(ctx context.Context) (int64, error)
 
 	// extra methods
+
+	Count(ctx context.Context) (int64, error)
 	List(ctx context.Context, req *iam.ListUsersRequest) ([]*iam.Users, error)
+	GetByUsernameOrEmail(ctx context.Context, input string) (*iam.Users, error)
 }
 
 func New(pool *pgxpool.Pool) (IUser, error) {
 	tableName := table.Table(table.Users)
 
-	storage, err := postgresdb.New[*iam.Users](pool, tableName,
-		pgopt.WithStorageOption(database.StorageKV),
-	)
+	storage, err := postgresz.New[*iam.Users](pool, tableName,
+		postgresz.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
 	}
@@ -72,23 +72,47 @@ type Users struct {
 	storage   database.Database[*iam.Users]
 }
 
+// GetByUsernameOrEmail implements IUser.
+func (u *Users) GetByUsernameOrEmail(ctx context.Context,
+	input string) (*iam.Users, error) {
+
+	user, err := u.query.GetByUsernameOrEmail(ctx, []byte(input))
+	if err != nil {
+		return nil, err
+	}
+
+	var result iam.Users
+	if err := protojson.Unmarshal(user.Data, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // List implements IUser.
 func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) ([]*iam.Users, error) {
 
-	builder := sq.Select(pgopt.ColumnData).From(u.tableName)
+	builder := sq.Select("data").From(postgresz.Table(u.tableName))
 
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{"id": id})
 	}
 
 	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{"data->>'email'": email})
+		builder = builder.Where(sq.Eq{postgresz.Field("email"): email})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
-		builder = builder.Where(sq.Eq{"data->>'phone_number'": phone})
+		builder = builder.Where(sq.Eq{postgresz.Field("phoneNumber"): phone})
 	}
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	zlog.Debug("[users] query: ", query, " args: ", args)
 
 	return u.storage.CollectRows(ctx, builder, scan)
 }
@@ -128,14 +152,17 @@ func (u *Users) Count(ctx context.Context) (int64, error) {
 func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
-	user.Id = uuid.Generate(table.Users)
+	user.Id = uuid.Generate(u.tableName)
 
 	data, err := protojson.Marshal(user)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = u.query.Insert(ctx, data)
+	_, err = u.query.Insert(ctx, users.InsertParams{
+		ID:      user.GetId(),
+		Column2: data,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -146,16 +173,6 @@ func (u *Users) Create(ctx context.Context,
 // Delete implements IUser.
 func (u *Users) Delete(ctx context.Context, id string) error {
 	return u.query.Delete(ctx, id)
-}
-
-// Exists implements IUser.
-func (u *Users) Exists(ctx context.Context, id string) (bool, error) {
-	user, err := u.query.GetByID(ctx, id)
-	if err != nil || user.ID == "" {
-		return false, err
-	}
-
-	return true, nil
 }
 
 // Get implements IUser.

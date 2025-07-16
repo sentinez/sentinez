@@ -1,4 +1,18 @@
-package pgopt
+// Copyright 2025 Sentinez Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package postgresz
 
 import (
 	"context"
@@ -11,46 +25,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-const (
-	ColumnID   = "id"
-	ColumnData = "data"
-)
-
-const queryExec = `
-	CREATE TABLE IF NOT EXISTS %s (
-		id TEXT PRIMARY KEY,
-		data JSONB NOT NULL,
-		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-	);
-`
-
-const alterQuery = `
-	ALTER TABLE %s
-	ADD CONSTRAINT %s FOREIGN KEY (%s)
-	REFERENCES %s(%s)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE;
-`
-
-const checkConstraint = `
-	SELECT 1
-	FROM pg_constraint
-	WHERE conname = $1;
-`
-
-func TableKV(pool *pgxpool.Pool, name string) error {
-	sql := fmt.Sprintf(queryExec, name)
-
-	_, err := pool.Exec(context.Background(), sql)
-	if err != nil {
-		zlog.Error("[pgopt] executing err: ", err)
-		return errors.F("[pgopt] failed to executing queries")
-	}
-
-	return nil
-}
 
 func Reference(pool *pgxpool.Pool,
 	fromTable, fromField, toTable, toField string) error {
@@ -85,12 +59,6 @@ func Reference(pool *pgxpool.Pool,
 	return nil
 }
 
-func WithStorageOption(opt database.StorageOption) database.Option {
-	return func(ref *database.Table) {
-		ref.StorageOption = opt
-	}
-}
-
 func WithReference(fromField, toTable, toField string) database.Option {
 	return func(ref *database.Table) {
 		if ref.References == nil {
@@ -102,5 +70,11 @@ func WithReference(fromField, toTable, toField string) database.Option {
 			ToTable:   toTable,
 			ToField:   toField,
 		}
+	}
+}
+
+func WithIndex(index ...string) database.Option {
+	return func(ref *database.Table) {
+		ref.Index = append(ref.Index, index...)
 	}
 }

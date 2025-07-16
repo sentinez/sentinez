@@ -20,10 +20,12 @@ package factory
 import (
 	"github.com/google/wire"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	privateservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
-	publicservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
+
+	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
+	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	iamprivateservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
+	iampublicservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
@@ -48,8 +50,9 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	wire.Build(
 		utils.NewPgxPool,
 		usersrepo.New,
-		publicservice.New,
-		privateservice.New,
+		accountrepo.New,
+		iampublicservice.New,
+		iamprivateservice.New,
 		iamhandler.New,
 		services.NewIAM,
 	)

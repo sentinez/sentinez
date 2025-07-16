@@ -20,7 +20,7 @@ import (
 
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/core/websocket"
+	"github.com/sentinez/sentinez/pkg/core/wsz"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -28,14 +28,14 @@ import (
 
 var _ runner.Server = (*WebSocket)(nil)
 
-func New(ws *websocket.WebSocket) runner.Server {
+func New(ws *wsz.WebSocket) runner.Server {
 	return &WebSocket{
 		core: ws,
 	}
 }
 
 type WebSocket struct {
-	core *websocket.WebSocket
+	core *wsz.WebSocket
 }
 
 func (w *WebSocket) router() {

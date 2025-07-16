@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package privateservice
+package iamprivservice
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 )
 
 func New(users usersrepo.IUser) *IAMPrivateService {
@@ -48,32 +51,66 @@ func (srv *IAMPrivateService) CreateUser(ctx context.Context,
 
 func (srv *IAMPrivateService) GetUser(ctx context.Context,
 	request *iam.GetUserRequest) (*iam.GetUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	if request.GetId() != "" {
+		user, err := srv.users.Get(ctx, request.GetId())
+		if err != nil {
+			return nil, err
+		}
+		return &iam.GetUserResponse{User: user}, nil
+	}
+
+	if request.GetUsername() != "" {
+		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetUsername())
+		if err != nil {
+			return nil, err
+		}
+
+		return &iam.GetUserResponse{User: user}, nil
+	}
+
+	return nil, stderr.F("invalid argument: must provide either id or username")
 }
 
 func (srv *IAMPrivateService) ListUsers(ctx context.Context,
 	request *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	users, err := srv.users.List(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return &iam.ListUsersResponse{Users: users}, nil
 }
 
 func (srv *IAMPrivateService) DeleteUser(ctx context.Context,
 	request *iam.DeleteUserRequest) (*iam.DeleteUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	if err := srv.users.Delete(ctx, request.GetId()); err != nil {
+		return nil, err
+	}
+	return &iam.DeleteUserResponse{}, nil
 }
 
 func (srv *IAMPrivateService) UpdateUser(ctx context.Context,
 	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+
+	user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	if user.GetId() != "" || errors.Is(err, pgx.ErrNoRows) {
+		return nil, stderr.F("email %s already exists", request.GetEmail())
+	}
+
+	_, err = srv.users.Update(ctx, &iam.Users{
+		Id:          request.GetId(),
+		FullName:    request.GetFullName(),
+		Email:       request.GetEmail(),
+		PhoneNumber: request.GetPhoneNumber(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.UpdateUserResponse{}, nil
 }
