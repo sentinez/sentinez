@@ -24,8 +24,7 @@ import (
 
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	iamprivateservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
-	iampublicservice "github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
+	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 
 	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
 
@@ -51,8 +50,7 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 		utils.NewPgxPool,
 		usersrepo.New,
 		accountrepo.New,
-		iampublicservice.New,
-		iamprivateservice.New,
+		iamservices.New,
 		iamhandler.New,
 		services.NewIAM,
 	)

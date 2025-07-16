@@ -13,8 +13,7 @@ import (
 	"github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	"github.com/sentinez/sentinez/internal/core/iam/v1/services/private"
-	"github.com/sentinez/sentinez/internal/core/iam/v1/services/public"
+	"github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 	"github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
@@ -41,9 +40,8 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	if err != nil {
 		return nil, err
 	}
-	iamPublicService := iampubservice.New(iUser, iAccount)
-	iamPrivateService := iamprivservice.New(iUser)
-	identityAccessManagementServiceServer := iamhandler.New(iamPublicService, iamPrivateService)
+	iamService := iamservices.New(iUser, iAccount)
+	identityAccessManagementServiceServer := iamhandler.New(iamService)
 	serviceRegistrar := services.NewIAM(identityAccessManagementServiceServer)
 	return serviceRegistrar, nil
 }

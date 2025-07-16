@@ -94,6 +94,7 @@ func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) ([]*iam.Users, error) {
 
 	builder := sq.Select("data").From(postgresz.Table(u.tableName))
+	builder = database.Page(builder, req.GetPage())
 
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{"id": id})
