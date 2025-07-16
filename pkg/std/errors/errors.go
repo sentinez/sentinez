@@ -22,6 +22,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
+
+	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -98,6 +100,38 @@ func F(template string, args ...any) error {
 	return fmt.Errorf(template, args...)
 }
 
+func UnspecifiedF(format string, args ...any) error {
+	return status.Error(codes.Unknown, fmt.Sprintf(format, args...))
+}
+
+func InternalErrorF(format string, args ...any) error {
+	return status.Error(codes.Internal, fmt.Sprintf(format, args...))
+}
+
+func NotFoundF(format string, args ...any) error {
+	return status.Error(codes.NotFound, fmt.Sprintf(format, args...))
+}
+
+func UnauthorizedF(format string, args ...any) error {
+	return status.Error(codes.Unauthenticated, fmt.Sprintf(format, args...))
+}
+
+func ForbiddenF(format string, args ...any) error {
+	return status.Error(codes.PermissionDenied, fmt.Sprintf(format, args...))
+}
+
+func InvalidDataF(format string, args ...any) error {
+	return status.Error(codes.InvalidArgument, fmt.Sprintf(format, args...))
+}
+
+func UnimplementedF(format string, args ...any) error {
+	return status.Error(codes.Unimplemented, fmt.Sprintf(format, args...))
+}
+
+func AlreadyExistsF(format string, args ...any) error {
+	return status.Error(codes.AlreadyExists, fmt.Sprintf(format, args...))
+}
+
 // Is checks if the error is a specific error
 func Is(err error, target error) bool {
 	if err == nil {
@@ -109,5 +143,13 @@ func Is(err error, target error) bool {
 	if errors.Is(err, ErrUnimplemented) {
 		return true
 	}
+	return false
+}
+
+func NotRowsNotFound(err error) bool {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return true
+	}
+
 	return false
 }

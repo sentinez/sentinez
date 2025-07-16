@@ -135,7 +135,7 @@ func (acc *Accounts) GetMany(ctx context.Context,
 	offset := database.GetOffset(int(page.GetIndex()), int(page.GetSize()))
 	result, err := acc.query.GetMany(ctx, accounts.GetManyParams{
 		Offset: int32(offset),
-		Limit:  int32(page.GetSize()),
+		Limit:  page.GetSize(),
 	})
 	if err != nil {
 		return nil, err
