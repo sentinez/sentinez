@@ -42,7 +42,7 @@ type IAMService struct {
 
 func (srv *IAMService) Status(ctx context.Context,
 	request *iam.StatusRequest) (*iam.StatusResponse, error) {
-	
+
 	_ = ctx
 	_ = request
 
