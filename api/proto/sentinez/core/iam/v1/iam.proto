@@ -57,12 +57,19 @@ service IdentityAccessManagementService {
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
   rpc GetUser(GetUserRequest) returns (GetUserResponse){}
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){}
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
 
 
   // public method bellow
+  
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){
+    option (google.api.http) = {
+      get: "/iam/users"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {

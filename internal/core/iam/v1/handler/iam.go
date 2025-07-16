@@ -53,10 +53,15 @@ func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
 	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	zlog.Debugf("[IdentityAccessManagement.ListUsers] request= %v", request)
+
+	resp, err := iam.private.ListUsers(ctx, request)
+	if err != nil {
+		zlog.Errorf("failed to list users: %v", err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
@@ -78,19 +83,48 @@ func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 // CreateAccount implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	req *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
+	zlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
 
-	_, _ = ctx, req
+	userResp, err := iam.private.CreateUser(ctx, &iampb.CreateUserRequest{
+		FullName:    req.GetFullName(),
+		Email:       req.GetEmail(),
+		PhoneNumber: req.GetPhoneNumber(),
+	})
+	if err != nil {
+		zlog.Errorf("failed to create user: %v", err)
+		return nil, err
+	}
 
-	panic("unimplemented")
+	accResp, err := iam.public.CreateAccount(ctx, userResp.GetUserId(),
+		&iampb.CreateAccountRequest{
+			Username:    req.GetUsername(),
+			Password:    req.GetPassword(),
+			Email:       req.GetEmail(),
+			PhoneNumber: req.GetPhoneNumber(),
+		},
+	)
+	if err != nil {
+		zlog.Errorf("failed to create account: %v", err)
+		return nil, err
+	}
+
+	return &iampb.CreateAccountResponse{
+		AccountId: accResp.GetAccountId(),
+	}, nil
 }
 
 // CreateUser implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	req *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
+	zlog.Debugf("[IdentityAccessManagement.CreateUser] request= %v", req)
 
-	_, _ = ctx, req
+	resp, err := iam.private.CreateUser(ctx, req)
+	if err != nil {
+		zlog.Errorf("failed to create user: %v", err)
+		return nil, err
+	}
 
-	panic("unimplemented")
+	return resp, nil
 }
 
 // Login implements iampb.IAMServiceServer.

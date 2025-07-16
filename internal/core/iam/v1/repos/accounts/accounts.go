@@ -50,7 +50,8 @@ type IAccount interface {
 func New(pool *pgxpool.Pool) (IAccount, error) {
 	tableName := table.Table(table.Account)
 
-	storage, err := postgresz.New(pool, tableName, &iam.Accounts{})
+	storage, err := postgresz.New[*iam.Accounts](pool, tableName,
+		postgresz.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err
 	}

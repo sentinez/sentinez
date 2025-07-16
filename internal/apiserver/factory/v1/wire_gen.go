@@ -41,8 +41,8 @@ func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	if err != nil {
 		return nil, err
 	}
-	iamPublicService := publicservice.New(iUser, iAccount)
-	iamPrivateService := privateservice.New(iUser)
+	iamPublicService := iampubservice.New(iUser, iAccount)
+	iamPrivateService := iamprivservice.New(iUser)
 	identityAccessManagementServiceServer := iamhandler.New(iamPublicService, iamPrivateService)
 	serviceRegistrar := services.NewIAM(identityAccessManagementServiceServer)
 	return serviceRegistrar, nil

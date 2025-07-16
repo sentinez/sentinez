@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
 	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -52,7 +53,8 @@ type IUser interface {
 func New(pool *pgxpool.Pool) (IUser, error) {
 	tableName := table.Table(table.Users)
 
-	storage, err := postgresz.New(pool, tableName, &iam.Users{})
+	storage, err := postgresz.New[*iam.Users](pool, tableName,
+		postgresz.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
 	}
@@ -91,19 +93,26 @@ func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) ([]*iam.Users, error) {
 
-	builder := sq.Select("*").From(u.tableName)
+	builder := sq.Select("data").From(postgresz.Table(u.tableName))
 
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{"id": id})
 	}
 
 	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{"email": email})
+		builder = builder.Where(sq.Eq{postgresz.Field("email"): email})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
-		builder = builder.Where(sq.Eq{"phone_number": phone})
+		builder = builder.Where(sq.Eq{postgresz.Field("phoneNumber"): phone})
 	}
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	zlog.Debug("[users] query: ", query, " args: ", args)
 
 	return u.storage.CollectRows(ctx, builder, scan)
 }

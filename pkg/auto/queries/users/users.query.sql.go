@@ -11,7 +11,7 @@ import (
 
 const count = `-- name: Count :one
 SELECT COUNT(*) AS count
-FROM users
+FROM dev_sentinez_users
 `
 
 func (q *Queries) Count(ctx context.Context) (int64, error) {
@@ -22,7 +22,7 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 }
 
 const delete = `-- name: Delete :exec
-DELETE FROM users
+DELETE FROM dev_sentinez_users
 WHERE id = $1
 `
 
@@ -34,7 +34,7 @@ func (q *Queries) Delete(ctx context.Context, id string) error {
 const existsByEmail = `-- name: ExistsByEmail :one
 SELECT EXISTS (
     SELECT 1
-    FROM users
+    FROM dev_sentinez_users
     WHERE data->>'email' = $1
 ) AS exists
 `
@@ -49,7 +49,7 @@ func (q *Queries) ExistsByEmail(ctx context.Context, data []byte) (bool, error) 
 const existsByUsername = `-- name: ExistsByUsername :one
 SELECT EXISTS (
     SELECT 1
-    FROM users
+    FROM dev_sentinez_users
     WHERE data->>'username' = $1
 ) AS exists
 `
@@ -63,14 +63,14 @@ func (q *Queries) ExistsByUsername(ctx context.Context, data []byte) (bool, erro
 
 const getByID = `-- name: GetByID :one
 SELECT id, data, created_at, updated_at
-FROM users
+FROM dev_sentinez_users
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetByID(ctx context.Context, id string) (User, error) {
+func (q *Queries) GetByID(ctx context.Context, id string) (DevSentinezUser, error) {
 	row := q.db.QueryRow(ctx, getByID, id)
-	var i User
+	var i DevSentinezUser
 	err := row.Scan(
 		&i.ID,
 		&i.Data,
@@ -82,15 +82,15 @@ func (q *Queries) GetByID(ctx context.Context, id string) (User, error) {
 
 const getByUsernameOrEmail = `-- name: GetByUsernameOrEmail :one
 SELECT id, data, created_at, updated_at
-FROM users
+FROM dev_sentinez_users
 WHERE data->>'username' = $1
    OR data->>'email' = $1
 LIMIT 1
 `
 
-func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (User, error) {
+func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (DevSentinezUser, error) {
 	row := q.db.QueryRow(ctx, getByUsernameOrEmail, data)
-	var i User
+	var i DevSentinezUser
 	err := row.Scan(
 		&i.ID,
 		&i.Data,
@@ -102,7 +102,7 @@ func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (User, 
 
 const getPage = `-- name: GetPage :many
 SELECT id, data, created_at, updated_at
-FROM users
+FROM dev_sentinez_users
 ORDER BY data->>'username'
 OFFSET $1
 LIMIT $2
@@ -113,15 +113,15 @@ type GetPageParams struct {
 	Limit  int32 `json:"limit"`
 }
 
-func (q *Queries) GetPage(ctx context.Context, arg GetPageParams) ([]User, error) {
+func (q *Queries) GetPage(ctx context.Context, arg GetPageParams) ([]DevSentinezUser, error) {
 	rows, err := q.db.Query(ctx, getPage, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	var items []DevSentinezUser
 	for rows.Next() {
-		var i User
+		var i DevSentinezUser
 		if err := rows.Scan(
 			&i.ID,
 			&i.Data,
@@ -139,7 +139,7 @@ func (q *Queries) GetPage(ctx context.Context, arg GetPageParams) ([]User, error
 }
 
 const insert = `-- name: Insert :one
-INSERT INTO users (id, data)
+INSERT INTO dev_sentinez_users (id, data)
 VALUES ($1, $2::jsonb)
 RETURNING id
 `
@@ -157,7 +157,7 @@ func (q *Queries) Insert(ctx context.Context, arg InsertParams) (string, error) 
 }
 
 const update = `-- name: Update :exec
-UPDATE users
+UPDATE dev_sentinez_users
 SET
     data = $1::jsonb,
     updated_at = CURRENT_TIMESTAMP

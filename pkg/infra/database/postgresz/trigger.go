@@ -1,17 +1,3 @@
-// Copyright 2025 Sentinez Labs.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package postgresz
 
 import (
@@ -20,74 +6,81 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-func protoKindToSQL(kind protoreflect.Kind) string {
-	switch kind {
-	case protoreflect.StringKind:
-		return "TEXT"
-	case protoreflect.Int32Kind,
-		protoreflect.Sint32Kind,
-		protoreflect.Uint32Kind:
-		return "INTEGER"
-	case protoreflect.Int64Kind,
-		protoreflect.Sint64Kind,
-		protoreflect.Uint64Kind:
-		return "BIGINT"
-	case protoreflect.BoolKind:
-		return "BOOLEAN"
-	case protoreflect.DoubleKind,
-		protoreflect.FloatKind:
-		return "DOUBLE PRECISION"
-	case protoreflect.BytesKind:
-		return "BYTEA"
-	default:
-		return "JSONB"
-	}
-}
-
-func columnExists(ctx context.Context,
-	pool *pgxpool.Pool, table, column string) (bool, error) {
-
-	const query = `
-	SELECT 1 FROM information_schema.columns
-	WHERE table_name = $1 AND column_name = $2 LIMIT 1;
-	`
-	row := pool.QueryRow(ctx, query, table, column)
-	var dummy int
-	err := row.Scan(&dummy)
-	if err != nil {
-		return false, nil // not exists
-	}
-
-	return true, nil
-}
-
+// tableExists checks if a table exists.
 func tableExists(ctx context.Context,
 	pool *pgxpool.Pool, table string) (bool, error) {
 
 	const query = `
-	SELECT 1 FROM information_schema.tables
-	WHERE table_name = $1 LIMIT 1;
+		SELECT 1 FROM information_schema.tables
+		WHERE table_name = $1 LIMIT 1;
 	`
-	row := pool.QueryRow(ctx, query, table)
 	var dummy int
-	err := row.Scan(&dummy)
+	err := pool.QueryRow(ctx, query, table).Scan(&dummy)
 	if err != nil {
 		return false, nil
 	}
-
 	return true, nil
 }
 
-//nolint:funlen
-func syncProtoToPostgres(ctx context.Context,
-	pool *pgxpool.Pool, table string, msg proto.Message) error {
+// listIndexes returns the list of existing JSONB field indexes.
+func listIndexes(ctx context.Context,
+	pool *pgxpool.Pool, table string) ([]string, error) {
 
-	desc := msg.ProtoReflect().Descriptor()
-	fields := desc.Fields()
+	const query = `
+		SELECT indexname
+		FROM pg_indexes
+		WHERE tablename = $1;
+	`
+	rows, err := pool.Query(ctx, query, table)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var indexes []string
+	for rows.Next() {
+		var index string
+		if err := rows.Scan(&index); err != nil {
+			return nil, err
+		}
+		if strings.HasPrefix(index, "idx_"+table+"_") {
+			indexes = append(indexes, index)
+		}
+	}
+
+	return indexes, nil
+}
+
+// createIndexOnJSONB creates index if not exists.
+func createIndexOnJSONB(ctx context.Context,
+	pool *pgxpool.Pool, table, field string) error {
+
+	indexName := fmt.Sprintf("idx_%s_%s", table, field)
+	ddl := fmt.Sprintf(`CREATE INDEX %s ON %s ((data->>'%s'));`,
+		indexName, table, field)
+	_, err := pool.Exec(ctx, ddl)
+
+	return err
+}
+
+// dropIndex drops a given index.
+func dropIndex(ctx context.Context,
+	pool *pgxpool.Pool, indexName string) error {
+	_, err := pool.Exec(ctx,
+		fmt.Sprintf(`DROP INDEX IF EXISTS %s;`, indexName))
+
+	return err
+}
+
+// nolint:funlen
+func syncProtoToPostgresJSONB(ctx context.Context,
+	pool *pgxpool.Pool,
+	table string,
+	indexFields []string,
+) error {
+	table = strings.ReplaceAll(table, ".", "_")
 
 	exists, err := tableExists(ctx, pool, table)
 	if err != nil {
@@ -95,43 +88,64 @@ func syncProtoToPostgres(ctx context.Context,
 	}
 
 	if !exists {
-
-		var cols []string
-		for i := 0; i < fields.Len(); i++ {
-			f := fields.Get(i)
-			colName := string(f.Name())
-			sqlType := protoKindToSQL(f.Kind())
-			cols = append(cols, fmt.Sprintf("%s %s", colName, sqlType))
+		ddl := fmt.Sprintf(`
+			CREATE TABLE IF NOT EXISTS %s (
+				id TEXT PRIMARY KEY,
+				data JSONB NOT NULL,
+				created_at TIMESTAMPTZ DEFAULT now(),
+				updated_at TIMESTAMPTZ DEFAULT now()
+			);`, table)
+		if _, err := pool.Exec(ctx, ddl); err != nil {
+			return fmt.Errorf("create table: %w", err)
 		}
+	}
 
-		ddl := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s);`,
-			table, strings.Join(cols, ", "))
-		_, err := pool.Exec(ctx, ddl)
-		if err != nil {
-			return fmt.Errorf("create table failed: %w", err)
-		}
+	// Get existing indexes
+	existingIndexes, err := listIndexes(ctx, pool, table)
+	if err != nil {
+		return fmt.Errorf("list indexes: %w", err)
+	}
 
-	} else {
+	// Convert indexFields to a set
+	wanted := make(map[string]struct{}, len(indexFields))
+	for _, f := range indexFields {
+		indexName := fmt.Sprintf("idx_%s_%s", table, f)
+		wanted[indexName] = struct{}{}
+	}
 
-		for i := 0; i < fields.Len(); i++ {
-			f := fields.Get(i)
-			colName := string(f.Name())
-			sqlType := protoKindToSQL(f.Kind())
-
-			ok, err := columnExists(ctx, pool, table, colName)
-			if err != nil {
-				return fmt.Errorf("check column exists: %w", err)
+	// Create missing indexes
+	for indexName := range wanted {
+		found := false
+		for _, existing := range existingIndexes {
+			if existing == indexName {
+				found = true
+				break
 			}
-			if !ok {
-				_, err := pool.Exec(ctx,
-					fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s;`,
-						table, colName, sqlType))
-				if err != nil {
-					return fmt.Errorf("alter table failed: %w", err)
-				}
+		}
+		if !found {
+			field := strings.TrimPrefix(indexName, "idx_"+table+"_")
+			if err := createIndexOnJSONB(ctx, pool, table, field); err != nil {
+				return fmt.Errorf("create index %s: %w", indexName, err)
+			}
+		}
+	}
+
+	// Drop indexes that are no longer wanted
+	for _, existing := range existingIndexes {
+		if _, ok := wanted[existing]; !ok {
+			if err := dropIndex(ctx, pool, existing); err != nil {
+				return fmt.Errorf("drop index %s: %w", existing, err)
 			}
 		}
 	}
 
 	return nil
+}
+
+func Field(field string) string {
+	return fmt.Sprintf("data->>'%s'", field)
+}
+
+func Table(table string) string {
+	return strings.ReplaceAll(table, ".", "_")
 }

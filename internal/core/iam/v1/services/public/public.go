@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package publicservice
+package iampubservice
 
 import (
 	"context"
@@ -45,10 +45,11 @@ func (srv *IAMPublicService) Status(ctx context.Context,
 	return &iam.StatusResponse{Msg: "OK"}, nil
 }
 
-func (srv *IAMPublicService) CreateAccount(ctx context.Context,
+func (srv *IAMPublicService) CreateAccount(ctx context.Context, userID string,
 	request *iam.CreateAccountRequest) (*iam.CreateAccountResponse, error) {
 
 	acc, err := srv.accounts.Create(ctx, &iam.Accounts{
+		UserId:   userID,
 		Email:    request.GetEmail(),
 		Username: request.GetUsername(),
 		Password: request.GetPassword(),

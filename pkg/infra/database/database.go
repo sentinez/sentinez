@@ -66,7 +66,7 @@ type Rows interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-	Close() error
+	// Close() error
 }
 
 type ExecResult interface {
@@ -81,6 +81,7 @@ type Reference struct {
 
 type Table struct {
 	References map[string]Reference // table name -> references
+	Index      []string
 }
 
 type Option func(*Table)

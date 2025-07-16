@@ -10,7 +10,7 @@ import (
 )
 
 const delete = `-- name: Delete :exec
-DELETE FROM accounts
+DELETE FROM dev_sentinez_accounts
 WHERE id = $1
 `
 
@@ -20,14 +20,14 @@ func (q *Queries) Delete(ctx context.Context, id string) error {
 }
 
 const getByID = `-- name: GetByID :one
-SELECT id, data, created_at, updated_at FROM accounts
+SELECT id, data, created_at, updated_at FROM dev_sentinez_accounts
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetByID(ctx context.Context, id string) (Account, error) {
+func (q *Queries) GetByID(ctx context.Context, id string) (DevSentinezAccount, error) {
 	row := q.db.QueryRow(ctx, getByID, id)
-	var i Account
+	var i DevSentinezAccount
 	err := row.Scan(
 		&i.ID,
 		&i.Data,
@@ -38,14 +38,14 @@ func (q *Queries) GetByID(ctx context.Context, id string) (Account, error) {
 }
 
 const getByUsernameOrEmail = `-- name: GetByUsernameOrEmail :one
-SELECT id, data, created_at, updated_at FROM accounts
+SELECT id, data, created_at, updated_at FROM dev_sentinez_accounts
 WHERE data->>'username' = $1 OR data->>'email' = $1
 LIMIT 1
 `
 
-func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (Account, error) {
+func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (DevSentinezAccount, error) {
 	row := q.db.QueryRow(ctx, getByUsernameOrEmail, data)
-	var i Account
+	var i DevSentinezAccount
 	err := row.Scan(
 		&i.ID,
 		&i.Data,
@@ -56,7 +56,7 @@ func (q *Queries) GetByUsernameOrEmail(ctx context.Context, data []byte) (Accoun
 }
 
 const getMany = `-- name: GetMany :many
-SELECT id, data, created_at, updated_at FROM accounts
+SELECT id, data, created_at, updated_at FROM dev_sentinez_accounts
 ORDER BY data->>'username'
 LIMIT $1 OFFSET $2
 `
@@ -66,15 +66,15 @@ type GetManyParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetMany(ctx context.Context, arg GetManyParams) ([]Account, error) {
+func (q *Queries) GetMany(ctx context.Context, arg GetManyParams) ([]DevSentinezAccount, error) {
 	rows, err := q.db.Query(ctx, getMany, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Account
+	var items []DevSentinezAccount
 	for rows.Next() {
-		var i Account
+		var i DevSentinezAccount
 		if err := rows.Scan(
 			&i.ID,
 			&i.Data,
@@ -92,7 +92,7 @@ func (q *Queries) GetMany(ctx context.Context, arg GetManyParams) ([]Account, er
 }
 
 const insert = `-- name: Insert :exec
-INSERT INTO accounts (id, data)
+INSERT INTO dev_sentinez_accounts (id, data)
 VALUES ($1, $2::jsonb)
 `
 
@@ -107,7 +107,7 @@ func (q *Queries) Insert(ctx context.Context, arg InsertParams) error {
 }
 
 const update = `-- name: Update :exec
-UPDATE accounts
+UPDATE dev_sentinez_accounts
 SET data = $2::jsonb,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1

@@ -72,3 +72,9 @@ func WithReference(fromField, toTable, toField string) database.Option {
 		}
 	}
 }
+
+func WithIndex(index ...string) database.Option {
+	return func(ref *database.Table) {
+		ref.Index = append(ref.Index, index...)
+	}
+}

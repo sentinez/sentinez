@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Account struct {
+type DevSentinezAccount struct {
 	ID        string             `json:"id"`
 	Data      []byte             `json:"data"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
