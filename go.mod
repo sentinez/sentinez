@@ -28,7 +28,7 @@ require (
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/grpc v1.73.0
+	google.golang.org/grpc v1.74.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
 )
