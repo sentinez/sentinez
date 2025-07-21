@@ -19,6 +19,10 @@ ruleparser-sentinez \
     -file boot/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
+    -out pkg/auto/rules/v4-16-0 \
+    -file boot/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+
+ruleparser-sentinez \
     -out pkg/auto/rules \
     -file boot/rules/setup.conf
 

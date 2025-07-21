@@ -22,9 +22,11 @@ func Load() string {
 
 	// load core rulesets
 	rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
+	rulesets.Load(rulev4160.Request942ApplicationAttackSqliOrder)
 
 	// load extension rules
 	rulesets.Load(rules.AuditOrder)
+	rulesets.Load(rules.DefaultOrder)
 
 	// load evaluation rules
 	rulesets.Load(rulev4160.Request949BlockingEvaluationOrder)
