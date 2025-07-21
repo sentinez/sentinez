@@ -8,22 +8,6 @@ import (
 
 const AuditVersion = ""
 
-var AuditOrder = []func() *waf.Rule{
-	R999999,
-}
+var AuditOrder = []func() *waf.Rule{}
 
-var Audit = map[string]*waf.Rule{
-	"999999": R999999(),
-}
-
-// R999999 returns rule with ID 999999
-func R999999() *waf.Rule {
-	return &waf.Rule{
-		Actions: &waf.RuleAction{
-			Statement: "U2VjUnVsZSBUWDpCTE9DS0lOR19JTkJPVU5EX0FOT01BTFlfU0NPUkUgIkBnZSAxIiBcCiJpZDo5OTk5OTksXAogICAgcGhhc2U6NSxcCiAgICBsb2csXAogICAgYXVkaXRsb2csXAogICAgbXNnOidCbG9jayBzY29yZTogJXtUWC5CTE9DS0lOR19JTkJPVU5EX0FOT01BTFlfU0NPUkV9LCB0aHJlc2hvbGQ6ICV7dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZH0nLFwKICAgIHNldmVyaXR5Ok5PVElDRSxcCiAgICB0YWc6J2Fub21hbHkvc2NvcmUnLFwKICAgIHNldHZhcjondHgubXNnPSV7cnVsZS5tc2d9JyxcCiAgICBwYXNzIg==",
-			Fields:    &waf.RuleActionField{Id: []string{"999999"}, Msg: []string{"'Block score: %{TX.BLOCKING_INBOUND_ANOMALY_SCORE}, threshold: %{tx.inbound_anomaly_score_threshold}'"}, Phase: []string{"5"}, Tag: []string{"'anomaly/score'"}, Severity: []string{"NOTICE"}, Setvar: []string{"'tx.msg=%{rule.msg}'"}},
-		},
-		Configuration: "U2VjUnVsZSBUWDpCTE9DS0lOR19JTkJPVU5EX0FOT01BTFlfU0NPUkUgIkBnZSAxIiBcCiJpZDo5OTk5OTksXAogICAgcGhhc2U6NSxcCiAgICBsb2csXAogICAgYXVkaXRsb2csXAogICAgbXNnOidCbG9jayBzY29yZTogJXtUWC5CTE9DS0lOR19JTkJPVU5EX0FOT01BTFlfU0NPUkV9LCB0aHJlc2hvbGQ6ICV7dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZH0nLFwKICAgIHNldmVyaXR5Ok5PVElDRSxcCiAgICB0YWc6J2Fub21hbHkvc2NvcmUnLFwKICAgIHNldHZhcjondHgubXNnPSV7cnVsZS5tc2d9JyxcCiAgICBwYXNzIg==",
-		Level:         "",
-	}
-}
+var Audit = map[string]*waf.Rule{}

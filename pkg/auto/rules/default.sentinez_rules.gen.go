@@ -10,44 +10,56 @@ const DefaultVersion = ""
 
 var DefaultOrder = []func() *waf.Rule{
 	DefaultMaker_0,
-	R1,
+	DefaultMaker_1,
 	DefaultMaker_2,
-	R100,
-	R933150,
+	DefaultMaker_3,
+	DefaultMaker_4,
+	DefaultMaker_5,
+	DefaultMaker_6,
+	DefaultMaker_7,
+	DefaultMaker_8,
 }
 
 var Default = map[string]*waf.Rule{
 	"DefaultMaker_0": DefaultMaker_0(),
 
-	"1": R1(),
+	"DefaultMaker_1": DefaultMaker_1(),
 
 	"DefaultMaker_2": DefaultMaker_2(),
 
-	"100": R100(),
+	"DefaultMaker_3": DefaultMaker_3(),
 
-	"933150": R933150(),
+	"DefaultMaker_4": DefaultMaker_4(),
+
+	"DefaultMaker_5": DefaultMaker_5(),
+
+	"DefaultMaker_6": DefaultMaker_6(),
+
+	"DefaultMaker_7": DefaultMaker_7(),
+
+	"DefaultMaker_8": DefaultMaker_8(),
 }
 
 // DefaultMaker_0 returns rule without ID
 func DefaultMaker_0() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjRGVidWdMb2cgL2Rldi9zdGRvdXQ=",
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM3",
 			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjRGVidWdMb2cgL2Rldi9zdGRvdXQ=",
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM3",
 		Level:         "",
 	}
 }
 
-// R1 returns rule with ID 1
-func R1() *waf.Rule {
+// DefaultMaker_1 returns rule without ID
+func DefaultMaker_1() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjUnVsZSBBUkdTOmlkICJAZXEgMCIgImlkOjEsIHBoYXNlOjEsZGVueSwgc3RhdHVzOjQwMyxtc2c6J0ludmFsaWQgaWQnLGxvZyxhdWRpdGxvZyI=",
-			Fields:    &waf.RuleActionField{Id: []string{"1"}, Msg: []string{"'Invalid id'"}, Phase: []string{"1"}},
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM5",
+			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjUnVsZSBBUkdTOmlkICJAZXEgMCIgImlkOjEsIHBoYXNlOjEsZGVueSwgc3RhdHVzOjQwMyxtc2c6J0ludmFsaWQgaWQnLGxvZyxhdWRpdGxvZyI=",
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM5",
 		Level:         "",
 	}
 }
@@ -56,34 +68,82 @@ func R1() *waf.Rule {
 func DefaultMaker_2() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM2",
 			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM2",
 		Level:         "",
 	}
 }
 
-// R100 returns rule with ID 100
-func R100() *waf.Rule {
+// DefaultMaker_3 returns rule without ID
+func DefaultMaker_3() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjUnVsZSBSRVFVRVNUX0JPRFkgIkBjb250YWlucyBwYXNzd29yZCIgImlkOjEwMCwgcGhhc2U6MixkZW55LCBzdGF0dXM6NDAzLG1zZzonSW52YWxpZCByZXF1ZXN0IGJvZHknLGxvZyxhdWRpdGxvZyI=",
-			Fields:    &waf.RuleActionField{Id: []string{"100"}, Msg: []string{"'Invalid request body'"}, Phase: []string{"2"}},
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjUw",
+			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjUnVsZSBSRVFVRVNUX0JPRFkgIkBjb250YWlucyBwYXNzd29yZCIgImlkOjEwMCwgcGhhc2U6MixkZW55LCBzdGF0dXM6NDAzLG1zZzonSW52YWxpZCByZXF1ZXN0IGJvZHknLGxvZyxhdWRpdGxvZyI=",
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjUw",
 		Level:         "",
 	}
 }
 
-// R933150 returns rule with ID 933150
-func R933150() *waf.Rule {
+// DefaultMaker_4 returns rule without ID
+func DefaultMaker_4() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjUnVsZSBBUkdTICJAcG1Gcm9tRmlsZSBwaHAtZnVuY3Rpb24tbmFtZXMtOTMzMTUwLmRhdGEiIFwKICAgICJpZDo5MzMxNTAscGhhc2U6MixibG9jayxtc2c6J1BIUCBmdW5jdGlvbiBpbmplY3Rpb24gZGV0ZWN0ZWQnIg==",
-			Fields:    &waf.RuleActionField{Id: []string{"933150"}, Msg: []string{"'PHP function injection detected'"}, Phase: []string{"2"}},
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjMw",
+			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjUnVsZSBBUkdTICJAcG1Gcm9tRmlsZSBwaHAtZnVuY3Rpb24tbmFtZXMtOTMzMTUwLmRhdGEiIFwKICAgICJpZDo5MzMxNTAscGhhc2U6MixibG9jayxtc2c6J1BIUCBmdW5jdGlvbiBpbmplY3Rpb24gZGV0ZWN0ZWQnIg==",
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjMw",
+		Level:         "",
+	}
+}
+
+// DefaultMaker_5 returns rule without ID
+func DefaultMaker_5() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM1",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM1",
+		Level:         "",
+	}
+}
+
+// DefaultMaker_6 returns rule without ID
+func DefaultMaker_6() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjYw",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjYw",
+		Level:         "",
+	}
+}
+
+// DefaultMaker_7 returns rule without ID
+func DefaultMaker_7() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMTc1",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMTc1",
+		Level:         "",
+	}
+}
+
+// DefaultMaker_8 returns rule without ID
+func DefaultMaker_8() *waf.Rule {
+	return &waf.Rule{
+		Actions: &waf.RuleAction{
+			Statement: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM4",
+			Fields:    &waf.RuleActionField{},
+		},
+		Configuration: "U2VjUnVsZVJlbW92ZUJ5SWQgOTMyMjM4",
 		Level:         "",
 	}
 }
