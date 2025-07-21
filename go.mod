@@ -7,7 +7,7 @@ replace github.com/sentinez/sentinez/api => ./api
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/a-h/templ v0.3.906
+	github.com/a-h/templ v0.3.920
 	github.com/bufbuild/protovalidate-go v0.10.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
