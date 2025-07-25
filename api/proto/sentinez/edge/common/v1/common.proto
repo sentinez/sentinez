@@ -1,4 +1,4 @@
-// Copyright 2025 Sentinez Labs.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpv1mdw
+syntax = "proto3";
 
-import (
-	"net/http"
+package sentinez.edge.common.v1;
 
-	txhttp "github.com/corazawaf/coraza/v3/http"
-	"github.com/sentinez/sentinez/pkg/core/edge/secure"
-)
-
-func Protected(ruleRoot string) func(next http.Handler) http.Handler {
-
-	waf := secure.NewFireWall(ruleRoot)
-
-	return func(next http.Handler) http.Handler {
-		return txhttp.WrapHandler(waf, next)
-	}
-}
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/common/v1;common";

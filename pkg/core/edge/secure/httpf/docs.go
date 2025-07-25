@@ -12,20 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpv1mdw
-
-import (
-	"net/http"
-
-	txhttp "github.com/corazawaf/coraza/v3/http"
-	"github.com/sentinez/sentinez/pkg/core/edge/secure"
-)
-
-func Protected(ruleRoot string) func(next http.Handler) http.Handler {
-
-	waf := secure.NewFireWall(ruleRoot)
-
-	return func(next http.Handler) http.Handler {
-		return txhttp.WrapHandler(waf, next)
-	}
-}
+// Package httpfsec implement interceptor for fasthttp library
+// base on coraza/http
+// ref: https://github.com/corazawaf/coraza/tree/main/http
+package httpfsec

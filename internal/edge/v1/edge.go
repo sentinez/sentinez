@@ -19,7 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	edgecm "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
@@ -70,7 +70,7 @@ func (s *Server) Start(_ context.Context) error {
 //
 //nolint:funlen
 func (s *Server) Serve(addr string) error {
-	edge.PrintASCII()
+	edgecm.PrintASCII()
 
 	if err := s.bootloader(context.Background()); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
