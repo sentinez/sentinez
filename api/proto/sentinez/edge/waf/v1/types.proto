@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package sentinez.edge.waf.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1;waf";
+
+enum Service {
+  SERVICE_UNSPECIFIED = 0;
+  SERVICE_FIREWALL = 1;
+  SERVICE_RATE_LIMIT = 2;
+  SERVICE_SYSTEM = 3;
+  SERVICE_IP_ACCESS = 4;
+}
+
+message Policy {
+
+}
+
+message Group {
+
+}
