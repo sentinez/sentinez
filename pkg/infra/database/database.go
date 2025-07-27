@@ -37,6 +37,7 @@ type SQLBuilder interface {
 
 type Database[T proto.Message] interface {
 	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
+	Total(ctx context.Context) (int64, error)
 
 	CollectRows(ctx context.Context,
 		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)

@@ -42,7 +42,7 @@ func (m *Config) Validate() error {
 
 	// no validation rules for TimescaleUri
 
-	// no validation rules for PostgresqlUri
+	// no validation rules for PostgresUri
 
 	// no validation rules for ClickhouseUri
 

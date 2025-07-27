@@ -19,6 +19,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
@@ -28,7 +29,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 var (
@@ -46,8 +46,12 @@ type IUser interface {
 	// extra methods
 
 	Count(ctx context.Context) (int64, error)
-	List(ctx context.Context, req *iam.ListUsersRequest) ([]*iam.Users, error)
-	GetByUsernameOrEmail(ctx context.Context, input string) (*iam.Users, error)
+
+	GetByUsernameOrEmail(ctx context.Context,
+		input string) (*iam.Users, error)
+
+	List(ctx context.Context,
+		req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
 }
 
 func New(pool *pgxpool.Pool) (IUser, error) {
@@ -90,14 +94,14 @@ func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 }
 
 // List implements IUser.
+// nolint:funlen
 func (u *Users) List(ctx context.Context,
-	req *iam.ListUsersRequest) ([]*iam.Users, error) {
-
-	builder := sq.Select("data").From(postgresz.Table(u.tableName))
-	builder = database.Page(builder, req.GetPage())
+	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
+	builder := database.SelectFrom(u.tableName, req.GetPage())
+	var total int64
 
 	for _, id := range req.GetIds() {
-		builder = builder.Where(sq.Eq{"id": id})
+		builder = builder.Where(sq.Eq{postgresz.Primary("id"): id})
 	}
 
 	for _, email := range req.GetEmails() {
@@ -112,10 +116,21 @@ func (u *Users) List(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-
 	zlog.Debug("[users] query: ", query, " args: ", args)
 
-	return u.storage.CollectRows(ctx, builder, scan)
+	users, err := u.storage.CollectRows(ctx, builder, scan)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.GetPage().GetTotal() {
+		total, err = u.storage.Total(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &iam.ListUsersResponse{Users: users, Total: total}, nil
 }
 
 func scan(r database.Rows) ([]*iam.Users, error) {
@@ -125,6 +140,7 @@ func scan(r database.Rows) ([]*iam.Users, error) {
 		var (
 			data []byte
 		)
+
 		if err := r.Scan(&data); err != nil {
 			return nil, err
 		}

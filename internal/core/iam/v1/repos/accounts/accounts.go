@@ -43,8 +43,11 @@ type IAccount interface {
 
 	// extra methods
 
-	GetByUsernameOrEmail(
-		ctx context.Context, input string) (*iam.Accounts, error)
+	GetByUsernameOrEmail(ctx context.Context,
+		input string) (*iam.Accounts, error)
+
+	List(ctx context.Context,
+		req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
 }
 
 func New(pool *pgxpool.Pool) (IAccount, error) {
@@ -67,6 +70,14 @@ type Accounts struct {
 	tableName string
 	query     *accounts.Queries
 	storage   database.Database[*iam.Accounts]
+}
+
+func (acc *Accounts) List(ctx context.Context,
+	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+
+	_, _ = ctx, req
+
+	panic("implement me")
 }
 
 // GetByUsernameOrEmail implements IAccount.

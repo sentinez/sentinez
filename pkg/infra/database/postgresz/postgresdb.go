@@ -18,14 +18,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/table"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/protobuf/proto"
 )
@@ -45,9 +45,7 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 		opt(&tb)
 	}
 
-	err := syncProtoToPostgresJSONB(
-		context.Background(),
-		pool,
+	err := syncProtoToPostgresJSONB(context.Background(), pool,
 		tableName,
 		tb.Index,
 	)
@@ -55,22 +53,12 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
-	for _, ref := range tb.References {
-		err := Reference(pool,
-			tableName, ref.FromField, ref.ToTable, ref.ToField)
-		if err != nil {
-			zlog.Debug("[postgresz] reference err: ", err)
-
-			return nil, fmt.Errorf("failed to create reference %s.%s -> %s.%s",
-				tableName, ref.FromField, ref.ToTable, ref.ToField)
-		}
-	}
-
-	return &postgres[T]{pool: pool}, nil
+	return &postgres[T]{pool: pool, tableName: tableName}, nil
 }
 
 type postgres[T proto.Message] struct {
-	pool *pgxpool.Pool
+	pool      *pgxpool.Pool
+	tableName string
 }
 
 // BeginTx implements database.Database.
@@ -168,4 +156,18 @@ func (p *postgres[T]) WithTx(ctx context.Context,
 	}
 
 	return tx.Commit(ctx)
+}
+
+func (p *postgres[T]) Total(ctx context.Context) (int64, error) {
+
+	builder := sq.Select("COUNT(*) AS count").From(p.tableName)
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	row := p.pool.QueryRow(ctx, query, args...)
+	var count int64
+	err = row.Scan(&count)
+	return count, err
 }

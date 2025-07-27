@@ -101,3 +101,7 @@ func (c *clickHouse[T]) WithTx(_ context.Context,
 
 	return errors.F("[sentinez] clickhouse transaction not supported")
 }
+
+func (c *clickHouse[T]) Total(_ context.Context) (int64, error) {
+	return 0, errors.F("[sentinez] clickhouse total not implemented")
+}

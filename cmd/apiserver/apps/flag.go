@@ -31,7 +31,7 @@ var onceAPIServer sync.Once
 var apiServerFlags = &common.FlagAPIServer{
 	ApiSpecsPath: "boot/api/specs/v1",
 	SwaggerPath:  "boot/api/swagger",
-	Address:      "0.0.0.0:9000",
+	Address:      ":9000",
 }
 
 // ParseFlag flag args for apiserver service

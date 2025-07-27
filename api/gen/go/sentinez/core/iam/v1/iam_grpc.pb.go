@@ -37,6 +37,7 @@ const (
 	IdentityAccessManagementService_GetUser_FullMethodName       = "/sentinez.core.iam.v1.IdentityAccessManagementService/GetUser"
 	IdentityAccessManagementService_DeleteUser_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/DeleteUser"
 	IdentityAccessManagementService_UpdateUser_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/UpdateUser"
+	IdentityAccessManagementService_ListAccounts_FullMethodName  = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListAccounts"
 	IdentityAccessManagementService_ListUsers_FullMethodName     = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListUsers"
 	IdentityAccessManagementService_Status_FullMethodName        = "/sentinez.core.iam.v1.IdentityAccessManagementService/Status"
 	IdentityAccessManagementService_CreateAccount_FullMethodName = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateAccount"
@@ -51,6 +52,7 @@ type IdentityAccessManagementServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	ListAccounts(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CreateAccount(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*CreateAccountResponse, error)
@@ -105,6 +107,16 @@ func (c *identityAccessManagementServiceClient) UpdateUser(ctx context.Context, 
 	return out, nil
 }
 
+func (c *identityAccessManagementServiceClient) ListAccounts(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAccountsResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_ListAccounts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *identityAccessManagementServiceClient) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListUsersResponse)
@@ -153,6 +165,7 @@ type IdentityAccessManagementServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	CreateAccount(context.Context, *CreateAccountRequest) (*CreateAccountResponse, error)
@@ -177,6 +190,9 @@ func (UnimplementedIdentityAccessManagementServiceServer) DeleteUser(context.Con
 }
 func (UnimplementedIdentityAccessManagementServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAccounts not implemented")
 }
 func (UnimplementedIdentityAccessManagementServiceServer) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
@@ -282,6 +298,24 @@ func _IdentityAccessManagementService_UpdateUser_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityAccessManagementService_ListAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAccountsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).ListAccounts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_ListAccounts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).ListAccounts(ctx, req.(*ListAccountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _IdentityAccessManagementService_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
@@ -376,6 +410,10 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _IdentityAccessManagementService_UpdateUser_Handler,
+		},
+		{
+			MethodName: "ListAccounts",
+			Handler:    _IdentityAccessManagementService_ListAccounts_Handler,
 		},
 		{
 			MethodName: "ListUsers",

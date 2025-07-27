@@ -15,66 +15,21 @@
 package postgresz
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/std/errors"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-func Reference(pool *pgxpool.Pool,
-	fromTable, fromField, toTable, toField string) error {
-	ctx := context.Background()
-	constraintName := fmt.Sprintf("fk_%s_%s", fromTable, fromField)
-
-	var exists int
-	err := pool.QueryRow(ctx, checkConstraint, constraintName).Scan(&exists)
-	if err == nil {
-
-		zlog.Debugf("[pgopt] foreign key already exists: %s (%s.%s -> %s.%s)",
-			constraintName, fromTable, fromField, toTable, toField)
-		return nil
-	} else if !errors.Is(err, pgx.ErrNoRows) {
-
-		zlog.Errorf("[pgopt] check constraint error: %v", err)
-		return errors.F("[pgopt] failed to check constraint existence: %w", err)
-	}
-
-	sql := fmt.Sprintf(alterQuery,
-		fromTable, constraintName, fromField, toTable, toField)
-
-	_, err = pool.Exec(ctx, sql)
-	if err != nil {
-		zlog.Errorf("[pgopt] executing ALTER TABLE error: %v", err)
-		return errors.F("[pgopt] failed to execute ALTER TABLE: %w", err)
-	}
-
-	zlog.Debugf("[pgopt] reference created: %s (%s.%s -> %s.%s)",
-		constraintName, fromTable, fromField, toTable, toField)
-
-	return nil
-}
-
-func WithReference(fromField, toTable, toField string) database.Option {
-	return func(ref *database.Table) {
-		if ref.References == nil {
-			ref.References = make(map[string]database.Reference)
-		}
-
-		ref.References[fromField] = database.Reference{
-			FromField: fromField,
-			ToTable:   toTable,
-			ToField:   toField,
-		}
-	}
-}
 
 func WithIndex(index ...string) database.Option {
 	return func(ref *database.Table) {
 		ref.Index = append(ref.Index, index...)
 	}
+}
+
+func Field(field string) string {
+	return fmt.Sprintf("data->>'%s'", field)
+}
+
+func Primary(field string) string {
+	return field
 }

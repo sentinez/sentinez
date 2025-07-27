@@ -32,8 +32,8 @@ func Default() *common.Config {
 		conf = &common.Config{
 			TimescaleUri: getPublicEnv(
 				common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB),
-			PostgresqlUri: getPublicEnv(
-				common.STNZPublic_STNZ_PUBLIC_POSTGRESQL),
+			PostgresUri: getPublicEnv(
+				common.STNZPublic_STNZ_PUBLIC_POSTGRES),
 			ClickhouseUri: getPublicEnv(
 				common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE),
 		}

@@ -18,6 +18,7 @@ package database
 import (
 	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func GetOffset(pageIndex, pageSize int) int {
@@ -27,8 +28,26 @@ func GetOffset(pageIndex, pageSize int) int {
 	return (pageIndex - 1) * pageSize
 }
 
-func Page(builder squirrel.SelectBuilder,
+func selectFrom(tableName string) squirrel.SelectBuilder {
+	return squirrel.Select("data").From(tableName)
+}
+
+func SelectFrom(tableName string, page *common.Pages) squirrel.SelectBuilder {
+
+	zlog.Debugf("selecting from table: %s", tableName)
+
+	builder := selectFrom(tableName)
+
+	if page == nil {
+		return builder
+	}
+
+	return paging(builder, page)
+}
+
+func paging(builder squirrel.SelectBuilder,
 	page *common.Pages) squirrel.SelectBuilder {
+
 	if page == nil {
 		return builder
 	}

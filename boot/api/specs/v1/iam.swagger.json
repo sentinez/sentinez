@@ -52,6 +52,90 @@
         ]
       }
     },
+    "/iam/accounts": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_ListAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "userIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "usernames",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "emails",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
     "/iam/login": {
       "put": {
         "operationId": "IdentityAccessManagementService_Login",
@@ -257,6 +341,9 @@
         }
       }
     },
+    "v1ListAccountsResponse": {
+      "type": "object"
+    },
     "v1ListUsersResponse": {
       "type": "object",
       "properties": {
@@ -266,6 +353,10 @@
             "type": "object",
             "$ref": "#/definitions/v1Users"
           }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

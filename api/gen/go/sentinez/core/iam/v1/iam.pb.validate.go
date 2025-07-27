@@ -991,6 +991,8 @@ func (m *ListUsersResponse) Validate() error {
 
 	}
 
+	// no validation rules for Total
+
 	return nil
 }
 
@@ -1049,6 +1051,150 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListUsersResponseValidationError{}
+
+// Validate checks the field values on ListAccountsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListAccountsRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListAccountsRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// ListAccountsRequestValidationError is the validation error returned by
+// ListAccountsRequest.Validate if the designated constraints aren't met.
+type ListAccountsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAccountsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAccountsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAccountsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAccountsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAccountsRequestValidationError) ErrorName() string {
+	return "ListAccountsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListAccountsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAccountsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAccountsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAccountsRequestValidationError{}
+
+// Validate checks the field values on ListAccountsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListAccountsResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// ListAccountsResponseValidationError is the validation error returned by
+// ListAccountsResponse.Validate if the designated constraints aren't met.
+type ListAccountsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAccountsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAccountsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAccountsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAccountsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAccountsResponseValidationError) ErrorName() string {
+	return "ListAccountsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListAccountsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAccountsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAccountsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAccountsResponseValidationError{}
 
 // Validate checks the field values on DeleteUserRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, an

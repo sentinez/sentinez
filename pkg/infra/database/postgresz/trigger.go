@@ -3,6 +3,7 @@ package postgresz
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -80,8 +81,6 @@ func syncProtoToPostgresJSONB(ctx context.Context,
 	table string,
 	indexFields []string,
 ) error {
-	table = strings.ReplaceAll(table, ".", "_")
-
 	exists, err := tableExists(ctx, pool, table)
 	if err != nil {
 		return fmt.Errorf("check table exists: %w", err)
@@ -115,13 +114,7 @@ func syncProtoToPostgresJSONB(ctx context.Context,
 
 	// Create missing indexes
 	for indexName := range wanted {
-		found := false
-		for _, existing := range existingIndexes {
-			if existing == indexName {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(existingIndexes, indexName)
 		if !found {
 			field := strings.TrimPrefix(indexName, "idx_"+table+"_")
 			if err := createIndexOnJSONB(ctx, pool, table, field); err != nil {
@@ -140,12 +133,4 @@ func syncProtoToPostgresJSONB(ctx context.Context,
 	}
 
 	return nil
-}
-
-func Field(field string) string {
-	return fmt.Sprintf("data->>'%s'", field)
-}
-
-func Table(table string) string {
-	return strings.ReplaceAll(table, ".", "_")
 }

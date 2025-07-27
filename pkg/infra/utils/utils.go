@@ -26,7 +26,7 @@ import (
 
 // NewPgxPool create new pool connection for multiple query
 func NewPgxPool(conf *common.Config) (*pgxpool.Pool, error) {
-	return pgxpool.New(context.Background(), conf.GetPostgresqlUri())
+	return pgxpool.New(context.Background(), conf.GetPostgresUri())
 }
 
 // NewPgxConn create new connection for single query

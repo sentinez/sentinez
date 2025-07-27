@@ -28,7 +28,7 @@ import (
 
 var (
 	timescale  = os.Getenv(common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB.String())
-	postgresql = os.Getenv(common.STNZPublic_STNZ_PUBLIC_POSTGRESQL.String())
+	postgresql = os.Getenv(common.STNZPublic_STNZ_PUBLIC_POSTGRES.String())
 	clickhouse = os.Getenv(common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE.String())
 )
 

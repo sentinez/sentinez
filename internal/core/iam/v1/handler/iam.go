@@ -38,6 +38,18 @@ type IdentityAccessManagement struct {
 	service *iamservices.IAMService
 }
 
+func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
+	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
+	zlog.Debugf("[IdentityAccessManagement.ListAccounts]")
+
+	resp, err := iam.service.ListAccounts(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
 	_ = ctx
