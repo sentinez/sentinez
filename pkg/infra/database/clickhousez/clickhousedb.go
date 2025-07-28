@@ -18,6 +18,7 @@ import (
 	"context"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/errors"
@@ -104,4 +105,9 @@ func (c *clickHouse[T]) WithTx(_ context.Context,
 
 func (c *clickHouse[T]) Total(_ context.Context) (int64, error) {
 	return 0, errors.F("[sentinez] clickhouse total not implemented")
+}
+
+func (c *clickHouse[T]) SelectBuilder() squirrel.SelectBuilder {
+	// Replace "table_name" with actual table name
+	return squirrel.Select("data").From("table_name")
 }

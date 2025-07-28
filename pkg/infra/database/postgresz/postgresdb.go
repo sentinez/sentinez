@@ -22,6 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/table"
 
+	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -59,6 +60,10 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 type postgres[T proto.Message] struct {
 	pool      *pgxpool.Pool
 	tableName string
+}
+
+func (p *postgres[T]) SelectBuilder() sq.SelectBuilder {
+	return squirrel.Select("data").From(p.tableName)
 }
 
 // BeginTx implements database.Database.

@@ -1137,6 +1137,23 @@ func (m *ListAccountsResponse) Validate() error {
 		return nil
 	}
 
+	for idx, item := range m.GetAccounts() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAccountsResponseValidationError{
+					field:  fmt.Sprintf("Accounts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
 	return nil
 }
 

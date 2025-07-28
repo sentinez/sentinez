@@ -17,6 +17,7 @@ package accountrepo
 import (
 	"context"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
@@ -72,12 +73,59 @@ type Accounts struct {
 	storage   database.Database[*iam.Accounts]
 }
 
+// nolint:funlen
 func (acc *Accounts) List(ctx context.Context,
 	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
 
-	_, _ = ctx, req
+	builder := database.Paging(acc.storage.SelectBuilder(), req.GetPage())
 
-	panic("implement me")
+	if len(req.GetIds()) > 0 {
+		builder = builder.Where(
+			squirrel.Eq{postgresz.Primary(iam.AccountsFieldId): req.GetIds()})
+	}
+
+	if len(req.GetEmails()) > 0 {
+		builder = builder.Where(squirrel.Eq{
+			postgresz.Field(iam.AccountsFieldEmail): req.GetEmails(),
+		})
+	}
+
+	if len(req.GetUserIds()) > 0 {
+		builder = builder.Where(squirrel.Eq{
+			postgresz.Field(iam.AccountsFieldUserId): req.GetUserIds(),
+		})
+	}
+
+	if len(req.GetUsernames()) > 0 {
+		builder = builder.Where(squirrel.Eq{
+			postgresz.Field(iam.AccountsFieldUsername): req.GetUsernames(),
+		})
+	}
+
+	accounts, err := acc.storage.CollectRows(
+		ctx, builder, postgresz.Scans[*iam.Accounts])
+	if err != nil {
+		return nil, err
+	}
+
+	var resp iam.ListAccountsResponse
+	for _, account := range accounts {
+		resp.Accounts = append(resp.Accounts, &iam.AccountLite{
+			Id:       account.GetId(),
+			Username: account.GetUsername(),
+			Email:    account.GetEmail(),
+			UserId:   account.GetUserId(),
+		})
+	}
+
+	if req.GetPage().GetTotal() {
+		resp.Total, err = acc.storage.Total(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &resp, nil
 }
 
 // GetByUsernameOrEmail implements IAccount.
@@ -143,24 +191,12 @@ func (acc *Accounts) Get(ctx context.Context,
 func (acc *Accounts) GetMany(ctx context.Context,
 	page *common.Pages) ([]*iam.Accounts, error) {
 
-	offset := database.GetOffset(int(page.GetIndex()), int(page.GetSize()))
-	result, err := acc.query.GetMany(ctx, accounts.GetManyParams{
-		Offset: int32(offset),
-		Limit:  page.GetSize(),
-	})
+	builder := database.Paging(acc.storage.SelectBuilder(), page)
+
+	resp, err := acc.storage.CollectRows(
+		ctx, builder, postgresz.Scans[*iam.Accounts])
 	if err != nil {
 		return nil, err
-	}
-
-	var resp []*iam.Accounts
-	for _, account := range result {
-		var u iam.Accounts
-		if err := protojson.Unmarshal(account.Data, &u); err != nil {
-			return nil, err
-		}
-
-		u.Id = account.ID
-		resp = append(resp, &u)
 	}
 
 	return resp, nil

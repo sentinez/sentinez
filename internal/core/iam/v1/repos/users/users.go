@@ -97,19 +97,26 @@ func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 // nolint:funlen
 func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
-	builder := database.SelectFrom(u.tableName, req.GetPage())
+
+	builder := database.Paging(u.storage.SelectBuilder(), req.GetPage())
 	var total int64
 
 	for _, id := range req.GetIds() {
-		builder = builder.Where(sq.Eq{postgresz.Primary("id"): id})
+		builder = builder.Where(sq.Eq{
+			postgresz.Primary(iam.UsersFieldId): id,
+		})
 	}
 
 	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{postgresz.Field("email"): email})
+		builder = builder.Where(sq.Eq{
+			postgresz.Field(iam.UsersFieldFullName): email,
+		})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
-		builder = builder.Where(sq.Eq{postgresz.Field("phoneNumber"): phone})
+		builder = builder.Where(sq.Eq{
+			postgresz.Field(iam.UsersFieldPhoneNumber): phone,
+		})
 	}
 
 	query, args, err := builder.ToSql()
@@ -118,7 +125,8 @@ func (u *Users) List(ctx context.Context,
 	}
 	zlog.Debug("[users] query: ", query, " args: ", args)
 
-	users, err := u.storage.CollectRows(ctx, builder, scan)
+	users, err := u.storage.CollectRows(
+		ctx, builder, postgresz.Scans[*iam.Users])
 	if err != nil {
 		return nil, err
 	}
@@ -131,33 +139,6 @@ func (u *Users) List(ctx context.Context,
 	}
 
 	return &iam.ListUsersResponse{Users: users, Total: total}, nil
-}
-
-func scan(r database.Rows) ([]*iam.Users, error) {
-	var users []*iam.Users
-
-	for r.Next() {
-		var (
-			data []byte
-		)
-
-		if err := r.Scan(&data); err != nil {
-			return nil, err
-		}
-
-		var user iam.Users
-		if err := protojson.Unmarshal(data, &user); err != nil {
-			return nil, err
-		}
-
-		users = append(users, &user)
-	}
-
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-
-	return users, nil
 }
 
 // Count implements IUser.
@@ -211,24 +192,12 @@ func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
 func (u *Users) GetMany(ctx context.Context,
 	page *common.Pages) ([]*iam.Users, error) {
 
-	offset := database.GetOffset(int(page.GetIndex()), int(page.GetSize()))
-	result, err := u.query.GetPage(ctx, users.GetPageParams{
-		Offset: int32(offset),
-		Limit:  int32(page.GetSize()),
-	})
+	builder := database.Paging(u.storage.SelectBuilder(), page)
+
+	resp, err := u.storage.CollectRows(
+		ctx, builder, postgresz.Scans[*iam.Users])
 	if err != nil {
 		return nil, err
-	}
-
-	var resp []*iam.Users
-	for _, user := range result {
-		var u iam.Users
-		if err := protojson.Unmarshal(user.Data, &u); err != nil {
-			return nil, err
-		}
-
-		u.Id = user.ID
-		resp = append(resp, &u)
 	}
 
 	return resp, nil

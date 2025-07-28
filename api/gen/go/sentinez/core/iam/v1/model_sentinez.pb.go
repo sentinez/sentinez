@@ -27,3 +27,18 @@ _(__  ) /  __// /_  _  / / /__  /_       ------------
 func PrintASCII() {
 	fmt.Print(ASCII)
 }
+
+const (
+	AccountsFieldId       = "id"
+	AccountsFieldUserId   = "userId"
+	AccountsFieldUsername = "username"
+	AccountsFieldPassword = "password"
+	AccountsFieldEmail    = "email"
+)
+
+const (
+	UsersFieldId          = "id"
+	UsersFieldFullName    = "fullName"
+	UsersFieldEmail       = "email"
+	UsersFieldPhoneNumber = "phoneNumber"
+)

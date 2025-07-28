@@ -16,8 +16,11 @@ package postgresz
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 func WithIndex(index ...string) database.Option {
@@ -32,4 +35,33 @@ func Field(field string) string {
 
 func Primary(field string) string {
 	return field
+}
+
+func Scans[T proto.Message](r database.Rows) ([]T, error) {
+	var list []T
+
+	for r.Next() {
+		var (
+			data []byte
+		)
+
+		if err := r.Scan(&data); err != nil {
+			return nil, err
+		}
+
+		obj := reflect.New(
+			reflect.TypeOf((*T)(nil)).Elem().Elem()).Interface().(proto.Message)
+
+		if err := protojson.Unmarshal(data, obj); err != nil {
+			return nil, err
+		}
+
+		list = append(list, obj.(T))
+	}
+
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+
+	return list, nil
 }

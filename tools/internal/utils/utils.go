@@ -12,18 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresz
+package utils
 
-const alterQuery = `
-	ALTER TABLE %s
-	ADD CONSTRAINT %s FOREIGN KEY (%s)
-	REFERENCES %s(%s)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE;
-`
+import "strings"
 
-const checkConstraint = `
-	SELECT 1
-	FROM pg_constraint
-	WHERE conname = $1;
-`
+func SnakeToPascal(s string) string {
+	parts := strings.Split(s, "_")
+	for i := range parts {
+		if len(parts[i]) > 0 {
+			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+		}
+	}
+	return strings.Join(parts, "")
+}
+
+func SnakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+	for i := 1; i < len(parts); i++ {
+		if len(parts[i]) > 0 {
+			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+		}
+	}
+	return strings.Join(parts, "")
+}

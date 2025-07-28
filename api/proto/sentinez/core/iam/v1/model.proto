@@ -16,10 +16,13 @@ syntax = "proto3";
 
 package sentinez.core.iam.v1;
 import "buf/validate/validate.proto";
+import "sentinez/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
 
 message Accounts {
+  option (sentinez.common.v1.stnz_msg_opts).object_model = true;
+
   string id = 1 [(buf.validate.field) = { required: true; string: {
     prefix: "stnz.accounts.",
   }}];
@@ -33,7 +36,22 @@ message Accounts {
   string email = 12 [(buf.validate.field).string.email = true];
 }
 
+message AccountLite {
+  string id = 1 [(buf.validate.field) = { required: true; string: {
+    prefix: "stnz.accounts.",
+  }}];
+
+  string user_id = 2 [(buf.validate.field) = { required: true; string: {
+    prefix: "stnz.users.",
+  }}];
+
+  string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string email = 11 [(buf.validate.field).string.email = true];
+}
+
 message Users {
+  option (sentinez.common.v1.stnz_msg_opts).object_model = true;
+  
   string id = 1 [(buf.validate.field) = { required: true, string: {
     prefix: "stnz.users."
   }}];

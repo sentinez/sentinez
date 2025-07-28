@@ -18,6 +18,9 @@ package code
 
 import (
 	"fmt"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/tools/internal/utils"
+	"google.golang.org/protobuf/proto"
 	"strings"
 
 	"github.com/common-nighthawk/go-figure"
@@ -51,13 +54,14 @@ func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.Generated
 	}
 
 	ascii(g, file)
+	objectModelGen(g, file)
 	return g
 }
 
 func ascii(g *protogen.GeneratedFile, file *protogen.File) {
 
 	n := "SENTINEZ // " + strings.ToUpper(string(file.GoPackageName))
-	asciiArt := figuregen(n, *file.Proto.Package)
+	asciiArt := figureGen(n, *file.Proto.Package)
 
 	g.P("const ASCII = `\n", asciiArt, "`")
 	g.P("\n")
@@ -69,7 +73,29 @@ func ascii(g *protogen.GeneratedFile, file *protogen.File) {
 	g.P("\n")
 }
 
-func figuregen(header string, footer string) string {
+func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
+	for _, message := range file.Messages {
+		opts := message.Desc.Options()
+
+		ext, ok := proto.GetExtension(opts, common.E_StnzMsgOpts).(*common.SentinezMessageOptions)
+		if !ok || ext == nil {
+			continue
+		}
+
+		if ext.ObjectModel {
+			g.P("const (")
+			for _, field := range message.Fields {
+				fieldName := string(field.Desc.Name())
+				constName := fmt.Sprintf("%sField%s", message.GoIdent.GoName, utils.SnakeToPascal(fieldName))
+				g.P(fmt.Sprintf("    %s = \"%s\"", constName, utils.SnakeToCamel(fieldName)))
+			}
+			g.P(")")
+			g.P("\n")
+		}
+	}
+}
+
+func figureGen(header string, footer string) string {
 	fig := figure.NewFigure("setnz", "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{

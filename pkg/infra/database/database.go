@@ -18,6 +18,7 @@ package database
 import (
 	"context"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"google.golang.org/protobuf/proto"
 )
@@ -38,25 +39,25 @@ type SQLBuilder interface {
 type Database[T proto.Message] interface {
 	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
 	Total(ctx context.Context) (int64, error)
-
+	BeginTx(ctx context.Context) (Transaction[T], error)
+	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
 	CollectRows(ctx context.Context,
 		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
-
 	Collect(ctx context.Context,
 		builder SQLBuilder, scan func(Row) (*T, error)) (*T, error)
 
-	BeginTx(ctx context.Context) (Transaction[T], error)
-	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
+	SelectBuilder() squirrel.SelectBuilder
+	// InsertBuilder() squirrel.InsertBuilder
+	// DeleteBuilder() squirrel.DeleteBuilder
+	// UpdateBuilder() squirrel.UpdateBuilder
 }
 
 type Transaction[T proto.Message] interface {
 	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
-
-	CollectRows(ctx context.Context,
-		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
-
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
+	CollectRows(ctx context.Context,
+		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
 }
 
 type Row interface {

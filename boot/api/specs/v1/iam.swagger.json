@@ -294,6 +294,23 @@
       },
       "additionalProperties": {}
     },
+    "v1AccountLite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateAccountRequest": {
       "type": "object",
       "properties": {
@@ -342,7 +359,20 @@
       }
     },
     "v1ListAccountsResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccountLite"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
     },
     "v1ListUsersResponse": {
       "type": "object",
