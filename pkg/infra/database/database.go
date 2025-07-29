@@ -18,7 +18,6 @@ package database
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"google.golang.org/protobuf/proto"
 )
@@ -29,7 +28,6 @@ const Data = "data"
 type Repository[T proto.Message, ID comparable] interface {
 	Create(ctx context.Context, entity T) (T, error)
 	Get(ctx context.Context, id ID) (T, error)
-	GetMany(ctx context.Context, page *common.Pages) ([]T, error)
 	Update(ctx context.Context, entity T) (T, error)
 	Delete(ctx context.Context, id ID) error
 }

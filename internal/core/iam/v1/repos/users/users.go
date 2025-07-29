@@ -21,7 +21,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/auto/queries/users"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
@@ -41,7 +40,6 @@ type IUser interface {
 	Create(ctx context.Context, user *iam.Users) (*iam.Users, error)
 	Update(ctx context.Context, user *iam.Users) (*iam.Users, error)
 	Get(ctx context.Context, id string) (*iam.Users, error)
-	GetMany(ctx context.Context, page *common.Pages) ([]*iam.Users, error)
 	Delete(ctx context.Context, id string) error
 
 	// extra methods
@@ -203,22 +201,6 @@ func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
 	}
 
 	return &result, err
-}
-
-// GetMany implements IUser.
-func (u *Users) GetMany(ctx context.Context,
-	page *common.Pages) ([]*iam.Users, error) {
-
-	builder := sq.Select(database.Data).From(u.tableName)
-	builder = query.Paging(builder, page)
-
-	resp, err := u.storage.CollectRows(
-		ctx, builder, postgresz.Scans[*iam.Users])
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }
 
 // Update implements IUser.

@@ -20,7 +20,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/auto/queries/accounts"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
@@ -40,7 +39,6 @@ type IAccount interface {
 	Create(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error)
 	Update(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error)
 	Get(ctx context.Context, id string) (*iam.Accounts, error)
-	GetMany(ctx context.Context, page *common.Pages) ([]*iam.Accounts, error)
 	Delete(ctx context.Context, id string) error
 
 	// extra methods
@@ -209,22 +207,6 @@ func (acc *Accounts) Get(ctx context.Context,
 	}
 
 	return &result, err
-}
-
-// GetMany implements IAccount.
-func (acc *Accounts) GetMany(ctx context.Context,
-	page *common.Pages) ([]*iam.Accounts, error) {
-
-	builder := sq.Select(database.Data).From(acc.tableName)
-	builder = query.Paging(builder, page)
-
-	resp, err := acc.storage.CollectRows(
-		ctx, builder, postgresz.Scans[*iam.Accounts])
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }
 
 // Update implements IAccount.
