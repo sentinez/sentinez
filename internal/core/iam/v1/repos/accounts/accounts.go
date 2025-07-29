@@ -17,7 +17,7 @@ package accountrepo
 import (
 	"context"
 
-	"github.com/Masterminds/squirrel"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
@@ -26,6 +26,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -49,6 +50,8 @@ type IAccount interface {
 
 	List(ctx context.Context,
 		req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
+
+	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
 func New(pool *pgxpool.Pool) (IAccount, error) {
@@ -74,33 +77,42 @@ type Accounts struct {
 }
 
 // nolint:funlen
-func (acc *Accounts) List(ctx context.Context,
-	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
-
-	builder := database.Paging(acc.storage.SelectBuilder(), req.GetPage())
+func buildListQuery(builder sq.SelectBuilder,
+	req *iam.ListAccountsRequest) sq.SelectBuilder {
 
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(
-			squirrel.Eq{postgresz.Primary(iam.AccountsFieldId): req.GetIds()})
+			sq.Eq{postgresz.Primary(iam.AccountsFieldId): req.GetIds()})
 	}
 
 	if len(req.GetEmails()) > 0 {
-		builder = builder.Where(squirrel.Eq{
+		builder = builder.Where(sq.Eq{
 			postgresz.Field(iam.AccountsFieldEmail): req.GetEmails(),
 		})
 	}
 
 	if len(req.GetUserIds()) > 0 {
-		builder = builder.Where(squirrel.Eq{
+		builder = builder.Where(sq.Eq{
 			postgresz.Field(iam.AccountsFieldUserId): req.GetUserIds(),
 		})
 	}
 
 	if len(req.GetUsernames()) > 0 {
-		builder = builder.Where(squirrel.Eq{
+		builder = builder.Where(sq.Eq{
 			postgresz.Field(iam.AccountsFieldUsername): req.GetUsernames(),
 		})
 	}
+
+	return builder
+}
+
+// nolint:funlen
+func (acc *Accounts) List(ctx context.Context,
+	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+
+	builder := sq.Select(database.Data).From(acc.tableName)
+	builder = query.Paging(builder, req.GetPage())
+	builder = buildListQuery(builder, req)
 
 	accounts, err := acc.storage.CollectRows(
 		ctx, builder, postgresz.Scans[*iam.Accounts])
@@ -119,13 +131,25 @@ func (acc *Accounts) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		resp.Total, err = acc.storage.Total(ctx)
+		resp.Total, err = acc.Total(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &resp, nil
+}
+
+func (acc *Accounts) Total(ctx context.Context,
+	req *iam.ListAccountsRequest) (int64, error) {
+
+	builder := sq.Select("COUNT(*) AS count").From(acc.tableName)
+	builder = buildListQuery(builder, req)
+
+	var count int64
+	err := acc.storage.Query(ctx, builder, &count)
+
+	return count, err
 }
 
 // GetByUsernameOrEmail implements IAccount.
@@ -191,7 +215,8 @@ func (acc *Accounts) Get(ctx context.Context,
 func (acc *Accounts) GetMany(ctx context.Context,
 	page *common.Pages) ([]*iam.Accounts, error) {
 
-	builder := database.Paging(acc.storage.SelectBuilder(), page)
+	builder := sq.Select(database.Data).From(acc.tableName)
+	builder = query.Paging(builder, page)
 
 	resp, err := acc.storage.CollectRows(
 		ctx, builder, postgresz.Scans[*iam.Accounts])

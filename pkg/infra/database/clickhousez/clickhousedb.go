@@ -19,8 +19,10 @@ import (
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"google.golang.org/protobuf/proto"
 )
@@ -45,7 +47,7 @@ func (c *clickHouse[T]) BeginTx(
 
 // CollectRows implements database.Database.
 func (c *clickHouse[T]) CollectRows(ctx context.Context,
-	builder database.SQLBuilder,
+	builder query.Query,
 	scan func(database.Rows) ([]T, error)) ([]T, error) {
 
 	query, args, err := builder.ToSql()
@@ -62,18 +64,20 @@ func (c *clickHouse[T]) CollectRows(ctx context.Context,
 	return scan(rows)
 }
 
-func (c *clickHouse[T]) Collect(ctx context.Context,
-	builder database.SQLBuilder,
-	scan func(database.Row) (*T, error)) (*T, error) {
+func (c *clickHouse[T]) CollectOneRow(ctx context.Context,
+	builder query.Query,
+	scan func(database.Row) (T, error)) (T, error) {
+
+	var empty T
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return nil, err
+		return empty, err
 	}
 
 	rows, err := c.conn.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return empty, err
 	}
 	defer func() { _ = rows.Close() }()
 
@@ -82,7 +86,7 @@ func (c *clickHouse[T]) Collect(ctx context.Context,
 
 // Exec implements database.Database.
 func (c *clickHouse[T]) Exec(ctx context.Context,
-	builder database.SQLBuilder) (database.ExecResult, error) {
+	builder query.Query) (database.ExecResult, error) {
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -96,15 +100,35 @@ func (c *clickHouse[T]) Exec(ctx context.Context,
 	return nil, nil
 }
 
+func (c *clickHouse[T]) Query(ctx context.Context,
+	builder query.Query, dest ...any) error {
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	query = sqlx.Rebind(sqlx.DOLLAR, query)
+
+	result, err := c.conn.Query(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	for result.Next() {
+		if err := result.Scan(dest...); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // WithTx implements database.Database.
 func (c *clickHouse[T]) WithTx(_ context.Context,
 	_ func(database.Transaction[T]) error) error {
 
 	return errors.F("[sentinez] clickhouse transaction not supported")
-}
-
-func (c *clickHouse[T]) Total(_ context.Context) (int64, error) {
-	return 0, errors.F("[sentinez] clickhouse total not implemented")
 }
 
 func (c *clickHouse[T]) SelectBuilder() squirrel.SelectBuilder {

@@ -21,6 +21,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 )
 
 var _ database.Transaction[*common.Empty] = (*PostgresTx[*common.Empty])(nil)
@@ -31,8 +32,7 @@ type PostgresTx[T any] struct {
 
 // CollectRows implements database.Transaction.
 func (p *PostgresTx[T]) CollectRows(ctx context.Context,
-	builder database.SQLBuilder,
-	_ func(database.Rows) ([]T, error)) ([]T, error) {
+	builder query.Query, _ func(database.Rows) ([]T, error)) ([]T, error) {
 
 	sqlStr, args, err := builder.ToSql()
 	if err != nil {
@@ -59,7 +59,7 @@ func (p *PostgresTx[T]) Commit(ctx context.Context) error {
 
 // Exec implements database.Transaction.
 func (p *PostgresTx[T]) Exec(ctx context.Context,
-	builder database.SQLBuilder) (database.ExecResult, error) {
+	builder query.Query) (database.ExecResult, error) {
 
 	sqlStr, args, err := builder.ToSql()
 	if err != nil {

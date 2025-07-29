@@ -20,10 +20,9 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/std/table"
 
-	"github.com/Masterminds/squirrel"
-	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -46,24 +45,17 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 		opt(&tb)
 	}
 
-	err := syncProtoToPostgresJSONB(context.Background(), pool,
-		tableName,
-		tb.Index,
-	)
+	err := syncProtoToPostgresJSONB(
+		context.Background(), pool, tableName, tb.Index)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
-	return &postgres[T]{pool: pool, tableName: tableName}, nil
+	return &postgres[T]{pool: pool}, nil
 }
 
 type postgres[T proto.Message] struct {
-	pool      *pgxpool.Pool
-	tableName string
-}
-
-func (p *postgres[T]) SelectBuilder() sq.SelectBuilder {
-	return squirrel.Select("data").From(p.tableName)
+	pool *pgxpool.Pool
 }
 
 // BeginTx implements database.Database.
@@ -80,7 +72,7 @@ func (p *postgres[T]) BeginTx(
 
 // CollectRows implements database.Database.
 func (p *postgres[T]) CollectRows(ctx context.Context,
-	builder database.SQLBuilder,
+	builder query.Query,
 	fn func(database.Rows) ([]T, error)) ([]T, error) {
 
 	query, args, err := builder.ToSql()
@@ -104,33 +96,35 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 }
 
 // Collect implements database.Database.
-func (p *postgres[T]) Collect(ctx context.Context,
-	builder database.SQLBuilder, _ func(database.Row) (*T, error)) (*T, error) {
+func (p *postgres[T]) CollectOneRow(ctx context.Context,
+	builder query.Query, _ func(database.Row) (T, error)) (T, error) {
+
+	var empty T
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return nil, err
+		return empty, err
 	}
 
 	query = sqlx.Rebind(sqlx.DOLLAR, query)
 
 	rows, err := p.pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return empty, err
 	}
 	defer rows.Close()
 
 	result, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[T])
 	if err != nil {
-		return nil, err
+		return empty, err
 	}
 
-	return &result, nil
+	return result, nil
 }
 
 // Exec implements database.Database.
 func (p *postgres[T]) Exec(ctx context.Context,
-	builder database.SQLBuilder) (database.ExecResult, error) {
+	builder query.Query) (database.ExecResult, error) {
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -144,6 +138,30 @@ func (p *postgres[T]) Exec(ctx context.Context,
 		return pgconn.CommandTag{}, err
 	}
 	return result, nil
+}
+
+func (p *postgres[T]) Query(ctx context.Context,
+	builder query.Query, dest ...any) error {
+
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	query = sqlx.Rebind(sqlx.DOLLAR, query)
+
+	result, err := p.pool.Query(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	for result.Next() {
+		if err := result.Scan(dest...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // WithTx implements database.Database.
@@ -161,18 +179,4 @@ func (p *postgres[T]) WithTx(ctx context.Context,
 	}
 
 	return tx.Commit(ctx)
-}
-
-func (p *postgres[T]) Total(ctx context.Context) (int64, error) {
-
-	builder := sq.Select("COUNT(*) AS count").From(p.tableName)
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return 0, err
-	}
-
-	row := p.pool.QueryRow(ctx, query, args...)
-	var count int64
-	err = row.Scan(&count)
-	return count, err
 }

@@ -18,10 +18,12 @@ package database
 import (
 	"context"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"google.golang.org/protobuf/proto"
 )
+
+const Data = "data"
 
 // Repository provides the interface for the database.
 type Repository[T proto.Message, ID comparable] interface {
@@ -32,32 +34,27 @@ type Repository[T proto.Message, ID comparable] interface {
 	Delete(ctx context.Context, id ID) error
 }
 
-type SQLBuilder interface {
-	ToSql() (string, []any, error)
+type Executor[T proto.Message] interface {
+	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
+	Query(ctx context.Context, builder query.Query, dest ...any) error
+	CollectRows(ctx context.Context, builder query.Query,
+		scan func(Rows) ([]T, error)) ([]T, error)
+	CollectOneRow(ctx context.Context, builder query.Query,
+		scan func(Row) (T, error)) (T, error)
 }
 
 type Database[T proto.Message] interface {
-	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
-	Total(ctx context.Context) (int64, error)
+	Executor[T]
 	BeginTx(ctx context.Context) (Transaction[T], error)
 	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
-	CollectRows(ctx context.Context,
-		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
-	Collect(ctx context.Context,
-		builder SQLBuilder, scan func(Row) (*T, error)) (*T, error)
-
-	SelectBuilder() squirrel.SelectBuilder
-	// InsertBuilder() squirrel.InsertBuilder
-	// DeleteBuilder() squirrel.DeleteBuilder
-	// UpdateBuilder() squirrel.UpdateBuilder
 }
 
 type Transaction[T proto.Message] interface {
-	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
+	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
-	CollectRows(ctx context.Context,
-		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
+	CollectRows(ctx context.Context, builder query.Query,
+		scan func(Rows) ([]T, error)) ([]T, error)
 }
 
 type Row interface {
@@ -75,15 +72,8 @@ type ExecResult interface {
 	RowsAffected() int64
 }
 
-type Reference struct {
-	FromField string
-	ToTable   string
-	ToField   string
-}
-
 type Table struct {
-	References map[string]Reference // table name -> references
-	Index      []string
+	Index []string
 }
 
 type Option func(*Table)

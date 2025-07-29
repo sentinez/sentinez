@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -45,13 +46,13 @@ type IUser interface {
 
 	// extra methods
 
-	Count(ctx context.Context) (int64, error)
-
 	GetByUsernameOrEmail(ctx context.Context,
 		input string) (*iam.Users, error)
 
 	List(ctx context.Context,
 		req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
+
+	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
 func New(pool *pgxpool.Pool) (IUser, error) {
@@ -93,14 +94,9 @@ func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 	return &result, nil
 }
 
-// List implements IUser.
 // nolint:funlen
-func (u *Users) List(ctx context.Context,
-	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
-
-	builder := database.Paging(u.storage.SelectBuilder(), req.GetPage())
-	var total int64
-
+func buildListQuery(builder sq.SelectBuilder,
+	req *iam.ListUsersRequest) sq.SelectBuilder {
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{
 			postgresz.Primary(iam.UsersFieldId): id,
@@ -109,7 +105,7 @@ func (u *Users) List(ctx context.Context,
 
 	for _, email := range req.GetEmails() {
 		builder = builder.Where(sq.Eq{
-			postgresz.Field(iam.UsersFieldFullName): email,
+			postgresz.Field(iam.UsersFieldEmail): email,
 		})
 	}
 
@@ -118,6 +114,20 @@ func (u *Users) List(ctx context.Context,
 			postgresz.Field(iam.UsersFieldPhoneNumber): phone,
 		})
 	}
+
+	return builder
+}
+
+// List implements IUser.
+// nolint:funlen
+func (u *Users) List(ctx context.Context,
+	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
+
+	builder := sq.Select(database.Data).From(u.tableName)
+	builder = query.Paging(builder, req.GetPage())
+	builder = buildListQuery(builder, req)
+
+	var total int64
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -132,7 +142,7 @@ func (u *Users) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = u.storage.Total(ctx)
+		total, err = u.Total(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -141,9 +151,16 @@ func (u *Users) List(ctx context.Context,
 	return &iam.ListUsersResponse{Users: users, Total: total}, nil
 }
 
-// Count implements IUser.
-func (u *Users) Count(ctx context.Context) (int64, error) {
-	return u.query.Count(ctx)
+func (u *Users) Total(ctx context.Context,
+	req *iam.ListUsersRequest) (int64, error) {
+
+	builder := sq.Select("COUNT(*) AS count").From(u.tableName)
+	builder = buildListQuery(builder, req)
+
+	var count int64
+	err := u.storage.Query(ctx, builder, &count)
+
+	return count, err
 }
 
 // Create implements IUser.
@@ -192,7 +209,8 @@ func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
 func (u *Users) GetMany(ctx context.Context,
 	page *common.Pages) ([]*iam.Users, error) {
 
-	builder := database.Paging(u.storage.SelectBuilder(), page)
+	builder := sq.Select(database.Data).From(u.tableName)
+	builder = query.Paging(builder, page)
 
 	resp, err := u.storage.CollectRows(
 		ctx, builder, postgresz.Scans[*iam.Users])

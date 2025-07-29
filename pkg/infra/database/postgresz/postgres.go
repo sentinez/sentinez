@@ -49,8 +49,8 @@ func Scans[T proto.Message](r database.Rows) ([]T, error) {
 			return nil, err
 		}
 
-		obj := reflect.New(
-			reflect.TypeOf((*T)(nil)).Elem().Elem()).Interface().(proto.Message)
+		obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
+			Interface().(proto.Message)
 
 		if err := protojson.Unmarshal(data, obj); err != nil {
 			return nil, err
