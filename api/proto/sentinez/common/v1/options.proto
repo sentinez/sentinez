@@ -27,6 +27,14 @@ extend google.protobuf.MethodOptions {
   SentinezMethodOptions options = 50001;
 }
 
+extend google.protobuf.MessageOptions {
+  SentinezMessageOptions stnz_msg_opts = 50002;
+}
+
+message SentinezMessageOptions {
+  bool object_model = 1;
+}
+
 message SentinezMethodOptions {
   bool ignore = 1;
   repeated Require require = 2;

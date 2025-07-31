@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package database provides the database interface.
-package database
+package query
 
 import (
 	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 )
+
+type Query interface {
+	ToSql() (string, []any, error)
+}
 
 func GetOffset(pageIndex, pageSize int) int {
 	if pageIndex < 1 {
@@ -27,8 +30,9 @@ func GetOffset(pageIndex, pageSize int) int {
 	return (pageIndex - 1) * pageSize
 }
 
-func Page(builder squirrel.SelectBuilder,
+func Paging(builder squirrel.SelectBuilder,
 	page *common.Pages) squirrel.SelectBuilder {
+
 	if page == nil {
 		return builder
 	}

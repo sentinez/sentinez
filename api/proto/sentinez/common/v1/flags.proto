@@ -29,7 +29,9 @@ message Flag {
 message FlagAPIServer {
   string swagger_path = 2;
   string api_specs_path = 3;
-  string address = 4 [(buf.validate.field).string.host_and_port = true];
+  string address = 4 [(buf.validate.field).string = {
+    pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
+  }];
 }
 
 message FlagGRPCService {

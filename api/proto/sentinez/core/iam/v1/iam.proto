@@ -56,13 +56,19 @@ service IdentityAccessManagementService {
   // private method bellow
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-  rpc GetUser(GetUserRequest) returns (GetUserResponse){}
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
 
 
   // public method bellow
-  
+
+  rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
+    option (google.api.http) = {
+      get: "/iam/accounts"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
+
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){
     option (google.api.http) = {
       get: "/iam/users"
@@ -83,6 +89,22 @@ service IdentityAccessManagementService {
     option (google.api.http) = {
       post: "/iam/account",
       body: "*"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse){
+    option (google.api.http) = {
+      get: "/iam/user"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+    option (google.api.http) = {
+      delete: "/iam/user/{id}"
     };
 
     option (sentinez.common.v1.options) = {ignore: true};
@@ -160,7 +182,7 @@ message GetUserRequest {
     prefix: "stnz.users.",
   }}];
 
-  string username = 2 [(buf.validate.field).required = false];
+  string email = 2 [(buf.validate.field).string.email = true];
 }
 
 message GetUserResponse {
@@ -176,6 +198,20 @@ message ListUsersRequest {
 
 message ListUsersResponse {
   repeated sentinez.core.iam.v1.Users users = 1;
+  int64 total = 2;
+}
+
+message ListAccountsRequest {
+  sentinez.common.v1.Pages page = 1;
+  repeated string ids = 10;
+  repeated string user_ids = 11;
+  repeated string usernames = 12;
+  repeated string emails = 13;
+}
+
+message ListAccountsResponse {
+  repeated sentinez.core.iam.v1.AccountLite accounts = 1;
+  int64 total = 2;
 }
 
 message DeleteUserRequest {

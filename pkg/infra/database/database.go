@@ -18,41 +18,39 @@ package database
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"google.golang.org/protobuf/proto"
 )
 
-// Repository provides the interface for the database.
-type Repository[T proto.Message, ID comparable] interface {
-	Create(ctx context.Context, entity T) (T, error)
-	Get(ctx context.Context, id ID) (T, error)
-	GetMany(ctx context.Context, page *common.Pages) ([]T, error)
-	Update(ctx context.Context, entity T) (T, error)
-	Delete(ctx context.Context, id ID) error
-}
+const (
+	Data = "data"
+	ID   = "id"
+)
 
-type SQLBuilder interface {
-	ToSql() (string, []any, error)
+type Executor[T proto.Message] interface {
+	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
+	Query(ctx context.Context, builder query.Query, dest ...any) error
+	CollectRows(ctx context.Context, builder query.Query,
+		scan func(Rows) ([]T, error)) ([]T, error)
+	CollectOneRow(ctx context.Context, builder query.Query,
+		scan func(Row) (T, error)) (T, error)
 }
 
 type Database[T proto.Message] interface {
-	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
-
-	CollectRows(ctx context.Context,
-		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
-
-	Collect(ctx context.Context,
-		builder SQLBuilder, scan func(Row) (*T, error)) (*T, error)
+	Executor[T]
+	Set(ctx context.Context, id string, entity T) error
+	Get(ctx context.Context, id string) (T, error)
+	Delete(ctx context.Context, id string) error
 
 	BeginTx(ctx context.Context) (Transaction[T], error)
 	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
 }
 
 type Transaction[T proto.Message] interface {
-	Exec(ctx context.Context, builder SQLBuilder) (ExecResult, error)
-
-	CollectRows(ctx context.Context,
-		builder SQLBuilder, scan func(Rows) ([]T, error)) ([]T, error)
+	Executor[T]
+	Set(ctx context.Context, id string, entity T) error
+	Get(ctx context.Context, id string) (T, error)
+	Delete(ctx context.Context, id string) error
 
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
@@ -73,15 +71,8 @@ type ExecResult interface {
 	RowsAffected() int64
 }
 
-type Reference struct {
-	FromField string
-	ToTable   string
-	ToField   string
-}
-
 type Table struct {
-	References map[string]Reference // table name -> references
-	Index      []string
+	Index []string
 }
 
 type Option func(*Table)

@@ -33,6 +33,75 @@ var (
 	_ = anypb.Any{}
 )
 
+// Validate checks the field values on SentinezMessageOptions with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *SentinezMessageOptions) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for ObjectModel
+
+	return nil
+}
+
+// SentinezMessageOptionsValidationError is the validation error returned by
+// SentinezMessageOptions.Validate if the designated constraints aren't met.
+type SentinezMessageOptionsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SentinezMessageOptionsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SentinezMessageOptionsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SentinezMessageOptionsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SentinezMessageOptionsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SentinezMessageOptionsValidationError) ErrorName() string {
+	return "SentinezMessageOptionsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SentinezMessageOptionsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSentinezMessageOptions.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SentinezMessageOptionsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SentinezMessageOptionsValidationError{}
+
 // Validate checks the field values on SentinezMethodOptions with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.

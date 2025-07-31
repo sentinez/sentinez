@@ -40,6 +40,17 @@ type IAMService struct {
 	accounts accountrepo.IAccount
 }
 
+func (srv *IAMService) ListAccounts(ctx context.Context,
+	request *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+
+	resp, err := srv.accounts.List(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (srv *IAMService) Status(ctx context.Context,
 	request *iam.StatusRequest) (*iam.StatusResponse, error) {
 
@@ -149,8 +160,8 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iam.GetUserResponse{User: user}, nil
 	}
 
-	if request.GetUsername() != "" {
-		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetUsername())
+	if request.GetEmail() != "" {
+		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +180,8 @@ func (srv *IAMService) ListUsers(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	return &iam.ListUsersResponse{Users: users}, nil
+
+	return users, nil
 }
 
 func (srv *IAMService) DeleteUser(ctx context.Context,

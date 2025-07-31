@@ -15,66 +15,79 @@
 package postgresz
 
 import (
-	"context"
+	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
-
-func Reference(pool *pgxpool.Pool,
-	fromTable, fromField, toTable, toField string) error {
-	ctx := context.Background()
-	constraintName := fmt.Sprintf("fk_%s_%s", fromTable, fromField)
-
-	var exists int
-	err := pool.QueryRow(ctx, checkConstraint, constraintName).Scan(&exists)
-	if err == nil {
-
-		zlog.Debugf("[pgopt] foreign key already exists: %s (%s.%s -> %s.%s)",
-			constraintName, fromTable, fromField, toTable, toField)
-		return nil
-	} else if !errors.Is(err, pgx.ErrNoRows) {
-
-		zlog.Errorf("[pgopt] check constraint error: %v", err)
-		return errors.F("[pgopt] failed to check constraint existence: %w", err)
-	}
-
-	sql := fmt.Sprintf(alterQuery,
-		fromTable, constraintName, fromField, toTable, toField)
-
-	_, err = pool.Exec(ctx, sql)
-	if err != nil {
-		zlog.Errorf("[pgopt] executing ALTER TABLE error: %v", err)
-		return errors.F("[pgopt] failed to execute ALTER TABLE: %w", err)
-	}
-
-	zlog.Debugf("[pgopt] reference created: %s (%s.%s -> %s.%s)",
-		constraintName, fromTable, fromField, toTable, toField)
-
-	return nil
-}
-
-func WithReference(fromField, toTable, toField string) database.Option {
-	return func(ref *database.Table) {
-		if ref.References == nil {
-			ref.References = make(map[string]database.Reference)
-		}
-
-		ref.References[fromField] = database.Reference{
-			FromField: fromField,
-			ToTable:   toTable,
-			ToField:   toField,
-		}
-	}
-}
 
 func WithIndex(index ...string) database.Option {
 	return func(ref *database.Table) {
 		ref.Index = append(ref.Index, index...)
 	}
+}
+
+func Field(field string) string {
+	return fmt.Sprintf("%s->>'%s'", database.Data, field)
+}
+
+func Primary(field string) string {
+	return field
+}
+
+func Scans[T proto.Message](r database.Rows) ([]T, error) {
+	var list []T
+
+	for r.Next() {
+		var (
+			data []byte
+		)
+
+		if err := r.Scan(&data); err != nil {
+			return nil, err
+		}
+
+		obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
+			Interface().(proto.Message)
+
+		if err := protojson.Unmarshal(data, obj); err != nil {
+			return nil, err
+		}
+
+		list = append(list, obj.(T))
+	}
+
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func Scan[T proto.Message](r database.Row) (T, error) {
+	var empty T
+	var data string
+
+	if r == nil {
+		zlog.Debug("Row is nil")
+		return empty, errors.New("row is nil")
+	}
+
+	if err := r.Scan(&data); err != nil {
+		zlog.Debugf("scan: error= %v", err)
+		return empty, err
+	}
+
+	obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
+		Interface().(proto.Message)
+
+	if err := protojson.Unmarshal([]byte(data), obj); err != nil {
+		return empty, err
+	}
+
+	return obj.(T), nil
 }

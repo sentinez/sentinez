@@ -17,16 +17,18 @@ package table
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/sentinez/sentinez/pkg/std/flags"
 )
 
-func Table(tableName string) string {
-	return fmt.Sprintf("%s.sentinez.%s", flags.Parse().Mode, tableName)
+func NewTable(tableName string) string {
+	tableName = fmt.Sprintf("%s.sentinez.%s", flags.Parse().Mode, tableName)
+	return strings.ReplaceAll(tableName, ".", "_")
 }
 
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(pattern, tableName)
+	matched, err := regexp.MatchString(TablePattern, tableName)
 	if err != nil {
 		fmt.Println("Regex error:", err)
 		return false
@@ -39,7 +41,7 @@ func IsValidTableName(tableName string) bool {
 	return false
 }
 
-const pattern = `^(dev|sandbox|production)\.sentinez\.[a-z]+$`
+const TablePattern = `^(dev|sandbox|production)\_sentinez\_[a-z]+$`
 
 const (
 	Users   = "users"

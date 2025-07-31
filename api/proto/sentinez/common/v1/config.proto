@@ -20,6 +20,6 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1;
 
 message Config {
     string timescale_uri = 1;
-    string postgresql_uri = 2;
+    string postgres_uri = 2;
     string clickhouse_uri = 3;
 }
