@@ -15,10 +15,12 @@
 package postgresz
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -30,7 +32,7 @@ func WithIndex(index ...string) database.Option {
 }
 
 func Field(field string) string {
-	return fmt.Sprintf("data->>'%s'", field)
+	return fmt.Sprintf("%s->>'%s'", database.Data, field)
 }
 
 func Primary(field string) string {
@@ -64,4 +66,28 @@ func Scans[T proto.Message](r database.Rows) ([]T, error) {
 	}
 
 	return list, nil
+}
+
+func Scan[T proto.Message](r database.Row) (T, error) {
+	var empty T
+	var data string
+
+	if r == nil {
+		zlog.Debug("Row is nil")
+		return empty, errors.New("row is nil")
+	}
+
+	if err := r.Scan(&data); err != nil {
+		zlog.Debugf("scan: error= %v", err)
+		return empty, err
+	}
+
+	obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
+		Interface().(proto.Message)
+
+	if err := protojson.Unmarshal([]byte(data), obj); err != nil {
+		return empty, err
+	}
+
+	return obj.(T), nil
 }

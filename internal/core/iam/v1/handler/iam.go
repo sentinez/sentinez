@@ -52,10 +52,15 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 
 func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	zlog.Debugf("[IdentityAccessManagement.GetUser] request= %v", request)
+
+	resp, err := iam.service.GetUser(ctx, request)
+	if err != nil {
+		zlog.Errorf("failed to get users: %v", err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
@@ -73,10 +78,15 @@ func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
 
 func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
 	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	zlog.Debugf("[IdentityAccessManagement.DeleteUser] request= %v", request)
+
+	resp, err := iam.service.DeleteUser(ctx, request)
+	if err != nil {
+		zlog.Errorf("faild to delete users: %s", err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,

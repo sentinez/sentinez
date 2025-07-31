@@ -19,10 +19,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/auto/queries/users"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
@@ -32,8 +30,7 @@ import (
 )
 
 var (
-	_ database.Repository[*iam.Users, string] = (*Users)(nil)
-	_ IUser                                   = (*Users)(nil)
+	_ IUser = (*Users)(nil)
 )
 
 type IUser interface {
@@ -54,7 +51,7 @@ type IUser interface {
 }
 
 func New(pool *pgxpool.Pool) (IUser, error) {
-	tableName := table.Table(table.Users)
+	tableName := table.NewTable(table.Users)
 
 	storage, err := postgresz.New[*iam.Users](pool, tableName,
 		postgresz.WithIndex("email", "phone_number", "username"))
@@ -63,7 +60,6 @@ func New(pool *pgxpool.Pool) (IUser, error) {
 	}
 
 	return &Users{
-		query:     users.New(pool),
 		storage:   storage,
 		tableName: tableName,
 	}, nil
@@ -71,7 +67,6 @@ func New(pool *pgxpool.Pool) (IUser, error) {
 
 type Users struct {
 	tableName string
-	query     *users.Queries
 	storage   database.Database[*iam.Users]
 }
 
@@ -79,17 +74,14 @@ type Users struct {
 func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*iam.Users, error) {
 
-	user, err := u.query.GetByUsernameOrEmail(ctx, []byte(input))
-	if err != nil {
-		return nil, err
-	}
+	builder := sq.Select(database.Data).From(u.tableName).Where(
+		sq.Or{
+			sq.Eq{postgresz.Field(iam.UsersFieldFullName): input},
+			sq.Eq{postgresz.Field(iam.UsersFieldEmail): input},
+		},
+	)
 
-	var result iam.Users
-	if err := protojson.Unmarshal(user.Data, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return u.storage.CollectOneRow(ctx, builder, postgresz.Scan[*iam.Users])
 }
 
 // nolint:funlen
@@ -167,16 +159,7 @@ func (u *Users) Create(ctx context.Context,
 
 	user.Id = uuid.Generate(u.tableName)
 
-	data, err := protojson.Marshal(user)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = u.query.Insert(ctx, users.InsertParams{
-		ID:      user.GetId(),
-		Column2: data,
-	})
-	if err != nil {
+	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
 		return nil, err
 	}
 
@@ -185,36 +168,19 @@ func (u *Users) Create(ctx context.Context,
 
 // Delete implements IUser.
 func (u *Users) Delete(ctx context.Context, id string) error {
-	return u.query.Delete(ctx, id)
+	return u.storage.Delete(ctx, id)
 }
 
 // Get implements IUser.
 func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
-	user, err := u.query.GetByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	var result iam.Users
-	if err := protojson.Unmarshal(user.Data, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, err
+	return u.storage.Get(ctx, id)
 }
 
 // Update implements IUser.
 func (u *Users) Update(
 	ctx context.Context, user *iam.Users) (*iam.Users, error) {
 
-	data, err := protojson.Marshal(user)
-	if err != nil {
-		return nil, err
-	}
-
-	err = u.query.Update(ctx,
-		users.UpdateParams{ID: user.GetId(), Column1: data})
-	if err != nil {
+	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
 		return nil, err
 	}
 

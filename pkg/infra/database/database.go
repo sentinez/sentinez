@@ -22,15 +22,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const Data = "data"
-
-// Repository provides the interface for the database.
-type Repository[T proto.Message, ID comparable] interface {
-	Create(ctx context.Context, entity T) (T, error)
-	Get(ctx context.Context, id ID) (T, error)
-	Update(ctx context.Context, entity T) (T, error)
-	Delete(ctx context.Context, id ID) error
-}
+const (
+	Data = "data"
+	ID   = "id"
+)
 
 type Executor[T proto.Message] interface {
 	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
@@ -43,16 +38,22 @@ type Executor[T proto.Message] interface {
 
 type Database[T proto.Message] interface {
 	Executor[T]
+	Set(ctx context.Context, id string, entity T) error
+	Get(ctx context.Context, id string) (T, error)
+	Delete(ctx context.Context, id string) error
+
 	BeginTx(ctx context.Context) (Transaction[T], error)
 	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
 }
 
 type Transaction[T proto.Message] interface {
-	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
+	Executor[T]
+	Set(ctx context.Context, id string, entity T) error
+	Get(ctx context.Context, id string) (T, error)
+	Delete(ctx context.Context, id string) error
+
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
-	CollectRows(ctx context.Context, builder query.Query,
-		scan func(Rows) ([]T, error)) ([]T, error)
 }
 
 type Row interface {

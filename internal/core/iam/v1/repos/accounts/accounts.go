@@ -21,18 +21,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/auto/queries/accounts"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/std/table"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 var (
-	_ database.Repository[*iam.Accounts, string] = (*Accounts)(nil)
-	_ IAccount                                   = (*Accounts)(nil)
+	_ IAccount = (*Accounts)(nil)
 )
 
 type IAccount interface {
@@ -53,7 +50,7 @@ type IAccount interface {
 }
 
 func New(pool *pgxpool.Pool) (IAccount, error) {
-	tableName := table.Table(table.Account)
+	tableName := table.NewTable(table.Account)
 
 	storage, err := postgresz.New[*iam.Accounts](pool, tableName,
 		postgresz.WithIndex("username", "user_id", "email"))
@@ -62,7 +59,6 @@ func New(pool *pgxpool.Pool) (IAccount, error) {
 	}
 
 	return &Accounts{
-		query:     accounts.New(pool),
 		storage:   storage,
 		tableName: tableName,
 	}, nil
@@ -70,7 +66,6 @@ func New(pool *pgxpool.Pool) (IAccount, error) {
 
 type Accounts struct {
 	tableName string
-	query     *accounts.Queries
 	storage   database.Database[*iam.Accounts]
 }
 
@@ -154,17 +149,15 @@ func (acc *Accounts) Total(ctx context.Context,
 func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*iam.Accounts, error) {
 
-	account, err := acc.query.GetByUsernameOrEmail(ctx, []byte(input))
-	if err != nil {
-		return nil, err
-	}
+	builder := sq.Select(database.Data).From(acc.tableName).Where(
+		sq.Or{
+			sq.Eq{postgresz.Field(iam.UsersFieldFullName): input},
+			sq.Eq{postgresz.Field(iam.UsersFieldEmail): input},
+		},
+	)
 
-	var result iam.Accounts
-	if err := protojson.Unmarshal(account.Data, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return acc.storage.
+		CollectOneRow(ctx, builder, postgresz.Scan[*iam.Accounts])
 }
 
 // Create implements IAccount.
@@ -173,14 +166,7 @@ func (acc *Accounts) Create(ctx context.Context,
 
 	account.Id = uuid.Generate(acc.tableName)
 
-	data, err := protojson.Marshal(account)
-	if err != nil {
-		return nil, err
-	}
-
-	err = acc.query.Insert(ctx,
-		accounts.InsertParams{ID: account.GetId(), Column2: data})
-	if err != nil {
+	if err := acc.storage.Set(ctx, account.GetId(), account); err != nil {
 		return nil, err
 	}
 
@@ -189,38 +175,21 @@ func (acc *Accounts) Create(ctx context.Context,
 
 // Delete implements IAccount.
 func (acc *Accounts) Delete(ctx context.Context, id string) error {
-	return acc.query.Delete(ctx, id)
+	return acc.storage.Delete(ctx, id)
 }
 
 // Get implements IAccount.
 func (acc *Accounts) Get(ctx context.Context,
 	id string) (*iam.Accounts, error) {
 
-	account, err := acc.query.GetByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	var result iam.Accounts
-	if err := protojson.Unmarshal(account.Data, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, err
+	return acc.storage.Get(ctx, id)
 }
 
 // Update implements IAccount.
 func (acc *Accounts) Update(
 	ctx context.Context, account *iam.Accounts) (*iam.Accounts, error) {
 
-	data, err := protojson.Marshal(account)
-	if err != nil {
-		return nil, err
-	}
-
-	err = acc.query.Update(ctx,
-		accounts.UpdateParams{ID: account.GetId(), Column2: data})
-	if err != nil {
+	if err := acc.storage.Set(ctx, account.GetId(), account); err != nil {
 		return nil, err
 	}
 

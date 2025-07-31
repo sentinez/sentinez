@@ -17,16 +17,19 @@ package postgresz
 import (
 	"context"
 	"fmt"
+	"reflect"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
+	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/table"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -51,11 +54,62 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
-	return &postgres[T]{pool: pool}, nil
+	return &postgres[T]{pool: pool, tableName: tableName}, nil
 }
 
 type postgres[T proto.Message] struct {
-	pool *pgxpool.Pool
+	pool      *pgxpool.Pool
+	tableName string
+}
+
+func (p *postgres[T]) Set(ctx context.Context, id string, entity T) error {
+	data, err := protojson.Marshal(entity)
+	if err != nil {
+		return nil
+	}
+
+	builder := sq.Insert(p.tableName).
+		Columns(database.ID, database.Data).
+		Values(id, string(data)).
+		Suffix(fmt.Sprintf("ON CONFLICT (%s) DO UPDATE SET data = EXCLUDED.%s",
+			database.ID, database.Data,
+		))
+
+	_, err = p.Exec(ctx, builder)
+	return err
+}
+
+func (p *postgres[T]) Get(ctx context.Context, id string) (T, error) {
+	var (
+		empty T
+		data  string
+	)
+
+	result := reflect.New(
+		reflect.TypeOf((*T)(nil)).Elem().Elem()).Interface().(proto.Message)
+
+	builder := sq.Select(database.Data).From(p.tableName).Where(sq.Eq{
+		database.ID: id,
+	})
+
+	if err := p.Query(ctx, builder, &data); err != nil {
+		return empty, err
+	}
+
+	if err := protojson.Unmarshal([]byte(data), result); err != nil {
+		return empty, err
+	}
+
+	return result.(T), nil
+}
+
+func (p *postgres[T]) Delete(ctx context.Context, id string) error {
+	builder := sq.Delete(p.tableName).Where(sq.Eq{
+		database.ID: id,
+	})
+
+	_, err := p.Exec(ctx, builder)
+	return err
 }
 
 // BeginTx implements database.Database.
@@ -67,7 +121,7 @@ func (p *postgres[T]) BeginTx(
 		return nil, err
 	}
 
-	return &PostgresTx[T]{tx: tx}, nil
+	return &postgresTx[T]{tx: tx, tableName: p.tableName}, nil
 }
 
 // CollectRows implements database.Database.
@@ -92,12 +146,12 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 		return fn(rows)
 	}
 
-	return pgx.CollectRows(rows, pgx.RowToStructByName[T])
+	return nil, errors.F("[CollectRows] missing scans function")
 }
 
 // Collect implements database.Database.
 func (p *postgres[T]) CollectOneRow(ctx context.Context,
-	builder query.Query, _ func(database.Row) (T, error)) (T, error) {
+	builder query.Query, scan func(database.Row) (T, error)) (T, error) {
 
 	var empty T
 
@@ -108,18 +162,13 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 
 	query = sqlx.Rebind(sqlx.DOLLAR, query)
 
-	rows, err := p.pool.Query(ctx, query, args...)
-	if err != nil {
-		return empty, err
-	}
-	defer rows.Close()
+	row := p.pool.QueryRow(ctx, query, args...)
 
-	result, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[T])
-	if err != nil {
-		return empty, err
+	if scan != nil {
+		return scan(row)
 	}
 
-	return result, nil
+	return empty, errors.F("[CollectOneRow] missing scans function")
 }
 
 // Exec implements database.Database.

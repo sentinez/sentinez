@@ -160,8 +160,8 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iam.GetUserResponse{User: user}, nil
 	}
 
-	if request.GetUsername() != "" {
-		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetUsername())
+	if request.GetEmail() != "" {
+		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
 		if err != nil {
 			return nil, err
 		}

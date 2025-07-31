@@ -56,8 +56,6 @@ service IdentityAccessManagementService {
   // private method bellow
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-  rpc GetUser(GetUserRequest) returns (GetUserResponse){}
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
 
 
@@ -91,6 +89,22 @@ service IdentityAccessManagementService {
     option (google.api.http) = {
       post: "/iam/account",
       body: "*"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse){
+    option (google.api.http) = {
+      get: "/iam/user"
+    };
+
+    option (sentinez.common.v1.options) = {ignore: true};
+  }
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+    option (google.api.http) = {
+      delete: "/iam/user/{id}"
     };
 
     option (sentinez.common.v1.options) = {ignore: true};
@@ -168,7 +182,7 @@ message GetUserRequest {
     prefix: "stnz.users.",
   }}];
 
-  string username = 2 [(buf.validate.field).required = false];
+  string email = 2 [(buf.validate.field).string.email = true];
 }
 
 message GetUserResponse {

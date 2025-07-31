@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/flags"
 )
 
-func Table(tableName string) string {
+func NewTable(tableName string) string {
 	tableName = fmt.Sprintf("%s.sentinez.%s", flags.Parse().Mode, tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
