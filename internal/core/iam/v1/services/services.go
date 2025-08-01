@@ -17,6 +17,7 @@ package iamservices
 import (
 	"context"
 
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
@@ -89,11 +90,14 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 
 	if err := srv.UsernameOrEmailMustUnique(
 		ctx, request.GetUsername(), request.GetEmail()); err != nil {
-
 		return nil, err
 	}
 
-	user, err := srv.CreateUser(ctx, &iam.CreateUserRequest{
+	user, err := srv.users.Create(ctx, &iam.Users{
+		Metadata: &modelpb.Metadata{
+			CreatedBy: request.GetUsername(),
+			UpdatedBy: request.GetUsername(),
+		},
 		FullName:    request.GetFullName(),
 		Email:       request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
@@ -103,7 +107,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 	}
 
 	acc, err := srv.accounts.Create(ctx, &iam.Accounts{
-		UserId:   user.GetUserId(),
+		UserId:   user.GetId(),
 		Email:    request.GetEmail(),
 		Username: request.GetUsername(),
 		Password: request.GetPassword(),
@@ -134,8 +138,9 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	}
 
 	if user.GetId() != "" {
-		return nil, stderr.AlreadyExistsF(
-			"email %s already exists", request.GetEmail())
+		return nil,
+			stderr.AlreadyExistsF(
+				"email %s already exists", request.GetEmail())
 	}
 
 	user, err = srv.users.Create(ctx, &iam.Users{
@@ -190,6 +195,7 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 	if err := srv.users.Delete(ctx, request.GetId()); err != nil {
 		return nil, err
 	}
+
 	return &iam.DeleteUserResponse{}, nil
 }
 
@@ -207,6 +213,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	}
 
 	_, err = srv.users.Update(ctx, &iam.Users{
+		Metadata:    user.GetMetadata(),
 		Id:          request.GetId(),
 		FullName:    request.GetFullName(),
 		Email:       request.GetEmail(),

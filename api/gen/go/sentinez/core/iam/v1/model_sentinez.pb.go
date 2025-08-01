@@ -29,6 +29,7 @@ func PrintASCII() {
 }
 
 const (
+	AccountsFieldMetadata = "metadata"
 	AccountsFieldId       = "id"
 	AccountsFieldUserId   = "userId"
 	AccountsFieldUsername = "username"
@@ -37,6 +38,7 @@ const (
 )
 
 const (
+	UsersFieldMetadata    = "metadata"
 	UsersFieldId          = "id"
 	UsersFieldFullName    = "fullName"
 	UsersFieldEmail       = "email"

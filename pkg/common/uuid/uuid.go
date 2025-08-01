@@ -17,7 +17,6 @@ package uuid
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 )
@@ -25,6 +24,5 @@ import (
 // Generate generates a new UUID and returns it as a string.
 func Generate(prefix string) string {
 	id := uuid.New()
-	prefix = strings.ReplaceAll(prefix, "_", ".")
-	return fmt.Sprintf("%s_%s", prefix, id.String())
+	return fmt.Sprintf("%s%s", prefix, id.String())
 }

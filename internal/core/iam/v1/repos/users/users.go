@@ -19,12 +19,13 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgresz"
-	"github.com/sentinez/sentinez/pkg/infra/database/query"
+	"github.com/sentinez/sentinez/pkg/infra/database/pgstnz"
 	"github.com/sentinez/sentinez/pkg/std/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -53,8 +54,8 @@ type IUser interface {
 func New(pool *pgxpool.Pool) (IUser, error) {
 	tableName := table.NewTable(table.Users)
 
-	storage, err := postgresz.New[*iam.Users](pool, tableName,
-		postgresz.WithIndex("email", "phone_number", "username"))
+	storage, err := pgstnz.New[*iam.Users](pool, tableName,
+		pgstnz.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
 	}
@@ -76,12 +77,12 @@ func (u *Users) GetByUsernameOrEmail(ctx context.Context,
 
 	builder := sq.Select(database.Data).From(u.tableName).Where(
 		sq.Or{
-			sq.Eq{postgresz.Field(iam.UsersFieldFullName): input},
-			sq.Eq{postgresz.Field(iam.UsersFieldEmail): input},
+			sq.Eq{pgstnz.Field(iam.UsersFieldFullName): input},
+			sq.Eq{pgstnz.Field(iam.UsersFieldEmail): input},
 		},
 	)
 
-	return u.storage.CollectOneRow(ctx, builder, postgresz.Scan[*iam.Users])
+	return u.storage.CollectOneRow(ctx, builder, pgstnz.Scan[*iam.Users])
 }
 
 // nolint:funlen
@@ -89,19 +90,19 @@ func buildListQuery(builder sq.SelectBuilder,
 	req *iam.ListUsersRequest) sq.SelectBuilder {
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{
-			postgresz.Primary(iam.UsersFieldId): id,
+			pgstnz.Primary(iam.UsersFieldId): id,
 		})
 	}
 
 	for _, email := range req.GetEmails() {
 		builder = builder.Where(sq.Eq{
-			postgresz.Field(iam.UsersFieldEmail): email,
+			pgstnz.Field(iam.UsersFieldEmail): email,
 		})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
 		builder = builder.Where(sq.Eq{
-			postgresz.Field(iam.UsersFieldPhoneNumber): phone,
+			pgstnz.Field(iam.UsersFieldPhoneNumber): phone,
 		})
 	}
 
@@ -114,7 +115,7 @@ func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
 
 	builder := sq.Select(database.Data).From(u.tableName)
-	builder = query.Paging(builder, req.GetPage())
+	builder = pgstnz.Paging(builder, req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	var total int64
@@ -126,7 +127,7 @@ func (u *Users) List(ctx context.Context,
 	zlog.Debug("[users] query: ", query, " args: ", args)
 
 	users, err := u.storage.CollectRows(
-		ctx, builder, postgresz.Scans[*iam.Users])
+		ctx, builder, pgstnz.Scans[*iam.Users])
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +158,15 @@ func (u *Users) Total(ctx context.Context,
 func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
-	user.Id = uuid.Generate(u.tableName)
+	now := timestamppb.Now()
+	user.Id = uuid.Generate(table.NewPrimaryKey(table.Users))
+	user.Metadata = &modelpb.Metadata{
+		CreatedAt:       now,
+		UpdatedAt:       now,
+		CreatedBy:       user.GetMetadata().GetCreatedBy(),
+		UpdatedBy:       user.GetMetadata().GetUpdatedBy(),
+		ResourceOwnerId: user.GetId(),
+	}
 
 	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
 		return nil, err
@@ -180,6 +189,7 @@ func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
 func (u *Users) Update(
 	ctx context.Context, user *iam.Users) (*iam.Users, error) {
 
+	user.Metadata.UpdatedAt = timestamppb.Now()
 	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
 		return nil, err
 	}

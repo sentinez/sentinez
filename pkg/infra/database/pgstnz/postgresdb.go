@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresz
+package pgstnz
 
 import (
 	"context"
@@ -71,9 +71,12 @@ func (p *postgres[T]) Set(ctx context.Context, id string, entity T) error {
 	builder := sq.Insert(p.tableName).
 		Columns(database.ID, database.Data).
 		Values(id, string(data)).
-		Suffix(fmt.Sprintf("ON CONFLICT (%s) DO UPDATE SET data = EXCLUDED.%s",
-			database.ID, database.Data,
-		))
+		Suffix(fmt.Sprintf(`
+        ON CONFLICT (%s)
+        DO UPDATE SET
+            %s = EXCLUDED.%s,
+            updated_at = timezone('UTC', now())
+    `, database.ID, database.Data, database.Data))
 
 	_, err = p.Exec(ctx, builder)
 	return err

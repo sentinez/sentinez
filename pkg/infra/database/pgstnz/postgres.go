@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresz
+package pgstnz
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/Masterminds/squirrel"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -37,6 +41,24 @@ func Field(field string) string {
 
 func Primary(field string) string {
 	return field
+}
+
+func Paging(builder squirrel.SelectBuilder,
+	page *common.Pages) squirrel.SelectBuilder {
+
+	if page == nil {
+		return builder
+	}
+
+	if page.GetSize() == 0 || page.GetIndex() == 0 {
+		return builder
+	}
+
+	offset := query.GetOffset(int(page.GetIndex()), int(page.GetSize()))
+	return builder.
+		Limit(uint64(page.GetSize())).
+		Offset(uint64(offset)).
+		OrderBy(fmt.Sprintf("%s DESC", database.CreatedAt))
 }
 
 func Scans[T proto.Message](r database.Rows) ([]T, error) {
@@ -78,7 +100,7 @@ func Scan[T proto.Message](r database.Row) (T, error) {
 	}
 
 	if err := r.Scan(&data); err != nil {
-		zlog.Debugf("scan: error= %v", err)
+		//zlog.Debugf("scan: error= %v", err)
 		return empty, err
 	}
 

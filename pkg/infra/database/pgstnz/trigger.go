@@ -1,4 +1,4 @@
-package postgresz
+package pgstnz
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/sentinez/sentinez/pkg/infra/database"
 )
 
 // tableExists checks if a table exists.
@@ -87,13 +88,7 @@ func syncProtoToPostgresJSONB(ctx context.Context,
 	}
 
 	if !exists {
-		ddl := fmt.Sprintf(`
-			CREATE TABLE IF NOT EXISTS %s (
-				id TEXT PRIMARY KEY,
-				data JSONB NOT NULL,
-				created_at TIMESTAMPTZ DEFAULT now(),
-				updated_at TIMESTAMPTZ DEFAULT now()
-			);`, table)
+		ddl := fmt.Sprintf(database.SchemalessF, table)
 		if _, err := pool.Exec(ctx, ddl); err != nil {
 			return fmt.Errorf("create table: %w", err)
 		}

@@ -1,4 +1,4 @@
-// Copyright 2025 Sentinez Labs.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package query
+syntax = "proto3";
 
-type Query interface {
-	ToSql() (string, []any, error)
-}
+package sentinez.common.model.v1;
 
-func GetOffset(pageIndex, pageSize int) int {
-	if pageIndex < 1 {
-		pageIndex = 1
-	}
-	return (pageIndex - 1) * pageSize
+import "sentinez/common/v1/options.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1;modelpb";
+
+message Metadata {
+  option (sentinez.common.v1.stnz_msg_opts).object_model = true;
+
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  string created_by = 3;
+  string updated_by = 4;
+
+  // ref: user_id
+  string resource_owner_id = 5;
 }

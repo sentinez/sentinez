@@ -363,6 +363,9 @@
     "v1AccountLite": {
       "type": "object",
       "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
         "id": {
           "type": "string"
         },
@@ -475,6 +478,29 @@
         }
       }
     },
+    "v1Metadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "updatedBy": {
+          "type": "string"
+        },
+        "resourceOwnerId": {
+          "type": "string",
+          "title": "ref: user_id"
+        }
+      }
+    },
     "v1Pages": {
       "type": "object",
       "properties": {
@@ -510,6 +536,9 @@
     "v1Users": {
       "type": "object",
       "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
         "id": {
           "type": "string"
         },

@@ -23,9 +23,20 @@ import (
 )
 
 const (
-	Data = "data"
-	ID   = "id"
+	Data      = "data"
+	ID        = "id"
+	CreatedAt = "created_at"
+	UpdatedAt = "updated_at"
 )
+
+const SchemalessF = `
+	CREATE TABLE IF NOT EXISTS %s (
+		id TEXT PRIMARY KEY,
+		data JSONB NOT NULL,
+		created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
+		updated_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
+	);
+`
 
 type Executor[T proto.Message] interface {
 	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
