@@ -77,12 +77,12 @@ func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
 	for _, message := range file.Messages {
 		opts := message.Desc.Options()
 
-		ext, ok := proto.GetExtension(opts, common.E_StnzMsgOpts).(*common.SentinezMessageOptions)
+		ext, ok := proto.GetExtension(opts, common.E_SntzMsgOpts).(*common.SentinezMessageOptions)
 		if !ok || ext == nil {
 			continue
 		}
 
-		if ext.ObjectModel {
+		if ext.DatabaseModel {
 			g.P("const (")
 			for _, field := range message.Fields {
 				fieldName := string(field.Desc.Name())
@@ -96,7 +96,7 @@ func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
 }
 
 func figureGen(header string, footer string) string {
-	fig := figure.NewFigure("setnz", "speed", true)
+	fig := figure.NewFigure("sntz", "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
 		"",

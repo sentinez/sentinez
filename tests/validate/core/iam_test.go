@@ -31,7 +31,7 @@ func TestValidateUserModel(t *testing.T) {
 	tests := []*Test{
 		{
 			data: &iam.Users{
-				Id:          "stnz.users.xxx",
+				Id:          "sntz.users.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
 				Email:       "email@email.com",
@@ -40,7 +40,7 @@ func TestValidateUserModel(t *testing.T) {
 		},
 		{
 			data: &iam.Users{
-				Id:          "stnz.usxers.xxx",
+				Id:          "sntz.usxers.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
 				Email:       "email@email.com",
@@ -49,7 +49,7 @@ func TestValidateUserModel(t *testing.T) {
 		},
 		{
 			data: &iam.Users{
-				Id:          "stnz.users.xxx",
+				Id:          "sntz.users.xxx",
 				FullName:    "",
 				PhoneNumber: "+84875470160",
 				Email:       "email@email.com",
@@ -58,7 +58,7 @@ func TestValidateUserModel(t *testing.T) {
 		},
 		{
 			data: &iam.Users{
-				Id:          "stnz.users.xxx",
+				Id:          "sntz.users.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
 				Email:       "email@email.com",

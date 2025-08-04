@@ -38,7 +38,7 @@ var (
 	Name = "sentinez"
 
 	// Code is the code of the project.
-	Code = "STNZ"
+	Code = "SNTZ"
 )
 
 // ASCII prints the ASCII art of the project.
@@ -48,7 +48,7 @@ func ASCII(header string, footer string) {
 
 // FigureGen generates the ASCII art of the project.
 func FigureGen(header string, footer string) string {
-	fig := figure.NewFigure("setnz", "speed", true)
+	fig := figure.NewFigure("sntz", "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
 		"",

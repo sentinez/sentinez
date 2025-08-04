@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pgstnz
+package postgres
 
 import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
+	"github.com/sentinez/sentinez/pkg/infra/utils"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/table"
 
@@ -35,9 +37,34 @@ import (
 
 var _ database.Database[*common.Empty] = (*postgres[*common.Empty])(nil)
 
+var (
+	pool *pgxpool.Pool
+	lock sync.Mutex
+)
+
+func getConnPool(conf *common.Config) (*pgxpool.Pool, error) {
+	if pool == nil {
+		var err error
+		lock.Lock()
+		defer lock.Unlock()
+
+		pool, err = utils.NewPgxPool(conf)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return pool, nil
+}
+
 //nolint:funlen
-func New[T proto.Message](pool *pgxpool.Pool, tableName string,
+func New[T proto.Message](conf *common.Config, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
+
+	conn, err := getConnPool(conf)
+	if err != nil {
+		return nil, err
+	}
 
 	if table.IsValidTableName(tableName) == false {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
@@ -48,17 +75,18 @@ func New[T proto.Message](pool *pgxpool.Pool, tableName string,
 		opt(&tb)
 	}
 
-	err := syncProtoToPostgresJSONB(
-		context.Background(), pool, tableName, tb.Index)
+	err = syncProtoToPostgresJSONB(
+		context.Background(),
+		conn, tableName, tb.Index)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
 	}
 
-	return &postgres[T]{pool: pool, tableName: tableName}, nil
+	return &postgres[T]{client: conn, tableName: tableName}, nil
 }
 
 type postgres[T proto.Message] struct {
-	pool      *pgxpool.Pool
+	client    Client
 	tableName string
 }
 
@@ -69,14 +97,18 @@ func (p *postgres[T]) Set(ctx context.Context, id string, entity T) error {
 	}
 
 	builder := sq.Insert(p.tableName).
-		Columns(database.ID, database.Data).
+		Columns(database.SchemalessFieldID, database.SchemalessFieldData).
 		Values(id, string(data)).
 		Suffix(fmt.Sprintf(`
         ON CONFLICT (%s)
         DO UPDATE SET
             %s = EXCLUDED.%s,
             updated_at = timezone('UTC', now())
-    `, database.ID, database.Data, database.Data))
+    	`,
+			database.SchemalessFieldID,
+			database.SchemalessFieldData,
+			database.SchemalessFieldData,
+		))
 
 	_, err = p.Exec(ctx, builder)
 	return err
@@ -91,9 +123,11 @@ func (p *postgres[T]) Get(ctx context.Context, id string) (T, error) {
 	result := reflect.New(
 		reflect.TypeOf((*T)(nil)).Elem().Elem()).Interface().(proto.Message)
 
-	builder := sq.Select(database.Data).From(p.tableName).Where(sq.Eq{
-		database.ID: id,
-	})
+	builder := sq.Select(database.SchemalessFieldData).
+		From(p.tableName).
+		Where(sq.Eq{
+			database.SchemalessFieldID: id,
+		})
 
 	if err := p.Query(ctx, builder, &data); err != nil {
 		return empty, err
@@ -108,23 +142,11 @@ func (p *postgres[T]) Get(ctx context.Context, id string) (T, error) {
 
 func (p *postgres[T]) Delete(ctx context.Context, id string) error {
 	builder := sq.Delete(p.tableName).Where(sq.Eq{
-		database.ID: id,
+		database.SchemalessFieldID: id,
 	})
 
 	_, err := p.Exec(ctx, builder)
 	return err
-}
-
-// BeginTx implements database.Database.
-func (p *postgres[T]) BeginTx(
-	ctx context.Context) (database.Transaction[T], error) {
-
-	tx, err := p.pool.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &postgresTx[T]{tx: tx, tableName: p.tableName}, nil
 }
 
 // CollectRows implements database.Database.
@@ -132,14 +154,14 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 	builder query.Query,
 	fn func(database.Rows) ([]T, error)) ([]T, error) {
 
-	query, args, err := builder.ToSql()
+	stmt, args, err := builder.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	query = sqlx.Rebind(sqlx.DOLLAR, query)
+	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
 
-	rows, err := p.pool.Query(ctx, query, args...)
+	rows, err := p.client.Query(ctx, stmt, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -152,20 +174,20 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 	return nil, errors.F("[CollectRows] missing scans function")
 }
 
-// Collect implements database.Database.
+// CollectOneRow implements database.Database.
 func (p *postgres[T]) CollectOneRow(ctx context.Context,
 	builder query.Query, scan func(database.Row) (T, error)) (T, error) {
 
 	var empty T
 
-	query, args, err := builder.ToSql()
+	stmt, args, err := builder.ToSql()
 	if err != nil {
 		return empty, err
 	}
 
-	query = sqlx.Rebind(sqlx.DOLLAR, query)
+	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
 
-	row := p.pool.QueryRow(ctx, query, args...)
+	row := p.client.QueryRow(ctx, stmt, args...)
 
 	if scan != nil {
 		return scan(row)
@@ -178,14 +200,14 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 func (p *postgres[T]) Exec(ctx context.Context,
 	builder query.Query) (database.ExecResult, error) {
 
-	query, args, err := builder.ToSql()
+	stmt, args, err := builder.ToSql()
 	if err != nil {
 		return pgconn.CommandTag{}, err
 	}
 
-	query = sqlx.Rebind(sqlx.DOLLAR, query)
+	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
 
-	result, err := p.pool.Exec(ctx, query, args...)
+	result, err := p.client.Exec(ctx, stmt, args...)
 	if err != nil {
 		return pgconn.CommandTag{}, err
 	}
@@ -195,14 +217,14 @@ func (p *postgres[T]) Exec(ctx context.Context,
 func (p *postgres[T]) Query(ctx context.Context,
 	builder query.Query, dest ...any) error {
 
-	query, args, err := builder.ToSql()
+	stmt, args, err := builder.ToSql()
 	if err != nil {
 		return err
 	}
 
-	query = sqlx.Rebind(sqlx.DOLLAR, query)
+	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
 
-	result, err := p.pool.Query(ctx, query, args...)
+	result, err := p.client.Query(ctx, stmt, args...)
 	if err != nil {
 		return err
 	}
@@ -214,21 +236,4 @@ func (p *postgres[T]) Query(ctx context.Context,
 	}
 
 	return nil
-}
-
-// WithTx implements database.Database.
-func (p *postgres[T]) WithTx(ctx context.Context,
-	fn func(database.Transaction[T]) error) error {
-
-	tx, err := p.BeginTx(ctx)
-	if err != nil {
-		return err
-	}
-
-	if err := fn(tx); err != nil {
-		_ = tx.Rollback(ctx)
-		return err
-	}
-
-	return tx.Commit(ctx)
 }

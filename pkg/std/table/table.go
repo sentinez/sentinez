@@ -28,7 +28,7 @@ func NewTable(tableName string) string {
 }
 
 func NewPrimaryKey(tableName string) string {
-	return fmt.Sprintf("stnz.%s.", tableName)
+	return fmt.Sprintf("sntz.%s.", tableName)
 }
 
 func IsValidTableName(tableName string) bool {

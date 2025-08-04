@@ -24,15 +24,15 @@ import "google/protobuf/descriptor.proto";
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1;common";
 
 extend google.protobuf.MethodOptions {
-  SentinezMethodOptions options = 50001;
+  SentinezMethodOptions sntz_mth_opts = 50001;
 }
 
 extend google.protobuf.MessageOptions {
-  SentinezMessageOptions stnz_msg_opts = 50002;
+  SentinezMessageOptions sntz_msg_opts = 50002;
 }
 
 message SentinezMessageOptions {
-  bool object_model = 1;
+  bool database_model = 1;
 }
 
 message SentinezMethodOptions {

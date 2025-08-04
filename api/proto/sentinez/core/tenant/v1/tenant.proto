@@ -57,7 +57,7 @@ service TenantService {
       get: "/tenant/say"
     };
 
-    option (sentinez.common.v1.options) = {ignore: true};
+    option (sentinez.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
@@ -65,7 +65,7 @@ service TenantService {
       get: "/tenant/status"
     };
 
-    option (sentinez.common.v1.options) = {ignore: true};
+    option (sentinez.common.v1.sntz_mth_opts) = {ignore: true};
   }
 }
 

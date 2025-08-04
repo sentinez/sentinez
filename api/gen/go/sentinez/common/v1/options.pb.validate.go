@@ -41,7 +41,7 @@ func (m *SentinezMessageOptions) Validate() error {
 		return nil
 	}
 
-	// no validation rules for ObjectModel
+	// no validation rules for DatabaseModel
 
 	return nil
 }

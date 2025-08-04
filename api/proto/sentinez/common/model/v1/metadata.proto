@@ -22,7 +22,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1;modelpb";
 
 message Metadata {
-  option (sentinez.common.v1.stnz_msg_opts).object_model = true;
+  option (sentinez.common.v1.sntz_msg_opts).database_model = true;
 
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;

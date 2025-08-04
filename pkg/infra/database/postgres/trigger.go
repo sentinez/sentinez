@@ -1,4 +1,4 @@
-package pgstnz
+package postgres
 
 import (
 	"context"

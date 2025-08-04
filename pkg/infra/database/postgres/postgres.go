@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pgstnz
+package postgres
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
@@ -29,6 +33,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+type Client interface {
+	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+}
+
 func WithIndex(index ...string) database.Option {
 	return func(ref *database.Table) {
 		ref.Index = append(ref.Index, index...)
@@ -36,7 +46,7 @@ func WithIndex(index ...string) database.Option {
 }
 
 func Field(field string) string {
-	return fmt.Sprintf("%s->>'%s'", database.Data, field)
+	return fmt.Sprintf("%s->>'%s'", database.SchemalessFieldData, field)
 }
 
 func Primary(field string) string {
@@ -58,7 +68,7 @@ func Paging(builder squirrel.SelectBuilder,
 	return builder.
 		Limit(uint64(page.GetSize())).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf("%s DESC", database.CreatedAt))
+		OrderBy(fmt.Sprintf("%s DESC", database.SchemalessFieldCreatedAt))
 }
 
 func Scans[T proto.Message](r database.Rows) ([]T, error) {

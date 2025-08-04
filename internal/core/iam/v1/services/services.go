@@ -21,22 +21,26 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 )
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
 func New(
+	tx *postgres.Tx,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
 ) *IAMService {
 	return &IAMService{
+		tx:       tx,
 		users:    users,
 		accounts: account,
 	}
 }
 
 type IAMService struct {
+	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accountrepo.IAccount
 }
@@ -93,7 +97,12 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
-	user, err := srv.users.Create(ctx, &iam.Users{
+	txss, err := srv.tx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
 		Metadata: &modelpb.Metadata{
 			CreatedBy: request.GetUsername(),
 			UpdatedBy: request.GetUsername(),
@@ -103,18 +112,22 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		PhoneNumber: request.GetPhoneNumber(),
 	})
 	if err != nil {
+		_ = txss.Rollback(ctx)
 		return nil, err
 	}
 
-	acc, err := srv.accounts.Create(ctx, &iam.Accounts{
+	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
 		UserId:   user.GetId(),
 		Email:    request.GetEmail(),
 		Username: request.GetUsername(),
 		Password: request.GetPassword(),
 	})
 	if err != nil {
+		_ = txss.Rollback(ctx)
 		return nil, err
 	}
+
+	_ = txss.Commit(ctx)
 
 	return &iam.CreateAccountResponse{
 		AccountId: acc.GetId(),
