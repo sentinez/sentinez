@@ -17,25 +17,30 @@ package iamservices
 import (
 	"context"
 
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 )
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
 func New(
+	tx *postgres.Tx,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
 ) *IAMService {
 	return &IAMService{
+		tx:       tx,
 		users:    users,
 		accounts: account,
 	}
 }
 
 type IAMService struct {
+	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accountrepo.IAccount
 }
@@ -89,32 +94,53 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 
 	if err := srv.UsernameOrEmailMustUnique(
 		ctx, request.GetUsername(), request.GetEmail()); err != nil {
-
 		return nil, err
 	}
 
-	user, err := srv.CreateUser(ctx, &iam.CreateUserRequest{
+	txss, err := srv.tx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	accID, err := srv.createAccount(ctx, txss, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.CreateAccountResponse{AccountId: accID}, nil
+}
+
+func (srv *IAMService) createAccount(ctx context.Context,
+	txss *postgres.TxSession,
+	request *iam.CreateAccountRequest) (string, error) {
+
+	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
+		Metadata: &modelpb.Metadata{
+			CreatedBy: request.GetUsername(),
+			UpdatedBy: request.GetUsername(),
+		},
 		FullName:    request.GetFullName(),
 		Email:       request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
 	})
 	if err != nil {
-		return nil, err
+		_ = txss.Rollback(ctx)
+		return "", err
 	}
 
-	acc, err := srv.accounts.Create(ctx, &iam.Accounts{
-		UserId:   user.GetUserId(),
+	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
+		UserId:   user.GetId(),
 		Email:    request.GetEmail(),
 		Username: request.GetUsername(),
 		Password: request.GetPassword(),
 	})
 	if err != nil {
-		return nil, err
+		_ = txss.Rollback(ctx)
+		return "", err
 	}
 
-	return &iam.CreateAccountResponse{
-		AccountId: acc.GetId(),
-	}, nil
+	_ = txss.Commit(ctx)
+	return acc.GetId(), nil
 }
 
 func (srv *IAMService) Login(ctx context.Context,
@@ -134,8 +160,9 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	}
 
 	if user.GetId() != "" {
-		return nil, stderr.AlreadyExistsF(
-			"email %s already exists", request.GetEmail())
+		return nil,
+			stderr.AlreadyExistsF(
+				"email %s already exists", request.GetEmail())
 	}
 
 	user, err = srv.users.Create(ctx, &iam.Users{
@@ -190,6 +217,7 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 	if err := srv.users.Delete(ctx, request.GetId()); err != nil {
 		return nil, err
 	}
+
 	return &iam.DeleteUserResponse{}, nil
 }
 
@@ -206,15 +234,32 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 			"email %s already exists", request.GetEmail())
 	}
 
-	_, err = srv.users.Update(ctx, &iam.Users{
-		Id:          request.GetId(),
-		FullName:    request.GetFullName(),
-		Email:       request.GetEmail(),
-		PhoneNumber: request.GetPhoneNumber(),
-	})
+	user, err = srv.users.Get(ctx, request.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	copyUserUpdateParams(user, request)
+
+	_, err = srv.users.Update(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return &iam.UpdateUserResponse{}, nil
+}
+
+func copyUserUpdateParams(dest *iam.Users, req *iam.UpdateUserRequest) {
+
+	if req.GetEmail() != "" {
+		dest.Email = req.GetEmail()
+	}
+
+	if req.GetEmail() != "" {
+		dest.FullName = req.GetFullName()
+	}
+
+	if req.GetPhoneNumber() != "" {
+		dest.PhoneNumber = req.GetPhoneNumber()
+	}
 }

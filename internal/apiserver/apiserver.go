@@ -114,7 +114,7 @@ func (srv *Server) Start(_ context.Context) error {
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
 	// log info in console and return register error if they exist
-	zlog.Infof("[HTTP] Starting server %s", srv.flag.GetAddress())
+	zlog.Infof("[http] starting server %s", srv.flag.GetAddress())
 	return srv.server.Listen(srv.flag.GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")

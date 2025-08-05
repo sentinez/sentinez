@@ -19,11 +19,12 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	edgecm "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	"github.com/sentinez/sentinez/pkg/std/names"
+	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -70,7 +71,7 @@ func (s *Server) Start(_ context.Context) error {
 //
 //nolint:funlen
 func (s *Server) Serve(addr string) error {
-	edgecm.PrintASCII()
+	version.ASCII("SENTINEZ // EDGE", names.EdgeV1.String())
 
 	if err := s.bootloader(context.Background()); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
@@ -78,7 +79,7 @@ func (s *Server) Serve(addr string) error {
 	}
 
 	zlog.Infof("%s engine boost on: %s",
-		color.Blue.Add("[FastHTTP]"),
+		color.Blue.Add("[fasthttp]"),
 		color.Magenta.Add(s.flag.GetAddress()),
 	)
 

@@ -14,14 +14,21 @@
 
 syntax = "proto3";
 
-package sentinez.common.v1;
+package sentinez.common.model.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1;common";
+import "sentinez/common/v1/options.proto";
+import "google/protobuf/timestamp.proto";
 
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1;modelpb";
 
-enum SNTZPublic {
-  SNTZ_PUBLIC_UNSPECIFIED = 0;
-  SNTZ_PUBLIC_TIMESCALEDB = 1;
-  SNTZ_PUBLIC_POSTGRES = 2;
-  SNTZ_PUBLIC_CLICKHOUSE = 3;
+message Metadata {
+  option (sentinez.common.v1.sntz_msg_opts).database_model = true;
+
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  string created_by = 3;
+  string updated_by = 4;
+
+  // ref: user_id
+  string resource_owner_id = 5;
 }

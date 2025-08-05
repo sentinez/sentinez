@@ -20,8 +20,9 @@ package factory
 import (
 	"github.com/google/wire"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/pkg/infra/utils"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 
+	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
@@ -31,8 +32,6 @@ import (
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
-
-	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 )
@@ -47,7 +46,7 @@ func NewDefaultGreeter() httpgw.ServiceRegistrar {
 
 func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
 	wire.Build(
-		utils.NewPgxPool,
+		postgres.NewTX,
 		usersrepo.New,
 		accountrepo.New,
 		iamservices.New,

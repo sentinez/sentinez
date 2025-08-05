@@ -14,11 +14,6 @@
 
 package query
 
-import (
-	"github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-)
-
 type Query interface {
 	ToSql() (string, []any, error)
 }
@@ -28,22 +23,4 @@ func GetOffset(pageIndex, pageSize int) int {
 		pageIndex = 1
 	}
 	return (pageIndex - 1) * pageSize
-}
-
-func Paging(builder squirrel.SelectBuilder,
-	page *common.Pages) squirrel.SelectBuilder {
-
-	if page == nil {
-		return builder
-	}
-
-	if page.GetSize() == 0 || page.GetIndex() == 0 {
-		return builder
-	}
-
-	offset := GetOffset(int(page.GetIndex()), int(page.GetSize()))
-	return builder.
-		Limit(uint64(page.GetSize())).
-		Offset(uint64(offset)).
-		OrderBy("created_at DESC")
 }

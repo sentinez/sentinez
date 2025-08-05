@@ -1,0 +1,77 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package postgres
+
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/infra/database"
+	"google.golang.org/protobuf/proto"
+)
+
+var (
+	_ database.TxSession = (*TxSession)(nil)
+)
+
+func NewTX(conf *common.Config) *Tx {
+	return &Tx{conf: conf}
+}
+
+func WithTx[T proto.Message](
+	ss *TxSession, tableName string) database.Database[T] {
+	return &postgres[T]{client: ss.tx, tableName: tableName}
+}
+
+type Tx struct {
+	conf *common.Config
+}
+
+func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
+	conn, err := getConnPool(t.conf)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &TxSession{tx: tx}, nil
+}
+
+type TxSession struct {
+	tx pgx.Tx
+}
+
+// Commit implements database.Transaction.
+func (ts *TxSession) Commit(ctx context.Context) error {
+	if err := ts.tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Rollback implements database.Transaction.
+func (ts *TxSession) Rollback(ctx context.Context) error {
+	if err := ts.tx.Rollback(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}

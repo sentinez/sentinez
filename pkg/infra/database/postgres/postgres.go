@@ -12,18 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgresz
+package postgres
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/Masterminds/squirrel"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/pkg/infra/database/query"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
+
+type Client interface {
+	Exec(ctx context.Context, sql string,
+		args ...any) (pgconn.CommandTag, error)
+
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+}
 
 func WithIndex(index ...string) database.Option {
 	return func(ref *database.Table) {
@@ -32,11 +48,29 @@ func WithIndex(index ...string) database.Option {
 }
 
 func Field(field string) string {
-	return fmt.Sprintf("%s->>'%s'", database.Data, field)
+	return fmt.Sprintf("%s->>'%s'", database.SchemalessFieldData, field)
 }
 
 func Primary(field string) string {
 	return field
+}
+
+func Paging(builder squirrel.SelectBuilder,
+	page *common.Pages) squirrel.SelectBuilder {
+
+	if page == nil {
+		return builder
+	}
+
+	if page.GetSize() == 0 || page.GetIndex() == 0 {
+		return builder
+	}
+
+	offset := query.GetOffset(int(page.GetIndex()), int(page.GetSize()))
+	return builder.
+		Limit(uint64(page.GetSize())).
+		Offset(uint64(offset)).
+		OrderBy(fmt.Sprintf("%s DESC", database.SchemalessFieldCreatedAt))
 }
 
 func Scans[T proto.Message](r database.Rows) ([]T, error) {
@@ -78,7 +112,7 @@ func Scan[T proto.Message](r database.Row) (T, error) {
 	}
 
 	if err := r.Scan(&data); err != nil {
-		zlog.Debugf("scan: error= %v", err)
+		//zlog.Debugf("scan: error= %v", err)
 		return empty, err
 	}
 

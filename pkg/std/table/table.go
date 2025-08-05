@@ -27,8 +27,12 @@ func NewTable(tableName string) string {
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 
+func NewPrimaryKey(tableName string) string {
+	return fmt.Sprintf("sntz.%s.", tableName)
+}
+
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(TablePattern, tableName)
+	matched, err := regexp.MatchString(Pattern, tableName)
 	if err != nil {
 		fmt.Println("Regex error:", err)
 		return false
@@ -41,7 +45,7 @@ func IsValidTableName(tableName string) bool {
 	return false
 }
 
-const TablePattern = `^(dev|sandbox|production)\_sentinez\_[a-z]+$`
+const Pattern = `^(dev|sandbox|production)\_sentinez\_[a-z]+$`
 
 const (
 	Users   = "users"

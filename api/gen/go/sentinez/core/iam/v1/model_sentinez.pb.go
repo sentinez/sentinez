@@ -15,11 +15,11 @@ var (
 )
 
 const ASCII = `
-              _____                      
-_____________ __  /________ ______       
-__  ___/_  _ \_  __/__  __ \___  /       SENTINEZ // IAM
-_(__  ) /  __// /_  _  / / /__  /_       ------------
-/____/  \___/ \__/  /_/ /_/ _____/       sentinez.core.iam.v1
+                _____                    
+_______________ __  /_______             
+__  ___/__  __ \_  __/___  /             SENTINEZ // IAM
+_(__  ) _  / / // /_  __  /_             ------------
+/____/  /_/ /_/ \__/  _____/             sentinez.core.iam.v1
                                          
 `
 
@@ -29,6 +29,7 @@ func PrintASCII() {
 }
 
 const (
+	AccountsFieldMetadata = "metadata"
 	AccountsFieldId       = "id"
 	AccountsFieldUserId   = "userId"
 	AccountsFieldUsername = "username"
@@ -37,6 +38,7 @@ const (
 )
 
 const (
+	UsersFieldMetadata    = "metadata"
 	UsersFieldId          = "id"
 	UsersFieldFullName    = "fullName"
 	UsersFieldEmail       = "email"

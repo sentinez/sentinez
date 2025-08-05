@@ -23,8 +23,18 @@ import (
 )
 
 const (
-	Data = "data"
-	ID   = "id"
+	SchemalessFieldData      = "data"
+	SchemalessFieldID        = "id"
+	SchemalessFieldCreatedAt = "created_at"
+	SchemalessFieldUpdatedAt = "updated_at"
+	SchemalessF              = `
+	CREATE TABLE IF NOT EXISTS %s (
+		id TEXT PRIMARY KEY,
+		data JSONB NOT NULL,
+		created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
+		updated_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
+	);
+`
 )
 
 type Executor[T proto.Message] interface {
@@ -41,17 +51,9 @@ type Database[T proto.Message] interface {
 	Set(ctx context.Context, id string, entity T) error
 	Get(ctx context.Context, id string) (T, error)
 	Delete(ctx context.Context, id string) error
-
-	BeginTx(ctx context.Context) (Transaction[T], error)
-	WithTx(ctx context.Context, fn func(Transaction[T]) error) error
 }
 
-type Transaction[T proto.Message] interface {
-	Executor[T]
-	Set(ctx context.Context, id string, entity T) error
-	Get(ctx context.Context, id string) (T, error)
-	Delete(ctx context.Context, id string) error
-
+type TxSession interface {
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
 }

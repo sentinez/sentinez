@@ -27,9 +27,9 @@ import (
 )
 
 var (
-	timescale  = os.Getenv(common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB.String())
-	postgresql = os.Getenv(common.STNZPublic_STNZ_PUBLIC_POSTGRES.String())
-	clickhouse = os.Getenv(common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE.String())
+	timescale  = os.Getenv(common.SNTZPublic_SNTZ_PUBLIC_TIMESCALEDB.String())
+	postgresql = os.Getenv(common.SNTZPublic_SNTZ_PUBLIC_POSTGRES.String())
+	clickhouse = os.Getenv(common.SNTZPublic_SNTZ_PUBLIC_CLICKHOUSE.String())
 )
 
 var sourceFileMap = map[string]string{

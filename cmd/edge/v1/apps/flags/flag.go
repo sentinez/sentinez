@@ -42,7 +42,7 @@ func ParseFlag() *common.FlagEdge {
 			edgeFlags.GetAddress(), "host address")
 
 		pflag.StringVar(&edgeFlags.RuleRoot, "rule_root",
-			edgeFlags.RuleRoot, "crs root path for rules")
+			edgeFlags.RuleRoot, "core rulesets root path for rules")
 	})
 
 	_ = flags.Parse()

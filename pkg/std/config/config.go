@@ -31,17 +31,17 @@ func Default() *common.Config {
 	once.Do(func() {
 		conf = &common.Config{
 			TimescaleUri: getPublicEnv(
-				common.STNZPublic_STNZ_PUBLIC_TIMESCALEDB),
+				common.SNTZPublic_SNTZ_PUBLIC_TIMESCALEDB),
 			PostgresUri: getPublicEnv(
-				common.STNZPublic_STNZ_PUBLIC_POSTGRES),
+				common.SNTZPublic_SNTZ_PUBLIC_POSTGRES),
 			ClickhouseUri: getPublicEnv(
-				common.STNZPublic_STNZ_PUBLIC_CLICKHOUSE),
+				common.SNTZPublic_SNTZ_PUBLIC_CLICKHOUSE),
 		}
 	})
 
 	return conf
 }
 
-func getPublicEnv(key common.STNZPublic) string {
+func getPublicEnv(key common.SNTZPublic) string {
 	return os.Getenv(key.String())
 }

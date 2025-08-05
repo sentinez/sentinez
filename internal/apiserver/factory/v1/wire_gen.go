@@ -16,7 +16,7 @@ import (
 	"github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 	"github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/infra/utils"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 )
 
 // Injectors from wire.go:
@@ -28,19 +28,16 @@ func NewDefaultGreeter() httpgw.ServiceRegistrar {
 }
 
 func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
-	pool, err := utils.NewPgxPool(conf)
+	tx := postgres.NewTX(conf)
+	iUser, err := usersrepo.New(conf)
 	if err != nil {
 		return nil, err
 	}
-	iUser, err := usersrepo.New(pool)
+	iAccount, err := accountrepo.New(conf)
 	if err != nil {
 		return nil, err
 	}
-	iAccount, err := accountrepo.New(pool)
-	if err != nil {
-		return nil, err
-	}
-	iamService := iamservices.New(iUser, iAccount)
+	iamService := iamservices.New(tx, iUser, iAccount)
 	identityAccessManagementServiceServer := iamhandler.New(iamService)
 	serviceRegistrar := services.NewIAM(identityAccessManagementServiceServer)
 	return serviceRegistrar, nil
