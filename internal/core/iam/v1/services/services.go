@@ -234,16 +234,32 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 			"email %s already exists", request.GetEmail())
 	}
 
-	_, err = srv.users.Update(ctx, &iam.Users{
-		Metadata:    user.GetMetadata(),
-		Id:          request.GetId(),
-		FullName:    request.GetFullName(),
-		Email:       request.GetEmail(),
-		PhoneNumber: request.GetPhoneNumber(),
-	})
+	user, err = srv.users.Get(ctx, request.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	copyUserUpdateParams(user, request)
+
+	_, err = srv.users.Update(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return &iam.UpdateUserResponse{}, nil
+}
+
+func copyUserUpdateParams(dest *iam.Users, req *iam.UpdateUserRequest) {
+
+	if req.GetEmail() != "" {
+		dest.Email = req.GetEmail()
+	}
+
+	if req.GetEmail() != "" {
+		dest.FullName = req.GetFullName()
+	}
+
+	if req.GetPhoneNumber() != "" {
+		dest.PhoneNumber = req.GetPhoneNumber()
+	}
 }

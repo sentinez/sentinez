@@ -91,10 +91,15 @@ func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	zlog.Debugf("[IdentityAccessManagement.UpdateUser] request= %v", request)
+
+	resp, err := iam.service.UpdateUser(ctx, request)
+	if err != nil {
+		zlog.Errorf("[IdentityAccessManagement.UpdateUser] update err=", err)
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 // CreateAccount implements iampb.IAMServiceServer.
