@@ -102,6 +102,18 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
+	accID, err := srv.createAccount(ctx, txss, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.CreateAccountResponse{AccountId: accID}, nil
+}
+
+func (srv *IAMService) createAccount(ctx context.Context,
+	txss *postgres.TxSession,
+	request *iam.CreateAccountRequest) (string, error) {
+
 	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
 		Metadata: &modelpb.Metadata{
 			CreatedBy: request.GetUsername(),
@@ -113,7 +125,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
-		return nil, err
+		return "", err
 	}
 
 	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
@@ -124,14 +136,11 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
-		return nil, err
+		return "", err
 	}
 
 	_ = txss.Commit(ctx)
-
-	return &iam.CreateAccountResponse{
-		AccountId: acc.GetId(),
-	}, nil
+	return acc.GetId(), nil
 }
 
 func (srv *IAMService) Login(ctx context.Context,

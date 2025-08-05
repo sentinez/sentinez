@@ -15,7 +15,6 @@
 package edgeyaml
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -48,6 +47,5 @@ func LoadRoutesFromYAML(filename string) *Config {
 		zlog.Fatal(err)
 	}
 
-	fmt.Println("[edge] loaded routes from YAML:", cfg)
 	return &cfg
 }

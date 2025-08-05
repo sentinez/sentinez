@@ -48,7 +48,7 @@ func (w *WebSocket) Start(_ context.Context) error {
 	w.router()
 
 	version.ASCII("SENTINEZ // WEB SOCKET", names.WebSocket.String())
-	zlog.Infof("[HTTP] starting server %s", ":7778")
+	zlog.Infof("[http] starting server %s", ":7778")
 
 	return w.core.ListenAndServe(":7778")
 }

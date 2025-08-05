@@ -73,10 +73,7 @@ func newLogger() *zap.Logger {
 		StacktraceKey: "stacktrace",
 		CallerKey:     "caller",
 		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-			enc.AppendString(
-				fmt.Sprintf("%s %s",
-					color.Green.Add(fmt.Sprintf("[%s]", version.Code)),
-					t.Format(time.DateTime)))
+			enc.AppendString(t.Format(time.DateTime))
 		},
 		EncodeLevel:  zapcore.CapitalColorLevelEncoder,
 		EncodeCaller: zapcore.ShortCallerEncoder,
@@ -90,6 +87,8 @@ func newLogger() *zap.Logger {
 
 	logger := zap.New(core, zap.AddCaller(),
 		zap.AddCallerSkip(2), zap.AddStacktrace(zapcore.FatalLevel))
+
+	logger = logger.Named(color.Green.Add(fmt.Sprintf("[%s]", version.Code)))
 	return logger
 }
 

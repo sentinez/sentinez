@@ -15,7 +15,6 @@
 package zlog
 
 import (
-	"github.com/sentinez/sentinez/pkg/common/color"
 	"go.uber.org/zap"
 )
 
@@ -82,26 +81,16 @@ const (
 	LevelFatal Level = 4
 )
 
-var header = color.White.Add(">>> ")
-
 // zcore is the logger for the package.
 type zcore struct {
 	Verbosity int
 	Logger    *zap.SugaredLogger
 }
 
-func (c *zcore) addPrefix(args ...any) []any {
-	return append([]any{header}, args...)
-}
-
-func (c *zcore) addPrefixFormat(format string) string {
-	return header + format
-}
-
 // Debug logs a debug message.
 func (c *zcore) Debug(args ...any) {
 	if c.V(LevelDebug.Int()) {
-		c.Logger.Debug(c.addPrefix(args...)...)
+		c.Logger.Debug(args...)
 	}
 }
 
@@ -111,14 +100,14 @@ func (c *zcore) Debugln(args ...any) { c.Debug(args...) }
 // Debugf logs a debug message with a format.
 func (c *zcore) Debugf(format string, args ...any) {
 	if c.V(LevelDebug.Int()) {
-		c.Logger.Debugf(c.addPrefixFormat(format), args...)
+		c.Logger.Debugf(format, args...)
 	}
 }
 
 // Info logs an info message.
 func (c *zcore) Info(args ...any) {
 	if c.V(LevelInfo.Int()) {
-		c.Logger.Info(c.addPrefix(args...)...)
+		c.Logger.Info(args...)
 	}
 }
 
@@ -130,14 +119,14 @@ func (c *zcore) Infoln(args ...any) {
 // Infof logs an info message with a format.
 func (c *zcore) Infof(format string, args ...any) {
 	if c.V(LevelInfo.Int()) {
-		c.Logger.Infof(c.addPrefixFormat(format), args...)
+		c.Logger.Infof(format, args...)
 	}
 }
 
 // Warning logs a warning message.
 func (c *zcore) Warning(args ...any) {
 	if c.V(LevelWarning.Int()) {
-		c.Logger.Warn(c.addPrefix(args...)...)
+		c.Logger.Warn(args...)
 	}
 }
 
@@ -149,14 +138,14 @@ func (c *zcore) Warningln(args ...any) {
 // Warningf logs a warning message with a format.s
 func (c *zcore) Warningf(format string, args ...any) {
 	if c.V(LevelWarning.Int()) {
-		c.Logger.Warnf(c.addPrefixFormat(format), args...)
+		c.Logger.Warnf(format, args...)
 	}
 }
 
 // Error logs an error message.
 func (c *zcore) Error(args ...any) {
 	if c.V(LevelError.Int()) {
-		c.Logger.Error(c.addPrefix(args...)...)
+		c.Logger.Error(args...)
 	}
 }
 
@@ -168,14 +157,14 @@ func (c *zcore) Errorln(args ...any) {
 // Errorf logs an error message with a format.
 func (c *zcore) Errorf(format string, args ...any) {
 	if c.V(LevelError.Int()) {
-		c.Logger.Errorf(c.addPrefixFormat(format), args...)
+		c.Logger.Errorf(format, args...)
 	}
 }
 
 // Fatal logs a fatal message.
 func (c *zcore) Fatal(args ...any) {
 	if c.V(LevelFatal.Int()) {
-		c.Logger.Fatal(c.addPrefix(args...)...)
+		c.Logger.Fatal(args...)
 	}
 }
 
@@ -185,7 +174,7 @@ func (c *zcore) Fatalln(args ...any) { c.Fatal(args...) }
 // Fatalf logs a fatal message with a format.
 func (c *zcore) Fatalf(format string, args ...any) {
 	if c.V(LevelFatal.Int()) {
-		c.Logger.Fatalf(c.addPrefixFormat(format), args...)
+		c.Logger.Fatalf(format, args...)
 	}
 }
 
