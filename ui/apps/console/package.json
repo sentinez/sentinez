@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentinez/ui": "workspace:*",
     "@sentinez/api": "workspace:*",
+    "@sentinez/ui": "workspace:*",
     "lucide-react": "^0.479.0",
     "next": "^15.2.3",
     "next-themes": "^0.4.4",
@@ -26,6 +26,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "sass": "^1.90.0",
     "typescript": "^5.7.3"
   }
 }

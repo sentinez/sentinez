@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package decor provides a simple way to decorate functions
-package decor
+package utils
 
 import "context"
 
