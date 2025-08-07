@@ -1,6 +1,9 @@
 import { AppSidebar, AppSidebarInset } from '@/components/app-sidebar';
 import { SidebarProvider } from '@sentinez/ui/components/sidebar';
-import { Metadata } from 'next';
+import {Metadata} from 'next';
+
+import styles from '@/app/console/console.module.scss';
+
 
 export const metadata: Metadata = {
   title: 'Console | Sentinez',
@@ -12,11 +15,8 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
 
   return (
     <SidebarProvider
-      style={
-        {
-          '--sidebar-width': '300px',
-        } as React.CSSProperties
-      }
+      // style={{'--sidebar-width': '300px'} as React.CSSProperties}
+      className={styles.sidebar_provider}
     >
       <AppSidebar />
       <AppSidebarInset>{children}</AppSidebarInset>
