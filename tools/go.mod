@@ -4,20 +4,19 @@ go 1.24.2
 
 replace (
 	github.com/sentinez/sentinez/api => ../api
-	github.com/sentinez/sentinez/plugins/migrate => ../plugins/migrate
-	github.com/sentinez/sentinez/plugins/ruleparser => ../plugins/ruleparser
+	github.com/sentinez/sentinez/rules => ../rules
 )
 
 require (
 	github.com/bufbuild/buf v1.50.1
 	github.com/codesenberg/bombardier v1.2.6
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
+	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/golangci/golangci-lint v1.64.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/plugins/migrate v0.0.0
-	github.com/sentinez/sentinez/plugins/ruleparser v0.0.0
+	github.com/sentinez/sentinez/rules v0.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/text v0.23.0
@@ -125,7 +124,6 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-migrate/migrate/v4 v4.18.3 // indirect
 	github.com/golangci/dupl v0.0.0-20250308024227-f665c8d69b32 // indirect
 	github.com/golangci/go-printf-func-name v0.1.0 // indirect
 	github.com/golangci/gofmt v0.0.0-20250106114630-d62b90e6713d // indirect

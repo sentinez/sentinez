@@ -1,4 +1,4 @@
-package secrule
+package rules
 
 import (
 	"bytes"
@@ -6,9 +6,8 @@ import (
 	"os"
 
 	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
-	"github.com/sentinez/sentinez/pkg/auto/rules"
-	rulev4160 "github.com/sentinez/sentinez/pkg/auto/rules/v4-16-0"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	rules "github.com/sentinez/sentinez/rules/gen"
+	rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 )
 
 func Load() string {
@@ -51,7 +50,6 @@ func (rl *RuleLoader) Load(rulesetsFn []func() *wafpb.Rule) {
 		}
 
 		if _, err := rl.buf.Write(conf); err != nil {
-			zlog.Errorf("failed to write rule configuration: %v", err)
 			continue
 		}
 	}
@@ -63,7 +61,6 @@ func (rl *RuleLoader) Export() string {
 	}
 
 	if err := os.WriteFile("WAF.conf.lock", rl.buf.Bytes(), 0644); err != nil {
-		zlog.Errorf("failed to write WAF configuration: %v", err)
 		return ""
 	}
 

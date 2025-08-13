@@ -20,8 +20,9 @@ ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 # Move to working directory (/src).
 WORKDIR /src
 
-COPY boot/api/swagger/ /sentinez/boot/api/swagger/
-COPY boot/api/specs/ /sentinez/boot/api/specs/
+COPY static/api/swagger/ /sentinez/static/api/swagger/
+COPY static/api/specs/ /sentinez/static/api/specs/
+COPY cmd/apiserver/docker-entrypoint.sh /sentinez/docker-entrypoint.sh
 
 COPY . ./
 
@@ -46,10 +47,10 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 
 COPY --from=builder /bin/apiserver ./bin/apiserver
-COPY --from=builder /sentinez/boot/api/swagger ./boot/api/swagger
-COPY --from=builder /sentinez/api/specs ./api/specs
+COPY --from=builder /sentinez/static/api/swagger ./static/api/swagger
+COPY --from=builder /sentinez/static/api/specs ./static/api/specs
 
-COPY --from=builder ./cmd/apiserver/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder /sentinez/docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
 CMD [ "./docker-entrypoint.sh" ]

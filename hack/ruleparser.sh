@@ -15,33 +15,33 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out pkg/auto/rules/v4-16-0 \
-    -file boot/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out rules/gen/v4-16-0 \
+    -file static/waf/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules/v4-16-0 \
-    -file boot/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out rules/gen/v4-16-0 \
+    -file static/waf/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules \
-    -file boot/rules/setup.conf
+    -out rules/gen \
+    -file static/waf/rules/setup.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules \
-    -file boot/rules/default.conf
+    -out rules/gen \
+    -file static/waf/rules/default.conf
 
 # ruleparser-sentinez \
-#     -out pkg/auto/rules \
-#     -file boot/rules/modsecurity.conf
+#     -out rules/gen \
+#     -file static/waf/rules/modsecurity.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules/v4-16-0 \
-    -file boot/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -out rules/gen/v4-16-0 \
+    -file static/waf/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules/v4-16-0 \
-    -file boot/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out rules/gen/v4-16-0 \
+    -file static/waf/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out pkg/auto/rules \
-    -file boot/rules/audit.conf
+    -out rules/gen \
+    -file static/waf/rules/audit.conf

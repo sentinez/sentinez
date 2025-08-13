@@ -2,7 +2,10 @@ module github.com/sentinez/sentinez
 
 go 1.24.2
 
-replace github.com/sentinez/sentinez/api => ./api
+replace (
+	github.com/sentinez/sentinez/api => ./api
+	github.com/sentinez/sentinez/rules => ./rules
+)
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -21,6 +24,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
+	github.com/sentinez/sentinez/rules v0.0.0
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/valyala/fasthttp v1.63.0

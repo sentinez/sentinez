@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/plugins/ruleparser/parser"
+	"github.com/sentinez/sentinez/rules/ruleparser/parser"
 )
 
 func WriteJSONToFile(filename string, data any) error {

@@ -23,7 +23,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	migratepgx "github.com/sentinez/sentinez/plugins/migrate/pgx"
+	migratepgx "github.com/sentinez/sentinez/tools/internal/migrate/pgx"
 )
 
 var (
@@ -33,9 +33,9 @@ var (
 )
 
 var sourceFileMap = map[string]string{
-	timescale:  "file://../boot/migrations/timescale",
-	postgresql: "file://../boot/migrations/postgresql",
-	clickhouse: "file://../boot/migrations/clickhouse",
+	timescale:  "file://../deploy/migrate/timescale",
+	postgresql: "file://../deploy/migrate/postgresql",
+	clickhouse: "file://../deploy/migrate/clickhouse",
 }
 
 func runMigrations(srcFile, dbUrl, action string, step int) error {

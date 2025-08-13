@@ -25,8 +25,8 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/pkg/auto/templ"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/templ"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
@@ -108,9 +108,6 @@ func processRequestHandler(r *http.Request,
 			zlog.Debugf("failed to process request: %v", err)
 			return err
 		} else if it != nil {
-			zlog.Debugf("[processing] req: action=%s, status=%d, ruleID=%d",
-				it.Action, it.Status, it.RuleID)
-
 			code := obtainStatusCodeFromInterruptionOrDefault(it,
 				ctx.Response.StatusCode(),
 			)
@@ -145,8 +142,6 @@ func processRequest(tx types.Transaction,
 	req *http.Request) (*types.Interruption, error) {
 
 	if it := processRequestHeader(req, tx); it != nil {
-		zlog.Debugf("[security] req header action=%s id=%d",
-			it.Action, it.RuleID)
 		return it, nil
 	}
 
@@ -154,7 +149,6 @@ func processRequest(tx types.Transaction,
 		return nil, err
 
 	} else if it != nil {
-		zlog.Debugf("[security] req body action=%s id=%d", it.Action, it.RuleID)
 		return it, nil
 	}
 

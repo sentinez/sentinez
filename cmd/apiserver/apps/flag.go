@@ -29,8 +29,8 @@ var onceAPIServer sync.Once
 
 // apiServerFlags global variable
 var apiServerFlags = &common.FlagAPIServer{
-	ApiSpecsPath: "boot/api/specs/v1",
-	SwaggerPath:  "boot/api/swagger",
+	ApiSpecsPath: "static/api/specs/v1",
+	SwaggerPath:  "static/api/swagger",
 	Address:      ":9000",
 }
 

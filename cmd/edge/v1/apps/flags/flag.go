@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
-	
+
 	"github.com/spf13/pflag"
 )
 
@@ -30,7 +30,7 @@ var onceEdge sync.Once
 
 var edgeFlags = &common.FlagEdge{
 	Address:  ":7777",
-	RuleRoot: "./boot/resources",
+	RuleRoot: "./static/resources/v4-16-0",
 	Host:     "localhost",
 }
 

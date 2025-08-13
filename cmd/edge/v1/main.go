@@ -42,7 +42,5 @@ func main() {
 			return edge.New(srv, edgeflags.ParseFlag(), loadYaml()), nil
 		})
 
-	if err := app.Run(context.Background()); err != nil {
-		zlog.Fatal(err)
-	}
+	_ = app.Run(context.Background())
 }

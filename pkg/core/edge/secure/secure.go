@@ -20,9 +20,8 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	secrule "github.com/sentinez/sentinez/pkg/core/edge/secure/rule"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	secrule "github.com/sentinez/sentinez/rules"
 )
 
 var (
@@ -49,7 +48,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 		}
 
 		if waf != nil {
-			zlog.Infof("%s initialized successfully", color.Cyan.Add("[WAF]"))
+			zlog.Info("[secure] WAF initialized successfully")
 		}
 	}
 
@@ -57,9 +56,7 @@ func NewFireWall(ruleRoot string) coraza.WAF {
 }
 
 func callback(err types.MatchedRule) {
-	zlog.Warnf("[%s] %d: %s, audit log: %s",
-		err.Rule().Severity(), err.Rule().ID(), err.Message(), err.AuditLog())
-
 	// msg := err.ErrorLog()
-	// zlog.Debugf("[%s] %s", err.Rule().Severity(), msg)
+	zlog.Warnf("[%s] %d: %s",
+		err.Rule().Severity(), err.Rule().ID(), err.Message())
 }
