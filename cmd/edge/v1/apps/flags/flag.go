@@ -29,9 +29,10 @@ import (
 var onceEdge sync.Once
 
 var edgeFlags = &common.FlagEdge{
-	Address:  ":7777",
-	RuleRoot: "./static/resources/v4-16-0",
-	Host:     "localhost",
+	Address:     ":7777",
+	RulePath:    "./static/waf/data/v4-16-0",
+	Host:        "localhost",
+	ProxyConfig: "./cmd/edge/v1/proxy.yaml",
 }
 
 // ParseFlag flag args for grpc service
@@ -40,10 +41,16 @@ func ParseFlag() *common.FlagEdge {
 		version.ASCII("SENTINEZ // EDGE", names.EdgeV1.String())
 
 		pflag.StringVarP(&edgeFlags.Address, "address", "a",
-			edgeFlags.GetAddress(), "host address")
+			edgeFlags.GetAddress(), "address listen on")
 
-		pflag.StringVar(&edgeFlags.RuleRoot, "rule_root",
-			edgeFlags.RuleRoot, "core rulesets root path for rules")
+		pflag.StringVar(&edgeFlags.Host, "host",
+			edgeFlags.GetHost(), "base hostname")
+
+		pflag.StringVar(&edgeFlags.RulePath, "rule_path",
+			edgeFlags.GetRulePath(), "core rulesets root path for rules")
+
+		pflag.StringVar(&edgeFlags.ProxyConfig, "proxy_config",
+			edgeFlags.GetProxyConfig(), "origin config yaml configuration")
 	})
 
 	_ = flags.Parse()

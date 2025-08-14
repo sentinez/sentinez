@@ -28,8 +28,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func loadYaml() *edgeyaml.Config {
-	return edgeyaml.LoadRoutesFromYAML("./cmd/edge/v1/proxy.yaml")
+func loadYaml(confPath string) *edgeyaml.Config {
+	return edgeyaml.LoadRoutesFromYAML(confPath)
 }
 
 func main() {
@@ -37,9 +37,11 @@ func main() {
 		zlog.Fatal(err)
 	}
 
+	proxyConf := loadYaml(edgeflags.ParseFlag().GetProxyConfig())
+
 	app := runner.New(httpxf1.NewServer).
 		Build(func(srv httpxf1.Server) (runner.Server, error) {
-			return edge.New(srv, edgeflags.ParseFlag(), loadYaml()), nil
+			return edge.New(srv, edgeflags.ParseFlag(), proxyConf), nil
 		})
 
 	_ = app.Run(context.Background())

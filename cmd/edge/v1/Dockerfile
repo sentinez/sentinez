@@ -32,19 +32,27 @@ ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go mod tidy
 RUN go build -ldflags="-s -w" -o /bin/main ./cmd/edge/v1
 
-# Remove all source code files
-RUN rm -r *
 # Clean up
 RUN go clean -modcache
+
+COPY static/waf/data/ /sentinez/static/waf/data/
+COPY cmd/edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
+COPY cmd/edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
+
 
 # Stage run
 FROM alpine AS runner
 
-WORKDIR /app
-
-COPY --from=builder /bin/main /bin/main
-
 # Set the timezone and install CA certificates
 RUN apk --no-cache add ca-certificates tzdata
 
-CMD [ "main" ]
+WORKDIR /app
+
+COPY --from=builder /bin/main ./bin/main
+COPY --from=builder /sentinez/static/waf/data/ ./static/waf/data/
+COPY --from=builder /sentinez/edge/v1/proxy.yaml ./proxy.yaml
+COPY --from=builder /sentinez/edge/v1/docker-entrypoint.sh ./docker-entrypoint.sh
+
+RUN chmod +x ./docker-entrypoint.sh
+
+CMD [ "./docker-entrypoint.sh" ]

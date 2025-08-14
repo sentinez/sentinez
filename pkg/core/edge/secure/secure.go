@@ -29,14 +29,14 @@ var (
 	lock sync.Mutex
 )
 
-func NewFireWall(ruleRoot string) coraza.WAF {
+func NewFireWall(ruleBasePath string) coraza.WAF {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if waf == nil {
 		var err error
 
-		rootFS := os.DirFS(ruleRoot)
+		rootFS := os.DirFS(ruleBasePath)
 		conf := coraza.NewWAFConfig().WithRootFS(rootFS).
 			WithErrorCallback(callback).
 			WithDirectives(secrule.Load())

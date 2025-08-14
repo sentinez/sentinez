@@ -17,7 +17,9 @@ package httpxf1
 import (
 	"net/http"
 
+	"github.com/sentinez/sentinez/pkg/templ"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
 func acquireRequest() *fasthttp.Request {
@@ -57,6 +59,24 @@ func Do(ctx Context, uri string) error {
 
 func Forbidden(ctx *fasthttp.RequestCtx) {
 	ctx.SetStatusCode(http.StatusForbidden)
-	ctx.SetBodyString("Access denied")
 	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
+
+	ctx.SetContentType("text/html; charset=utf-8")
+	rCtx := convertRequestContext(ctx)
+	err := templ.Forbidden().Render(rCtx.Context(), ctx.Response.BodyWriter())
+	if err != nil {
+		ctx.SetBodyString("Access denied")
+	}
+}
+
+func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
+	r := new(http.Request)
+
+	if err := fasthttpadaptor.ConvertRequest(ctx, r, true); err != nil {
+		ctx.Error("failed to convert request context",
+			fasthttp.StatusInternalServerError)
+		return nil
+	}
+
+	return r
 }

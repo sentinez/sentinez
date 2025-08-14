@@ -24,7 +24,7 @@ import (
 
 func (s *Server) bootloader(_ context.Context) error {
 
-	protected := httpxf1mdw.Protected(s.flag.GetRuleRoot())
+	protected := httpxf1mdw.Protected(s.flag.GetRulePath())
 	host := logic.Host(s.flag.GetHost())
 
 	s.core.Use(host)

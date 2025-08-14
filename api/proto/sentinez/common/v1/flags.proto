@@ -44,5 +44,6 @@ message FlagEdge {
     pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
   }];
   string host = 2 [(buf.validate.field).string.hostname = true];
-  string rule_root = 3;
+  string rule_path = 3;
+  string proxy_config = 4;
 }
