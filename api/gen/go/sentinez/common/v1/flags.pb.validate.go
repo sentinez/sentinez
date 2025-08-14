@@ -46,6 +46,8 @@ func (m *Flag) Validate() error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ConsulUrl
+
 	return nil
 }
 

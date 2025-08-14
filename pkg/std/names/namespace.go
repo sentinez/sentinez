@@ -32,14 +32,11 @@ const (
 	// GreeterV1 names info
 	GreeterV1 Namespace = "sentinez.core.greeter.v1"
 
-	// DiscoveryV1 names info
-	DiscoveryV1 Namespace = "sentinez.core.discovery.v1"
-
 	// EdgeV1 names info
 	EdgeV1 Namespace = "sentinez.edge.v1"
 
-	// AuthV1 names info
-	AuthV1 Namespace = "sentinez.core.auth.v1"
+	// IAMV1 names info
+	IAMV1 Namespace = "sentinez.core.iam.v1"
 
 	// TenantV1 names info
 	TenantV1 Namespace = "sentinez.core.tenant.v1"

@@ -5,17 +5,17 @@ import (
 	"sync"
 	"time"
 
-	consulclient "github.com/sentinez/sentinez/pkg/std/client/consul"
+	"github.com/sentinez/sentinez/client/consul"
 	"github.com/sony/gobreaker"
 )
 
 type ServiceDiscovery interface {
-	Discover(name string) ([]consulclient.Instance, error)
+	Discover(name string) ([]consul.Instance, error)
 }
 
 type Resolver struct {
 	discovery ServiceDiscovery
-	cache     map[string][]consulclient.Instance
+	cache     map[string][]consul.Instance
 	lastFetch map[string]time.Time
 	breakers  map[string]*gobreaker.CircuitBreaker
 	mu        sync.RWMutex
@@ -25,14 +25,14 @@ type Resolver struct {
 func New(sd ServiceDiscovery) *Resolver {
 	return &Resolver{
 		discovery: sd,
-		cache:     make(map[string][]consulclient.Instance),
+		cache:     make(map[string][]consul.Instance),
 		lastFetch: make(map[string]time.Time),
 		breakers:  make(map[string]*gobreaker.CircuitBreaker),
 		index:     make(map[string]int),
 	}
 }
 
-func (r *Resolver) GetInstances(name string) ([]consulclient.Instance, error) {
+func (r *Resolver) GetInstances(name string) ([]consul.Instance, error) {
 	r.mu.RLock()
 	instances, ok := r.cache[name]
 	last := r.lastFetch[name]
@@ -55,7 +55,7 @@ func (r *Resolver) GetInstances(name string) ([]consulclient.Instance, error) {
 	return newInstances, nil
 }
 
-func (r *Resolver) PickInstance(name string) (*consulclient.Instance, error) {
+func (r *Resolver) PickInstance(name string) (*consul.Instance, error) {
 	instances, err := r.GetInstances(name)
 	if err != nil {
 		return nil, err

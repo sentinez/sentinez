@@ -24,6 +24,7 @@ message Flag {
   string name = 1;
   string mode = 2 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
   string log_level = 3 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
+  string consul_url = 4;
 }
 
 message FlagAPIServer {

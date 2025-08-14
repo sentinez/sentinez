@@ -19,7 +19,7 @@ const ASCII = `
 _______________ __  /_______             
 __  ___/__  __ \_  __/___  /             SENTINEZ // DISCOVERY
 _(__  ) _  / / // /_  __  /_             ------------
-/____/  /_/ /_/ \__/  _____/             sentinez.core.discovery.v1
+/____/  /_/ /_/ \__/  _____/             sentinez.common.discovery.v1
                                          
 `
 

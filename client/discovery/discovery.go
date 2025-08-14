@@ -13,35 +13,46 @@
 // limitations under the License.
 
 // Package dcvrhandler provides a service discovery for the sentinez.
-package dischdl
+package discovery
 
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
-	"github.com/sentinez/sentinez/internal/core/discovery/v1/resolver"
-	consulclient "github.com/sentinez/sentinez/pkg/std/client/consul"
+	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/discovery/v1"
+	"github.com/sentinez/sentinez/client/consul"
+	"github.com/sentinez/sentinez/client/resolver"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-var _ discoverypb.DiscoveryServiceServer = (*Discovery)(nil)
+var (
+	dcvr *Discovery
+	once sync.Once
+)
+
+func GetDiscovery(consulURL string) *Discovery {
+	once.Do(func() {
+		dcvr = New(consulURL)
+	})
+
+	return dcvr
+}
 
 // New create new instance
-func New() discoverypb.DiscoveryServiceServer {
-	client, _ := consulclient.New("http://localhost:8500")
+func New(consulAddr string) *Discovery {
+	csClient, _ := consul.New(consulAddr)
 	return &Discovery{
-		client:   client,
-		resolver: resolver.New(client),
+		client:   csClient,
+		resolver: resolver.New(csClient),
 	}
 }
 
 // Discovery is a service registry for the sentinez.
 type Discovery struct {
-	discoverypb.UnimplementedDiscoveryServiceServer
-	client   *consulclient.Client
+	client   *consul.Client
 	resolver *resolver.Resolver
 }
 

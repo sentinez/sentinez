@@ -44,13 +44,13 @@ type identityAccessManagement struct {
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 	server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.AuthV1.String(), func(endpoint string) error {
+	eventq.Subscribe(ctx, names.IAMV1.String(), func(endpoint string) error {
 		opts := []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		}
 
 		zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-			names.AuthV1.String(), "******")
+			names.IAMV1.String(), "******")
 
 		return iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint(
 			ctx, server.RuntimeMux(), endpoint, opts)

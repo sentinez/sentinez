@@ -19,11 +19,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/discovery/v1"
+	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/discovery/v1"
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/client/discovery"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/grpc/client"
+	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
@@ -50,14 +51,12 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	cron.Start(ctx, time.Second*10, func() {
-		disc, err := client.NewDiscoveryClient()
-		if err != nil {
-			return
-		}
 
-		resp, err := disc.Discover(ctx,
-			&discovery.DiscoverRequest{Name: names.GreeterV1.String()})
+	dcvr := discovery.GetDiscovery(flags.Parse().GetConsulUrl())
+	cron.Start(ctx, time.Second*10, func() {
+
+		resp, err := dcvr.Discover(ctx,
+			&discoverypb.DiscoverRequest{Name: names.GreeterV1.String()})
 		if err != nil {
 			return
 		}
