@@ -15,6 +15,7 @@
 syntax = "proto3";
 
 package sentinez.common.v1;
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1;common";
 
@@ -22,4 +23,9 @@ message Pages {
   int32 index = 1;
   int32 size = 2;
   bool total = 3;
+}
+
+message TokenPayload {
+  string name = 1;
+  google.protobuf.Timestamp expire_at = 2;
 }

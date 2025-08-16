@@ -22,4 +22,5 @@ message Config {
     string timescale_uri = 1;
     string postgres_uri = 2;
     string clickhouse_uri = 3;
+    string secret_key = 4;
 }

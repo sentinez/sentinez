@@ -12,34 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package config provides the configs for the service.
-package config
+package crypto
 
 import (
-	"os"
-	"sync"
+	"encoding/base64"
+	"testing"
+	"time"
 
-	_ "github.com/joho/godotenv/autoload" // load .env file automatically
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var conf *common.Config
-var once sync.Once
+func TestGenAndVerifyToken(t *testing.T) {
+	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-// Default returns the environment.
-func Default() *common.Config {
-	once.Do(func() {
-		conf = &common.Config{
-			TimescaleUri:  getENV(common.SNTZENV_SNTZENV_TIMESCALEDB),
-			PostgresUri:   getENV(common.SNTZENV_SNTZENV_POSTGRES),
-			ClickhouseUri: getENV(common.SNTZENV_SNTZENV_CLICKHOUSE),
-			SecretKey:     getENV(common.SNTZENV_SNTZENV_SECRET_KEY),
-		}
+	token, err := BearerTokenGenerator(secBase64, &common.TokenPayload{
+		Name:     "test gen & verify",
+		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 	})
+	if err != nil {
+		t.Error(err)
+	}
 
-	return conf
-}
+	tp, ok := BearerTokenVerifier(token, secBase64)
+	if !ok {
+		t.Error("fail to verify bearer token")
+	}
 
-func getENV(key common.SNTZENV) string {
-	return os.Getenv(key.String())
+	t.Log("token payload: ", tp.String())
 }
