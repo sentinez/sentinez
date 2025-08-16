@@ -16,11 +16,15 @@ package services
 
 import (
 	"context"
+	"time"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/client/discovery"
+	"github.com/sentinez/sentinez/client/names"
+	"github.com/sentinez/sentinez/client/options"
+	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/eventq"
-	"github.com/sentinez/sentinez/pkg/std/names"
+	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -44,16 +48,26 @@ type identityAccessManagement struct {
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 	server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.IAMV1.String(), func(endpoint string) error {
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
+	dcvr := discovery.GetDiscovery(&options.Options{
+		ConsulURL: flags.Parse().GetConsulUrl(),
+	})
+
+	cron.Start(ctx, time.Second*10, func() {
+		srv, err := dcvr.Discover(names.IAMV1)
+		if err != nil {
+			return
 		}
 
-		zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-			names.IAMV1.String(), "******")
+		err = iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint(
+			ctx, server.RuntimeMux(), srv.Address, opts)
+		if err == nil {
+			zlog.Debug("[apiserver] iam service: ", srv.Address)
+		}
 
-		return iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint(
-			ctx, server.RuntimeMux(), endpoint, opts)
 	})
 
 	return nil

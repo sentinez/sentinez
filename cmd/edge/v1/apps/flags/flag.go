@@ -19,8 +19,8 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/client/names"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 
 	"github.com/spf13/pflag"

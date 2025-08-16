@@ -12,17 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+package options
 
-import (
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-)
-
-func newConnection(addr string) (*grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-
-	return conn, err
+type Options struct {
+	ConsulURL string
 }

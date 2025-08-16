@@ -16,16 +16,15 @@
 package discovery
 
 import (
-	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/discovery/v1"
 	"github.com/sentinez/sentinez/client/consul"
+	"github.com/sentinez/sentinez/client/names"
+	"github.com/sentinez/sentinez/client/options"
 	"github.com/sentinez/sentinez/client/resolver"
-
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -33,17 +32,17 @@ var (
 	once sync.Once
 )
 
-func GetDiscovery(consulURL string) *Discovery {
+func GetDiscovery(opt *options.Options) *Discovery {
 	once.Do(func() {
-		dcvr = New(consulURL)
+		dcvr = New(opt)
 	})
 
 	return dcvr
 }
 
 // New create new instance
-func New(consulAddr string) *Discovery {
-	csClient, _ := consul.New(consulAddr)
+func New(opt *options.Options) *Discovery {
+	csClient, _ := consul.New(opt.ConsulURL)
 	return &Discovery{
 		client:   csClient,
 		resolver: resolver.New(csClient),
@@ -56,52 +55,57 @@ type Discovery struct {
 	resolver *resolver.Resolver
 }
 
+type RegisterRequest struct {
+	Name    string
+	Address string
+	Port    int
+	TTL     time.Duration
+}
+
 // Register registers the service to the service registry.
-func (dcv *Discovery) Register(_ context.Context,
-	req *discoverypb.RegisterRequest) (*discoverypb.RegisterResponse, error) {
+func (dcv *Discovery) Register(
+	req *RegisterRequest) (serviceID string, err error) {
 
 	id := uuid.New().String()
-	err := dcv.client.RegisterWithTTL(id,
-		req.GetName(),
-		req.GetAddress(),
-		int(req.GetPort()),
-		req.GetTtl().AsDuration(),
+	err = dcv.client.RegisterWithTTL(id,
+		req.Name,
+		req.Address,
+		req.Port,
+		req.TTL,
 	)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &discoverypb.RegisterResponse{
-		Id:      id,
-		Name:    req.GetName(),
-		Address: req.GetAddress(),
-		Port:    req.GetPort(),
-	}, nil
+	return id, nil
 }
 
 // Heartbeat is used to send heartbeat to the service registry.
-func (dcv *Discovery) Heartbeat(_ context.Context,
-	request *discoverypb.HeartbeatRequest) (*emptypb.Empty, error) {
-
-	if err := dcv.client.SendHeartbeat(request.GetId()); err != nil {
-		return nil, err
+func (dcv *Discovery) Heartbeat(serviceID string) error {
+	if err := dcv.client.SendHeartbeat(serviceID); err != nil {
+		return err
 	}
 
-	return &emptypb.Empty{}, nil
+	return nil
+}
+
+type DiscoverResponse struct {
+	Address string
+	Name    string
 }
 
 // Discover used to discover the service registry.
-func (dcv *Discovery) Discover(_ context.Context,
-	req *discoverypb.DiscoverRequest) (*discoverypb.DiscoverResponse, error) {
+func (dcv *Discovery) Discover(
+	serviceName names.Namespace) (*DiscoverResponse, error) {
 
-	ans, err := dcv.resolver.PickInstance(req.GetName())
+	ans, err := dcv.resolver.PickInstance(serviceName.String())
 	if err != nil {
 		return nil, err
 	}
 
-	return &discoverypb.DiscoverResponse{
-		Name:    req.GetName(),
+	return &DiscoverResponse{
 		Address: fmt.Sprintf("%s:%d", ans.Address, ans.Port),
+		Name:    ans.Name,
 	}, nil
 }

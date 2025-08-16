@@ -19,13 +19,13 @@ import (
 	"context"
 	"time"
 
-	discoverypb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/discovery/v1"
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/client/discovery"
+	"github.com/sentinez/sentinez/client/names"
+	"github.com/sentinez/sentinez/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -52,19 +52,20 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	dcvr := discovery.GetDiscovery(flags.Parse().GetConsulUrl())
-	cron.Start(ctx, time.Second*10, func() {
+	dcvr := discovery.GetDiscovery(&options.Options{
+		ConsulURL: flags.Parse().GetConsulUrl(),
+	})
 
-		resp, err := dcvr.Discover(ctx,
-			&discoverypb.DiscoverRequest{Name: names.GreeterV1.String()})
+	cron.Start(ctx, time.Second*10, func() {
+		srv, err := dcvr.Discover(names.GreeterV1)
 		if err != nil {
 			return
 		}
 
 		err = greeterpb.RegisterGreeterServiceHandlerFromEndpoint(
-			ctx, server.RuntimeMux(), resp.GetAddress(), opts)
+			ctx, server.RuntimeMux(), srv.Address, opts)
 		if err == nil {
-			zlog.Debug("[apiserver] greeter service: ", resp.GetAddress())
+			zlog.Debug("[apiserver] greeter service: ", srv.Address)
 		}
 
 	})

@@ -16,11 +16,15 @@ package services
 
 import (
 	"context"
+	"time"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	"github.com/sentinez/sentinez/client/discovery"
+	"github.com/sentinez/sentinez/client/names"
+	"github.com/sentinez/sentinez/client/options"
+	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/eventq"
-	"github.com/sentinez/sentinez/pkg/std/names"
+	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -43,16 +47,26 @@ type tenant struct {
 func (t *tenant) AcceptFromEndpoint(
 	ctx context.Context, server httpgw.Server) error {
 
-	eventq.Subscribe(ctx, names.TenantV1.String(), func(endpoint string) error {
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
+	dcvr := discovery.GetDiscovery(&options.Options{
+		ConsulURL: flags.Parse().GetConsulUrl(),
+	})
+
+	cron.Start(ctx, time.Second*10, func() {
+		srv, err := dcvr.Discover(names.TenantV1)
+		if err != nil {
+			return
 		}
 
-		zlog.Infof("[visitor.VisitServiceFromEndpoint] %s %s",
-			names.TenantV1.String(), "******")
+		err = tenantpb.RegisterTenantServiceHandlerFromEndpoint(
+			ctx, server.RuntimeMux(), srv.Address, opts)
+		if err == nil {
+			zlog.Debug("[apiserver] tenant service: ", srv.Address)
+		}
 
-		return tenantpb.RegisterTenantServiceHandlerFromEndpoint(
-			ctx, server.RuntimeMux(), endpoint, opts)
 	})
 
 	return nil
