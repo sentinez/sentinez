@@ -21,8 +21,8 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/client/names"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
-	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"google.golang.org/protobuf/proto"
 
@@ -40,9 +40,10 @@ var (
 
 // flags global variable
 var flags = &common.Flag{
-	Name:     "sntz.Server.default",
-	Mode:     "dev",
-	LogLevel: "debug",
+	Name:      "sntz.Server.default",
+	Mode:      "dev",
+	LogLevel:  "debug",
+	ConsulUrl: "http://localhost:8500",
 }
 
 // Parse flag args
@@ -53,6 +54,9 @@ func Parse() *common.Flag {
 
 		pflag.StringVar(&flags.LogLevel, "log-level",
 			flags.GetLogLevel(), "log level (debug|info|warn|error)")
+
+		pflag.StringVar(&flags.ConsulUrl, "consul-url",
+			flags.GetConsulUrl(), "consul url")
 
 		pflag.Usage = func() {
 			fmt.Print(asciiConsole)

@@ -19,5 +19,5 @@
     --log-level debug  \
     --mode dev \
     --address 0.0.0.0:9000 \
-    --api-specs ./boot/api/specs/v1 \
-    --swagger-ui ./boot/api/swagger
+    --api-specs ./static/api/specs/v1 \
+    --swagger-ui ./static/api/swagger

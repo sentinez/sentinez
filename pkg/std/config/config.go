@@ -30,18 +30,16 @@ var once sync.Once
 func Default() *common.Config {
 	once.Do(func() {
 		conf = &common.Config{
-			TimescaleUri: getPublicEnv(
-				common.SNTZPublic_SNTZ_PUBLIC_TIMESCALEDB),
-			PostgresUri: getPublicEnv(
-				common.SNTZPublic_SNTZ_PUBLIC_POSTGRES),
-			ClickhouseUri: getPublicEnv(
-				common.SNTZPublic_SNTZ_PUBLIC_CLICKHOUSE),
+			TimescaleUri:  getENV(common.SNTZENV_SNTZENV_TIMESCALEDB),
+			PostgresUri:   getENV(common.SNTZENV_SNTZENV_POSTGRES),
+			ClickhouseUri: getENV(common.SNTZENV_SNTZENV_CLICKHOUSE),
+			SecretKey:     getENV(common.SNTZENV_SNTZENV_SECRET_KEY),
 		}
 	})
 
 	return conf
 }
 
-func getPublicEnv(key common.SNTZPublic) string {
+func getENV(key common.SNTZENV) string {
 	return os.Getenv(key.String())
 }

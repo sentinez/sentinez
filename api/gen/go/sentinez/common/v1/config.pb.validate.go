@@ -46,6 +46,8 @@ func (m *Config) Validate() error {
 
 	// no validation rules for ClickhouseUri
 
+	// no validation rules for SecretKey
+
 	return nil
 }
 

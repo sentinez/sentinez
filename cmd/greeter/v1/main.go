@@ -43,7 +43,5 @@ func main() {
 			return greeter.New(service, config.Default(), apps.ParseFlag()), nil
 		})
 
-	if err := app.Run(context.Background()); err != nil {
-		zlog.Fatal(err)
-	}
+	_ = app.Run(context.Background())
 }

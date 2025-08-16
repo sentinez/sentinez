@@ -20,7 +20,6 @@ import (
 	"github.com/sentinez/sentinez/internal/websocket"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	wscore "github.com/sentinez/sentinez/pkg/core/wsz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func main() {
@@ -30,7 +29,5 @@ func main() {
 			return websocket.New(ws), nil
 		})
 
-	if err := app.Run(context.Background()); err != nil {
-		zlog.Fatal(err)
-	}
+	_ = app.Run(context.Background())
 }

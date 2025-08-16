@@ -19,8 +19,8 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/client/names"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/spf13/pflag"
 )
@@ -29,8 +29,8 @@ var onceAPIServer sync.Once
 
 // apiServerFlags global variable
 var apiServerFlags = &common.FlagAPIServer{
-	ApiSpecsPath: "boot/api/specs/v1",
-	SwaggerPath:  "boot/api/swagger",
+	ApiSpecsPath: "static/api/specs/v1",
+	SwaggerPath:  "static/api/swagger",
 	Address:      ":9000",
 }
 

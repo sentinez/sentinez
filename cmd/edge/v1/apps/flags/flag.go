@@ -19,19 +19,20 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/client/names"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/names"
 	"github.com/sentinez/sentinez/pkg/std/version"
-	
+
 	"github.com/spf13/pflag"
 )
 
 var onceEdge sync.Once
 
 var edgeFlags = &common.FlagEdge{
-	Address:  ":7777",
-	RuleRoot: "./boot/resources",
-	Host:     "localhost",
+	Address:     ":7777",
+	RulePath:    "./static/waf/data/v4-16-0",
+	Host:        "localhost",
+	ProxyConfig: "./cmd/edge/v1/proxy.yaml",
 }
 
 // ParseFlag flag args for grpc service
@@ -40,10 +41,16 @@ func ParseFlag() *common.FlagEdge {
 		version.ASCII("SENTINEZ // EDGE", names.EdgeV1.String())
 
 		pflag.StringVarP(&edgeFlags.Address, "address", "a",
-			edgeFlags.GetAddress(), "host address")
+			edgeFlags.GetAddress(), "address listen on")
 
-		pflag.StringVar(&edgeFlags.RuleRoot, "rule_root",
-			edgeFlags.RuleRoot, "core rulesets root path for rules")
+		pflag.StringVar(&edgeFlags.Host, "host",
+			edgeFlags.GetHost(), "base hostname")
+
+		pflag.StringVar(&edgeFlags.RulePath, "rule_path",
+			edgeFlags.GetRulePath(), "core rulesets root path for rules")
+
+		pflag.StringVar(&edgeFlags.ProxyConfig, "proxy_config",
+			edgeFlags.GetProxyConfig(), "origin config yaml configuration")
 	})
 
 	_ = flags.Parse()

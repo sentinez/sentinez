@@ -24,6 +24,7 @@ message Flag {
   string name = 1;
   string mode = 2 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
   string log_level = 3 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
+  string consul_url = 4;
 }
 
 message FlagAPIServer {
@@ -44,5 +45,6 @@ message FlagEdge {
     pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
   }];
   string host = 2 [(buf.validate.field).string.hostname = true];
-  string rule_root = 3;
+  string rule_path = 3;
+  string proxy_config = 4;
 }

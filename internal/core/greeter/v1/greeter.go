@@ -20,6 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/client/names"
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
@@ -62,7 +63,7 @@ type Greeter struct {
 }
 
 // Start implements IGreeter, override runner.Server.Start
-func (g *Greeter) Start(ctx context.Context) error {
+func (g *Greeter) Start(_ context.Context) error {
 	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {
 		return err
@@ -71,6 +72,6 @@ func (g *Greeter) Start(ctx context.Context) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 	zlog.Debugf("greeter service started on %s", g.flag.GetAddress())
 
-	go Resolver(ctx, g.flag)
+	go grpcgw.Register(names.GreeterV1.String(), g.flag)
 	return g.Serve(g.flag.GetAddress())
 }

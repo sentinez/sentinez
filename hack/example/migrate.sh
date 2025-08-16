@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-migrate create -ext sql -dir boot/migrations -seq init_migrate
+migrate create -ext sql -dir migrate -seq init_migrate

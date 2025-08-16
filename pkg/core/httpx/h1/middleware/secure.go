@@ -21,9 +21,9 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/edge/secure"
 )
 
-func Protected(ruleRoot string) func(next http.Handler) http.Handler {
+func Protected(ruleBasePath string) func(next http.Handler) http.Handler {
 
-	waf := secure.NewFireWall(ruleRoot)
+	waf := secure.NewFireWall(ruleBasePath)
 
 	return func(next http.Handler) http.Handler {
 		return txhttp.WrapHandler(waf, next)

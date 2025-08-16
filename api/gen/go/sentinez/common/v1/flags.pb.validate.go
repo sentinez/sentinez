@@ -46,6 +46,8 @@ func (m *Flag) Validate() error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ConsulUrl
+
 	return nil
 }
 
@@ -254,7 +256,9 @@ func (m *FlagEdge) Validate() error {
 
 	// no validation rules for Host
 
-	// no validation rules for RuleRoot
+	// no validation rules for RulePath
+
+	// no validation rules for ProxyConfig
 
 	return nil
 }

@@ -57,7 +57,5 @@ func main() {
 			return apiserver.New(server, config.Default(), apps.ParseFlag())
 		})
 
-	if err := app.Run(context.Background()); err != nil {
-		zlog.Fatal(err)
-	}
+	_ = app.Run(context.Background())
 }
