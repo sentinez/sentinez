@@ -18,7 +18,7 @@ import (
 	"net/http"
 
 	txhttp "github.com/corazawaf/coraza/v3/http"
-	"github.com/sentinez/sentinez/pkg/core/edge/secure"
+	"github.com/sentinez/sentinez/pkg/core/defense/secure"
 )
 
 func Protected(ruleBasePath string) func(next http.Handler) http.Handler {

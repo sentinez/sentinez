@@ -19,5 +19,5 @@
     --log-level info  \
     --mode prod \
     --address 0.0.0.0:9000 \
-    --api-specs ./static/api/specs/v1 \
-    --swagger-ui ./static/api/swagger
+    --api-specs ./resources/api/specs/v1 \
+    --swagger-ui ./resources/api/swagger

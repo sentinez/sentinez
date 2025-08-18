@@ -16,9 +16,9 @@ package client
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/client/discovery"
-	"github.com/sentinez/sentinez/client/names"
-	"github.com/sentinez/sentinez/client/options"
+	"github.com/sentinez/sentinez/pkg/client/discovery"
+	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/pkg/client/options"
 )
 
 func NewIAMService(

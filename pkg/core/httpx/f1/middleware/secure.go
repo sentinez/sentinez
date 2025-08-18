@@ -15,8 +15,8 @@
 package httpxf1mdw
 
 import (
-	"github.com/sentinez/sentinez/pkg/core/edge/secure"
-	httpfsec "github.com/sentinez/sentinez/pkg/core/edge/secure/httpf"
+	"github.com/sentinez/sentinez/pkg/core/defense/secure"
+	httpfsec "github.com/sentinez/sentinez/pkg/core/defense/secure/httpf"
 	"github.com/valyala/fasthttp"
 )
 

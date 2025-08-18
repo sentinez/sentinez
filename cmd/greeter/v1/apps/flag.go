@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/client/names"
+	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/spf13/pflag"
 )

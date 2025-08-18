@@ -17,7 +17,7 @@
 
 ./bin/main \
     --log-level debug  \
-    --rule_path ./static/waf/data/v4-16-0 \
+    --rule_path ./resources/waf/data/v4-16-0 \
     --proxy_config ./proxy.yaml \
     --address :7777 \
     --host localhost

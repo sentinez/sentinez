@@ -18,8 +18,8 @@ package websocket
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/client/names"
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
+	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/core/wsz"
 	"github.com/sentinez/sentinez/pkg/std/version"

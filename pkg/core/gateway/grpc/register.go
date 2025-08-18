@@ -21,8 +21,8 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/client/discovery"
-	"github.com/sentinez/sentinez/client/options"
+	"github.com/sentinez/sentinez/pkg/client/discovery"
+	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
