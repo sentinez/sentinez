@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sentinez/sentinez/client/consul"
+	"github.com/sentinez/sentinez/pkg/client/consul"
 	"github.com/sony/gobreaker"
 )
 

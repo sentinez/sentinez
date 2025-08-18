@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/infra/table"
 
 	sq "github.com/Masterminds/squirrel"
 	"google.golang.org/protobuf/types/known/timestamppb"

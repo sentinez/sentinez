@@ -21,10 +21,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sentinez/sentinez/client/consul"
-	"github.com/sentinez/sentinez/client/names"
-	"github.com/sentinez/sentinez/client/options"
-	"github.com/sentinez/sentinez/client/resolver"
+	"github.com/sentinez/sentinez/pkg/client/consul"
+	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/pkg/client/options"
+	"github.com/sentinez/sentinez/pkg/client/resolver"
 )
 
 var (

@@ -29,6 +29,7 @@ fi
 
 SENTINEZ_PATH=$GOPATH/src/github.com/sentinez/sentinez
 SENTINEZ_GEN_OUT=$GOPATH/src
+SENTINEZ_OPENAPI_OUT=$SENTINEZ_PATH/resources/api/specs/v1
 
 protoc \
   -I"$SENTINEZ_PATH"/api/proto \
@@ -37,6 +38,22 @@ protoc \
   -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
   --grpc-gateway_out="$SENTINEZ_GEN_OUT" \
   --go_out="$SENTINEZ_GEN_OUT" \
-  --go-grpc_out="$SENTINEZ_GEN_OUT" \
+  --go-grpc_out=require_unimplemented_servers=false:"$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
-  "$(pwd)"/*.proto
+  --go-sentinez_out="$SENTINEZ_GEN_OUT" \
+  "$(pwd)"/*.proto || exit 1
+
+protoc \
+  -I"$SENTINEZ_PATH"/api/proto \
+  -I"$SENTINEZ_PATH"/api/third_party/googleapis \
+  -I"$SENTINEZ_PATH"/api/third_party/grpc-gateway \
+  -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
+  --openapiv2_out="$SENTINEZ_OPENAPI_OUT" \
+  "$(pwd)"/rule_engine.proto || exit 1
+
+OLDPWD=$(pwd)
+
+cd "$SENTINEZ_OPENAPI_OUT" || exit 1
+find . -mindepth 2 -type f -name "*.json" -exec mv {} ./ \; || exit 1
+rm -rf ./sentinez || exit 1
+cd "$OLDPWD" || exit 1

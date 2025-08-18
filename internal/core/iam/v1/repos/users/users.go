@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/std/table"
+	"github.com/sentinez/sentinez/pkg/infra/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 

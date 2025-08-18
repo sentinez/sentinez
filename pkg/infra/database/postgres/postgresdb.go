@@ -24,9 +24,9 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
+	"github.com/sentinez/sentinez/pkg/infra/table"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
 	"github.com/sentinez/sentinez/pkg/std/errors"
-	"github.com/sentinez/sentinez/pkg/std/table"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/client/names"
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
+	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
+	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -40,7 +40,7 @@ type Service struct {
 func NewService() *Service {
 	return &Service{
 		Server:  grpcgw.NewDefault(),
-		handler: greeterhandler.New(),
+		handler: greeterhdl.New(),
 	}
 }
 

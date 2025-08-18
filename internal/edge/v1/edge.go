@@ -19,8 +19,8 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/client/names"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"

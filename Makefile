@@ -32,7 +32,6 @@ lint: lint.go lint.proto
 
 lint.go:
 	@golangci-lint run
-	@cd ./client && golangci-lint run
 
 lint.proto:
 	@cd ./api && buf lint
