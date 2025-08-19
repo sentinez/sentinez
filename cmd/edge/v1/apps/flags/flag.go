@@ -30,8 +30,8 @@ var onceEdge sync.Once
 
 var edgeFlags = &common.FlagEdge{
 	Address:     ":7777",
-	RulePath:    "./static/waf/data/v4-16-0",
 	Host:        "localhost",
+	RulePath:    "./resources/waf/data/v4-16-0",
 	ProxyConfig: "./cmd/edge/v1/proxy.yaml",
 }
 
