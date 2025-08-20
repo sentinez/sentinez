@@ -18,7 +18,7 @@ package logic
 import (
 	"strings"
 
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/valyala/fasthttp"
 )
 

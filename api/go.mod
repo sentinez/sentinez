@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.5-20250219170025-d39267d9df8f.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
+	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10
 	google.golang.org/genproto/googleapis/api v0.0.0-20250219182151-9fdb1cabc7b2
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.5

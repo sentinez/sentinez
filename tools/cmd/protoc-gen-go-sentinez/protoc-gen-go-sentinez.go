@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/sentinez/sentinez/tools/internal/code"
+	"github.com/sentinez/sentinez/tools/internal/sentinez"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
@@ -25,7 +25,7 @@ func main() {
 			if !f.Generate {
 				continue
 			}
-			code.GenerateFile(gen, f)
+			sentinez.GenerateSentinezFile(gen, f)
 		}
 		return nil
 	})

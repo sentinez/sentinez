@@ -32,12 +32,12 @@ const timeout = 500 * time.Millisecond // 500 milliseconds
 
 var (
 	once sync.Once
-	log  zlog.Logger
+	log  zlog.Sugard
 )
 
 func beforeStart() {
 	once.Do(func() {
-		log = zlog.NewConsole(zlog.LevelError)
+		log = zlog.NewDefaultConsole(zlog.LevelError)
 		grpclog.SetLoggerV2(log)
 	})
 }

@@ -22,7 +22,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -45,6 +45,7 @@ func New(server httpxf1.Server,
 		core:   server,
 		flag:   flag,
 		config: conf,
+		logger: zlog.NewJSON(common.SNTZ_SNTZ_EDGE.String(), zlog.LevelWarning),
 	}
 }
 
@@ -55,6 +56,7 @@ type Server struct {
 	core   httpxf1.Server
 	config *edgeyaml.Config
 	flag   *common.FlagEdge
+	logger zlog.Logger
 }
 
 // Shutdown implements v1.Server.

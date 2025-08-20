@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"time"
 
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 )

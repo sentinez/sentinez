@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/internal/websocket/manager"
-	httpx1 "github.com/sentinez/sentinez/pkg/core/httpx/h1"
+	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )

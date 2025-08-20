@@ -40,7 +40,7 @@ var (
 
 // flags global variable
 var flags = &common.Flag{
-	Name:      "sntz.Server.default",
+	Name:      "sntz.server.default",
 	Mode:      "dev",
 	LogLevel:  "debug",
 	ConsulUrl: "http://localhost:8500",
