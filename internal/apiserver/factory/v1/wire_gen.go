@@ -7,7 +7,7 @@
 package factory
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/handler"

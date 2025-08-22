@@ -26,7 +26,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	"github.com/sentinez/sentinez/rules/ruleparser"
 	templatez "github.com/sentinez/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"

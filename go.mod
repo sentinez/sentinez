@@ -1,6 +1,6 @@
 module github.com/sentinez/sentinez
 
-go 1.24.2
+go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ./api
@@ -8,9 +8,9 @@ replace (
 )
 
 require (
+	buf.build/go/protovalidate v0.14.0
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/a-h/templ v0.3.906
-	github.com/bufbuild/protovalidate-go v0.10.1
+	github.com/a-h/templ v0.3.943
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
 	github.com/hashicorp/consul/api v1.32.1
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/jmoiron/sqlx v1.4.0
@@ -27,18 +27,18 @@ require (
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/rules v0.0.0
 	github.com/sony/gobreaker v1.0.0
-	github.com/spf13/pflag v1.0.6
-	github.com/valyala/fasthttp v1.63.0
+	github.com/spf13/pflag v1.0.7
+	github.com/valyala/fasthttp v1.65.0
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
-	google.golang.org/grpc v1.74.2
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/grpc v1.75.0
+	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.6-20250625184727-c923a0c2a132.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1 // indirect
 	cel.dev/expr v0.24.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
@@ -46,7 +46,7 @@ require (
 	github.com/corazawaf/libinjection-go v0.2.2 // indirect
 	github.com/fasthttp/websocket v1.5.12 // indirect
 	github.com/fatih/color v1.18.0 // indirect
-	github.com/google/cel-go v0.25.0 // indirect
+	github.com/google/cel-go v0.26.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
@@ -69,6 +69,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/petar-dambovaliev/aho-corasick v0.0.0-20250424160509-463d218d4745 // indirect
+	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20250408102913-196191ec6287 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
@@ -78,16 +79,15 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/valllabh/ocsf-schema-golang v1.0.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
+	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )

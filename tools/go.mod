@@ -1,6 +1,6 @@
 module github.com/sentinez/sentinez/tools
 
-go 1.24.2
+go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ../api
@@ -10,7 +10,6 @@ replace (
 require (
 	github.com/bufbuild/buf v1.50.1
 	github.com/codesenberg/bombardier v1.2.6
-	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/golangci/golangci-lint v1.64.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
@@ -208,6 +207,7 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
+	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
 	github.com/prometheus/client_golang v1.19.1 // indirect

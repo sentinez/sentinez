@@ -39,8 +39,16 @@ ruleparser-sentinez \
     -file resources/waf/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
+    -out rules/gen \
+    -file resources/waf/rules/REQUEST-901-INITIALIZATION.conf
+
+ruleparser-sentinez \
     -out rules/gen/v4-16-0 \
     -file resources/waf/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+
+ruleparser-sentinez \
+    -out rules/gen \
+    -file resources/waf/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out rules/gen \

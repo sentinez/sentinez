@@ -20,8 +20,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"google.golang.org/protobuf/proto"
@@ -40,7 +39,7 @@ var (
 
 // flags global variable
 var flags = &common.Flag{
-	Name:      "sntz.Server.default",
+	Name:      "sntz.server.default",
 	Mode:      "dev",
 	LogLevel:  "debug",
 	ConsulUrl: "http://localhost:8500",
@@ -72,11 +71,11 @@ func Parse() *common.Flag {
 }
 
 // SetConsole set default flag values
-func SetConsole(content string, name names.Namespace, mode string) {
-	flags.Name = name.String()
-	flags.Mode = mode
-	asciiConsole = content
-}
+// func SetConsole(content string, name names.Namespace, mode string) {
+// 	flags.Name = name.String()
+// 	flags.Mode = mode
+// 	asciiConsole = content
+// }
 
 // Validate used to validate flags
 func Validate(flag proto.Message) error {

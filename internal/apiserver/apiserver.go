@@ -18,12 +18,10 @@ package apiserver
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -106,15 +104,11 @@ func (srv *Server) visit(ctx context.Context,
 
 // Start the apiserver/gateway app
 func (srv *Server) Start(_ context.Context) error {
-	// service ascii art banner
-	version.ASCII("SENTINEZ // API SERVER", names.APIServer.String())
 	if err := protobuf.Validate(srv.config); err != nil {
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	// log info in console and return register error if they exist
-	zlog.Infof("[http] starting server %s", srv.flag.GetAddress())
 	return srv.server.Listen(srv.flag.GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")

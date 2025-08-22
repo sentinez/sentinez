@@ -1,0 +1,55 @@
+// Copyright 2025 Sentinez Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package secure
+
+import (
+	"os"
+	"sync"
+
+	"github.com/corazawaf/coraza/v3"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
+	secrule "github.com/sentinez/sentinez/rules"
+)
+
+var (
+	waf  coraza.WAF
+	lock sync.Mutex
+)
+
+func NewFireWall(ruleBasePath string) coraza.WAF {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if waf == nil {
+		var err error
+
+		rootFS := os.DirFS(ruleBasePath)
+		conf := coraza.NewWAFConfig().
+			WithRootFS(rootFS).
+			WithDirectives(secrule.Load())
+
+		waf, err = coraza.NewWAF(conf)
+		if err != nil {
+			zlog.Errorf("failed to create WAF: %v", err)
+			return nil
+		}
+
+		if waf != nil {
+			zlog.Info("[secure] WAF initialized successfully")
+		}
+	}
+
+	return waf
+}

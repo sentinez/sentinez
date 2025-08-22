@@ -24,7 +24,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
 
 	"github.com/sentinez/sentinez/pkg/infra/database"

@@ -19,10 +19,8 @@ import (
 	"context"
 
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/core/wsz"
-	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -47,7 +45,6 @@ func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
 
-	version.ASCII("SENTINEZ // WEB SOCKET", names.WebSocket.String())
 	zlog.Infof("[http] starting server %s", ":7778")
 
 	return w.core.ListenAndServe(":7778")

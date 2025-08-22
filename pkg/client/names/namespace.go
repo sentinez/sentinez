@@ -24,7 +24,7 @@ func (ns Namespace) String() string {
 
 const (
 	// APIServer names info
-	APIServer Namespace = "sentinez.apiserver"
+	APIServer Namespace = "sentinez.apiserver.v1"
 
 	// WebSocket names info
 	WebSocket Namespace = "sentinez.websocket"

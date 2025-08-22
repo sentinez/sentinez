@@ -18,10 +18,8 @@ package apps
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/spf13/pflag"
 )
 
@@ -37,11 +35,6 @@ var apiServerFlags = &common.FlagAPIServer{
 // ParseFlag flag args for apiserver service
 func ParseFlag() *common.FlagAPIServer {
 	onceAPIServer.Do(func() {
-		console := version.FigureGen(
-			"SENTINEZ // API SERVER", names.APIServer.String())
-
-		flags.SetConsole(console, names.APIServer, "dev")
-
 		pflag.StringVarP(&apiServerFlags.Address, "address", "a",
 			apiServerFlags.GetAddress(), "host address")
 

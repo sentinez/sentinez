@@ -18,13 +18,11 @@ package edge
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/pkg/client/names"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -45,6 +43,8 @@ func New(server httpxf1.Server,
 		core:   server,
 		flag:   flag,
 		config: conf,
+		logger: zlog.NewJSON(edge.Metadata_edge.GetServiceKind(),
+			zlog.LevelWarning),
 	}
 }
 
@@ -55,6 +55,7 @@ type Server struct {
 	core   httpxf1.Server
 	config *edgeyaml.Config
 	flag   *common.FlagEdge
+	logger zlog.Logger
 }
 
 // Shutdown implements v1.Server.
@@ -71,17 +72,10 @@ func (s *Server) Start(_ context.Context) error {
 //
 //nolint:funlen
 func (s *Server) Serve(addr string) error {
-	version.ASCII("SENTINEZ // EDGE", names.EdgeV1.String())
-
 	if err := s.bootloader(context.Background()); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}
-
-	zlog.Infof("%s engine boost on: %s",
-		color.Blue.Add("[fasthttp]"),
-		color.Magenta.Add(s.flag.GetAddress()),
-	)
 
 	return s.core.ListenAndServe(addr)
 }

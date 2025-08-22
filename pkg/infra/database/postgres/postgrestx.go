@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"google.golang.org/protobuf/proto"
 )

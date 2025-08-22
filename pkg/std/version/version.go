@@ -41,9 +41,9 @@ var (
 	Code = "SNTZ"
 )
 
-// ASCII prints the ASCII art of the project.
-func ASCII(header string, footer string) {
-	fmt.Print(FigureGen(header, footer))
+func INFO(serviceName string, key string) {
+	service := strings.Replace(serviceName, "_", " // ", 1)
+	fmt.Print(FigureGen(service, key))
 }
 
 // FigureGen generates the ASCII art of the project.

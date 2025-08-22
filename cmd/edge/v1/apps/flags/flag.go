@@ -18,10 +18,8 @@ package edgeflags
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/version"
 
 	"github.com/spf13/pflag"
 )
@@ -38,8 +36,6 @@ var edgeFlags = &common.FlagEdge{
 // ParseFlag flag args for grpc service
 func ParseFlag() *common.FlagEdge {
 	onceEdge.Do(func() {
-		version.ASCII("SENTINEZ // EDGE", names.EdgeV1.String())
-
 		pflag.StringVarP(&edgeFlags.Address, "address", "a",
 			edgeFlags.GetAddress(), "address listen on")
 

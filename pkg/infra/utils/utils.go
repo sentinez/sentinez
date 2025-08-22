@@ -21,7 +21,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
 // NewPgxPool create new pool connection for multiple query

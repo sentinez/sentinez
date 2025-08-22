@@ -35,3 +35,5 @@ go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@lat
 
 # Wire dependency injection
 go install github.com/google/wire/cmd/wire@latest
+
+go install github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto@latest

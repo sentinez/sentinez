@@ -23,7 +23,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
 	syncx "github.com/sentinez/sentinez/pkg/common/sync"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/httpx/f1"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )

@@ -68,6 +68,11 @@ func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
 
 // Run the app with the given context.
 func (s *sentinez[srv]) Run(ctx context.Context) error {
+	if err := flags.Validate(flags.Parse()); err != nil {
+		zlog.Error(err)
+		return err
+	}
+
 	err := make(chan error)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)

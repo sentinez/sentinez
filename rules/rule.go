@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"os"
 
-	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/waf/v1"
+	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	rules "github.com/sentinez/sentinez/rules/gen"
 	rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 )
@@ -17,7 +17,7 @@ func Load() string {
 	rulesets.Load(rules.SetupOrder)
 
 	// load rules from v4.16.0
-	rulesets.Load(rulev4160.Request901InitializationOrder)
+	rulesets.Load(rules.Request901InitializationOrder)
 
 	// load core rulesets
 	rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
@@ -28,7 +28,7 @@ func Load() string {
 	rulesets.Load(rules.DefaultOrder)
 
 	// load evaluation rules
-	rulesets.Load(rulev4160.Request949BlockingEvaluationOrder)
+	rulesets.Load(rules.Request949BlockingEvaluationOrder)
 
 	return rulesets.Export()
 }
