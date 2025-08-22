@@ -18,8 +18,8 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/common/model/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"

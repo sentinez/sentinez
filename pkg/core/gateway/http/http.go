@@ -19,18 +19,22 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 )
 
 var (
 	// Ensure httpServer implements Server.
-	_ runner.Server = (*httpServer)(nil)
+	_ runner.Server = (*HTTPServer)(nil)
 
 	// Ensure httpServer implements HttpServer.
-	_ Server = (*httpServer)(nil)
+	_ Server = (*HTTPServer)(nil)
 )
 
 // Server is an interface for a http server.
@@ -44,22 +48,22 @@ type Server interface {
 }
 
 // New creates a new http server.
-func New(opts ...runtime.ServeMuxOption) Server {
-	return &httpServer{
+func New(opts ...runtime.ServeMuxOption) *HTTPServer {
+	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
 	}
 }
 
-func NewDefault() Server {
-	return &httpServer{
+func NewDefault() *HTTPServer {
+	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
 	}
 }
 
-// httpServer is a http server with http serve mux and grpc-gateway serve mux.
-type httpServer struct {
+// HTTPServer is a http server with http serve mux and grpc-gateway serve mux.
+type HTTPServer struct {
 	// grpc-gateway runtime mux
 	runtimeMux *runtime.ServeMux
 
@@ -71,17 +75,19 @@ type httpServer struct {
 
 	// http server
 	server *http.Server
+
+	Metadata *common.SentinezMetadata
 }
 
 // Start implements Server.
-func (h *httpServer) Start(ctx context.Context) error {
+func (h *HTTPServer) Start(ctx context.Context) error {
 	_ = ctx
 	return errors.ErrUnimplemented
 }
 
 // handler wraps the http handler with the middlewares. middlewares
 // will be executed in the order they are added, top to bottom.
-func (h *httpServer) handler(httpHandler http.Handler) http.Handler {
+func (h *HTTPServer) handler(httpHandler http.Handler) http.Handler {
 	for _, middleware := range h.middlewares {
 		httpHandler = middleware(httpHandler)
 	}
@@ -91,12 +97,12 @@ func (h *httpServer) handler(httpHandler http.Handler) http.Handler {
 // Use middleware for the http server. Middleware will be called
 // in the order they are added, top to bottom. the middleware will
 // be executed before the http handler.
-func (h *httpServer) Use(handler func(http.Handler) http.Handler) {
+func (h *HTTPServer) Use(handler func(http.Handler) http.Handler) {
 	h.middlewares = append(h.middlewares, handler)
 }
 
 // Listen starts the runtime mux.
-func (h *httpServer) Listen(address string) error {
+func (h *HTTPServer) Listen(address string) error {
 	if address == "" {
 		address = ":9000"
 	}
@@ -112,20 +118,25 @@ func (h *httpServer) Listen(address string) error {
 		Handler: h.handler(h.httpMux),
 	}
 
+	version.INFO(h.Metadata.GetServiceName(), h.Metadata.GetServiceKey())
+	zlog.Infof("%s >>> running on %s",
+		color.Blue.Add("http"),
+		color.Magenta.Add(address),
+	)
 	return h.server.ListenAndServe()
 }
 
 // RuntimeMux returns the underlying runtime mux.
-func (h *httpServer) RuntimeMux() *runtime.ServeMux {
+func (h *HTTPServer) RuntimeMux() *runtime.ServeMux {
 	return h.runtimeMux
 }
 
 // HTTPMux returns the underlying http mux
-func (h *httpServer) HTTPMux() *http.ServeMux {
+func (h *HTTPServer) HTTPMux() *http.ServeMux {
 	return h.httpMux
 }
 
 // Shutdown implements HttpServer.
-func (h *httpServer) Shutdown(ctx context.Context) error {
+func (h *HTTPServer) Shutdown(ctx context.Context) error {
 	return h.server.Shutdown(ctx)
 }

@@ -44,14 +44,14 @@ func beforeStart() {
 
 // runner functions called by fx.Invoke.
 // when the application starts, it will start the server
-func runner(lc fx.Lifecycle, srv Server) {
+func runner(lc fx.Lifecycle, server Server) {
 	beforeStart()
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			errChan := make(chan error, 1)
 			go func() {
-				if err := srv.Start(ctx); err != nil {
+				if err := server.Start(ctx); err != nil {
 					if errors.Is(err, errors.ErrServerClosed) {
 						log.Infof("[runner] %+v", err)
 					} else {
@@ -72,7 +72,7 @@ func runner(lc fx.Lifecycle, srv Server) {
 		},
 		OnStop: func(ctx context.Context) error {
 			_ = log.Sync()
-			return srv.Shutdown(ctx)
+			return server.Shutdown(ctx)
 		},
 	})
 }

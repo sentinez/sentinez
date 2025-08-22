@@ -15,12 +15,15 @@
 package httpxf1
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
 )
 
-var _ Server = (*server)(nil)
+var _ Server = (*HTTPServer)(nil)
 
 type Server interface {
 	httpx.Server
@@ -28,26 +31,27 @@ type Server interface {
 	Handle(fn func(ctx *Context) error)
 }
 
-// NewServer creates a new fasthttp server instance.
+// NewHTTPServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewServer() Server {
-	return &server{
+func NewHTTPServer() *HTTPServer {
+	return &HTTPServer{
 		core: &fasthttp.Server{},
 	}
 }
 
-// server implements the Server interface.
-type server struct {
-	core *fasthttp.Server
-	mdw  []func(handler fasthttp.RequestHandler) fasthttp.RequestHandler
+// HTTPServer implements the Server interface.
+type HTTPServer struct {
+	core     *fasthttp.Server
+	mdw      []func(handler fasthttp.RequestHandler) fasthttp.RequestHandler
+	Metadata *common.SentinezMetadata
 }
 
-func (s *server) Use(
+func (s *HTTPServer) Use(
 	mdw ...func(handler fasthttp.RequestHandler) fasthttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
-func (s *server) Handle(fn func(ctx *Context) error) {
+func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
 	handler := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
 		if err := fn(c); err != nil {
@@ -64,12 +68,18 @@ func (s *server) Handle(fn func(ctx *Context) error) {
 }
 
 // Shutdown implements platform.Server.
-func (s *server) Shutdown() error {
+func (s *HTTPServer) Shutdown() error {
 	return s.core.Shutdown()
 }
 
 // ListenAndServe implements platform.Server.
-func (s *server) ListenAndServe(addr string) error {
+func (s *HTTPServer) ListenAndServe(addr string) error {
+	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	zlog.Infof("%s >>> running on %s",
+		color.Blue.Add("fasthttp"),
+		color.Magenta.Add(addr),
+	)
+
 	s.core.Name = version.Name
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
 	return s.core.ListenAndServe(addr)

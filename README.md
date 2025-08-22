@@ -29,7 +29,7 @@
 How to build and run:  
 **Requirements** before build and run:
 - NodeJS 20.9.0
-- Go 1.24.2
+- Go 1.25.0
 - Protocol Buffer
 - Make (for running commands efficiently)
 

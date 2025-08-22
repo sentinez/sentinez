@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	_ "github.com/joho/godotenv/autoload" // load .env file automatically
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
 var conf *common.Config

@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/query"
 	"github.com/sentinez/sentinez/pkg/infra/table"
@@ -66,7 +66,7 @@ func New[T proto.Message](conf *common.Config, tableName string,
 		return nil, err
 	}
 
-	if table.IsValidTableName(tableName) == false {
+	if !table.IsValidTableName(tableName) {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
 	}
 

@@ -22,7 +22,7 @@ import (
 	flag "github.com/spf13/pflag"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	migratepgx "github.com/sentinez/sentinez/tools/internal/migrate/pgx"
 )
 

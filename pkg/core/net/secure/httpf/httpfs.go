@@ -71,11 +71,7 @@ func WrapHandlerWithCallback(waf coraza.WAF, next fasthttp.RequestHandler,
 	return func(ctx *fasthttp.RequestCtx) {
 		r := convertRequestContext(ctx)
 		tx := newTX(r)
-
-		var ctxClone fasthttp.RequestCtx
-		ctx.Request.CopyTo(&ctxClone.Request)
-
-		defer postProcess(&ctxClone, tx, cb)
+		defer postProcess(ctx, tx, cb)
 
 		if tx.IsRuleEngineOff() {
 			next(ctx)

@@ -1,6 +1,6 @@
 module github.com/sentinez/sentinez/tools
 
-go 1.24.2
+go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ../api
@@ -10,7 +10,6 @@ replace (
 require (
 	github.com/bufbuild/buf v1.50.1
 	github.com/codesenberg/bombardier v1.2.6
-	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/golangci/golangci-lint v1.64.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1

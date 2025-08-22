@@ -1,16 +1,20 @@
 package zlog
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
-const loggerEvent = "event"
+const (
+	loggerEvent = "event"
+	loggerKind  = "kind"
+)
 
 var _ Logger = (*logger)(nil)
 
 type Logger interface {
-	Info(msg string, event proto.Message)
+	Info(kind string, msg string, event proto.Message)
 	Debug(msg string, event proto.Message)
 	Warn(msg string, event proto.Message)
 	Error(msg string, event proto.Message)
@@ -18,8 +22,8 @@ type Logger interface {
 	Sync() error
 }
 
-func NewJSON(scope string, level Level) Logger {
-	logger := configJSONLogger(scope)
+func NewJSON(kind common.Kind, level Level) Logger {
+	logger := configJSONLogger(kind.String())
 	return createLogger(logger, ToLevel(level.String()).Int())
 }
 
@@ -49,9 +53,9 @@ func (l *logger) Error(msg string, event proto.Message) {
 }
 
 // Info implements Logger.
-func (l *logger) Info(msg string, event proto.Message) {
+func (l *logger) Info(kind string, msg string, event proto.Message) {
 	if l.V(LevelInfo.Int()) {
-		l.log.Info(msg,
+		l.log.Info(msg, zap.String(loggerKind, kind),
 			zap.Object(loggerEvent, marshaler(event)))
 	}
 }

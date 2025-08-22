@@ -6,24 +6,10 @@ package example
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
 )
-
-const ASCII = `
-              _____                      
-_____________ __  /________ ______       
-__  ___/_  _ \_  __/__  __ \___  /       SENTINEZ // EXAMPLE
-_(__  ) /  __// /_  _  / / /__  /_       ------------
-/____/  \___/ \__/  /_/ /_/ _____/       example
-                                         
-`
-
-// PrintASCII the ASCII art to the console.
-func PrintASCII() {
-	fmt.Print(ASCII)
-}

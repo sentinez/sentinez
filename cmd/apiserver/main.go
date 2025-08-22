@@ -18,6 +18,7 @@ package main
 import (
 	"context"
 
+	apiserverpb "github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
@@ -53,7 +54,8 @@ func main() {
 	}
 
 	app := runner.New(httpgw.NewDefault).
-		Build(func(server httpgw.Server) (runner.Server, error) {
+		Build(func(server *httpgw.HTTPServer) (runner.Server, error) {
+			server.Metadata = apiserverpb.Metadata_apiserver
 			return apiserver.New(server, config.Default(), apps.ParseFlag())
 		})
 

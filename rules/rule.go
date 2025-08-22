@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"os"
 
-	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/net/waf/v1"
+	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	rules "github.com/sentinez/sentinez/rules/gen"
 	rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 )

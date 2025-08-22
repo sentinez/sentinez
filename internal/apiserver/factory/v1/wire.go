@@ -19,7 +19,7 @@ package factory
 
 import (
 	"github.com/google/wire"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 
 	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"

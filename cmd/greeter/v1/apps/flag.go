@@ -18,9 +18,7 @@ package apps
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/client/names"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/spf13/pflag"
 )
@@ -35,8 +33,6 @@ var grpcServiceFlags = &common.FlagGRPCService{
 // ParseFlag flag args for grpc service
 func ParseFlag() *common.FlagGRPCService {
 	onceGRPCService.Do(func() {
-		flags.SetConsole(greeter.ASCII, names.GreeterV1, "dev")
-
 		pflag.StringVarP(&grpcServiceFlags.Address, "address", "a",
 			grpcServiceFlags.GetAddress(), "host address")
 

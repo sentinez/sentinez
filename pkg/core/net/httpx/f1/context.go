@@ -41,19 +41,19 @@ func (c *Context) Path() string {
 }
 
 func (c *Context) String(statusCode int, body string) error {
-	c.RequestCtx.SetContentType("text/plain; charset=utf-8")
-	c.RequestCtx.SetStatusCode(statusCode)
+	c.SetContentType("text/plain; charset=utf-8")
+	c.SetStatusCode(statusCode)
 
-	_, err := c.RequestCtx.WriteString(body)
+	_, err := c.WriteString(body)
 
 	return err
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.RequestCtx.SetContentType("application/json")
-	c.RequestCtx.SetStatusCode(statusCode)
+	c.SetContentType("application/json")
+	c.SetStatusCode(statusCode)
 
-	_, err := c.RequestCtx.Write(body)
+	_, err := c.Write(body)
 
 	return err
 }

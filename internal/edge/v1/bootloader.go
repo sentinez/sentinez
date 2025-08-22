@@ -17,10 +17,9 @@ package edge
 import (
 	"context"
 	"strconv"
-	"time"
 
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/net/waf/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
 	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/middleware"
@@ -69,17 +68,21 @@ func (s *Server) rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
 		}
 	}
 
-	s.logger.Info("rule engine ingress matched rule", &waf.Event{
-		RuleIds:       ruleIDs,
-		Severities:    severities,
-		Messages:      msgs,
-		RequestPath:   string(ctx.RequestURI()),
-		Score:         int32(score),
-		RequestIp:     ctx.RemoteIP().String(),
-		RequestDomain: string(ctx.Host()),
-		TransactionId: tx.ID(),
-		Service:       waf.Service_SERVICE_RULESETS,
-		Action:        waf.Action_ACTION_DENY,
-		RequestTime:   time.Now().UTC().UnixMilli(),
-	})
+	s.logger.Info(
+		waf.Service_SERVICE_WAF_RULESETS.String(),
+		"rule engine ingress matched",
+		&waf.Event{
+			RuleIds:       ruleIDs,
+			Severities:    severities,
+			Messages:      msgs,
+			RequestPath:   string(ctx.RequestURI()),
+			Score:         int32(score),
+			RequestIp:     ctx.RemoteIP().String(),
+			RequestDomain: string(ctx.Host()),
+			TransactionId: tx.ID(),
+			Service:       waf.Service_SERVICE_WAF_RULESETS,
+			Action:        waf.Action_ACTION_DENY,
+			RequestTime:   ctx.Time().UnixMilli(),
+		},
+	)
 }

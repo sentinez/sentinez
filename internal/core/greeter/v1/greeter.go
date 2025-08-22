@@ -18,8 +18,8 @@ package greeter
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
@@ -64,7 +64,6 @@ type Greeter struct {
 
 // Start implements IGreeter, override runner.Server.Start
 func (g *Greeter) Start(_ context.Context) error {
-	greeter.PrintASCII()
 	if err := protobuf.Validate(g.config); err != nil {
 		return err
 	}
