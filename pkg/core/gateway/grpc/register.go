@@ -36,7 +36,7 @@ func Register(name string, flag *common.FlagGRPCService) {
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: flags.Parse().GetConsulUrl(),
+		ConsulURL: flags.Get().GetConsulUrl(),
 	})
 	portInt, _ := strconv.Atoi(port)
 	serviceID := ""

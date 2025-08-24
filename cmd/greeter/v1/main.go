@@ -18,6 +18,8 @@ package main
 import (
 	"context"
 
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -40,6 +42,7 @@ func main() {
 
 	app := runner.New(greeter.NewService).
 		Build(func(service *greeter.Service) (runner.Server, error) {
+			service.Metadata = greeterpb.Metadata_greeter
 			return greeter.New(service, config.Default(), apps.ParseFlag()), nil
 		})
 

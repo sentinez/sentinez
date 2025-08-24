@@ -50,12 +50,12 @@ type sentinez[srv any] struct {
 // Build builds the application.
 // The application is built by providing the constructors.
 func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
-	zlog.SetLogLevel(flags.Parse().GetLogLevel())
+	zlog.SetLogLevel(flags.Get().GetLogLevel())
 
 	internal.Provide(start)
 
 	// disable log: use fx.NopLogger
-	if flags.Parse().GetMode() != "dev" {
+	if flags.Get().GetMode() != "dev" {
 		return &sentinez[srv]{
 			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
 		}
@@ -68,7 +68,7 @@ func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
 
 // Run the app with the given context.
 func (s *sentinez[srv]) Run(ctx context.Context) error {
-	if err := flags.Validate(flags.Parse()); err != nil {
+	if err := flags.Validate(flags.Get()); err != nil {
 		zlog.Error(err)
 		return err
 	}

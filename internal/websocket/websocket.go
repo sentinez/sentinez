@@ -18,22 +18,24 @@ package websocket
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/core/wsz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var _ runner.Server = (*WebSocket)(nil)
 
-func New(ws *wsz.WebSocket) runner.Server {
+func New(ws *wsz.WebSocket, flags *common.FlagWS) runner.Server {
 	return &WebSocket{
 		core: ws,
+		flag: flags,
 	}
 }
 
 type WebSocket struct {
 	core *wsz.WebSocket
+	flag *common.FlagWS
 }
 
 func (w *WebSocket) router() {
@@ -44,10 +46,7 @@ func (w *WebSocket) router() {
 func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
-
-	zlog.Infof("[http] starting server %s", ":7778")
-
-	return w.core.ListenAndServe(":7778")
+	return w.core.ListenAndServe(w.flag.GetAddress())
 }
 
 // Shutdown implements runner.Server.

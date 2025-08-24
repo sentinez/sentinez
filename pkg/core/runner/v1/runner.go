@@ -66,7 +66,7 @@ func runner(lc fx.Lifecycle, server Server) {
 			case err := <-errChan:
 				return err
 			case <-time.After(timeout):
-				return protobuf.Validate(flags.Parse())
+				return protobuf.Validate(flags.Get())
 			}
 
 		},

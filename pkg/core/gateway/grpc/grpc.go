@@ -18,9 +18,13 @@ package grpcgw
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
 )
@@ -49,7 +53,8 @@ type ServiceServer interface {
 //		srv    greeter.GreeterServiceServer
 //	}
 type Server struct {
-	server *grpc.Server
+	server   *grpc.Server
+	Metadata *common.SentinezMetadata
 }
 
 // Start implements Server.
@@ -78,6 +83,11 @@ func (s *Server) Serve(addr string) error {
 		return err
 	}
 
+	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	zlog.Infof("%s >>> running on %s",
+		color.Blue.Add("gRPC"),
+		color.Magenta.Add(addr),
+	)
 	return s.AsServer().Serve(listener)
 }
 

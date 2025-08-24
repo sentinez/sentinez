@@ -18,6 +18,7 @@ package flags
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
@@ -30,11 +31,7 @@ import (
 
 var (
 	once sync.Once
-)
-
-var (
-	// ascii art use in console with --help option
-	asciiConsole = version.FigureGen("SENTINEZ // CONSOLE", "sentinez.console")
+	mu   sync.Mutex
 )
 
 // flags global variable
@@ -45,9 +42,15 @@ var flags = &common.Flag{
 	ConsulUrl: "http://localhost:8500",
 }
 
+func info(meta *common.SentinezMetadata) string {
+	service := strings.Replace(meta.ServiceName, "_", " // ", 1)
+	return version.FigureGen(service, meta.ServiceKey)
+}
+
 // Parse flag args
-func Parse() *common.Flag {
+func Parse(meta *common.SentinezMetadata) {
 	once.Do(func() {
+
 		pflag.StringVarP(&flags.Mode, "mode", "m",
 			flags.GetMode(), "run mode (dev|prod|sandbox)")
 
@@ -58,7 +61,7 @@ func Parse() *common.Flag {
 			flags.GetConsulUrl(), "consul url")
 
 		pflag.Usage = func() {
-			fmt.Print(asciiConsole)
+			fmt.Print(info(meta))
 			fmt.Println("Usage: <service> [Flags]")
 			pflag.PrintDefaults()
 			os.Exit(0)
@@ -66,7 +69,9 @@ func Parse() *common.Flag {
 
 		pflag.Parse()
 	})
+}
 
+func Get() *common.Flag {
 	return flags
 }
 
@@ -80,7 +85,6 @@ func Parse() *common.Flag {
 // Validate used to validate flags
 func Validate(flag proto.Message) error {
 	if err := protobuf.Validate(flag); err != nil {
-		fmt.Print(asciiConsole)
 		return err
 	}
 

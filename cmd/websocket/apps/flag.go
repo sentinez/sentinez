@@ -18,30 +18,27 @@ package apps
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/spf13/pflag"
 )
 
-var onceGRPCService sync.Once
+var onceWS sync.Once
 
-var grpcServiceFlags = &common.FlagGRPCService{
-	GatewayAddress: "http://0.0.0.0:9000",
-	Address:        "127.0.0.1:0",
+// apiServerFlags global variable
+var apiServerFlags = &common.FlagWS{
+	Address: ":7778",
 }
 
-// ParseFlag flag args for grpc service
-func ParseFlag() *common.FlagGRPCService {
-	onceGRPCService.Do(func() {
-		pflag.StringVarP(&grpcServiceFlags.Address, "address", "a",
-			grpcServiceFlags.GetAddress(), "host address")
-
-		pflag.StringVar(&grpcServiceFlags.GatewayAddress, "gateway-address",
-			grpcServiceFlags.GetGatewayAddress(), "gateway address")
+// ParseFlag flag args for apiserver service
+func ParseFlag() *common.FlagWS {
+	onceWS.Do(func() {
+		pflag.StringVarP(&apiServerFlags.Address, "address", "a",
+			apiServerFlags.GetAddress(), "host address")
 	})
 
-	flags.Parse(greeter.Metadata_greeter)
+	flags.Parse(ws.Metadata_ws)
 
-	return grpcServiceFlags
+	return apiServerFlags
 }

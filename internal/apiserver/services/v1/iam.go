@@ -53,7 +53,7 @@ func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: flags.Parse().GetConsulUrl(),
+		ConsulURL: flags.Get().GetConsulUrl(),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {

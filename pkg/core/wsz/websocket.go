@@ -15,8 +15,12 @@
 package wsz
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/sync"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
+	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func New() *WebSocket {
@@ -26,7 +30,8 @@ func New() *WebSocket {
 }
 
 type WebSocket struct {
-	routers sync.Map[string, func(httpx1.Context) error]
+	routers  sync.Map[string, func(httpx1.Context) error]
+	Metadata *common.SentinezMetadata
 }
 
 func (ws *WebSocket) HandlerFunc(
@@ -48,6 +53,12 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 		})
 
 	ws.routers.Clear()
+
+	version.INFO(ws.Metadata.GetServiceName(), ws.Metadata.GetServiceKey())
+	zlog.Infof("%s >>> running on %s",
+		color.Blue.Add("ws"),
+		color.Magenta.Add(addr),
+	)
 
 	return httpx1.ListenAndServe(addr)
 }

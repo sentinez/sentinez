@@ -25,7 +25,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // make sure Greeter implement runner.Server
@@ -69,7 +68,6 @@ func (g *Greeter) Start(_ context.Context) error {
 	}
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
-	zlog.Debugf("greeter service started on %s", g.flag.GetAddress())
 
 	go grpcgw.Register(names.GreeterV1.String(), g.flag)
 	return g.Serve(g.flag.GetAddress())
