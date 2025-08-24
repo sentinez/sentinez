@@ -35,6 +35,12 @@ message FlagAPIServer {
   }];
 }
 
+message FlagWS {
+  string address = 1 [(buf.validate.field).string = {
+    pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
+  }];
+}
+
 message FlagGRPCService {
   string gateway_address = 1;
   string address = 2 [(buf.validate.field).string.host_and_port = true];

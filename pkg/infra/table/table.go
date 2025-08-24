@@ -23,7 +23,7 @@ import (
 )
 
 func NewTable(tableName string) string {
-	tableName = fmt.Sprintf("%s.sentinez.%s", flags.Parse().Mode, tableName)
+	tableName = fmt.Sprintf("%s.sentinez.%s", flags.Get().GetMode(), tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 

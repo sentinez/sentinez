@@ -17,10 +17,14 @@ package httpx1
 import (
 	"net/http"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var _ Server = (*server)(nil)
+var _ Server = (*HTTPServer)(nil)
 
 type Server interface {
 	httpx.Server
@@ -29,14 +33,15 @@ type Server interface {
 }
 
 func NewServer() Server {
-	return &server{}
+	return &HTTPServer{}
 }
 
-type server struct {
-	mdw []func(http.Handler) http.Handler
+type HTTPServer struct {
+	mdw      []func(http.Handler) http.Handler
+	Metadata *common.SentinezMetadata
 }
 
-func (s *server) uses(h http.Handler,
+func (s *HTTPServer) uses(h http.Handler,
 	middlewares ...func(http.Handler) http.Handler) http.Handler {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		h = middlewares[i](h)
@@ -44,18 +49,24 @@ func (s *server) uses(h http.Handler,
 	return h
 }
 
-func (s *server) Use(mdw ...func(http.Handler) http.Handler) {
+func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
-func (s *server) Handle(fn func(ctx Context) error) {
+func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 	http.Handle("/", s.uses(http.HandlerFunc(Convert(fn)), s.mdw...))
 }
 
-func (s *server) ListenAndServe(addr string) error {
+func (s *HTTPServer) ListenAndServe(addr string) error {
+	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	zlog.Infof("%s >>> running on %s",
+		color.Blue.Add("http"),
+		color.Magenta.Add(addr),
+	)
+
 	return http.ListenAndServe(addr, nil)
 }
 
-func (s *server) Shutdown() error {
+func (s *HTTPServer) Shutdown() error {
 	return Shutdown()
 }

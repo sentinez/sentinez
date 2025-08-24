@@ -18,6 +18,7 @@ package apps
 import (
 	"sync"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/spf13/pflag"
@@ -45,7 +46,7 @@ func ParseFlag() *common.FlagAPIServer {
 			apiServerFlags.GetSwaggerPath(), "swagger ui path")
 	})
 
-	_ = flags.Parse()
+	flags.Parse(apiserver.Metadata_apiserver)
 
 	return apiServerFlags
 }

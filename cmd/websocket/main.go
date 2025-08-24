@@ -17,16 +17,24 @@ package main
 import (
 	"context"
 
+	wspb "github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
+	"github.com/sentinez/sentinez/cmd/websocket/apps"
 	"github.com/sentinez/sentinez/internal/websocket"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	wscore "github.com/sentinez/sentinez/pkg/core/wsz"
+	"github.com/sentinez/sentinez/pkg/std/flags"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func main() {
+	if err := flags.Validate(apps.ParseFlag()); err != nil {
+		zlog.Fatal(err)
+	}
 
 	app := runner.New(wscore.New).
 		Build(func(ws *wscore.WebSocket) (runner.Server, error) {
-			return websocket.New(ws), nil
+			ws.Metadata = wspb.Metadata_ws
+			return websocket.New(ws, apps.ParseFlag()), nil
 		})
 
 	_ = app.Run(context.Background())

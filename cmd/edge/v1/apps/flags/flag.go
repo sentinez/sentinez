@@ -18,6 +18,7 @@ package edgeflags
 import (
 	"sync"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 
@@ -42,14 +43,14 @@ func ParseFlag() *common.FlagEdge {
 		pflag.StringVar(&edgeFlags.Host, "host",
 			edgeFlags.GetHost(), "base hostname")
 
-		pflag.StringVar(&edgeFlags.RulePath, "rule_path",
+		pflag.StringVar(&edgeFlags.RulePath, "rule-path",
 			edgeFlags.GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&edgeFlags.ProxyConfig, "proxy_config",
+		pflag.StringVar(&edgeFlags.ProxyConfig, "proxy-config",
 			edgeFlags.GetProxyConfig(), "origin config yaml configuration")
 	})
 
-	_ = flags.Parse()
+	flags.Parse(edge.Metadata_edge)
 
 	return edgeFlags
 }
