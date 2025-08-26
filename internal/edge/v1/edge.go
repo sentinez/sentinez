@@ -43,8 +43,11 @@ func New(server httpxf1.Server,
 		core:   server,
 		flag:   flag,
 		config: conf,
-		logger: zlog.NewJSON(edge.Metadata_edge.GetServiceKind(),
-			zlog.LevelWarning),
+		logger: zlog.NewLoggingJSON(
+			edge.Metadata_edge.ServiceKey,
+			common.LogKind_LOG_KIND_WAF,
+			zlog.LevelWarning,
+		),
 	}
 }
 

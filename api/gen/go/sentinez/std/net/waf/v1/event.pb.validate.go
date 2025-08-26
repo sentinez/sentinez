@@ -56,6 +56,8 @@ func (m *Event) Validate() error {
 
 	// no validation rules for Action
 
+	// no validation rules for ReqIdRef
+
 	return nil
 }
 

@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-syntax = "proto3";
+package memory
 
-package sentinez.std.common.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
+import (
+	"fmt"
+	"runtime"
+)
 
-enum LogKind {
-  LOG_KIND_UNSPECIFIED = 0;
-  LOG_KIND_HTTP = 1;
-  LOG_KIND_WAF = 2;
+func PrintUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("[SNTZ] Alloc = %v KB\n", m.Alloc/1024)
+	fmt.Printf("[SNTZ] TotalAlloc = %v KB\n", m.TotalAlloc/1024)
+	fmt.Printf("[SNTZ] Sys = %v KB\n", m.Sys/1024)
+	fmt.Printf("[SNTZ] NumGC = %v\n", m.NumGC)
 }

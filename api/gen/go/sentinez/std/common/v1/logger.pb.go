@@ -34,39 +34,52 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Logger struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
+type LogKind int32
 
-func (x *Logger) Reset() {
-	*x = Logger{}
-	mi := &file_sentinez_std_common_v1_logger_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
+const (
+	LogKind_LOG_KIND_UNSPECIFIED LogKind = 0
+	LogKind_LOG_KIND_HTTP        LogKind = 1
+	LogKind_LOG_KIND_WAF         LogKind = 2
+)
 
-func (x *Logger) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Logger) ProtoMessage() {}
-
-func (x *Logger) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_std_common_v1_logger_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+// Enum value maps for LogKind.
+var (
+	LogKind_name = map[int32]string{
+		0: "LOG_KIND_UNSPECIFIED",
+		1: "LOG_KIND_HTTP",
+		2: "LOG_KIND_WAF",
 	}
-	return mi.MessageOf(x)
+	LogKind_value = map[string]int32{
+		"LOG_KIND_UNSPECIFIED": 0,
+		"LOG_KIND_HTTP":        1,
+		"LOG_KIND_WAF":         2,
+	}
+)
+
+func (x LogKind) Enum() *LogKind {
+	p := new(LogKind)
+	*p = x
+	return p
 }
 
-// Deprecated: Use Logger.ProtoReflect.Descriptor instead.
-func (*Logger) Descriptor() ([]byte, []int) {
+func (x LogKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LogKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_std_common_v1_logger_proto_enumTypes[0].Descriptor()
+}
+
+func (LogKind) Type() protoreflect.EnumType {
+	return &file_sentinez_std_common_v1_logger_proto_enumTypes[0]
+}
+
+func (x LogKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LogKind.Descriptor instead.
+func (LogKind) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_std_common_v1_logger_proto_rawDescGZIP(), []int{0}
 }
 
@@ -76,8 +89,12 @@ var file_sentinez_std_common_v1_logger_proto_rawDesc = []byte{
 	0x0a, 0x23, 0x73, 0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x7a, 0x2f, 0x73, 0x74, 0x64, 0x2f, 0x63,
 	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x6c, 0x6f, 0x67, 0x67, 0x65, 0x72, 0x2e,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x16, 0x73, 0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x7a, 0x2e,
-	0x73, 0x74, 0x64, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x22, 0x08, 0x0a,
-	0x06, 0x4c, 0x6f, 0x67, 0x67, 0x65, 0x72, 0x42, 0x47, 0x5a, 0x45, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x73, 0x74, 0x64, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2a, 0x48, 0x0a,
+	0x07, 0x4c, 0x6f, 0x67, 0x4b, 0x69, 0x6e, 0x64, 0x12, 0x18, 0x0a, 0x14, 0x4c, 0x4f, 0x47, 0x5f,
+	0x4b, 0x49, 0x4e, 0x44, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44,
+	0x10, 0x00, 0x12, 0x11, 0x0a, 0x0d, 0x4c, 0x4f, 0x47, 0x5f, 0x4b, 0x49, 0x4e, 0x44, 0x5f, 0x48,
+	0x54, 0x54, 0x50, 0x10, 0x01, 0x12, 0x10, 0x0a, 0x0c, 0x4c, 0x4f, 0x47, 0x5f, 0x4b, 0x49, 0x4e,
+	0x44, 0x5f, 0x57, 0x41, 0x46, 0x10, 0x02, 0x42, 0x47, 0x5a, 0x45, 0x67, 0x69, 0x74, 0x68, 0x75,
 	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x7a, 0x2f, 0x73,
 	0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x7a, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x67, 0x65, 0x6e, 0x2f,
 	0x67, 0x6f, 0x2f, 0x73, 0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x7a, 0x2f, 0x73, 0x74, 0x64, 0x2f,
@@ -97,9 +114,9 @@ func file_sentinez_std_common_v1_logger_proto_rawDescGZIP() []byte {
 	return file_sentinez_std_common_v1_logger_proto_rawDescData
 }
 
-var file_sentinez_std_common_v1_logger_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_std_common_v1_logger_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_sentinez_std_common_v1_logger_proto_goTypes = []any{
-	(*Logger)(nil), // 0: sentinez.std.common.v1.Logger
+	(LogKind)(0), // 0: sentinez.std.common.v1.LogKind
 }
 var file_sentinez_std_common_v1_logger_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -119,14 +136,14 @@ func file_sentinez_std_common_v1_logger_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_sentinez_std_common_v1_logger_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   1,
+			NumEnums:      1,
+			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_std_common_v1_logger_proto_goTypes,
 		DependencyIndexes: file_sentinez_std_common_v1_logger_proto_depIdxs,
-		MessageInfos:      file_sentinez_std_common_v1_logger_proto_msgTypes,
+		EnumInfos:         file_sentinez_std_common_v1_logger_proto_enumTypes,
 	}.Build()
 	File_sentinez_std_common_v1_logger_proto = out.File
 	file_sentinez_std_common_v1_logger_proto_rawDesc = nil

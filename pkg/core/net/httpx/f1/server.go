@@ -52,8 +52,10 @@ func (s *HTTPServer) Use(
 }
 
 func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
+
 	handler := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
+
 		if err := fn(c); err != nil {
 			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		}
@@ -64,7 +66,7 @@ func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
 		handler = s.mdw[i](handler)
 	}
 
-	s.core.Handler = handler
+	s.core.Handler = wrapHandler(handler)
 }
 
 // Shutdown implements platform.Server.

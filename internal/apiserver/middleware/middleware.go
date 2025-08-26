@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"strings"
 
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
@@ -31,6 +32,7 @@ import (
 // LogRequestBody logs the request body when the response status code is not 200
 // This addresses the issue of being unable to retrieve the request body in the
 // customErrorHandler middleware.
+// nolint:funlen
 func LogRequestBody(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		lw := newLogResponseWriter(w)
@@ -54,6 +56,18 @@ func LogRequestBody(h http.Handler) http.Handler {
 				color.Status(lw.statusCode),
 				string(body))
 		}
+
+		lw.Logger.Info("allow http request", &httppb.Log4HTTP{
+			ReqScheme:     r.URL.Scheme,
+			ReqHost:       r.URL.Host,
+			ReqPath:       r.URL.Path,
+			ReqMethod:     r.Method,
+			RespStatus:    int32(lw.statusCode),
+			ReqRemoteAddr: r.RemoteAddr,
+			ReqProtocol:   r.Proto,
+			ReqQuery:      r.URL.RawQuery,
+			UserAgent:     r.UserAgent(),
+		})
 	})
 }
 

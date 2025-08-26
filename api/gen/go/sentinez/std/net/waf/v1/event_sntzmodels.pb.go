@@ -26,4 +26,5 @@ const (
 	EventFieldRequestTime   = "requestTime"
 	EventFieldService       = "service"
 	EventFieldAction        = "action"
+	EventFieldReqIdRef      = "reqIdRef"
 )

@@ -86,6 +86,11 @@ func (s *sentinez[srv]) Run(ctx context.Context) error {
 	// fork the goroutine 2 for stop the app
 	go s.onStop(ctx, sig, err)
 
+	// show memory usage
+	// if flags.Get().LogLevel == zlog.LevelDebug.String() {
+	// 	time.AfterFunc(1*time.Second, memory.PrintUsage)
+	// }
+
 	// wait for the error from the goroutine 1 or 2, end the app
 	return <-err
 }

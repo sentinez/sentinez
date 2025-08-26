@@ -21,8 +21,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// Generate generates a new UUID and returns it as a string.
-func Generate(prefix string) string {
+// NewID generates a new UUID and returns it as a string.
+func NewID(prefix string) string {
 	id := uuid.New()
 	return fmt.Sprintf("%s%s", prefix, id.String())
+}
+
+func NewHex(prefix string) string {
+	id := uuid.New()
+	return fmt.Sprintf("%s%d", prefix, id.ID())
 }

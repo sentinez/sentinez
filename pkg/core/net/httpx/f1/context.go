@@ -16,9 +16,12 @@
 package httpxf1
 
 import (
+	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/valyala/fasthttp"
 )
+
+const userValueKey = "sntz_request_hex"
 
 // NewContext creates a new FastHTTP context.
 // It implements the Context interface.
@@ -56,4 +59,18 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 	_, err := c.Write(body)
 
 	return err
+}
+
+func identifier(ctx *fasthttp.RequestCtx) {
+	id := uuid.NewHex("SNTZ-REQ-")
+	ctx.SetUserValue(userValueKey, id)
+}
+
+func Identify(ctx *fasthttp.RequestCtx) string {
+	res, ok := ctx.UserValue(userValueKey).(string)
+	if !ok {
+		return ""
+	}
+
+	return res
 }

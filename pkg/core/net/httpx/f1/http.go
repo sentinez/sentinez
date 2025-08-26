@@ -80,3 +80,10 @@ func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
 
 	return r
 }
+
+func wrapHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		identifier(ctx)
+		next(ctx)
+	}
+}
