@@ -16,6 +16,7 @@ package secure
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -23,19 +24,25 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/middleware"
+	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
 )
 
-var logger zlog.Logger
+var (
+	logger zlog.Logger
+	cached *mem.Cache[[]byte]
+)
 
-func WAF(rulePath string,
+func NewWAF(rulePath string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
 	logger = zlog.NewLoggingJSON(
 		edge.Metadata_edge.ServiceKey,
 		common.LogKind_LOG_KIND_WAF,
 		zlog.LevelInfo,
 	)
+
+	cached = mem.New[[]byte](time.Second*30, time.Second*31)
 
 	protected := httpxf1mdw.ProtectedWithCallback(rulePath, rulesCallback)
 	return protected
@@ -44,6 +51,17 @@ func WAF(rulePath string,
 // nolint:funlen
 func rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
 	if !tx.IsInterrupted() {
+		return
+	}
+
+	if data, ok := cached.Get(httpxf1.GenerateContextKey(ctx)); ok {
+		var event waf.Event
+		if err := event.UnmarshalVT(data); err != nil {
+			return
+		}
+
+		event.RequestTime = ctx.Time().UnixMilli()
+		logger.Info("cache hit: rule engine ingress matched", &event)
 		return
 	}
 
@@ -70,18 +88,23 @@ func rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
 		}
 	}
 
-	logger.Info("rule engine ingress matched", &waf.Event{
+	event := &waf.Event{
 		RuleIds:       ruleIDs,
 		Severities:    severities,
 		Messages:      msgs,
-		RequestPath:   string(ctx.RequestURI()),
+		Path:          string(ctx.RequestURI()),
 		Score:         int32(score),
-		RequestIp:     ctx.RemoteIP().String(),
+		Ip:            ctx.RemoteIP().String(),
 		RequestDomain: string(ctx.Host()),
 		TransactionId: tx.ID(),
 		Service:       waf.Service_SERVICE_WAF_RULESETS,
 		Action:        waf.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
-		ReqIdRef:      httpxf1.Identify(ctx),
-	})
+		HttpReqId:     httpxf1.Identify(ctx),
+		ContentType:   string(ctx.Request.Header.ContentType()),
+	}
+
+	logger.Info("rule engine ingress matched", event)
+	data, _ := event.MarshalVT()
+	cached.Set(httpxf1.GenerateContextKey(ctx), data)
 }

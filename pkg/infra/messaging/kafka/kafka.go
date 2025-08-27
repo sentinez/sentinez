@@ -12,22 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
-
-import (
-	"context"
-
-	"github.com/sentinez/sentinez/internal/edge/v1/logging"
-	"github.com/sentinez/sentinez/internal/edge/v1/logic"
-	"github.com/sentinez/sentinez/internal/edge/v1/routing"
-	"github.com/sentinez/sentinez/internal/edge/v1/secure"
-)
-
-func (s *Server) bootloader(_ context.Context) error {
-
-	s.core.Use(logging.Writer)                      // idx = 0
-	s.core.Use(logic.NewHost(s.flag.GetHost()))     // idx = 1
-	s.core.Use(secure.NewWAF(s.flag.GetRulePath())) // idx = 2
-
-	return routing.Serve(s.config, s.core)
-}
+package kafka

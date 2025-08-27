@@ -22,7 +22,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func Host(hostname string,
+func NewHost(hostname string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {

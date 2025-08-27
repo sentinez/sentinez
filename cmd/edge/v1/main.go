@@ -26,7 +26,17 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+
+	_ "net/http/pprof"
 )
+
+// expose pprof
+//
+// func init() {
+// 	go func() {
+// 		_ = http.ListenAndServe(":6060", nil)
+// 	}()
+// }
 
 func loadYaml(confPath string) *edgeyaml.Config {
 	return edgeyaml.LoadRoutesFromYAML(confPath)

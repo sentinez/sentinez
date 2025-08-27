@@ -48,10 +48,17 @@ func (m *Event) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.ReqIdRef) > 0 {
-		i -= len(m.ReqIdRef)
-		copy(dAtA[i:], m.ReqIdRef)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ReqIdRef)))
+	if len(m.ContentType) > 0 {
+		i -= len(m.ContentType)
+		copy(dAtA[i:], m.ContentType)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ContentType)))
+		i--
+		dAtA[i] = 0x6a
+	}
+	if len(m.HttpReqId) > 0 {
+		i -= len(m.HttpReqId)
+		copy(dAtA[i:], m.HttpReqId)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.HttpReqId)))
 		i--
 		dAtA[i] = 0x62
 	}
@@ -84,10 +91,10 @@ func (m *Event) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x3a
 	}
-	if len(m.RequestIp) > 0 {
-		i -= len(m.RequestIp)
-		copy(dAtA[i:], m.RequestIp)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestIp)))
+	if len(m.Ip) > 0 {
+		i -= len(m.Ip)
+		copy(dAtA[i:], m.Ip)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Ip)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -96,10 +103,10 @@ func (m *Event) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x28
 	}
-	if len(m.RequestPath) > 0 {
-		i -= len(m.RequestPath)
-		copy(dAtA[i:], m.RequestPath)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestPath)))
+	if len(m.Path) > 0 {
+		i -= len(m.Path)
+		copy(dAtA[i:], m.Path)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Path)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -170,14 +177,14 @@ func (m *Event) SizeVT() (n int) {
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
 	}
-	l = len(m.RequestPath)
+	l = len(m.Path)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	if m.Score != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.Score))
 	}
-	l = len(m.RequestIp)
+	l = len(m.Ip)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -198,7 +205,11 @@ func (m *Event) SizeVT() (n int) {
 	if m.Action != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.Action))
 	}
-	l = len(m.ReqIdRef)
+	l = len(m.HttpReqId)
+	if l > 0 {
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
+	l = len(m.ContentType)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -377,7 +388,7 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RequestPath", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Path", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -405,7 +416,7 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RequestPath = string(dAtA[iNdEx:postIndex])
+			m.Path = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 0 {
@@ -428,7 +439,7 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			}
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RequestIp", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Ip", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -456,7 +467,7 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RequestIp = string(dAtA[iNdEx:postIndex])
+			m.Ip = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
@@ -581,7 +592,7 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			}
 		case 12:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ReqIdRef", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field HttpReqId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -609,7 +620,39 @@ func (m *Event) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ReqIdRef = string(dAtA[iNdEx:postIndex])
+			m.HttpReqId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContentType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContentType = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

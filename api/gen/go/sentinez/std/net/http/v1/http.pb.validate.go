@@ -201,11 +201,11 @@ func (m *Log4HTTP) Validate() error {
 
 	}
 
-	// no validation rules for RespBody
-
 	// no validation rules for ReqProtocol
 
 	// no validation rules for ReqRemoteAddr
+
+	// no validation rules for RespBody
 
 	// no validation rules for RespStatus
 
@@ -216,6 +216,8 @@ func (m *Log4HTTP) Validate() error {
 	// no validation rules for Asn
 
 	// no validation rules for Country
+
+	// no validation rules for ContentType
 
 	return nil
 }

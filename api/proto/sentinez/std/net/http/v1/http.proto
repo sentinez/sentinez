@@ -34,14 +34,16 @@ message Log4HTTP {
   string req_host = 4;
   string req_path = 5;
   string req_query = 6;
-
   repeated RequestHeader req_headers = 7;
-  bytes resp_body = 8;
   string req_protocol = 9;
   string req_remote_addr = 10;
+
+  bytes resp_body = 8;
   int32 resp_status = 11;
+
   string user_agent = 12;
   string ray_id = 13;
   int64 asn = 14;
   string country = 15;
+  string content_type = 16;
 }

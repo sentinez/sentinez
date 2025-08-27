@@ -67,6 +67,7 @@ func LogRequestBody(h http.Handler) http.Handler {
 			ReqProtocol:   r.Proto,
 			ReqQuery:      r.URL.RawQuery,
 			UserAgent:     r.UserAgent(),
+			ContentType:   r.Header.Get("Content-Type"),
 		})
 	})
 }
