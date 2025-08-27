@@ -20,7 +20,6 @@ import (
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
@@ -56,7 +55,7 @@ func (t *tenant) AcceptFromEndpoint(
 	})
 
 	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(names.TenantV1)
+		srv, err := dcvr.Discover(tenantpb.Metadata_tenant.GetServiceKey())
 		if err != nil {
 			return
 		}

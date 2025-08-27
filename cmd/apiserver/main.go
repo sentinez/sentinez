@@ -55,7 +55,7 @@ func main() {
 
 	app := runner.New(httpgw.NewDefault).
 		Build(func(server *httpgw.HTTPServer) (runner.Server, error) {
-			server.Metadata = apiserverpb.Metadata_apiserver
+			server.Metadata = apiserverpb.GetMetaApiserver()
 			return apiserver.New(server, config.Default(), apps.ParseFlag())
 		})
 

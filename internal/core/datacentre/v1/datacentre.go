@@ -12,26 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
-
-import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
-)
-
-func NewIAMService(
-	opt *options.Options) (iam.IdentityAccessManagementServiceClient, error) {
-
-	srv, err := discovery.GetDiscovery(opt).Discover(iam.GetMetaIamServiceKey())
-	if err != nil {
-		return nil, err
-	}
-
-	conn, err := newConnection(srv.Address)
-	if err != nil {
-		return nil, err
-	}
-
-	return iam.NewIdentityAccessManagementServiceClient(conn), nil
-}
+package datacentre

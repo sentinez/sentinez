@@ -30,7 +30,7 @@ WORKDIR /src
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 RUN go mod tidy
-RUN go build -ldflags="-s -w" -o /bin/main ./cmd/greeter/v1
+RUN go build -ldflags="-s -w" -o /bin/main ./cmd/datacentre/v1
 
 # Remove all source code files
 RUN rm -r *

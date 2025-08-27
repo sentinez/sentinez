@@ -31,7 +31,6 @@ import (
 
 var (
 	once sync.Once
-	mu   sync.Mutex
 )
 
 // flags global variable
@@ -43,8 +42,8 @@ var flags = &common.Flag{
 }
 
 func info(meta *common.SentinezMetadata) string {
-	service := strings.Replace(meta.ServiceName, "_", " // ", 1)
-	return version.FigureGen(service, meta.ServiceKey)
+	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
+	return version.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args

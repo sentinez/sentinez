@@ -20,7 +20,6 @@ import (
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
@@ -57,7 +56,7 @@ func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 	})
 
 	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(names.IAMV1)
+		srv, err := dcvr.Discover(iampb.GetMetaIamServiceKey())
 		if err != nil {
 			return
 		}

@@ -42,7 +42,7 @@ func main() {
 
 	app := runner.New(greeter.NewService).
 		Build(func(service *greeter.Service) (runner.Server, error) {
-			service.Metadata = greeterpb.Metadata_greeter
+			service.Metadata = greeterpb.GetMetaGreeter()
 			return greeter.New(service, config.Default(), apps.ParseFlag()), nil
 		})
 

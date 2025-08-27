@@ -41,7 +41,7 @@ func ParseFlag() *common.FlagGRPCService {
 			grpcServiceFlags.GetGatewayAddress(), "gateway address")
 	})
 
-	flags.Parse(greeter.Metadata_greeter)
+	flags.Parse(greeter.GetMetaGreeter())
 
 	return grpcServiceFlags
 }

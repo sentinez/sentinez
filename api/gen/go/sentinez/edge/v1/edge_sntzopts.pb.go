@@ -7,15 +7,33 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
+	_ proto.Message
 )
 
-var Metadata_edge = &common.SentinezMetadata{
+var metadata_edge = &common.SentinezMetadata{
 	ServiceName: "SENTINEZ // EDGE",
 	ServiceKind: common.Kind_KIND_GATEWAY_EDGE,
 	ServiceKey:  "sentinez.edge.v1",
+}
+
+func GetMetaEdge() *common.SentinezMetadata {
+	return proto.Clone(metadata_edge).(*common.SentinezMetadata)
+}
+
+func GetMetaEdgeServiceName() string {
+	return metadata_edge.GetServiceName()
+}
+
+func GetMetaEdgeServiceKind() common.Kind {
+	return metadata_edge.GetServiceKind()
+}
+
+func GetMetaEdgeServiceKey() string {
+	return metadata_edge.GetServiceKey()
 }

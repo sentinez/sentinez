@@ -51,7 +51,7 @@ func main() {
 
 	app := runner.New(httpxf1.NewHTTPServer).
 		Build(func(srv *httpxf1.HTTPServer) (runner.Server, error) {
-			srv.Metadata = edgev1.Metadata_edge
+			srv.Metadata = edgev1.GetMetaEdge()
 			return edge.New(srv, edgeflags.ParseFlag(), proxyConf), nil
 		})
 

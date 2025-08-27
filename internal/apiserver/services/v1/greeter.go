@@ -21,7 +21,6 @@ import (
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
@@ -57,7 +56,7 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 	})
 
 	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(names.GreeterV1)
+		srv, err := dcvr.Discover(greeterpb.GetMetaGreeterServiceKey())
 		if err != nil {
 			return
 		}

@@ -21,7 +21,6 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -69,6 +68,6 @@ func (g *Greeter) Start(_ context.Context) error {
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	go grpcgw.Register(names.GreeterV1.String(), g.flag)
+	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.flag)
 	return g.Serve(g.flag.GetAddress())
 }

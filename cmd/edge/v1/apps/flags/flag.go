@@ -50,7 +50,7 @@ func ParseFlag() *common.FlagEdge {
 			edgeFlags.GetProxyConfig(), "origin config yaml configuration")
 	})
 
-	flags.Parse(edge.Metadata_edge)
+	flags.Parse(edge.GetMetaEdge())
 
 	return edgeFlags
 }

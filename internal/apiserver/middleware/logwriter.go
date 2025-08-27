@@ -42,7 +42,7 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
 	logger := zlog.NewLoggingJSON(
-		apiserver.Metadata_apiserver.ServiceKey,
+		apiserver.GetMetaApiserverServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
 		zlog.ToLevel(flags.Get().GetLogLevel()),
 	)

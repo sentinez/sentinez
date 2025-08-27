@@ -46,7 +46,7 @@ func ParseFlag() *common.FlagAPIServer {
 			apiServerFlags.GetSwaggerPath(), "swagger ui path")
 	})
 
-	flags.Parse(apiserver.Metadata_apiserver)
+	flags.Parse(apiserver.GetMetaApiserver())
 
 	return apiServerFlags
 }

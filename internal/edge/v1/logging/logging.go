@@ -25,18 +25,21 @@ import (
 
 func Writer(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	logger := zlog.NewLoggingJSON(
-		edge.Metadata_edge.ServiceKey,
+		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
 		zlog.LevelInfo,
 	)
 
 	return func(ctx *fasthttp.RequestCtx) {
+		requestResourceHost := string(ctx.Host())
+		zlog.Debugf("[edge]: log resource host: %s", string(ctx.Host()))
+
 		next(ctx)
 
 		logger.Info("edge http request", &http.Log4HTTP{
 			ReqId:         httpxf1.Identify(ctx),
 			ReqScheme:     string(ctx.URI().Scheme()),
-			ReqHost:       string(ctx.Host()),
+			ReqHost:       requestResourceHost,
 			ReqPath:       string(ctx.Path()),
 			ReqMethod:     string(ctx.Method()),
 			RespStatus:    int32(ctx.Response.StatusCode()),

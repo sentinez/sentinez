@@ -33,7 +33,7 @@ func main() {
 
 	app := runner.New(wscore.New).
 		Build(func(ws *wscore.WebSocket) (runner.Server, error) {
-			ws.Metadata = wspb.Metadata_ws
+			ws.Metadata = wspb.GetMetaWs()
 			return websocket.New(ws, apps.ParseFlag()), nil
 		})
 

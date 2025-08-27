@@ -12,26 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+syntax = "proto3";
 
-import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
-)
+package sentinez.core.datacentre.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/datacentre/v1;datacentre";
 
-func NewIAMService(
-	opt *options.Options) (iam.IdentityAccessManagementServiceClient, error) {
+import "sentinez/std/common/v1/options.proto";
 
-	srv, err := discovery.GetDiscovery(opt).Discover(iam.GetMetaIamServiceKey())
-	if err != nil {
-		return nil, err
-	}
+option (sentinez.std.common.v1.metadata) = {
+  service_name: "SENTINEZ // DATACENTRE",
+  service_kind: KIND_CORE,
+  service_key: "sentinez.core.datacentre.v1",
+};
 
-	conn, err := newConnection(srv.Address)
-	if err != nil {
-		return nil, err
-	}
+service DataCentreService {
+  rpc Status(StatusRequest) returns (StatusResponse) {}
+}
 
-	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+message StatusRequest {
+
+}
+
+message StatusResponse {
+  string msg = 1;
 }

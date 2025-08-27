@@ -37,7 +37,7 @@ var (
 func NewWAF(rulePath string,
 ) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
 	logger = zlog.NewLoggingJSON(
-		edge.Metadata_edge.ServiceKey,
+		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_WAF,
 		zlog.LevelInfo,
 	)

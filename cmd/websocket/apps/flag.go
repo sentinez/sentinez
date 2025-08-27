@@ -38,7 +38,7 @@ func ParseFlag() *common.FlagWS {
 			apiServerFlags.GetAddress(), "host address")
 	})
 
-	flags.Parse(ws.Metadata_ws)
+	flags.Parse(ws.GetMetaWs())
 
 	return apiServerFlags
 }

@@ -7,15 +7,33 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
+	_ proto.Message
 )
 
-var Metadata_iam = &common.SentinezMetadata{
+var metadata_iam = &common.SentinezMetadata{
 	ServiceName: "SENTINEZ // IAM",
 	ServiceKind: common.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.iam.v1",
+}
+
+func GetMetaIam() *common.SentinezMetadata {
+	return proto.Clone(metadata_iam).(*common.SentinezMetadata)
+}
+
+func GetMetaIamServiceName() string {
+	return metadata_iam.GetServiceName()
+}
+
+func GetMetaIamServiceKind() common.Kind {
+	return metadata_iam.GetServiceKind()
+}
+
+func GetMetaIamServiceKey() string {
+	return metadata_iam.GetServiceKey()
 }
