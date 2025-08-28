@@ -50,7 +50,7 @@ protoc \
   -I"$SENTINEZ_PATH"/api/third_party/grpc-gateway \
   -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
   --openapiv2_out="$SENTINEZ_OPENAPI_OUT" \
-  "$(pwd)"/rule_engine.proto || exit 1
+  "$(pwd)"/rulesengine.proto || exit 1
 
 OLDPWD=$(pwd)
 
