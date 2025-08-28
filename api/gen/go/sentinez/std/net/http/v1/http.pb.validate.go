@@ -176,23 +176,23 @@ func (m *Log4HTTP) Validate() error {
 
 	// no validation rules for ReqId
 
-	// no validation rules for ReqMethod
+	// no validation rules for Method
 
-	// no validation rules for ReqScheme
+	// no validation rules for Scheme
 
-	// no validation rules for ReqHost
+	// no validation rules for Host
 
-	// no validation rules for ReqPath
+	// no validation rules for Path
 
-	// no validation rules for ReqQuery
+	// no validation rules for Query
 
-	for idx, item := range m.GetReqHeaders() {
+	for idx, item := range m.GetHeaders() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return Log4HTTPValidationError{
-					field:  fmt.Sprintf("ReqHeaders[%v]", idx),
+					field:  fmt.Sprintf("Headers[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -201,13 +201,13 @@ func (m *Log4HTTP) Validate() error {
 
 	}
 
-	// no validation rules for ReqProtocol
+	// no validation rules for Protocol
 
-	// no validation rules for ReqRemoteAddr
+	// no validation rules for RemoteAddress
 
 	// no validation rules for RespBody
 
-	// no validation rules for RespStatus
+	// no validation rules for Status
 
 	// no validation rules for UserAgent
 

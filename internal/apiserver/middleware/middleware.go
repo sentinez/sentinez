@@ -58,14 +58,14 @@ func Logging(h http.Handler) http.Handler {
 		}
 
 		lw.Logger.Info("allow http request", &httppb.Log4HTTP{
-			ReqScheme:     r.URL.Scheme,
-			ReqHost:       r.Host,
-			ReqPath:       r.URL.Path,
-			ReqMethod:     r.Method,
-			RespStatus:    int32(lw.statusCode),
-			ReqRemoteAddr: r.RemoteAddr,
-			ReqProtocol:   r.Proto,
-			ReqQuery:      r.URL.RawQuery,
+			Scheme:        r.URL.Scheme,
+			Host:          r.Host,
+			Path:          r.URL.Path,
+			Method:        r.Method,
+			Status:        int32(lw.statusCode),
+			RemoteAddress: r.RemoteAddr,
+			Protocol:      r.Proto,
+			Query:         r.URL.RawQuery,
 			UserAgent:     r.UserAgent(),
 			ContentType:   r.Header.Get("Content-Type"),
 		})

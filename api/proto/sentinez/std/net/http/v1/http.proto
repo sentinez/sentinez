@@ -29,17 +29,17 @@ message QueryValues {
 
 message Log4HTTP {
   string req_id = 1;
-  string req_method = 2;
-  string req_scheme = 3;
-  string req_host = 4;
-  string req_path = 5;
-  string req_query = 6;
-  repeated RequestHeader req_headers = 7;
-  string req_protocol = 9;
-  string req_remote_addr = 10;
+  string method = 2;
+  string scheme = 3;
+  string host = 4;
+  string path = 5;
+  string query = 6;
+  repeated RequestHeader headers = 7;
+  string protocol = 9;
+  string remote_address = 10;
 
   bytes resp_body = 8;
-  int32 resp_status = 11;
+  int32 status = 11;
 
   string user_agent = 12;
   string ray_id = 13;

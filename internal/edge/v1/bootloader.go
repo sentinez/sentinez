@@ -17,6 +17,7 @@ package edge
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/internal/edge/v1/cache"
 	"github.com/sentinez/sentinez/internal/edge/v1/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
@@ -25,9 +26,10 @@ import (
 
 func (s *Server) bootloader(_ context.Context) error {
 
-	s.core.Use(logging.Writer)                      // idx = 0
-	s.core.Use(logic.NewHost(s.flag.GetHost()))     // idx = 1
-	s.core.Use(secure.NewWAF(s.flag.GetRulePath())) // idx = 2
+	s.core.Use(cache.HeaderCacheControl)            // idx = 0
+	s.core.Use(logging.Writer)                      // idx = 1
+	s.core.Use(logic.NewHost(s.flag.GetHost()))     // idx = 2
+	s.core.Use(secure.NewWAF(s.flag.GetRulePath())) // idx = 3
 
 	return routing.Serve(s.config, s.core)
 }

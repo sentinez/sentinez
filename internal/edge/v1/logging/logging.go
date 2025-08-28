@@ -32,20 +32,19 @@ func Writer(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 	return func(ctx *fasthttp.RequestCtx) {
 		requestResourceHost := string(ctx.Host())
-		zlog.Debugf("[edge]: log resource host: %s", string(ctx.Host()))
 
 		next(ctx)
 
 		logger.Info("edge http request", &http.Log4HTTP{
 			ReqId:         httpxf1.Identify(ctx),
-			ReqScheme:     string(ctx.URI().Scheme()),
-			ReqHost:       requestResourceHost,
-			ReqPath:       string(ctx.Path()),
-			ReqMethod:     string(ctx.Method()),
-			RespStatus:    int32(ctx.Response.StatusCode()),
-			ReqRemoteAddr: ctx.RemoteAddr().String(),
-			ReqProtocol:   string(ctx.Request.Header.Protocol()),
-			ReqQuery:      ctx.QueryArgs().String(),
+			Scheme:        string(ctx.URI().Scheme()),
+			Host:          requestResourceHost,
+			Path:          string(ctx.Path()),
+			Method:        string(ctx.Method()),
+			Status:        int32(ctx.Response.StatusCode()),
+			RemoteAddress: ctx.RemoteAddr().String(),
+			Protocol:      string(ctx.Request.Header.Protocol()),
+			Query:         ctx.QueryArgs().String(),
 			UserAgent:     string(ctx.UserAgent()),
 		})
 	}
