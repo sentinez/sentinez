@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package events provides the interface for logging service server.
-package events
+// Package engine provides the interface for the rule engine.
+package rulesengine
