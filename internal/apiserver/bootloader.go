@@ -26,8 +26,8 @@ import (
 
 func (srv *Server) bootloader(ctx context.Context) error {
 	// load all middleware and handlers of api server
+	srv.server.Use(middleware.Logging)
 	srv.server.Use(middleware.AllowCORS)
-	srv.server.Use(middleware.LogRequestBody)
 
 	// register all custom handlers to the server
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), srv.flag)

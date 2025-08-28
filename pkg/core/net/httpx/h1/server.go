@@ -32,7 +32,7 @@ type Server interface {
 	Handle(fn func(ctx Context) error)
 }
 
-func NewServer() Server {
+func NewServer() *HTTPServer {
 	return &HTTPServer{}
 }
 
@@ -41,20 +41,12 @@ type HTTPServer struct {
 	Metadata *common.SentinezMetadata
 }
 
-func (s *HTTPServer) uses(h http.Handler,
-	middlewares ...func(http.Handler) http.Handler) http.Handler {
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		h = middlewares[i](h)
-	}
-	return h
-}
-
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
 func (s *HTTPServer) Handle(fn func(ctx Context) error) {
-	http.Handle("/", s.uses(http.HandlerFunc(Convert(fn)), s.mdw...))
+	http.Handle("/", chain(http.HandlerFunc(Convert(fn)), s.mdw...))
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
@@ -69,4 +61,20 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 
 func (s *HTTPServer) Shutdown() error {
 	return Shutdown()
+}
+
+func chain(h http.Handler, m ...func(http.Handler) http.Handler) http.Handler {
+	for i := len(m) - 1; i >= 0; i-- {
+		h = m[i](h)
+	}
+
+	return extendHeader(h)
+}
+
+func extendHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+
+		w.Header().Set("Server", version.Name)
+	})
 }

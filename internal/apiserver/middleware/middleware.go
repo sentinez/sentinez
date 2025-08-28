@@ -29,11 +29,11 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
-// LogRequestBody logs the request body when the response status code is not 200
+// Logging logs the request body when the response status code is not 200
 // This addresses the issue of being unable to retrieve the request body in the
 // customErrorHandler middleware.
 // nolint:funlen
-func LogRequestBody(h http.Handler) http.Handler {
+func Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		lw := newLogResponseWriter(w)
 		body, err := io.ReadAll(r.Body)
@@ -59,7 +59,7 @@ func LogRequestBody(h http.Handler) http.Handler {
 
 		lw.Logger.Info("allow http request", &httppb.Log4HTTP{
 			ReqScheme:     r.URL.Scheme,
-			ReqHost:       r.URL.Host,
+			ReqHost:       r.Host,
 			ReqPath:       r.URL.Path,
 			ReqMethod:     r.Method,
 			RespStatus:    int32(lw.statusCode),

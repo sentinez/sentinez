@@ -35,15 +35,14 @@ var (
 	GoVersion = runtime.Version()
 
 	// Name is the full name of the project.
-	Name = "sentinez"
+	Name = "sentinez/1.0"
 
 	// Code is the code of the project.
 	Code = "SNTZ"
 )
 
 func INFO(serviceName string, key string) {
-	service := strings.Replace(serviceName, "_", " // ", 1)
-	fmt.Print(FigureGen(service, key))
+	fmt.Print(FigureGen(serviceName, key))
 }
 
 // FigureGen generates the ASCII art of the project.

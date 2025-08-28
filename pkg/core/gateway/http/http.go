@@ -37,6 +37,8 @@ var (
 	_ Server = (*HTTPServer)(nil)
 )
 
+type Middleware func(http.Handler) http.Handler
+
 // Server is an interface for a http server.
 // default port is 9000
 type Server interface {
@@ -44,7 +46,7 @@ type Server interface {
 	Shutdown(ctx context.Context) error
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
-	Use(handler func(http.Handler) http.Handler)
+	Use(handlers ...func(http.Handler) http.Handler)
 }
 
 // New creates a new http server.
@@ -85,20 +87,11 @@ func (h *HTTPServer) Start(ctx context.Context) error {
 	return errors.ErrUnimplemented
 }
 
-// handler wraps the http handler with the middlewares. middlewares
-// will be executed in the order they are added, top to bottom.
-func (h *HTTPServer) handler(httpHandler http.Handler) http.Handler {
-	for _, middleware := range h.middlewares {
-		httpHandler = middleware(httpHandler)
-	}
-	return httpHandler
-}
-
 // Use middleware for the http server. Middleware will be called
 // in the order they are added, top to bottom. the middleware will
 // be executed before the http handler.
-func (h *HTTPServer) Use(handler func(http.Handler) http.Handler) {
-	h.middlewares = append(h.middlewares, handler)
+func (h *HTTPServer) Use(handlers ...func(http.Handler) http.Handler) {
+	h.middlewares = append(h.middlewares, handlers...)
 }
 
 // Listen starts the runtime mux.
@@ -115,7 +108,7 @@ func (h *HTTPServer) Listen(address string) error {
 	// httpMux was wrapped with the middlewares
 	h.server = &http.Server{
 		Addr:    address,
-		Handler: h.handler(h.httpMux),
+		Handler: chain(h.httpMux),
 	}
 
 	version.INFO(h.Metadata.GetServiceName(), h.Metadata.GetServiceKey())
@@ -139,4 +132,20 @@ func (h *HTTPServer) HTTPMux() *http.ServeMux {
 // Shutdown implements HttpServer.
 func (h *HTTPServer) Shutdown(ctx context.Context) error {
 	return h.server.Shutdown(ctx)
+}
+
+func chain(h http.Handler, m ...Middleware) http.Handler {
+	for i := len(m) - 1; i >= 0; i-- {
+		h = m[i](h)
+	}
+
+	return extendHeader(h)
+}
+
+func extendHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+
+		w.Header().Set("Server", version.Name)
+	})
 }
