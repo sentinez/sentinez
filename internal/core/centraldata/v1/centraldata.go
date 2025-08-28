@@ -12,27 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-syntax = "proto3";
-
-package sentinez.core.datacentre.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/datacentre/v1;datacentre";
-
-import "sentinez/std/common/v1/options.proto";
-
-option (sentinez.std.common.v1.metadata) = {
-  service_name: "SENTINEZ // DATACENTRE",
-  service_kind: KIND_CORE,
-  service_key: "sentinez.core.datacentre.v1",
-};
-
-service DataCentreService {
-  rpc Status(StatusRequest) returns (StatusResponse) {}
-}
-
-message StatusRequest {
-
-}
-
-message StatusResponse {
-  string msg = 1;
-}
+package centraldata

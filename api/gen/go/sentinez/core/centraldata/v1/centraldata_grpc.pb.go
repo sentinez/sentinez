@@ -16,9 +16,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: sentinez/core/datacentre/v1/datacentre.proto
+// source: sentinez/core/centraldata/v1/centraldata.proto
 
-package datacentre
+package centraldata
 
 import (
 	context "context"
@@ -33,103 +33,103 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DataCentreService_Status_FullMethodName = "/sentinez.core.datacentre.v1.DataCentreService/Status"
+	CentralDataService_Status_FullMethodName = "/sentinez.core.centraldata.v1.CentralDataService/Status"
 )
 
-// DataCentreServiceClient is the client API for DataCentreService service.
+// CentralDataServiceClient is the client API for CentralDataService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type DataCentreServiceClient interface {
+type CentralDataServiceClient interface {
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
-type dataCentreServiceClient struct {
+type centralDataServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewDataCentreServiceClient(cc grpc.ClientConnInterface) DataCentreServiceClient {
-	return &dataCentreServiceClient{cc}
+func NewCentralDataServiceClient(cc grpc.ClientConnInterface) CentralDataServiceClient {
+	return &centralDataServiceClient{cc}
 }
 
-func (c *dataCentreServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+func (c *centralDataServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
-	err := c.cc.Invoke(ctx, DataCentreService_Status_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CentralDataService_Status_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// DataCentreServiceServer is the server API for DataCentreService service.
-// All implementations must embed UnimplementedDataCentreServiceServer
+// CentralDataServiceServer is the server API for CentralDataService service.
+// All implementations must embed UnimplementedCentralDataServiceServer
 // for forward compatibility.
-type DataCentreServiceServer interface {
+type CentralDataServiceServer interface {
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
-	mustEmbedUnimplementedDataCentreServiceServer()
+	mustEmbedUnimplementedCentralDataServiceServer()
 }
 
-// UnimplementedDataCentreServiceServer must be embedded to have
+// UnimplementedCentralDataServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedDataCentreServiceServer struct{}
+type UnimplementedCentralDataServiceServer struct{}
 
-func (UnimplementedDataCentreServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
+func (UnimplementedCentralDataServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
-func (UnimplementedDataCentreServiceServer) mustEmbedUnimplementedDataCentreServiceServer() {}
-func (UnimplementedDataCentreServiceServer) testEmbeddedByValue()                           {}
+func (UnimplementedCentralDataServiceServer) mustEmbedUnimplementedCentralDataServiceServer() {}
+func (UnimplementedCentralDataServiceServer) testEmbeddedByValue()                            {}
 
-// UnsafeDataCentreServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to DataCentreServiceServer will
+// UnsafeCentralDataServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CentralDataServiceServer will
 // result in compilation errors.
-type UnsafeDataCentreServiceServer interface {
-	mustEmbedUnimplementedDataCentreServiceServer()
+type UnsafeCentralDataServiceServer interface {
+	mustEmbedUnimplementedCentralDataServiceServer()
 }
 
-func RegisterDataCentreServiceServer(s grpc.ServiceRegistrar, srv DataCentreServiceServer) {
-	// If the following call pancis, it indicates UnimplementedDataCentreServiceServer was
+func RegisterCentralDataServiceServer(s grpc.ServiceRegistrar, srv CentralDataServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCentralDataServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&DataCentreService_ServiceDesc, srv)
+	s.RegisterService(&CentralDataService_ServiceDesc, srv)
 }
 
-func _DataCentreService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CentralDataService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataCentreServiceServer).Status(ctx, in)
+		return srv.(CentralDataServiceServer).Status(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DataCentreService_Status_FullMethodName,
+		FullMethod: CentralDataService_Status_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataCentreServiceServer).Status(ctx, req.(*StatusRequest))
+		return srv.(CentralDataServiceServer).Status(ctx, req.(*StatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// DataCentreService_ServiceDesc is the grpc.ServiceDesc for DataCentreService service.
+// CentralDataService_ServiceDesc is the grpc.ServiceDesc for CentralDataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var DataCentreService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "sentinez.core.datacentre.v1.DataCentreService",
-	HandlerType: (*DataCentreServiceServer)(nil),
+var CentralDataService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "sentinez.core.centraldata.v1.CentralDataService",
+	HandlerType: (*CentralDataServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Status",
-			Handler:    _DataCentreService_Status_Handler,
+			Handler:    _CentralDataService_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sentinez/core/datacentre/v1/datacentre.proto",
+	Metadata: "sentinez/core/centraldata/v1/centraldata.proto",
 }
