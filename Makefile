@@ -72,7 +72,7 @@ greeter.build:
 greeter.run: SENTINEZ_OUT ?= greeter
 greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
-	./cmd/greeter/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8001
+	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
 
 greeter.build.image: TAG ?= sentinez/sentinez_core_greeter
 greeter.build.image:
@@ -91,8 +91,3 @@ edge.build:
 edge.build.image: TAG ?= sentinez/sentinez_edge
 edge.build.image:
 	docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
-
-discovery.run: SENTINEZ_OUT ?= discovery
-discovery.run:
-	@go build -ldflags="-s -w" -o ./cmd/discovery/v1/bin/$(SENTINEZ_OUT) ./cmd/discovery/v1 && \
-	./cmd/discovery/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8888

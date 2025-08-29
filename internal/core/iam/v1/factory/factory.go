@@ -1,6 +1,3 @@
-//go:build wireinject
-// +build wireinject
-
 // Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,51 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package factory
+package iamfac
 
 import (
-	"github.com/google/wire"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-
 	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-
-	services "github.com/sentinez/sentinez/internal/apiserver/services/v1"
-
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-
-	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
-
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func NewDefaultGreeter() httpgw.ServiceRegistrar {
-	wire.Build(
-		greeterhandler.New,
-		services.NewGreeter,
-	)
-	return nil
-}
+// nolint:funlen
+func NewDefaultIAMHdl(
+	config *common.Config) iam.IdentityAccessManagementServiceServer {
 
-func NewDefaultIAM(conf *common.Config) (httpgw.ServiceRegistrar, error) {
-	wire.Build(
-		postgres.NewTX,
-		usersrepo.New,
-		accountrepo.New,
-		iamservices.New,
-		iamhandler.New,
-		services.NewIAM,
-	)
-	return nil, nil
-}
+	userrepos, err := usersrepo.New(config)
+	if err != nil {
+		zlog.Errorf("iamfactory: init user repo err=%v", err)
+	}
 
-func NewDefaultTenant() httpgw.ServiceRegistrar {
-	wire.Build(
-		tenanthandler.New,
-		services.NewTenant,
-	)
-	return nil
+	accountrepos, err := accountrepo.New(config)
+	if err != nil {
+		zlog.Errorf("iamfactory: init account repo err=%v", err)
+	}
+
+	tx := postgres.NewTX(config)
+
+	service := iamservices.New(tx, userrepos, accountrepos)
+
+	return iamhandler.New(service)
 }

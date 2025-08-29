@@ -18,8 +18,14 @@ package sentinez.std.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
 
 message Config {
-    string timescale_uri = 1;
-    string postgres_uri = 2;
-    string clickhouse_uri = 3;
-    string secret_key = 4;
+    string hostname = 1;
+    string address = 2;
+    string secret_key = 3;
+    string gateway_addr = 4;
+
+
+    string timescale_uri = 10;
+    string postgres_uri = 11;
+    string clickhouse_uri = 12;
+    string consul_uri = 13;
 }

@@ -38,7 +38,7 @@ var _ runner.Server = (*Server)(nil)
 //
 //	var _ = runner.Inject(dcvrhandler.New)
 func New(server httpgw.Server,
-	conf *common.Config, flag *common.FlagAPIServer) (runner.Server, error) {
+	conf *common.Config, flag *common.Flag) (runner.Server, error) {
 
 	srv := &Server{
 		server: server,
@@ -72,7 +72,7 @@ type Server struct {
 	server httpgw.Server
 
 	// flag option for the apiserver
-	flag *common.FlagAPIServer
+	flag *common.Flag
 }
 
 // visitToEndpoint all service to external grpc server
@@ -80,7 +80,8 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
 	for _, service := range services {
-		if err := service.AcceptFromEndpoint(ctx, srv.server); err != nil {
+		err := service.AcceptFromEndpoint(ctx, srv.server, srv.config)
+		if err != nil {
 			return err
 		}
 	}
@@ -109,7 +110,7 @@ func (srv *Server) Start(_ context.Context) error {
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(srv.flag.GetAddress())
+	return srv.server.Listen(srv.config.GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

@@ -26,22 +26,17 @@ import (
 
 var onceGRPCService sync.Once
 
-var grpcServiceFlags = &common.FlagGRPCService{
-	GatewayAddress: "http://0.0.0.0:9000",
-	Address:        "127.0.0.1:0",
-}
-
 // ParseFlag flag args for grpc service
-func ParseFlag() *common.FlagGRPCService {
+func ParseFlag() *common.Flag {
 	onceGRPCService.Do(func() {
-		pflag.StringVarP(&grpcServiceFlags.Address, "address", "a",
-			grpcServiceFlags.GetAddress(), "host address")
+		flags.Get().EnvFile = "./cmd/greeter/v1/.env"
 
-		pflag.StringVar(&grpcServiceFlags.GatewayAddress, "gateway-address",
-			grpcServiceFlags.GetGatewayAddress(), "gateway address")
+		pflag.StringVar(&flags.Get().EnvFile, "env-file",
+			flags.Get().GetEnvFile(), "environment variables config file")
+
+		flags.Parse(greeter.GetMetaGreeter())
+
 	})
 
-	flags.Parse(greeter.GetMetaGreeter())
-
-	return grpcServiceFlags
+	return flags.Get()
 }

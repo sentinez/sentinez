@@ -24,10 +24,10 @@ import (
 
 func (s *Server) bootloader() error {
 
-	s.core.Use(cache.HeaderCacheControl)            // idx = 0
-	s.core.Use(logging.Writer)                      // idx = 1
-	s.core.Use(logic.NewHost(s.flag.GetHost()))     // idx = 2
-	s.core.Use(secure.NewWAF(s.flag.GetRulePath())) // idx = 3
+	s.core.Use(cache.HeaderCacheControl)              // idx = 0
+	s.core.Use(logging.Writer)                        // idx = 1
+	s.core.Use(logic.NewHost(s.config.GetHostname())) // idx = 2
+	s.core.Use(secure.NewWAF(s.flag.GetRulePath()))   // idx = 3
 
-	return routing.Serve(s.config, s.core)
+	return routing.Serve(s.yaml, s.core)
 }

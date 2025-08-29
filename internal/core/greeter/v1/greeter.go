@@ -44,7 +44,7 @@ func NewService() *Service {
 
 // New creates a new Greeter module.
 func New(srv *Service,
-	conf *common.Config, flag *common.FlagGRPCService) runner.Server {
+	conf *common.Config, flag *common.Flag) runner.Server {
 
 	return &Greeter{
 		Service: srv,
@@ -57,7 +57,7 @@ func New(srv *Service,
 type Greeter struct {
 	*Service
 	config *common.Config
-	flag   *common.FlagGRPCService
+	flag   *common.Flag
 }
 
 // Start implements IGreeter, override runner.Server.Start
@@ -68,6 +68,6 @@ func (g *Greeter) Start(_ context.Context) error {
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.flag)
-	return g.Serve(g.flag.GetAddress())
+	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.config)
+	return g.Serve(g.config.GetAddress())
 }

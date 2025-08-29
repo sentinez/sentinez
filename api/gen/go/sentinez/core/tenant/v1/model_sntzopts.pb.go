@@ -7,9 +7,11 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
+	_ proto.Message
 )

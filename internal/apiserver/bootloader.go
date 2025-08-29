@@ -17,10 +17,12 @@ package apiserver
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/internal/apiserver/factory/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
+	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
+	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
+	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -36,32 +38,15 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 	err := srv.visitToEndpoint(ctx,
-		factory.NewDefaultGreeter(),
+		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(srv.config)),
 	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
 		return err
 	}
 
-	services, err := srv.boot()
-	if err != nil {
-		return err
-	}
-	return srv.visit(ctx, services...)
-}
-
-//nolint:funlen
-func (srv *Server) boot() ([]httpgw.ServiceRegistrar, error) {
-	var services []httpgw.ServiceRegistrar
-
-	iam, err := factory.NewDefaultIAM(srv.config)
-	if err != nil {
-		zlog.Errorf("apiserver: failed to create IAM service: %v", err)
-		return nil, err
-	}
-
-	services = append(services, iam)
-	services = append(services, factory.NewDefaultTenant())
-
-	return services, nil
+	return srv.visit(ctx,
+		services.NewIAM(iamfac.NewDefaultIAMHdl(srv.config)),
+		services.NewTenant(tenantfac.NewDefaultTenantHdl(srv.config)),
+	)
 }

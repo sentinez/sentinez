@@ -12,4 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package services
+package greeterfac
+
+import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
+)
+
+func NewDefaultGreeterHdl(_ *common.Config) greeter.GreeterServiceServer {
+	return greeterhandler.New()
+}

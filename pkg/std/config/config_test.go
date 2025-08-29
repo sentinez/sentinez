@@ -13,15 +13,3 @@
 // limitations under the License.
 
 package config
-
-import (
-	"testing"
-)
-
-func BenchmarkConfigHeapAllocation(b *testing.B) {
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		_ = Default()
-	}
-}

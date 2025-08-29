@@ -55,7 +55,7 @@ func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
 	internal.Provide(start)
 
 	// disable log: use fx.NopLogger
-	if flags.Get().GetMode() != "dev" {
+	if flags.Get().GetEnvMode() != "dev" {
 		return &sentinez[srv]{
 			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
 		}

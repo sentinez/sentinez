@@ -19,11 +19,11 @@ import (
 	"time"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -45,14 +45,14 @@ type identityAccessManagement struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server) error {
+	server httpgw.Server, config *common.Config) error {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: flags.Get().GetConsulUrl(),
+		ConsulURL: config.GetConsulUri(),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {

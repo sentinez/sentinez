@@ -22,19 +22,23 @@ import (
 	"github.com/sentinez/sentinez/internal/websocket"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	wscore "github.com/sentinez/sentinez/pkg/core/wsz"
+	"github.com/sentinez/sentinez/pkg/std/config"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func main() {
-	if err := flags.Validate(apps.ParseFlag()); err != nil {
+	flag := apps.ParseFlag()
+	if err := flags.Validate(flag); err != nil {
 		zlog.Fatal(err)
 	}
+
+	conf := config.Load(flag.GetEnvFile())
 
 	app := runner.New(wscore.New).
 		Build(func(ws *wscore.WebSocket) (runner.Server, error) {
 			ws.Metadata = wspb.GetMetaWs()
-			return websocket.New(ws, apps.ParseFlag()), nil
+			return websocket.New(ws, flag, conf), nil
 		})
 
 	_ = app.Run(context.Background())

@@ -35,10 +35,8 @@ var (
 
 // flags global variable
 var flags = &common.Flag{
-	Name:      "sntz.server.default",
-	Mode:      "dev",
-	LogLevel:  "debug",
-	ConsulUrl: "http://localhost:8500",
+	EnvMode:  "dev",
+	LogLevel: "debug",
 }
 
 func info(meta *common.SentinezMetadata) string {
@@ -50,14 +48,11 @@ func info(meta *common.SentinezMetadata) string {
 func Parse(meta *common.SentinezMetadata) {
 	once.Do(func() {
 
-		pflag.StringVarP(&flags.Mode, "mode", "m",
-			flags.GetMode(), "run mode (dev|prod|sandbox)")
+		pflag.StringVarP(&flags.EnvMode, "mode", "m",
+			flags.GetEnvMode(), "run mode (dev|prod|sandbox)")
 
 		pflag.StringVar(&flags.LogLevel, "log-level",
 			flags.GetLogLevel(), "log level (debug|info|warn|error)")
-
-		pflag.StringVar(&flags.ConsulUrl, "consul-url",
-			flags.GetConsulUrl(), "consul url")
 
 		pflag.Usage = func() {
 			fmt.Print(info(meta))

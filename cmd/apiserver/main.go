@@ -49,15 +49,20 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	if err := flags.Validate(apps.ParseFlag()); err != nil {
+
+	flag := apps.ParseFlag()
+	if err := flags.Validate(flag); err != nil {
 		zlog.Fatal(err)
 	}
 
-	app := runner.New(httpgw.NewDefault).
-		Build(func(server *httpgw.HTTPServer) (runner.Server, error) {
+	conf := config.Load(flag.GetEnvFile())
+
+	app := runner.New(httpgw.NewDefault).Build(
+		func(server *httpgw.HTTPServer) (runner.Server, error) {
 			server.Metadata = apiserverpb.GetMetaApiserver()
-			return apiserver.New(server, config.Default(), apps.ParseFlag())
-		})
+			return apiserver.New(server, conf, flag)
+		},
+	)
 
 	_ = app.Run(context.Background())
 }
