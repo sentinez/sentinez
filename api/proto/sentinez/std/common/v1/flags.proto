@@ -29,31 +29,3 @@ message Flag {
   string rule_path = 6;
   string proxy_config = 7;
 }
-
-// message FlagAPIServer {
-//   string swagger_path = 2;
-//   string api_specs_path = 3;
-//   string address = 4 [(buf.validate.field).string = {
-//     pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
-//   }];
-// }
-
-// message FlagWS {
-//   string address = 1 [(buf.validate.field).string = {
-//     pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
-//   }];
-// }
-
-// message FlagGRPCService {
-//   string gateway_address = 1;
-//   string address = 2 [(buf.validate.field).string.host_and_port = true];
-// }
-
-// message FlagEdge {
-//   string address = 1 [(buf.validate.field).string = {
-//     pattern: "^(([a-zA-Z0-9.-]+)?):([0-9]{1,5})$"
-//   }];
-//   string host = 2 [(buf.validate.field).string.hostname = true];
-//   string rule_path = 3;
-//   string proxy_config = 4;
-// }
