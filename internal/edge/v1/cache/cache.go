@@ -18,7 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/valyala/fasthttp"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 )
 
 var staticExts = map[string]struct{}{
@@ -33,9 +33,9 @@ func IsStaticAsset(pathStr string) bool {
 	return ok
 }
 
-func HeaderCacheControl(next fasthttp.RequestHandler) fasthttp.RequestHandler {
-	return func(ctx *fasthttp.RequestCtx) {
-		next(ctx)
+func HeaderCacheControl(next httpxf1.RequestHandler) httpxf1.RequestHandler {
+	return func(ctx *httpxf1.Context) error {
+		err := next(ctx)
 
 		if IsStaticAsset(string(ctx.Path())) {
 			ctx.Response.Header.Set(
@@ -43,5 +43,7 @@ func HeaderCacheControl(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 				"public, max-age=3600, immutable",
 			)
 		}
+
+		return err
 	}
 }

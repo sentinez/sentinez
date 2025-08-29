@@ -25,10 +25,9 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/sentinez/sentinez/pkg/templ"
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
 func decorNewTransaction(waf coraza.WAF) func(*http.Request) types.Transaction {
@@ -48,54 +47,43 @@ func decorNewTransaction(waf coraza.WAF) func(*http.Request) types.Transaction {
 	return newTX
 }
 
-func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
-	r := new(http.Request)
-
-	if err := fasthttpadaptor.ConvertRequest(ctx, r, true); err != nil {
-		ctx.Error("failed to convert request context",
-			fasthttp.StatusInternalServerError)
-		return nil
-	}
-
-	return r
-}
-
 // nolint:funlen
-func WrapHandlerWithCallback(waf coraza.WAF, next fasthttp.RequestHandler,
-	cb func(*fasthttp.RequestCtx, types.Transaction)) fasthttp.RequestHandler {
+func WrapHandlerWithCallback(waf coraza.WAF, next httpxf1.RequestHandler,
+	cb func(*httpxf1.Context, types.Transaction)) httpxf1.RequestHandler {
 	if waf == nil {
 		return next
 	}
 	newTX := decorNewTransaction(waf)
 
-	return func(ctx *fasthttp.RequestCtx) {
-		r := convertRequestContext(ctx)
+	return func(ctx *httpxf1.Context) error {
+		r := httpxf1.ConvertRequestContext(ctx.RequestCtx)
 		tx := newTX(r)
 		defer postProcess(ctx, tx, cb)
 
 		if tx.IsRuleEngineOff() {
-			next(ctx)
-			return
+			return next(ctx)
 		}
 
 		processRequests := processRequestHandler(r)
 		if err := processRequests(ctx, tx); err != nil {
 			debugLogger(tx, err, "failed to process request")
-			return
+			return nil
 		}
 
-		next(ctx)
+		err := next(ctx)
 
 		processResponse := processResponseHandler(r)
 		if err := processResponse(ctx, tx); err != nil {
 			debugLogger(tx, err, "failed to process response")
-			return
+			return nil
 		}
+
+		return err
 	}
 }
 
-func postProcess(ctx *fasthttp.RequestCtx, tx types.Transaction,
-	callback func(*fasthttp.RequestCtx, types.Transaction)) {
+func postProcess(ctx *httpxf1.Context, tx types.Transaction,
+	callback func(*httpxf1.Context, types.Transaction)) {
 	// final phase
 	tx.ProcessLogging()
 
@@ -109,9 +97,9 @@ func postProcess(ctx *fasthttp.RequestCtx, tx types.Transaction,
 }
 
 func processRequestHandler(r *http.Request,
-) func(*fasthttp.RequestCtx, types.Transaction) error {
+) func(*httpxf1.Context, types.Transaction) error {
 
-	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
+	return func(ctx *httpxf1.Context, tx types.Transaction) error {
 		if it, err := processRequest(tx, r); err != nil {
 			zlog.Debugf("failed to process request: %v", err)
 			return err
@@ -244,8 +232,8 @@ func canRequestBodyAccessible(req *http.Request,
 }
 
 func processResponseHandler(
-	r *http.Request) func(*fasthttp.RequestCtx, types.Transaction) error {
-	return func(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
+	r *http.Request) func(*httpxf1.Context, types.Transaction) error {
+	return func(ctx *httpxf1.Context, tx types.Transaction) error {
 		if tx.IsInterrupted() {
 			return nil
 		}
@@ -276,7 +264,7 @@ func processResponseHandler(
 	}
 }
 
-func releaseBodyReader(ctx *fasthttp.RequestCtx, tx types.Transaction) error {
+func releaseBodyReader(ctx *httpxf1.Context, tx types.Transaction) error {
 
 	reader, err := tx.ResponseBodyReader()
 	if err != nil {

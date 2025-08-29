@@ -66,12 +66,12 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 	return err
 }
 
-func identifier(ctx *fasthttp.RequestCtx) {
+func setIdentifier(ctx *fasthttp.RequestCtx) {
 	id := uuid.NewHex("SNTZ-REQ-")
 	ctx.SetUserValue(userValueKey, id)
 }
 
-func Identify(ctx *fasthttp.RequestCtx) string {
+func GetContextIdentify(ctx *Context) string {
 	res, ok := ctx.UserValue(userValueKey).(string)
 	if !ok {
 		return ""
@@ -81,7 +81,7 @@ func Identify(ctx *fasthttp.RequestCtx) string {
 }
 
 // nolint:funlen
-func GenerateContextKey(ctx *fasthttp.RequestCtx) string {
+func GenerateContextKey(ctx *Context) string {
 	method := string(ctx.Method())
 	host := string(ctx.Host())
 	path := string(ctx.Path())

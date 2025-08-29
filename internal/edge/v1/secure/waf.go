@@ -26,7 +26,6 @@ import (
 	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/middleware"
 	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -35,7 +34,7 @@ var (
 )
 
 func NewWAF(rulePath string,
-) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
+) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 	logger = zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_WAF,
@@ -49,7 +48,7 @@ func NewWAF(rulePath string,
 }
 
 // nolint:funlen
-func rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
+func rulesCallback(ctx *httpxf1.Context, tx types.Transaction) {
 	if !tx.IsInterrupted() {
 		return
 	}
@@ -100,7 +99,7 @@ func rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
 		Service:       waf.Service_SERVICE_WAF_RULESETS,
 		Action:        waf.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
-		HttpReqId:     httpxf1.Identify(ctx),
+		HttpReqId:     httpxf1.GetContextIdentify(ctx),
 		ContentType:   string(ctx.Request.Header.ContentType()),
 	}
 

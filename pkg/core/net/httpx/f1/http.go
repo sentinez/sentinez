@@ -57,19 +57,19 @@ func Do(ctx Context, uri string) error {
 	return nil
 }
 
-func Forbidden(ctx *fasthttp.RequestCtx) {
+func Forbidden(ctx *Context) {
 	ctx.SetStatusCode(http.StatusForbidden)
 	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
 
 	ctx.SetContentType("text/html; charset=utf-8")
-	rCtx := convertRequestContext(ctx)
+	rCtx := ConvertRequestContext(ctx.RequestCtx)
 	err := templ.Forbidden().Render(rCtx.Context(), ctx.Response.BodyWriter())
 	if err != nil {
 		ctx.SetBodyString("Access denied")
 	}
 }
 
-func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
+func ConvertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
 	r := new(http.Request)
 
 	if err := fasthttpadaptor.ConvertRequest(ctx, r, true); err != nil {
@@ -83,7 +83,7 @@ func convertRequestContext(ctx *fasthttp.RequestCtx) *http.Request {
 
 func wrapHandler(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		identifier(ctx)
+		setIdentifier(ctx)
 		next(ctx)
 	}
 }

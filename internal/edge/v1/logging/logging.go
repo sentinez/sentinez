@@ -20,23 +20,22 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 )
 
-func Writer(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+func Writer(next httpxf1.RequestHandler) httpxf1.RequestHandler {
 	logger := zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
 		zlog.LevelInfo,
 	)
 
-	return func(ctx *fasthttp.RequestCtx) {
+	return func(ctx *httpxf1.Context) error {
 		requestResourceHost := string(ctx.Host())
 
-		next(ctx)
+		err := next(ctx)
 
 		logger.Info("edge http request", &http.Log4HTTP{
-			ReqId:         httpxf1.Identify(ctx),
+			ReqId:         httpxf1.GetContextIdentify(ctx),
 			Scheme:        string(ctx.URI().Scheme()),
 			Host:          requestResourceHost,
 			Path:          string(ctx.Path()),
@@ -47,5 +46,7 @@ func Writer(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 			Query:         ctx.QueryArgs().String(),
 			UserAgent:     string(ctx.UserAgent()),
 		})
+
+		return err
 	}
 }

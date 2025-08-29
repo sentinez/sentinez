@@ -75,7 +75,7 @@ func (s *Server) Start(_ context.Context) error {
 //
 //nolint:funlen
 func (s *Server) Serve(addr string) error {
-	if err := s.bootloader(context.Background()); err != nil {
+	if err := s.bootloader(); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}

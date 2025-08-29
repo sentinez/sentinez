@@ -15,8 +15,6 @@
 package edge
 
 import (
-	"context"
-
 	"github.com/sentinez/sentinez/internal/edge/v1/cache"
 	"github.com/sentinez/sentinez/internal/edge/v1/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
@@ -24,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/secure"
 )
 
-func (s *Server) bootloader(_ context.Context) error {
+func (s *Server) bootloader() error {
 
 	s.core.Use(cache.HeaderCacheControl)            // idx = 0
 	s.core.Use(logging.Writer)                      // idx = 1

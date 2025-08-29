@@ -19,21 +19,19 @@ import (
 	"strings"
 
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	"github.com/valyala/fasthttp"
 )
 
 func NewHost(hostname string,
-) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
+) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 
-	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
-
-		return func(ctx *fasthttp.RequestCtx) {
+	return func(next httpxf1.RequestHandler) httpxf1.RequestHandler {
+		return func(ctx *httpxf1.Context) error {
 			if !isValidSingleLevelSubdomain(string(ctx.Host()), hostname) {
 				httpxf1.Forbidden(ctx)
-				return
+				return nil
 			}
 
-			next(ctx)
+			return next(ctx)
 		}
 	}
 }

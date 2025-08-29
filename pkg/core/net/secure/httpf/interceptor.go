@@ -16,9 +16,11 @@
 package httpfsec
 
 import (
+	"net/http"
+
 	"github.com/corazawaf/coraza/v3/types"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 )
 
 // interceptor for fasthttp
@@ -29,7 +31,7 @@ type interceptor struct {
 	proto       string
 }
 
-func (i *interceptor) WriteResponseHeader(ctx *fasthttp.RequestCtx) {
+func (i *interceptor) WriteResponseHeader(ctx *httpxf1.Context) {
 	if i.wroteHeader {
 		zlog.Debug("httpx.secure.http2: skip writing header")
 		return
@@ -49,7 +51,7 @@ func (i *interceptor) WriteResponseHeader(ctx *fasthttp.RequestCtx) {
 }
 
 func (i *interceptor) WriteResponseBody(
-	ctx *fasthttp.RequestCtx) (*types.Interruption, error) {
+	ctx *httpxf1.Context) (*types.Interruption, error) {
 	if i.tx.IsInterrupted() {
 		return nil, nil
 	}
@@ -89,7 +91,7 @@ func obtainStatusCodeFromInterruptionOrDefault(
 	}
 
 	if it.Action == "deny" || it.Action == "block" {
-		return fasthttp.StatusForbidden
+		return http.StatusForbidden
 	}
 
 	return defaultStatusCode
