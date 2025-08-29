@@ -19,27 +19,33 @@ import (
 	"os"
 	"sync"
 
-	_ "github.com/joho/godotenv/autoload" // load .env file automatically
+	"github.com/joho/godotenv"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var conf *common.Config
 var once sync.Once
 
-// Default returns the environment.
-func Default() *common.Config {
+// Load returns the environment.
+func Load(envFile string) *common.Config {
+	err := godotenv.Load(envFile)
+	if err != nil {
+		zlog.Fatalf("error loading environment file: err=%v", err)
+	}
+
 	once.Do(func() {
 		conf = &common.Config{
-			TimescaleUri:  getENV(common.SNTZENV_SNTZENV_TIMESCALEDB),
-			PostgresUri:   getENV(common.SNTZENV_SNTZENV_POSTGRES),
-			ClickhouseUri: getENV(common.SNTZENV_SNTZENV_CLICKHOUSE),
-			SecretKey:     getENV(common.SNTZENV_SNTZENV_SECRET_KEY),
+			TimescaleUri:  os.Getenv("SNTZ_TIMESCALE_URI"),
+			PostgresUri:   os.Getenv("SNTZ_POSTGRES_URI"),
+			ClickhouseUri: os.Getenv("SNTZ_CLICKHOUSE_URI"),
+			ConsulUri:     os.Getenv("SNTZ_CONSUL_URI"),
+			SecretKey:     os.Getenv("SNTZ_SECRET_KEY"),
+			GatewayAddr:   os.Getenv("SNTZ_GATEWAY_ADDR"),
+			Hostname:      os.Getenv("SNTZ_HOSTNAME"),
+			Address:       os.Getenv("SNTZ_ADDRESS"),
 		}
 	})
 
 	return conf
-}
-
-func getENV(key common.SNTZENV) string {
-	return os.Getenv(key.String())
 }

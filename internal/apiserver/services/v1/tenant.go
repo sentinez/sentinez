@@ -19,12 +19,11 @@ import (
 	"time"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
@@ -44,19 +43,19 @@ type tenant struct {
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
-func (t *tenant) AcceptFromEndpoint(
-	ctx context.Context, server httpgw.Server) error {
+func (t *tenant) AcceptFromEndpoint(ctx context.Context,
+	server httpgw.Server, config *common.Config) error {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: flags.Get().GetConsulUrl(),
+		ConsulURL: config.GetConsulUri(),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(names.TenantV1)
+		srv, err := dcvr.Discover(tenantpb.GetMetaTenantServiceKey())
 		if err != nil {
 			return
 		}
@@ -73,7 +72,8 @@ func (t *tenant) AcceptFromEndpoint(
 }
 
 // Accept to visit the tenant service.
-func (t *tenant) Accept(ctx context.Context, server httpgw.Server) error {
+func (t *tenant) Accept(ctx context.Context,
+	server httpgw.Server) error {
 	return tenantpb.
 		RegisterTenantServiceHandlerServer(ctx, server.RuntimeMux(), t.server)
 }

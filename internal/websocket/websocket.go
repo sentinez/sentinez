@@ -26,16 +26,19 @@ import (
 
 var _ runner.Server = (*WebSocket)(nil)
 
-func New(ws *wsz.WebSocket, flags *common.FlagWS) runner.Server {
+func New(ws *wsz.WebSocket, flags *common.Flag,
+	conf *common.Config) runner.Server {
 	return &WebSocket{
-		core: ws,
-		flag: flags,
+		core:   ws,
+		flag:   flags,
+		config: conf,
 	}
 }
 
 type WebSocket struct {
-	core *wsz.WebSocket
-	flag *common.FlagWS
+	core   *wsz.WebSocket
+	flag   *common.Flag
+	config *common.Config
 }
 
 func (w *WebSocket) router() {
@@ -46,7 +49,7 @@ func (w *WebSocket) router() {
 func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
-	return w.core.ListenAndServe(w.flag.GetAddress())
+	return w.core.ListenAndServe(w.config.GetAddress())
 }
 
 // Shutdown implements runner.Server.

@@ -33,7 +33,7 @@ func Subscribe(ctx context.Context, ns string, hdl func(value string) error) {
 		for {
 			select {
 			case <-ctx.Done():
-				zlog.Infof("subscription to names %s stopped", ns)
+				zlog.Debugf("subscription to names %s stopped", ns)
 				return
 			case event, ok := <-ch:
 				zlog.Debugf("received event of names: %s", ns)

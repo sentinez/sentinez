@@ -40,7 +40,7 @@ type IdentityAccessManagement struct {
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.ListAccounts]")
+	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
 	resp, err := iam.service.ListAccounts(ctx, request)
 	if err != nil {

@@ -7,15 +7,33 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
+	_ proto.Message
 )
 
-var Metadata_greeter = &common.SentinezMetadata{
+var metadata_greeter = &common.SentinezMetadata{
 	ServiceName: "SENTINEZ // GREETER",
 	ServiceKind: common.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.greeter.v1",
+}
+
+func GetMetaGreeter() *common.SentinezMetadata {
+	return proto.Clone(metadata_greeter).(*common.SentinezMetadata)
+}
+
+func GetMetaGreeterServiceName() string {
+	return metadata_greeter.GetServiceName()
+}
+
+func GetMetaGreeterServiceKind() common.Kind {
+	return metadata_greeter.GetServiceKind()
+}
+
+func GetMetaGreeterServiceKey() string {
+	return metadata_greeter.GetServiceKey()
 }

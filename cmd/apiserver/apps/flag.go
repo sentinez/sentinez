@@ -26,27 +26,24 @@ import (
 
 var onceAPIServer sync.Once
 
-// apiServerFlags global variable
-var apiServerFlags = &common.FlagAPIServer{
-	ApiSpecsPath: "resources/api/specs/v1",
-	SwaggerPath:  "resources/api/swagger",
-	Address:      ":9000",
-}
-
 // ParseFlag flag args for apiserver service
-func ParseFlag() *common.FlagAPIServer {
+func ParseFlag() *common.Flag {
 	onceAPIServer.Do(func() {
-		pflag.StringVarP(&apiServerFlags.Address, "address", "a",
-			apiServerFlags.GetAddress(), "host address")
+		flags.Get().ApiSpecsPath = "resources/api/specs/v1"
+		flags.Get().SwaggerPath = "resources/api/swagger"
+		flags.Get().EnvFile = "./cmd/apiserver/.env"
 
-		pflag.StringVar(&apiServerFlags.ApiSpecsPath, "api-specs",
-			apiServerFlags.GetApiSpecsPath(), "openapi specification path")
+		pflag.StringVar(&flags.Get().ApiSpecsPath, "api-specs-path",
+			flags.Get().GetApiSpecsPath(), "openapi specification path")
 
-		pflag.StringVar(&apiServerFlags.SwaggerPath, "swagger-ui",
-			apiServerFlags.GetSwaggerPath(), "swagger ui path")
+		pflag.StringVar(&flags.Get().SwaggerPath, "swagger-path",
+			flags.Get().GetSwaggerPath(), "swagger user interface path")
+
+		pflag.StringVar(&flags.Get().EnvFile, "env-file",
+			flags.Get().GetEnvFile(), "environment variable config file")
+
+		flags.Parse(apiserver.GetMetaApiserver())
 	})
 
-	flags.Parse(apiserver.Metadata_apiserver)
-
-	return apiServerFlags
+	return flags.Get()
 }

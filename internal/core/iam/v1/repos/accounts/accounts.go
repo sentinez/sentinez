@@ -178,7 +178,7 @@ func (acc *Accounts) Create(ctx context.Context,
 	account *iam.Accounts) (*iam.Accounts, error) {
 
 	now := timestamppb.Now()
-	account.Id = uuid.Generate(table.NewPrimaryKey(table.Account))
+	account.Id = uuid.NewID(table.NewPrimaryKey(table.Account))
 	account.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

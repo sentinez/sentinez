@@ -25,9 +25,11 @@ import (
 
 var _ Server = (*HTTPServer)(nil)
 
+type RequestHandler func(ctx *Context) error
+
 type Server interface {
 	httpx.Server
-	Use(mdw ...func(handler fasthttp.RequestHandler) fasthttp.RequestHandler)
+	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
 }
 
@@ -42,29 +44,30 @@ func NewHTTPServer() *HTTPServer {
 // HTTPServer implements the Server interface.
 type HTTPServer struct {
 	core     *fasthttp.Server
-	mdw      []func(handler fasthttp.RequestHandler) fasthttp.RequestHandler
+	chains   []func(RequestHandler) RequestHandler
 	Metadata *common.SentinezMetadata
 }
 
-func (s *HTTPServer) Use(
-	mdw ...func(handler fasthttp.RequestHandler) fasthttp.RequestHandler) {
-	s.mdw = append(s.mdw, mdw...)
+// Use implements Server.
+func (s *HTTPServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
+	s.chains = append(s.chains, mdw...)
 }
 
 func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
+
 	handler := func(ctx *fasthttp.RequestCtx) {
 		c := NewContext(ctx)
+
+		for i := len(s.chains) - 1; i >= 0; i-- {
+			fn = s.chains[i](fn)
+		}
+
 		if err := fn(c); err != nil {
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+			zlog.Debugf("httpxf1: err=%v", err)
 		}
 	}
 
-	// Apply middleware in reverse order (last added wraps the inner)
-	for i := len(s.mdw) - 1; i >= 0; i-- {
-		handler = s.mdw[i](handler)
-	}
-
-	s.core.Handler = handler
+	s.core.Handler = wrapHandler(handler)
 }
 
 // Shutdown implements platform.Server.

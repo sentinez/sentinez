@@ -16,9 +16,17 @@
 package httpxf1
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"sort"
+
+	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/valyala/fasthttp"
 )
+
+const userValueKey = "sntz_request_hex"
 
 // NewContext creates a new FastHTTP context.
 // It implements the Context interface.
@@ -56,4 +64,57 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 	_, err := c.Write(body)
 
 	return err
+}
+
+func setIdentifier(ctx *fasthttp.RequestCtx) {
+	id := uuid.NewHex("SNTZ-REQ-")
+	ctx.SetUserValue(userValueKey, id)
+}
+
+func GetContextIdentify(ctx *Context) string {
+	res, ok := ctx.UserValue(userValueKey).(string)
+	if !ok {
+		return ""
+	}
+
+	return res
+}
+
+// nolint:funlen
+func GenerateContextKey(ctx *Context) string {
+	method := string(ctx.Method())
+	host := string(ctx.Host())
+	path := string(ctx.Path())
+
+	args := ctx.QueryArgs()
+	var keys []string
+	args.All()(func(k, _ []byte) bool {
+		keys = append(keys, string(k))
+		return true
+	})
+	sort.Strings(keys)
+
+	sortedQuery := ""
+	for _, k := range keys {
+		sortedQuery += fmt.Sprintf("%s=%s&", k, args.Peek(k))
+	}
+
+	ct := string(ctx.Request.Header.ContentType())
+
+	body := ctx.PostBody()
+	if len(body) > 1024 {
+		body = body[:1024]
+	}
+	bodyHash := ""
+	if len(body) > 0 {
+		sum := sha256.Sum256(body)
+		bodyHash = hex.EncodeToString(sum[:])
+	}
+
+	rawKey := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
+		method, host, path, sortedQuery, ct, bodyHash,
+	)
+
+	sum := sha256.Sum256([]byte(rawKey))
+	return hex.EncodeToString(sum[:])
 }

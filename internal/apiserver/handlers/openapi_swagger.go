@@ -23,7 +23,7 @@ import (
 )
 
 // RegisterSwaggerRoutes return api json and swagger ui
-func RegisterSwaggerRoutes(mux *http.ServeMux, flag *common.FlagAPIServer) {
+func RegisterSwaggerRoutes(mux *http.ServeMux, flag *common.Flag) {
 
 	apifs := http.FileServer(http.Dir(flag.GetApiSpecsPath()))
 	mux.Handle("/api/", http.StripPrefix("/api/", apifs))

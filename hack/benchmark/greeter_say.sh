@@ -16,4 +16,4 @@
 
 # -c 100: 100 concurrent users.
 # -n 10000: 10,000 requests.
-bombardier -c 100 -n 10000 http://localhost:9000/say?name=hello
+bombardier -c 100 -n 10000 http://badcheese.localhost:7777/

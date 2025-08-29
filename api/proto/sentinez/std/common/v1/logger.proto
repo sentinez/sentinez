@@ -17,6 +17,8 @@ syntax = "proto3";
 package sentinez.std.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
 
-message Logger {
-    
+enum LogKind {
+  LOG_KIND_UNSPECIFIED = 0;
+  LOG_KIND_HTTP = 1;
+  LOG_KIND_WAF = 2;
 }

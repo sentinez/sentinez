@@ -16,19 +16,19 @@ package httpxf1mdw
 
 import (
 	"github.com/corazawaf/coraza/v3/types"
+	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/net/secure"
 	httpfsec "github.com/sentinez/sentinez/pkg/core/net/secure/httpf"
-	"github.com/valyala/fasthttp"
 )
 
 func ProtectedWithCallback(
 	ruleBasePath string,
-	cb func(*fasthttp.RequestCtx, types.Transaction),
-) func(fasthttp.RequestHandler) fasthttp.RequestHandler {
+	cb func(*httpxf1.Context, types.Transaction),
+) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 
 	waf := secure.NewFireWall(ruleBasePath)
 
-	return func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(next httpxf1.RequestHandler) httpxf1.RequestHandler {
 		return httpfsec.WrapHandlerWithCallback(waf, next, cb)
 	}
 }

@@ -31,34 +31,28 @@ import (
 
 var (
 	once sync.Once
-	mu   sync.Mutex
 )
 
 // flags global variable
 var flags = &common.Flag{
-	Name:      "sntz.server.default",
-	Mode:      "dev",
-	LogLevel:  "debug",
-	ConsulUrl: "http://localhost:8500",
+	EnvMode:  "dev",
+	LogLevel: "debug",
 }
 
 func info(meta *common.SentinezMetadata) string {
-	service := strings.Replace(meta.ServiceName, "_", " // ", 1)
-	return version.FigureGen(service, meta.ServiceKey)
+	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
+	return version.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args
 func Parse(meta *common.SentinezMetadata) {
 	once.Do(func() {
 
-		pflag.StringVarP(&flags.Mode, "mode", "m",
-			flags.GetMode(), "run mode (dev|prod|sandbox)")
+		pflag.StringVarP(&flags.EnvMode, "mode", "m",
+			flags.GetEnvMode(), "run mode (dev|prod|sandbox)")
 
 		pflag.StringVar(&flags.LogLevel, "log-level",
 			flags.GetLogLevel(), "log level (debug|info|warn|error)")
-
-		pflag.StringVar(&flags.ConsulUrl, "consul-url",
-			flags.GetConsulUrl(), "consul url")
 
 		pflag.Usage = func() {
 			fmt.Print(info(meta))

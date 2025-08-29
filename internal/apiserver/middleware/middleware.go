@@ -22,16 +22,18 @@ import (
 	"net/http"
 	"strings"
 
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc/grpclog"
 )
 
-// LogRequestBody logs the request body when the response status code is not 200
+// Logging logs the request body when the response status code is not 200
 // This addresses the issue of being unable to retrieve the request body in the
 // customErrorHandler middleware.
-func LogRequestBody(h http.Handler) http.Handler {
+// nolint:funlen
+func Logging(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		lw := newLogResponseWriter(w)
 		body, err := io.ReadAll(r.Body)
@@ -54,6 +56,19 @@ func LogRequestBody(h http.Handler) http.Handler {
 				color.Status(lw.statusCode),
 				string(body))
 		}
+
+		lw.Logger.Info("allow http request", &httppb.Log4HTTP{
+			Scheme:        r.URL.Scheme,
+			Host:          r.Host,
+			Path:          r.URL.Path,
+			Method:        r.Method,
+			Status:        int32(lw.statusCode),
+			RemoteAddress: r.RemoteAddr,
+			Protocol:      r.Proto,
+			Query:         r.URL.RawQuery,
+			UserAgent:     r.UserAgent(),
+			ContentType:   r.Header.Get("Content-Type"),
+		})
 	})
 }
 

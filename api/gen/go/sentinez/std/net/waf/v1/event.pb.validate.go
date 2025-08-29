@@ -40,11 +40,11 @@ func (m *Event) Validate() error {
 		return nil
 	}
 
-	// no validation rules for RequestPath
+	// no validation rules for Path
 
 	// no validation rules for Score
 
-	// no validation rules for RequestIp
+	// no validation rules for Ip
 
 	// no validation rules for RequestDomain
 
@@ -55,6 +55,10 @@ func (m *Event) Validate() error {
 	// no validation rules for Service
 
 	// no validation rules for Action
+
+	// no validation rules for HttpReqId
+
+	// no validation rules for ContentType
 
 	return nil
 }

@@ -1,0 +1,49 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.std.net.http.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1;http";
+
+message RequestHeader {
+  string key = 1;
+  string value = 2;
+}
+
+message QueryValues {
+  repeated string values = 1;
+}
+
+message Log4HTTP {
+  string req_id = 1;
+  string method = 2;
+  string scheme = 3;
+  string host = 4;
+  string path = 5;
+  string query = 6;
+  repeated RequestHeader headers = 7;
+  string protocol = 9;
+  string remote_address = 10;
+
+  bytes resp_body = 8;
+  int32 status = 11;
+
+  string user_agent = 12;
+  string ray_id = 13;
+  int64 asn = 14;
+  string country = 15;
+  string content_type = 16;
+}

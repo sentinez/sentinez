@@ -14,13 +14,14 @@
 
 .PHONY: default
 
-default: default.print \
-	apiserver.build \
-	greeter.build \
-	edge.build
+default: default.print 	\
+	apiserver.build 	\
+	greeter.build 		\
+	edge.build			\
+	websocket.build
 
 default.print:
-	@echo "[BUILD] SENTINEZ: build sentinez and services"
+	@echo "[BUILD] SNTZ: build sentinez and services"
 
 test.cover:
 	@go test ./... -cover
@@ -44,10 +45,15 @@ websocket.run:
 	@go build -ldflags="-s -w" -o ./cmd/websocket/bin/$(SENTINEZ_OUT) ./cmd/websocket && \
  	./cmd/websocket/bin/$(SENTINEZ_OUT)
 
+websocket.build: SENTINEZ_OUT ?= websocket
+websocket.build:
+	@go build -ldflags="-s -w" -o ./cmd/websocket/bin/$(SENTINEZ_OUT) ./cmd/websocket
+	@echo "[DONE]  SNTZ: gateway.websocket ... ok"
+
 apiserver.build: SENTINEZ_OUT ?= apiserver
 apiserver.build:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver
-	@echo "[DONE]  SENTINEZ: gateway.apiserver ... ok"
+	@echo "[DONE]  SNTZ: gateway.apiserver ... ok"
 
 apiserver.run: SENTINEZ_OUT ?= apiserver
 apiserver.run:
@@ -61,12 +67,12 @@ apiserver.build.image:
 greeter.build: SENTINEZ_OUT ?= greeter
 greeter.build:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1
-	@echo "[DONE]  SENTINEZ: core.greeter.v1 ... ok"
+	@echo "[DONE]  SNTZ: core.greeter.v1 ... ok"
 
 greeter.run: SENTINEZ_OUT ?= greeter
 greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
-	./cmd/greeter/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8001
+	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
 
 greeter.build.image: TAG ?= sentinez/sentinez_core_greeter
 greeter.build.image:
@@ -80,13 +86,8 @@ edge.run:
 edge.build: SENTINEZ_OUT ?= edge
 edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
-	@echo "[DONE]  SENTINEZ: gateway.edge.v1 ... ok"
+	@echo "[DONE]  SNTZ: gateway.edge.v1 ... ok"
 
 edge.build.image: TAG ?= sentinez/sentinez_edge
 edge.build.image:
 	docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
-
-discovery.run: SENTINEZ_OUT ?= discovery
-discovery.run:
-	@go build -ldflags="-s -w" -o ./cmd/discovery/v1/bin/$(SENTINEZ_OUT) ./cmd/discovery/v1 && \
-	./cmd/discovery/v1/bin/$(SENTINEZ_OUT) -a=127.0.0.1:8888

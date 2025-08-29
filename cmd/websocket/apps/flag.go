@@ -26,19 +26,17 @@ import (
 
 var onceWS sync.Once
 
-// apiServerFlags global variable
-var apiServerFlags = &common.FlagWS{
-	Address: ":7778",
-}
-
 // ParseFlag flag args for apiserver service
-func ParseFlag() *common.FlagWS {
+func ParseFlag() *common.Flag {
 	onceWS.Do(func() {
-		pflag.StringVarP(&apiServerFlags.Address, "address", "a",
-			apiServerFlags.GetAddress(), "host address")
+		flags.Get().EnvFile = "./cmd/websocket/.env"
+
+		pflag.StringVar(&flags.Get().EnvFile, "env-file",
+			flags.Get().GetEnvFile(), "environment variables config file")
+
+		flags.Parse(ws.GetMetaWs())
+
 	})
 
-	flags.Parse(ws.Metadata_ws)
-
-	return apiServerFlags
+	return flags.Get()
 }

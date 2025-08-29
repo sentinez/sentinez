@@ -17,5 +17,5 @@ package uuid
 import "testing"
 
 func TestGenerate(t *testing.T) {
-	t.Log(Generate("abc"))
+	t.Log(NewID("abc"))
 }

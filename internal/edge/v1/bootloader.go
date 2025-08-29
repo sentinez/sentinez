@@ -15,74 +15,19 @@
 package edge
 
 import (
-	"context"
-	"strconv"
-
-	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
+	"github.com/sentinez/sentinez/internal/edge/v1/cache"
+	"github.com/sentinez/sentinez/internal/edge/v1/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
-	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/middleware"
-	"github.com/valyala/fasthttp"
+	"github.com/sentinez/sentinez/internal/edge/v1/secure"
 )
 
-func (s *Server) bootloader(_ context.Context) error {
+func (s *Server) bootloader() error {
 
-	protected := httpxf1mdw.ProtectedWithCallback(
-		s.flag.GetRulePath(), s.rulesCallback)
+	s.core.Use(cache.HeaderCacheControl)              // idx = 0
+	s.core.Use(logging.Writer)                        // idx = 1
+	s.core.Use(logic.NewHost(s.config.GetHostname())) // idx = 2
+	s.core.Use(secure.NewWAF(s.flag.GetRulePath()))   // idx = 3
 
-	host := logic.Host(s.flag.GetHost())
-
-	s.core.Use(host)
-	s.core.Use(protected)
-
-	return routing.Serve(s.config, s.core)
-}
-
-// nolint:funlen
-func (s *Server) rulesCallback(ctx *fasthttp.RequestCtx, tx types.Transaction) {
-	if !tx.IsInterrupted() {
-		return
-	}
-
-	var (
-		ruleIDs    []int32
-		severities []string
-		msgs       []string
-		score      int
-	)
-
-	matched := tx.MatchedRules()
-	for _, rule := range matched {
-		if rule.Rule().ID() == tx.Interruption().RuleID {
-			score, _ = strconv.Atoi(rule.Data())
-			continue
-		}
-
-		rule.Rule().Accuracy()
-
-		if rule.Message() != "" {
-			ruleIDs = append(ruleIDs, int32(rule.Rule().ID()))
-			severities = append(severities, rule.Rule().Severity().String())
-			msgs = append(msgs, rule.Message())
-		}
-	}
-
-	s.logger.Info(
-		waf.Service_SERVICE_WAF_RULESETS.String(),
-		"rule engine ingress matched",
-		&waf.Event{
-			RuleIds:       ruleIDs,
-			Severities:    severities,
-			Messages:      msgs,
-			RequestPath:   string(ctx.RequestURI()),
-			Score:         int32(score),
-			RequestIp:     ctx.RemoteIP().String(),
-			RequestDomain: string(ctx.Host()),
-			TransactionId: tx.ID(),
-			Service:       waf.Service_SERVICE_WAF_RULESETS,
-			Action:        waf.Action_ACTION_DENY,
-			RequestTime:   ctx.Time().UnixMilli(),
-		},
-	)
+	return routing.Serve(s.yaml, s.core)
 }

@@ -17,10 +17,12 @@ package httpgw
 
 import (
 	"context"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
 	Accept(context.Context, Server) error
-	AcceptFromEndpoint(context.Context, Server) error
+	AcceptFromEndpoint(context.Context, Server, *common.Config) error
 }

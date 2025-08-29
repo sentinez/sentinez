@@ -55,7 +55,7 @@ func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
 	internal.Provide(start)
 
 	// disable log: use fx.NopLogger
-	if flags.Get().GetMode() != "dev" {
+	if flags.Get().GetEnvMode() != "dev" {
 		return &sentinez[srv]{
 			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
 		}
@@ -85,6 +85,11 @@ func (s *sentinez[srv]) Run(ctx context.Context) error {
 
 	// fork the goroutine 2 for stop the app
 	go s.onStop(ctx, sig, err)
+
+	// show memory usage
+	// if flags.Get().LogLevel == zlog.LevelDebug.String() {
+	// 	time.AfterFunc(1*time.Second, memory.PrintUsage)
+	// }
 
 	// wait for the error from the goroutine 1 or 2, end the app
 	return <-err

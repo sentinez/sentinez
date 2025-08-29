@@ -92,6 +92,8 @@ func Serve(conf *edgeyaml.Config, server httpxf1.Server) error {
 
 func (r *Router) Match() func(ctx *httpxf1.Context) error {
 	return func(ctx *httpxf1.Context) error {
+		zlog.Debugf("[edge] request host: %s", string(ctx.Host()))
+
 		if proxyInst == nil {
 			return ctx.String(http.StatusInternalServerError,
 				"proxy not initialized")

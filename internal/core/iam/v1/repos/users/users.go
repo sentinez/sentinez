@@ -168,7 +168,7 @@ func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
 	now := timestamppb.Now()
-	user.Id = uuid.Generate(table.NewPrimaryKey(table.Users))
+	user.Id = uuid.NewID(table.NewPrimaryKey(table.Users))
 	user.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

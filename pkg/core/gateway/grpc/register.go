@@ -24,19 +24,18 @@ import (
 	"github.com/sentinez/sentinez/pkg/client/discovery"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
-	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func Register(name string, flag *common.FlagGRPCService) {
-	addr, port, err := net.SplitHostPort(flag.GetAddress())
+func Register(name string, conf *common.Config) {
+	addr, port, err := net.SplitHostPort(conf.GetAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
 		return
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: flags.Get().GetConsulUrl(),
+		ConsulURL: conf.GetConsulUri(),
 	})
 	portInt, _ := strconv.Atoi(port)
 	serviceID := ""

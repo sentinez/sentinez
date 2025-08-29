@@ -7,15 +7,33 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_ common.Empty
 	_ fmt.Stringer
+	_ proto.Message
 )
 
-var Metadata_apiserver = &common.SentinezMetadata{
+var metadata_apiserver = &common.SentinezMetadata{
 	ServiceName: "SENTINEZ // APISERVER",
 	ServiceKind: common.Kind_KIND_GATEWAY_API,
 	ServiceKey:  "sentinez.apiserver.v1",
+}
+
+func GetMetaApiserver() *common.SentinezMetadata {
+	return proto.Clone(metadata_apiserver).(*common.SentinezMetadata)
+}
+
+func GetMetaApiserverServiceName() string {
+	return metadata_apiserver.GetServiceName()
+}
+
+func GetMetaApiserverServiceKind() common.Kind {
+	return metadata_apiserver.GetServiceKind()
+}
+
+func GetMetaApiserverServiceKey() string {
+	return metadata_apiserver.GetServiceKey()
 }

@@ -27,30 +27,24 @@ import (
 
 var onceEdge sync.Once
 
-var edgeFlags = &common.FlagEdge{
-	Address:     ":7777",
-	Host:        "localhost",
-	RulePath:    "./resources/waf/data/v4-16-0",
-	ProxyConfig: "./cmd/edge/v1/proxy.yaml",
-}
-
-// ParseFlag flag args for grpc service
-func ParseFlag() *common.FlagEdge {
+// Parse flag args for grpc service
+func Parse() *common.Flag {
 	onceEdge.Do(func() {
-		pflag.StringVarP(&edgeFlags.Address, "address", "a",
-			edgeFlags.GetAddress(), "address listen on")
+		flags.Get().RulePath = "./resources/waf/data/v4-16-0"
+		flags.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
+		flags.Get().EnvFile = "./cmd/edge/v1/.env"
 
-		pflag.StringVar(&edgeFlags.Host, "host",
-			edgeFlags.GetHost(), "base hostname")
+		pflag.StringVar(&flags.Get().EnvFile, "env-file",
+			flags.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&edgeFlags.RulePath, "rule-path",
-			edgeFlags.GetRulePath(), "core rulesets root path for rules")
+		pflag.StringVar(&flags.Get().RulePath, "rule-path",
+			flags.Get().GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&edgeFlags.ProxyConfig, "proxy-config",
-			edgeFlags.GetProxyConfig(), "origin config yaml configuration")
+		pflag.StringVar(&flags.Get().ProxyConfig, "proxy-config",
+			flags.Get().GetProxyConfig(), "origin config yaml configuration")
+
+		flags.Parse(edge.GetMetaEdge())
 	})
 
-	flags.Parse(edge.Metadata_edge)
-
-	return edgeFlags
+	return flags.Get()
 }

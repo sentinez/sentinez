@@ -13,12 +13,14 @@ message Event {
   repeated int32 rule_ids = 1;
   repeated string severities = 2;
   repeated string messages = 3;
-  string request_path = 4;
+  string path = 4;
   int32 score = 5;
-  string request_ip = 6;
+  string ip = 6;
   string request_domain = 7;
   string transaction_id = 8;
   int64 request_time = 9; // milisec
-  sentinez.std.net.waf.v1.Service service = 10;
-  sentinez.std.net.waf.v1.Action action = 11;
+  Service service = 10;
+  Action action = 11;
+  string http_req_id = 12;
+  string content_type = 13;
 }

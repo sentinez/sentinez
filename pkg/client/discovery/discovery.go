@@ -22,7 +22,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sentinez/sentinez/pkg/client/consul"
-	"github.com/sentinez/sentinez/pkg/client/names"
 	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/client/resolver"
 )
@@ -97,9 +96,9 @@ type DiscoverResponse struct {
 
 // Discover used to discover the service registry.
 func (dcv *Discovery) Discover(
-	serviceName names.Namespace) (*DiscoverResponse, error) {
+	serviceKey string) (*DiscoverResponse, error) {
 
-	ans, err := dcv.resolver.PickInstance(serviceName.String())
+	ans, err := dcv.resolver.PickInstance(serviceKey)
 	if err != nil {
 		return nil, err
 	}

@@ -36,14 +36,17 @@ import (
 //
 // _ = runner.Inject(controllers.New)
 func main() {
-	if err := flags.Validate(apps.ParseFlag()); err != nil {
+	flag := apps.ParseFlag()
+	if err := flags.Validate(flag); err != nil {
 		zlog.Fatal(err)
 	}
 
+	conf := config.Load(flag.GetEnvFile())
+
 	app := runner.New(greeter.NewService).
 		Build(func(service *greeter.Service) (runner.Server, error) {
-			service.Metadata = greeterpb.Metadata_greeter
-			return greeter.New(service, config.Default(), apps.ParseFlag()), nil
+			service.Metadata = greeterpb.GetMetaGreeter()
+			return greeter.New(service, conf, apps.ParseFlag()), nil
 		})
 
 	_ = app.Run(context.Background())

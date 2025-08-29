@@ -40,13 +40,21 @@ func (m *Config) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Hostname
+
+	// no validation rules for Address
+
+	// no validation rules for SecretKey
+
+	// no validation rules for GatewayAddr
+
 	// no validation rules for TimescaleUri
 
 	// no validation rules for PostgresUri
 
 	// no validation rules for ClickhouseUri
 
-	// no validation rules for SecretKey
+	// no validation rules for ConsulUri
 
 	return nil
 }
