@@ -24,18 +24,8 @@ import (
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
-	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// Build and run the main application with environment variables.
-// Remember to inject all layers of the application using the
-// runner.Inject() function.
-//
-// Example:
-//
-//	_ = runner.Inject(controllers.New)
-//
 // This is the sentinez apiserver application, it will automatically
 // connect to other services via gRPC. Run the application along with
 // other services in the cmd/ directory.The application provides APIs
@@ -49,18 +39,16 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-
 	flag := apps.ParseFlag()
-	if err := flags.Validate(flag); err != nil {
-		zlog.Fatal(err)
-	}
-
 	conf := config.Load(flag.GetEnvFile())
 
 	app := runner.New(httpgw.NewDefault).Build(
 		func(server *httpgw.HTTPServer) (runner.Server, error) {
 			server.Metadata = apiserverpb.GetMetaApiserver()
-			return apiserver.New(server, conf, flag)
+			server.Config = conf
+			server.Flag = flag
+
+			return apiserver.New(server)
 		},
 	)
 

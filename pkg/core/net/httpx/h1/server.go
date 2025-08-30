@@ -39,6 +39,8 @@ func NewServer() *HTTPServer {
 type HTTPServer struct {
 	mdw      []func(http.Handler) http.Handler
 	Metadata *common.SentinezMetadata
+	Config   *common.Config
+	Flag     *common.Flag
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {

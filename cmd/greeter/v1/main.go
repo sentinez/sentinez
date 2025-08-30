@@ -24,8 +24,6 @@ import (
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
-	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // Build and run main application with environment variable
@@ -37,17 +35,17 @@ import (
 // _ = runner.Inject(controllers.New)
 func main() {
 	flag := apps.ParseFlag()
-	if err := flags.Validate(flag); err != nil {
-		zlog.Fatal(err)
-	}
-
 	conf := config.Load(flag.GetEnvFile())
 
-	app := runner.New(greeter.NewService).
-		Build(func(service *greeter.Service) (runner.Server, error) {
+	app := runner.New(greeter.NewService).Build(
+		func(service *greeter.Service) (runner.Server, error) {
 			service.Metadata = greeterpb.GetMetaGreeter()
-			return greeter.New(service, conf, apps.ParseFlag()), nil
-		})
+			service.Config = conf
+			service.Flag = flag
+
+			return greeter.New(service), nil
+		},
+	)
 
 	_ = app.Run(context.Background())
 }

@@ -55,6 +55,8 @@ type ServiceServer interface {
 type Server struct {
 	server   *grpc.Server
 	Metadata *common.SentinezMetadata
+	Config   *common.Config
+	Flag     *common.Flag
 }
 
 // Start implements Server.

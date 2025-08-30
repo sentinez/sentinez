@@ -46,6 +46,8 @@ type HTTPServer struct {
 	core     *fasthttp.Server
 	chains   []func(RequestHandler) RequestHandler
 	Metadata *common.SentinezMetadata
+	Config   *common.Config
+	Flag     *common.Flag
 }
 
 // Use implements Server.

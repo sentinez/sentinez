@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"github.com/spf13/pflag"
 )
@@ -45,6 +46,10 @@ func Parse() *common.Flag {
 
 		flags.Parse(edge.GetMetaEdge())
 	})
+
+	if err := flags.Validate(flags.Get()); err != nil {
+		zlog.Fatal(err)
+	}
 
 	return flags.Get()
 }

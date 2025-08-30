@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
@@ -43,31 +42,26 @@ func NewService() *Service {
 }
 
 // New creates a new Greeter module.
-func New(srv *Service,
-	conf *common.Config, flag *common.Flag) runner.Server {
+func New(srv *Service) runner.Server {
 
 	return &Greeter{
 		Service: srv,
-		config:  conf,
-		flag:    flag,
 	}
 }
 
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
 	*Service
-	config *common.Config
-	flag   *common.Flag
 }
 
 // Start implements IGreeter, override runner.Server.Start
 func (g *Greeter) Start(_ context.Context) error {
-	if err := protobuf.Validate(g.config); err != nil {
+	if err := protobuf.Validate(g.Config); err != nil {
 		return err
 	}
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.config)
-	return g.Serve(g.config.GetAddress())
+	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.Config)
+	return g.Serve(g.Config.GetAddress())
 }

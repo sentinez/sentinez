@@ -18,7 +18,6 @@ package apiserver
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -37,13 +36,10 @@ var _ runner.Server = (*Server)(nil)
 // Example:
 //
 //	var _ = runner.Inject(dcvrhandler.New)
-func New(server httpgw.Server,
-	conf *common.Config, flag *common.Flag) (runner.Server, error) {
+func New(server *httpgw.HTTPServer) (runner.Server, error) {
 
 	srv := &Server{
 		server: server,
-		config: conf,
-		flag:   flag,
 	}
 
 	if err := srv.bootloader(context.Background()); err != nil {
@@ -63,16 +59,9 @@ func New(server httpgw.Server,
 // a Swagger UI interface for users to easily interact with the system
 // through a web interface.
 type Server struct {
-	// config is the configuration of the apiserver app, load environment
-	// variables from .env file
-	config *common.Config
-
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server httpgw.Server
-
-	// flag option for the apiserver
-	flag *common.Flag
+	server *httpgw.HTTPServer
 }
 
 // visitToEndpoint all service to external grpc server
@@ -80,7 +69,7 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(ctx, srv.server, srv.config)
+		err := service.AcceptFromEndpoint(ctx, srv.server, srv.server.Config)
 		if err != nil {
 			return err
 		}
@@ -105,12 +94,12 @@ func (srv *Server) visit(ctx context.Context,
 
 // Start the apiserver/gateway app
 func (srv *Server) Start(_ context.Context) error {
-	if err := protobuf.Validate(srv.config); err != nil {
+	if err := protobuf.Validate(srv.server.Config); err != nil {
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(srv.config.GetAddress())
+	return srv.server.Listen(srv.server.Config.GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

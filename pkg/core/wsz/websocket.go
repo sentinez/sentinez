@@ -32,6 +32,8 @@ func New() *WebSocket {
 type WebSocket struct {
 	routers  sync.Map[string, func(httpx1.Context) error]
 	Metadata *common.SentinezMetadata
+	Config   *common.Config
+	Flag     *common.Flag
 }
 
 func (ws *WebSocket) HandlerFunc(

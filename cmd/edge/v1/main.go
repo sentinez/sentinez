@@ -25,8 +25,6 @@ import (
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
-	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	_ "net/http/pprof"
 )
@@ -39,23 +37,18 @@ import (
 // 	}()
 // }
 
-func loadYaml(confPath string) *edgeyaml.Config {
-	return edgeyaml.LoadRoutesFromYAML(confPath)
-}
-
 func main() {
 	flag := edgeflags.Parse()
-	if err := flags.Validate(flag); err != nil {
-		zlog.Fatal(err)
-	}
-
-	proxyConf := loadYaml(edgeflags.Parse().GetProxyConfig())
 	conf := config.Load(flag.GetEnvFile())
+	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
 
 	app := runner.New(httpxf1.NewHTTPServer).Build(
 		func(srv *httpxf1.HTTPServer) (runner.Server, error) {
 			srv.Metadata = edgev1.GetMetaEdge()
-			return edge.New(srv, flag, proxyConf, conf), nil
+			srv.Config = conf
+			srv.Flag = flag
+
+			return edge.New(srv, proxyConf), nil
 		},
 	)
 
