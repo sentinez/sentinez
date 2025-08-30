@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/spf13/pflag"
 )
 
@@ -37,6 +38,10 @@ func ParseFlag() *common.Flag {
 		flags.Parse(ws.GetMetaWs())
 
 	})
+
+	if err := flags.Validate(flags.Get()); err != nil {
+		zlog.Fatal(err)
+	}
 
 	return flags.Get()
 }

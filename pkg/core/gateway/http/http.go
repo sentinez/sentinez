@@ -79,6 +79,8 @@ type HTTPServer struct {
 	server *http.Server
 
 	Metadata *common.SentinezMetadata
+	Config   *common.Config
+	Flag     *common.Flag
 }
 
 // Start implements Server.

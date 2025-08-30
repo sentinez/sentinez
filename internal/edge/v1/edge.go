@@ -37,13 +37,10 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server httpxf1.Server, flag *common.Flag,
-	yaml *edgeyaml.Config, config *common.Config) runner.Server {
+func New(server *httpxf1.HTTPServer, yaml *edgeyaml.Config) runner.Server {
 	return &Server{
-		core:   server,
-		flag:   flag,
-		yaml:   yaml,
-		config: config,
+		core: server,
+		yaml: yaml,
 		logger: zlog.NewLoggingJSON(
 			edge.GetMetaEdgeServiceKey(),
 			common.LogKind_LOG_KIND_WAF,
@@ -56,10 +53,8 @@ func New(server httpxf1.Server, flag *common.Flag,
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core   httpxf1.Server
+	core   *httpxf1.HTTPServer
 	yaml   *edgeyaml.Config
-	flag   *common.Flag
-	config *common.Config
 	logger zlog.Logger
 }
 
@@ -70,7 +65,7 @@ func (s *Server) Shutdown(_ context.Context) error {
 
 // Start implements v1.Server.
 func (s *Server) Start(_ context.Context) error {
-	return s.Serve(s.config.GetAddress())
+	return s.Serve(s.core.Config.GetAddress())
 }
 
 // Serve starts the server and listens on the given address.
