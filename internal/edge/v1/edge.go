@@ -37,7 +37,7 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server *httpxf1.HTTPServer, yaml *edgeyaml.Config) runner.Server {
+func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Server {
 	return &Server{
 		core: server,
 		yaml: yaml,
@@ -53,9 +53,9 @@ func New(server *httpxf1.HTTPServer, yaml *edgeyaml.Config) runner.Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core   *httpxf1.HTTPServer
-	yaml   *edgeyaml.Config
+	core   httpxf1.Server
 	logger zlog.Logger
+	yaml   *edgeyaml.Config
 }
 
 // Shutdown implements v1.Server.

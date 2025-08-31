@@ -44,7 +44,7 @@ func (ws *WebSocket) GetFlag() *common.Flag {
 	return ws.flag
 }
 
-func (ws *WebSocket) Preferences(meta *common.SentinezMetadata,
+func (ws *WebSocket) SetPref(meta *common.SentinezMetadata,
 	conf *common.Config, flag *common.Flag) {
 	ws.metadata = meta
 	ws.config = conf

@@ -31,7 +31,7 @@ func main() {
 
 	app := runner.New(wscore.NewServer).Build(
 		func(ws *wscore.WebSocket) (runner.Server, error) {
-			ws.Preferences(wspb.GetMetaWs(), conf, flag)
+			ws.SetPref(wspb.GetMetaWs(), conf, flag)
 			return websocket.New(ws), nil
 		},
 	)

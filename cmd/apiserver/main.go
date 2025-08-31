@@ -43,8 +43,8 @@ func main() {
 	conf := config.Load(flag.GetEnvFile())
 
 	app := runner.New(httpgw.NewDefault).Build(
-		func(server *httpgw.HTTPServer) (runner.Server, error) {
-			server.Preferences(apiserverpb.GetMetaApiserver(), conf, flag)
+		func(server httpgw.Server) (runner.Server, error) {
+			server.SetPref(apiserverpb.GetMetaApiserver(), conf, flag)
 			return apiserver.New(server)
 		},
 	)

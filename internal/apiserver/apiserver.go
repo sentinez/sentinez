@@ -36,7 +36,7 @@ var _ runner.Server = (*Server)(nil)
 // Example:
 //
 //	var _ = runner.Inject(dcvrhandler.New)
-func New(server *httpgw.HTTPServer) (runner.Server, error) {
+func New(server httpgw.Server) (runner.Server, error) {
 
 	srv := &Server{
 		server: server,
@@ -61,7 +61,7 @@ func New(server *httpgw.HTTPServer) (runner.Server, error) {
 type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server *httpgw.HTTPServer
+	server httpgw.Server
 }
 
 // visitToEndpoint all service to external grpc server

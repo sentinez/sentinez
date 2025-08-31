@@ -47,21 +47,21 @@ type Server interface {
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)
-	Preferences(meta *common.SentinezMetadata,
+	SetPref(meta *common.SentinezMetadata,
 		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
 
 // New creates a new http server.
-func New(opts ...runtime.ServeMuxOption) *HTTPServer {
+func New(opts ...runtime.ServeMuxOption) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
 	}
 }
 
-func NewDefault() *HTTPServer {
+func NewDefault() Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
@@ -103,8 +103,8 @@ func (h *HTTPServer) GetFlag() *common.Flag {
 	return h.flag
 }
 
-// Preferences implements Server.
-func (h *HTTPServer) Preferences(meta *common.SentinezMetadata,
+// SetPref implements Server.
+func (h *HTTPServer) SetPref(meta *common.SentinezMetadata,
 	conf *common.Config, flag *common.Flag) {
 	h.metadata = meta
 	h.config = conf

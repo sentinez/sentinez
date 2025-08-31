@@ -42,7 +42,7 @@ type ServiceServer interface {
 	AsServer() *grpc.Server
 	Serve(addr string) error
 	Shutdown(ctx context.Context) error
-	Preferences(meta *common.SentinezMetadata,
+	SetPref(meta *common.SentinezMetadata,
 		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
@@ -73,8 +73,8 @@ func (s *Server) GetFlag() *common.Flag {
 	return s.flag
 }
 
-// Preferences implements Server.
-func (s *Server) Preferences(meta *common.SentinezMetadata,
+// SetPref implements Server.
+func (s *Server) SetPref(meta *common.SentinezMetadata,
 	conf *common.Config, flag *common.Flag) {
 	s.metadata = meta
 	s.config = conf

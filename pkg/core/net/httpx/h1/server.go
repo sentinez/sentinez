@@ -30,13 +30,13 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(http.Handler) http.Handler)
 	Handle(fn func(ctx Context) error)
-	Preferences(meta *common.SentinezMetadata,
+	SetPref(meta *common.SentinezMetadata,
 		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
 
-func NewServer() *HTTPServer {
+func NewServer() Server {
 	return &HTTPServer{}
 }
 
@@ -57,8 +57,8 @@ func (s *HTTPServer) GetFlag() *common.Flag {
 	return s.flag
 }
 
-// Preferences implements Server.
-func (s *HTTPServer) Preferences(meta *common.SentinezMetadata,
+// SetPref implements Server.
+func (s *HTTPServer) SetPref(meta *common.SentinezMetadata,
 	conf *common.Config, flag *common.Flag) {
 	s.metadata = meta
 	s.config = conf
