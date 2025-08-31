@@ -44,10 +44,7 @@ func main() {
 
 	app := runner.New(httpgw.NewDefault).Build(
 		func(server *httpgw.HTTPServer) (runner.Server, error) {
-			server.Metadata = apiserverpb.GetMetaApiserver()
-			server.Config = conf
-			server.Flag = flag
-
+			server.Preferences(apiserverpb.GetMetaApiserver(), conf, flag)
 			return apiserver.New(server)
 		},
 	)

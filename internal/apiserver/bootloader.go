@@ -27,18 +27,21 @@ import (
 )
 
 func (srv *Server) bootloader(ctx context.Context) error {
+	flag := srv.server.GetFlag()
+	conf := srv.server.GetConfig()
+
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
 	srv.server.Use(middleware.AllowCORS)
 
 	// register all custom handlers to the server
-	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), srv.server.Flag)
+	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
 	// NOTE: Make sure the gRPC server is running properly and accessible
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 	err := srv.visitToEndpoint(ctx,
-		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(srv.server.Config)),
+		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(conf)),
 	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
@@ -46,7 +49,7 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	}
 
 	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultIAMHdl(srv.server.Config)),
-		services.NewTenant(tenantfac.NewDefaultTenantHdl(srv.server.Config)),
+		services.NewIAM(iamfac.NewDefaultIAMHdl(conf)),
+		services.NewTenant(tenantfac.NewDefaultTenantHdl(conf)),
 	)
 }

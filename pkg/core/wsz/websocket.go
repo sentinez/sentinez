@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func New() *WebSocket {
+func NewServer() *WebSocket {
 	return &WebSocket{
 		routers: sync.Map[string, func(httpx1.Context) error]{},
 	}
@@ -31,11 +31,25 @@ func New() *WebSocket {
 
 type WebSocket struct {
 	routers  sync.Map[string, func(httpx1.Context) error]
-	Metadata *common.SentinezMetadata
-	Config   *common.Config
-	Flag     *common.Flag
+	metadata *common.SentinezMetadata
+	config   *common.Config
+	flag     *common.Flag
 }
 
+func (ws *WebSocket) GetConfig() *common.Config {
+	return ws.config
+}
+
+func (ws *WebSocket) GetFlag() *common.Flag {
+	return ws.flag
+}
+
+func (ws *WebSocket) Preferences(meta *common.SentinezMetadata,
+	conf *common.Config, flag *common.Flag) {
+	ws.metadata = meta
+	ws.config = conf
+	ws.flag = flag
+}
 func (ws *WebSocket) HandlerFunc(
 	path string, handler func(httpx1.Context) error) {
 
@@ -56,7 +70,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	version.INFO(ws.Metadata.GetServiceName(), ws.Metadata.GetServiceKey())
+	version.INFO(ws.metadata.GetServiceName(), ws.metadata.GetServiceKey())
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("ws"),
 		color.Magenta.Add(addr),

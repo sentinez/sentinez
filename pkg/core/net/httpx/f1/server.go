@@ -31,11 +31,15 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
+	Preferences(meta *common.SentinezMetadata,
+		conf *common.Config, flag *common.Flag)
+	GetConfig() *common.Config
+	GetFlag() *common.Flag
 }
 
-// NewHTTPServer creates a new fasthttp server instance.
+// NewServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewHTTPServer() *HTTPServer {
+func NewServer() *HTTPServer {
 	return &HTTPServer{
 		core: &fasthttp.Server{},
 	}
@@ -45,9 +49,27 @@ func NewHTTPServer() *HTTPServer {
 type HTTPServer struct {
 	core     *fasthttp.Server
 	chains   []func(RequestHandler) RequestHandler
-	Metadata *common.SentinezMetadata
-	Config   *common.Config
-	Flag     *common.Flag
+	metadata *common.SentinezMetadata
+	config   *common.Config
+	flag     *common.Flag
+}
+
+// GetConfig implements Server.
+func (s *HTTPServer) GetConfig() *common.Config {
+	return s.config
+}
+
+// GetFlag implements Server.
+func (s *HTTPServer) GetFlag() *common.Flag {
+	return s.flag
+}
+
+// Preferences implements Server.
+func (s *HTTPServer) Preferences(meta *common.SentinezMetadata,
+	conf *common.Config, flag *common.Flag) {
+	s.metadata = meta
+	s.config = conf
+	s.flag = flag
 }
 
 // Use implements Server.
@@ -79,7 +101,7 @@ func (s *HTTPServer) Shutdown() error {
 
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	version.INFO(s.metadata.GetServiceName(), s.metadata.GetServiceKey())
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("fasthttp"),
 		color.Magenta.Add(addr),

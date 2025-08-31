@@ -29,12 +29,9 @@ func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
 
-	app := runner.New(wscore.New).Build(
+	app := runner.New(wscore.NewServer).Build(
 		func(ws *wscore.WebSocket) (runner.Server, error) {
-			ws.Metadata = wspb.GetMetaWs()
-			ws.Config = conf
-			ws.Flag = flag
-
+			ws.Preferences(wspb.GetMetaWs(), conf, flag)
 			return websocket.New(ws), nil
 		},
 	)

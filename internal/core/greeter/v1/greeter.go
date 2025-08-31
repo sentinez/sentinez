@@ -56,12 +56,12 @@ type Greeter struct {
 
 // Start implements IGreeter, override runner.Server.Start
 func (g *Greeter) Start(_ context.Context) error {
-	if err := protobuf.Validate(g.Config); err != nil {
+	if err := protobuf.Validate(g.GetConfig()); err != nil {
 		return err
 	}
 
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.Config)
-	return g.Serve(g.Config.GetAddress())
+	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(), g.GetConfig())
+	return g.Serve(g.GetConfig().GetAddress())
 }

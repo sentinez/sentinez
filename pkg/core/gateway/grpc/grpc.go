@@ -42,6 +42,10 @@ type ServiceServer interface {
 	AsServer() *grpc.Server
 	Serve(addr string) error
 	Shutdown(ctx context.Context) error
+	Preferences(meta *common.SentinezMetadata,
+		conf *common.Config, flag *common.Flag)
+	GetConfig() *common.Config
+	GetFlag() *common.Flag
 }
 
 // Server is a gRPC server that registers services.
@@ -54,9 +58,27 @@ type ServiceServer interface {
 //	}
 type Server struct {
 	server   *grpc.Server
-	Metadata *common.SentinezMetadata
-	Config   *common.Config
-	Flag     *common.Flag
+	metadata *common.SentinezMetadata
+	config   *common.Config
+	flag     *common.Flag
+}
+
+// GetConfig implements Server.
+func (s *Server) GetConfig() *common.Config {
+	return s.config
+}
+
+// GetFlag implements Server.
+func (s *Server) GetFlag() *common.Flag {
+	return s.flag
+}
+
+// Preferences implements Server.
+func (s *Server) Preferences(meta *common.SentinezMetadata,
+	conf *common.Config, flag *common.Flag) {
+	s.metadata = meta
+	s.config = conf
+	s.flag = flag
 }
 
 // Start implements Server.
@@ -85,7 +107,7 @@ func (s *Server) Serve(addr string) error {
 		return err
 	}
 
-	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	version.INFO(s.metadata.GetServiceName(), s.metadata.GetServiceKey())
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
 		color.Magenta.Add(addr),

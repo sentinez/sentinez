@@ -39,10 +39,7 @@ func main() {
 
 	app := runner.New(greeter.NewService).Build(
 		func(service *greeter.Service) (runner.Server, error) {
-			service.Metadata = greeterpb.GetMetaGreeter()
-			service.Config = conf
-			service.Flag = flag
-
+			service.Preferences(greeterpb.GetMetaGreeter(), conf, flag)
 			return greeter.New(service), nil
 		},
 	)
