@@ -30,17 +30,39 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(http.Handler) http.Handler)
 	Handle(fn func(ctx Context) error)
+	SetPref(meta *common.SentinezMetadata,
+		conf *common.Config, flag *common.Flag)
+	GetConfig() *common.Config
+	GetFlag() *common.Flag
 }
 
-func NewServer() *HTTPServer {
+func NewServer() Server {
 	return &HTTPServer{}
 }
 
 type HTTPServer struct {
 	mdw      []func(http.Handler) http.Handler
-	Metadata *common.SentinezMetadata
-	Config   *common.Config
-	Flag     *common.Flag
+	metadata *common.SentinezMetadata
+	config   *common.Config
+	flag     *common.Flag
+}
+
+// GetConfig implements Server.
+func (s *HTTPServer) GetConfig() *common.Config {
+	return s.config
+}
+
+// GetFlag implements Server.
+func (s *HTTPServer) GetFlag() *common.Flag {
+	return s.flag
+}
+
+// SetPref implements Server.
+func (s *HTTPServer) SetPref(meta *common.SentinezMetadata,
+	conf *common.Config, flag *common.Flag) {
+	s.metadata = meta
+	s.config = conf
+	s.flag = flag
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
@@ -52,7 +74,7 @@ func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	version.INFO(s.Metadata.GetServiceName(), s.Metadata.GetServiceKey())
+	version.INFO(s.metadata.GetServiceName(), s.metadata.GetServiceKey())
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("http"),
 		color.Magenta.Add(addr),
