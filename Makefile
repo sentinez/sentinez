@@ -60,7 +60,7 @@ apiserver.run:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
  	./cmd/apiserver/bin/$(SENTINEZ_OUT)
 
-apiserver.build.image: TAG ?= sentinez/sentinez
+apiserver.build.image: TAG ?= sentinez/sentinez_api
 apiserver.build.image:
 	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
 

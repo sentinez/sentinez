@@ -4,6 +4,7 @@
 
 _dumpdata/
 dumpdata/
+deploy/
 
 bin/
 build/
@@ -12,5 +13,3 @@ third_party/
 tests/
 
 node_modules
-
-.env
