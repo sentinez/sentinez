@@ -29,9 +29,11 @@ var once sync.Once
 
 // Load returns the environment.
 func Load(envFile string) *common.Config {
-	err := godotenv.Load(envFile)
-	if err != nil {
-		zlog.Fatalf("error loading environment file: err=%v", err)
+	if envFile != "" {
+		err := godotenv.Load(envFile)
+		if err != nil {
+			zlog.Fatalf("error loading environment file: err=%v", err)
+		}
 	}
 
 	once.Do(func() {

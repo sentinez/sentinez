@@ -16,8 +16,8 @@
 
 
 ./bin/main \
-    --log-level debug  \
+    --log-level info  \
+    --mode prod \
     --rule-path ./resources/waf/data/v4-16-0 \
     --proxy-config ./proxy.yaml \
-    --address :7777 \
-    --host localhost
+    --env-file ""

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright 2025 Duc-Hung Ho.
 #
@@ -16,8 +16,8 @@
 
 
 ./bin/apiserver \
-    --log-level debug  \
-    --mode dev \
-    --address 0.0.0.0:9000 \
-    --api-specs ./resources/api/specs/v1 \
-    --swagger-ui ./resources/api/swagger
+    --log-level info  \
+    --mode prod \
+    --api-specs-path ./resources/api/specs/v1 \
+    --swagger-path ./resources/api/swagger \
+    --env-file ""

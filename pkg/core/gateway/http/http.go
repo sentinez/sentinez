@@ -37,8 +37,6 @@ var (
 	_ Server = (*HTTPServer)(nil)
 )
 
-type Middleware func(http.Handler) http.Handler
-
 // Server is an interface for a http server.
 // default port is 9000
 type Server interface {
@@ -61,7 +59,7 @@ func New(opts ...runtime.ServeMuxOption) Server {
 	}
 }
 
-func NewDefault() Server {
+func NewServer() Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
@@ -132,7 +130,7 @@ func (h *HTTPServer) Listen(address string) error {
 	// httpMux was wrapped with the middlewares
 	h.server = &http.Server{
 		Addr:    address,
-		Handler: chain(h.httpMux),
+		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
 	version.INFO(h.metadata.GetServiceName(), h.metadata.GetServiceKey())
@@ -158,7 +156,7 @@ func (h *HTTPServer) Shutdown(ctx context.Context) error {
 	return h.server.Shutdown(ctx)
 }
 
-func chain(h http.Handler, m ...Middleware) http.Handler {
+func chain(h http.Handler, m ...func(http.Handler) http.Handler) http.Handler {
 	for i := len(m) - 1; i >= 0; i-- {
 		h = m[i](h)
 	}

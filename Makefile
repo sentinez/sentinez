@@ -60,7 +60,7 @@ apiserver.run:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
  	./cmd/apiserver/bin/$(SENTINEZ_OUT)
 
-apiserver.build.image: TAG ?= sentinez/sentinez
+apiserver.build.image: TAG ?= sentinez/sentinez_api
 apiserver.build.image:
 	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
 
@@ -90,4 +90,9 @@ edge.build:
 
 edge.build.image: TAG ?= sentinez/sentinez_edge
 edge.build.image:
-	docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
+	@docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
+
+image.clear:
+	@docker rmi hashicorp/consul
+	@docker rmi sentinez/sentinez_api
+	@docker rmi sentinez/sentinez_edge

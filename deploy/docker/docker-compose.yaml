@@ -1,31 +1,31 @@
 services:
-  sentinez.redis:
-    image: redis
-    container_name: sentinez.redis
-    hostname: sentinez.redis
-    ports:
-      - "6379:6379"
-    command: /bin/sh -c "redis-server --requirepass password"
-    volumes:
-      - ./_dumpdata/redis:/data
-    networks:
-      - sentinez-network
+  # sentinez.redis:
+  #   image: redis
+  #   container_name: sentinez.redis
+  #   hostname: sentinez.redis
+  #   ports:
+  #     - "6379:6379"
+  #   command: /bin/sh -c "redis-server --requirepass password"
+  #   volumes:
+  #     - ./_dumpdata/redis:/data
+  #   networks:
+  #     - sentinez-network
 
-  sentinez.timescale:
-    image: timescale/timescaledb:latest-pg16
-    hostname: sentinez.timescale
-    container_name: sentinez.timescale
-    ports:
-      - "5432:5432"
-    restart: on-failure:3
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: sentinez
-    volumes:
-      - ./_dumpdata/timescale:/var/lib/timescale/data
-    networks:
-      - sentinez-network
+  # sentinez.timescale:
+  #   image: timescale/timescaledb:latest-pg16
+  #   hostname: sentinez.timescale
+  #   container_name: sentinez.timescale
+  #   ports:
+  #     - "5432:5432"
+  #   restart: on-failure:3
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: sentinez
+  #   volumes:
+  #     - ./_dumpdata/timescale:/var/lib/timescale/data
+  #   networks:
+  #     - sentinez-network
 
   sentinez.postgres:
     image: postgres:16
@@ -57,14 +57,42 @@ services:
     networks:
       - sentinez-network
 
-  sentinez.nats:
-    image: nats:latest
-    hostname: sentinez.nats
-    container_name: sentinez.nats
+  # sentinez.nats:
+  #   image: nats:latest
+  #   hostname: sentinez.nats
+  #   container_name: sentinez.nats
+  #   ports:
+  #     - "4222:4222"  # client port
+  #     - "8222:8222"  # monitoring port
+  #   # command: -js # Enable JetStream
+
+  sentinez.apiserver:
+    image: sentinez/sentinez_api:latest
+    hostname: sentinez.apiserver
+    container_name: sentinez.apiserver
+    restart: on-failure:3
+    environment:
+      - SNTZ_POSTGRES_URI=postgres://root:root@sentinez.postgres:5432/sentinez?sslmode=disable
     ports:
-      - "4222:4222"  # client port
-      - "8222:8222"  # monitoring port
-    # command: -js # Enable JetStream
+      - "8080:8080"
+    networks:
+      - sentinez-network
+    env_file:
+      - ../../cmd/apiserver/.env
+    depends_on:
+      - sentinez.postgres
+  
+  sentinez.edge:
+    image: sentinez/sentinez_edge:latest
+    hostname: sentinez.edge
+    container_name: sentinez.edge
+    restart: on-failure:3
+    ports:
+      - "7777:7777"
+    networks:
+      - sentinez-network
+    env_file:
+      - ../../cmd/edge/v1/.env
 
 volumes:
   _dumpdata:

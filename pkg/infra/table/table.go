@@ -46,7 +46,7 @@ func IsValidTableName(tableName string) bool {
 	return false
 }
 
-const Pattern = `^(dev|sandbox|production)\_sentinez\_[a-z]+$`
+const Pattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
 
 const (
 	Users   = "users"

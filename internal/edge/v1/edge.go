@@ -18,8 +18,6 @@ package edge
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -41,11 +39,6 @@ func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Server {
 	return &Server{
 		core: server,
 		yaml: yaml,
-		logger: zlog.NewLoggingJSON(
-			edge.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_WAF,
-			zlog.LevelWarning,
-		),
 	}
 }
 
@@ -53,9 +46,8 @@ func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core   httpxf1.Server
-	logger zlog.Logger
-	yaml   *edgeyaml.Config
+	core httpxf1.Server
+	yaml *edgeyaml.Config
 }
 
 // Shutdown implements v1.Server.
