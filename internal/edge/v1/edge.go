@@ -26,7 +26,7 @@ import (
 
 var (
 	_ Edge          = (*Server)(nil)
-	_ runner.Server = (*Server)(nil)
+	_ runner.Engine = (*Server)(nil)
 )
 
 // Edge is the interface that wraps the basic Serve method.
@@ -35,7 +35,7 @@ type Edge interface {
 }
 
 // New creates a new Edge Server instance.
-func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Server {
+func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Engine {
 	return &Server{
 		core: server,
 		yaml: yaml,

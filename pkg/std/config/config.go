@@ -51,3 +51,7 @@ func Load(envFile string) *common.Config {
 
 	return conf
 }
+
+func Get() *common.Config {
+	return conf
+}

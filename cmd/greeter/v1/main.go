@@ -36,13 +36,16 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+	runnerCtx := &runner.Context{
+		Meta:   greeterpb.GetMetaGreeter(),
+		Config: conf,
+		Flag:   flag,
+	}
 
-	app := runner.New(greeter.NewService).Build(
-		func(service *greeter.Service) (runner.Server, error) {
-			service.SetPref(greeterpb.GetMetaGreeter(), conf, flag)
+	app := runner.New(greeter.NewService).
+		Build(runnerCtx, func(service *greeter.Service) (runner.Engine, error) {
 			return greeter.New(service), nil
-		},
-	)
+		})
 
 	_ = app.Run(context.Background())
 }

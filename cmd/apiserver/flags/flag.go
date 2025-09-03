@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package apps provides the app setting for apiserver service
-package apps
+// Package flags provides the app setting for apiserver service
+package flags
 
 import (
 	"sync"
@@ -27,8 +27,8 @@ import (
 
 var onceAPIServer sync.Once
 
-// ParseFlag flag args for apiserver service
-func ParseFlag() *common.Flag {
+// Parse flag args for apiserver service
+func Parse() *common.Flag {
 	onceAPIServer.Do(func() {
 		flags.Get().ApiSpecsPath = "resources/api/specs/v1"
 		flags.Get().SwaggerPath = "resources/api/swagger"

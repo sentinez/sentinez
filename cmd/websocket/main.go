@@ -28,13 +28,16 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+	runnerCtx := &runner.Context{
+		Meta:   wspb.GetMetaWs(),
+		Config: conf,
+		Flag:   flag,
+	}
 
-	app := runner.New(wscore.NewServer).Build(
-		func(ws *wscore.WebSocket) (runner.Server, error) {
-			ws.SetPref(wspb.GetMetaWs(), conf, flag)
+	app := runner.New(wscore.NewServer).
+		Build(runnerCtx, func(ws *wscore.WebSocket) (runner.Engine, error) {
 			return websocket.New(ws), nil
-		},
-	)
+		})
 
 	_ = app.Run(context.Background())
 }

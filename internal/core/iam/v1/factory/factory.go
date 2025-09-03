@@ -41,7 +41,7 @@ func NewDefaultIAMHdl(
 
 	tx := postgres.NewTX(config)
 
-	service := iamservices.New(tx, userrepos, accountrepos)
+	service := iamservices.New(config, tx, userrepos, accountrepos)
 
 	return iamhandler.New(service)
 }

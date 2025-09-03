@@ -34,7 +34,7 @@ var (
 	_ ServiceServer = (*Server)(nil)
 
 	// Ensure Server implements Server.
-	_ runner.Server = (*Server)(nil)
+	_ runner.Engine = (*Server)(nil)
 )
 
 // ServiceServer is a gRPC service server.
@@ -42,8 +42,6 @@ type ServiceServer interface {
 	AsServer() *grpc.Server
 	Serve(addr string) error
 	Shutdown(ctx context.Context) error
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
@@ -71,14 +69,6 @@ func (s *Server) GetConfig() *common.Config {
 // GetFlag implements Server.
 func (s *Server) GetFlag() *common.Flag {
 	return s.flag
-}
-
-// SetPref implements Server.
-func (s *Server) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	s.metadata = meta
-	s.config = conf
-	s.flag = flag
 }
 
 // Start implements Server.
@@ -117,13 +107,16 @@ func (s *Server) Serve(addr string) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(opts ...grpc.ServerOption) *Server {
+func New(runnerCtx *runner.Context, opts ...grpc.ServerOption) *Server {
 	return &Server{
-		server: grpc.NewServer(opts...),
+		server:   grpc.NewServer(opts...),
+		metadata: runnerCtx.Meta,
+		config:   runnerCtx.Config,
+		flag:     runnerCtx.Flag,
 	}
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault() *Server {
-	return New()
+func NewDefault(runnerCtx *runner.Context) *Server {
+	return New(runnerCtx)
 }

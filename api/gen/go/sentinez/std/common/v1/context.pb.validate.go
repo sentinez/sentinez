@@ -40,17 +40,21 @@ func (m *Context) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Name
+
+	if v, ok := interface{}(m.GetExpireAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ContextValidationError{
+				field:  "ExpireAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	// no validation rules for UserId
 
-	// no validation rules for Authorization
-
-	// no validation rules for Locale
-
-	// no validation rules for ServiceName
-
-	// no validation rules for Ip
-
-	// no validation rules for Environment
+	// no validation rules for PermissionBitwise
 
 	return nil
 }

@@ -44,7 +44,7 @@ type IUser interface {
 
 	// extra methods
 
-	GetByUsernameOrEmail(ctx context.Context,
+	GetByFullnameOrEmail(ctx context.Context,
 		input string) (*iam.Users, error)
 
 	List(ctx context.Context,
@@ -80,8 +80,8 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	}
 }
 
-// GetByUsernameOrEmail implements IUser.
-func (u *Users) GetByUsernameOrEmail(ctx context.Context,
+// GetByFullnameOrEmail implements IUser.
+func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	input string) (*iam.Users, error) {
 
 	builder := sq.Select(database.SchemalessFieldData).From(u.tableName).Where(

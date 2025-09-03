@@ -19,13 +19,17 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/sync"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func NewServer() *WebSocket {
+func NewServer(runnerCtx *runner.Context) *WebSocket {
 	return &WebSocket{
-		routers: sync.Map[string, func(httpx1.Context) error]{},
+		routers:  sync.Map[string, func(httpx1.Context) error]{},
+		metadata: runnerCtx.Meta,
+		config:   runnerCtx.Config,
+		flag:     runnerCtx.Flag,
 	}
 }
 
@@ -44,12 +48,6 @@ func (ws *WebSocket) GetFlag() *common.Flag {
 	return ws.flag
 }
 
-func (ws *WebSocket) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	ws.metadata = meta
-	ws.config = conf
-	ws.flag = flag
-}
 func (ws *WebSocket) HandlerFunc(
 	path string, handler func(httpx1.Context) error) {
 

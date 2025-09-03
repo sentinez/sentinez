@@ -18,6 +18,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
@@ -31,17 +32,18 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
 
 // NewServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewServer() Server {
+func NewServer(runnerCtx *runner.Context) Server {
 	return &HTTPServer{
-		core: &fasthttp.Server{},
+		core:     &fasthttp.Server{},
+		metadata: runnerCtx.Meta,
+		config:   runnerCtx.Config,
+		flag:     runnerCtx.Flag,
 	}
 }
 
@@ -62,14 +64,6 @@ func (s *HTTPServer) GetConfig() *common.Config {
 // GetFlag implements Server.
 func (s *HTTPServer) GetFlag() *common.Flag {
 	return s.flag
-}
-
-// SetPref implements Server.
-func (s *HTTPServer) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	s.metadata = meta
-	s.config = conf
-	s.flag = flag
 }
 
 // Use implements Server.

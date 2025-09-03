@@ -40,14 +40,17 @@ import (
 func main() {
 	flag := edgeflags.Parse()
 	conf := config.Load(flag.GetEnvFile())
-	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+	runnerCtx := &runner.Context{
+		Meta:   edgev1.GetMetaEdge(),
+		Config: conf,
+		Flag:   flag,
+	}
 
-	app := runner.New(httpxf1.NewServer).Build(
-		func(srv httpxf1.Server) (runner.Server, error) {
-			srv.SetPref(edgev1.GetMetaEdge(), conf, flag)
+	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+	app := runner.New(httpxf1.NewServer).
+		Build(runnerCtx, func(srv httpxf1.Server) (runner.Engine, error) {
 			return edge.New(srv, proxyConf), nil
-		},
-	)
+		})
 
 	_ = app.Run(context.Background())
 }

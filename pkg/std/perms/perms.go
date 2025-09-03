@@ -12,32 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package crypto
+package perms
 
 import (
-	"encoding/base64"
-	"testing"
-	"time"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func TestGenAndVerifyToken(t *testing.T) {
-	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
+func Add(flag common.Permission) int32 {
+	return int32(flag)
+}
 
-	token, err := TokenGenerator(secBase64, &common.Context{
-		Name:     "test gen & verify",
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-	})
-	if err != nil {
-		t.Error(err)
-	}
+func Remove(perms int32, flag common.Permission) int32 {
+	return perms &^ int32(flag)
+}
 
-	tp, ok := BearerTokenVerifier(token, secBase64)
-	if !ok {
-		t.Error("fail to verify bearer token")
-	}
-
-	t.Log("token payload: ", tp.String())
+func Has(perms int32, flag common.Permission) bool {
+	return (perms & int32(flag)) != 0
 }

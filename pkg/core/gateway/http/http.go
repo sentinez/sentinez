@@ -31,7 +31,7 @@ import (
 
 var (
 	// Ensure httpServer implements Server.
-	_ runner.Server = (*HTTPServer)(nil)
+	_ runner.Engine = (*HTTPServer)(nil)
 
 	// Ensure httpServer implements HttpServer.
 	_ Server = (*HTTPServer)(nil)
@@ -45,24 +45,28 @@ type Server interface {
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
 
 // New creates a new http server.
-func New(opts ...runtime.ServeMuxOption) Server {
+func New(runnerCtx *runner.Context, opts ...runtime.ServeMuxOption) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
+		metadata:   runnerCtx.Meta,
+		config:     runnerCtx.Config,
+		flag:       runnerCtx.Flag,
 	}
 }
 
-func NewServer() Server {
+func NewServer(runnerCtx *runner.Context) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
+		metadata:   runnerCtx.Meta,
+		config:     runnerCtx.Config,
+		flag:       runnerCtx.Flag,
 	}
 }
 
@@ -102,7 +106,7 @@ func (h *HTTPServer) GetFlag() *common.Flag {
 }
 
 // SetPref implements Server.
-func (h *HTTPServer) SetPref(meta *common.SentinezMetadata,
+func (h *HTTPServer) SetAppContext(meta *common.SentinezMetadata,
 	conf *common.Config, flag *common.Flag) {
 	h.metadata = meta
 	h.config = conf

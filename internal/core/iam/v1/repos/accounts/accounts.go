@@ -164,8 +164,8 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 		From(acc.tableName).
 		Where(
 			sq.Or{
-				sq.Eq{postgres.Field(iam.UsersFieldFullName): input},
-				sq.Eq{postgres.Field(iam.UsersFieldEmail): input},
+				sq.Eq{postgres.Field(iam.AccountsFieldUsername): input},
+				sq.Eq{postgres.Field(iam.AccountsFieldEmail): input},
 			},
 		)
 

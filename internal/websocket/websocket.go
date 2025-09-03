@@ -23,9 +23,9 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/wsz"
 )
 
-var _ runner.Server = (*WebSocket)(nil)
+var _ runner.Engine = (*WebSocket)(nil)
 
-func New(ws *wsz.WebSocket) runner.Server {
+func New(ws *wsz.WebSocket) runner.Engine {
 	return &WebSocket{
 		core: ws,
 	}

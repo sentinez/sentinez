@@ -20,6 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -30,14 +31,16 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(http.Handler) http.Handler)
 	Handle(fn func(ctx Context) error)
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
 	GetConfig() *common.Config
 	GetFlag() *common.Flag
 }
 
-func NewServer() Server {
-	return &HTTPServer{}
+func NewServer(runnerCtx *runner.Context) Server {
+	return &HTTPServer{
+		metadata: runnerCtx.Meta,
+		config:   runnerCtx.Config,
+		flag:     runnerCtx.Flag,
+	}
 }
 
 type HTTPServer struct {
@@ -55,14 +58,6 @@ func (s *HTTPServer) GetConfig() *common.Config {
 // GetFlag implements Server.
 func (s *HTTPServer) GetFlag() *common.Flag {
 	return s.flag
-}
-
-// SetPref implements Server.
-func (s *HTTPServer) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	s.metadata = meta
-	s.config = conf
-	s.flag = flag
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {

@@ -19,6 +19,7 @@ package sentinez.core.iam.v1;
 import "sentinez/std/common/v1/options.proto";
 import "sentinez/core/iam/v1/model.proto";
 import "sentinez/std/common/v1/meta.proto";
+import "sentinez/std/common/v1/context.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
@@ -137,6 +138,7 @@ message LoginRequest {
 
 message LoginResponse {
   sentinez.core.iam.v1.Users user = 1;
+  string access_token = 2;
 }
 
 message CreateAccountRequest {
@@ -167,6 +169,7 @@ message StatusRequest {
 
 message StatusResponse {
  string msg = 1;
+ sentinez.std.common.v1.Context context = 2;
 }
 
 message UpdateUserRequest {

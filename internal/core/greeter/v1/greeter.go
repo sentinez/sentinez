@@ -27,22 +27,22 @@ import (
 
 // make sure Greeter implement runner.Server
 // it will start by runner/v1.runner through runner.Server
-var _ runner.Server = (*Greeter)(nil)
+var _ runner.Engine = (*Greeter)(nil)
 
 type Service struct {
 	*grpcgw.Server
 	handler greeter.GreeterServiceServer
 }
 
-func NewService() *Service {
+func NewService(runnerCtx *runner.Context) *Service {
 	return &Service{
-		Server:  grpcgw.NewDefault(),
+		Server:  grpcgw.NewDefault(runnerCtx),
 		handler: greeterhdl.New(),
 	}
 }
 
 // New creates a new Greeter module.
-func New(srv *Service) runner.Server {
+func New(srv *Service) runner.Engine {
 
 	return &Greeter{
 		Service: srv,

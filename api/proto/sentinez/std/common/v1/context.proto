@@ -17,24 +17,11 @@ syntax = "proto3";
 package sentinez.std.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
 
-import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 message Context {
-  // Identifies the user making the request.
-  string user_id = 3 [(buf.validate.field).string.min_len = 1];
-
-  // Passes tokens or authentication information through the context.
-  string authorization = 4 [(buf.validate.field).string.pattern = "^Bearer[ \t]+([A-Za-z0-9\\-._~+/]+=*)$"];
-
-  // Passes language information for multilingual systems.
-  string locale = 5 [(buf.validate.field).string.min_len = 1];
-
-  // Identifies the current service processing the request.
-  string service_name = 7 [(buf.validate.field).string.pattern = "^sentinez\\..*$"];
-
-  // Identifies the IP address of the client sending the request.
-  string ip = 10 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9.-]+)$"];
-
-  // Identifies the environment in which the service is running.
-  string environment = 11 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
+  string name = 1;
+  google.protobuf.Timestamp expire_at = 2;
+  string user_id = 3;
+  int32 permission_bitwise = 4;
 }

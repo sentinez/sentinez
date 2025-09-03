@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-syntax = "proto3";
+package runner
 
-package sentinez.std.common.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
+import "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 
-message Pages {
-  int32 index = 1;
-  int32 size = 2;
-  bool total = 3;
+type Context struct {
+	Meta   *common.SentinezMetadata
+	Config *common.Config
+	Flag   *common.Flag
 }

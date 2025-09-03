@@ -120,6 +120,8 @@ func (m *LoginResponse) Validate() error {
 		}
 	}
 
+	// no validation rules for AccessToken
+
 	return nil
 }
 
@@ -539,6 +541,16 @@ func (m *StatusResponse) Validate() error {
 	}
 
 	// no validation rules for Msg
+
+	if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StatusResponseValidationError{
+				field:  "Context",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }
