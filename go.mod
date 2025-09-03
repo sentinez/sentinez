@@ -16,7 +16,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/google/wire v0.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
 	github.com/hashicorp/consul/api v1.32.1
@@ -27,7 +26,7 @@ require (
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/rules v0.0.0
 	github.com/sony/gobreaker v1.0.0
-	github.com/spf13/pflag v1.0.7
+	github.com/spf13/pflag v1.0.9
 	github.com/valyala/fasthttp v1.65.0
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.24.0
