@@ -20,7 +20,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"go.uber.org/fx"
@@ -30,11 +29,11 @@ import (
 // by runner.Build() start the app, it will start the server and provide all
 // constructor needed
 type Runner[srv any] interface {
-	Build(rctx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv]
+	Build(ctx context.Context, start func(srv) (Engine, error)) Runner[srv]
 	Run(ctx context.Context) error
 }
 
-func New[srv any](fn func(*common.RunnerCtx) srv) Runner[srv] {
+func New[srv any](fn func(ctx context.Context) srv) Runner[srv] {
 	internal.Provide(fn)
 	return &sentinez[srv]{}
 }
@@ -48,12 +47,14 @@ type sentinez[srv any] struct {
 // Build builds the application.
 // The application is built by providing the constructors.
 func (s *sentinez[srv]) Build(
-	runnerCtx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv] {
+	ctx context.Context, start func(srv) (Engine, error)) Runner[srv] {
+
+	runnerCtx := GetContext(ctx)
+	runnerCtxConstructor := func() context.Context {
+		return ctx
+	}
 
 	zlog.SetLogLevel(runnerCtx.Flag.GetLogLevel())
-	runnerCtxConstructor := func() *common.RunnerCtx {
-		return runnerCtx
-	}
 
 	internal.Provide(start)
 	internal.Provide(runnerCtxConstructor)

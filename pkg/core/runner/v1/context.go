@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,15 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tenantfac
+package runner
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	"context"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 )
 
-func NewDefaultTenantHdl(_ *common.RunnerCtx) tenant.TenantServiceServer {
+type runnerCtxKey string
 
-	return tenanthandler.New()
+const runnerCtx runnerCtxKey = "RunnerContextValue"
+
+func NewContext(rctx *common.RunnerCtx) context.Context {
+	return context.WithValue(context.Background(), runnerCtx, rctx)
+}
+
+func GetContext(ctx context.Context) *common.RunnerCtx {
+	val := ctx.Value(runnerCtx)
+	if val == nil {
+		return nil
+	}
+
+	return val.(*common.RunnerCtx)
 }

@@ -18,8 +18,8 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
-func Add(flag common.Permission) int32 {
-	return int32(flag)
+func Add(perms int32, flag common.Permission) int32 {
+	return perms | int32(flag)
 }
 
 func Remove(perms int32, flag common.Permission) int32 {
@@ -30,10 +30,22 @@ func Has(perms int32, flag common.Permission) bool {
 	return (perms & int32(flag)) != 0
 }
 
+func HasLeastOne(perms int32, flags int32) bool {
+	return perms&flags != 0
+}
+
 func DefaultOwner() int32 {
-	return Add(common.Permission_PERMISSION_CREATE_OWN |
+	return int32(common.Permission_PERMISSION_CREATE_OWN |
 		common.Permission_PERMISSION_VIEW_OWN |
 		common.Permission_PERMISSION_DELETE_OWN |
 		common.Permission_PERMISSION_UPDATE_OWN)
+}
 
+func DefaultRoot() int32 {
+	return int32(common.Permission_PERMISSION_ROOT)
+}
+
+func DefaultViewAny() int32 {
+	return int32(common.Permission_PERMISSION_ROOT |
+		common.Permission_PERMISSION_VIEW_ANY)
 }

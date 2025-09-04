@@ -178,13 +178,16 @@ func (srv *IAMService) Login(ctx context.Context,
 		zlog.Debugf("faild to get user by username or email")
 		return nil, err
 	}
-
+	perm := perms.DefaultOwner()
+	if acc.GetUsername() == "admin" {
+		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
+	}
 	accessToken, err := crypto.TokenGenerator(srv.config,
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),
-			PermissionBitwise: perms.DefaultOwner(),
+			PermissionBitwise: perm,
 		},
 	)
 	if err != nil {

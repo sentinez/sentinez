@@ -21,6 +21,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	stdctx "github.com/sentinez/sentinez/pkg/std/context"
+	"github.com/sentinez/sentinez/pkg/std/perms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -41,6 +42,15 @@ type IdentityAccessManagement struct {
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
+
+	ss, err := stdctx.GetAuthContext(ctx, iam.service.Config())
+	if err != nil {
+		return nil, err
+	}
+
+	if !perms.HasLeastOne(ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
+		request.UserIds = []string{ss.GetUserId()}
+	}
 
 	resp, err := iam.service.ListAccounts(ctx, request)
 	if err != nil {
@@ -158,10 +168,10 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
 
-	data := stdctx.GetSession(ctx, iam.service.Config())
+	ss, _ := stdctx.GetAuthContext(ctx, iam.service.Config())
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",
-		Context: data,
+		Context: ss,
 	}, nil
 }

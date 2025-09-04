@@ -16,8 +16,6 @@
 package main
 
 import (
-	"context"
-
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 
@@ -37,16 +35,16 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
-	runnerCtx := &common.RunnerCtx{
+	ctx := runner.NewContext(&common.RunnerCtx{
 		Meta:   greeterpb.GetMetaGreeter(),
 		Config: conf,
 		Flag:   flag,
-	}
+	})
 
 	app := runner.New(greeter.NewService).
-		Build(runnerCtx, func(service *greeter.Service) (runner.Engine, error) {
+		Build(ctx, func(service *greeter.Service) (runner.Engine, error) {
 			return greeter.New(service), nil
 		})
 
-	_ = app.Run(context.Background())
+	_ = app.Run(ctx)
 }

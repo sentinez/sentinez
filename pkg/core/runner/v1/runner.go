@@ -17,7 +17,6 @@ package runner
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -25,8 +24,6 @@ import (
 
 	"go.uber.org/fx"
 )
-
-const timeout = 500 * time.Millisecond // 500 milliseconds
 
 var (
 	once sync.Once

@@ -20,6 +20,6 @@ import (
 	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 )
 
-func NewDefaultGreeterHdl(_ *common.Config) greeter.GreeterServiceServer {
+func NewDefaultGreeterHdl(_ *common.RunnerCtx) greeter.GreeterServiceServer {
 	return greeterhandler.New()
 }

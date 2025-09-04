@@ -25,14 +25,8 @@ import (
 )
 
 var (
-	_ Edge          = (*Server)(nil)
 	_ runner.Engine = (*Server)(nil)
 )
-
-// Edge is the interface that wraps the basic Serve method.
-type Edge interface {
-	Serve(addr string) error
-}
 
 // New creates a new Edge Server instance.
 func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Engine {
@@ -56,18 +50,12 @@ func (s *Server) Shutdown(_ context.Context) error {
 }
 
 // Start implements v1.Server.
-func (s *Server) Start(_ context.Context) error {
-	return s.Serve(s.core.GetRunnerCtx().GetConfig().GetAddress())
-}
-
-// Serve starts the server and listens on the given address.
-//
-//nolint:funlen
-func (s *Server) Serve(addr string) error {
-	if err := s.bootloader(); err != nil {
+func (s *Server) Start(ctx context.Context) error {
+	rctx := runner.GetContext(ctx)
+	if err := s.bootloader(rctx); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}
 
-	return s.core.ListenAndServe(addr)
+	return s.core.ListenAndServe(rctx.GetConfig().GetAddress())
 }

@@ -15,8 +15,6 @@
 package main
 
 import (
-	"context"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	wspb "github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/sentinez/sentinez/cmd/websocket/apps"
@@ -29,16 +27,16 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
-	runnerCtx := &common.RunnerCtx{
+	ctx := runner.NewContext(&common.RunnerCtx{
 		Meta:   wspb.GetMetaWs(),
 		Config: conf,
 		Flag:   flag,
-	}
+	})
 
 	app := runner.New(wscore.NewServer).
-		Build(runnerCtx, func(ws *wscore.WebSocket) (runner.Engine, error) {
+		Build(ctx, func(ws *wscore.WebSocket) (runner.Engine, error) {
 			return websocket.New(ws), nil
 		})
 
-	_ = app.Run(context.Background())
+	_ = app.Run(ctx)
 }

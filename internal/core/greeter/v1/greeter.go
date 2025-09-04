@@ -19,9 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
@@ -35,9 +33,9 @@ type Service struct {
 	handler greeter.GreeterServiceServer
 }
 
-func NewService(runnerCtx *common.RunnerCtx) *Service {
+func NewService(ctx context.Context) *Service {
 	return &Service{
-		Server:  grpcgw.NewDefault(runnerCtx),
+		Server:  grpcgw.NewDefault(ctx),
 		handler: greeterhdl.New(),
 	}
 }
@@ -56,15 +54,9 @@ type Greeter struct {
 }
 
 // Start implements IGreeter, override runner.Server.Start
-func (g *Greeter) Start(_ context.Context) error {
-	if err := protobuf.Validate(g.GetRunnerCtx()); err != nil {
-		return err
-	}
-
+func (g *Greeter) Start(ctx context.Context) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	go grpcgw.Register(greeter.GetMetaGreeterServiceKey(),
-		g.GetRunnerCtx().GetConfig())
-
-	return g.Serve(g.GetRunnerCtx().GetConfig().GetAddress())
+	rctx := runner.GetContext(ctx)
+	return g.Serve(rctx.GetConfig().GetAddress())
 }

@@ -15,11 +15,14 @@
 package httpx1
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -30,10 +33,10 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(http.Handler) http.Handler)
 	Handle(fn func(ctx Context) error)
-	GetRunnerCtx() *common.RunnerCtx
 }
 
-func NewServer(runnerCtx *common.RunnerCtx) Server {
+func NewServer(ctx context.Context) Server {
+	runnerCtx := runner.GetContext(ctx)
 	return &HTTPServer{
 		rctx: runnerCtx,
 	}
@@ -42,11 +45,6 @@ func NewServer(runnerCtx *common.RunnerCtx) Server {
 type HTTPServer struct {
 	mdw  []func(http.Handler) http.Handler
 	rctx *common.RunnerCtx
-}
-
-// GetRunnerCtx implements Server.
-func (s *HTTPServer) GetRunnerCtx() *common.RunnerCtx {
-	return s.rctx
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
@@ -58,6 +56,10 @@ func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
+	if err := protobuf.Validate(s.rctx); err != nil {
+		return err
+	}
+
 	version.INFO(
 		s.rctx.GetMeta().GetServiceName(),
 		s.rctx.GetMeta().GetServiceKey(),

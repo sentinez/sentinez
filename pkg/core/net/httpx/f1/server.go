@@ -15,9 +15,13 @@
 package httpxf1
 
 import (
+	"context"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
@@ -31,12 +35,12 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
-	GetRunnerCtx() *common.RunnerCtx
 }
 
 // NewServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewServer(runnerCtx *common.RunnerCtx) Server {
+func NewServer(ctx context.Context) Server {
+	runnerCtx := runner.GetContext(ctx)
 	return &HTTPServer{
 		core: &fasthttp.Server{},
 		rctx: runnerCtx,
@@ -48,11 +52,6 @@ type HTTPServer struct {
 	core   *fasthttp.Server
 	chains []func(RequestHandler) RequestHandler
 	rctx   *common.RunnerCtx
-}
-
-// GetRunnerCtx implements Server.
-func (s *HTTPServer) GetRunnerCtx() *common.RunnerCtx {
-	return s.rctx
 }
 
 // Use implements Server.
@@ -84,6 +83,10 @@ func (s *HTTPServer) Shutdown() error {
 
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
+	if err := protobuf.Validate(s.rctx); err != nil {
+		return err
+	}
+
 	version.INFO(
 		s.rctx.GetMeta().GetServiceName(),
 		s.rctx.GetMeta().GetServiceKey(),
