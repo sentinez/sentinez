@@ -23,7 +23,7 @@
   "devDependencies": {
     "@sentinez/eslint-config": "workspace:^",
     "@sentinez/tsconfig": "workspace:*",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "sass": "^1.90.0",
