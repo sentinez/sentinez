@@ -26,7 +26,9 @@ import (
 func TestGenAndVerifyToken(t *testing.T) {
 	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-	token, err := TokenGenerator(secBase64, &common.Context{
+	conf := &common.Config{SecretKey: secBase64}
+
+	token, err := TokenGenerator(conf, &common.Context{
 		Name:     "test gen & verify",
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 	})
@@ -34,7 +36,7 @@ func TestGenAndVerifyToken(t *testing.T) {
 		t.Error(err)
 	}
 
-	tp, ok := BearerTokenVerifier(token, secBase64)
+	tp, ok := BearerTokenVerifier(conf, token)
 	if !ok {
 		t.Error("fail to verify bearer token")
 	}

@@ -158,7 +158,7 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
 
-	data := stdctx.GetContext(ctx)
+	data := stdctx.GetSession(ctx, iam.service.Config())
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",

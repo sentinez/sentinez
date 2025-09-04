@@ -57,7 +57,7 @@ func (s *Server) Shutdown(_ context.Context) error {
 
 // Start implements v1.Server.
 func (s *Server) Start(_ context.Context) error {
-	return s.Serve(s.core.GetConfig().GetAddress())
+	return s.Serve(s.core.GetRunnerCtx().GetConfig().GetAddress())
 }
 
 // Serve starts the server and listens on the given address.

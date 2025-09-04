@@ -52,10 +52,10 @@ type IAccount interface {
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
-func New(conf *common.Config) (IAccount, error) {
-	tableName := table.NewTable(table.Account)
+func New(rctx *common.RunnerCtx) (IAccount, error) {
+	tableName := table.NewTable(rctx.GetFlag().GetEnvMode(), table.Account)
 
-	storage, err := postgres.New[*iam.Accounts](conf, tableName,
+	storage, err := postgres.New[*iam.Accounts](rctx.GetConfig(), tableName,
 		postgres.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err

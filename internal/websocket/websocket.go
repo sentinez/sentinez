@@ -43,7 +43,7 @@ func (w *WebSocket) router() {
 func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
-	return w.core.ListenAndServe(w.core.GetConfig().GetAddress())
+	return w.core.ListenAndServe(w.core.GetRunnerCtx().GetConfig().GetAddress())
 }
 
 // Shutdown implements runner.Server.

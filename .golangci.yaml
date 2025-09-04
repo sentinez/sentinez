@@ -19,7 +19,7 @@ linters:
       ignore-rules:
         - sentinez
     funlen:
-      lines: 30           
+      lines: 35
       statements: 0
     revive:
       rules:

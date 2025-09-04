@@ -27,8 +27,8 @@ import (
 )
 
 func (srv *Server) bootloader(ctx context.Context) error {
-	flag := srv.server.GetFlag()
-	conf := srv.server.GetConfig()
+	flag := srv.server.GetRunnerCtx().GetFlag()
+	conf := srv.server.GetRunnerCtx().GetConfig()
 
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
@@ -49,7 +49,7 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	}
 
 	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultIAMHdl(conf)),
+		services.NewIAM(iamfac.NewDefaultIAMHdl(srv.server.GetRunnerCtx())),
 		services.NewTenant(tenantfac.NewDefaultTenantHdl(conf)),
 	)
 }

@@ -29,3 +29,11 @@ func Remove(perms int32, flag common.Permission) int32 {
 func Has(perms int32, flag common.Permission) bool {
 	return (perms & int32(flag)) != 0
 }
+
+func DefaultOwner() int32 {
+	return Add(common.Permission_PERMISSION_CREATE_OWN |
+		common.Permission_PERMISSION_VIEW_OWN |
+		common.Permission_PERMISSION_DELETE_OWN |
+		common.Permission_PERMISSION_UPDATE_OWN)
+
+}

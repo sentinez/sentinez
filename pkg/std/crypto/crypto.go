@@ -33,10 +33,10 @@ const (
 	expKey    = "exp"
 )
 
-func TokenGenerator(secretBase64 string,
+func TokenGenerator(conf *common.Config,
 	payload *common.Context) (string, error) {
 
-	secret, err := base64.StdEncoding.DecodeString(secretBase64)
+	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
 	if err != nil {
 		return "", err
 	}
@@ -55,11 +55,11 @@ func TokenGenerator(secretBase64 string,
 	return tokenString, err
 }
 
-func BearerTokenVerifier(bearerToken string,
-	secretBase64 string) (*common.Context, bool) {
+func BearerTokenVerifier(conf *common.Config,
+	bearerToken string) (*common.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, bearer)
-	jwtToken, err := parseJWT(token, secretBase64)
+	jwtToken, err := parseJWT(token, conf.GetSecretKey())
 	if err != nil {
 		zlog.Debugf("[crypto] invalid token: %v", err)
 		return nil, false

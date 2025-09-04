@@ -18,22 +18,20 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/config"
 	"github.com/sentinez/sentinez/pkg/std/crypto"
 	"google.golang.org/grpc/metadata"
 )
 
 const AuthHeader string = "Authorization"
 
-func GetContext(ctx context.Context) *common.Context {
+func GetSession(ctx context.Context, conf *common.Config) *common.Context {
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
 	if len(accessToken) == 0 {
 		return nil
 	}
 
-	pl, ok := crypto.BearerTokenVerifier(accessToken[0],
-		config.Get().GetSecretKey())
+	pl, ok := crypto.BearerTokenVerifier(conf, accessToken[0])
 	if !ok {
 		return nil
 	}

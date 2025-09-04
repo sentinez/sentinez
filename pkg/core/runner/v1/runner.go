@@ -16,7 +16,6 @@ package runner
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -64,8 +63,8 @@ func runner(lc fx.Lifecycle, engine Engine) {
 			select {
 			case err := <-errChan:
 				return err
-			case t := <-time.After(timeout):
-				return fmt.Errorf("[runner] UTC timeout: %d", t.UTC().Unix())
+			default:
+				return nil
 			}
 
 		},

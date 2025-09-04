@@ -19,6 +19,7 @@ import (
 	"context"
 
 	edgev1 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
@@ -40,7 +41,7 @@ import (
 func main() {
 	flag := edgeflags.Parse()
 	conf := config.Load(flag.GetEnvFile())
-	runnerCtx := &runner.Context{
+	runnerCtx := &common.RunnerCtx{
 		Meta:   edgev1.GetMetaEdge(),
 		Config: conf,
 		Flag:   flag,

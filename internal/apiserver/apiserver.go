@@ -64,7 +64,7 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 
 	for _, service := range services {
 		err := service.AcceptFromEndpoint(
-			ctx, srv.server, srv.server.GetConfig())
+			ctx, srv.server, srv.server.GetRunnerCtx().GetConfig())
 		if err != nil {
 			return err
 		}
@@ -89,7 +89,7 @@ func (srv *Server) visit(ctx context.Context,
 
 // Start the apiserver/gateway app
 func (srv *Server) Start(ctx context.Context) error {
-	if err := protobuf.Validate(srv.server.GetConfig()); err != nil {
+	if err := protobuf.Validate(srv.server.GetRunnerCtx()); err != nil {
 		return err
 	}
 
@@ -99,7 +99,7 @@ func (srv *Server) Start(ctx context.Context) error {
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(srv.server.GetConfig().GetAddress())
+	return srv.server.Listen(srv.server.GetRunnerCtx().GetConfig().GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

@@ -18,7 +18,6 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
@@ -32,38 +31,28 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
-	GetConfig() *common.Config
-	GetFlag() *common.Flag
+	GetRunnerCtx() *common.RunnerCtx
 }
 
 // NewServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewServer(runnerCtx *runner.Context) Server {
+func NewServer(runnerCtx *common.RunnerCtx) Server {
 	return &HTTPServer{
-		core:     &fasthttp.Server{},
-		metadata: runnerCtx.Meta,
-		config:   runnerCtx.Config,
-		flag:     runnerCtx.Flag,
+		core: &fasthttp.Server{},
+		rctx: runnerCtx,
 	}
 }
 
 // HTTPServer implements the Server interface.
 type HTTPServer struct {
-	core     *fasthttp.Server
-	chains   []func(RequestHandler) RequestHandler
-	metadata *common.SentinezMetadata
-	config   *common.Config
-	flag     *common.Flag
+	core   *fasthttp.Server
+	chains []func(RequestHandler) RequestHandler
+	rctx   *common.RunnerCtx
 }
 
-// GetConfig implements Server.
-func (s *HTTPServer) GetConfig() *common.Config {
-	return s.config
-}
-
-// GetFlag implements Server.
-func (s *HTTPServer) GetFlag() *common.Flag {
-	return s.flag
+// GetRunnerCtx implements Server.
+func (s *HTTPServer) GetRunnerCtx() *common.RunnerCtx {
+	return s.rctx
 }
 
 // Use implements Server.
@@ -95,7 +84,9 @@ func (s *HTTPServer) Shutdown() error {
 
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	version.INFO(s.metadata.GetServiceName(), s.metadata.GetServiceKey())
+	version.INFO(s.rctx.GetMeta().GetServiceName(),
+		s.rctx.GetMeta().GetServiceKey())
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("fasthttp"),
 		color.Magenta.Add(addr),

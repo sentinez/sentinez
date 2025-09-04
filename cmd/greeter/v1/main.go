@@ -19,6 +19,7 @@ import (
 	"context"
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
@@ -36,7 +37,7 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
-	runnerCtx := &runner.Context{
+	runnerCtx := &common.RunnerCtx{
 		Meta:   greeterpb.GetMetaGreeter(),
 		Config: conf,
 		Flag:   flag,

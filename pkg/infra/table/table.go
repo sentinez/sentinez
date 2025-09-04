@@ -18,13 +18,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/sentinez/sentinez/pkg/std/flags"
 )
 
-func NewTable(tableName string) string {
-	mode := flags.Get().GetEnvMode()
-	tableName = fmt.Sprintf("%s.sentinez.%s", mode, tableName)
+func NewTable(EnvMode, tableName string) string {
+	tableName = fmt.Sprintf("%s.sentinez.%s", EnvMode, tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 

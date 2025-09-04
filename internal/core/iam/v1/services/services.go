@@ -53,6 +53,10 @@ type IAMService struct {
 	accounts accountrepo.IAccount
 }
 
+func (srv *IAMService) Config() *common.Config {
+	return srv.config
+}
+
 func (srv *IAMService) ListAccounts(ctx context.Context,
 	request *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
 
@@ -119,22 +123,21 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 }
 
 func (srv *IAMService) createAccount(ctx context.Context,
-	txss *postgres.TxSession,
-	request *iam.CreateAccountRequest) (string, error) {
+	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
 
-	pw, err := crypto.HashPassword(request.GetPassword())
+	pw, err := crypto.HashPassword(req.GetPassword())
 	if err != nil {
 		return "", err
 	}
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
 		Metadata: &modelpb.Metadata{
-			CreatedBy: request.GetUsername(),
-			UpdatedBy: request.GetUsername(),
+			CreatedBy: req.GetUsername(),
+			UpdatedBy: req.GetUsername(),
 		},
-		FullName:    request.GetFullName(),
-		Email:       request.GetEmail(),
-		PhoneNumber: request.GetPhoneNumber(),
+		FullName:    req.GetFullName(),
+		Email:       req.GetEmail(),
+		PhoneNumber: req.GetPhoneNumber(),
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -143,8 +146,8 @@ func (srv *IAMService) createAccount(ctx context.Context,
 
 	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
 		UserId:   user.GetId(),
-		Email:    request.GetEmail(),
-		Username: request.GetUsername(),
+		Email:    req.GetEmail(),
+		Username: req.GetUsername(),
 		Password: pw,
 	})
 	if err != nil {
@@ -157,15 +160,15 @@ func (srv *IAMService) createAccount(ctx context.Context,
 }
 
 func (srv *IAMService) Login(ctx context.Context,
-	request *iam.LoginRequest) (*iam.LoginResponse, error) {
-	acc, err := srv.accounts.
-		GetByUsernameOrEmail(ctx, request.GetEmailOrUsername())
+	req *iam.LoginRequest) (*iam.LoginResponse, error) {
+
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, req.GetEmailOrUsername())
 	if err != nil {
 		zlog.Debugf("faild to get account by username or email")
 		return nil, err
 	}
 
-	if !crypto.CheckPasswordHash(request.GetPassword(), acc.GetPassword()) {
+	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
 		return nil,
 			stderr.UnauthorizedF("username, email or password is wrong!")
 	}
@@ -176,28 +179,19 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	perm := perms.Add(common.Permission_PERMISSION_CREATE_OWN |
-		common.Permission_PERMISSION_VIEW_OWN |
-		common.Permission_PERMISSION_DELETE_OWN |
-		common.Permission_PERMISSION_UPDATE_OWN)
-
-	accessToken, err := crypto.TokenGenerator(srv.config.GetSecretKey(),
+	accessToken, err := crypto.TokenGenerator(srv.config,
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),
-			PermissionBitwise: perm,
+			PermissionBitwise: perms.DefaultOwner(),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &iam.LoginResponse{
-		User:        user,
-		AccessToken: accessToken,
-	}, nil
-
+	return &iam.LoginResponse{User: user, AccessToken: accessToken}, nil
 }
 
 func (srv *IAMService) CreateUser(ctx context.Context,
