@@ -59,8 +59,10 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	version.INFO(ws.rctx.GetMeta().GetServiceName(),
-		ws.rctx.GetMeta().GetServiceKey())
+	version.INFO(
+		ws.rctx.GetMeta().GetServiceName(),
+		ws.rctx.GetMeta().GetServiceKey(),
+	)
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("ws"),

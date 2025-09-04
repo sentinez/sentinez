@@ -84,8 +84,10 @@ func (s *HTTPServer) Shutdown() error {
 
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	version.INFO(s.rctx.GetMeta().GetServiceName(),
-		s.rctx.GetMeta().GetServiceKey())
+	version.INFO(
+		s.rctx.GetMeta().GetServiceName(),
+		s.rctx.GetMeta().GetServiceKey(),
+	)
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("fasthttp"),

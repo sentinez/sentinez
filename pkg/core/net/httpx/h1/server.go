@@ -58,8 +58,10 @@ func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	version.INFO(s.rctx.GetMeta().GetServiceName(),
-		s.rctx.GetMeta().GetServiceKey())
+	version.INFO(
+		s.rctx.GetMeta().GetServiceName(),
+		s.rctx.GetMeta().GetServiceKey(),
+	)
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("http"),

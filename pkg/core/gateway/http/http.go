@@ -117,8 +117,11 @@ func (h *HTTPServer) Listen(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	version.INFO(h.rctx.GetMeta().GetServiceName(),
-		h.rctx.GetMeta().GetServiceKey())
+	version.INFO(
+		h.rctx.GetMeta().GetServiceName(),
+		h.rctx.GetMeta().GetServiceKey(),
+	)
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("http"),
 		color.Magenta.Add(address),

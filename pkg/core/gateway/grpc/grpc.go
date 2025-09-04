@@ -89,8 +89,10 @@ func (s *Server) Serve(addr string) error {
 		return err
 	}
 
-	version.INFO(s.rctx.GetMeta().GetServiceName(),
-		s.rctx.GetMeta().GetServiceKey())
+	version.INFO(
+		s.rctx.GetMeta().GetServiceName(),
+		s.rctx.GetMeta().GetServiceKey(),
+	)
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
