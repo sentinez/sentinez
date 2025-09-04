@@ -26,7 +26,7 @@ import (
 
 // make sure apiserver implement runner.Server
 // v1.runner will be start application through runner.Server interface
-var _ runner.Server = (*Server)(nil)
+var _ runner.Engine = (*Server)(nil)
 
 // New creates a new gateway app and returns a runner.Server interface.
 // This constructor is based on dependency injection. When you add parameters
@@ -36,15 +36,9 @@ var _ runner.Server = (*Server)(nil)
 // Example:
 //
 //	var _ = runner.Inject(dcvrhandler.New)
-func New(server httpgw.Server) (runner.Server, error) {
-
+func New(server httpgw.Server) (runner.Engine, error) {
 	srv := &Server{
 		server: server,
-	}
-
-	if err := srv.bootloader(context.Background()); err != nil {
-		zlog.Errorf("apiserver: failed to bootloader: %v", err)
-		return nil, err
 	}
 
 	return srv, nil
@@ -70,7 +64,7 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 
 	for _, service := range services {
 		err := service.AcceptFromEndpoint(
-			ctx, srv.server, srv.server.GetConfig())
+			ctx, srv.server, srv.server.GetRunnerCtx().GetConfig())
 		if err != nil {
 			return err
 		}
@@ -94,13 +88,18 @@ func (srv *Server) visit(ctx context.Context,
 }
 
 // Start the apiserver/gateway app
-func (srv *Server) Start(_ context.Context) error {
-	if err := protobuf.Validate(srv.server.GetConfig()); err != nil {
+func (srv *Server) Start(ctx context.Context) error {
+	if err := protobuf.Validate(srv.server.GetRunnerCtx()); err != nil {
+		return err
+	}
+
+	if err := srv.bootloader(ctx); err != nil {
+		zlog.Errorf("apiserver: failed to bootloader: %v", err)
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(srv.server.GetConfig().GetAddress())
+	return srv.server.Listen(srv.server.GetRunnerCtx().GetConfig().GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

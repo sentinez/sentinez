@@ -20,8 +20,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"go.uber.org/fx"
 )
@@ -30,15 +30,13 @@ import (
 // by runner.Build() start the app, it will start the server and provide all
 // constructor needed
 type Runner[srv any] interface {
-	Build(start func(srv) (Server, error)) Runner[srv]
+	Build(rctx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv]
 	Run(ctx context.Context) error
 }
 
-func New[srv any](fn func() srv) Runner[srv] {
+func New[srv any](fn func(*common.RunnerCtx) srv) Runner[srv] {
 	internal.Provide(fn)
-	return &sentinez[srv]{
-		engine: fx.New(internal.Option()),
-	}
+	return &sentinez[srv]{}
 }
 
 // sentinez represents the container with uber/fx frameworks.
@@ -49,13 +47,19 @@ type sentinez[srv any] struct {
 
 // Build builds the application.
 // The application is built by providing the constructors.
-func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
-	zlog.SetLogLevel(flags.Get().GetLogLevel())
+func (s *sentinez[srv]) Build(
+	runnerCtx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv] {
+
+	zlog.SetLogLevel(runnerCtx.Flag.GetLogLevel())
+	runnerCtxConstructor := func() *common.RunnerCtx {
+		return runnerCtx
+	}
 
 	internal.Provide(start)
+	internal.Provide(runnerCtxConstructor)
 
 	// disable log: use fx.NopLogger
-	if flags.Get().GetEnvMode() != "dev" {
+	if runnerCtx.Flag.GetEnvMode() != "dev" {
 		return &sentinez[srv]{
 			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
 		}
@@ -68,11 +72,6 @@ func (s *sentinez[srv]) Build(start func(srv) (Server, error)) Runner[srv] {
 
 // Run the app with the given context.
 func (s *sentinez[srv]) Run(ctx context.Context) error {
-	if err := flags.Validate(flags.Get()); err != nil {
-		zlog.Error(err)
-		return err
-	}
-
 	err := make(chan error)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -97,6 +96,10 @@ func (s *sentinez[srv]) Run(ctx context.Context) error {
 
 // onStart the app with the given context.
 func (s *sentinez[srv]) onStart(ctx context.Context, errChan chan<- error) {
+	if s.engine == nil {
+		s.engine = fx.New(internal.Option())
+	}
+
 	// if the error is not nil, return the error to err channel end goroutine 1
 	if err := s.engine.Start(ctx); err != nil {
 		errChan <- err

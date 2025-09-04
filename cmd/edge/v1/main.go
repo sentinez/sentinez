@@ -19,6 +19,7 @@ import (
 	"context"
 
 	edgev1 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
@@ -40,14 +41,17 @@ import (
 func main() {
 	flag := edgeflags.Parse()
 	conf := config.Load(flag.GetEnvFile())
-	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+	runnerCtx := &common.RunnerCtx{
+		Meta:   edgev1.GetMetaEdge(),
+		Config: conf,
+		Flag:   flag,
+	}
 
-	app := runner.New(httpxf1.NewServer).Build(
-		func(srv httpxf1.Server) (runner.Server, error) {
-			srv.SetPref(edgev1.GetMetaEdge(), conf, flag)
+	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+	app := runner.New(httpxf1.NewServer).
+		Build(runnerCtx, func(srv httpxf1.Server) (runner.Engine, error) {
 			return edge.New(srv, proxyConf), nil
-		},
-	)
+		})
 
 	_ = app.Run(context.Background())
 }

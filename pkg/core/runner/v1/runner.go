@@ -19,9 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/std/errors"
-	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/grpc/grpclog"
 
@@ -44,14 +42,14 @@ func beforeStart() {
 
 // runner functions called by fx.Invoke.
 // when the application starts, it will start the server
-func runner(lc fx.Lifecycle, server Server) {
+func runner(lc fx.Lifecycle, engine Engine) {
 	beforeStart()
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			errChan := make(chan error, 1)
 			go func() {
-				if err := server.Start(ctx); err != nil {
+				if err := engine.Start(ctx); err != nil {
 					if errors.Is(err, errors.ErrServerClosed) {
 						log.Infof("[runner] %+v", err)
 					} else {
@@ -65,14 +63,14 @@ func runner(lc fx.Lifecycle, server Server) {
 			select {
 			case err := <-errChan:
 				return err
-			case <-time.After(timeout):
-				return protobuf.Validate(flags.Get())
+			default:
+				return nil
 			}
 
 		},
 		OnStop: func(ctx context.Context) error {
 			_ = log.Sync()
-			return server.Shutdown(ctx)
+			return engine.Shutdown(ctx)
 		},
 	})
 }

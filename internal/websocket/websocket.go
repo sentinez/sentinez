@@ -23,9 +23,9 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/wsz"
 )
 
-var _ runner.Server = (*WebSocket)(nil)
+var _ runner.Engine = (*WebSocket)(nil)
 
-func New(ws *wsz.WebSocket) runner.Server {
+func New(ws *wsz.WebSocket) runner.Engine {
 	return &WebSocket{
 		core: ws,
 	}
@@ -43,7 +43,7 @@ func (w *WebSocket) router() {
 func (w *WebSocket) Start(_ context.Context) error {
 	// register the route with websocket handler
 	w.router()
-	return w.core.ListenAndServe(w.core.GetConfig().GetAddress())
+	return w.core.ListenAndServe(w.core.GetRunnerCtx().GetConfig().GetAddress())
 }
 
 // Shutdown implements runner.Server.

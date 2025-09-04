@@ -23,6 +23,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
 )
 
@@ -32,10 +33,10 @@ const (
 	expKey    = "exp"
 )
 
-func BearerTokenGenerator(secretBase64 string,
-	payload *common.TokenPayload) (string, error) {
+func TokenGenerator(conf *common.Config,
+	payload *common.Context) (string, error) {
 
-	secret, err := base64.StdEncoding.DecodeString(secretBase64)
+	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
 	if err != nil {
 		return "", err
 	}
@@ -51,14 +52,14 @@ func BearerTokenGenerator(secretBase64 string,
 		return "", err
 	}
 
-	return bearer + tokenString, err
+	return tokenString, err
 }
 
-func BearerTokenVerifier(bearerToken string,
-	secretBase64 string) (*common.TokenPayload, bool) {
+func BearerTokenVerifier(conf *common.Config,
+	bearerToken string) (*common.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, bearer)
-	jwtToken, err := parseJWT(token, secretBase64)
+	jwtToken, err := parseJWT(token, conf.GetSecretKey())
 	if err != nil {
 		zlog.Debugf("[crypto] invalid token: %v", err)
 		return nil, false
@@ -70,7 +71,7 @@ func BearerTokenVerifier(bearerToken string,
 			return nil, false
 		}
 
-		var resp common.TokenPayload
+		var resp common.Context
 		err = prototext.Unmarshal([]byte(auth.(string)), &resp)
 		if err != nil {
 			zlog.Debugf("[crypto] error when get claims: %v", err)
@@ -103,4 +104,15 @@ func parseJWT(token, secretBase64 string) (*jwt.Token, error) {
 	}
 
 	return jwtToken, nil
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword(
+		[]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

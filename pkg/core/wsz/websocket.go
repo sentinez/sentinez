@@ -23,33 +23,22 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func NewServer() *WebSocket {
+func NewServer(runnerCtx *common.RunnerCtx) *WebSocket {
 	return &WebSocket{
 		routers: sync.Map[string, func(httpx1.Context) error]{},
+		rctx:    runnerCtx,
 	}
 }
 
 type WebSocket struct {
-	routers  sync.Map[string, func(httpx1.Context) error]
-	metadata *common.SentinezMetadata
-	config   *common.Config
-	flag     *common.Flag
+	routers sync.Map[string, func(httpx1.Context) error]
+	rctx    *common.RunnerCtx
 }
 
-func (ws *WebSocket) GetConfig() *common.Config {
-	return ws.config
+func (ws *WebSocket) GetRunnerCtx() *common.RunnerCtx {
+	return ws.rctx
 }
 
-func (ws *WebSocket) GetFlag() *common.Flag {
-	return ws.flag
-}
-
-func (ws *WebSocket) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	ws.metadata = meta
-	ws.config = conf
-	ws.flag = flag
-}
 func (ws *WebSocket) HandlerFunc(
 	path string, handler func(httpx1.Context) error) {
 
@@ -70,7 +59,11 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	version.INFO(ws.metadata.GetServiceName(), ws.metadata.GetServiceKey())
+	version.INFO(
+		ws.rctx.GetMeta().GetServiceName(),
+		ws.rctx.GetMeta().GetServiceKey(),
+	)
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("ws"),
 		color.Magenta.Add(addr),

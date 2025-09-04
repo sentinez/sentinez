@@ -380,6 +380,25 @@
         }
       }
     },
+    "v1Context": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "permissionBitwise": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "v1CreateAccountRequest": {
       "type": "object",
       "properties": {
@@ -475,6 +494,9 @@
       "properties": {
         "user": {
           "$ref": "#/definitions/v1Users"
+        },
+        "accessToken": {
+          "type": "string"
         }
       }
     },
@@ -522,6 +544,9 @@
       "properties": {
         "msg": {
           "type": "string"
+        },
+        "context": {
+          "$ref": "#/definitions/v1Context"
         }
       }
     },

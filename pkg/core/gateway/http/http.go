@@ -31,7 +31,7 @@ import (
 
 var (
 	// Ensure httpServer implements Server.
-	_ runner.Server = (*HTTPServer)(nil)
+	_ runner.Engine = (*HTTPServer)(nil)
 
 	// Ensure httpServer implements HttpServer.
 	_ Server = (*HTTPServer)(nil)
@@ -45,24 +45,23 @@ type Server interface {
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
-	GetConfig() *common.Config
-	GetFlag() *common.Flag
+	GetRunnerCtx() *common.RunnerCtx
 }
 
 // New creates a new http server.
-func New(opts ...runtime.ServeMuxOption) Server {
+func New(runnerCtx *common.RunnerCtx, opts ...runtime.ServeMuxOption) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
+		rctx:       runnerCtx,
 	}
 }
 
-func NewServer() Server {
+func NewServer(runnerCtx *common.RunnerCtx) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
+		rctx:       runnerCtx,
 	}
 }
 
@@ -80,33 +79,18 @@ type HTTPServer struct {
 	// http server
 	server *http.Server
 
-	metadata *common.SentinezMetadata
-	config   *common.Config
-	flag     *common.Flag
+	rctx *common.RunnerCtx
+}
+
+// GetRunnerCtx implements Server.
+func (h *HTTPServer) GetRunnerCtx() *common.RunnerCtx {
+	return h.rctx
 }
 
 // Start implements Server.
 func (h *HTTPServer) Start(ctx context.Context) error {
 	_ = ctx
 	return errors.ErrUnimplemented
-}
-
-// GetConfig implements Server.
-func (h *HTTPServer) GetConfig() *common.Config {
-	return h.config
-}
-
-// GetFlag implements Server.
-func (h *HTTPServer) GetFlag() *common.Flag {
-	return h.flag
-}
-
-// SetPref implements Server.
-func (h *HTTPServer) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	h.metadata = meta
-	h.config = conf
-	h.flag = flag
 }
 
 // Use middleware for the http server. Middleware will be called
@@ -133,7 +117,11 @@ func (h *HTTPServer) Listen(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	version.INFO(h.metadata.GetServiceName(), h.metadata.GetServiceKey())
+	version.INFO(
+		h.rctx.GetMeta().GetServiceName(),
+		h.rctx.GetMeta().GetServiceKey(),
+	)
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("http"),
 		color.Magenta.Add(address),

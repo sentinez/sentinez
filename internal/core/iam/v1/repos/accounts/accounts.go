@@ -52,10 +52,10 @@ type IAccount interface {
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
-func New(conf *common.Config) (IAccount, error) {
-	tableName := table.NewTable(table.Account)
+func New(rctx *common.RunnerCtx) (IAccount, error) {
+	tableName := table.NewTable(rctx.GetFlag().GetEnvMode(), table.Account)
 
-	storage, err := postgres.New[*iam.Accounts](conf, tableName,
+	storage, err := postgres.New[*iam.Accounts](rctx.GetConfig(), tableName,
 		postgres.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err
@@ -164,8 +164,8 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 		From(acc.tableName).
 		Where(
 			sq.Or{
-				sq.Eq{postgres.Field(iam.UsersFieldFullName): input},
-				sq.Eq{postgres.Field(iam.UsersFieldEmail): input},
+				sq.Eq{postgres.Field(iam.AccountsFieldUsername): input},
+				sq.Eq{postgres.Field(iam.AccountsFieldEmail): input},
 			},
 		)
 

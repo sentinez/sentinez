@@ -12,34 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package crypto
+package stdctx
 
 import (
-	"encoding/base64"
-	"testing"
-	"time"
+	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/sentinez/sentinez/pkg/std/crypto"
+	"google.golang.org/grpc/metadata"
 )
 
-func TestGenAndVerifyToken(t *testing.T) {
-	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
+const AuthHeader string = "Authorization"
 
-	conf := &common.Config{SecretKey: secBase64}
-
-	token, err := TokenGenerator(conf, &common.Context{
-		Name:     "test gen & verify",
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-	})
-	if err != nil {
-		t.Error(err)
+func GetSession(ctx context.Context, conf *common.Config) *common.Context {
+	md, _ := metadata.FromIncomingContext(ctx)
+	accessToken := md.Get(AuthHeader)
+	if len(accessToken) == 0 {
+		return nil
 	}
 
-	tp, ok := BearerTokenVerifier(conf, token)
+	pl, ok := crypto.BearerTokenVerifier(conf, accessToken[0])
 	if !ok {
-		t.Error("fail to verify bearer token")
+		return nil
 	}
 
-	t.Log("token payload: ", tp.String())
+	return pl
 }

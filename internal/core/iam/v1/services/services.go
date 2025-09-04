@@ -16,23 +16,30 @@ package iamservices
 
 import (
 	"context"
+	"time"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
+	"github.com/sentinez/sentinez/pkg/std/crypto"
 	stderr "github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/perms"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(
+func New(config *common.Config,
 	tx *postgres.Tx,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
 ) *IAMService {
 	return &IAMService{
+		config:   config,
 		tx:       tx,
 		users:    users,
 		accounts: account,
@@ -40,9 +47,14 @@ func New(
 }
 
 type IAMService struct {
+	config   *common.Config
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accountrepo.IAccount
+}
+
+func (srv *IAMService) Config() *common.Config {
+	return srv.config
 }
 
 func (srv *IAMService) ListAccounts(ctx context.Context,
@@ -111,17 +123,21 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 }
 
 func (srv *IAMService) createAccount(ctx context.Context,
-	txss *postgres.TxSession,
-	request *iam.CreateAccountRequest) (string, error) {
+	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
+
+	pw, err := crypto.HashPassword(req.GetPassword())
+	if err != nil {
+		return "", err
+	}
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
 		Metadata: &modelpb.Metadata{
-			CreatedBy: request.GetUsername(),
-			UpdatedBy: request.GetUsername(),
+			CreatedBy: req.GetUsername(),
+			UpdatedBy: req.GetUsername(),
 		},
-		FullName:    request.GetFullName(),
-		Email:       request.GetEmail(),
-		PhoneNumber: request.GetPhoneNumber(),
+		FullName:    req.GetFullName(),
+		Email:       req.GetEmail(),
+		PhoneNumber: req.GetPhoneNumber(),
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -130,9 +146,9 @@ func (srv *IAMService) createAccount(ctx context.Context,
 
 	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
 		UserId:   user.GetId(),
-		Email:    request.GetEmail(),
-		Username: request.GetUsername(),
-		Password: request.GetPassword(),
+		Email:    req.GetEmail(),
+		Username: req.GetUsername(),
+		Password: pw,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -144,17 +160,44 @@ func (srv *IAMService) createAccount(ctx context.Context,
 }
 
 func (srv *IAMService) Login(ctx context.Context,
-	request *iam.LoginRequest) (*iam.LoginResponse, error) {
-	_ = ctx
-	_ = request
-	//TODO implement me
-	panic("implement me")
+	req *iam.LoginRequest) (*iam.LoginResponse, error) {
+
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, req.GetEmailOrUsername())
+	if err != nil {
+		zlog.Debugf("faild to get account by username or email")
+		return nil, err
+	}
+
+	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
+		return nil,
+			stderr.UnauthorizedF("username, email or password is wrong!")
+	}
+
+	user, err := srv.users.Get(ctx, acc.GetUserId())
+	if err != nil {
+		zlog.Debugf("faild to get user by username or email")
+		return nil, err
+	}
+
+	accessToken, err := crypto.TokenGenerator(srv.config,
+		&common.Context{
+			Name:              user.GetFullName(),
+			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
+			UserId:            user.GetId(),
+			PermissionBitwise: perms.DefaultOwner(),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.LoginResponse{User: user, AccessToken: accessToken}, nil
 }
 
 func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iam.CreateUserRequest) (*iam.CreateUserResponse, error) {
 
-	user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
+	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
 	if stderr.NotRowsNotFound(err) {
 		return nil, err
 	}
@@ -188,7 +231,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 	}
 
 	if request.GetEmail() != "" {
-		user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
+		user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +267,7 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
 
-	user, err := srv.users.GetByUsernameOrEmail(ctx, request.GetEmail())
+	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
 	if stderr.NotRowsNotFound(err) {
 		return nil, err
 	}

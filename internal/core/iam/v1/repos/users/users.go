@@ -44,7 +44,7 @@ type IUser interface {
 
 	// extra methods
 
-	GetByUsernameOrEmail(ctx context.Context,
+	GetByFullnameOrEmail(ctx context.Context,
 		input string) (*iam.Users, error)
 
 	List(ctx context.Context,
@@ -53,10 +53,10 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(conf *common.Config) (IUser, error) {
-	tableName := table.NewTable(table.Users)
+func New(runnerCtx *common.RunnerCtx) (IUser, error) {
+	tableName := table.NewTable(runnerCtx.GetFlag().GetEnvMode(), table.Users)
 
-	storage, err := postgres.New[*iam.Users](conf, tableName,
+	storage, err := postgres.New[*iam.Users](runnerCtx.GetConfig(), tableName,
 		postgres.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
@@ -80,8 +80,8 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	}
 }
 
-// GetByUsernameOrEmail implements IUser.
-func (u *Users) GetByUsernameOrEmail(ctx context.Context,
+// GetByFullnameOrEmail implements IUser.
+func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	input string) (*iam.Users, error) {
 
 	builder := sq.Select(database.SchemalessFieldData).From(u.tableName).Where(

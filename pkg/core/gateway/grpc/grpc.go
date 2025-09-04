@@ -34,7 +34,7 @@ var (
 	_ ServiceServer = (*Server)(nil)
 
 	// Ensure Server implements Server.
-	_ runner.Server = (*Server)(nil)
+	_ runner.Engine = (*Server)(nil)
 )
 
 // ServiceServer is a gRPC service server.
@@ -42,10 +42,7 @@ type ServiceServer interface {
 	AsServer() *grpc.Server
 	Serve(addr string) error
 	Shutdown(ctx context.Context) error
-	SetPref(meta *common.SentinezMetadata,
-		conf *common.Config, flag *common.Flag)
-	GetConfig() *common.Config
-	GetFlag() *common.Flag
+	GetRunnerCtx() *common.RunnerCtx
 }
 
 // Server is a gRPC server that registers services.
@@ -57,28 +54,13 @@ type ServiceServer interface {
 //		srv    greeter.GreeterServiceServer
 //	}
 type Server struct {
-	server   *grpc.Server
-	metadata *common.SentinezMetadata
-	config   *common.Config
-	flag     *common.Flag
+	server *grpc.Server
+	rctx   *common.RunnerCtx
 }
 
-// GetConfig implements Server.
-func (s *Server) GetConfig() *common.Config {
-	return s.config
-}
-
-// GetFlag implements Server.
-func (s *Server) GetFlag() *common.Flag {
-	return s.flag
-}
-
-// SetPref implements Server.
-func (s *Server) SetPref(meta *common.SentinezMetadata,
-	conf *common.Config, flag *common.Flag) {
-	s.metadata = meta
-	s.config = conf
-	s.flag = flag
+// GetRunnerCtx implements ServiceServer.
+func (s *Server) GetRunnerCtx() *common.RunnerCtx {
+	return s.rctx
 }
 
 // Start implements Server.
@@ -107,7 +89,11 @@ func (s *Server) Serve(addr string) error {
 		return err
 	}
 
-	version.INFO(s.metadata.GetServiceName(), s.metadata.GetServiceKey())
+	version.INFO(
+		s.rctx.GetMeta().GetServiceName(),
+		s.rctx.GetMeta().GetServiceKey(),
+	)
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
 		color.Magenta.Add(addr),
@@ -117,13 +103,14 @@ func (s *Server) Serve(addr string) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(opts ...grpc.ServerOption) *Server {
+func New(runnerCtx *common.RunnerCtx, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
+		rctx:   runnerCtx,
 	}
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault() *Server {
-	return New()
+func NewDefault(runnerCtx *common.RunnerCtx) *Server {
+	return New(runnerCtx)
 }

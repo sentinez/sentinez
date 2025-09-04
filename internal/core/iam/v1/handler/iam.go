@@ -20,14 +20,14 @@ import (
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	stdctx "github.com/sentinez/sentinez/pkg/std/context"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var _ iampb.
 	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
-func New(
-	service *iamservices.IAMService,
+func New(service *iamservices.IAMService,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
 		service: service,
@@ -141,10 +141,16 @@ func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 // Login implements iampb.IAMServiceServer.
 func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
+	zlog.Debugf("[IdentityAccessManagement.Login] username = %s",
+		req.GetEmailOrUsername())
 
-	_, _ = ctx, req
+	resp, err := iam.service.Login(ctx, req)
+	if err != nil {
+		zlog.Errorf("IAM.Login: failed to login user err=%v", err)
+		return nil, err
+	}
 
-	panic("unimplemented")
+	return resp, nil
 }
 
 // Status implements iampb.IAMServiceServer.
@@ -152,9 +158,10 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
 
-	_ = ctx
+	data := stdctx.GetSession(ctx, iam.service.Config())
 
 	return &iampb.StatusResponse{
-		Msg: "OK",
+		Msg:     "OK",
+		Context: data,
 	}, nil
 }
