@@ -42,7 +42,7 @@ func main() {
 	})
 
 	app := runner.New(greeter.NewService).
-		Build(ctx, func(service *greeter.Service) (runner.Engine, error) {
+		Build(func(service *greeter.Service) (runner.Engine, error) {
 			return greeter.New(service), nil
 		})
 

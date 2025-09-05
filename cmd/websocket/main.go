@@ -34,7 +34,7 @@ func main() {
 	})
 
 	app := runner.New(wscore.NewServer).
-		Build(ctx, func(ws *wscore.WebSocket) (runner.Engine, error) {
+		Build(func(ws *wscore.WebSocket) (runner.Engine, error) {
 			return websocket.New(ws), nil
 		})
 

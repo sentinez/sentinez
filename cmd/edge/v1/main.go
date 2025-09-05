@@ -47,7 +47,7 @@ func main() {
 
 	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
 	app := runner.New(httpxf1.NewServer).
-		Build(ctx, func(srv httpxf1.Server) (runner.Engine, error) {
+		Build(func(srv httpxf1.Server) (runner.Engine, error) {
 			return edge.New(srv, proxyConf), nil
 		})
 

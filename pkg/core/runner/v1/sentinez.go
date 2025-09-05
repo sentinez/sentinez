@@ -29,7 +29,7 @@ import (
 // by runner.Build() start the app, it will start the server and provide all
 // constructor needed
 type Runner[srv any] interface {
-	Build(ctx context.Context, start func(srv) (Engine, error)) Runner[srv]
+	Build(start func(srv) (Engine, error)) Runner[srv]
 	Run(ctx context.Context) error
 }
 
@@ -46,33 +46,29 @@ type sentinez[srv any] struct {
 
 // Build builds the application.
 // The application is built by providing the constructors.
-func (s *sentinez[srv]) Build(
-	ctx context.Context, start func(srv) (Engine, error)) Runner[srv] {
+func (s *sentinez[srv]) Build(start func(srv) (Engine, error)) Runner[srv] {
 
+	internal.Provide(start)
+	return &sentinez[srv]{}
+}
+
+// Run the app with the given context.
+func (s *sentinez[srv]) Run(ctx context.Context) error {
 	runnerCtx := GetContext(ctx)
 	runnerCtxConstructor := func() context.Context {
 		return ctx
 	}
 
 	zlog.SetLogLevel(runnerCtx.Flag.GetLogLevel())
-
-	internal.Provide(start)
 	internal.Provide(runnerCtxConstructor)
 
 	// disable log: use fx.NopLogger
 	if runnerCtx.Flag.GetEnvMode() != "dev" {
-		return &sentinez[srv]{
-			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
-		}
+		s.engine = fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger)
+	} else {
+		s.engine = fx.New(internal.Option(), fx.Invoke(runner))
 	}
 
-	return &sentinez[srv]{
-		engine: fx.New(internal.Option(), fx.Invoke(runner)),
-	}
-}
-
-// Run the app with the given context.
-func (s *sentinez[srv]) Run(ctx context.Context) error {
 	err := make(chan error)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)

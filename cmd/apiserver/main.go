@@ -47,7 +47,7 @@ func main() {
 	})
 
 	app := runner.New(httpgw.NewServer).
-		Build(ctx, func(server httpgw.Server) (runner.Engine, error) {
+		Build(func(server httpgw.Server) (runner.Engine, error) {
 			return apiserver.New(server)
 		})
 
