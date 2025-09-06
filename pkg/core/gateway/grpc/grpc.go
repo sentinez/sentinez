@@ -33,9 +33,6 @@ import (
 var (
 	// Ensure Server implements ServiceServer.
 	_ ServiceServer = (*Server)(nil)
-
-	// Ensure Server implements Server.
-	_ runner.Engine = (*Server)(nil)
 )
 
 // ServiceServer is a gRPC service server.

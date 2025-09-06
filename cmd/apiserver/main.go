@@ -16,6 +16,8 @@
 package main
 
 import (
+	"context"
+
 	apiserverpb "github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/flags"
@@ -40,16 +42,18 @@ import (
 func main() {
 	flag := flags.Parse()
 	conf := config.Load(flag.GetEnvFile())
-	ctx := runner.NewContext(&common.RunnerCtx{
+	rctx := &common.RunnerCtx{
 		Meta:   apiserverpb.GetMetaApiserver(),
 		Flag:   flag,
 		Config: conf,
-	})
+	}
 
-	app := runner.New(httpgw.NewServer).
-		Build(func(server httpgw.Server) (runner.Engine, error) {
-			return apiserver.New(server)
-		})
+	runner.Main(func(ctx context.Context) error {
+		server, err := apiserver.New(httpgw.NewServer(ctx))
+		if err != nil {
+			return err
+		}
 
-	_ = app.Run(ctx)
+		return server.Start(ctx)
+	}, runner.WithRunnerCtxValue(rctx))
 }

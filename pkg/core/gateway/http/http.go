@@ -31,9 +31,6 @@ import (
 )
 
 var (
-	// Ensure httpServer implements Server.
-	_ runner.Engine = (*HTTPServer)(nil)
-
 	// Ensure httpServer implements HttpServer.
 	_ Server = (*HTTPServer)(nil)
 )

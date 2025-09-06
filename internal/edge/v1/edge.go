@@ -24,12 +24,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var (
-	_ runner.Engine = (*Server)(nil)
-)
-
 // New creates a new Edge Server instance.
-func New(server httpxf1.Server, yaml *edgeyaml.Config) runner.Engine {
+func New(server httpxf1.Server, yaml *edgeyaml.Config) *Server {
 	return &Server{
 		core: server,
 		yaml: yaml,
@@ -46,6 +42,7 @@ type Server struct {
 
 // Shutdown implements v1.Server.
 func (s *Server) Shutdown(_ context.Context) error {
+	zlog.Debugf("application is shutting down")
 	return s.core.Shutdown()
 }
 

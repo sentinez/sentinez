@@ -24,10 +24,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
 
-// make sure Greeter implement runner.Server
-// it will start by runner/v1.runner through runner.Server
-var _ runner.Engine = (*Greeter)(nil)
-
 type Service struct {
 	*grpcgw.Server
 	handler greeter.GreeterServiceServer
@@ -41,7 +37,7 @@ func NewService(ctx context.Context) *Service {
 }
 
 // New creates a new Greeter module.
-func New(srv *Service) runner.Engine {
+func New(srv *Service) *Greeter {
 
 	return &Greeter{
 		Service: srv,

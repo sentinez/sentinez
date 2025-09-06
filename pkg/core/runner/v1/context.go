@@ -24,7 +24,7 @@ type runnerCtxKey string
 
 const runnerCtx runnerCtxKey = "RunnerContextValue"
 
-func NewContext(rctx *common.RunnerCtx) context.Context {
+func newContext(rctx *common.RunnerCtx) context.Context {
 	return context.WithValue(context.Background(), runnerCtx, rctx)
 }
 

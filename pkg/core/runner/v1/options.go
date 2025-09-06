@@ -12,15 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package runner provides the core setting for the application
 package runner
 
-import (
-	"context"
+import "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+
+type OptionType int
+
+const (
+	Unknown OptionType = iota
+	RunnerCtx
 )
 
-// Engine represents the HTTP/gRPC server interface.
-type Engine interface {
-	Start(ctx context.Context) error
-	Shutdown(ctx context.Context) error
+type Option interface {
+	Type() OptionType
+	Value() any
+}
+
+type runnerCtxOpt struct {
+	types OptionType
+	value *common.RunnerCtx
+}
+
+func (rctx *runnerCtxOpt) Type() OptionType {
+	return rctx.types
+}
+
+func (rctx *runnerCtxOpt) Value() any {
+	return rctx.value
+}
+
+func WithRunnerCtxValue(ctx *common.RunnerCtx) Option {
+	return &runnerCtxOpt{types: RunnerCtx, value: ctx}
 }
