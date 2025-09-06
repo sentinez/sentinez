@@ -54,6 +54,10 @@ func main() {
 			return err
 		}
 
+		runner.Shutdown(func(ctx context.Context) error {
+			return server.Shutdown(ctx)
+		})
+
 		return server.Start(ctx)
 	}, runner.WithRunnerCtxValue(rctx))
 }
