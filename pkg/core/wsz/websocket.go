@@ -15,15 +15,20 @@
 package wsz
 
 import (
+	"context"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/common/sync"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func NewServer(runnerCtx *common.RunnerCtx) *WebSocket {
+func NewServer(ctx context.Context) *WebSocket {
+	runnerCtx := runner.GetContext(ctx)
 	return &WebSocket{
 		routers: sync.Map[string, func(httpx1.Context) error]{},
 		rctx:    runnerCtx,
@@ -33,10 +38,6 @@ func NewServer(runnerCtx *common.RunnerCtx) *WebSocket {
 type WebSocket struct {
 	routers sync.Map[string, func(httpx1.Context) error]
 	rctx    *common.RunnerCtx
-}
-
-func (ws *WebSocket) GetRunnerCtx() *common.RunnerCtx {
-	return ws.rctx
 }
 
 func (ws *WebSocket) HandlerFunc(
@@ -51,6 +52,10 @@ func (ws *WebSocket) HandlerFunc(
 }
 
 func (ws *WebSocket) ListenAndServe(addr string) error {
+	if err := protobuf.Validate(ws.rctx); err != nil {
+		return err
+	}
+
 	ws.routers.Range(
 		func(path string, handler func(httpx1.Context) error) bool {
 			httpx1.HandlerFunc(path, handler)

@@ -12,14 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package greeterfac
+package runner
 
-import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
+import "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+
+type OptionType int
+
+const (
+	Unknown OptionType = iota
+	RunnerCtx
 )
 
-func NewDefaultGreeterHdl(_ *common.RunnerCtx) greeter.GreeterServiceServer {
-	return greeterhandler.New()
+type Option interface {
+	Type() OptionType
+	Value() any
+}
+
+type runnerCtxOpt struct {
+	types OptionType
+	value *common.RunnerCtx
+}
+
+func (rctx *runnerCtxOpt) Type() OptionType {
+	return rctx.types
+}
+
+func (rctx *runnerCtxOpt) Value() any {
+	return rctx.value
+}
+
+func WithRunnerCtxValue(ctx *common.RunnerCtx) Option {
+	return &runnerCtxOpt{types: RunnerCtx, value: ctx}
 }

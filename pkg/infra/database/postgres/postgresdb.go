@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/infra/table"
 	"github.com/sentinez/sentinez/pkg/infra/utils"
 	"github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -160,6 +161,7 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 	}
 
 	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
+	zlog.Debugf("[QUERY] %s", stmt)
 
 	rows, err := p.client.Query(ctx, stmt, args...)
 	if err != nil {

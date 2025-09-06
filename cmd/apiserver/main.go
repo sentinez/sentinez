@@ -42,16 +42,22 @@ import (
 func main() {
 	flag := flags.Parse()
 	conf := config.Load(flag.GetEnvFile())
-	rnCtx := &common.RunnerCtx{
+	rctx := &common.RunnerCtx{
 		Meta:   apiserverpb.GetMetaApiserver(),
 		Flag:   flag,
 		Config: conf,
 	}
 
-	app := runner.New(httpgw.NewServer).
-		Build(rnCtx, func(server httpgw.Server) (runner.Engine, error) {
-			return apiserver.New(server)
+	runner.Main(func(ctx context.Context) error {
+		server, err := apiserver.New(httpgw.NewServer(ctx))
+		if err != nil {
+			return err
+		}
+
+		runner.Shutdown(func(ctx context.Context) error {
+			return server.Shutdown(ctx)
 		})
 
-	_ = app.Run(context.Background())
+		return server.Start(ctx)
+	}, runner.WithRunnerCtxValue(rctx))
 }

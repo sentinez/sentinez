@@ -12,15 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package runner provides the core setting for the application
 package runner
 
 import (
 	"context"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
-// Engine represents the HTTP/gRPC server interface.
-type Engine interface {
-	Start(ctx context.Context) error
-	Shutdown(ctx context.Context) error
+type runnerCtxKey string
+
+const runnerCtx runnerCtxKey = "RunnerContextValue"
+
+func newContext(rctx *common.RunnerCtx) context.Context {
+	return context.WithValue(context.Background(), runnerCtx, rctx)
+}
+
+func GetContext(ctx context.Context) *common.RunnerCtx {
+	val := ctx.Value(runnerCtx)
+	if val == nil {
+		return nil
+	}
+
+	return val.(*common.RunnerCtx)
 }

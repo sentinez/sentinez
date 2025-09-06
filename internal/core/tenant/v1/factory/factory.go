@@ -20,7 +20,7 @@ import (
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 )
 
-func NewDefaultTenantHdl(_ *common.Config) tenant.TenantServiceServer {
+func NewDefaultTenantHdl(_ *common.RunnerCtx) tenant.TenantServiceServer {
 
 	return tenanthandler.New()
 }

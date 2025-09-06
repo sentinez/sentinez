@@ -18,25 +18,12 @@ package apiserver
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-// make sure apiserver implement runner.Server
-// v1.runner will be start application through runner.Server interface
-var _ runner.Engine = (*Server)(nil)
-
-// New creates a new gateway app and returns a runner.Server interface.
-// This constructor is based on dependency injection. When you add parameters
-// (e.g., svc dcvrhandler.Discovery), you must use the runner.Inject
-// to inject the constructor of the object into the sentinez framework.
-//
-// Example:
-//
-//	var _ = runner.Inject(dcvrhandler.New)
-func New(server httpgw.Server) (runner.Engine, error) {
+func New(server httpgw.Server) (*Server, error) {
 	srv := &Server{
 		server: server,
 	}
@@ -62,9 +49,9 @@ type Server struct {
 func (srv *Server) visitToEndpoint(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
+	rctx := runner.GetContext(ctx)
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(
-			ctx, srv.server, srv.server.GetRunnerCtx().GetConfig())
+		err := service.AcceptFromEndpoint(ctx, srv.server, rctx.GetConfig())
 		if err != nil {
 			return err
 		}
@@ -89,17 +76,15 @@ func (srv *Server) visit(ctx context.Context,
 
 // Start the apiserver/gateway app
 func (srv *Server) Start(ctx context.Context) error {
-	if err := protobuf.Validate(srv.server.GetRunnerCtx()); err != nil {
-		return err
-	}
-
+	rctx := runner.GetContext(ctx)
 	if err := srv.bootloader(ctx); err != nil {
 		zlog.Errorf("apiserver: failed to bootloader: %v", err)
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(srv.server.GetRunnerCtx().GetConfig().GetAddress())
+
+	return srv.server.Listen(rctx.GetConfig().GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

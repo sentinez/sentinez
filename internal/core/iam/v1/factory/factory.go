@@ -40,7 +40,6 @@ func NewDefaultIAMHdl(
 	}
 
 	tx := postgres.NewTX(rctx.GetConfig())
-
 	service := iamservices.New(rctx.GetConfig(), tx, userrepos, accountrepos)
 
 	return iamhandler.New(service)

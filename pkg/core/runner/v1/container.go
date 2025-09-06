@@ -20,58 +20,18 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"go.uber.org/fx"
 )
 
-// Runner represents the application when all constructor was build
-// by runner.Build() start the app, it will start the server and provide all
-// constructor needed
-type Runner[srv any] interface {
-	Build(rctx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv]
-	Run(ctx context.Context) error
-}
-
-func New[srv any](fn func(*common.RunnerCtx) srv) Runner[srv] {
-	internal.Provide(fn)
-	return &sentinez[srv]{}
-}
-
-// sentinez represents the container with uber/fx frameworks.
+// container represents the container with uber/fx frameworks.
 // manage the lifecycle of the application.
-type sentinez[srv any] struct {
+type container struct {
 	engine *fx.App
 }
 
-// Build builds the application.
-// The application is built by providing the constructors.
-func (s *sentinez[srv]) Build(
-	runnerCtx *common.RunnerCtx, start func(srv) (Engine, error)) Runner[srv] {
-
-	zlog.SetLogLevel(runnerCtx.Flag.GetLogLevel())
-	runnerCtxConstructor := func() *common.RunnerCtx {
-		return runnerCtx
-	}
-
-	internal.Provide(start)
-	internal.Provide(runnerCtxConstructor)
-
-	// disable log: use fx.NopLogger
-	if runnerCtx.Flag.GetEnvMode() != "dev" {
-		return &sentinez[srv]{
-			engine: fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger),
-		}
-	}
-
-	return &sentinez[srv]{
-		engine: fx.New(internal.Option(), fx.Invoke(runner)),
-	}
-}
-
 // Run the app with the given context.
-func (s *sentinez[srv]) Run(ctx context.Context) error {
+func (ctn *container) Run(ctx context.Context) error {
 	err := make(chan error)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -80,10 +40,10 @@ func (s *sentinez[srv]) Run(ctx context.Context) error {
 	// defer close(sig)
 
 	// fork the goroutine 1 for start the app
-	go s.onStart(ctx, err)
+	go ctn.onStart(ctx, err)
 
 	// fork the goroutine 2 for stop the app
-	go s.onStop(ctx, sig, err)
+	go ctn.onStop(ctx, sig, err)
 
 	// show memory usage
 	// if flags.Get().LogLevel == zlog.LevelDebug.String() {
@@ -95,26 +55,26 @@ func (s *sentinez[srv]) Run(ctx context.Context) error {
 }
 
 // onStart the app with the given context.
-func (s *sentinez[srv]) onStart(ctx context.Context, errChan chan<- error) {
-	if s.engine == nil {
-		s.engine = fx.New(internal.Option())
+func (ctn *container) onStart(ctx context.Context, errChan chan<- error) {
+	if ctn.engine == nil {
+		ctn.engine = fx.New(internal.Option())
 	}
 
 	// if the error is not nil, return the error to err channel end goroutine 1
-	if err := s.engine.Start(ctx); err != nil {
+	if err := ctn.engine.Start(ctx); err != nil {
 		errChan <- err
 	}
 }
 
 // onStop the app with the given context.
-func (s *sentinez[srv]) onStop(
+func (ctn *container) onStop(
 	ctx context.Context, sigChan <-chan os.Signal, errChan chan<- error) {
 
 	// wait for the signal interrupt from the OS
 	<-sigChan
 
 	// if the error is not nil, return the error to err channel, end goroutine 2
-	if err := s.engine.Stop(ctx); err != nil {
+	if err := ctn.engine.Stop(ctx); err != nil {
 		errChan <- err
 	}
 

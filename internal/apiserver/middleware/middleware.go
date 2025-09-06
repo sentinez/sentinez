@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 
@@ -47,6 +48,10 @@ func Logging(h http.Handler) http.Handler {
 
 		clonedR := r.Clone(r.Context())
 		clonedR.Body = io.NopCloser(bytes.NewReader(body))
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr
+		}
 
 		h.ServeHTTP(lw, clonedR)
 
@@ -63,7 +68,7 @@ func Logging(h http.Handler) http.Handler {
 			Path:          r.URL.Path,
 			Method:        r.Method,
 			Status:        int32(lw.statusCode),
-			RemoteAddress: r.RemoteAddr,
+			RemoteAddress: ip,
 			Protocol:      r.Proto,
 			Query:         r.URL.RawQuery,
 			UserAgent:     r.UserAgent(),

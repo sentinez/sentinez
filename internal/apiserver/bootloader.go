@@ -23,12 +23,13 @@ import (
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
+	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func (srv *Server) bootloader(ctx context.Context) error {
-	flag := srv.server.GetRunnerCtx().GetFlag()
-	conf := srv.server.GetRunnerCtx().GetConfig()
+	rctx := runner.GetContext(ctx)
+	flag := rctx.GetFlag()
 
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
@@ -41,7 +42,7 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 	err := srv.visitToEndpoint(ctx,
-		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(conf)),
+		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(rctx)),
 	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
@@ -49,7 +50,7 @@ func (srv *Server) bootloader(ctx context.Context) error {
 	}
 
 	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultIAMHdl(srv.server.GetRunnerCtx())),
-		services.NewTenant(tenantfac.NewDefaultTenantHdl(conf)),
+		services.NewIAM(iamfac.NewDefaultIAMHdl(rctx)),
+		services.NewTenant(tenantfac.NewDefaultTenantHdl(rctx)),
 	)
 }

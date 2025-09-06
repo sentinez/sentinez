@@ -15,6 +15,7 @@
 package edge
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/cache"
 	"github.com/sentinez/sentinez/internal/edge/v1/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/logic"
@@ -22,16 +23,15 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/secure"
 )
 
-func (s *Server) bootloader() error {
-
+func (s *Server) bootloader(rctx *common.RunnerCtx) error {
 	// idx = 0
 	s.core.Use(cache.HeaderCacheControl)
 	// idx = 1
 	s.core.Use(logging.Writer)
 	// idx = 2
-	s.core.Use(logic.NewHost(s.core.GetRunnerCtx().GetConfig().GetHostname()))
+	s.core.Use(logic.NewHost(rctx.GetConfig().GetHostname()))
 	// idx = 3
-	s.core.Use(secure.NewWAF(s.core.GetRunnerCtx().GetFlag().GetRulePath()))
+	s.core.Use(secure.NewWAF(rctx.GetFlag().GetRulePath()))
 
 	return routing.Serve(s.yaml, s.core)
 }

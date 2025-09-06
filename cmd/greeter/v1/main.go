@@ -20,33 +20,30 @@ import (
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps"
-	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
-// Build and run main application with environment variable
-// Remember to inject all layers of the application by
-// runner.Inject() function
-//
-// Example:
-//
-// _ = runner.Inject(controllers.New)
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
-	runnerCtx := &common.RunnerCtx{
+	rctx := &common.RunnerCtx{
 		Meta:   greeterpb.GetMetaGreeter(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	app := runner.New(greeter.NewService).
-		Build(runnerCtx, func(service *greeter.Service) (runner.Engine, error) {
-			return greeter.New(service), nil
+	runner.Main(func(ctx context.Context) error {
+		grpc := greeter.NewService(ctx)
+		svc := greeter.New(grpc)
+
+		runner.Shutdown(func(ctx context.Context) error {
+			return svc.Shutdown(ctx)
 		})
 
-	_ = app.Run(context.Background())
+		return svc.Start(ctx)
+	}, runner.WithRunnerCtxValue(rctx))
 }
