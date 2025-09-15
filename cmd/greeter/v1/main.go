@@ -40,10 +40,14 @@ func main() {
 		grpc := greeter.NewService(ctx)
 		svc := greeter.New(grpc)
 
-		runner.Shutdown(func(ctx context.Context) error {
+		runner.OnStart(func(ctx context.Context) error {
+			return svc.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return svc.Shutdown(ctx)
 		})
 
-		return svc.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

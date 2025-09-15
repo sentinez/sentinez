@@ -39,10 +39,14 @@ func main() {
 		core := wscore.NewServer(ctx)
 		ws := websocket.New(core)
 
-		runner.Shutdown(func(ctx context.Context) error {
+		runner.OnStart(func(ctx context.Context) error {
+			return ws.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return ws.Shutdown(ctx)
 		})
 
-		return ws.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

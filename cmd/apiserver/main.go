@@ -54,10 +54,14 @@ func main() {
 			return err
 		}
 
-		runner.Shutdown(func(ctx context.Context) error {
+		runner.OnStart(func(ctx context.Context) error {
+			return server.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return server.Shutdown(ctx)
 		})
 
-		return server.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

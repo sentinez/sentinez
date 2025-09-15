@@ -77,7 +77,7 @@ func (srv *Server) visit(ctx context.Context,
 // Start the apiserver/gateway app
 func (srv *Server) Start(ctx context.Context) error {
 	rctx := runner.GetContext(ctx)
-	if err := srv.bootloader(ctx); err != nil {
+	if err := srv.Bootloader(ctx); err != nil {
 		zlog.Errorf("apiserver: failed to bootloader: %v", err)
 		return err
 	}
