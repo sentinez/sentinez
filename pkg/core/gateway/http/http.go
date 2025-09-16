@@ -21,8 +21,6 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -46,21 +44,19 @@ type Server interface {
 }
 
 // New creates a new http server.
-func New(ctx context.Context, opts ...runtime.ServeMuxOption) Server {
-	runnerCtx := runner.GetContext(ctx)
+func New(meta *common.SentinezMetadata, opts ...runtime.ServeMuxOption) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
-		rctx:       runnerCtx,
+		meta:       meta,
 	}
 }
 
-func NewServer(ctx context.Context) Server {
-	runnerCtx := runner.GetContext(ctx)
+func NewServer(meta *common.SentinezMetadata) Server {
 	return &HTTPServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
-		rctx:       runnerCtx,
+		meta:       meta,
 	}
 }
 
@@ -78,7 +74,7 @@ type HTTPServer struct {
 	// http server
 	server *http.Server
 
-	rctx *common.RunnerCtx
+	meta *common.SentinezMetadata
 }
 
 // Start implements Server.
@@ -96,10 +92,6 @@ func (h *HTTPServer) Use(handlers ...func(http.Handler) http.Handler) {
 
 // Listen starts the runtime mux.
 func (h *HTTPServer) Listen(address string) error {
-	if err := protobuf.Validate(h.rctx); err != nil {
-		return err
-	}
-
 	if address == "" {
 		address = ":9000"
 	}
@@ -116,8 +108,8 @@ func (h *HTTPServer) Listen(address string) error {
 	}
 
 	version.INFO(
-		h.rctx.GetMeta().GetServiceName(),
-		h.rctx.GetMeta().GetServiceKey(),
+		h.meta.GetServiceName(),
+		h.meta.GetServiceKey(),
 	)
 
 	zlog.Infof("%s >>> running on %s",

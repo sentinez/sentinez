@@ -36,7 +36,7 @@ func main() {
 	}
 
 	runner.Main(func(ctx context.Context) error {
-		core := wscore.NewServer(ctx)
+		core := wscore.NewServer(wspb.GetMetaWs())
 		ws := websocket.New(core)
 
 		runner.OnStart(func(ctx context.Context) error {

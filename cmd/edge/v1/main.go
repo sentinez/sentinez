@@ -49,7 +49,7 @@ func main() {
 	}
 
 	runner.Main(func(ctx context.Context) error {
-		srv := httpxf1.NewServer(ctx)
+		srv := httpxf1.NewServer(edgev1.GetMetaEdge())
 		edgeServer := edge.New(srv, yamlconf)
 
 		runner.OnStart(func(ctx context.Context) error {

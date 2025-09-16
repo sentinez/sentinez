@@ -37,7 +37,7 @@ func main() {
 	}
 
 	runner.Main(func(ctx context.Context) error {
-		grpc := greeter.NewService(ctx)
+		grpc := greeter.NewService(greeterpb.GetMetaGreeter())
 		svc := greeter.New(grpc)
 
 		runner.OnStart(func(ctx context.Context) error {

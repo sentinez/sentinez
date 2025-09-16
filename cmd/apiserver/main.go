@@ -49,7 +49,8 @@ func main() {
 	}
 
 	runner.Main(func(ctx context.Context) error {
-		server, err := apiserver.New(httpgw.NewServer(ctx))
+		httpSrv := httpgw.NewServer(apiserverpb.GetMetaApiserver())
+		server, err := apiserver.New(httpSrv)
 		if err != nil {
 			return err
 		}
