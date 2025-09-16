@@ -19,14 +19,34 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
+	"github.com/sentinez/sentinez/pkg/std/errors"
 	"go.uber.org/fx"
 )
 
-// UseBefore uses the given function before the application starts.
-func UseBefore(fn func(ctx context.Context) error) {
+func OnStart(start func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
-			OnStart: fn,
+			OnStart: func(ctx context.Context) error {
+				errChan := make(chan error, 1)
+				go func() {
+					if err := start(ctx); err != nil {
+						if errors.Is(err, errors.ErrServerClosed) {
+							logging.Infof("[runner] %+v", err)
+						} else {
+							logging.Errorf("[runner] %+v", err)
+						}
+
+						errChan <- err
+					}
+				}()
+
+				select {
+				case err := <-errChan:
+					return err
+				default:
+					return nil
+				}
+			},
 		})
 	}
 
@@ -34,12 +54,20 @@ func UseBefore(fn func(ctx context.Context) error) {
 }
 
 // UseAfter adds a hook to be executed after the application has stopped.
-func UseAfter(fn func(ctx context.Context) error) {
+func OnStop(stop func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
-			OnStop: fn,
+			OnStop: stop,
 		})
 	}
 
 	internal.Invoke(function)
+}
+
+func Invoke(fn any) {
+	internal.Invoke(fn)
+}
+
+func Inject(fn ...any) {
+	internal.Provide(fn...)
 }

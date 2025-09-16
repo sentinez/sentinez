@@ -42,22 +42,29 @@ import (
 func main() {
 	flag := flags.Parse()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   apiserverpb.GetMetaApiserver(),
 		Flag:   flag,
 		Config: conf,
 	}
 
-	runner.Main(func(ctx context.Context) error {
-		server, err := apiserver.New(httpgw.NewServer(ctx))
+	runner.Main(func(_ context.Context) error {
+		httpSrv := httpgw.NewServer(apiserverpb.GetMetaApiserver())
+
+		server, err := apiserver.New(httpSrv)
 		if err != nil {
 			return err
 		}
 
-		runner.Shutdown(func(ctx context.Context) error {
+		runner.OnStart(func(ctx context.Context) error {
+			return server.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return server.Shutdown(ctx)
 		})
 
-		return server.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

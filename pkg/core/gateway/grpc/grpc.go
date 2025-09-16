@@ -20,9 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -38,7 +36,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(addr string) error
+	Serve(conf *common.Config) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -52,7 +50,7 @@ type ServiceServer interface {
 //	}
 type Server struct {
 	server *grpc.Server
-	rctx   *common.RunnerCtx
+	meta   *common.SentinezMetadata
 }
 
 // Start implements Server.
@@ -75,42 +73,37 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(addr string) error {
-	if err := protobuf.Validate(s.rctx); err != nil {
-		return err
-	}
+func (s *Server) Serve(conf *common.Config) error {
 
-	listener, err := httpgw.ListenNetworkTCP(addr)
+	listener, err := httpgw.ListenNetworkTCP(conf.GetAddress())
 	if err != nil {
 		return err
 	}
 
 	version.INFO(
-		s.rctx.GetMeta().GetServiceName(),
-		s.rctx.GetMeta().GetServiceKey(),
+		s.meta.GetServiceName(),
+		s.meta.GetServiceKey(),
 	)
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
-		color.Magenta.Add(addr),
+		color.Magenta.Add(conf.GetAddress()),
 	)
 
-	go Register(s.rctx.GetMeta().GetServiceKey(), s.rctx.GetConfig())
+	go Register(s.meta.GetServiceKey(), conf)
 	return s.AsServer().Serve(listener)
 }
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(ctx context.Context, opts ...grpc.ServerOption) *Server {
-	runnerCtx := runner.GetContext(ctx)
-
+func New(meta *common.SentinezMetadata, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
-		rctx:   runnerCtx,
+		meta:   meta,
 	}
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(ctx context.Context) *Server {
-	return New(ctx)
+func NewDefault(meta *common.SentinezMetadata) *Server {
+	return New(meta)
 }

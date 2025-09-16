@@ -28,7 +28,7 @@ func NewIAMService(
 		return nil, err
 	}
 
-	conn, err := newConnection(srv.Address)
+	conn, err := connection(srv.Address)
 	if err != nil {
 		return nil, err
 	}

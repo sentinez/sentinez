@@ -41,22 +41,28 @@ import (
 func main() {
 	flag := edgeflags.Parse()
 	conf := config.Load(flag.GetEnvFile())
+
+	yamlconf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+
 	rctx := &common.RunnerCtx{
 		Meta:   edgev1.GetMetaEdge(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	proxyConf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
+	runner.Main(func(_ context.Context) error {
+		httpSrv := httpxf1.NewServer(edgev1.GetMetaEdge())
 
-	runner.Main(func(ctx context.Context) error {
-		httpServer := httpxf1.NewServer(ctx)
-		server := edge.New(httpServer, proxyConf)
+		edgeServer := edge.New(httpSrv, yamlconf)
 
-		runner.Shutdown(func(ctx context.Context) error {
-			return server.Shutdown(ctx)
+		runner.OnStart(func(ctx context.Context) error {
+			return edgeServer.Start(ctx)
 		})
 
-		return server.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		runner.OnStop(func(ctx context.Context) error {
+			return edgeServer.Shutdown(ctx)
+		})
+
+		return nil
+	}, runner.WithContextValue(rctx))
 }

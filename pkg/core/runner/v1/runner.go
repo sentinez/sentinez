@@ -16,12 +16,9 @@ package runner
 
 import (
 	"context"
-	"fmt"
-	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	"github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/grpc/grpclog"
 
@@ -29,73 +26,28 @@ import (
 )
 
 var (
-	onceWhenStart    sync.Once
-	onceWhenShutdown sync.Once
-
 	logging zlog.Sugard
 
 	options map[OptionType]any
-
-	start func(context.Context) error
-	stop  func(context.Context) error
 )
 
-// runner functions called by fx.Invoke.
-// when the application starts, it will start the server
-// nolint:funlen
-func runner(lc fx.Lifecycle) error {
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			errChan := make(chan error, 1)
-			go func() {
-				if start == nil {
-					errChan <- fmt.Errorf("[runner]: missing start function")
-					return
-				}
-				if err := start(ctx); err != nil {
-					if errors.Is(err, errors.ErrServerClosed) {
-						logging.Infof("[runner] %+v", err)
-					} else {
-						logging.Errorf("[runner] %+v", err)
-					}
-
-					errChan <- err
-				}
-			}()
-
-			select {
-			case err := <-errChan:
-				return err
-			default:
-				return nil
-			}
-		},
-		OnStop: func(ctx context.Context) error {
-			_ = logging.Sync()
-			if stop == nil {
-				return nil
-			}
-
-			return stop(ctx)
-		},
-	})
-
-	return nil
+type Engine interface {
+	Start(ctx context.Context) error
+	Shutdown(ctx context.Context) error
 }
 
-func Main(fn func(ctx context.Context) error, opts ...Option) {
-	onceWhenStart.Do(func() {
-		logging = zlog.NewDefaultConsole(zlog.LevelError)
+func Main(start func(ctx context.Context) error, opts ...Option) {
+	logging = zlog.NewDefaultConsole(zlog.LevelError)
+	grpclog.SetLoggerV2(logging)
 
-		grpclog.SetLoggerV2(logging)
-
-		start = fn
-
-		options = make(map[OptionType]any)
-		for _, opt := range opts {
-			options[opt.Type()] = opt.Value()
+	options = make(map[OptionType]any)
+	for _, opt := range opts {
+		if opt == nil {
+			continue
 		}
-	})
+
+		options[opt.Type()] = opt.Value()
+	}
 
 	ctn := container{}
 
@@ -105,20 +57,18 @@ func Main(fn func(ctx context.Context) error, opts ...Option) {
 	}
 
 	rctx := opt.(*common.RunnerCtx)
-	zlog.SetLogLevel(rctx.GetFlag().GetLogLevel())
+	ctx := newContext(rctx)
 
-	// disable log: use fx.NopLogger
+	zlog.SetLogLevel(rctx.GetFlag().GetLogLevel())
 	if rctx.GetFlag().GetEnvMode() != "dev" {
-		ctn.engine = fx.New(internal.Option(), fx.Invoke(runner), fx.NopLogger)
-	} else {
-		ctn.engine = fx.New(internal.Option(), fx.Invoke(runner))
+		internal.AppendOption(fx.NopLogger)
 	}
 
-	_ = ctn.Run(newContext(rctx))
-}
+	if err := start(ctx); err != nil {
+		zlog.Fatal(err)
+	}
 
-func Shutdown(fn func(ctx context.Context) error) {
-	onceWhenShutdown.Do(func() {
-		stop = fn
-	})
+	ctn.engine = fx.New(internal.Option())
+
+	_ = ctn.Run(ctx)
 }

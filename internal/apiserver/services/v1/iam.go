@@ -16,18 +16,10 @@ package services
 
 import (
 	"context"
-	"time"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
-	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var _ httpgw.ServiceRegistrar = (*identityAccessManagement)(nil)
@@ -45,37 +37,23 @@ type identityAccessManagement struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server, config *common.Config) error {
+	server httpgw.Server, rctx *common.RunnerCtx) error {
 
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: config.GetConsulUri(),
-	})
-
-	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(iampb.GetMetaIamServiceKey())
-		if err != nil {
-			return
-		}
-
-		err = iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint(
-			ctx, server.RuntimeMux(), srv.Address, opts)
-		if err == nil {
-			zlog.Debug("[apiserver] iam service: ", srv.Address)
-		}
-
-	})
-
-	return nil
+	return httpgw.RegisterServiceFromEndpoint(ctx,
+		rctx,
+		server.RuntimeMux(),
+		iampb.GetMetaIamServiceKey(),
+		iampb.RegisterIdentityAccessManagementServiceHandlerFromEndpoint,
+	)
 }
 
 // Accept to visit the iam service.
 func (i *identityAccessManagement) Accept(ctx context.Context,
 	server httpgw.Server) error {
 
-	return iampb.RegisterIdentityAccessManagementServiceHandlerServer(ctx,
-		server.RuntimeMux(), i.server)
+	return httpgw.RegisterServiceHandlerServer(ctx,
+		server.RuntimeMux(),
+		i.server,
+		iampb.RegisterIdentityAccessManagementServiceHandlerServer,
+	)
 }

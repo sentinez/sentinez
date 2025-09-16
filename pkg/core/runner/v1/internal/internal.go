@@ -31,6 +31,10 @@ func Option() fx.Option {
 	return options
 }
 
+func AppendOption(opts fx.Option) {
+	options = fx.Options(options, opts)
+}
+
 // Invoke invokes the given constructors.
 func Invoke(constructors ...any) {
 	options = fx.Options(options, fx.Invoke(constructors...))

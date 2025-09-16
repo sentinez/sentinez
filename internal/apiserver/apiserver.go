@@ -51,11 +51,12 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 
 	rctx := runner.GetContext(ctx)
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(ctx, srv.server, rctx.GetConfig())
+		err := service.AcceptFromEndpoint(ctx, srv.server, rctx)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 	// return errors.F("apiserver: failed to visit service")
 }
@@ -76,14 +77,13 @@ func (srv *Server) visit(ctx context.Context,
 
 // Start the apiserver/gateway app
 func (srv *Server) Start(ctx context.Context) error {
-	rctx := runner.GetContext(ctx)
-	if err := srv.bootloader(ctx); err != nil {
+	if err := srv.Bootloader(ctx); err != nil {
 		zlog.Errorf("apiserver: failed to bootloader: %v", err)
 		return err
 	}
 
+	rctx := runner.GetContext(ctx)
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-
 	return srv.server.Listen(rctx.GetConfig().GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")

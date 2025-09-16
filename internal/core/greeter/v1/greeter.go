@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
@@ -29,9 +30,9 @@ type Service struct {
 	handler greeter.GreeterServiceServer
 }
 
-func NewService(ctx context.Context) *Service {
+func NewService(meta *common.SentinezMetadata) *Service {
 	return &Service{
-		Server:  grpcgw.NewDefault(ctx),
+		Server:  grpcgw.NewDefault(meta),
 		handler: greeterhdl.New(),
 	}
 }
@@ -54,5 +55,5 @@ func (g *Greeter) Start(ctx context.Context) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
 	rctx := runner.GetContext(ctx)
-	return g.Serve(rctx.GetConfig().GetAddress())
+	return g.Serve(rctx.GetConfig())
 }

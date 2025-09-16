@@ -14,7 +14,9 @@
 
 package runner
 
-import "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+)
 
 type OptionType int
 
@@ -41,6 +43,6 @@ func (rctx *runnerCtxOpt) Value() any {
 	return rctx.value
 }
 
-func WithRunnerCtxValue(ctx *common.RunnerCtx) Option {
+func WithContextValue(ctx *common.RunnerCtx) Option {
 	return &runnerCtxOpt{types: RunnerCtx, value: ctx}
 }

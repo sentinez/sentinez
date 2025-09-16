@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func (srv *Server) bootloader(ctx context.Context) error {
+func (srv *Server) Bootloader(ctx context.Context) error {
 	rctx := runner.GetContext(ctx)
 	flag := rctx.GetFlag()
 

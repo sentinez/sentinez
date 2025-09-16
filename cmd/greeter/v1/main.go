@@ -30,20 +30,26 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   greeterpb.GetMetaGreeter(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	runner.Main(func(ctx context.Context) error {
-		grpc := greeter.NewService(ctx)
+	runner.Main(func(_ context.Context) error {
+		grpc := greeter.NewService(greeterpb.GetMetaGreeter())
+
 		svc := greeter.New(grpc)
 
-		runner.Shutdown(func(ctx context.Context) error {
+		runner.OnStart(func(ctx context.Context) error {
+			return svc.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return svc.Shutdown(ctx)
 		})
 
-		return svc.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

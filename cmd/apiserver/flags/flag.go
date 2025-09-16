@@ -30,8 +30,8 @@ var onceAPIServer sync.Once
 // Parse flag args for apiserver service
 func Parse() *common.Flag {
 	onceAPIServer.Do(func() {
-		flags.Get().ApiSpecsPath = "resources/api/specs/v1"
-		flags.Get().SwaggerPath = "resources/api/swagger"
+		flags.Get().ApiSpecsPath = "./resources/api/specs/v1"
+		flags.Get().SwaggerPath = "./resources/api/swagger"
 		flags.Get().EnvFile = "./cmd/apiserver/.env"
 
 		pflag.StringVar(&flags.Get().ApiSpecsPath, "api-specs-path",

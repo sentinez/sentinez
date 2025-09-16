@@ -29,20 +29,26 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   wspb.GetMetaWs(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	runner.Main(func(ctx context.Context) error {
-		core := wscore.NewServer(ctx)
-		ws := websocket.New(core)
+	runner.Main(func(_ context.Context) error {
+		wsSrv := wscore.NewServer(wspb.GetMetaWs())
 
-		runner.Shutdown(func(ctx context.Context) error {
+		ws := websocket.New(wsSrv)
+
+		runner.OnStart(func(ctx context.Context) error {
+			return ws.Start(ctx)
+		})
+
+		runner.OnStop(func(ctx context.Context) error {
 			return ws.Shutdown(ctx)
 		})
 
-		return ws.Start(ctx)
-	}, runner.WithRunnerCtxValue(rctx))
+		return nil
+	}, runner.WithContextValue(rctx))
 }

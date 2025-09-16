@@ -16,18 +16,10 @@ package services
 
 import (
 	"context"
-	"time"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
-	"github.com/sentinez/sentinez/pkg/common/cron"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var _ httpgw.ServiceRegistrar = (*tenant)(nil)
@@ -44,36 +36,22 @@ type tenant struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (t *tenant) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server, config *common.Config) error {
+	server httpgw.Server, rctx *common.RunnerCtx) error {
 
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: config.GetConsulUri(),
-	})
-
-	cron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(tenantpb.GetMetaTenantServiceKey())
-		if err != nil {
-			return
-		}
-
-		err = tenantpb.RegisterTenantServiceHandlerFromEndpoint(
-			ctx, server.RuntimeMux(), srv.Address, opts)
-		if err == nil {
-			zlog.Debug("[apiserver] tenant service: ", srv.Address)
-		}
-
-	})
-
-	return nil
+	return httpgw.RegisterServiceFromEndpoint(ctx,
+		rctx,
+		server.RuntimeMux(),
+		tenantpb.GetMetaTenantServiceKey(),
+		tenantpb.RegisterTenantServiceHandlerFromEndpoint,
+	)
 }
 
 // Accept to visit the tenant service.
-func (t *tenant) Accept(ctx context.Context,
-	server httpgw.Server) error {
-	return tenantpb.
-		RegisterTenantServiceHandlerServer(ctx, server.RuntimeMux(), t.server)
+func (t *tenant) Accept(ctx context.Context, server httpgw.Server) error {
+
+	return httpgw.RegisterServiceHandlerServer(ctx,
+		server.RuntimeMux(),
+		t.server,
+		tenantpb.RegisterTenantServiceHandlerServer,
+	)
 }
