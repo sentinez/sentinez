@@ -43,8 +43,9 @@ func Register(name string, conf *common.Config) {
 	for {
 		serviceID, err = dcvr.Register(&discovery.RegisterRequest{
 			Name:    name,
-			Address: addr, Port: portInt,
-			TTL: time.Second * 15,
+			Address: addr,
+			Port:    portInt,
+			TTL:     time.Second * 15,
 		})
 		if err != nil {
 			zlog.Errorf("failed to register service: %v, retrying...", err)

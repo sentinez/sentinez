@@ -29,15 +29,17 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   wspb.GetMetaWs(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	runner.Main(func(ctx context.Context) error {
-		core := wscore.NewServer(wspb.GetMetaWs())
-		ws := websocket.New(core)
+	runner.Main(func(_ context.Context) error {
+		wsSrv := wscore.NewServer(wspb.GetMetaWs())
+
+		ws := websocket.New(wsSrv)
 
 		runner.OnStart(func(ctx context.Context) error {
 			return ws.Start(ctx)

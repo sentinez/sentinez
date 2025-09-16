@@ -51,7 +51,7 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 
 	rctx := runner.GetContext(ctx)
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(ctx, srv.server, rctx.GetConfig())
+		err := service.AcceptFromEndpoint(ctx, srv.server, rctx)
 		if err != nil {
 			return err
 		}

@@ -30,14 +30,16 @@ import (
 func main() {
 	flag := apps.ParseFlag()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   greeterpb.GetMetaGreeter(),
 		Config: conf,
 		Flag:   flag,
 	}
 
-	runner.Main(func(ctx context.Context) error {
+	runner.Main(func(_ context.Context) error {
 		grpc := greeter.NewService(greeterpb.GetMetaGreeter())
+
 		svc := greeter.New(grpc)
 
 		runner.OnStart(func(ctx context.Context) error {

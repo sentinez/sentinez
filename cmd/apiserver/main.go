@@ -42,14 +42,16 @@ import (
 func main() {
 	flag := flags.Parse()
 	conf := config.Load(flag.GetEnvFile())
+
 	rctx := &common.RunnerCtx{
 		Meta:   apiserverpb.GetMetaApiserver(),
 		Flag:   flag,
 		Config: conf,
 	}
 
-	runner.Main(func(ctx context.Context) error {
+	runner.Main(func(_ context.Context) error {
 		httpSrv := httpgw.NewServer(apiserverpb.GetMetaApiserver())
+
 		server, err := apiserver.New(httpSrv)
 		if err != nil {
 			return err

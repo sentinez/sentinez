@@ -19,12 +19,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/sentinez/sentinez/pkg/common/memory"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	"github.com/sentinez/sentinez/pkg/std/flags"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"go.uber.org/fx"
 )
 
@@ -50,9 +46,9 @@ func (ctn *container) Run(ctx context.Context) error {
 	go ctn.onStop(ctx, sig, err)
 
 	// show memory usage
-	if flags.Get().LogLevel == zlog.LevelDebug.String() {
-		time.AfterFunc(1*time.Second, memory.PrintUsage)
-	}
+	// if flags.Get().LogLevel == zlog.LevelDebug.String() {
+	// 	time.AfterFunc(1*time.Second, memory.PrintUsage)
+	// }
 
 	// wait for the error from the goroutine 1 or 2, end the app
 	return <-err
