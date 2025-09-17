@@ -23,12 +23,12 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func New(server httpgw.Server) (*Server, error) {
+func New(server httpgw.Server) *Server {
 	srv := &Server{
 		server: server,
 	}
 
-	return srv, nil
+	return srv
 }
 
 // Server represents the sentinez app The apiserver application is the main
@@ -49,9 +49,9 @@ type Server struct {
 func (srv *Server) visitToEndpoint(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
-	rctx := runner.GetContext(ctx)
+	appConf := runner.GetAppConfig(ctx)
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(ctx, srv.server, rctx)
+		err := service.AcceptFromEndpoint(ctx, srv.server, appConf)
 		if err != nil {
 			return err
 		}
@@ -82,9 +82,9 @@ func (srv *Server) Start(ctx context.Context) error {
 		return err
 	}
 
-	rctx := runner.GetContext(ctx)
+	appConf := runner.GetAppConfig(ctx)
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.Listen(rctx.GetConfig().GetAddress())
+	return srv.server.Listen(appConf.GetEnvConf().GetAddress())
 	// for DEBUG:
 	// return errors.F("apiserver: failed to listen and serve")
 }

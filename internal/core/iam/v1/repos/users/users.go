@@ -53,10 +53,10 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(runnerCtx *common.RunnerCtx) (IUser, error) {
-	tableName := table.NewTable(runnerCtx.GetFlag().GetEnvMode(), table.Users)
+func New(appConf *common.AppConfig) (IUser, error) {
+	tableName := table.NewTable(appConf.GetFlag().GetEnvMode(), table.Users)
 
-	storage, err := postgres.New[*iam.Users](runnerCtx.GetConfig(), tableName,
+	storage, err := postgres.New[*iam.Users](appConf.GetEnvConf(), tableName,
 		postgres.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err

@@ -12,37 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package runner
+package config
 
 import (
+	"sync"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/flags"
+	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
-type OptionType int
-
-const (
-	Unknown OptionType = iota
-	RunnerCtx
+var (
+	once    sync.Once
+	appConf *common.AppConfig
 )
 
-type Option interface {
-	Type() OptionType
-	Value() any
-}
+func Config() *common.AppConfig {
+	once.Do(func() {
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &common.AppConfig{
+			Meta:    greeter.GetMetaGreeter(),
+			EnvConf: envConf,
+			Flag:    flag,
+		}
+	})
 
-type runnerCtxOpt struct {
-	types OptionType
-	value *common.RunnerCtx
-}
-
-func (rctx *runnerCtxOpt) Type() OptionType {
-	return rctx.types
-}
-
-func (rctx *runnerCtxOpt) Value() any {
-	return rctx.value
-}
-
-func WithContextValue(ctx *common.RunnerCtx) Option {
-	return &runnerCtxOpt{types: RunnerCtx, value: ctx}
+	return appConf
 }

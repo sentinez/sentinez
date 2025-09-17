@@ -18,13 +18,10 @@ package main
 import (
 	"context"
 
-	apiserverpb "github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/cmd/apiserver/flags"
+	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
 // This is the sentinez apiserver application, it will automatically
@@ -40,31 +37,14 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	flag := flags.Parse()
-	conf := config.Load(flag.GetEnvFile())
+	runner.Main(config.Config(), func(ctx context.Context) error {
+		conf := runner.GetAppConfig(ctx)
+		httpSrv := httpgw.NewServer(conf.GetMeta())
+		server := apiserver.New(httpSrv)
 
-	rctx := &common.RunnerCtx{
-		Meta:   apiserverpb.GetMetaApiserver(),
-		Flag:   flag,
-		Config: conf,
-	}
-
-	runner.Main(func(_ context.Context) error {
-		httpSrv := httpgw.NewServer(apiserverpb.GetMetaApiserver())
-
-		server, err := apiserver.New(httpSrv)
-		if err != nil {
-			return err
-		}
-
-		runner.OnStart(func(ctx context.Context) error {
-			return server.Start(ctx)
-		})
-
-		runner.OnStop(func(ctx context.Context) error {
-			return server.Shutdown(ctx)
-		})
+		runner.OnStart(server.Start)
+		runner.OnStop(server.Shutdown)
 
 		return nil
-	}, runner.WithContextValue(rctx))
+	})
 }

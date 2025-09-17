@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_apiserver = &common.SentinezMetadata{
+var metadata_apiserver = &common.SntzMeta{
 	ServiceName: "SENTINEZ // APISERVER",
 	ServiceKind: common.Kind_KIND_GATEWAY_API,
 	ServiceKey:  "sentinez.apiserver.v1",
 }
 
-func GetMetaApiserver() *common.SentinezMetadata {
-	return proto.Clone(metadata_apiserver).(*common.SentinezMetadata)
+func GetMetaApiserver() *common.SntzMeta {
+	return proto.Clone(metadata_apiserver).(*common.SntzMeta)
 }
 
 func GetMetaApiserverServiceName() string {

@@ -33,7 +33,7 @@ import (
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(config *common.Config,
+func New(config *common.EnvConfig,
 	tx *postgres.Tx,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
@@ -47,13 +47,13 @@ func New(config *common.Config,
 }
 
 type IAMService struct {
-	config   *common.Config
+	config   *common.EnvConfig
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accountrepo.IAccount
 }
 
-func (srv *IAMService) Config() *common.Config {
+func (srv *IAMService) Config() *common.EnvConfig {
 	return srv.config
 }
 

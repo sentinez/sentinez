@@ -48,11 +48,11 @@ func (s *Server) Shutdown(_ context.Context) error {
 
 // Start implements v1.Server.
 func (s *Server) Start(ctx context.Context) error {
-	rctx := runner.GetContext(ctx)
-	if err := s.bootloader(rctx); err != nil {
+	appConf := runner.GetAppConfig(ctx)
+	if err := s.bootloader(appConf); err != nil {
 		zlog.Errorf("failed to bootloader: %v", err)
 		return err
 	}
 
-	return s.core.ListenAndServe(rctx.GetConfig().GetAddress())
+	return s.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
 }

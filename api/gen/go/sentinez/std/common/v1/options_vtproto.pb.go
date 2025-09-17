@@ -18,7 +18,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-func (m *SentinezMetadata) MarshalVT() (dAtA []byte, err error) {
+func (m *SntzMeta) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -31,12 +31,12 @@ func (m *SentinezMetadata) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SentinezMetadata) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SntzMeta) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SentinezMetadata) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SntzMeta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -70,7 +70,7 @@ func (m *SentinezMetadata) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SentinezMessageOptions) MarshalVT() (dAtA []byte, err error) {
+func (m *SntzMsgOpts) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -83,12 +83,12 @@ func (m *SentinezMessageOptions) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SentinezMessageOptions) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SntzMsgOpts) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SentinezMessageOptions) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SntzMsgOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -113,7 +113,7 @@ func (m *SentinezMessageOptions) MarshalToSizedBufferVT(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *SentinezMethodOptions) MarshalVT() (dAtA []byte, err error) {
+func (m *SntzMthOpts) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -126,12 +126,12 @@ func (m *SentinezMethodOptions) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SentinezMethodOptions) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SntzMthOpts) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SentinezMethodOptions) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SntzMthOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -168,7 +168,7 @@ func (m *SentinezMethodOptions) MarshalToSizedBufferVT(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *Require) MarshalVT() (dAtA []byte, err error) {
+func (m *SntzRequire) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -181,12 +181,12 @@ func (m *Require) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Require) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SntzRequire) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *Require) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SntzRequire) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -211,7 +211,7 @@ func (m *Require) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SentinezMetadata) SizeVT() (n int) {
+func (m *SntzMeta) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -232,7 +232,7 @@ func (m *SentinezMetadata) SizeVT() (n int) {
 	return n
 }
 
-func (m *SentinezMessageOptions) SizeVT() (n int) {
+func (m *SntzMsgOpts) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -245,7 +245,7 @@ func (m *SentinezMessageOptions) SizeVT() (n int) {
 	return n
 }
 
-func (m *SentinezMethodOptions) SizeVT() (n int) {
+func (m *SntzMthOpts) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -264,7 +264,7 @@ func (m *SentinezMethodOptions) SizeVT() (n int) {
 	return n
 }
 
-func (m *Require) SizeVT() (n int) {
+func (m *SntzRequire) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -280,7 +280,7 @@ func (m *Require) SizeVT() (n int) {
 	return n
 }
 
-func (m *SentinezMetadata) UnmarshalVT(dAtA []byte) error {
+func (m *SntzMeta) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -303,10 +303,10 @@ func (m *SentinezMetadata) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SentinezMetadata: wiretype end group for non-group")
+			return fmt.Errorf("proto: SntzMeta: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SentinezMetadata: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SntzMeta: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -414,7 +414,7 @@ func (m *SentinezMetadata) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SentinezMessageOptions) UnmarshalVT(dAtA []byte) error {
+func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -437,10 +437,10 @@ func (m *SentinezMessageOptions) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SentinezMessageOptions: wiretype end group for non-group")
+			return fmt.Errorf("proto: SntzMsgOpts: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SentinezMessageOptions: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SntzMsgOpts: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -485,7 +485,7 @@ func (m *SentinezMessageOptions) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SentinezMethodOptions) UnmarshalVT(dAtA []byte) error {
+func (m *SntzMthOpts) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -508,10 +508,10 @@ func (m *SentinezMethodOptions) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SentinezMethodOptions: wiretype end group for non-group")
+			return fmt.Errorf("proto: SntzMthOpts: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SentinezMethodOptions: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SntzMthOpts: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -563,7 +563,7 @@ func (m *SentinezMethodOptions) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Require = append(m.Require, &Require{})
+			m.Require = append(m.Require, &SntzRequire{})
 			if err := m.Require[len(m.Require)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -590,7 +590,7 @@ func (m *SentinezMethodOptions) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Require) UnmarshalVT(dAtA []byte) error {
+func (m *SntzRequire) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -613,10 +613,10 @@ func (m *Require) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Require: wiretype end group for non-group")
+			return fmt.Errorf("proto: SntzRequire: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Require: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SntzRequire: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

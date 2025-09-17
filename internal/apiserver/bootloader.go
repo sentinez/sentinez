@@ -28,8 +28,8 @@ import (
 )
 
 func (srv *Server) Bootloader(ctx context.Context) error {
-	rctx := runner.GetContext(ctx)
-	flag := rctx.GetFlag()
+	appConf := runner.GetAppConfig(ctx)
+	flag := appConf.GetFlag()
 
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
@@ -42,7 +42,7 @@ func (srv *Server) Bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 	err := srv.visitToEndpoint(ctx,
-		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(rctx)),
+		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(appConf)),
 	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
@@ -50,7 +50,7 @@ func (srv *Server) Bootloader(ctx context.Context) error {
 	}
 
 	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultIAMHdl(rctx)),
-		services.NewTenant(tenantfac.NewDefaultTenantHdl(rctx)),
+		services.NewIAM(iamfac.NewDefaultIAMHdl(appConf)),
+		services.NewTenant(tenantfac.NewDefaultTenantHdl(appConf)),
 	)
 }

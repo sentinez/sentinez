@@ -35,7 +35,7 @@ type Server interface {
 
 // NewServer creates a new fasthttp server instance.
 // It implements the platform.Server interface.
-func NewServer(meta *common.SentinezMetadata) Server {
+func NewServer(meta *common.SntzMeta) Server {
 	return &HTTPServer{
 		core: &fasthttp.Server{},
 		meta: meta,
@@ -46,7 +46,7 @@ func NewServer(meta *common.SentinezMetadata) Server {
 type HTTPServer struct {
 	core   *fasthttp.Server
 	chains []func(RequestHandler) RequestHandler
-	meta   *common.SentinezMetadata
+	meta   *common.SntzMeta
 }
 
 // Use implements Server.

@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_ws = &common.SentinezMetadata{
+var metadata_ws = &common.SntzMeta{
 	ServiceName: "SENTINEZ // WS",
 	ServiceKind: common.Kind_KIND_GATEWAY_WEBSOCKET,
 	ServiceKey:  "sentinez.websocket.v1",
 }
 
-func GetMetaWs() *common.SentinezMetadata {
-	return proto.Clone(metadata_ws).(*common.SentinezMetadata)
+func GetMetaWs() *common.SntzMeta {
+	return proto.Clone(metadata_ws).(*common.SntzMeta)
 }
 
 func GetMetaWsServiceName() string {

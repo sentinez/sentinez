@@ -27,20 +27,20 @@ import (
 
 // nolint:funlen
 func NewDefaultIAMHdl(
-	rctx *common.RunnerCtx) iam.IdentityAccessManagementServiceServer {
+	appConf *common.AppConfig) iam.IdentityAccessManagementServiceServer {
 
-	userrepos, err := usersrepo.New(rctx)
+	userrepos, err := usersrepo.New(appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)
 	}
 
-	accountrepos, err := accountrepo.New(rctx)
+	accountrepos, err := accountrepo.New(appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init account repo err=%v", err)
 	}
 
-	tx := postgres.NewTX(rctx.GetConfig())
-	service := iamservices.New(rctx.GetConfig(), tx, userrepos, accountrepos)
+	tx := postgres.NewTX(appConf.GetEnvConf())
+	svc := iamservices.New(appConf.GetEnvConf(), tx, userrepos, accountrepos)
 
-	return iamhandler.New(service)
+	return iamhandler.New(svc)
 }

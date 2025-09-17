@@ -39,13 +39,13 @@ var flags = &common.Flag{
 	LogLevel: "debug",
 }
 
-func info(meta *common.SentinezMetadata) string {
+func info(meta *common.SntzMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
 	return version.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args
-func Parse(meta *common.SentinezMetadata) {
+func Parse(meta *common.SntzMeta) {
 	once.Do(func() {
 
 		pflag.StringVarP(&flags.EnvMode, "mode", "m",

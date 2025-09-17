@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_rulesengine = &common.SentinezMetadata{
+var metadata_rulesengine = &common.SntzMeta{
 	ServiceName: "SENTINEZ // RULESENGINE",
 	ServiceKind: common.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.rulesengine.v1",
 }
 
-func GetMetaRulesengine() *common.SentinezMetadata {
-	return proto.Clone(metadata_rulesengine).(*common.SentinezMetadata)
+func GetMetaRulesengine() *common.SntzMeta {
+	return proto.Clone(metadata_rulesengine).(*common.SntzMeta)
 }
 
 func GetMetaRulesengineServiceName() string {

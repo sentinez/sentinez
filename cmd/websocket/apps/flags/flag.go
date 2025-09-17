@@ -12,30 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package apps provides the app setting for apiserver service
-package apps
+// Package flags provides the app setting for apiserver service
+package flags
 
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/spf13/pflag"
 )
 
-var onceGRPCService sync.Once
+var onceWS sync.Once
 
-// ParseFlag flag args for grpc service
-func ParseFlag() *common.Flag {
-	onceGRPCService.Do(func() {
-		flags.Get().EnvFile = "./cmd/greeter/v1/.env"
+// ParseFlag flag args for apiserver service
+func Parse() *common.Flag {
+	onceWS.Do(func() {
+		flags.Get().EnvFile = "./cmd/websocket/.env"
 
 		pflag.StringVar(&flags.Get().EnvFile, "env-file",
 			flags.Get().GetEnvFile(), "environment variables config file")
 
-		flags.Parse(greeter.GetMetaGreeter())
+		flags.Parse(ws.GetMetaWs())
 
 	})
 

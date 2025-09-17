@@ -12,34 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package crypto
+package config
 
 import (
-	"encoding/base64"
-	"testing"
-	"time"
+	"sync"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/sentinez/sentinez/cmd/apiserver/apps/flags"
+	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
-func TestGenAndVerifyToken(t *testing.T) {
-	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
+var (
+	once    sync.Once
+	appConf *common.AppConfig
+)
 
-	conf := &common.EnvConfig{SecretKey: secBase64}
-
-	token, err := TokenGenerator(conf, &common.Context{
-		Name:     "test gen & verify",
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
+func Config() *common.AppConfig {
+	once.Do(func() {
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &common.AppConfig{
+			Meta:    apiserver.GetMetaApiserver(),
+			EnvConf: envConf,
+			Flag:    flag,
+		}
 	})
-	if err != nil {
-		t.Error(err)
-	}
 
-	tp, ok := BearerTokenVerifier(conf, token)
-	if !ok {
-		t.Error("fail to verify bearer token")
-	}
-
-	t.Log("token payload: ", tp.String())
+	return appConf
 }

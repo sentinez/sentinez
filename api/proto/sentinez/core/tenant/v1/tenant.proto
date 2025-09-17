@@ -51,7 +51,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-option (sentinez.std.common.v1.metadata) = {
+option (sentinez.std.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // TENANT",
   service_kind: KIND_CORE,
   service_key: "sentinez.core.tenant.v1",
