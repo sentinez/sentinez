@@ -18,38 +18,20 @@ package main
 import (
 	"context"
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
-
-	"github.com/sentinez/sentinez/cmd/greeter/v1/apps"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
 func main() {
-	flag := apps.ParseFlag()
-	conf := config.Load(flag.GetEnvFile())
-
-	rctx := &common.RunnerCtx{
-		Meta:   greeterpb.GetMetaGreeter(),
-		Config: conf,
-		Flag:   flag,
-	}
-
-	runner.Main(func(_ context.Context) error {
-		grpc := greeter.NewService(greeterpb.GetMetaGreeter())
-
+	runner.Main(config.Config(), func(ctx context.Context) error {
+		conf := runner.GetAppConfig(ctx)
+		grpc := greeter.NewService(conf.GetMeta())
 		svc := greeter.New(grpc)
 
-		runner.OnStart(func(ctx context.Context) error {
-			return svc.Start(ctx)
-		})
-
-		runner.OnStop(func(ctx context.Context) error {
-			return svc.Shutdown(ctx)
-		})
+		runner.OnStart(svc.Start)
+		runner.OnStop(svc.Shutdown)
 
 		return nil
-	}, runner.WithContextValue(rctx))
+	})
 }

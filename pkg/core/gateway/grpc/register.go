@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func Register(name string, conf *common.Config) {
+func Register(name string, conf *common.EnvConfig) {
 	addr, port, err := net.SplitHostPort(conf.GetAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)

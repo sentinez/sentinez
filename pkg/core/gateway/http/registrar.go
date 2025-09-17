@@ -32,7 +32,7 @@ import (
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
 	Accept(context.Context, Server) error
-	AcceptFromEndpoint(context.Context, Server, *common.RunnerCtx) error
+	AcceptFromEndpoint(context.Context, Server, *common.AppConfig) error
 }
 
 type (
@@ -59,7 +59,7 @@ func RegisterServiceHandlerServer[T any](
 
 func RegisterServiceFromEndpoint(
 	ctx context.Context,
-	rctx *common.RunnerCtx,
+	appConf *common.AppConfig,
 	mux *runtime.ServeMux,
 	serviceKey string,
 	fn RegisterEndpointFn,
@@ -69,7 +69,7 @@ func RegisterServiceFromEndpoint(
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: rctx.GetConfig().GetConsulUri(),
+		ConsulURL: appConf.GetEnvConf().GetConsulUri(),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {
@@ -82,7 +82,7 @@ func RegisterServiceFromEndpoint(
 		err = fn(ctx, mux, srv.Address, opts)
 		if err == nil {
 			zlog.Debugf("[%s] service: %s",
-				rctx.GetMeta().GetServiceName(), serviceKey)
+				appConf.GetMeta().GetServiceName(), serviceKey)
 		}
 
 	})

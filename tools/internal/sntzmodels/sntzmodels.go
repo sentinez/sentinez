@@ -56,7 +56,7 @@ func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
 	for _, message := range file.Messages {
 		opts := message.Desc.Options()
 
-		ext, ok := proto.GetExtension(opts, common.E_SntzMsgOpts).(*common.SentinezMessageOptions)
+		ext, ok := proto.GetExtension(opts, common.E_SntzMsgOpts).(*common.SntzMsgOpts)
 		if !ok || ext == nil {
 			continue
 		}

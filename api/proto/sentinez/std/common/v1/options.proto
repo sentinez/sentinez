@@ -25,33 +25,33 @@ import "google/protobuf/descriptor.proto";
 
 
 extend google.protobuf.MethodOptions {
-  SentinezMethodOptions sntz_mth_opts = 50001;
+  SntzMthOpts sntz_mth_opts = 50001;
 }
 
 extend google.protobuf.MessageOptions {
-  SentinezMessageOptions sntz_msg_opts = 51001;
+  SntzMsgOpts sntz_msg_opts = 51001;
 }
 
 extend google.protobuf.FileOptions {
-  SentinezMetadata metadata = 52001;
+  SntzMeta sntz_meta = 52001;
 }
 
-message SentinezMetadata {
+message SntzMeta {
   string service_name = 1;
   Kind service_kind = 2;
   string service_key = 3;
 }
 
-message SentinezMessageOptions {
+message SntzMsgOpts {
   bool database_model = 1;
 }
 
-message SentinezMethodOptions {
+message SntzMthOpts {
   bool ignore = 1;
-  repeated Require require = 2;
+  repeated SntzRequire require = 2;
 }
 
-message Require {
+message SntzRequire {
   Role role = 1;
   Permission permission = 2;
 }

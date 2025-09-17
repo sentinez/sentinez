@@ -62,8 +62,8 @@ func Forbidden(ctx *Context) {
 	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
 
 	ctx.SetContentType("text/html; charset=utf-8")
-	rCtx := ConvertRequestContext(ctx.RequestCtx)
-	err := templ.Forbidden().Render(rCtx.Context(), ctx.Response.BodyWriter())
+	req := ConvertRequestContext(ctx.RequestCtx)
+	err := templ.Forbidden().Render(req.Context(), ctx.Response.BodyWriter())
 	if err != nil {
 		ctx.SetBodyString("Access denied")
 	}

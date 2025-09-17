@@ -43,7 +43,7 @@ var (
 	lock sync.Mutex
 )
 
-func getConnPool(conf *common.Config) (*pgxpool.Pool, error) {
+func getConnPool(conf *common.EnvConfig) (*pgxpool.Pool, error) {
 	if pool == nil {
 		var err error
 		lock.Lock()
@@ -59,7 +59,7 @@ func getConnPool(conf *common.Config) (*pgxpool.Pool, error) {
 }
 
 //nolint:funlen
-func New[T proto.Message](conf *common.Config, tableName string,
+func New[T proto.Message](conf *common.EnvConfig, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 
 	conn, err := getConnPool(conf)

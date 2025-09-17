@@ -26,7 +26,7 @@ import (
 const AuthHeader string = "Authorization"
 
 func GetAuthContext(ctx context.Context,
-	conf *common.Config) (*common.Context, error) {
+	conf *common.EnvConfig) (*common.Context, error) {
 
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)

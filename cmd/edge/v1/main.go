@@ -18,14 +18,11 @@ package main
 import (
 	"context"
 
-	edgev1 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
+	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/config"
 
 	_ "net/http/pprof"
 )
@@ -39,30 +36,16 @@ import (
 // }
 
 func main() {
-	flag := edgeflags.Parse()
-	conf := config.Load(flag.GetEnvFile())
+	runner.Main(config.Config(), func(ctx context.Context) error {
+		conf := runner.GetAppConfig(ctx)
+		yamlconf := edgeyaml.LoadRoutesFromYAML(conf.GetFlag().GetProxyConfig())
 
-	yamlconf := edgeyaml.LoadRoutesFromYAML(flag.GetProxyConfig())
-
-	rctx := &common.RunnerCtx{
-		Meta:   edgev1.GetMetaEdge(),
-		Config: conf,
-		Flag:   flag,
-	}
-
-	runner.Main(func(_ context.Context) error {
-		httpSrv := httpxf1.NewServer(edgev1.GetMetaEdge())
-
+		httpSrv := httpxf1.NewServer(conf.GetMeta())
 		edgeServer := edge.New(httpSrv, yamlconf)
 
-		runner.OnStart(func(ctx context.Context) error {
-			return edgeServer.Start(ctx)
-		})
-
-		runner.OnStop(func(ctx context.Context) error {
-			return edgeServer.Shutdown(ctx)
-		})
+		runner.OnStart(edgeServer.Start)
+		runner.OnStop(edgeServer.Shutdown)
 
 		return nil
-	}, runner.WithContextValue(rctx))
+	})
 }

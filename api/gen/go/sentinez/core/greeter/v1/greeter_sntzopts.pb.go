@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_greeter = &common.SentinezMetadata{
+var metadata_greeter = &common.SntzMeta{
 	ServiceName: "SENTINEZ // GREETER",
 	ServiceKind: common.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.greeter.v1",
 }
 
-func GetMetaGreeter() *common.SentinezMetadata {
-	return proto.Clone(metadata_greeter).(*common.SentinezMetadata)
+func GetMetaGreeter() *common.SntzMeta {
+	return proto.Clone(metadata_greeter).(*common.SntzMeta)
 }
 
 func GetMetaGreeterServiceName() string {

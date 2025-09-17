@@ -36,7 +36,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *common.Config) error
+	Serve(conf *common.EnvConfig) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -50,7 +50,7 @@ type ServiceServer interface {
 //	}
 type Server struct {
 	server *grpc.Server
-	meta   *common.SentinezMetadata
+	meta   *common.SntzMeta
 }
 
 // Start implements Server.
@@ -73,7 +73,7 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *common.Config) error {
+func (s *Server) Serve(conf *common.EnvConfig) error {
 
 	listener, err := httpgw.ListenNetworkTCP(conf.GetAddress())
 	if err != nil {
@@ -96,7 +96,7 @@ func (s *Server) Serve(conf *common.Config) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(meta *common.SentinezMetadata, opts ...grpc.ServerOption) *Server {
+func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
 		meta:   meta,
@@ -104,6 +104,6 @@ func New(meta *common.SentinezMetadata, opts ...grpc.ServerOption) *Server {
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(meta *common.SentinezMetadata) *Server {
+func NewDefault(meta *common.SntzMeta) *Server {
 	return New(meta)
 }

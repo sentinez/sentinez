@@ -20,19 +20,19 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
-type runnerCtxKey string
+type runneappConfKey string
 
-const runnerCtx runnerCtxKey = "RunnerContextValue"
+const runneappConf runneappConfKey = "RunnerContextValue"
 
-func newContext(rctx *common.RunnerCtx) context.Context {
-	return context.WithValue(context.Background(), runnerCtx, rctx)
+func newContext(appConf *common.AppConfig) context.Context {
+	return context.WithValue(context.Background(), runneappConf, appConf)
 }
 
-func GetContext(ctx context.Context) *common.RunnerCtx {
-	val := ctx.Value(runnerCtx)
+func GetAppConfig(ctx context.Context) *common.AppConfig {
+	val := ctx.Value(runneappConf)
 	if val == nil {
 		return nil
 	}
 
-	return val.(*common.RunnerCtx)
+	return val.(*common.AppConfig)
 }

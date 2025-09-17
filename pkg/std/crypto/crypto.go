@@ -33,7 +33,7 @@ const (
 	expKey    = "exp"
 )
 
-func TokenGenerator(conf *common.Config,
+func TokenGenerator(conf *common.EnvConfig,
 	payload *common.Context) (string, error) {
 
 	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
@@ -55,7 +55,7 @@ func TokenGenerator(conf *common.Config,
 	return tokenString, err
 }
 
-func BearerTokenVerifier(conf *common.Config,
+func BearerTokenVerifier(conf *common.EnvConfig,
 	bearerToken string) (*common.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, bearer)

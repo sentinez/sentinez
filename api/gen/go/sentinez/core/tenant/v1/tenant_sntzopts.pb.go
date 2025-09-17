@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_tenant = &common.SentinezMetadata{
+var metadata_tenant = &common.SntzMeta{
 	ServiceName: "SENTINEZ // TENANT",
 	ServiceKind: common.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.tenant.v1",
 }
 
-func GetMetaTenant() *common.SentinezMetadata {
-	return proto.Clone(metadata_tenant).(*common.SentinezMetadata)
+func GetMetaTenant() *common.SntzMeta {
+	return proto.Clone(metadata_tenant).(*common.SntzMeta)
 }
 
 func GetMetaTenantServiceName() string {

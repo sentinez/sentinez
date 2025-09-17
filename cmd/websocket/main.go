@@ -17,38 +17,21 @@ package main
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	wspb "github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
-	"github.com/sentinez/sentinez/cmd/websocket/apps"
+	"github.com/sentinez/sentinez/cmd/websocket/apps/config"
 	"github.com/sentinez/sentinez/internal/websocket"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	wscore "github.com/sentinez/sentinez/pkg/core/wsz"
-	"github.com/sentinez/sentinez/pkg/std/config"
 )
 
 func main() {
-	flag := apps.ParseFlag()
-	conf := config.Load(flag.GetEnvFile())
-
-	rctx := &common.RunnerCtx{
-		Meta:   wspb.GetMetaWs(),
-		Config: conf,
-		Flag:   flag,
-	}
-
-	runner.Main(func(_ context.Context) error {
-		wsSrv := wscore.NewServer(wspb.GetMetaWs())
-
+	runner.Main(config.Config(), func(ctx context.Context) error {
+		conf := runner.GetAppConfig(ctx)
+		wsSrv := wscore.NewServer(conf.GetMeta())
 		ws := websocket.New(wsSrv)
 
-		runner.OnStart(func(ctx context.Context) error {
-			return ws.Start(ctx)
-		})
-
-		runner.OnStop(func(ctx context.Context) error {
-			return ws.Shutdown(ctx)
-		})
+		runner.OnStart(ws.Start)
+		runner.OnStop(ws.Shutdown)
 
 		return nil
-	}, runner.WithContextValue(rctx))
+	})
 }

@@ -20,7 +20,7 @@ import "sentinez/std/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edge";
 
-option (sentinez.std.common.v1.metadata) = {
+option (sentinez.std.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // EDGE",
   service_kind: KIND_GATEWAY_EDGE,
   service_key: "sentinez.edge.v1",

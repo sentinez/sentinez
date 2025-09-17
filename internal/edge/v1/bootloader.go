@@ -23,15 +23,15 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/secure"
 )
 
-func (s *Server) bootloader(rctx *common.RunnerCtx) error {
+func (s *Server) bootloader(appConf *common.AppConfig) error {
 	// idx = 0
 	s.core.Use(cache.HeaderCacheControl)
 	// idx = 1
 	s.core.Use(logging.Writer)
 	// idx = 2
-	s.core.Use(logic.NewHost(rctx.GetConfig().GetHostname()))
+	s.core.Use(logic.NewHost(appConf.GetEnvConf().GetHostname()))
 	// idx = 3
-	s.core.Use(secure.NewWAF(rctx.GetFlag().GetRulePath()))
+	s.core.Use(secure.NewWAF(appConf.GetFlag().GetRulePath()))
 
 	return routing.Serve(s.yaml, s.core)
 }

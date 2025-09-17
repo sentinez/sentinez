@@ -39,10 +39,10 @@ func (w *WebSocket) router() {
 
 // Start implements runner.Server.
 func (w *WebSocket) Start(ctx context.Context) error {
-	rctx := runner.GetContext(ctx)
+	appConf := runner.GetAppConfig(ctx)
 	// register the route with websocket handler
 	w.router()
-	return w.core.ListenAndServe(rctx.GetConfig().GetAddress())
+	return w.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
 }
 
 // Shutdown implements runner.Server.

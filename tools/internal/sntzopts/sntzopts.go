@@ -40,11 +40,11 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 	g.P("\n")
 
 	opts := file.Proto.GetOptions()
-	if !proto.HasExtension(opts, common.E_Metadata) {
+	if !proto.HasExtension(opts, common.E_SntzMeta) {
 		return nil
 	}
 
-	ext, ok := proto.GetExtension(opts, common.E_Metadata).(*common.SentinezMetadata)
+	ext, ok := proto.GetExtension(opts, common.E_SntzMeta).(*common.SntzMeta)
 	if !ok || ext == nil {
 		return nil
 	}
@@ -53,14 +53,14 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 
 	g.P()
 
-	g.P("var metadata_", name, " = &common.SentinezMetadata{")
+	g.P("var metadata_", name, " = &common.SntzMeta{")
 	g.P("\tServiceName: ", strconv.Quote(ext.GetServiceName()), ",")
 	g.P("\tServiceKind: common.Kind_", ext.GetServiceKind(), ",")
 	g.P("\tServiceKey:  ", strconv.Quote(ext.GetServiceKey()), ",")
 	g.P("}")
 	g.P()
-	g.P("func GetMeta", caser.String(name), "() *common.SentinezMetadata {")
-	g.P("\treturn proto.Clone(metadata_", name, ").(*common.SentinezMetadata)")
+	g.P("func GetMeta", caser.String(name), "() *common.SntzMeta {")
+	g.P("\treturn proto.Clone(metadata_", name, ").(*common.SntzMeta)")
 	g.P("}")
 	g.P()
 	g.P("func GetMeta", caser.String(name), "ServiceName() string {")

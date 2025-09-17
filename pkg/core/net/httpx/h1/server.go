@@ -36,15 +36,15 @@ type Server interface {
 }
 
 func NewServer(ctx context.Context) Server {
-	runnerCtx := runner.GetContext(ctx)
+	runneappConf := runner.GetAppConfig(ctx)
 	return &HTTPServer{
-		rctx: runnerCtx,
+		appConf: runneappConf,
 	}
 }
 
 type HTTPServer struct {
-	mdw  []func(http.Handler) http.Handler
-	rctx *common.RunnerCtx
+	mdw     []func(http.Handler) http.Handler
+	appConf *common.AppConfig
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
@@ -56,13 +56,13 @@ func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	if err := protobuf.Validate(s.rctx); err != nil {
+	if err := protobuf.Validate(s.appConf); err != nil {
 		return err
 	}
 
 	version.INFO(
-		s.rctx.GetMeta().GetServiceName(),
-		s.rctx.GetMeta().GetServiceKey(),
+		s.appConf.GetMeta().GetServiceName(),
+		s.appConf.GetMeta().GetServiceKey(),
 	)
 
 	zlog.Infof("%s >>> running on %s",

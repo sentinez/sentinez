@@ -30,7 +30,7 @@ type Service struct {
 	handler greeter.GreeterServiceServer
 }
 
-func NewService(meta *common.SentinezMetadata) *Service {
+func NewService(meta *common.SntzMeta) *Service {
 	return &Service{
 		Server:  grpcgw.NewDefault(meta),
 		handler: greeterhdl.New(),
@@ -54,6 +54,6 @@ type Greeter struct {
 func (g *Greeter) Start(ctx context.Context) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	rctx := runner.GetContext(ctx)
-	return g.Serve(rctx.GetConfig())
+	appConf := runner.GetAppConfig(ctx)
+	return g.Serve(appConf.GetEnvConf())
 }

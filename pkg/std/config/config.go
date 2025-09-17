@@ -24,11 +24,11 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var conf *common.Config
+var envConf *common.EnvConfig
 var once sync.Once
 
-// Load returns the environment.
-func Load(envFile string) *common.Config {
+// LoadEnv returns the environment.
+func LoadEnv(envFile string) *common.EnvConfig {
 	if envFile != "" {
 		err := godotenv.Load(envFile)
 		if err != nil {
@@ -37,7 +37,7 @@ func Load(envFile string) *common.Config {
 	}
 
 	once.Do(func() {
-		conf = &common.Config{
+		envConf = &common.EnvConfig{
 			TimescaleUri:  os.Getenv("SNTZ_TIMESCALE_URI"),
 			PostgresUri:   os.Getenv("SNTZ_POSTGRES_URI"),
 			ClickhouseUri: os.Getenv("SNTZ_CLICKHOUSE_URI"),
@@ -49,5 +49,5 @@ func Load(envFile string) *common.Config {
 		}
 	})
 
-	return conf
+	return envConf
 }

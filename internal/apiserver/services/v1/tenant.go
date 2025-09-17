@@ -36,10 +36,10 @@ type tenant struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (t *tenant) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server, rctx *common.RunnerCtx) error {
+	server httpgw.Server, appConf *common.AppConfig) error {
 
 	return httpgw.RegisterServiceFromEndpoint(ctx,
-		rctx,
+		appConf,
 		server.RuntimeMux(),
 		tenantpb.GetMetaTenantServiceKey(),
 		tenantpb.RegisterTenantServiceHandlerFromEndpoint,

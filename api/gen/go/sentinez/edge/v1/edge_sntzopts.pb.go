@@ -16,14 +16,14 @@ var (
 	_ proto.Message
 )
 
-var metadata_edge = &common.SentinezMetadata{
+var metadata_edge = &common.SntzMeta{
 	ServiceName: "SENTINEZ // EDGE",
 	ServiceKind: common.Kind_KIND_GATEWAY_EDGE,
 	ServiceKey:  "sentinez.edge.v1",
 }
 
-func GetMetaEdge() *common.SentinezMetadata {
-	return proto.Clone(metadata_edge).(*common.SentinezMetadata)
+func GetMetaEdge() *common.SntzMeta {
+	return proto.Clone(metadata_edge).(*common.SntzMeta)
 }
 
 func GetMetaEdgeServiceName() string {

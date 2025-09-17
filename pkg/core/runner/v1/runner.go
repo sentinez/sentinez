@@ -27,8 +27,6 @@ import (
 
 var (
 	logging zlog.Sugard
-
-	options map[OptionType]any
 )
 
 type Engine interface {
@@ -36,39 +34,21 @@ type Engine interface {
 	Shutdown(ctx context.Context) error
 }
 
-func Main(start func(ctx context.Context) error, opts ...Option) {
+func Main(appConf *common.AppConfig, start func(ctx context.Context) error) {
 	logging = zlog.NewDefaultConsole(zlog.LevelError)
+
 	grpclog.SetLoggerV2(logging)
+	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())
 
-	options = make(map[OptionType]any)
-	for _, opt := range opts {
-		if opt == nil {
-			continue
-		}
-
-		options[opt.Type()] = opt.Value()
-	}
-
-	ctn := container{}
-
-	opt, ok := options[RunnerCtx]
-	if !ok || opt == nil {
-		zlog.Fatal("runner: missing runner context value")
-	}
-
-	rctx := opt.(*common.RunnerCtx)
-	ctx := newContext(rctx)
-
-	zlog.SetLogLevel(rctx.GetFlag().GetLogLevel())
-	if rctx.GetFlag().GetEnvMode() != "dev" {
+	if appConf.GetFlag().GetEnvMode() != "dev" {
 		internal.AppendOption(fx.NopLogger)
 	}
 
+	ctx := newContext(appConf)
 	if err := start(ctx); err != nil {
 		zlog.Fatal(err)
 	}
 
-	ctn.engine = fx.New(internal.Option())
-
+	ctn := container{engine: fx.New(internal.Option())}
 	_ = ctn.Run(ctx)
 }

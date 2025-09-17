@@ -20,7 +20,7 @@ import "sentinez/std/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1;ws";
 
-option (sentinez.std.common.v1.metadata) = {
+option (sentinez.std.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // WS",
   service_kind: KIND_GATEWAY_WEBSOCKET,
   service_key: "sentinez.websocket.v1",

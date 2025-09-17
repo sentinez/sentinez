@@ -27,7 +27,7 @@ var (
 	_ database.TxSession = (*TxSession)(nil)
 )
 
-func NewTX(conf *common.Config) *Tx {
+func NewTX(conf *common.EnvConfig) *Tx {
 	return &Tx{conf: conf}
 }
 
@@ -37,7 +37,7 @@ func WithTx[T proto.Message](
 }
 
 type Tx struct {
-	conf *common.Config
+	conf *common.EnvConfig
 }
 
 func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {

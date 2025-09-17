@@ -17,7 +17,10 @@ syntax = "proto3";
 package sentinez.std.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1;common";
 
-message Config {
+import "sentinez/std/common/v1/options.proto";
+import "sentinez/std/common/v1/flags.proto";
+
+message EnvConfig {
     string hostname = 1;
     string address = 2;
     string secret_key = 3;
@@ -28,4 +31,10 @@ message Config {
     string postgres_uri = 11;
     string clickhouse_uri = 12;
     string consul_uri = 13;
+}
+
+message AppConfig {
+  SntzMeta meta = 1;
+  EnvConfig env_conf = 2;
+  Flag flag = 3;
 }
