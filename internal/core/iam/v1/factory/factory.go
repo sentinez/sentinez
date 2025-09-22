@@ -39,8 +39,8 @@ func NewDefaultIAMHdl(
 		zlog.Errorf("iamfactory: init account repo err=%v", err)
 	}
 
-	tx := postgres.NewTX(appConf.GetEnvConf())
-	svc := iamservices.New(appConf.GetEnvConf(), tx, userrepos, accountrepos)
+	tx := postgres.NewTX(appConf)
+	svc := iamservices.New(appConf, tx, userrepos, accountrepos)
 
 	return iamhandler.New(svc)
 }

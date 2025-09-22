@@ -69,13 +69,6 @@ func Get() *common.Flag {
 	return flags
 }
 
-// SetConsole set default flag values
-// func SetConsole(content string, name names.Namespace, mode string) {
-// 	flags.Name = name.String()
-// 	flags.Mode = mode
-// 	asciiConsole = content
-// }
-
 // Validate used to validate flags
 func Validate(flag proto.Message) error {
 	if err := protobuf.Validate(flag); err != nil {

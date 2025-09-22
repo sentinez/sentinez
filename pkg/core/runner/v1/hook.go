@@ -23,34 +23,31 @@ import (
 	"go.uber.org/fx"
 )
 
-func OnStart(start func(ctx context.Context) error) {
-	function := func(lc fx.Lifecycle) {
-		lc.Append(fx.Hook{
-			OnStart: func(ctx context.Context) error {
-				errChan := make(chan error, 1)
-				go func() {
-					if err := start(ctx); err != nil {
-						if errors.Is(err, errors.ErrServerClosed) {
-							logging.Infof("[runner] %+v", err)
-						} else {
-							logging.Errorf("[runner] %+v", err)
+func OnStart(start any) {
+	switch fn := start.(type) {
+	case func(context.Context) error:
+		function := func(lc fx.Lifecycle) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+
+					go func() {
+						if err := fn(ctx); err != nil {
+							if errors.Is(err, errors.ErrServerClosed) {
+								logging.Infof("[runner] %+v", err)
+							} else {
+								logging.Fatalf("[runner] %+v", err)
+							}
 						}
+					}()
 
-						errChan <- err
-					}
-				}()
-
-				select {
-				case err := <-errChan:
-					return err
-				default:
 					return nil
-				}
-			},
-		})
+				},
+			})
+		}
+		internal.Invoke(function)
+	default:
+		internal.Invoke(start)
 	}
-
-	internal.Invoke(function)
 }
 
 // UseAfter adds a hook to be executed after the application has stopped.

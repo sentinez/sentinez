@@ -23,20 +23,20 @@ import (
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
 )
 
-var _ httpgw.ServiceRegistrar = (*greeter)(nil)
+var _ httpgw.ServiceRegistrar = (*Greeter)(nil)
 
 // NewGreeter creates a new greeter service to register handler to gateway
-func NewGreeter(server greeterpb.GreeterServiceServer) httpgw.ServiceRegistrar {
-	return &greeter{server: server}
+func NewGreeter(server greeterpb.GreeterServiceServer) *Greeter {
+	return &Greeter{server: server}
 }
 
-// greeter represents the greeter service
-type greeter struct {
+// Greeter represents the Greeter service
+type Greeter struct {
 	server greeterpb.GreeterServiceServer
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
-func (g *greeter) AcceptFromEndpoint(ctx context.Context,
+func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
 	server httpgw.Server, appConf *common.AppConfig) error {
 
 	return httpgw.RegisterServiceFromEndpoint(ctx,
@@ -48,7 +48,7 @@ func (g *greeter) AcceptFromEndpoint(ctx context.Context,
 }
 
 // Accept accepts the greeter service
-func (g *greeter) Accept(ctx context.Context, server httpgw.Server) error {
+func (g *Greeter) Accept(ctx context.Context, server httpgw.Server) error {
 
 	return httpgw.RegisterServiceHandlerServer(ctx,
 		server.RuntimeMux(),

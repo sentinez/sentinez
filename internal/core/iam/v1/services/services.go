@@ -33,7 +33,7 @@ import (
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(config *common.EnvConfig,
+func New(config *common.AppConfig,
 	tx *postgres.Tx,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
@@ -47,14 +47,14 @@ func New(config *common.EnvConfig,
 }
 
 type IAMService struct {
-	config   *common.EnvConfig
+	config   *common.AppConfig
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accountrepo.IAccount
 }
 
 func (srv *IAMService) Config() *common.EnvConfig {
-	return srv.config
+	return srv.config.GetEnvConf()
 }
 
 func (srv *IAMService) ListAccounts(ctx context.Context,
@@ -182,7 +182,7 @@ func (srv *IAMService) Login(ctx context.Context,
 	if acc.GetUsername() == "admin" {
 		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := crypto.TokenGenerator(srv.config,
+	accessToken, err := crypto.TokenGenerator(srv.config.GetEnvConf(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
