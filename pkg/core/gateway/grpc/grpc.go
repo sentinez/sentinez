@@ -36,7 +36,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *common.EnvConfig) error
+	Serve(conf *common.AppConfig) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -73,9 +73,9 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *common.EnvConfig) error {
+func (s *Server) Serve(conf *common.AppConfig) error {
 
-	listener, err := httpgw.ListenNetworkTCP(conf.GetAddress())
+	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetAddress())
 	if err != nil {
 		return err
 	}
@@ -87,10 +87,10 @@ func (s *Server) Serve(conf *common.EnvConfig) error {
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
-		color.Magenta.Add(conf.GetAddress()),
+		color.Magenta.Add(conf.GetEnvConf().GetAddress()),
 	)
 
-	go Register(s.meta.GetServiceKey(), conf)
+	go Register(s.meta.GetServiceKey(), conf.GetEnvConf())
 	return s.AsServer().Serve(listener)
 }
 

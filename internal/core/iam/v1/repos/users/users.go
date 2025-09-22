@@ -54,9 +54,9 @@ type IUser interface {
 }
 
 func New(appConf *common.AppConfig) (IUser, error) {
-	tableName := table.NewTable(appConf.GetFlag().GetEnvMode(), table.Users)
+	tableName := table.NewTable(appConf, table.Users)
 
-	storage, err := postgres.New[*iam.Users](appConf.GetEnvConf(), tableName,
+	storage, err := postgres.New[*iam.Users](appConf, tableName,
 		postgres.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err

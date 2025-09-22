@@ -27,8 +27,8 @@ var (
 	_ database.TxSession = (*TxSession)(nil)
 )
 
-func NewTX(conf *common.EnvConfig) *Tx {
-	return &Tx{conf: conf}
+func NewTX(conf *common.AppConfig) *Tx {
+	return &Tx{conf: conf.GetEnvConf()}
 }
 
 func WithTx[T proto.Message](

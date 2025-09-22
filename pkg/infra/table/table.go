@@ -18,10 +18,13 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 )
 
-func NewTable(EnvMode, tableName string) string {
-	tableName = fmt.Sprintf("%s.sentinez.%s", EnvMode, tableName)
+func NewTable(appConf *common.AppConfig, tableName string) string {
+	tableName = fmt.Sprintf("%s.sentinez.%s",
+		appConf.GetFlag().GetEnvMode(), tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 

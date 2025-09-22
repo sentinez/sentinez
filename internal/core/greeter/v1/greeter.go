@@ -55,5 +55,5 @@ func (g *Greeter) Start(ctx context.Context) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
 	appConf := runner.GetAppConfig(ctx)
-	return g.Serve(appConf.GetEnvConf())
+	return g.Serve(appConf)
 }

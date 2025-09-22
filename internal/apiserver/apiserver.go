@@ -82,11 +82,11 @@ func (srv *Server) Start(ctx context.Context) error {
 		return err
 	}
 
-	appConf := runner.GetAppConfig(ctx)
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
+	appConf := runner.GetAppConfig(ctx)
 	return srv.server.Listen(appConf.GetEnvConf().GetAddress())
 	// for DEBUG:
-	// return errors.F("apiserver: failed to listen and serve")
+	// return fmt.Errorf("apiserver: failed to listen and serve")
 }
 
 // Shutdown implements runner.Server.

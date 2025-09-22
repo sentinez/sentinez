@@ -59,10 +59,10 @@ func getConnPool(conf *common.EnvConfig) (*pgxpool.Pool, error) {
 }
 
 //nolint:funlen
-func New[T proto.Message](conf *common.EnvConfig, tableName string,
+func New[T proto.Message](conf *common.AppConfig, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 
-	conn, err := getConnPool(conf)
+	conn, err := getConnPool(conf.GetEnvConf())
 	if err != nil {
 		return nil, err
 	}

@@ -53,9 +53,9 @@ type IAccount interface {
 }
 
 func New(appConf *common.AppConfig) (IAccount, error) {
-	tableName := table.NewTable(appConf.GetFlag().GetEnvMode(), table.Account)
+	tableName := table.NewTable(appConf, table.Account)
 
-	storage, err := postgres.New[*iam.Accounts](appConf.GetEnvConf(), tableName,
+	storage, err := postgres.New[*iam.Accounts](appConf, tableName,
 		postgres.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err
