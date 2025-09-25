@@ -19,11 +19,11 @@ import (
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
+	"github.com/sentinez/sentinez/pkg/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/protobuf"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -60,7 +60,7 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 		return err
 	}
 
-	version.INFO(
+	stdversion.INFO(
 		s.appConf.GetMeta().GetServiceName(),
 		s.appConf.GetMeta().GetServiceKey(),
 	)
@@ -89,6 +89,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set("Server", version.Name)
+		w.Header().Set("Server", stdversion.Name)
 	})
 }

@@ -19,7 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
+	"github.com/sentinez/sentinez/pkg/protobuf/proto"
 )
 
 // SentinezContextKey is the key type for the context.

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package flags provide flag variable props
-package flags
+// Package stdflag provide flag variable props
+package stdflag
 
 import (
 	"fmt"
@@ -22,8 +22,8 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/protobuf"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/spf13/pflag"
@@ -41,7 +41,7 @@ var flags = &common.Flag{
 
 func info(meta *common.SntzMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
-	return version.FigureGen(service, meta.GetServiceKey())
+	return stdversion.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args

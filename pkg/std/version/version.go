@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package version provides the version of the package.
-package version
+// Package stdversion provides the stdversion of the package.
+package stdversion
 
 import (
 	"fmt"

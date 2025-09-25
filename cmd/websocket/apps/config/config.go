@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/sentinez/sentinez/cmd/websocket/apps/flags"
-	"github.com/sentinez/sentinez/pkg/std/config"
+	stdconf "github.com/sentinez/sentinez/pkg/std/config"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 func Config() *common.AppConfig {
 	once.Do(func() {
 		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
+		envConf := stdconf.LoadEnv(flag.GetEnvFile())
 		appConf = &common.AppConfig{
 			Meta:    ws.GetMetaWs(),
 			EnvConf: envConf,

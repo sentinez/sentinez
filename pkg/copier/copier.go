@@ -12,32 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+// Package copier provides functions to copy objects.
+package copier
 
 import (
-	"sync"
+	"encoding/json"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/cmd/apiserver/apps/flags"
-	"github.com/sentinez/sentinez/pkg/std/config"
+	"github.com/sentinez/sentinez/pkg/protobuf/proto"
+
+	google "google.golang.org/protobuf/proto"
 )
 
-var (
-	once    sync.Once
-	appConf *common.AppConfig
-)
+// CopyProtoMessage copies the src message to the dst message.
+func CopyProtoMessage(src, dst google.Message) error {
+	bytes, err := proto.Marshal(src)
+	if err != nil {
+		return err
+	}
 
-func Config() *common.AppConfig {
-	once.Do(func() {
-		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &common.AppConfig{
-			Meta:    apiserver.GetMetaApiserver(),
-			EnvConf: envConf,
-			Flag:    flag,
-		}
-	})
+	return proto.Unmarshal(bytes, dst)
+}
 
-	return appConf
+// CopyJSON copies the src object to the dst object.
+func CopyJSON(src, dst any) error {
+	bytes, err := json.Marshal(src)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bytes, dst)
 }

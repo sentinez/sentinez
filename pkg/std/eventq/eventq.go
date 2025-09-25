@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package eventq provides the event queue for the apiserver app
-package eventq
+// Package stdeventq provides the event queue for the apiserver app
+package stdeventq
 
 import (
 	"sync"

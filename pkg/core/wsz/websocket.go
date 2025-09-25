@@ -16,11 +16,11 @@ package wsz
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/sync"
+	"github.com/sentinez/sentinez/pkg/color"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/sync"
 )
 
 func NewServer(meta *common.SntzMeta) *WebSocket {
@@ -55,7 +55,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	version.INFO(
+	stdversion.INFO(
 		ws.meta.GetServiceName(),
 		ws.meta.GetServiceKey(),
 	)

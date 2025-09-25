@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package errors provide all type of error in sentinez universal
-package errors
+// Package stderr provide all type of error in sentinez universal
+package stderr
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ import (
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
@@ -29,31 +29,31 @@ import (
 )
 
 var (
-	forbidden = fmt.Sprintf("%s-%d: %s", version.Code,
+	forbidden = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_FORBIDDEN,
 		common.Errors_ERRORS_FORBIDDEN.String())
 
-	unspecified = fmt.Sprintf("%s-%d: %s", version.Code,
+	unspecified = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_UNSPECIFIED,
 		common.Errors_ERRORS_UNSPECIFIED.String())
 
-	internalError = fmt.Sprintf("%s-%d: %s", version.Code,
+	internalError = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_INTERNAL_ERROR,
 		common.Errors_ERRORS_INTERNAL_ERROR.String())
 
-	notFound = fmt.Sprintf("%s-%d: %s", version.Code,
+	notFound = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_NOT_FOUND,
 		common.Errors_ERRORS_NOT_FOUND.String())
 
-	unauthorized = fmt.Sprintf("%s-%d: %s", version.Code,
+	unauthorized = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_UNAUTHORIZED,
 		common.Errors_ERRORS_UNAUTHORIZED.String())
 
-	invalidData = fmt.Sprintf("%s-%d: %s", version.Code,
+	invalidData = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_INVALID_DATA,
 		common.Errors_ERRORS_INVALID_DATA.String())
 
-	unimplemented = fmt.Sprintf("%s-%d: %s", version.Code,
+	unimplemented = fmt.Sprintf("%s-%d: %s", stdversion.Code,
 		common.Errors_ERRORS_UNIMPLEMENTED,
 		common.Errors_ERRORS_UNIMPLEMENTED.String())
 )

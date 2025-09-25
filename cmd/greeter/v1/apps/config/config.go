@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/flags"
-	"github.com/sentinez/sentinez/pkg/std/config"
+	stdconf "github.com/sentinez/sentinez/pkg/std/config"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 func Config() *common.AppConfig {
 	once.Do(func() {
 		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
+		envConf := stdconf.LoadEnv(flag.GetEnvFile())
 		appConf = &common.AppConfig{
 			Meta:    greeter.GetMetaGreeter(),
 			EnvConf: envConf,

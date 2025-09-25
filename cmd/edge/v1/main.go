@@ -38,7 +38,7 @@ import (
 func main() {
 	runner.Main(config.Config(), func(ctx context.Context) error {
 		conf := runner.GetAppConfig(ctx)
-		yamlconf := edgeyaml.LoadRoutesFromYAML(conf.GetFlag().GetProxyConfig())
+		yamlconf := edgeyaml.LoadRouteConfig(conf.GetFlag().GetProxyConfig())
 
 		httpSrv := httpxf1.NewServer(conf.GetMeta())
 		edgeServer := edge.New(httpSrv, yamlconf)

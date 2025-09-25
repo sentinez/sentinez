@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
 	"github.com/sentinez/sentinez/pkg/client/options"
-	"github.com/sentinez/sentinez/pkg/common/cron"
+	"github.com/sentinez/sentinez/pkg/cron"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

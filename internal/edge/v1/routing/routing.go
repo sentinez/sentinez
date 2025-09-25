@@ -22,10 +22,10 @@ import (
 
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
-	syncx "github.com/sentinez/sentinez/pkg/common/sync"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	"github.com/sentinez/sentinez/pkg/std/errors"
+	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	syncx "github.com/sentinez/sentinez/pkg/sync"
 )
 
 var (
@@ -144,7 +144,7 @@ func match(ctx *httpxf1.Context) (string, error) {
 		}
 	}
 
-	return "", errors.F("not found: %s", path)
+	return "", stderr.F("not found: %s", path)
 }
 
 func prefixPath(path string) string {

@@ -36,7 +36,7 @@ type RouteConfig struct {
 	Rewrite     string `yaml:"rewrite,omitempty"`
 }
 
-func LoadRoutesFromYAML(filename string) *Config {
+func LoadRouteConfig(filename string) *Config {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		zlog.Fatal(err)

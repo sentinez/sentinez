@@ -19,14 +19,17 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
-	"github.com/sentinez/sentinez/pkg/std/errors"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	stderr "github.com/sentinez/sentinez/pkg/std/errors"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/test/bufconn"
 )
+
+const BufSize = 1024 * 1024
 
 var (
 	// Ensure Server implements ServiceServer.
@@ -56,7 +59,7 @@ type Server struct {
 // Start implements Server.
 func (s *Server) Start(ctx context.Context) error {
 	_ = ctx
-	return errors.ErrUnimplemented
+	return stderr.ErrUnimplemented
 }
 
 // Shutdown implements ServiceServer.
@@ -80,7 +83,7 @@ func (s *Server) Serve(conf *common.AppConfig) error {
 		return err
 	}
 
-	version.INFO(
+	stdversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
@@ -92,6 +95,10 @@ func (s *Server) Serve(conf *common.AppConfig) error {
 
 	go Register(s.meta.GetServiceKey(), conf.GetEnvConf())
 	return s.AsServer().Serve(listener)
+}
+
+func (s *Server) BufServe(bufLis *bufconn.Listener) error {
+	return s.AsServer().Serve(bufLis)
 }
 
 // New returns a new service registrar.

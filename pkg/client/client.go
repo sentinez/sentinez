@@ -20,15 +20,15 @@ import (
 	"github.com/sentinez/sentinez/pkg/client/options"
 )
 
-func NewIAMService(
-	opt *options.Options) (iam.IdentityAccessManagementServiceClient, error) {
+func NewIAMService(opt *options.Options,
+) (iam.IdentityAccessManagementServiceClient, error) {
 
 	srv, err := discovery.GetDiscovery(opt).Discover(iam.GetMetaIamServiceKey())
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := connection(srv.Address)
+	conn, err := Conn(srv.Address)
 	if err != nil {
 		return nil, err
 	}

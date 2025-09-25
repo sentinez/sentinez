@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/crypto"
-	"github.com/sentinez/sentinez/pkg/std/errors"
+	stdcrypto "github.com/sentinez/sentinez/pkg/std/crypto"
+	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -31,12 +31,12 @@ func GetAuthContext(ctx context.Context,
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
 	if len(accessToken) == 0 {
-		return nil, errors.UnauthorizedF("Invalid Access Token")
+		return nil, stderr.UnauthorizedF("Invalid Access Token")
 	}
 
-	pl, ok := crypto.BearerTokenVerifier(conf, accessToken[0])
+	pl, ok := stdcrypto.BearerTokenVerifier(conf, accessToken[0])
 	if !ok {
-		return nil, errors.UnauthorizedF("Invalid Access Token")
+		return nil, stderr.UnauthorizedF("Invalid Access Token")
 	}
 
 	return pl, nil

@@ -21,7 +21,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	stdctx "github.com/sentinez/sentinez/pkg/std/context"
-	"github.com/sentinez/sentinez/pkg/std/perms"
+	stdperms "github.com/sentinez/sentinez/pkg/std/perms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -48,7 +48,8 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 		return nil, err
 	}
 
-	if !perms.HasLeastOne(ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
+	if !stdperms.HasLeastOne(
+		ss.GetPermissionBitwise(), stdperms.DefaultViewAny()) {
 		request.UserIds = []string{ss.GetUserId()}
 	}
 
