@@ -20,10 +20,10 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
-	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 	"github.com/sentinez/sentinez/pkg/infra/table"
+	"github.com/sentinez/sentinez/pkg/uuid"
 
 	sq "github.com/Masterminds/squirrel"
 	"google.golang.org/protobuf/types/known/timestamppb"

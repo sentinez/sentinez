@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
+	"github.com/sentinez/sentinez/pkg/protobuf"
 )
 
 //nolint:funlen

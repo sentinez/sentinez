@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
+	"github.com/sentinez/sentinez/pkg/uuid"
 	"github.com/valyala/fasthttp"
 )
 

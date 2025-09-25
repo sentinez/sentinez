@@ -16,7 +16,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/google/wire v0.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
 	github.com/hashicorp/consul/api v1.32.1
@@ -32,6 +31,7 @@ require (
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/crypto v0.41.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v3 v3.0.1
@@ -81,7 +81,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect

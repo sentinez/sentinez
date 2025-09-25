@@ -26,8 +26,8 @@ import (
 )
 
 // nolint:funlen
-func NewDefaultIAMHdl(
-	appConf *common.AppConfig) iam.IdentityAccessManagementServiceServer {
+func NewDefaultHandlerIAM(appConf *common.AppConfig,
+) iam.IdentityAccessManagementServiceServer {
 
 	userrepos, err := usersrepo.New(appConf)
 	if err != nil {

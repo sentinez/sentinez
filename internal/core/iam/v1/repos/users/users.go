@@ -23,11 +23,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/infra/database"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 	"github.com/sentinez/sentinez/pkg/infra/table"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/uuid"
 )
 
 var (

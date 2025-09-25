@@ -16,9 +16,9 @@ package httpxf1
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/std/version"
+	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/valyala/fasthttp"
 )
@@ -79,7 +79,7 @@ func (s *HTTPServer) Shutdown() error {
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
 
-	version.INFO(
+	stdversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
@@ -89,7 +89,7 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 		color.Magenta.Add(addr),
 	)
 
-	s.core.Name = version.Name
+	s.core.Name = stdversion.Name
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
 	return s.core.ListenAndServe(addr)
 }

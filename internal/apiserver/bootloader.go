@@ -42,7 +42,7 @@ func (srv *Server) Bootloader(ctx context.Context) error {
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
 	err := srv.visitToEndpoint(ctx,
-		services.NewGreeter(greeterfac.NewDefaultGreeterHdl(appConf)),
+		services.NewGreeter(greeterfac.NewDefaultHandlerGreeter(appConf)),
 	)
 	if err != nil {
 		zlog.Errorf("apiserver: failed to visit service: %v", err)
@@ -50,7 +50,7 @@ func (srv *Server) Bootloader(ctx context.Context) error {
 	}
 
 	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultIAMHdl(appConf)),
-		services.NewTenant(tenantfac.NewDefaultTenantHdl(appConf)),
+		services.NewIAM(iamfac.NewDefaultHandlerIAM(appConf)),
+		services.NewTenant(tenantfac.NewDefaultHandlerTenant(appConf)),
 	)
 }

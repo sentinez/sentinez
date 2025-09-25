@@ -13,4 +13,41 @@
 // limitations under the License.
 
 // Package iam provides the Identity Access Management service.
-package iam
+package iamv1
+
+import (
+	"context"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
+	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
+	"google.golang.org/grpc/test/bufconn"
+)
+
+var bufLis *bufconn.Listener
+
+func GetListener() *bufconn.Listener {
+	return bufLis
+}
+
+func NewService(appConf *common.AppConfig) *IAM {
+	return &IAM{
+		Server: grpcgw.NewDefault(appConf.GetMeta()),
+		hdl:    iamfac.NewDefaultHandlerIAM(appConf),
+	}
+}
+
+// New creates a new Greeter module.
+
+type IAM struct {
+	*grpcgw.Server
+	hdl iam.IdentityAccessManagementServiceServer
+}
+
+func (im *IAM) Start(_ context.Context) error {
+	iam.RegisterIdentityAccessManagementServiceServer(im.AsServer(), im.hdl)
+
+	bufLis = bufconn.Listen(grpcgw.BufSize)
+	return im.BufServe(bufLis)
+}

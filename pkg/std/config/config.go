@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package config provides the configs for the service.
-package config
+package stdconf
 
 import (
 	"os"

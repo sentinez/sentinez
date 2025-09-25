@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/flags"
+	stdflag "github.com/sentinez/sentinez/pkg/std/flags"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"github.com/spf13/pflag"
@@ -31,25 +31,25 @@ var onceEdge sync.Once
 // Parse flag args for grpc service
 func Parse() *common.Flag {
 	onceEdge.Do(func() {
-		flags.Get().RulePath = "./resources/waf/data/v4-16-0"
-		flags.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
-		flags.Get().EnvFile = "./cmd/edge/v1/.env"
+		stdflag.Get().RulePath = "./resources/waf/data/v4-16-0"
+		stdflag.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
+		stdflag.Get().EnvFile = "./cmd/edge/v1/.env"
 
-		pflag.StringVar(&flags.Get().EnvFile, "env-file",
-			flags.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&stdflag.Get().EnvFile, "env-file",
+			stdflag.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&flags.Get().RulePath, "rule-path",
-			flags.Get().GetRulePath(), "core rulesets root path for rules")
+		pflag.StringVar(&stdflag.Get().RulePath, "rule-path",
+			stdflag.Get().GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&flags.Get().ProxyConfig, "proxy-config",
-			flags.Get().GetProxyConfig(), "origin config yaml configuration")
+		pflag.StringVar(&stdflag.Get().ProxyConfig, "proxy-config",
+			stdflag.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		flags.Parse(edge.GetMetaEdge())
+		stdflag.Parse(edge.GetMetaEdge())
 	})
 
-	if err := flags.Validate(flags.Get()); err != nil {
+	if err := stdflag.Validate(stdflag.Get()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return flags.Get()
+	return stdflag.Get()
 }

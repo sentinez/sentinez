@@ -12,33 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package copier provides functions to copy objects.
-package copier
+package rules
 
 import (
-	"encoding/json"
+	"os"
 
-	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
-
-	google "google.golang.org/protobuf/proto"
+	"github.com/corazawaf/coraza/v3"
 )
 
-// CopyProtoMessage copies the src message to the dst message.
-func CopyProtoMessage(src, dst google.Message) error {
-	bytes, err := proto.Marshal(src)
-	if err != nil {
-		return err
-	}
+func NewWAF(ruleBasePath string) (coraza.WAF, error) {
+	rule := Load()
 
-	return proto.Unmarshal(bytes, dst)
-}
+	rootFS := os.DirFS(ruleBasePath)
+	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
 
-// CopyJSON copies the src object to the dst object.
-func CopyJSON(src, dst any) error {
-	bytes, err := json.Marshal(src)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(bytes, dst)
+	return coraza.NewWAF(conf)
 }

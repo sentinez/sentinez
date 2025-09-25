@@ -18,12 +18,21 @@ import (
 	"net/http"
 
 	txhttp "github.com/corazawaf/coraza/v3/http"
-	"github.com/sentinez/sentinez/pkg/core/net/secure"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/rules"
 )
 
 func Protected(ruleBasePath string) func(next http.Handler) http.Handler {
 
-	waf := secure.NewFireWall(ruleBasePath)
+	waf, err := rules.NewWAF(ruleBasePath)
+	if err != nil {
+		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
+		return nil
+	}
+
+	if waf != nil {
+		zlog.Info("[httpxf1] WAF initialized successfully")
+	}
 
 	return func(next http.Handler) http.Handler {
 		return txhttp.WrapHandler(waf, next)

@@ -27,10 +27,9 @@ func main() {
 	runner.Main(config.Config(), func(ctx context.Context) error {
 		conf := runner.GetAppConfig(ctx)
 		grpc := greeter.NewService(conf.GetMeta())
-		svc := greeter.New(grpc)
 
-		runner.OnStart(svc.Start)
-		runner.OnStop(svc.Shutdown)
+		runner.OnStart(grpc.Start)
+		runner.OnStop(grpc.Shutdown)
 
 		return nil
 	})

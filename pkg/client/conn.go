@@ -15,13 +15,30 @@
 package client
 
 import (
+	"context"
+	"net"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/test/bufconn"
 )
 
-func connection(addr string) (*grpc.ClientConn, error) {
+func Conn(addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	return conn, err
+}
+
+func BufConn(bufLis *bufconn.Listener) (*grpc.ClientConn, error) {
+	conn, err := grpc.NewClient("passthrough:///bufnet",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(
+			func(ctx context.Context, _ string) (net.Conn, error) {
+				return bufLis.DialContext(ctx)
+			},
+		),
 	)
 
 	return conn, err

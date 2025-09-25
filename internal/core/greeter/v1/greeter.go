@@ -25,29 +25,17 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
 
-type Service struct {
-	*grpcgw.Server
-	handler greeter.GreeterServiceServer
-}
-
-func NewService(meta *common.SntzMeta) *Service {
-	return &Service{
+func NewService(meta *common.SntzMeta) *Greeter {
+	return &Greeter{
 		Server:  grpcgw.NewDefault(meta),
 		handler: greeterhdl.New(),
 	}
 }
 
-// New creates a new Greeter module.
-func New(srv *Service) *Greeter {
-
-	return &Greeter{
-		Service: srv,
-	}
-}
-
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
-	*Service
+	*grpcgw.Server
+	handler greeter.GreeterServiceServer
 }
 
 // Start implements IGreeter, override runner.Server.Start
