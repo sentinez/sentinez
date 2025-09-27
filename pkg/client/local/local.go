@@ -47,7 +47,7 @@ func RegisterServiceServer[T any](
 		register(s.AsServer(), hdl)
 
 		go func() {
-			s.BufServe(srvOnce.conn)
+			_ = s.BufServe(srvOnce.conn)
 		}()
 	})
 
