@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
-	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
+	grpcgw "github.com/sentinez/sentinez/pkg/core/net/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -34,7 +34,7 @@ func GetListener() *bufconn.Listener {
 func NewService(appConf *common.AppConfig) *IAM {
 	return &IAM{
 		Server: grpcgw.NewDefault(appConf.GetMeta()),
-		hdl:    iamfac.NewDefaultHandlerIAM(appConf),
+		hdl:    iamfac.NewDefaultHandler(appConf),
 	}
 }
 

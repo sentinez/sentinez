@@ -18,7 +18,7 @@ package apiserver
 import (
 	"context"
 
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -46,7 +46,7 @@ type Server struct {
 }
 
 // visitToEndpoint all service to external grpc server
-func (srv *Server) visitToEndpoint(ctx context.Context,
+func (srv *Server) VisitToEndpoint(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
 	appConf := runner.GetAppConfig(ctx)
@@ -61,8 +61,8 @@ func (srv *Server) visitToEndpoint(ctx context.Context,
 	// return errors.F("apiserver: failed to visit service")
 }
 
-// visit all service to internal grpc handler
-func (srv *Server) visit(ctx context.Context,
+// Visit all service to internal grpc handler
+func (srv *Server) Visit(ctx context.Context,
 	services ...httpgw.ServiceRegistrar) error {
 
 	for _, service := range services {

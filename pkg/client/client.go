@@ -15,8 +15,10 @@
 package client
 
 import (
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
+	"github.com/sentinez/sentinez/pkg/client/local"
 	"github.com/sentinez/sentinez/pkg/client/options"
 )
 
@@ -34,4 +36,34 @@ func NewIAMService(opt *options.Options,
 	}
 
 	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+}
+
+func NewLocalIAMService(hdl iam.IdentityAccessManagementServiceServer,
+) (iam.IdentityAccessManagementServiceClient, error) {
+
+	bufLis := local.RegisterServiceServer(
+		iam.GetMetaIamServiceKey(), hdl,
+		iam.RegisterIdentityAccessManagementServiceServer)
+
+	conn, err := BufConn(bufLis)
+	if err != nil {
+		return nil, err
+	}
+
+	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+}
+
+func NewLocalGreeterService(hdl greeter.GreeterServiceServer,
+) (greeter.GreeterServiceClient, error) {
+
+	bufLis := local.RegisterServiceServer(
+		greeter.GetMetaGreeterServiceKey(), hdl,
+		greeter.RegisterGreeterServiceServer)
+
+	conn, err := BufConn(bufLis)
+	if err != nil {
+		return nil, err
+	}
+
+	return greeter.NewGreeterServiceClient(conn), nil
 }

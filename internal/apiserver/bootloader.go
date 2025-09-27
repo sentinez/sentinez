@@ -24,7 +24,6 @@ import (
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 func (srv *Server) Bootloader(ctx context.Context) error {
@@ -41,16 +40,17 @@ func (srv *Server) Bootloader(ctx context.Context) error {
 	// NOTE: Make sure the gRPC server is running properly and accessible
 	// Create file at registrar, inherit base package, override function,
 	// implement business logic
-	err := srv.visitToEndpoint(ctx,
-		services.NewGreeter(greeterfac.NewDefaultHandlerGreeter(appConf)),
-	)
-	if err != nil {
-		zlog.Errorf("apiserver: failed to visit service: %v", err)
-		return err
-	}
+	// err := srv.visitToEndpoint(ctx,
+	// 	services.NewGreeter(greeterfac.NewDefaultHandlerGreeter(appConf)),
+	// )
+	// if err != nil {
+	// 	zlog.Errorf("apiserver: failed to visit service: %v", err)
+	// 	return err
+	// }
 
-	return srv.visit(ctx,
-		services.NewIAM(iamfac.NewDefaultHandlerIAM(appConf)),
+	return srv.Visit(ctx,
+		services.NewGreeter(greeterfac.NewDefaultHandler(appConf)),
+		services.NewIAM(iamfac.NewDefaultHandler(appConf)),
 		services.NewTenant(tenantfac.NewDefaultHandlerTenant(appConf)),
 	)
 }

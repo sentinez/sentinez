@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
 

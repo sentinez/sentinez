@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinez Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package greeterfac
-
-import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-)
-
-func NewDefaultHandler(_ *common.AppConfig,
-) greeter.GreeterServiceServer {
-	return greeterhandler.New()
-}
+package main

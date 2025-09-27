@@ -18,6 +18,7 @@ package iamhandler
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	stdctx "github.com/sentinez/sentinez/pkg/std/context"
@@ -28,15 +29,19 @@ import (
 var _ iampb.
 	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
-func New(service *iamservices.IAMService,
+func New(
+	service *iamservices.IAMService,
+	greeterCli greeter.GreeterServiceClient,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
-		service: service,
+		service:    service,
+		greeterCli: greeterCli,
 	}
 }
 
 type IdentityAccessManagement struct {
-	service *iamservices.IAMService
+	greeterCli greeter.GreeterServiceClient
+	service    *iamservices.IAMService
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
@@ -168,6 +173,12 @@ func (iam *IdentityAccessManagement) Login(ctx context.Context,
 func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
+
+	_, err := iam.greeterCli.Status(ctx, &greeter.StatusRequest{})
+	if err != nil {
+		zlog.Errorf("IAM.Status call greeter err=%v", err)
+		return nil, err
+	}
 
 	ss, _ := stdctx.GetAuthContext(ctx, iam.service.Config())
 

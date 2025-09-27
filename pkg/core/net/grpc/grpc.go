@@ -13,14 +13,14 @@
 // limitations under the License.
 
 // Package grpcgw provides a gRPC server for the sentinez.
-package grpcgw
+package grpc
 
 import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 	stderr "github.com/sentinez/sentinez/pkg/std/errors"
 	stdversion "github.com/sentinez/sentinez/pkg/std/version"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -113,4 +113,10 @@ func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
 // NewDefault returns a new service registrar with default options.
 func NewDefault(meta *common.SntzMeta) *Server {
 	return New(meta)
+}
+
+func NewDefaultServer() *Server {
+	return &Server{
+		server: grpc.NewServer(),
+	}
 }
