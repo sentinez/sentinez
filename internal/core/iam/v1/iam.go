@@ -34,7 +34,7 @@ func GetListener() *bufconn.Listener {
 func NewService(appConf *common.AppConfig) *IAM {
 	return &IAM{
 		Server: grpcgw.NewDefault(appConf.GetMeta()),
-		hdl:    iamfac.NewDefaultHandlerIAM(appConf),
+		hdl:    iamfac.NewDefaultHandler(appConf),
 	}
 }
 

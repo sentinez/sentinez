@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	grpcgw "github.com/sentinez/sentinez/pkg/core/gateway/grpc"
+	grpcgw "github.com/sentinez/sentinez/pkg/core/net/grpc"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
 

@@ -17,18 +17,33 @@ package iamfac
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	"github.com/sentinez/sentinez/pkg/client"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // nolint:funlen
-func NewDefaultHandlerIAM(appConf *common.AppConfig,
+func NewDefaultHandler(appConf *common.AppConfig,
 ) iam.IdentityAccessManagementServiceServer {
 
+	service := NewDefaultService(appConf)
+
+	geeterCli, err := client.NewLocalGreeterService(
+		greeterfac.NewDefaultHandler(appConf),
+	)
+	if err != nil {
+		zlog.Errorf("iamfactory: new greeter client err=%v", err)
+	}
+
+	return iamhandler.New(service, geeterCli)
+}
+
+func NewDefaultService(appConf *common.AppConfig) *iamservices.IAMService {
 	userrepos, err := usersrepo.New(appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)
@@ -40,7 +55,5 @@ func NewDefaultHandlerIAM(appConf *common.AppConfig,
 	}
 
 	tx := postgres.NewTX(appConf)
-	svc := iamservices.New(appConf, tx, userrepos, accountrepos)
-
-	return iamhandler.New(svc)
+	return iamservices.New(appConf, tx, userrepos, accountrepos)
 }

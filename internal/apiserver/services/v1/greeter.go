@@ -20,7 +20,7 @@ import (
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	httpgw "github.com/sentinez/sentinez/pkg/core/gateway/http"
+	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 )
 
 var _ httpgw.ServiceRegistrar = (*Greeter)(nil)
