@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/protobuf"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 

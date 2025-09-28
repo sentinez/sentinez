@@ -12,32 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
-
-import (
-	"sync"
-
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
-	"github.com/sentinez/sentinez/pkg/std/stdconf"
-)
-
-var (
-	once    sync.Once
-	appConf *common.AppConfig
-)
-
-func Config() *common.AppConfig {
-	once.Do(func() {
-		flag := edgeflags.Parse()
-		envConf := stdconf.LoadEnv(flag.GetEnvFile())
-		appConf = &common.AppConfig{
-			Meta:    edge.GetMetaEdge(),
-			EnvConf: envConf,
-			Flag:    flag,
-		}
-	})
-
-	return appConf
-}
+package iamhdl

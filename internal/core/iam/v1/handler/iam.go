@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package iamhandlers provides the Identity Access Management service handler.
-package iamhandler
+// Package iamhdls provides the Identity Access Management service handler.
+package iamhdl
 
 import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	stdctx "github.com/sentinez/sentinez/pkg/std/context"
-	stdperms "github.com/sentinez/sentinez/pkg/std/perms"
+	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	"github.com/sentinez/sentinez/pkg/std/stdctx"
+	"github.com/sentinez/sentinez/pkg/std/stdperms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -30,7 +30,7 @@ var _ iampb.
 	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
 func New(
-	service *iamservices.IAMService,
+	service *iamsvc.IAMService,
 	greeterCli greeter.GreeterServiceClient,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
@@ -41,7 +41,7 @@ func New(
 
 type IdentityAccessManagement struct {
 	greeterCli greeter.GreeterServiceClient
-	service    *iamservices.IAMService
+	service    *iamsvc.IAMService
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
@@ -118,7 +118,7 @@ func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 	return resp, nil
 }
 
-// CreateAccount implements iampb.IAMServiceServer.
+// CreateAccount implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	req *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
@@ -140,7 +140,7 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	}, nil
 }
 
-// CreateUser implements iampb.IAMServiceServer.
+// CreateUser implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	req *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.CreateUser] request= %v", req)
@@ -154,7 +154,7 @@ func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	return resp, nil
 }
 
-// Login implements iampb.IAMServiceServer.
+// Login implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.Login] username = %s",
@@ -169,7 +169,7 @@ func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	return resp, nil
 }
 
-// Status implements iampb.IAMServiceServer.
+// Status implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)

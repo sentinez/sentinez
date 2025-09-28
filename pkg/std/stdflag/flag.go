@@ -23,7 +23,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/protobuf"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/spf13/pflag"

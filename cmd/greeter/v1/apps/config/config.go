@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/flags"
-	stdconf "github.com/sentinez/sentinez/pkg/std/config"
+	"github.com/sentinez/sentinez/pkg/std/stdconf"
 )
 
 var (

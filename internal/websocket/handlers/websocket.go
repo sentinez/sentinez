@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/internal/websocket/manager"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 

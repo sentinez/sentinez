@@ -19,7 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"go.uber.org/fx"
 )
 

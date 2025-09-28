@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	stdcrypto "github.com/sentinez/sentinez/pkg/std/crypto"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
+	"github.com/sentinez/sentinez/pkg/std/stdcrypto"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"google.golang.org/grpc/metadata"
 )
 

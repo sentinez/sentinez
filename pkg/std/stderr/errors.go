@@ -21,7 +21,7 @@ import (
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"

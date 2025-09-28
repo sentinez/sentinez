@@ -38,6 +38,7 @@ func WithTx[T proto.Message](
 
 type Tx struct {
 	conf *common.EnvConfig
+	mock pgx.Tx
 }
 
 func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
@@ -52,6 +53,10 @@ func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
 	}
 
 	return &TxSession{tx: tx}, nil
+}
+
+func NewTXMock(tx pgx.Tx) *Tx {
+	return &Tx{mock: tx}
 }
 
 type TxSession struct {

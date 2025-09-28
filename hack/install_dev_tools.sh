@@ -25,7 +25,7 @@ go install \
     google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
 # mockup test
-go install github.com/vektra/mockery/v2@latest
+go install github.com/vektra/mockery/v3@v3.5.5
 
 # proto lint
 go install github.com/bufbuild/buf/cmd/buf@v1.48.0

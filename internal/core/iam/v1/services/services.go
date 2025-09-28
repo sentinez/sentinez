@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package iamservices
+package iamsvc
 
 import (
 	"context"
@@ -24,9 +24,9 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	stdcrypto "github.com/sentinez/sentinez/pkg/std/crypto"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
-	stdperms "github.com/sentinez/sentinez/pkg/std/perms"
+	"github.com/sentinez/sentinez/pkg/std/stdcrypto"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
+	"github.com/sentinez/sentinez/pkg/std/stdperms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
