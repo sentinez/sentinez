@@ -27,11 +27,11 @@ func (s *Server) bootloader(appConf *common.AppConfig) error {
 	// idx = 0
 	s.core.Use(cache.HeaderCacheControl)
 	// idx = 1
-	s.core.Use(logging.Writer)
+	s.core.Use(logging.WriterHandler)
 	// idx = 2
-	s.core.Use(logic.NewHost(appConf.GetEnvConf().GetHostname()))
+	s.core.Use(logic.DomainHandler(appConf.GetEnvConf().GetHostname()))
 	// idx = 3
-	s.core.Use(secure.NewWAF(appConf.GetFlag().GetRulePath()))
+	s.core.Use(secure.WAFHandler(appConf.GetFlag().GetRulePath()))
 
 	return routing.Serve(s.yaml, s.core)
 }

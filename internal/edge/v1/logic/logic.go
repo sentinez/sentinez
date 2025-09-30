@@ -21,7 +21,7 @@ import (
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 )
 
-func NewHost(hostname string,
+func DomainHandler(hostname string,
 ) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 
 	return func(next httpxf1.RequestHandler) httpxf1.RequestHandler {

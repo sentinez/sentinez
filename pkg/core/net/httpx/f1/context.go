@@ -20,6 +20,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sort"
+	"sync"
+
+	"github.com/sentinez/sentinez/pkg/syncx"
 
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/uuid"
@@ -28,20 +31,36 @@ import (
 
 const userValueKey = "sntz_request_hex"
 
+var (
+	oncePool sync.Once
+	ctxPool  *syncx.Pool[Context]
+)
+
 // NewContext creates a new FastHTTP context.
 // It implements the Context interface.
 func NewContext(ctx *fasthttp.RequestCtx) *Context {
-	return &Context{
-		RequestCtx: ctx,
-	}
+	oncePool.Do(func() {
+		ctxPool = syncx.NewPool[Context]()
+	})
+
+	httpCtx := ctxPool.Get()
+
+	httpCtx.RequestCtx = ctx
+
+	return httpCtx
 }
 
-type IContext interface {
+type HTTPContext interface {
 	httpx.Context
 }
 
 type Context struct {
 	*fasthttp.RequestCtx
+}
+
+func (c *Context) Release() {
+	c.RequestCtx = nil
+	ctxPool.Put(c)
 }
 
 func (c *Context) Path() string {
@@ -80,7 +99,7 @@ func GetContextIdentify(ctx *Context) string {
 	return res
 }
 
-// nolint:funlen
+// GenerateContextKey nolint:funlen
 func GenerateContextKey(ctx *Context) string {
 	method := string(ctx.Method())
 	host := string(ctx.Host())

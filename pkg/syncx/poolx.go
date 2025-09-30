@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpx
+package syncx
 
-// Server is the interface that provides the basic methods for an HTTP server.
-type Server interface {
-	ListenAndServe(addr string) error
-	Shutdown() error
+import "sync"
+
+func NewPool[T any]() *Pool[T] {
+	return &Pool[T]{
+		pool: &sync.Pool{
+			New: func() any {
+				return new(T)
+			},
+		},
+	}
 }
 
-// Context is the interface that wraps the basic methods for an HTTP context.
-// It provides methods to handle HTTP requests and responses.
-type Context interface {
-	Release()
-	Path() string
-	String(statusCode int, body string) error
-	JSON(statusCode int, body []byte) error
+type Pool[T any] struct {
+	pool *sync.Pool
+}
+
+func (p *Pool[T]) Get() *T {
+	return p.pool.Get().(*T)
+}
+
+func (p *Pool[T]) Put(t *T) {
+	p.pool.Put(t)
 }

@@ -17,6 +17,9 @@ package httpx1
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
+
+	"github.com/sentinez/sentinez/pkg/syncx"
 
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 
@@ -25,21 +28,46 @@ import (
 
 var _ IContext = (*Context)(nil)
 
+var (
+	oncePool sync.Once
+	ctxPool  *syncx.Pool[Context]
+)
+
 type IContext interface {
 	httpx.Context
 	Upgrade() (*websocket.Conn, error)
 }
 
-var upgrader = websocket.Upgrader{
+var upgrade = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		_ = r       // Ignore the request for origin check
 		return true // Allow all origins for simplicity
 	},
 }
 
+func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
+	oncePool.Do(func() {
+		ctxPool = syncx.NewPool[Context]()
+	})
+
+	httpCtx := ctxPool.Get()
+
+	httpCtx.req = req
+	httpCtx.resp = resp
+
+	return httpCtx
+}
+
 type Context struct {
 	req  *http.Request
 	resp http.ResponseWriter
+}
+
+func (c *Context) Release() {
+	c.req = nil
+	c.resp = nil
+
+	ctxPool.Put(c)
 }
 
 func (c *Context) Method() string {
@@ -59,13 +87,6 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 	return encoder.Encode(body)
 }
 
-func (c *Context) AsCore() *Context {
-	return &Context{
-		req:  c.req,
-		resp: c.resp,
-	}
-}
-
 func (c *Context) Request() *http.Request {
 	return c.req
 }
@@ -75,7 +96,7 @@ func (c *Context) Response() http.ResponseWriter {
 }
 
 func (c *Context) Upgrade() (*websocket.Conn, error) {
-	conn, err := upgrader.Upgrade(c.resp, c.req, nil)
+	conn, err := upgrade.Upgrade(c.resp, c.req, nil)
 	if err != nil {
 		return nil, err
 	}

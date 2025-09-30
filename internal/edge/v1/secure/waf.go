@@ -33,7 +33,7 @@ var (
 	cached *mem.Cache[[]byte]
 )
 
-func NewWAF(rulePath string,
+func WAFHandler(rulePath string,
 ) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 	logger = zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),

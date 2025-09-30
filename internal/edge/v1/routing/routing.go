@@ -25,7 +25,7 @@ import (
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	syncx "github.com/sentinez/sentinez/pkg/sync"
+	"github.com/sentinez/sentinez/pkg/syncx"
 )
 
 var (

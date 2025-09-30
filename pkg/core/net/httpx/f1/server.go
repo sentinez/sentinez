@@ -66,6 +66,8 @@ func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
 		if err := fn(c); err != nil {
 			zlog.Debugf("httpxf1: err=%v", err)
 		}
+
+		c.Release()
 	}
 
 	s.core.Handler = wrapHandler(handler)

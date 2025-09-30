@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func Writer(next httpxf1.RequestHandler) httpxf1.RequestHandler {
+func WriterHandler(next httpxf1.RequestHandler) httpxf1.RequestHandler {
 	logger := zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
