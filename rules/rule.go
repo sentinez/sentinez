@@ -29,7 +29,7 @@ func Load(version Version) string {
 	// load setup rules
 	rulesets.Load(rules.SetupOrder)
 
-	// load rules from v4.16.0
+	// load init rule
 	rulesets.Load(rules.Request901InitializationOrder)
 
 	// load core rulesets
