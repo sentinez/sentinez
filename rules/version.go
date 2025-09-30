@@ -14,17 +14,8 @@
 
 package rules
 
-import (
-	"os"
+type Version string
 
-	"github.com/corazawaf/coraza/v3"
+const (
+	Ver4_16_0 Version = "v4.16.0"
 )
-
-func NewWAF(version Version, ruleBasePath string) (coraza.WAF, error) {
-	rule := Load(version)
-
-	rootFS := os.DirFS(ruleBasePath)
-	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
-
-	return coraza.NewWAF(conf)
-}

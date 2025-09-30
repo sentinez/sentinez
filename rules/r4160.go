@@ -14,17 +14,9 @@
 
 package rules
 
-import (
-	"os"
+import rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 
-	"github.com/corazawaf/coraza/v3"
-)
-
-func NewWAF(version Version, ruleBasePath string) (coraza.WAF, error) {
-	rule := Load(version)
-
-	rootFS := os.DirFS(ruleBasePath)
-	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
-
-	return coraza.NewWAF(conf)
+func R4160(rulesets *RuleLoader) {
+	rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
+	rulesets.Load(rulev4160.Request942ApplicationAttackSqliOrder)
 }

@@ -24,7 +24,7 @@ import (
 
 func Protected(ruleBasePath string) func(next http.Handler) http.Handler {
 
-	waf, err := rules.NewWAF(ruleBasePath)
+	waf, err := rules.NewWAF(rules.Ver4_16_0, ruleBasePath)
 	if err != nil {
 		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
 		return nil

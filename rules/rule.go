@@ -21,10 +21,9 @@ import (
 
 	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	rules "github.com/sentinez/sentinez/rules/gen"
-	rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 )
 
-func Load() string {
+func Load(version Version) string {
 	var rulesets = &RuleLoader{}
 
 	// load setup rules
@@ -34,8 +33,10 @@ func Load() string {
 	rulesets.Load(rules.Request901InitializationOrder)
 
 	// load core rulesets
-	rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
-	rulesets.Load(rulev4160.Request942ApplicationAttackSqliOrder)
+	switch version {
+	case Ver4_16_0:
+		R4160(rulesets)
+	}
 
 	// load extension rules
 	rulesets.Load(rules.AuditOrder)
