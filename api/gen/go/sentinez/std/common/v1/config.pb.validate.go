@@ -48,6 +48,8 @@ func (m *EnvConfig) Validate() error {
 
 	// no validation rules for GatewayAddr
 
+	// no validation rules for PasskeyOrigin
+
 	// no validation rules for TimescaleUri
 
 	// no validation rules for PostgresUri

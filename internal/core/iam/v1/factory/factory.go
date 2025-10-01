@@ -15,6 +15,8 @@
 package iamfac
 
 import (
+	"time"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
@@ -24,6 +26,7 @@ import (
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/pkg/client"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
+	"github.com/sentinez/sentinez/pkg/passkey"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -55,5 +58,7 @@ func NewDefaultService(appConf *common.AppConfig) *iamsvc.IAMService {
 	}
 
 	tx := postgres.NewTX(appConf)
-	return iamsvc.New(appConf, tx, userrepos, accountrepos)
+	dataStore := passkey.NewMemoryStorage(time.Hour * 2)
+
+	return iamsvc.New(appConf, tx, dataStore, userrepos, accountrepos)
 }

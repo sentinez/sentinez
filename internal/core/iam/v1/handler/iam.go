@@ -22,6 +22,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/pkg/std/stdctx"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/stdperms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
@@ -42,6 +43,51 @@ func New(
 type IdentityAccessManagement struct {
 	greeterCli greeter.GreeterServiceClient
 	service    *iamsvc.IAMService
+}
+
+// PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginFinish(
+	ctx context.Context,
+	req *iampb.PasskeyLoginFinishRequest,
+) (*iampb.PasskeyLoginFinishResponse, error) {
+	panic("unimplemented")
+}
+
+// PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginStart(
+	ctx context.Context,
+	req *iampb.PasskeyLoginStartRequest,
+) (*iampb.PasskeyLoginStartResponse, error) {
+	panic("unimplemented")
+}
+
+// PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyRegisterFinish(
+	ctx context.Context,
+	req *iampb.PasskeyRegisterFinishRequest,
+) (*iampb.PasskeyRegisterFinishResponse, error) {
+	panic("unimplemented")
+}
+
+// PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyRegisterStart(
+	ctx context.Context,
+	req *iampb.PasskeyRegisterStartRequest,
+) (*iampb.PasskeyRegisterStartResponse, error) {
+	zlog.Debugf("[IdentityAccessManagement.PasskeyRegisterStart] req = %v", req)
+
+	user, err := iam.service.
+		GetAccountByUsernameOrEmail(ctx, req.GetEmailOrUsername())
+	if err != nil {
+		return nil, err
+	}
+
+	if user != nil {
+		return nil, stderr.AlreadyExistsF(
+			"username or email already exists: %s", req.GetEmailOrUsername())
+	}
+
+	return iam.service.PasskeyRegisterStart(ctx, req)
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,

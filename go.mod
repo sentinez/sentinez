@@ -13,6 +13,7 @@ require (
 	github.com/a-h/templ v0.3.943
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
+	github.com/go-webauthn/webauthn v0.14.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
@@ -28,12 +29,12 @@ require (
 	github.com/sentinez/sentinez/rules v0.0.0
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.7
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/valyala/fasthttp v1.65.0
 	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.5
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.42.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v3 v3.0.1
@@ -49,7 +50,10 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fasthttp/websocket v1.5.12 // indirect
 	github.com/fatih/color v1.18.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
+	github.com/go-webauthn/x v0.1.25 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
+	github.com/google/go-tpm v0.9.5 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
@@ -83,13 +87,14 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/valllabh/ocsf-schema-golang v1.0.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect

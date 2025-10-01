@@ -168,6 +168,102 @@
         ]
       }
     },
+    "/iam/passkey/login-finish": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_PasskeyLoginFinish",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyLoginFinishResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
+    "/iam/passkey/login-start": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_PasskeyLoginStart",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyLoginStartResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
+    "/iam/passkey/register-finish": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_PasskeyRegisterFinish",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyRegisterFinishResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
+    "/iam/passkey/register-start": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_PasskeyRegisterStart",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyRegisterStartResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "emailOrUsername",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
     "/iam/status": {
       "get": {
         "operationId": "IdentityAccessManagementService_Status",
@@ -360,6 +456,14 @@
       },
       "additionalProperties": {}
     },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
     "v1AccountLite": {
       "type": "object",
       "properties": {
@@ -536,6 +640,23 @@
         },
         "total": {
           "type": "boolean"
+        }
+      }
+    },
+    "v1PasskeyLoginFinishResponse": {
+      "type": "object"
+    },
+    "v1PasskeyLoginStartResponse": {
+      "type": "object"
+    },
+    "v1PasskeyRegisterFinishResponse": {
+      "type": "object"
+    },
+    "v1PasskeyRegisterStartResponse": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "object"
         }
       }
     },

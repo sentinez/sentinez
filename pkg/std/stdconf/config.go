@@ -46,6 +46,7 @@ func LoadEnv(envFile string) *common.EnvConfig {
 			GatewayAddr:   os.Getenv("SNTZ_GATEWAY_ADDR"),
 			Hostname:      os.Getenv("SNTZ_HOSTNAME"),
 			Address:       os.Getenv("SNTZ_ADDRESS"),
+			PasskeyOrigin: os.Getenv("SNTZ_PASSKEY_ORIGIN"),
 		}
 	})
 

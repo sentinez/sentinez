@@ -70,7 +70,7 @@ func TestLogin(t *testing.T) {
 		SecretKey: "congchualunglinhlunglinhxinhlunglinh",
 	}}
 
-	svc := New(conf, txss, userRepo, accountRepo)
+	svc := New(conf, txss, nil, userRepo, accountRepo)
 
 	req := &iam.LoginRequest{
 		EmailOrUsername: "admin",
