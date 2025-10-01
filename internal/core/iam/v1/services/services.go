@@ -19,7 +19,9 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
@@ -87,7 +89,37 @@ func (srv *IAMService) PasskeyRegisterFinish(
 	ctx context.Context,
 	req *iam.PasskeyRegisterFinishRequest,
 ) (*iam.PasskeyRegisterFinishResponse, error) {
-	panic("unimplemented")
+
+	ssToken := req.GetSessionId()
+
+	session, ok := srv.dataStore.GetSession(ssToken)
+	if !ok {
+		return nil, stderr.InvalidDataF("get session error")
+	}
+
+	user := srv.dataStore.GetUser(string(session.UserID))
+
+	var ccr protocol.CredentialCreationResponse
+	err := json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedCCR, err := ccr.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	credential, err := srv.webAuthn.CreateCredential(user, *session, parsedCCR)
+	if err != nil {
+		return nil, stderr.InvalidDataF("can't finish registration: %v", err)
+	}
+
+	user.AddCredential(credential)
+	srv.dataStore.SaveUser(user)
+	srv.dataStore.DeleteSession(ssToken)
+
+	return &iam.PasskeyRegisterFinishResponse{}, nil
 }
 
 // PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
@@ -95,6 +127,7 @@ func (srv *IAMService) PasskeyRegisterStart(
 	ctx context.Context,
 	req *iam.PasskeyRegisterStartRequest,
 ) (*iam.PasskeyRegisterStartResponse, error) {
+
 	user := srv.dataStore.GetUser(req.GetEmailOrUsername())
 
 	opt, ss, err := srv.webAuthn.BeginRegistration(user)
@@ -114,7 +147,8 @@ func (srv *IAMService) PasskeyRegisterStart(
 	_ = protojson.Unmarshal(pub, &pbStruct)
 
 	return &iam.PasskeyRegisterStartResponse{
-		Event: &pbStruct,
+		Event:     &pbStruct,
+		SessionId: t,
 	}, nil
 }
 
@@ -229,7 +263,10 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
-		zlog.Debugf("faild to get account by username or email")
+		if stderr.Is(err, pgx.ErrNoRows) {
+			return &iam.Accounts{}, nil
+		}
+
 		return nil, err
 	}
 

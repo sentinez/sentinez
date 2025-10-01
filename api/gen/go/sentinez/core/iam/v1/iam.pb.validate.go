@@ -309,6 +309,10 @@ func (m *PasskeyRegisterFinishRequest) Validate() error {
 		return nil
 	}
 
+	// no validation rules for SessionId
+
+	// no validation rules for CredentialCreationResponse
+
 	return nil
 }
 
@@ -524,6 +528,8 @@ func (m *PasskeyRegisterStartResponse) Validate() error {
 			}
 		}
 	}
+
+	// no validation rules for SessionId
 
 	return nil
 }

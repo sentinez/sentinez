@@ -169,7 +169,7 @@
       }
     },
     "/iam/passkey/login-finish": {
-      "get": {
+      "put": {
         "operationId": "IdentityAccessManagementService_PasskeyLoginFinish",
         "responses": {
           "200": {
@@ -185,6 +185,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyLoginFinishRequest"
+            }
+          }
+        ],
         "tags": [
           "IdentityAccessManagementService"
         ]
@@ -213,7 +223,7 @@
       }
     },
     "/iam/passkey/register-finish": {
-      "get": {
+      "post": {
         "operationId": "IdentityAccessManagementService_PasskeyRegisterFinish",
         "responses": {
           "200": {
@@ -229,6 +239,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyRegisterFinishRequest"
+            }
+          }
+        ],
         "tags": [
           "IdentityAccessManagementService"
         ]
@@ -643,11 +663,26 @@
         }
       }
     },
+    "v1PasskeyLoginFinishRequest": {
+      "type": "object"
+    },
     "v1PasskeyLoginFinishResponse": {
       "type": "object"
     },
     "v1PasskeyLoginStartResponse": {
       "type": "object"
+    },
+    "v1PasskeyRegisterFinishRequest": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "credentialCreationResponse": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
     },
     "v1PasskeyRegisterFinishResponse": {
       "type": "object"
@@ -657,6 +692,9 @@
       "properties": {
         "event": {
           "type": "object"
+        },
+        "sessionId": {
+          "type": "string"
         }
       }
     },

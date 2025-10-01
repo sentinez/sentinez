@@ -138,7 +138,8 @@ service IdentityAccessManagementService {
 
   rpc PasskeyRegisterFinish(PasskeyRegisterFinishRequest) returns (PasskeyRegisterFinishResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/register-finish",
+      post: "/iam/passkey/register-finish",
+      body: "*"
     };
 
     option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
@@ -154,7 +155,8 @@ service IdentityAccessManagementService {
 
   rpc PasskeyLoginFinish(PasskeyLoginFinishRequest) returns (PasskeyLoginFinishResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/login-finish",
+      put: "/iam/passkey/login-finish",
+      body: "*"
     };
 
     option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
@@ -178,7 +180,8 @@ message PasskeyLoginStartResponse {
 }
 
 message PasskeyRegisterFinishRequest {
-
+  string session_id = 1;
+  bytes credential_creation_response =2;
 }
 
 message PasskeyRegisterFinishResponse {
@@ -193,6 +196,7 @@ message PasskeyRegisterStartRequest {
 
 message PasskeyRegisterStartResponse {
   google.protobuf.Struct event = 1;
+  string session_id = 2;
 }
 
 message LoginRequest {

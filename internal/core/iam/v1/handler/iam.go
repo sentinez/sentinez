@@ -66,7 +66,9 @@ func (iam *IdentityAccessManagement) PasskeyRegisterFinish(
 	ctx context.Context,
 	req *iampb.PasskeyRegisterFinishRequest,
 ) (*iampb.PasskeyRegisterFinishResponse, error) {
-	panic("unimplemented")
+	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterFinish]")
+
+	return iam.service.PasskeyRegisterFinish(ctx, req)
 }
 
 // PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
@@ -82,7 +84,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterStart(
 		return nil, err
 	}
 
-	if user != nil {
+	if user.GetId() != "" {
 		return nil, stderr.AlreadyExistsF(
 			"username or email already exists: %s", req.GetEmailOrUsername())
 	}

@@ -301,6 +301,10 @@ func request_IdentityAccessManagementService_PasskeyRegisterFinish_0(ctx context
 	var protoReq PasskeyRegisterFinishRequest
 	var metadata runtime.ServerMetadata
 
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := client.PasskeyRegisterFinish(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -309,6 +313,10 @@ func request_IdentityAccessManagementService_PasskeyRegisterFinish_0(ctx context
 func local_request_IdentityAccessManagementService_PasskeyRegisterFinish_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq PasskeyRegisterFinishRequest
 	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.PasskeyRegisterFinish(ctx, &protoReq)
 	return msg, metadata, err
@@ -337,6 +345,10 @@ func request_IdentityAccessManagementService_PasskeyLoginFinish_0(ctx context.Co
 	var protoReq PasskeyLoginFinishRequest
 	var metadata runtime.ServerMetadata
 
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	msg, err := client.PasskeyLoginFinish(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -345,6 +357,10 @@ func request_IdentityAccessManagementService_PasskeyLoginFinish_0(ctx context.Co
 func local_request_IdentityAccessManagementService_PasskeyLoginFinish_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq PasskeyLoginFinishRequest
 	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.PasskeyLoginFinish(ctx, &protoReq)
 	return msg, metadata, err
@@ -558,7 +574,7 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -608,7 +624,7 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -850,7 +866,7 @@ func RegisterIdentityAccessManagementServiceHandlerClient(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -894,7 +910,7 @@ func RegisterIdentityAccessManagementServiceHandlerClient(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
