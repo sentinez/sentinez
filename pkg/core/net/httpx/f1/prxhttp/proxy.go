@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package proxy ...
-package httpproxy
+// Package prxhttp ...
+package prxhttp
 
 import (
 	"net/http"
@@ -48,7 +48,7 @@ func New() (*Proxy, error) {
 func (p *Proxy) ServeHTTP(ctx *httpxf1.Context, target string) error {
 	proxyServer, err := p.pool.Get(target)
 	if err != nil {
-		zlog.Debug("[edge] proxy got an error: ", err)
+		zlog.Debug("proxy.ServeHTTP got an error: ", err)
 		ctx.SetStatusCode(http.StatusInternalServerError)
 		return err
 	}

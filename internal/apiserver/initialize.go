@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 )
 
-func (srv *Server) Bootloader(ctx context.Context) error {
+func (srv *Server) Initialize(ctx context.Context) error {
 	appConf := runner.GetAppConfig(ctx)
 	flag := appConf.GetFlag()
 

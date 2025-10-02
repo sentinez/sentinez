@@ -13,4 +13,4 @@
 // limitations under the License.
 
 // Package proxy ...
-package httpproxy
+package prxhttp

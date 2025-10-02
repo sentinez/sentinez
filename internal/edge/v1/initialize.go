@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/dmz/secure"
 )
 
-func (s *Server) bootloader(appConf *common.AppConfig) error {
+func (s *Server) initialize(appConf *common.AppConfig) error {
 	// idx = 0
 	s.core.Use(cache.HeaderCacheControl)
 	// idx = 1
