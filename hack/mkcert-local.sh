@@ -16,3 +16,4 @@
 
 mkcert "*.sentinez.vn" sentinez.vn
 mkcert -install
+mv *.pem ./cmd/edge/v1/
