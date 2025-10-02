@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx/f1/prxhttp"
@@ -76,8 +77,8 @@ func (r *Router) Store(
 	return &Router{}
 }
 
-func Serve(conf *edgeyaml.Config, server httpxf1.Server) error {
-	proxyInst, err := prxhttp.New()
+func Serve(edgeYml *edgeyaml.Config, conf *common.AppConfig, server httpxf1.Server) error {
+	proxyInst, err := prxhttp.New(conf)
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
@@ -85,7 +86,7 @@ func Serve(conf *edgeyaml.Config, server httpxf1.Server) error {
 
 	r := &Router{}
 
-	handler := r.Store(proxyInst, conf).Match()
+	handler := r.Store(proxyInst, edgeYml).Match()
 
 	server.Handle(handler)
 

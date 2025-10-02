@@ -21,11 +21,16 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common
 import "buf/validate/validate.proto";
 
 message Flag {
+  // base
   string env_mode = 1 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
   string log_level = 2 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
+
+  // extra
   string env_file = 3;
   string swagger_path = 4;
   string api_specs_path = 5;
   string rule_path = 6;
   string proxy_config = 7;
+  string certificate_file = 8;
+  string cert_key_file = 9;
 }

@@ -1,8 +1,8 @@
 proxy:
-  namespace: badcheese
+  namespace: dev
   routes:
     - match_prefix: /
-      target: badcheese.com
+      target: vneconomy.vn
       
     # - match_prefix: /v1
     #   target: localhost:3000

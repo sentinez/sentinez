@@ -16,7 +16,6 @@ package secure
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -24,13 +23,12 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	httpxf1mdw "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/middleware"
-	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var (
 	logger zlog.Logger
-	cached *mem.Cache[[]byte]
+	// cached *mem.Cache[[]byte]
 )
 
 func WAFHandler(rulePath string,
@@ -41,7 +39,7 @@ func WAFHandler(rulePath string,
 		zlog.LevelInfo,
 	)
 
-	cached = mem.New[[]byte](time.Second*30, time.Second*31)
+	// cached = mem.New[[]byte](time.Second*30, time.Second*31)
 
 	protected := httpxf1mdw.ProtectedWithCallback(rulePath, rulesCallback)
 	return protected
@@ -53,16 +51,16 @@ func rulesCallback(ctx *httpxf1.Context, tx types.Transaction) {
 		return
 	}
 
-	if data, ok := cached.Get(httpxf1.GenerateContextKey(ctx)); ok {
-		var event waf.Event
-		if err := event.UnmarshalVT(data); err != nil {
-			return
-		}
+	// if data, ok := cached.Get(httpxf1.GenerateContextKey(ctx)); ok {
+	// 	var event waf.Event
+	// 	if err := event.UnmarshalVT(data); err != nil {
+	// 		return
+	// 	}
 
-		event.RequestTime = ctx.Time().UnixMilli()
-		logger.Info("cache hit: rule engine ingress matched", &event)
-		return
-	}
+	// 	event.RequestTime = ctx.Time().UnixMilli()
+	// 	logger.Info("cache hit: rule engine ingress matched", &event)
+	// 	return
+	// }
 
 	var (
 		ruleIDs    []int32
@@ -104,6 +102,6 @@ func rulesCallback(ctx *httpxf1.Context, tx types.Transaction) {
 	}
 
 	logger.Info("rule engine ingress matched", event)
-	data, _ := event.MarshalVT()
-	cached.Set(httpxf1.GenerateContextKey(ctx), data)
+	// data, _ := event.MarshalVT()
+	// cached.Set(httpxf1.GenerateContextKey(ctx), data)
 }

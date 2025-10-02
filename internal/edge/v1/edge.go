@@ -54,5 +54,11 @@ func (s *Server) Start(ctx context.Context) error {
 		return err
 	}
 
-	return s.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
+	var (
+		addr     = appConf.GetEnvConf().GetAddress()
+		certFile = appConf.GetFlag().GetCertificateFile()
+		keyFile  = appConf.GetFlag().GetCertKeyFile()
+	)
+
+	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
 }

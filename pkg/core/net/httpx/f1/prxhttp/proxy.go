@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
@@ -28,16 +29,19 @@ type Proxy struct {
 	pool proxy.Pool
 }
 
-func factory(hostAddr string) (*proxy.ReverseProxy, error) {
-	return proxy.NewReverseProxyWith(
-		proxy.WithAddress(hostAddr),
-		proxy.WithTimeout(10*time.Second),
-	)
+func factory(appConf *common.AppConfig) proxy.Factory {
+	return func(hostAddr string) (*proxy.ReverseProxy, error) {
+		return proxy.NewReverseProxyWith(
+			proxy.WithAddress(hostAddr),
+			proxy.WithTimeout(10*time.Second),
+			proxy.WithTLS(appConf.GetFlag().GetCertificateFile(), appConf.GetFlag().GetCertKeyFile()),
+		)
+	}
 }
 
-func New() (*Proxy, error) {
+func New(appConf *common.AppConfig) (*Proxy, error) {
 	initialCap, maxCap := 100, 1000
-	pool, err := proxy.NewChanPool(initialCap, maxCap, factory)
+	pool, err := proxy.NewChanPool(initialCap, maxCap, factory(appConf))
 	if err != nil {
 		return nil, err
 	}

@@ -34,6 +34,8 @@ func Parse() *common.Flag {
 		stdflag.Get().RulePath = "./resources/waf/data/v4-16-0"
 		stdflag.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
 		stdflag.Get().EnvFile = "./cmd/edge/v1/.env"
+		stdflag.Get().CertificateFile = "./localhost.pem"
+		stdflag.Get().CertKeyFile = "./localhost-key.pem"
 
 		pflag.StringVar(&stdflag.Get().EnvFile, "env-file",
 			stdflag.Get().GetEnvFile(), "environment variables config file")
@@ -43,6 +45,12 @@ func Parse() *common.Flag {
 
 		pflag.StringVar(&stdflag.Get().ProxyConfig, "proxy-config",
 			stdflag.Get().GetProxyConfig(), "origin config yaml configuration")
+
+		pflag.StringVar(&stdflag.Get().CertificateFile, "cert-file",
+			stdflag.Get().GetCertificateFile(), "TLS certificate file .pem")
+
+		pflag.StringVar(&stdflag.Get().CertKeyFile, "cert-key",
+			stdflag.Get().GetCertKeyFile(), "TLS certificate key .pem")
 
 		stdflag.Parse(edge.GetMetaEdge())
 	})

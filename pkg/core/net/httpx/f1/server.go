@@ -15,6 +15,8 @@
 package httpxf1
 
 import (
+	"crypto/tls"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
@@ -31,6 +33,7 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
+	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
 // NewServer creates a new fasthttp server instance.
@@ -78,9 +81,7 @@ func (s *HTTPServer) Shutdown() error {
 	return s.core.Shutdown()
 }
 
-// ListenAndServe implements platform.Server.
-func (s *HTTPServer) ListenAndServe(addr string) error {
-
+func (s *HTTPServer) initialize(addr string) {
 	stdversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
@@ -92,6 +93,33 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 	)
 
 	s.core.Name = stdversion.Name
+	s.core.NoDefaultContentType = true
+	s.core.DisableKeepalive = false
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
+}
+
+// ListenAndServe implements platform.Server.
+func (s *HTTPServer) ListenAndServe(addr string) error {
+
+	s.initialize(addr)
+
 	return s.core.ListenAndServe(addr)
+}
+
+func (s *HTTPServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
+
+	s.initialize(addr)
+
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+
+	s.core.TLSConfig = &tls.Config{
+		MinVersion:   tls.VersionTLS12,
+		NextProtos:   []string{"http/1.1", "h2"},
+		Certificates: []tls.Certificate{cert},
+	}
+
+	return s.core.ListenAndServeTLS(addr, "", "")
 }
