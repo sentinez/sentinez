@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package proxy ...
-package proxy
+package httpproxy
 
 import (
 	"net/http"

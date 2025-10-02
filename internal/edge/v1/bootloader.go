@@ -17,10 +17,9 @@ package edge
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/cache"
-	"github.com/sentinez/sentinez/internal/edge/v1/logging"
-	"github.com/sentinez/sentinez/internal/edge/v1/logic"
-	"github.com/sentinez/sentinez/internal/edge/v1/routing"
-	"github.com/sentinez/sentinez/internal/edge/v1/secure"
+	"github.com/sentinez/sentinez/internal/edge/v1/dmz/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/dmz/routing"
+	"github.com/sentinez/sentinez/internal/edge/v1/dmz/secure"
 )
 
 func (s *Server) bootloader(appConf *common.AppConfig) error {
@@ -29,7 +28,7 @@ func (s *Server) bootloader(appConf *common.AppConfig) error {
 	// idx = 1
 	s.core.Use(logging.WriterHandler)
 	// idx = 2
-	s.core.Use(logic.DomainHandler(appConf.GetEnvConf().GetHostname()))
+	s.core.Use(secure.DomainHandler(appConf.GetEnvConf().GetHostname()))
 	// idx = 3
 	s.core.Use(secure.WAFHandler(appConf.GetFlag().GetRulePath()))
 

@@ -18,4 +18,22 @@ package edge
 //   ↓
 // [Edge Node]  ←→  [Origin Server (Cloud)]
 //      ↑
-//  (Cache + Logic + Security + Routing)
+//  (Cache + Logging + Security + Routing)
+
+// DMZ includes:
+//  - Logging Layer
+//  - Secure Layer
+//  - Routing Layer
+
+// Overview of Traffic Flow:
+//  Public Network
+//
+//       │
+//
+//      DMZ
+//    (WAF, Routing, Process Traffic)
+//
+//       │
+//
+//  Private Network
+//  (HTTP traffic to Origin Server)

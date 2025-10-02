@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/internal/edge/v1/proxy"
+	"github.com/sentinez/sentinez/internal/edge/v1/dmz/routing/httpproxy"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
@@ -31,7 +31,7 @@ import (
 var (
 	dynamic   *syncx.Map[string, string]
 	rewrite   *syncx.Map[string, string]
-	proxyInst *proxy.Proxy
+	proxyInst *httpproxy.Proxy
 	once      sync.Once
 )
 
@@ -44,7 +44,9 @@ func init() {
 	})
 }
 
-func (r *Router) Store(proxy *proxy.Proxy, config *edgeyaml.Config) *Router {
+func (r *Router) Store(
+	proxy *httpproxy.Proxy, config *edgeyaml.Config) *Router {
+
 	proxyInst = proxy
 
 	for _, routeConfig := range config.Proxy.Routes {
@@ -75,7 +77,7 @@ func (r *Router) Store(proxy *proxy.Proxy, config *edgeyaml.Config) *Router {
 }
 
 func Serve(conf *edgeyaml.Config, server httpxf1.Server) error {
-	proxyInst, err := proxy.New()
+	proxyInst, err := httpproxy.New()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
