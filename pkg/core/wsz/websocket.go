@@ -18,20 +18,20 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
 	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/sentinez/sentinez/pkg/sync"
+	"github.com/sentinez/sentinez/pkg/syncx"
 )
 
 func NewServer(meta *common.SntzMeta) *WebSocket {
 	return &WebSocket{
-		routers: sync.Map[string, func(httpx1.Context) error]{},
+		routers: syncx.Map[string, func(httpx1.Context) error]{},
 		meta:    meta,
 	}
 }
 
 type WebSocket struct {
-	routers sync.Map[string, func(httpx1.Context) error]
+	routers syncx.Map[string, func(httpx1.Context) error]
 	meta    *common.SntzMeta
 }
 

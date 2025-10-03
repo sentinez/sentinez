@@ -15,15 +15,18 @@
 package iamfac
 
 import (
+	"time"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
-	iamhandler "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
+	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	iamservices "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/pkg/client"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
+	"github.com/sentinez/sentinez/pkg/passkey"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -40,10 +43,10 @@ func NewDefaultHandler(appConf *common.AppConfig,
 		zlog.Errorf("iamfactory: new greeter client err=%v", err)
 	}
 
-	return iamhandler.New(service, geeterCli)
+	return iamhdl.New(service, geeterCli)
 }
 
-func NewDefaultService(appConf *common.AppConfig) *iamservices.IAMService {
+func NewDefaultService(appConf *common.AppConfig) *iamsvc.IAMService {
 	userrepos, err := usersrepo.New(appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)
@@ -55,5 +58,7 @@ func NewDefaultService(appConf *common.AppConfig) *iamservices.IAMService {
 	}
 
 	tx := postgres.NewTX(appConf)
-	return iamservices.New(appConf, tx, userrepos, accountrepos)
+	dataStore := passkey.NewMemoryStorage(time.Hour * 2)
+
+	return iamsvc.New(appConf, tx, dataStore, userrepos, accountrepos)
 }

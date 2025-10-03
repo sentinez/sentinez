@@ -49,10 +49,16 @@ func (s *Server) Shutdown(_ context.Context) error {
 // Start implements v1.Server.
 func (s *Server) Start(ctx context.Context) error {
 	appConf := runner.GetAppConfig(ctx)
-	if err := s.bootloader(appConf); err != nil {
-		zlog.Errorf("failed to bootloader: %v", err)
+	if err := s.initialize(appConf); err != nil {
+		zlog.Errorf("failed to initial: %v", err)
 		return err
 	}
 
-	return s.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
+	var (
+		addr     = appConf.GetEnvConf().GetAddress()
+		certFile = appConf.GetFlag().GetCertificateFile()
+		keyFile  = appConf.GetFlag().GetCertKeyFile()
+	)
+
+	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
 }

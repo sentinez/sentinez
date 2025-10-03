@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/pkg/color"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"go.uber.org/zap"
 )
 

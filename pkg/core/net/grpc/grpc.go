@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 
 	"google.golang.org/grpc"

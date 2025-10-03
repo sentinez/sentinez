@@ -15,12 +15,15 @@
 package httpxf1
 
 import (
+	"crypto/tls"
+
+	"github.com/valyala/fasthttp"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	stdversion "github.com/sentinez/sentinez/pkg/std/version"
+	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -31,6 +34,7 @@ type Server interface {
 	httpx.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
+	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
 // NewServer creates a new fasthttp server instance.
@@ -66,6 +70,8 @@ func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
 		if err := fn(c); err != nil {
 			zlog.Debugf("httpxf1: err=%v", err)
 		}
+
+		c.Release()
 	}
 
 	s.core.Handler = wrapHandler(handler)
@@ -76,9 +82,7 @@ func (s *HTTPServer) Shutdown() error {
 	return s.core.Shutdown()
 }
 
-// ListenAndServe implements platform.Server.
-func (s *HTTPServer) ListenAndServe(addr string) error {
-
+func (s *HTTPServer) initialize(addr string) {
 	stdversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
@@ -90,6 +94,27 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 	)
 
 	s.core.Name = stdversion.Name
+	s.core.NoDefaultContentType = true
+	s.core.DisableKeepalive = false
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
+}
+
+// ListenAndServe implements platform.Server.
+func (s *HTTPServer) ListenAndServe(addr string) error {
+
+	s.initialize(addr)
+
 	return s.core.ListenAndServe(addr)
+}
+
+func (s *HTTPServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
+
+	s.initialize(addr)
+
+	s.core.TLSConfig = &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		NextProtos: []string{"http/1.1"},
+	}
+
+	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
 }

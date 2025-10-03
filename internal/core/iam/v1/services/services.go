@@ -12,22 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package iamservices
+package iamsvc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/go-webauthn/webauthn/protocol"
+	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	stdcrypto "github.com/sentinez/sentinez/pkg/std/crypto"
-	stderr "github.com/sentinez/sentinez/pkg/std/errors"
-	stdperms "github.com/sentinez/sentinez/pkg/std/perms"
+	"github.com/sentinez/sentinez/pkg/passkey"
+	"github.com/sentinez/sentinez/pkg/std/stdcrypto"
+	"github.com/sentinez/sentinez/pkg/std/stderr"
+	"github.com/sentinez/sentinez/pkg/std/stdperms"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -35,22 +42,114 @@ var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
 func New(config *common.AppConfig,
 	tx *postgres.Tx,
+	store passkey.Store,
 	users usersrepo.IUser,
 	account accountrepo.IAccount,
 ) *IAMService {
+
+	wauth := passkey.NewWebAuthn(config)
+
 	return &IAMService{
-		config:   config,
-		tx:       tx,
-		users:    users,
-		accounts: account,
+		config:    config,
+		tx:        tx,
+		users:     users,
+		accounts:  account,
+		dataStore: store,
+		webAuthn:  wauth,
 	}
 }
 
 type IAMService struct {
-	config   *common.AppConfig
-	tx       *postgres.Tx
-	users    usersrepo.IUser
-	accounts accountrepo.IAccount
+	config    *common.AppConfig
+	tx        *postgres.Tx
+	users     usersrepo.IUser
+	accounts  accountrepo.IAccount
+	dataStore passkey.Store
+	webAuthn  *webauthn.WebAuthn
+}
+
+// PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
+func (srv *IAMService) PasskeyLoginFinish(
+	ctx context.Context,
+	req *iam.PasskeyLoginFinishRequest,
+) (*iam.PasskeyLoginFinishResponse, error) {
+	panic("unimplemented")
+}
+
+// PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
+func (srv *IAMService) PasskeyLoginStart(
+	ctx context.Context,
+	req *iam.PasskeyLoginStartRequest,
+) (*iam.PasskeyLoginStartResponse, error) {
+	panic("unimplemented")
+}
+
+// PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
+func (srv *IAMService) PasskeyRegisterFinish(
+	ctx context.Context,
+	req *iam.PasskeyRegisterFinishRequest,
+) (*iam.PasskeyRegisterFinishResponse, error) {
+
+	ssToken := req.GetSessionId()
+
+	session, ok := srv.dataStore.GetSession(ssToken)
+	if !ok {
+		return nil, stderr.InvalidDataF("get session error")
+	}
+
+	user := srv.dataStore.GetUser(string(session.UserID))
+
+	var ccr protocol.CredentialCreationResponse
+	err := json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedCCR, err := ccr.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	credential, err := srv.webAuthn.CreateCredential(user, *session, parsedCCR)
+	if err != nil {
+		return nil, stderr.InvalidDataF("can't finish registration: %v", err)
+	}
+
+	user.AddCredential(credential)
+	srv.dataStore.SaveUser(user)
+	srv.dataStore.DeleteSession(ssToken)
+
+	return &iam.PasskeyRegisterFinishResponse{}, nil
+}
+
+// PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
+func (srv *IAMService) PasskeyRegisterStart(
+	ctx context.Context,
+	req *iam.PasskeyRegisterStartRequest,
+) (*iam.PasskeyRegisterStartResponse, error) {
+
+	user := srv.dataStore.GetUser(req.GetEmailOrUsername())
+
+	opt, ss, err := srv.webAuthn.BeginRegistration(user)
+	if err != nil {
+		return nil, stderr.InternalErrorF("can't begin registration: %v", err)
+	}
+
+	t, err := srv.dataStore.GenSessionID()
+	if err != nil {
+		return nil, stderr.InternalErrorF("can't generate session id: %v", err)
+	}
+
+	srv.dataStore.SaveSession(t, ss)
+
+	pub, _ := json.Marshal(opt)
+	var pbStruct structpb.Struct
+	_ = protojson.Unmarshal(pub, &pbStruct)
+
+	return &iam.PasskeyRegisterStartResponse{
+		Event:     &pbStruct,
+		SessionId: t,
+	}, nil
 }
 
 func (srv *IAMService) Config() *common.EnvConfig {
@@ -157,6 +256,21 @@ func (srv *IAMService) createAccount(ctx context.Context,
 
 	_ = txss.Commit(ctx)
 	return acc.GetId(), nil
+}
+
+func (srv *IAMService) GetAccountByUsernameOrEmail(
+	ctx context.Context, usernameOrEmail string) (*iam.Accounts, error) {
+
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
+	if err != nil {
+		if stderr.Is(err, pgx.ErrNoRows) {
+			return &iam.Accounts{}, nil
+		}
+
+		return nil, err
+	}
+
+	return acc, nil
 }
 
 func (srv *IAMService) Login(ctx context.Context,

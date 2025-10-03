@@ -24,6 +24,8 @@ import "sentinez/std/common/v1/context.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
 
@@ -125,8 +127,77 @@ service IdentityAccessManagementService {
 
     option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
   }
+
+  rpc PasskeyRegisterStart(PasskeyRegisterStartRequest) returns (PasskeyRegisterStartResponse) {
+    option (google.api.http) = {
+      get: "/iam/passkey/register-start",
+    };
+
+    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+  }
+
+  rpc PasskeyRegisterFinish(PasskeyRegisterFinishRequest) returns (PasskeyRegisterFinishResponse) {
+    option (google.api.http) = {
+      post: "/iam/passkey/register-finish",
+      body: "*"
+    };
+
+    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+  }
+
+  rpc PasskeyLoginStart(PasskeyLoginStartRequest) returns (PasskeyLoginStartResponse) {
+    option (google.api.http) = {
+      get: "/iam/passkey/login-start",
+    };
+
+    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+  }
+
+  rpc PasskeyLoginFinish(PasskeyLoginFinishRequest) returns (PasskeyLoginFinishResponse) {
+    option (google.api.http) = {
+      put: "/iam/passkey/login-finish",
+      body: "*"
+    };
+
+    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+  }
 }
 
+message PasskeyLoginFinishRequest {
+
+}
+
+message PasskeyLoginFinishResponse {
+
+}
+
+message PasskeyLoginStartRequest {
+
+}
+
+message PasskeyLoginStartResponse {
+
+}
+
+message PasskeyRegisterFinishRequest {
+  string session_id = 1;
+  bytes credential_creation_response =2;
+}
+
+message PasskeyRegisterFinishResponse {
+
+}
+
+message PasskeyRegisterStartRequest {
+  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
+    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
+  }}];
+}
+
+message PasskeyRegisterStartResponse {
+  google.protobuf.Struct event = 1;
+  string session_id = 2;
+}
 
 message LoginRequest {
   string email_or_username = 1 [(buf.validate.field) = { required: true, string: {

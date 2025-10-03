@@ -23,15 +23,13 @@ import (
 
 func HandlerFunc(path string, handler func(Context) error) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		ctx := Context{
-			req:  r,
-			resp: w,
+		ctx := NewContext(r, w)
+
+		if err := handler(*ctx); err != nil {
+			zlog.Errorf("httpx1: error in path %s: %v", path, err)
 		}
 
-		if err := handler(ctx); err != nil {
-			zlog.Errorf(
-				"httpx1: error in path %s: %v", path, err)
-		}
+		ctx.Release()
 	})
 }
 
@@ -84,9 +82,11 @@ func Convert(handler func(ctx Context) error,
 ) func(resp http.ResponseWriter, req *http.Request) {
 
 	return func(resp http.ResponseWriter, req *http.Request) {
-		ctx := Context{resp: resp, req: req}
-		if err := handler(ctx); err != nil {
+		ctx := NewContext(req, resp)
+		if err := handler(*ctx); err != nil {
 			http.Error(resp, err.Error(), http.StatusInternalServerError)
 		}
+
+		ctx.Release()
 	}
 }

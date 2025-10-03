@@ -17,17 +17,17 @@ package wsz
 import (
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/sentinez/sentinez/pkg/sync"
+	"github.com/sentinez/sentinez/pkg/syncx"
 )
 
 func NewManager() *Manager {
 	return &Manager{
-		clients: sync.NewMap[string, *websocket.Conn](),
+		clients: syncx.NewMap[string, *websocket.Conn](),
 	}
 }
 
 type Manager struct {
-	clients *sync.Map[string, *websocket.Conn]
+	clients *syncx.Map[string, *websocket.Conn]
 }
 
 func (m *Manager) AddClient(id string, conn *websocket.Conn) {

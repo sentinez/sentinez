@@ -54,6 +54,10 @@ func (m *Flag) Validate() error {
 
 	// no validation rules for ProxyConfig
 
+	// no validation rules for CertificateFile
+
+	// no validation rules for CertKeyFile
+
 	return nil
 }
 

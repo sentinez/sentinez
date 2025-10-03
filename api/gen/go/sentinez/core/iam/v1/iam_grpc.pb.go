@@ -33,15 +33,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IdentityAccessManagementService_CreateUser_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateUser"
-	IdentityAccessManagementService_UpdateUser_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/UpdateUser"
-	IdentityAccessManagementService_ListAccounts_FullMethodName  = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListAccounts"
-	IdentityAccessManagementService_ListUsers_FullMethodName     = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListUsers"
-	IdentityAccessManagementService_Status_FullMethodName        = "/sentinez.core.iam.v1.IdentityAccessManagementService/Status"
-	IdentityAccessManagementService_CreateAccount_FullMethodName = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateAccount"
-	IdentityAccessManagementService_GetUser_FullMethodName       = "/sentinez.core.iam.v1.IdentityAccessManagementService/GetUser"
-	IdentityAccessManagementService_DeleteUser_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/DeleteUser"
-	IdentityAccessManagementService_Login_FullMethodName         = "/sentinez.core.iam.v1.IdentityAccessManagementService/Login"
+	IdentityAccessManagementService_CreateUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateUser"
+	IdentityAccessManagementService_UpdateUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/UpdateUser"
+	IdentityAccessManagementService_ListAccounts_FullMethodName          = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListAccounts"
+	IdentityAccessManagementService_ListUsers_FullMethodName             = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListUsers"
+	IdentityAccessManagementService_Status_FullMethodName                = "/sentinez.core.iam.v1.IdentityAccessManagementService/Status"
+	IdentityAccessManagementService_CreateAccount_FullMethodName         = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateAccount"
+	IdentityAccessManagementService_GetUser_FullMethodName               = "/sentinez.core.iam.v1.IdentityAccessManagementService/GetUser"
+	IdentityAccessManagementService_DeleteUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/DeleteUser"
+	IdentityAccessManagementService_Login_FullMethodName                 = "/sentinez.core.iam.v1.IdentityAccessManagementService/Login"
+	IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName  = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterStart"
+	IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterFinish"
+	IdentityAccessManagementService_PasskeyLoginStart_FullMethodName     = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginStart"
+	IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginFinish"
 )
 
 // IdentityAccessManagementServiceClient is the client API for IdentityAccessManagementService service.
@@ -57,6 +61,10 @@ type IdentityAccessManagementServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	PasskeyRegisterStart(ctx context.Context, in *PasskeyRegisterStartRequest, opts ...grpc.CallOption) (*PasskeyRegisterStartResponse, error)
+	PasskeyRegisterFinish(ctx context.Context, in *PasskeyRegisterFinishRequest, opts ...grpc.CallOption) (*PasskeyRegisterFinishResponse, error)
+	PasskeyLoginStart(ctx context.Context, in *PasskeyLoginStartRequest, opts ...grpc.CallOption) (*PasskeyLoginStartResponse, error)
+	PasskeyLoginFinish(ctx context.Context, in *PasskeyLoginFinishRequest, opts ...grpc.CallOption) (*PasskeyLoginFinishResponse, error)
 }
 
 type identityAccessManagementServiceClient struct {
@@ -157,6 +165,46 @@ func (c *identityAccessManagementServiceClient) Login(ctx context.Context, in *L
 	return out, nil
 }
 
+func (c *identityAccessManagementServiceClient) PasskeyRegisterStart(ctx context.Context, in *PasskeyRegisterStartRequest, opts ...grpc.CallOption) (*PasskeyRegisterStartResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PasskeyRegisterStartResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityAccessManagementServiceClient) PasskeyRegisterFinish(ctx context.Context, in *PasskeyRegisterFinishRequest, opts ...grpc.CallOption) (*PasskeyRegisterFinishResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PasskeyRegisterFinishResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityAccessManagementServiceClient) PasskeyLoginStart(ctx context.Context, in *PasskeyLoginStartRequest, opts ...grpc.CallOption) (*PasskeyLoginStartResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PasskeyLoginStartResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginStart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityAccessManagementServiceClient) PasskeyLoginFinish(ctx context.Context, in *PasskeyLoginFinishRequest, opts ...grpc.CallOption) (*PasskeyLoginFinishResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PasskeyLoginFinishResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentityAccessManagementServiceServer is the server API for IdentityAccessManagementService service.
 // All implementations should embed UnimplementedIdentityAccessManagementServiceServer
 // for forward compatibility.
@@ -170,6 +218,10 @@ type IdentityAccessManagementServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	PasskeyRegisterStart(context.Context, *PasskeyRegisterStartRequest) (*PasskeyRegisterStartResponse, error)
+	PasskeyRegisterFinish(context.Context, *PasskeyRegisterFinishRequest) (*PasskeyRegisterFinishResponse, error)
+	PasskeyLoginStart(context.Context, *PasskeyLoginStartRequest) (*PasskeyLoginStartResponse, error)
+	PasskeyLoginFinish(context.Context, *PasskeyLoginFinishRequest) (*PasskeyLoginFinishResponse, error)
 }
 
 // UnimplementedIdentityAccessManagementServiceServer should be embedded to have
@@ -205,6 +257,18 @@ func (UnimplementedIdentityAccessManagementServiceServer) DeleteUser(context.Con
 }
 func (UnimplementedIdentityAccessManagementServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterStart(context.Context, *PasskeyRegisterStartRequest) (*PasskeyRegisterStartResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterStart not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterFinish(context.Context, *PasskeyRegisterFinishRequest) (*PasskeyRegisterFinishResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterFinish not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginStart(context.Context, *PasskeyLoginStartRequest) (*PasskeyLoginStartResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginStart not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginFinish(context.Context, *PasskeyLoginFinishRequest) (*PasskeyLoginFinishResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginFinish not implemented")
 }
 func (UnimplementedIdentityAccessManagementServiceServer) testEmbeddedByValue() {}
 
@@ -388,6 +452,78 @@ func _IdentityAccessManagementService_Login_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityAccessManagementService_PasskeyRegisterStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyRegisterStartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterStart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterStart(ctx, req.(*PasskeyRegisterStartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityAccessManagementService_PasskeyRegisterFinish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyRegisterFinishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterFinish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterFinish(ctx, req.(*PasskeyRegisterFinishRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityAccessManagementService_PasskeyLoginStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyLoginStartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginStart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_PasskeyLoginStart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginStart(ctx, req.(*PasskeyLoginStartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityAccessManagementService_PasskeyLoginFinish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyLoginFinishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginFinish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginFinish(ctx, req.(*PasskeyLoginFinishRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentityAccessManagementService_ServiceDesc is the grpc.ServiceDesc for IdentityAccessManagementService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -430,6 +566,22 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _IdentityAccessManagementService_Login_Handler,
+		},
+		{
+			MethodName: "PasskeyRegisterStart",
+			Handler:    _IdentityAccessManagementService_PasskeyRegisterStart_Handler,
+		},
+		{
+			MethodName: "PasskeyRegisterFinish",
+			Handler:    _IdentityAccessManagementService_PasskeyRegisterFinish_Handler,
+		},
+		{
+			MethodName: "PasskeyLoginStart",
+			Handler:    _IdentityAccessManagementService_PasskeyLoginStart_Handler,
+		},
+		{
+			MethodName: "PasskeyLoginFinish",
+			Handler:    _IdentityAccessManagementService_PasskeyLoginFinish_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

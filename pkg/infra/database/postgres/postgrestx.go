@@ -16,6 +16,9 @@ package postgres
 
 import (
 	"context"
+	"sync"
+
+	"github.com/sentinez/sentinez/pkg/syncx"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
@@ -24,7 +27,9 @@ import (
 )
 
 var (
-	_ database.TxSession = (*TxSession)(nil)
+	_        database.TxSession = (*TxSession)(nil)
+	onceTxSS sync.Once
+	txSSPool *syncx.Pool[TxSession]
 )
 
 func NewTX(conf *common.AppConfig) *Tx {
@@ -38,6 +43,7 @@ func WithTx[T proto.Message](
 
 type Tx struct {
 	conf *common.EnvConfig
+	mock pgx.Tx
 }
 
 func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
@@ -51,15 +57,33 @@ func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
 		return nil, err
 	}
 
-	return &TxSession{tx: tx}, nil
+	onceTxSS.Do(func() {
+		txSSPool = syncx.NewPool[TxSession]()
+	})
+
+	txSS := txSSPool.Get()
+	txSS.tx = tx
+
+	return txSS, nil
+}
+
+func NewTXMock(tx pgx.Tx) *Tx {
+	return &Tx{mock: tx}
 }
 
 type TxSession struct {
 	tx pgx.Tx
 }
 
+func (ts *TxSession) release() {
+	ts.tx = nil
+	txSSPool.Put(ts)
+}
+
 // Commit implements database.Transaction.
 func (ts *TxSession) Commit(ctx context.Context) error {
+	defer ts.release()
+
 	if err := ts.tx.Commit(ctx); err != nil {
 		return err
 	}
@@ -69,6 +93,8 @@ func (ts *TxSession) Commit(ctx context.Context) error {
 
 // Rollback implements database.Transaction.
 func (ts *TxSession) Rollback(ctx context.Context) error {
+	defer ts.release()
+
 	if err := ts.tx.Rollback(ctx); err != nil {
 		return err
 	}

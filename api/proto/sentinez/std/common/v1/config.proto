@@ -21,16 +21,16 @@ import "sentinez/std/common/v1/options.proto";
 import "sentinez/std/common/v1/flags.proto";
 
 message EnvConfig {
-    string hostname = 1;
-    string address = 2;
-    string secret_key = 3;
-    string gateway_addr = 4;
+  string hostname = 1;
+  string address = 2;
+  string secret_key = 3;
+  string gateway_addr = 4;
+  string passkey_origin = 5;
 
-
-    string timescale_uri = 10;
-    string postgres_uri = 11;
-    string clickhouse_uri = 12;
-    string consul_uri = 13;
+  string timescale_uri = 10;
+  string postgres_uri = 11;
+  string clickhouse_uri = 12;
+  string consul_uri = 13;
 }
 
 message AppConfig {

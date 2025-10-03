@@ -27,7 +27,7 @@ func ProtectedWithCallback(
 	cb func(*httpxf1.Context, types.Transaction),
 ) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 
-	waf, err := rules.NewWAF(ruleBasePath)
+	waf, err := rules.NewWAF(rules.Ver4_16_0, ruleBasePath)
 	if err != nil {
 		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
 		return nil
