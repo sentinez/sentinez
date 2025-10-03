@@ -17,12 +17,13 @@ package httpxf1
 import (
 	"crypto/tls"
 
+	"github.com/valyala/fasthttp"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/std/stdversion"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/valyala/fasthttp"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -110,16 +111,10 @@ func (s *HTTPServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
 
 	s.initialize(addr)
 
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		return err
-	}
-
 	s.core.TLSConfig = &tls.Config{
-		MinVersion:   tls.VersionTLS12,
-		NextProtos:   []string{"http/1.1", "h2"},
-		Certificates: []tls.Certificate{cert},
+		MinVersion: tls.VersionTLS12,
+		NextProtos: []string{"http/1.1"},
 	}
 
-	return s.core.ListenAndServeTLS(addr, "", "")
+	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
 }
