@@ -12,32 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxf1mdw
+package httpxhzmdw
 
 import (
 	"github.com/corazawaf/coraza/v3/types"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	httpfsec "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/sec"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	httpxhzsec "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/sec"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/sentinez/sentinez/rules"
 )
 
 func ProtectedWithCallback(
 	ruleBasePath string,
-	cb func(*httpxf1.Context, types.Transaction),
-) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
+	cb func(*httpxhz.Context, types.Transaction),
+) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
 
-	waf, err := rules.NewWAF(rules.Ver4_16_0, ruleBasePath)
+	flag := rules.ReqAppAttackRCE
+
+	waf, err := rules.NewWAF(rules.Ver4_16_0, ruleBasePath, flag)
 	if err != nil {
-		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
+		zlog.Errorf("[httpxhzsec] failed to create WAF: %v", err)
 		return nil
 	}
 
 	if waf != nil {
-		zlog.Info("[httpxf1] WAF initialized successfully")
+		zlog.Info("[httpxhzsec] WAF initialized successfully")
 	}
 
-	return func(next httpxf1.RequestHandler) httpxf1.RequestHandler {
-		return httpfsec.WrapHandlerWithCallback(waf, next, cb)
+	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
+		return httpxhzsec.WrapHandlerWithCallback(waf, next, cb)
 	}
 }

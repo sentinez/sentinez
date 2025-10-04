@@ -19,12 +19,12 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/internal/websocket/manager"
-	httpx1 "github.com/sentinez/sentinez/pkg/core/net/httpx/h1"
+	httpxstd "github.com/sentinez/sentinez/pkg/core/net/httpx/std"
 	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func Handler(ctx httpx1.Context) error {
+func Handler(ctx httpxstd.Context) error {
 	conn, err := ctx.Upgrade()
 	if err != nil {
 		zlog.Errorf("wshandlers.Handler upgrade error: %v", err)

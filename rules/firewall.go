@@ -20,8 +20,10 @@ import (
 	"github.com/corazawaf/coraza/v3"
 )
 
-func NewWAF(version Version, ruleBasePath string) (coraza.WAF, error) {
-	rule := Load(version)
+func NewWAF(version Version,
+	ruleBasePath string, rulesetsFlag RulesetsFlag) (coraza.WAF, error) {
+
+	rule := Load(version, rulesetsFlag)
 
 	rootFS := os.DirFS(ruleBasePath)
 	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)

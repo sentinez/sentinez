@@ -14,10 +14,12 @@
 
 package httpx
 
+import "context"
+
 // Server is the interface that provides the basic methods for an HTTP server.
 type Server interface {
 	ListenAndServe(addr string) error
-	Shutdown() error
+	Shutdown(ctx context.Context) error
 }
 
 // Context is the interface that wraps the basic methods for an HTTP context.

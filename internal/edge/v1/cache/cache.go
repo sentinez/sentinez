@@ -18,7 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 )
 
 var staticExts = map[string]struct{}{
@@ -33,8 +33,8 @@ func IsStaticAsset(pathStr string) bool {
 	return ok
 }
 
-func HeaderCacheControl(next httpxf1.RequestHandler) httpxf1.RequestHandler {
-	return func(ctx *httpxf1.Context) error {
+func HeaderCacheControl(next httpxhz.RequestHandler) httpxhz.RequestHandler {
+	return func(ctx *httpxhz.Context) error {
 		err := next(ctx)
 
 		if IsStaticAsset(string(ctx.Path())) {

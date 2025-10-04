@@ -18,31 +18,31 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func WriterHandler(next httpxf1.RequestHandler) httpxf1.RequestHandler {
+func WriterHandler(next httpxhz.RequestHandler) httpxhz.RequestHandler {
 	logger := zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
 		zlog.LevelInfo,
 	)
 
-	return func(ctx *httpxf1.Context) error {
+	return func(ctx *httpxhz.Context) error {
 		requestResourceHost := string(ctx.Host())
 
 		err := next(ctx)
 
 		logger.Info("edge http request", &http.Log4HTTP{
-			ReqId:         httpxf1.GetContextIdentify(ctx),
+			ReqId:         httpxhz.GetContextIdentify(ctx),
 			Scheme:        string(ctx.URI().Scheme()),
 			Host:          requestResourceHost,
-			Path:          string(ctx.Path()),
+			Path:          ctx.Path(),
 			Method:        string(ctx.Method()),
 			Status:        int32(ctx.Response.StatusCode()),
 			RemoteAddress: ctx.RemoteAddr().String(),
-			Protocol:      string(ctx.Request.Header.Protocol()),
+			Protocol:      ctx.Request.Header.GetProtocol(),
 			Query:         ctx.QueryArgs().String(),
 			UserAgent:     string(ctx.UserAgent()),
 		})

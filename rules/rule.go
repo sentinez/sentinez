@@ -23,7 +23,7 @@ import (
 	rules "github.com/sentinez/sentinez/rules/gen"
 )
 
-func Load(version Version) string {
+func Load(version Version, rulesetsFlag RulesetsFlag) string {
 	var rulesets = &RuleLoader{}
 
 	// load setup rules
@@ -35,10 +35,10 @@ func Load(version Version) string {
 	// load core rulesets
 	switch version {
 	case Ver4_16_0:
-		R4160(rulesets)
+		R4160(rulesets, rulesetsFlag)
 	}
 
-	// load extension rules
+	//load extension rules
 	rulesets.Load(rules.AuditOrder)
 	rulesets.Load(rules.DefaultOrder)
 

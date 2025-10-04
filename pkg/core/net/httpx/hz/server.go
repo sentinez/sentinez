@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxf1
+package httpxhz
 
 import (
 	"context"
 	"crypto/tls"
-
-	"github.com/valyala/fasthttp"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
+	"github.com/hertz-contrib/http2/factory"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/color"
@@ -38,20 +41,20 @@ type Server interface {
 	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
-// NewServer creates a new fasthttp server instance.
+// NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
 func NewServer(meta *common.SntzMeta) Server {
 	return &HTTPServer{
-		core: &fasthttp.Server{},
 		meta: meta,
 	}
 }
 
 // HTTPServer implements the Server interface.
 type HTTPServer struct {
-	core   *fasthttp.Server
 	chains []func(RequestHandler) RequestHandler
 	meta   *common.SntzMeta
+	hdl    app.HandlerFunc
+	core   *server.Hertz
 }
 
 // Use implements Server.
@@ -61,61 +64,101 @@ func (s *HTTPServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
 
 func (s *HTTPServer) Handle(fn func(ctx *Context) error) {
 
-	handler := func(ctx *fasthttp.RequestCtx) {
-		c := NewContext(ctx)
+	handler := func(c context.Context, ctx *app.RequestContext) {
+		inCtx := NewContext(c, ctx)
 
 		for i := len(s.chains) - 1; i >= 0; i-- {
 			fn = s.chains[i](fn)
 		}
 
-		if err := fn(c); err != nil {
-			zlog.Debugf("httpxf1: err=%v", err)
+		if err := fn(inCtx); err != nil {
+			zlog.Debugf("httpxhz: err=%v", err)
 		}
 
-		c.Release()
+		inCtx.Release()
 	}
 
-	s.core.Handler = wrapHandler(handler)
+	s.hdl = WrapHandler(handler)
 }
 
 // Shutdown implements platform.Server.
-func (s *HTTPServer) Shutdown(_ context.Context) error {
-	return s.core.Shutdown()
+func (s *HTTPServer) Shutdown(ctx context.Context) error {
+	if s.core == nil {
+		return nil
+	}
+
+	return s.core.Shutdown(ctx)
 }
 
-func (s *HTTPServer) initialize(addr string) {
+func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
+	var certificates []tls.Certificate
+	if certFile != "" && keyFile != "" {
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			return nil, err
+		}
+
+		certificates = []tls.Certificate{cert}
+	}
+
+	return &tls.Config{
+		Certificates: certificates,
+		MinVersion:   tls.VersionTLS12,
+		NextProtos:   []string{"h2", "http/1.1"},
+	}, nil
+}
+
+func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
 	stdversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
 
 	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("fasthttp"),
+		color.Blue.Add("https"),
 		color.Magenta.Add(addr),
 	)
 
+	hlog.SetLevel(hlog.LevelError)
+
+	tlsConf, err := s.TLS(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+
+	s.core = server.Default(
+		server.WithHostPorts(addr),
+		server.WithTLS(tlsConf),
+		server.WithStreamBody(true),
+		server.WithTraceLevel(stats.LevelDisabled),
+		server.WithALPN(true),
+		server.WithH2C(true),
+	)
+
+	// register http2 server factory
+	s.core.AddProtocol("h2", factory.NewServerFactory())
+
+	s.core.NoRoute(s.hdl)
 	s.core.Name = stdversion.Name
-	s.core.NoDefaultContentType = true
-	s.core.DisableKeepalive = false
-	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)
+
+	return nil
 }
 
 // ListenAndServe implements platform.Server.
 func (s *HTTPServer) ListenAndServe(addr string) error {
 
-	s.initialize(addr)
+	if err := s.initialize(addr, "", ""); err != nil {
+		return err
+	}
 
-	return s.core.ListenAndServe(addr)
+	return s.core.Run()
 }
 
 func (s *HTTPServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
 
-	s.initialize(addr)
-
-	s.core.TLSConfig = &tls.Config{
-		MinVersion: tls.VersionTLS12,
-		NextProtos: []string{"http/1.1"},
+	if err := s.initialize(addr, certFile, keyFile); err != nil {
+		return err
 	}
 
-	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
+	return s.core.Run()
 }

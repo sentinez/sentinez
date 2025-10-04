@@ -17,16 +17,16 @@ package secure
 import (
 	"strings"
 
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 )
 
 func DomainHandler(hostname string,
-) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
+) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
 
-	return func(next httpxf1.RequestHandler) httpxf1.RequestHandler {
-		return func(ctx *httpxf1.Context) error {
+	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
+		return func(ctx *httpxhz.Context) error {
 			if !isValidSingleLevelSubdomain(string(ctx.Host()), hostname) {
-				httpxf1.Forbidden(ctx)
+				httpxhz.Forbidden(ctx)
 				return nil
 			}
 

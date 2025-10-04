@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpx1
+package httpxstd
 
 import (
 	"io"
@@ -26,7 +26,7 @@ func HandlerFunc(path string, handler func(Context) error) {
 		ctx := NewContext(r, w)
 
 		if err := handler(*ctx); err != nil {
-			zlog.Errorf("httpx1: error in path %s: %v", path, err)
+			zlog.Errorf("httpxstd: error in path %s: %v", path, err)
 		}
 
 		ctx.Release()
@@ -49,7 +49,7 @@ func Do(ctx Context, uri string) error {
 	req, err := http.NewRequestWithContext(
 		ctx.req.Context(), ctx.req.Method, uri, ctx.req.Body)
 	if err != nil {
-		zlog.Errorf("httpx1: failed to create request: %v", err)
+		zlog.Errorf("httpxstd: failed to create request: %v", err)
 		return err
 	}
 	for name, values := range ctx.req.Header {
@@ -60,7 +60,7 @@ func Do(ctx Context, uri string) error {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		zlog.Errorf("httpx1: failed to perform request: %v", err)
+		zlog.Errorf("httpxstd: failed to perform request: %v", err)
 		return err
 	}
 	defer func() { _ = resp.Body.Close() }()
@@ -72,7 +72,7 @@ func Do(ctx Context, uri string) error {
 		}
 	}
 	if _, err := io.Copy(ctx.resp, resp.Body); err != nil {
-		zlog.Errorf("httpx1: failed to copy response body: %v", err)
+		zlog.Errorf("httpxstd: failed to copy response body: %v", err)
 		return err
 	}
 	return nil

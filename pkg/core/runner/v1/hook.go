@@ -34,9 +34,10 @@ func OnStart(start any) {
 						if err := fn(ctx); err != nil {
 							if stderr.Is(err, stderr.ErrServerClosed) {
 								logging.Infof("[runner] %+v", err)
-							} else {
-								logging.Fatalf("[runner] %+v", err)
 							}
+							//else {
+							//	logging.Fatalf("[runner] %+v", err)
+							//}
 						}
 					}()
 
@@ -50,7 +51,6 @@ func OnStart(start any) {
 	}
 }
 
-// UseAfter adds a hook to be executed after the application has stopped.
 func OnStop(stop func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{

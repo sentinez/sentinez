@@ -116,10 +116,10 @@ func SetupMaker_0() *waf.Rule {
 func SetupMaker_1() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT2Zm",
 			Fields:    &waf.RuleActionField{},
 		},
-		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT24=",
+		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT2Zm",
 		Level:         "",
 	}
 }
@@ -200,10 +200,10 @@ func R900100() *waf.Rule {
 func R900110() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01LFwKICAgc2V0dmFyOnR4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfdGhyZXNob2xkPTQi",
-			Fields:    &waf.RuleActionField{Id: []string{"900110"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.inbound_anomaly_score_threshold=5", "tx.outbound_anomaly_score_threshold=4"}},
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD0xMCxcCiAgIHNldHZhcjp0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01Ig==",
+			Fields:    &waf.RuleActionField{Id: []string{"900110"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.inbound_anomaly_score_threshold=10", "tx.outbound_anomaly_score_threshold=5"}},
 		},
-		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01LFwKICAgc2V0dmFyOnR4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfdGhyZXNob2xkPTQi",
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD0xMCxcCiAgIHNldHZhcjp0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01Ig==",
 		Level:         "",
 	}
 }
@@ -440,10 +440,10 @@ func SetupMaker_27() *waf.Rule {
 func R900990() *waf.Rule {
 	return &waf.Rule{
 		Actions: &waf.RuleAction{
-			Statement: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
+			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk5MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
 			Fields:    &waf.RuleActionField{Id: []string{"900990"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_setup_version=400"}},
 		},
-		Configuration: "U2VjQWN0aW9uIFwKICAgICJpZDo5MDA5OTAsXAogICAgcGhhc2U6MSxcCiAgICBwYXNzLFwKICAgIHQ6bm9uZSxcCiAgICBub2xvZyxcCiAgICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
+		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk5MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
 		Level:         "",
 	}
 }
