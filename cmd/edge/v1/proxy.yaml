@@ -2,8 +2,9 @@ proxy:
   namespace: dev
   routes:
     - match_prefix: /
-      target: vneconomy.vn
-      
+#      target: https://vneconomy.vn
+      target: http://badcheese.com/
+
     # - match_prefix: /v1
     #   target: localhost:3000
     #   rewrite: /v1

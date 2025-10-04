@@ -20,10 +20,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	"github.com/sentinez/sentinez/pkg/core/net/httpx/f1/prxhttp"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/core/net/httpx/hz/proxy"
 	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/sentinez/sentinez/pkg/syncx"
@@ -32,7 +31,7 @@ import (
 var (
 	dynamic   *syncx.Map[string, string]
 	rewrite   *syncx.Map[string, string]
-	proxyInst *prxhttp.Proxy
+	proxyInst *proxy.ReverseProxy
 	once      sync.Once
 )
 
@@ -46,7 +45,7 @@ func init() {
 }
 
 func (r *Router) Store(
-	proxy *prxhttp.Proxy, config *edgeyaml.Config) *Router {
+	proxy *proxy.ReverseProxy, config *edgeyaml.Config) *Router {
 
 	proxyInst = proxy
 
@@ -77,8 +76,8 @@ func (r *Router) Store(
 	return &Router{}
 }
 
-func Serve(edgeYml *edgeyaml.Config, conf *common.AppConfig, server httpxf1.Server) error {
-	proxyInst, err := prxhttp.New(conf)
+func Serve(edgeYml *edgeyaml.Config, server httpxhz.Server) error {
+	reverseProxy, err := proxy.NewReverseProxy()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 		return err
@@ -86,15 +85,15 @@ func Serve(edgeYml *edgeyaml.Config, conf *common.AppConfig, server httpxf1.Serv
 
 	r := &Router{}
 
-	handler := r.Store(proxyInst, edgeYml).Match()
+	handler := r.Store(reverseProxy, edgeYml).Match()
 
 	server.Handle(handler)
 
 	return nil
 }
 
-func (r *Router) Match() func(ctx *httpxf1.Context) error {
-	return func(ctx *httpxf1.Context) error {
+func (r *Router) Match() func(ctx *httpxhz.Context) error {
+	return func(ctx *httpxhz.Context) error {
 		zlog.Debugf("[edge] request host: %s", string(ctx.Host()))
 
 		if proxyInst == nil {
@@ -108,16 +107,13 @@ func (r *Router) Match() func(ctx *httpxf1.Context) error {
 			return ctx.String(http.StatusNotFound, "not found")
 		}
 
-		if err := proxyInst.ServeHTTP(ctx, target); err != nil {
-			zlog.Error("[edge] routing proxy error: ", err)
-			return ctx.String(http.StatusInternalServerError, err.Error())
-		}
+		proxyInst.Serve(ctx, target)
 
 		return nil
 	}
 }
 
-func match(ctx *httpxf1.Context) (string, error) {
+func match(ctx *httpxhz.Context) (string, error) {
 	path := ctx.Path()
 	matchPrefix := prefixPath(path)
 	origin := ""
@@ -141,10 +137,8 @@ func match(ctx *httpxf1.Context) (string, error) {
 		return target, nil
 	}
 
-	if origin == "" {
-		if origin, ok = dynamic.Load("/"); ok {
-			return origin, nil
-		}
+	if origin, ok = dynamic.Load("/"); ok {
+		return origin, nil
 	}
 
 	return "", stderr.F("not found: %s", path)

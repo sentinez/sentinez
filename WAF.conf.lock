@@ -39,8 +39,8 @@ SecAction \
    pass,\
    t:none,\
    nolog,\
-   setvar:tx.inbound_anomaly_score_threshold=5,\
-   setvar:tx.outbound_anomaly_score_threshold=4"
+   setvar:tx.inbound_anomaly_score_threshold=10,\
+   setvar:tx.outbound_anomaly_score_threshold=5"
 SecAction \
    "id:900115,\
    phase:1,\
@@ -168,12 +168,12 @@ SecAction \
    setvar:tx.crs_validate_utf8_encoding=1"
 SecCollectionTimeout 600
 SecAction \
-    "id:900990,\
-    phase:1,\
-    pass,\
-    t:none,\
-    nolog,\
-    setvar:tx.crs_setup_version=400"
+   "id:900990,\
+   phase:1,\
+   pass,\
+   t:none,\
+   nolog,\
+   setvar:tx.crs_setup_version=400"
 SecComponentSignature "OWASP_CRS/4.16.0-dev"
 SecRule &TX:crs_setup_version "@eq 0" \
     "id:901001,\

@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 
 	_ "net/http/pprof"
@@ -40,7 +40,7 @@ func main() {
 		conf := runner.GetAppConfig(ctx)
 		yamlconf := edgeyaml.LoadRouteConfig(conf.GetFlag().GetProxyConfig())
 
-		httpSrv := httpxf1.NewServer(conf.GetMeta())
+		httpSrv := httpxhz.NewServer(conf.GetMeta())
 		edgeServer := edge.New(httpSrv, yamlconf)
 
 		runner.OnStart(edgeServer.Start)

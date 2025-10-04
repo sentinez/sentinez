@@ -1,5 +1,4 @@
 // Copyright 2025 Sentinez Labs.
-// Copyright 2022 Juan Pablo Tosso and the OWASP Coraza contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpfsec
+package httpxhzsec
 
 import (
 	"net/http"
 
 	"github.com/corazawaf/coraza/v3/types"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
@@ -31,15 +30,14 @@ type interceptor struct {
 	proto       string
 }
 
-func (i *interceptor) WriteResponseHeader(ctx *httpxf1.Context) {
+func (i *interceptor) WriteResponseHeader(ctx *httpxhz.Context) {
 	if i.wroteHeader {
 		zlog.Debug("httpx.secure.http2: skip writing header")
 		return
 	}
 
-	ctx.Response.Header.All()(func(k, v []byte) bool {
+	ctx.Response.Header.VisitAll(func(k, v []byte) {
 		i.tx.AddResponseHeader(string(k), string(v))
-		return true
 	})
 
 	if it := i.tx.ProcessResponseHeaders(
@@ -51,7 +49,7 @@ func (i *interceptor) WriteResponseHeader(ctx *httpxf1.Context) {
 }
 
 func (i *interceptor) WriteResponseBody(
-	ctx *httpxf1.Context) (*types.Interruption, error) {
+	ctx *httpxhz.Context) (*types.Interruption, error) {
 	if i.tx.IsInterrupted() {
 		return nil, nil
 	}
@@ -85,6 +83,8 @@ func obtainStatusCodeFromInterruptionOrDefault(
 	if it == nil {
 		return defaultStatusCode
 	}
+
+	zlog.Debugf("httpxhz: interuption action: %s", it.Action)
 
 	if it.Status != 0 {
 		return it.Status

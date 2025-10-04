@@ -19,13 +19,13 @@ import (
 	"context"
 
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 // New creates a new Edge Server instance.
-func New(server httpxf1.Server, yaml *edgeyaml.Config) *Server {
+func New(server httpxhz.Server, yaml *edgeyaml.Config) *Server {
 	return &Server{
 		core: server,
 		yaml: yaml,
@@ -36,14 +36,14 @@ func New(server httpxf1.Server, yaml *edgeyaml.Config) *Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core httpxf1.Server
+	core httpxhz.Server
 	yaml *edgeyaml.Config
 }
 
 // Shutdown implements v1.Server.
-func (s *Server) Shutdown(_ context.Context) error {
+func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-	return s.core.Shutdown()
+	return s.core.Shutdown(ctx)
 }
 
 // Start implements v1.Server.
