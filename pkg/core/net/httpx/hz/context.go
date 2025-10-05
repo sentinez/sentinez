@@ -60,7 +60,7 @@ type Context struct {
 }
 
 func (c *Context) Time() time.Time {
-	t, ok := c.ctx.Value(sntzRequestTimeKey).(time.Time)
+	t, ok := c.ctx.Value(sntzRequestHTTPTimeKey).(time.Time)
 	if ok {
 		return t
 	}
@@ -104,12 +104,12 @@ func (c *Context) String(statusCode int, body string) error {
 
 func setIdentifier(ctx context.Context) context.Context {
 	id := uuid.NewHex("SNTZREQ")
-	ctx = context.WithValue(ctx, sntzRequestTimeKey, time.Now())
-	return context.WithValue(ctx, sntzRequestKey, id)
+	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now())
+	return context.WithValue(ctx, sntzRequestHTTPIDKey, id)
 }
 
 func GetContextIdentify(ctx *Context) string {
-	res, ok := ctx.ctx.Value(sntzRequestKey).(string)
+	res, ok := ctx.ctx.Value(sntzRequestHTTPIDKey).(string)
 	if !ok {
 		return ""
 	}

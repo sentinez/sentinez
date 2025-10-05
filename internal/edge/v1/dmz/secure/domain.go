@@ -17,6 +17,7 @@ package secure
 import (
 	"strings"
 
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 )
 
@@ -25,25 +26,39 @@ func DomainHandler(hostname string,
 
 	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
 		return func(ctx *httpxhz.Context) error {
-			if !isValidSingleLevelSubdomain(string(ctx.Host()), hostname) {
+			ns, ok := isValidSingleLevelSubdomain(string(ctx.Host()), hostname)
+			if !ok {
 				httpxhz.Forbidden(ctx)
 				return nil
 			}
+
+			ctxValue, ok := httpxhz.GetRequestContext(ctx)
+			if !ok {
+				ctxValue = &common.HTTPContext{}
+			}
+
+			ctxValue.TenantNs = ns
+
+			ctx = httpxhz.SetRequestContext(ctx, ctxValue)
 
 			return next(ctx)
 		}
 	}
 }
 
-func isValidSingleLevelSubdomain(subdomain, root string) bool {
+func isValidSingleLevelSubdomain(subdomain, root string) (string, bool) {
 	subLabels := strings.Split(subdomain, ".")
 	rootLabels := strings.Split(root, ".")
 
 	if len(subLabels) != len(rootLabels)+1 {
-		return false
+		return "", false
 	}
 
 	rootMatch := strings.Join(subLabels[len(subLabels)-len(rootLabels):], ".")
 	rootMatch = strings.Split(rootMatch, ":")[0]
-	return rootMatch == root
+	if rootMatch == root {
+		return subLabels[0], true
+	}
+
+	return "", false
 }
