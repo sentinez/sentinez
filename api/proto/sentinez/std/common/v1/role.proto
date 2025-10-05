@@ -19,7 +19,6 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common
 
 import "google/protobuf/descriptor.proto";
 
-
 enum Role {
   ROLE_UNSPECIFIED = 0;
   ROLE_CUSTOMER = 1;

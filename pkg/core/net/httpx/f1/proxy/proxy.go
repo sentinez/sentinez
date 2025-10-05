@@ -34,7 +34,10 @@ func factory(appConf *common.AppConfig) proxy.Factory {
 		return proxy.NewReverseProxyWith(
 			proxy.WithAddress(hostAddr),
 			proxy.WithTimeout(10*time.Second),
-			proxy.WithTLS(appConf.GetFlag().GetCertificateFile(), appConf.GetFlag().GetCertKeyFile()),
+			proxy.WithTLS(
+				appConf.GetFlag().GetCertificateFile(),
+				appConf.GetFlag().GetCertKeyFile(),
+			),
 		)
 	}
 }

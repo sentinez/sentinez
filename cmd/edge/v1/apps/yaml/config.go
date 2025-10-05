@@ -22,7 +22,7 @@ import (
 )
 
 type Config struct {
-	Proxy ProxyConfig `yaml:"proxy"`
+	ReverseProxies []ProxyConfig `yaml:"reverse_proxies"`
 }
 
 type ProxyConfig struct {

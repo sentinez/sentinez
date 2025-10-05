@@ -25,31 +25,35 @@ import (
 type SentinezContextKey string
 
 const (
-	contextKey         SentinezContextKey = "sntz.ctx.none"
-	sntzRequestKey     SentinezContextKey = "sntz.ctx.request.key"
-	sntzRequestTimeKey SentinezContextKey = "sntz.ctx.request.time"
+	sntzRequestHTTPCtxKey  SentinezContextKey = "sntz.ctx.request.http"
+	sntzRequestHTTPIDKey   SentinezContextKey = "sntz.ctx.request.id"
+	sntzRequestHTTPTimeKey SentinezContextKey = "sntz.ctx.request.time"
 )
 
-// NewCtxValue returns a new context with the given message
-func NewCtxValue(msg *common.Context) context.Context {
+// SetRequestContext returns a new context with the given message
+func SetRequestContext(parent *Context, msg *common.HTTPContext) *Context {
 	if msg == nil {
-		msg = &common.Context{}
+		msg = &common.HTTPContext{}
 	}
 
-	ctx := context.Background()
+	if parent == nil {
+		return nil
+	}
+
 	msgBin, _ := proto.Marshal(msg)
 
-	return context.WithValue(ctx, contextKey, msgBin)
+	parent.ctx = context.WithValue(parent.ctx, sntzRequestHTTPCtxKey, msgBin)
+	return parent
 }
 
-// Value returns the context value.
-func Value(ctx context.Context) (*common.Context, bool) {
-	msgBin, ok := ctx.Value(contextKey).([]byte)
+// GetRequestContext returns the context value.
+func GetRequestContext(rctx *Context) (*common.HTTPContext, bool) {
+	msgBin, ok := rctx.ctx.Value(sntzRequestHTTPCtxKey).([]byte)
 	if !ok {
 		return nil, false
 	}
 
-	var msg common.Context
+	var msg common.HTTPContext
 	if err := proto.Unmarshal(msgBin, &msg); err != nil {
 		return nil, false
 	}

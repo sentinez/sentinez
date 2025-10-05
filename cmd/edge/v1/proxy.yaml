@@ -1,13 +1,24 @@
-proxy:
-  namespace: dev
-  routes:
-    - match_prefix: /
-#      target: https://vneconomy.vn
-      target: http://badcheese.com/
+reverse_proxies:
+  - namespace: badcheese
+    routes:
+      - match_prefix: /
+        target: http://badcheese.com/
 
-    # - match_prefix: /v1
-    #   target: localhost:3000
-    #   rewrite: /v1
+      # - match_prefix: /v1
+      #   target: http://localhost:3000
+      #   rewrite: /v1
 
-    # - match_prefix: /api
-    #   target: localhost:8080
+      # - match_prefix: /api
+      #   target: localhost:8080
+
+  - namespace: dev
+    routes:
+      - match_prefix: /
+        target: https://vneconomy.vn
+
+      # - match_prefix: /v1
+      #   target: http://localhost:3000
+      #   rewrite: /v1
+
+      # - match_prefix: /api
+      #   target: localhost:8080

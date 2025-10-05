@@ -15,9 +15,6 @@
 package secure
 
 import (
-	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	httpxhzmdw "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/mdw"
-	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"strconv"
 	"time"
 
@@ -25,7 +22,13 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
+	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	"github.com/sentinez/sentinez/internal/edge/v1/cache/rulesets"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	httpxhzsec "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/sec"
+	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/rules"
 )
 
 var (
@@ -33,7 +36,7 @@ var (
 	cached *mem.Cache[[]byte]
 )
 
-func WAFHandler(rulePath string,
+func WAFHandler(edgeYml *edgeyaml.Config, appConf *common.AppConfig,
 ) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
 	logger = zlog.NewLoggingJSON(
 		edge.GetMetaEdgeServiceKey(),
@@ -41,10 +44,37 @@ func WAFHandler(rulePath string,
 		zlog.LevelInfo,
 	)
 
+	rulesetsFlag := rules.ReqAppAttackRCE
+	for _, proxy := range edgeYml.ReverseProxies {
+		err := rulesets.Store(appConf, proxy.Namespace, rulesetsFlag)
+		if err != nil {
+			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
+		}
+	}
+
 	cached = mem.New[[]byte](time.Second*30, time.Second*31)
 
-	protected := httpxhzmdw.ProtectedWithCallback(rulePath, rulesCallback)
-	return protected
+	return ProtectedWithCallback(rulesCallback)
+}
+
+func ProtectedWithCallback(cb func(*httpxhz.Context, types.Transaction),
+) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
+
+	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
+		return func(ctx *httpxhz.Context) error {
+
+			hCtx, ok := httpxhz.GetRequestContext(ctx)
+			if !ok {
+				return next(ctx)
+			}
+
+			waf := rulesets.Load(hCtx.GetTenantNs())
+			zlog.Debugf("[edge] hit namespace %s", hCtx.GetTenantNs())
+			nx := httpxhzsec.WrapHandlerWithCallback(waf, next, cb)
+
+			return nx(ctx)
+		}
+	}
 }
 
 // nolint:funlen

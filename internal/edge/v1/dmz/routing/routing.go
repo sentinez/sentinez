@@ -16,6 +16,7 @@
 package routing
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -44,39 +45,50 @@ func init() {
 	})
 }
 
+func key(ns, prefix string) string {
+	return fmt.Sprintf("%s|%s", ns, prefix)
+
+}
+
 func (r *Router) Store(
 	proxy *proxy.ReverseProxy, config *edgeyaml.Config) *Router {
 
 	proxyInst = proxy
 
-	for _, routeConfig := range config.Proxy.Routes {
-		zlog.Debugf(
-			"[edge] routing store: %s -> %s (rewrite: %s)",
-			routeConfig.MatchPrefix, routeConfig.Target, routeConfig.Rewrite,
-		)
-
-		target, ok := dynamic.Load(routeConfig.MatchPrefix)
-		if ok && target != "" {
-			zlog.Warnf(
-				"[edge] duplicate prefix: %s -> %s (new: %s), ignoring",
-				routeConfig.MatchPrefix, target, routeConfig.Target,
+	for _, proxy := range config.ReverseProxies {
+		for _, routeConfig := range proxy.Routes {
+			zlog.Debugf(
+				"[edge] routing store: ns=%s prefix=%s -> %s (rewrite: %s)",
+				proxy.Namespace, routeConfig.MatchPrefix,
+				routeConfig.Target, routeConfig.Rewrite,
 			)
 
-			continue
-		}
+			target, ok := dynamic.Load(routeConfig.MatchPrefix)
+			if ok && target != "" {
+				zlog.Warnf(
+					"[edge] duplicate prefix: %s -> %s (new: %s), ignoring",
+					routeConfig.MatchPrefix, target, routeConfig.Target,
+				)
 
-		if routeConfig.Rewrite == "" {
-			routeConfig.Rewrite = routeConfig.MatchPrefix
-		}
+				continue
+			}
 
-		dynamic.Store(routeConfig.MatchPrefix, routeConfig.Target)
-		rewrite.Store(routeConfig.MatchPrefix, routeConfig.Rewrite)
+			if routeConfig.Rewrite == "" {
+				routeConfig.Rewrite = routeConfig.MatchPrefix
+			}
+
+			k := key(proxy.Namespace, routeConfig.MatchPrefix)
+
+			dynamic.Store(k, routeConfig.Target)
+			rewrite.Store(k, routeConfig.Rewrite)
+		}
 	}
 
 	return &Router{}
 }
 
 func Serve(edgeYml *edgeyaml.Config, server httpxhz.Server) error {
+
 	reverseProxy, err := proxy.NewReverseProxy()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)
@@ -114,20 +126,27 @@ func (r *Router) Match() func(ctx *httpxhz.Context) error {
 }
 
 func match(ctx *httpxhz.Context) (string, error) {
+	hCtx, ok := httpxhz.GetRequestContext(ctx)
+	if !ok || hCtx.GetTenantNs() == "" {
+		return "", stderr.F("unknown namespace of request")
+	}
+
+	origin := ""
 	path := ctx.Path()
 	matchPrefix := prefixPath(path)
-	origin := ""
+	k := key(hCtx.GetTenantNs(), matchPrefix)
+	defaultKey := key(hCtx.TenantNs, "/")
 
-	rewritePrefix, ok := rewrite.Load(matchPrefix)
+	rewritePrefix, ok := rewrite.Load(k)
 	if !ok || rewritePrefix == "" {
 		rewritePrefix = matchPrefix
 	}
 
-	target, ok := dynamic.Load(matchPrefix)
+	target, ok := dynamic.Load(k)
 	if ok {
 		zlog.Debugf(
-			"[edge] routing match: %s -> %s (prefix: %s)",
-			rewritePrefix, target, matchPrefix,
+			"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
+			hCtx.GetTenantNs(), rewritePrefix, target, matchPrefix,
 		)
 
 		remainingPath := strings.TrimPrefix(path, matchPrefix) + rewritePrefix
@@ -137,7 +156,7 @@ func match(ctx *httpxhz.Context) (string, error) {
 		return target, nil
 	}
 
-	if origin, ok = dynamic.Load("/"); ok {
+	if origin, ok = dynamic.Load(defaultKey); ok {
 		return origin, nil
 	}
 

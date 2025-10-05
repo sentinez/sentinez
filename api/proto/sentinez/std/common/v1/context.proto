@@ -25,3 +25,11 @@ message Context {
   string user_id = 3;
   int32 permission_bitwise = 4;
 }
+
+message HTTPContext {
+  // namespace of tenant
+  // example: dev.sentinez.test
+  //  - namespace: dev
+  //  - root: sentinez.test
+  string tenant_ns = 1;
+}

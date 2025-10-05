@@ -25,17 +25,13 @@ import (
 	"go.uber.org/fx"
 )
 
-var (
-	logging zlog.Sugard
-)
-
 type Engine interface {
 	Start(ctx context.Context) error
 	Shutdown(ctx context.Context) error
 }
 
 func Main(appConf *common.AppConfig, start func(ctx context.Context) error) {
-	logging = zlog.NewDefaultConsole(zlog.LevelError)
+	logging := zlog.NewDefaultConsole(zlog.LevelError)
 
 	grpclog.SetLoggerV2(logging)
 	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())

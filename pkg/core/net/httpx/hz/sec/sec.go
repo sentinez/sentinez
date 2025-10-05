@@ -28,16 +28,17 @@ import (
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func decorNewTransaction(waf coraza.WAF) func(*http.Request) types.Transaction {
+func decorNewTransaction(
+	waf coraza.WAF) func(*httpxhz.Context) types.Transaction {
 
-	newTX := func(*http.Request) types.Transaction {
+	newTX := func(*httpxhz.Context) types.Transaction {
 		return waf.NewTransaction()
 	}
 
 	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
-		newTX = func(r *http.Request) types.Transaction {
+		newTX = func(ctx *httpxhz.Context) types.Transaction {
 			return ctxWAF.NewTransactionWithOptions(experimental.Options{
-				Context: r.Context(),
+				Context: ctx.Context(),
 			})
 		}
 	}
@@ -54,8 +55,7 @@ func WrapHandlerWithCallback(waf coraza.WAF, next httpxhz.RequestHandler,
 	newTX := decorNewTransaction(waf)
 
 	return func(ctx *httpxhz.Context) error {
-		r := httpxhz.ConvertRequestContext(ctx)
-		tx := newTX(r)
+		tx := newTX(ctx)
 		defer postProcess(ctx, tx, cb)
 
 		if tx.IsRuleEngineOff() {
@@ -123,7 +123,8 @@ func debugLogger(tx types.Transaction, err error, msg string) {
 
 // processRequest ...
 // ref: https://github.com/corazawaf/coraza/blob/main/http/middleware.go#L27
-func processRequest(ctx *httpxhz.Context, tx types.Transaction) (*types.Interruption, error) {
+func processRequest(ctx *httpxhz.Context,
+	tx types.Transaction) (*types.Interruption, error) {
 
 	if it := processRequestHeader(ctx, tx); it != nil {
 		return it, nil
@@ -175,7 +176,11 @@ func processRequestConnection(ctx *httpxhz.Context, tx types.Transaction) {
 	}
 
 	tx.ProcessConnection(client, cport, "", 0)
-	tx.ProcessURI(ctx.URI().String(), string(ctx.Method()), ctx.Request.Header.GetProtocol())
+	tx.ProcessURI(
+		ctx.URI().String(),
+		string(ctx.Method()),
+		ctx.Request.Header.GetProtocol(),
+	)
 	ctx.Request.Header.VisitAll(func(k, v []byte) {
 		tx.AddRequestHeader(string(k), string(v))
 	})

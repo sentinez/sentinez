@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cache
+package static
 
 import (
 	"path/filepath"
@@ -33,7 +33,9 @@ func IsStaticAsset(pathStr string) bool {
 	return ok
 }
 
-func HeaderCacheControl(next httpxhz.RequestHandler) httpxhz.RequestHandler {
+func HeaderCacheControlHandler(
+	next httpxhz.RequestHandler) httpxhz.RequestHandler {
+
 	return func(ctx *httpxhz.Context) error {
 		err := next(ctx)
 
