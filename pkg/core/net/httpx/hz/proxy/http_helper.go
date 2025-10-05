@@ -17,15 +17,17 @@ package proxy
 import (
 	"bytes"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/protocol"
 	"strings"
 	"unsafe"
+
+	"github.com/cloudwego/hertz/pkg/protocol"
 )
 
 func b2s(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
+// nolint:funlen
 func JoinURLPath(req *protocol.Request, target string) (path []byte) {
 	aslash := req.URI().Path()[0] == '/'
 	var bslash bool

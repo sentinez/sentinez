@@ -15,14 +15,16 @@
 package proxy
 
 import (
+	"strings"
+
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
+
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/std/stderr"
 	"github.com/sentinez/sentinez/pkg/syncx"
-	"strings"
 )
 
 const (

@@ -17,6 +17,7 @@ package httpxhz
 import (
 	"context"
 	"crypto/tls"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -109,11 +110,8 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
-	stdversion.INFO(
-		s.meta.GetServiceName(),
-		s.meta.GetServiceKey(),
-	)
-
+	stdversion.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	zlog.Infof("server engine >>> %s", color.Magenta.Add("HERTZ"))
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),
 		color.Magenta.Add(addr),

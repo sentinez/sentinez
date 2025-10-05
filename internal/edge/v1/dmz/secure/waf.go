@@ -15,9 +15,6 @@
 package secure
 
 import (
-	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	httpxhzmdw "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/mdw"
-	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"strconv"
 	"time"
 
@@ -25,6 +22,9 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	httpxhzmdw "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/mdw"
+	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
