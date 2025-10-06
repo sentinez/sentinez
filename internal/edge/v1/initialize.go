@@ -16,6 +16,7 @@ package edge
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/internal/edge/v1/cache"
 	"github.com/sentinez/sentinez/internal/edge/v1/dmz/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/dmz/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/dmz/secure"
@@ -23,6 +24,9 @@ import (
 )
 
 func (s *Server) initialize(appConf *common.AppConfig) error {
+	// init cache repository
+	cache.Initialized(s.yaml, appConf)
+
 	// idx = 0
 	s.core.Use(static.HeaderCacheControlHandler)
 	// idx = 1
@@ -30,7 +34,7 @@ func (s *Server) initialize(appConf *common.AppConfig) error {
 	// idx = 2
 	s.core.Use(secure.DomainHandler(appConf.GetEnvConf().GetHostname()))
 	// idx = 3
-	s.core.Use(secure.WAFHandler(s.yaml, appConf))
+	s.core.Use(secure.WAFHandler())
 
-	return routing.Serve(s.yaml, s.core)
+	return routing.Serve(s.core)
 }

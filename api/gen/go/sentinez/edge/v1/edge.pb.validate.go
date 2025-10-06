@@ -32,3 +32,234 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 )
+
+// Validate checks the field values on ReverseProxyPass with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *ReverseProxyPass) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetNamespaces() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ReverseProxyPassValidationError{
+					field:  fmt.Sprintf("Namespaces[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ReverseProxyPassValidationError is the validation error returned by
+// ReverseProxyPass.Validate if the designated constraints aren't met.
+type ReverseProxyPassValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReverseProxyPassValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReverseProxyPassValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReverseProxyPassValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReverseProxyPassValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReverseProxyPassValidationError) ErrorName() string { return "ReverseProxyPassValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ReverseProxyPassValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReverseProxyPass.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReverseProxyPassValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReverseProxyPassValidationError{}
+
+// Validate checks the field values on Namespace with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Namespace) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Namespace
+
+	for idx, item := range m.GetRoutes() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return NamespaceValidationError{
+					field:  fmt.Sprintf("Routes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// NamespaceValidationError is the validation error returned by
+// Namespace.Validate if the designated constraints aren't met.
+type NamespaceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e NamespaceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e NamespaceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e NamespaceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e NamespaceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e NamespaceValidationError) ErrorName() string { return "NamespaceValidationError" }
+
+// Error satisfies the builtin error interface
+func (e NamespaceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sNamespace.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = NamespaceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = NamespaceValidationError{}
+
+// Validate checks the field values on Route with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Route) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for MatchPrefix
+
+	// no validation rules for Target
+
+	// no validation rules for Rewrite
+
+	return nil
+}
+
+// RouteValidationError is the validation error returned by Route.Validate if
+// the designated constraints aren't met.
+type RouteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RouteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RouteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RouteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RouteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RouteValidationError) ErrorName() string { return "RouteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RouteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRoute.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RouteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RouteValidationError{}
