@@ -23,61 +23,64 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"
+	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	httpxhzsec "github.com/sentinez/sentinez/pkg/core/net/httpx/hz/sec"
 	"github.com/sentinez/sentinez/pkg/infra/cache/mem"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-var (
-	logger zlog.Logger
-	cached *mem.Cache[[]byte]
-)
-
-func WAFHandler() func(httpxhz.RequestHandler) httpxhz.RequestHandler {
-	logger = zlog.NewLoggingJSON(
-		edge.GetMetaEdgeServiceKey(),
-		common.LogKind_LOG_KIND_WAF,
-		zlog.LevelInfo,
-	)
-
-	cached = mem.New[[]byte](time.Second*30, time.Second*31)
-
-	return ProtectedWithCallback(rulesCallback)
-}
-
-func ProtectedWithCallback(cb func(*httpxhz.Context, types.Transaction),
-) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
-
-	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
-		return func(ctx *httpxhz.Context) error {
-
-			waf := wafcache.GetWafCache().LoadContext(ctx)
-			if waf == nil {
-				return next(ctx)
-			}
-
-			nx := httpxhzsec.WrapHandlerWithCallback(waf, next, cb)
-
-			return nx(ctx)
-		}
+func NewWAF() *WAF {
+	return &WAF{
+		Base: &chains.Base{},
+		logger: zlog.NewLoggingJSON(
+			edge.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_WAF,
+			zlog.LevelInfo,
+		),
+		cached: mem.New[[]byte](time.Second*30, time.Second*31),
 	}
 }
 
+type WAF struct {
+	*chains.Base
+	logger zlog.Logger
+	cached *mem.Cache[[]byte]
+}
+
+func (w *WAF) Handle(ctx *httpxhz.Context) error {
+
+	zlog.Info("edge-handler: >>> WAF")
+
+	waf := wafcache.GetWafCache().LoadContext(ctx)
+	if waf == nil {
+		return w.HandleNext(ctx)
+	}
+
+	next := w.GetNext()
+	if next == nil {
+		return nil
+	}
+
+	nx := httpxhzsec.WrapHandlerWithCallback(waf, next.Handle, w.callback)
+
+	return nx(ctx)
+}
+
 // nolint:funlen
-func rulesCallback(ctx *httpxhz.Context, tx types.Transaction) {
+func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 	if !tx.IsInterrupted() {
 		return
 	}
 
-	if data, ok := cached.Get(httpxhz.GenerateContextKey(ctx)); ok {
+	if data, ok := w.cached.Get(httpxhz.GenerateContextKey(ctx)); ok {
 		var event waf.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
 		}
 
 		event.RequestTime = ctx.Time().UnixMilli()
-		logger.Info("cache hit: rule engine ingress matched", &event)
+		w.logger.Info("cache hit: rule engine ingress matched", &event)
 		return
 	}
 
@@ -120,7 +123,7 @@ func rulesCallback(ctx *httpxhz.Context, tx types.Transaction) {
 		ContentType:   string(ctx.Request.Header.ContentType()),
 	}
 
-	logger.Info("rule engine ingress matched", event)
+	w.logger.Info("rule engine ingress matched", event)
 	data, _ := event.MarshalVT()
-	cached.Set(httpxhz.GenerateContextKey(ctx), data)
+	w.cached.Set(httpxhz.GenerateContextKey(ctx), data)
 }

@@ -18,7 +18,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
 var staticExts = map[string]struct{}{
@@ -33,19 +35,25 @@ func IsStaticAsset(pathStr string) bool {
 	return ok
 }
 
-func HeaderCacheControlHandler(
-	next httpxhz.RequestHandler) httpxhz.RequestHandler {
+func NewStatic() *Static {
+	return &Static{&chains.Base{}}
+}
 
-	return func(ctx *httpxhz.Context) error {
-		err := next(ctx)
+type Static struct {
+	*chains.Base
+}
 
-		if IsStaticAsset(string(ctx.Path())) {
-			ctx.Response.Header.Set(
-				"Cache-Control",
-				"public, max-age=3600, immutable",
-			)
-		}
+func (s *Static) Handle(ctx *httpxhz.Context) error {
+	zlog.Info("edge-handler: >>> Static")
 
-		return err
+	err := s.HandleNext(ctx)
+
+	if IsStaticAsset(string(ctx.Path())) {
+		ctx.Response.Header.Set(
+			"Cache-Control",
+			"public, max-age=3600, immutable",
+		)
 	}
+
+	return err
 }

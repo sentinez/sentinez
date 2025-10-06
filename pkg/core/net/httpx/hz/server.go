@@ -20,8 +20,11 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
+	"github.com/cloudwego/hertz/pkg/network"
+	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
@@ -131,6 +134,10 @@ func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
 		server.WithTraceLevel(stats.LevelDisabled),
 		server.WithALPN(true),
 		server.WithH2C(true),
+		server.WithTransport(func(options *config.Options) network.Transporter {
+			base := standard.NewTransporter(options)
+			return &Transporter{Transporter: base}
+		}),
 	)
 
 	// register http2 server factory

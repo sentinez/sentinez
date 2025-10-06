@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,27 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package routing provides the WAF handler.
-package routing
+package chains
 
 import (
-	"github.com/sentinez/sentinez/internal/edge/v1/cache/routes"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/core/net/httpx/hz/proxy"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
 
-func Serve(server httpxhz.Server) error {
+type Handler interface {
+	SetNext(mdw Handler) Handler
+	Handle(ctx *httpxhz.Context) error
+}
 
-	reverseProxy, err := proxy.NewReverseProxy()
-	if err != nil {
-		zlog.Errorf("failed to create proxy instance: %v", err)
-		return err
+type Base struct {
+	next Handler
+}
+
+func (b *Base) SetNext(handler Handler) Handler {
+	b.next = handler
+	return handler
+}
+
+func (b *Base) GetNext() Handler {
+	return b.next
+}
+
+func (b *Base) HandleNext(ctx *httpxhz.Context) error {
+	if b.next != nil {
+		return b.next.Handle(ctx)
 	}
-
-	handler := routes.GetRouter().SetProxy(reverseProxy)
-
-	server.Handle(handler)
 
 	return nil
 }

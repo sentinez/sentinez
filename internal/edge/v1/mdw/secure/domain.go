@@ -18,33 +18,10 @@ import (
 	"strings"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/std/zlog"
 )
-
-func DomainHandler(hostname string,
-) func(httpxhz.RequestHandler) httpxhz.RequestHandler {
-
-	return func(next httpxhz.RequestHandler) httpxhz.RequestHandler {
-		return func(ctx *httpxhz.Context) error {
-			ns, ok := isValidSingleLevelSubdomain(string(ctx.Host()), hostname)
-			if !ok {
-				httpxhz.Forbidden(ctx)
-				return nil
-			}
-
-			ctxValue, ok := httpxhz.GetRequestContext(ctx)
-			if !ok {
-				ctxValue = &common.HTTPContext{}
-			}
-
-			ctxValue.TenantNs = ns
-
-			ctx = httpxhz.SetRequestContext(ctx, ctxValue)
-
-			return next(ctx)
-		}
-	}
-}
 
 func isValidSingleLevelSubdomain(subdomain, root string) (string, bool) {
 	subLabels := strings.Split(subdomain, ".")
@@ -61,4 +38,37 @@ func isValidSingleLevelSubdomain(subdomain, root string) (string, bool) {
 	}
 
 	return "", false
+}
+
+func NewDomain(hostname string) *Domain {
+	return &Domain{
+		Base:     &chains.Base{},
+		hostname: hostname,
+	}
+}
+
+type Domain struct {
+	*chains.Base
+	hostname string
+}
+
+func (d *Domain) Handle(ctx *httpxhz.Context) error {
+	zlog.Info("edge-handler: >>> Domain")
+
+	ns, ok := isValidSingleLevelSubdomain(string(ctx.Host()), d.hostname)
+	if !ok {
+		httpxhz.Forbidden(ctx)
+		return nil
+	}
+
+	ctxValue, ok := httpxhz.GetRequestContext(ctx)
+	if !ok {
+		ctxValue = &common.HTTPContext{}
+	}
+
+	ctxValue.TenantNs = ns
+
+	ctx = httpxhz.SetRequestContext(ctx, ctxValue)
+
+	return d.HandleNext(ctx)
 }

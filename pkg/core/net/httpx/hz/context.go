@@ -69,6 +69,7 @@ func (c *Context) Time() time.Time {
 
 // Context implements HTTPContext.
 func (c *Context) Context() context.Context {
+	c.GetConn()
 	return c.ctx
 }
 
