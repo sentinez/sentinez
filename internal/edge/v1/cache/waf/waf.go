@@ -12,44 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulesets
+package wafcache
 
 import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/std/zlog"
 	"github.com/sentinez/sentinez/pkg/syncx"
 	"github.com/sentinez/sentinez/rules"
 )
 
 var (
+	once    sync.Once
+	wafInst *WAFCache
+)
+
+func New() *WAFCache {
+	once.Do(func() {
+		wafInst = &WAFCache{
+			wafMap: syncx.NewMap[string, coraza.WAF](),
+		}
+	})
+
+	return wafInst
+}
+
+func GetWafCache() *WAFCache {
+	return wafInst
+}
+
+type WAFCache struct {
 	// key: namespace
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	rulemap *syncx.Map[string, coraza.WAF]
-
-	once sync.Once
-)
-
-func init() {
-	once.Do(func() {
-		rulemap = syncx.NewMap[string, coraza.WAF]()
-	})
+	wafMap *syncx.Map[string, coraza.WAF]
 }
 
-func Store(appConf *common.AppConfig,
-	namespace string, rulesetsFlag rules.RulesetsFlag) error {
+func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
+	version rules.Version, flag rules.RulesetsFlag) error {
 
-	waf, err := rules.NewWAF(rules.Ver4_16_0,
-		appConf.GetFlag().GetRulePath(), rulesetsFlag)
+	waf, err := rules.NewWAF(version, conf.GetFlag().GetRulePath(), flag)
 	if err != nil {
 		return err
 	}
 
-	rulemap.Store(namespace, waf)
+	w.wafMap.Store(namespace, waf)
 	if waf != nil {
 		zlog.Infof("[edge] WAF initialized successfully, ns=%s", namespace)
 	}
@@ -57,11 +68,21 @@ func Store(appConf *common.AppConfig,
 	return nil
 }
 
-func Load(namespace string) coraza.WAF {
-	value, ok := rulemap.Load(namespace)
+func (w *WAFCache) Load(namespace string) coraza.WAF {
+	value, ok := w.wafMap.Load(namespace)
 	if !ok {
 		return nil
 	}
 
 	return value
+}
+
+func (w *WAFCache) LoadContext(ctx *httpxhz.Context) coraza.WAF {
+	hCtx, ok := httpxhz.GetRequestContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	zlog.Debugf("[edge] hit cached rules of namespace %s", hCtx.GetTenantNs())
+	return w.Load(hCtx.GetTenantNs())
 }

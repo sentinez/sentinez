@@ -25,3 +25,18 @@ option (sentinez.std.common.v1.sntz_meta) = {
   service_kind: KIND_GATEWAY_EDGE,
   service_key: "sentinez.edge.v1",
 };
+
+message ReverseProxyPass {
+  repeated Namespace namespaces = 1;
+}
+
+message Namespace {
+  string namespace = 1;
+  repeated Route routes = 2;
+}
+
+message Route {
+  string match_prefix = 1;
+  string target = 2;
+  string rewrite = 3;
+}
