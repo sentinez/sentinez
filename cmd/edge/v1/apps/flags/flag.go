@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/stdflag"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zflag"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 
 	"github.com/spf13/pflag"
 )
@@ -31,33 +31,33 @@ var onceEdge sync.Once
 // Parse flag args for grpc service
 func Parse() *common.Flag {
 	onceEdge.Do(func() {
-		stdflag.Get().RulePath = "./resources/waf/data/v4-16-0"
-		stdflag.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
-		stdflag.Get().EnvFile = "./cmd/edge/v1/.env"
-		stdflag.Get().CertificateFile = "./localhost.pem"
-		stdflag.Get().CertKeyFile = "./localhost-key.pem"
+		zflag.Get().RulePath = "./resources/waf/data/v4-16-0"
+		zflag.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
+		zflag.Get().EnvFile = "./cmd/edge/v1/.env"
+		zflag.Get().CertificateFile = "./localhost.pem"
+		zflag.Get().CertKeyFile = "./localhost-key.pem"
 
-		pflag.StringVar(&stdflag.Get().EnvFile, "env-file",
-			stdflag.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&zflag.Get().EnvFile, "env-file",
+			zflag.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&stdflag.Get().RulePath, "rule-path",
-			stdflag.Get().GetRulePath(), "core rulesets root path for rules")
+		pflag.StringVar(&zflag.Get().RulePath, "rule-path",
+			zflag.Get().GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&stdflag.Get().ProxyConfig, "proxy-config",
-			stdflag.Get().GetProxyConfig(), "origin config yaml configuration")
+		pflag.StringVar(&zflag.Get().ProxyConfig, "proxy-config",
+			zflag.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		pflag.StringVar(&stdflag.Get().CertificateFile, "cert-file",
-			stdflag.Get().GetCertificateFile(), "TLS certificate file .pem")
+		pflag.StringVar(&zflag.Get().CertificateFile, "cert-file",
+			zflag.Get().GetCertificateFile(), "TLS certificate file .pem")
 
-		pflag.StringVar(&stdflag.Get().CertKeyFile, "cert-key",
-			stdflag.Get().GetCertKeyFile(), "TLS certificate key .pem")
+		pflag.StringVar(&zflag.Get().CertKeyFile, "cert-key",
+			zflag.Get().GetCertKeyFile(), "TLS certificate key .pem")
 
-		stdflag.Parse(edge.GetMetaEdge())
+		zflag.Parse(edge.GetMetaEdge())
 	})
 
-	if err := stdflag.Validate(stdflag.Get()); err != nil {
+	if err := zflag.Validate(zflag.Get()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return stdflag.Get()
+	return zflag.Get()
 }

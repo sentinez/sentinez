@@ -22,10 +22,9 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/syncx"
-
+	"github.com/sentinez/sentinez/pkg/common/syncx"
+	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/uuid"
 	"github.com/valyala/fasthttp"
 )
 
@@ -86,7 +85,7 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 }
 
 func setIdentifier(ctx *fasthttp.RequestCtx) {
-	id := uuid.NewHex("SNTZ-REQ-")
+	id := uuid.NewIDHex("SNTZ-REQ-")
 	ctx.SetUserValue(userValueKey, id)
 }
 

@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 // New creates a new Greeter module.

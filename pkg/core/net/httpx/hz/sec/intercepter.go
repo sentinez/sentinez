@@ -19,7 +19,7 @@ import (
 
 	"github.com/corazawaf/coraza/v3/types"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 // interceptor for fasthttp

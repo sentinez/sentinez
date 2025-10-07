@@ -20,14 +20,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
 	"github.com/sentinez/sentinez/pkg/client/options"
-	"github.com/sentinez/sentinez/pkg/cron"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/common/cron"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
-func Register(name string, conf *common.EnvConfig) {
+func Register(name string, conf *commonpb.EnvConfig) {
 	addr, port, err := net.SplitHostPort(conf.GetAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
@@ -56,7 +56,7 @@ func Register(name string, conf *common.EnvConfig) {
 		break
 	}
 
-	cron.Start(context.Background(), 10*time.Second, func() {
+	cron.StartCron(context.Background(), 10*time.Second, func() {
 		_ = dcvr.Heartbeat(serviceID)
 	})
 }

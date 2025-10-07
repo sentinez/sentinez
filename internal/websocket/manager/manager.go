@@ -17,7 +17,7 @@ package manager
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/core/wsz"
+	"github.com/sentinez/sentinez/pkg/core/net/wsz"
 )
 
 var (

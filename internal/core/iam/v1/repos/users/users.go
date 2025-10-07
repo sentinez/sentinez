@@ -18,16 +18,16 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
+	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/infra/table"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/sentinez/sentinez/pkg/uuid"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/ztable"
+	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 )
 
 var (
@@ -53,8 +53,8 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(appConf *common.AppConfig) (IUser, error) {
-	tableName := table.NewTable(appConf, table.Users)
+func New(appConf *commonpb.AppConfig) (IUser, error) {
+	tableName := ztable.NewTable(appConf, ztable.Users)
 
 	storage, err := postgres.New[*iam.Users](appConf, tableName,
 		postgres.WithIndex("email", "phone_number", "username"))
@@ -168,7 +168,7 @@ func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
 	now := timestamppb.Now()
-	user.Id = uuid.NewID(table.NewPrimaryKey(table.Users))
+	user.Id = uuid.NewID(ztable.NewPrimaryKey(ztable.Users))
 	user.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

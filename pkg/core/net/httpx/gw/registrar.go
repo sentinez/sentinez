@@ -20,11 +20,11 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/client/discovery"
 	"github.com/sentinez/sentinez/pkg/client/options"
-	"github.com/sentinez/sentinez/pkg/cron"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/common/cron"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -32,7 +32,7 @@ import (
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
 	Accept(context.Context, Server) error
-	AcceptFromEndpoint(context.Context, Server, *common.AppConfig) error
+	AcceptFromEndpoint(context.Context, Server, *commonpb.AppConfig) error
 }
 
 type (
@@ -59,7 +59,7 @@ func RegisterServiceHandlerServer[T any](
 
 func RegisterServiceFromEndpoint(
 	ctx context.Context,
-	appConf *common.AppConfig,
+	appConf *commonpb.AppConfig,
 	mux *runtime.ServeMux,
 	serviceKey string,
 	fn RegisterEndpointFn,
@@ -72,7 +72,7 @@ func RegisterServiceFromEndpoint(
 		ConsulURL: appConf.GetEnvConf().GetConsulUri(),
 	})
 
-	cron.Start(ctx, time.Second*10, func() {
+	cron.StartCron(ctx, time.Second*10, func() {
 		srv, err := dcvr.Discover(serviceKey)
 		if err != nil {
 			zlog.Errorf("[httpgw] discovery err=%v", err)

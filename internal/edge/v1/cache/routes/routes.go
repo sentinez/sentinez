@@ -21,11 +21,11 @@ import (
 	"sync"
 
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx/hz/proxy"
-	"github.com/sentinez/sentinez/pkg/std/stderr"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/sentinez/sentinez/pkg/syncx"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 var (
@@ -93,7 +93,7 @@ func (r *Router) SetProxy(
 	proxy *proxy.ReverseProxy) func(ctx *httpxhz.Context) error {
 
 	return func(ctx *httpxhz.Context) error {
-		zlog.Debugf("[edge] request host: %s", string(ctx.Host()))
+		zlog.Debugf("[edge][request] host: %s", string(ctx.Host()))
 
 		if proxy == nil {
 			return ctx.String(http.StatusInternalServerError,
@@ -115,7 +115,7 @@ func (r *Router) SetProxy(
 func (r *Router) match(ctx *httpxhz.Context) (string, error) {
 	hCtx, ok := httpxhz.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
-		return "", stderr.F("unknown namespace of request")
+		return "", zerrors.F("unknown namespace of request")
 	}
 
 	origin := ""
@@ -147,7 +147,7 @@ func (r *Router) match(ctx *httpxhz.Context) (string, error) {
 		return origin, nil
 	}
 
-	return "", stderr.F("not found: %s", path)
+	return "", zerrors.F("not found: %s", path)
 }
 
 func prefixPath(path string) string {

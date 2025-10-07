@@ -21,10 +21,10 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/color"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/std/stdversion"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -84,7 +84,7 @@ func (s *HTTPServer) Shutdown(_ context.Context) error {
 }
 
 func (s *HTTPServer) initialize(addr string) {
-	stdversion.INFO(
+	zversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
@@ -94,7 +94,7 @@ func (s *HTTPServer) initialize(addr string) {
 		color.Magenta.Add(addr),
 	)
 
-	s.core.Name = stdversion.Name
+	s.core.Name = zversion.Name
 	s.core.NoDefaultContentType = true
 	s.core.DisableKeepalive = false
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)

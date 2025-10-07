@@ -9,7 +9,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	mock "github.com/stretchr/testify/mock"
 )
 

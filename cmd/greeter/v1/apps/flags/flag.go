@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/stdflag"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zflag"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/spf13/pflag"
 )
 
@@ -30,18 +30,18 @@ var onceGRPCService sync.Once
 // ParseFlag flag args for grpc service
 func Parse() *common.Flag {
 	onceGRPCService.Do(func() {
-		stdflag.Get().EnvFile = "./cmd/greeter/v1/.env"
+		zflag.Get().EnvFile = "./cmd/greeter/v1/.env"
 
-		pflag.StringVar(&stdflag.Get().EnvFile, "env-file",
-			stdflag.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&zflag.Get().EnvFile, "env-file",
+			zflag.Get().GetEnvFile(), "environment variables config file")
 
-		stdflag.Parse(greeter.GetMetaGreeter())
+		zflag.Parse(greeter.GetMetaGreeter())
 
 	})
 
-	if err := stdflag.Validate(stdflag.Get()); err != nil {
+	if err := zflag.Validate(zflag.Get()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return stdflag.Get()
+	return zflag.Get()
 }

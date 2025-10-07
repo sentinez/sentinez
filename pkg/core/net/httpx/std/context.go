@@ -19,8 +19,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/syncx"
-
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 
 	"github.com/gorilla/websocket"

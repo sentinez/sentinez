@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/std/stdflag"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zflag"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/spf13/pflag"
 )
 
@@ -30,25 +30,25 @@ var onceAPIServer sync.Once
 // Parse flag args for apiserver service
 func Parse() *common.Flag {
 	onceAPIServer.Do(func() {
-		stdflag.Get().ApiSpecsPath = "./resources/api/specs/v1"
-		stdflag.Get().SwaggerPath = "./resources/api/swagger"
-		stdflag.Get().EnvFile = "./cmd/apiserver/.env"
+		zflag.Get().ApiSpecsPath = "./resources/api/specs/v1"
+		zflag.Get().SwaggerPath = "./resources/api/swagger"
+		zflag.Get().EnvFile = "./cmd/apiserver/.env"
 
-		pflag.StringVar(&stdflag.Get().ApiSpecsPath, "api-specs-path",
-			stdflag.Get().GetApiSpecsPath(), "openapi specification path")
+		pflag.StringVar(&zflag.Get().ApiSpecsPath, "api-specs-path",
+			zflag.Get().GetApiSpecsPath(), "openapi specification path")
 
-		pflag.StringVar(&stdflag.Get().SwaggerPath, "swagger-path",
-			stdflag.Get().GetSwaggerPath(), "swagger user interface path")
+		pflag.StringVar(&zflag.Get().SwaggerPath, "swagger-path",
+			zflag.Get().GetSwaggerPath(), "swagger user interface path")
 
-		pflag.StringVar(&stdflag.Get().EnvFile, "env-file",
-			stdflag.Get().GetEnvFile(), "environment variable config file")
+		pflag.StringVar(&zflag.Get().EnvFile, "env-file",
+			zflag.Get().GetEnvFile(), "environment variable config file")
 
-		stdflag.Parse(apiserver.GetMetaApiserver())
+		zflag.Parse(apiserver.GetMetaApiserver())
 	})
 
-	if err := stdflag.Validate(stdflag.Get()); err != nil {
+	if err := zflag.Validate(zflag.Get()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return stdflag.Get()
+	return zflag.Get()
 }

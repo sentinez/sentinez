@@ -19,11 +19,11 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/color"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/std/stderr"
-	"github.com/sentinez/sentinez/pkg/std/stdversion"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -59,7 +59,7 @@ type Server struct {
 // Start implements Server.
 func (s *Server) Start(ctx context.Context) error {
 	_ = ctx
-	return stderr.ErrUnimplemented
+	return zerrors.ErrUnimplemented
 }
 
 // Shutdown implements ServiceServer.
@@ -83,7 +83,7 @@ func (s *Server) Serve(conf *common.AppConfig) error {
 		return err
 	}
 
-	stdversion.INFO(
+	zversion.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
