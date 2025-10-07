@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func isValidSingleLevelSubdomain(subdomain, root string) (string, bool) {

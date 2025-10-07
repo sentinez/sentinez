@@ -19,7 +19,7 @@ import (
 	"reflect"
 
 	"github.com/cloudwego/hertz/pkg/network"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 type TransporterKey string

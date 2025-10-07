@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/internal/websocket/manager"
 	httpxstd "github.com/sentinez/sentinez/pkg/core/net/httpx/std"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func Handler(ctx httpxstd.Context) error {
@@ -35,7 +35,7 @@ func Handler(ctx httpxstd.Context) error {
 	clientID := ctx.Request().URL.Query().Get("id")
 	if clientID == "" {
 		zlog.Error("wshandlers.Handler missing client ID")
-		return zerrors.ErrInvalidData
+		return errx.ErrInvalidData
 	}
 
 	manager.Manager().AddClient(clientID, conn)

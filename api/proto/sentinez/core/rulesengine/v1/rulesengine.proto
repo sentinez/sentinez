@@ -17,9 +17,9 @@ syntax = "proto3";
 package sentinez.core.rulesengine.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/rulesengine/v1;rulesengine";
 
-import "sentinez/std/common/v1/options.proto";
+import "sentinez/types/common/v1/options.proto";
 
-option (sentinez.std.common.v1.sntz_meta) = {
+option (sentinez.types.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // RULESENGINE",
   service_kind: KIND_CORE,
   service_key: "sentinez.core.rulesengine.v1",

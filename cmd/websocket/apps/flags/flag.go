@@ -16,12 +16,12 @@
 package flags
 
 import (
+	"github.com/sentinez/sentinez/pkg/flagx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zflag"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/spf13/pflag"
 )
 
@@ -30,18 +30,18 @@ var onceWS sync.Once
 // ParseFlag flag args for apiserver service
 func Parse() *common.Flag {
 	onceWS.Do(func() {
-		zflag.Get().EnvFile = "./cmd/websocket/.env"
+		flagx.Get().EnvFile = "./cmd/websocket/.env"
 
-		pflag.StringVar(&zflag.Get().EnvFile, "env-file",
-			zflag.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&flagx.Get().EnvFile, "env-file",
+			flagx.Get().GetEnvFile(), "environment variables config file")
 
-		zflag.Parse(ws.GetMetaWs())
+		flagx.Parse(ws.GetMetaWs())
 
 	})
 
-	if err := zflag.Validate(zflag.Get()); err != nil {
+	if err := flagx.Validate(flagx.Get()); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return zflag.Get()
+	return flagx.Get()
 }

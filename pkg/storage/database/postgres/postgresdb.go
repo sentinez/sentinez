@@ -21,17 +21,16 @@ import (
 	"sync"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/ztable"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"github.com/sentinez/sentinez/pkg/storage/utils"
-
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/storage/utils"
+	"github.com/sentinez/sentinez/pkg/table"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -67,7 +66,7 @@ func New[T proto.Message](conf *common.AppConfig, tableName string,
 		return nil, err
 	}
 
-	if !ztable.IsValidTableName(tableName) {
+	if !table.IsValidTableName(tableName) {
 		return nil, fmt.Errorf("invalid table name: %s", tableName)
 	}
 
@@ -173,7 +172,7 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 		return fn(rows)
 	}
 
-	return nil, zerrors.F("[CollectRows] missing scans function")
+	return nil, errx.F("[CollectRows] missing scans function")
 }
 
 // CollectOneRow implements database.Database.
@@ -195,7 +194,7 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 		return scan(row)
 	}
 
-	return empty, zerrors.F("[CollectOneRow] missing scans function")
+	return empty, errx.F("[CollectOneRow] missing scans function")
 }
 
 // Exec implements database.Database.

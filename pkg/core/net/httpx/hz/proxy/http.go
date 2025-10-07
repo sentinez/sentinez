@@ -23,7 +23,7 @@ import (
 	"github.com/hertz-contrib/reverseproxy"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
+	"github.com/sentinez/sentinez/pkg/errx"
 )
 
 const (
@@ -46,7 +46,7 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		client.WithDialTimeout(option.timeout),
 	)
 	if err != nil {
-		return nil, zerrors.F("httpxhz: new reverse proxy failed: %v", err)
+		return nil, errx.F("httpxhz: new reverse proxy failed: %v", err)
 	}
 
 	plainClient, err := client.NewClient(
@@ -55,7 +55,7 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		client.WithDialTimeout(option.timeout),
 	)
 	if err != nil {
-		return nil, zerrors.F("httpxhz: new reverse proxy failed: %v", err)
+		return nil, errx.F("httpxhz: new reverse proxy failed: %v", err)
 	}
 
 	proxy := &ReverseProxy{

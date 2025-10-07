@@ -17,6 +17,9 @@ package iamfac
 import (
 	"time"
 
+	"github.com/sentinez/sentinez/pkg/zlog"
+
+	"github.com/sentinez/sentinez/api/client"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
@@ -24,9 +27,7 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	"github.com/sentinez/sentinez/pkg/client"
 	"github.com/sentinez/sentinez/pkg/common/passkey"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 )
 

@@ -21,7 +21,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2
-	github.com/hashicorp/consul/api v1.32.1
 	github.com/hertz-contrib/http2 v0.1.8
 	github.com/hertz-contrib/reverseproxy v1.0.6
 	github.com/jackc/pgx/v5 v5.7.5
@@ -31,7 +30,6 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/rules v0.0.0
-	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1
 	github.com/valyala/fasthttp v1.65.0
@@ -62,10 +60,12 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/go-webauthn/x v0.1.25 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
 	github.com/google/go-tpm v0.9.5 // indirect
+	github.com/hashicorp/consul/api v1.32.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
@@ -95,6 +95,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20250408102913-196191ec6287 // indirect
+	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect

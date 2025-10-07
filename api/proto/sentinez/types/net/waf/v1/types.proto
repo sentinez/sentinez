@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sentinez.types.net.waf.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1;waf";
+
+enum Service {
+  SERVICE_UNSPECIFIED = 0;
+  SERVICE_WAF_RULESETS = 1;
+  SERVICE_WAF_RULES = 2;
+  SERVICE_WAF_RATE_LIMIT = 3;
+}
+
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  ACTION_DENY = 1;
+}

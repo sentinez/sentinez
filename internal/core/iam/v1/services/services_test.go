@@ -20,16 +20,15 @@ import (
 	"testing"
 
 	"github.com/pashagolub/pgxmock/v2"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zcrypto"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zperms"
+	"github.com/sentinez/sentinez/pkg/cryptox"
+	"github.com/sentinez/sentinez/pkg/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 //nolint:funlen
@@ -39,7 +38,7 @@ func TestLogin(t *testing.T) {
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
 
-	pw, _ := zcrypto.HashPassword("secret123")
+	pw, _ := cryptox.HashPassword("secret123")
 	acc := &iam.Accounts{
 		Id:       "acc-123",
 		UserId:   "user-123",
@@ -83,12 +82,12 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, resp.AccessToken)
 
 	// check permission chứa ROOT
-	tokenCtx, ok := zcrypto.BearerTokenVerifier(
+	tokenCtx, ok := cryptox.BearerTokenVerifier(
 		conf.EnvConf, resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}
 
-	assert.True(t, zperms.Has(
+	assert.True(t, perms.Has(
 		tokenCtx.PermissionBitwise, common.Permission_PERMISSION_ROOT))
 }

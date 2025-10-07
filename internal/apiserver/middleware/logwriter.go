@@ -17,15 +17,16 @@ package middleware
 import (
 	"net/http"
 
+	zlog2 "github.com/sentinez/sentinez/pkg/zlog"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 type logResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
-	Logger     zlog.Logger
+	Logger     zlog2.Logger
 }
 
 func (rsp *logResponseWriter) WriteHeader(code int) {
@@ -40,10 +41,10 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 }
 
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
-	logger := zlog.NewLoggingJSON(
+	logger := zlog2.NewLoggingJSON(
 		apiserver.GetMetaApiserverServiceKey(),
 		common.LogKind_LOG_KIND_HTTP,
-		zlog.LevelInfo,
+		zlog2.LevelInfo,
 	)
 	return &logResponseWriter{w, http.StatusOK, logger}
 }
