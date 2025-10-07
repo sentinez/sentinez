@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 var staticExts = map[string]struct{}{
@@ -44,7 +44,7 @@ type Static struct {
 }
 
 func (s *Static) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("edge-handler: >>> Static")
+	zlog.Info("[edge][handler] >>> static")
 
 	err := s.HandleNext(ctx)
 

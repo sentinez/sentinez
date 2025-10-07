@@ -24,8 +24,8 @@ import (
 	"strings"
 
 	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
-	"github.com/sentinez/sentinez/pkg/color"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 
 	"google.golang.org/grpc/grpclog"
 )

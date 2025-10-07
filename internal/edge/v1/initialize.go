@@ -30,6 +30,7 @@ func (s *Server) initialize(appConf *common.AppConfig) error {
 	hostname := appConf.GetEnvConf().GetHostname()
 
 	begin := static.NewStatic()
+
 	begin.SetNext(logging.NewLogger()).
 		SetNext(secure.NewDomain(hostname)).
 		SetNext(secure.NewWAF()).

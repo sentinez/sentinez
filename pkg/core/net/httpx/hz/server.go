@@ -28,10 +28,11 @@ import (
 	"github.com/hertz-contrib/http2/factory"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/color"
+	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/core/crypto/tlsx"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/std/stdversion"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -106,6 +107,19 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 	}
 
 	return &tls.Config{
+		GetConfigForClient: func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+			tlsSession := chi.Context().Value(TransCtxKey)
+
+			zlog.Debugf("[httpxhz][ja4] session=%v fingerprint=%s",
+				tlsSession, tlsx.JA4(chi),
+			)
+
+			return &tls.Config{
+				Certificates: certificates,
+				MinVersion:   tls.VersionTLS12,
+				NextProtos:   []string{"h2", "http/1.1"},
+			}, nil
+		},
 		Certificates: certificates,
 		MinVersion:   tls.VersionTLS12,
 		NextProtos:   []string{"h2", "http/1.1"},
@@ -113,7 +127,7 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
-	stdversion.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	zversion.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
 	zlog.Infof("server engine >>> %s", color.Magenta.Add("HERTZ"))
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),
@@ -144,7 +158,7 @@ func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.hdl)
-	s.core.Name = stdversion.Name
+	s.core.Name = zversion.Name
 
 	return nil
 }

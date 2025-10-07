@@ -27,9 +27,9 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/std/stdcrypto"
-	"github.com/sentinez/sentinez/pkg/std/stdperms"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zcrypto"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zperms"
+	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 )
 
 //nolint:funlen
@@ -39,7 +39,7 @@ func TestLogin(t *testing.T) {
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
 
-	pw, _ := stdcrypto.HashPassword("secret123")
+	pw, _ := zcrypto.HashPassword("secret123")
 	acc := &iam.Accounts{
 		Id:       "acc-123",
 		UserId:   "user-123",
@@ -83,12 +83,12 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, resp.AccessToken)
 
 	// check permission chứa ROOT
-	tokenCtx, ok := stdcrypto.BearerTokenVerifier(
+	tokenCtx, ok := zcrypto.BearerTokenVerifier(
 		conf.EnvConf, resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}
 
-	assert.True(t, stdperms.Has(
+	assert.True(t, zperms.Has(
 		tokenCtx.PermissionBitwise, common.Permission_PERMISSION_ROOT))
 }

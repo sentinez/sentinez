@@ -19,9 +19,9 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
-	"github.com/sentinez/sentinez/pkg/syncx"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/sentinez/sentinez/rules"
 )
 
@@ -83,6 +83,6 @@ func (w *WAFCache) LoadContext(ctx *httpxhz.Context) coraza.WAF {
 		return nil
 	}
 
-	zlog.Debugf("[edge] hit cached rules of namespace %s", hCtx.GetTenantNs())
+	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetTenantNs())
 	return w.Load(hCtx.GetTenantNs())
 }

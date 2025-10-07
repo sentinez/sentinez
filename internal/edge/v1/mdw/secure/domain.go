@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 func isValidSingleLevelSubdomain(subdomain, root string) (string, bool) {
@@ -53,7 +53,7 @@ type Domain struct {
 }
 
 func (d *Domain) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("edge-handler: >>> Domain")
+	zlog.Info("[edge][handler] >>> domain")
 
 	ns, ok := isValidSingleLevelSubdomain(string(ctx.Host()), d.hostname)
 	if !ok {

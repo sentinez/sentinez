@@ -20,7 +20,7 @@ import (
 
 	"github.com/corazawaf/coraza/v3/types"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 // interceptor for fasthttp

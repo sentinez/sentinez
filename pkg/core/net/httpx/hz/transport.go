@@ -16,17 +16,15 @@ package httpxhz
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/cloudwego/hertz/pkg/network"
-	"github.com/cloudwego/hertz/pkg/network/standard"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 type TransporterKey string
 
-const Fingerprint TransporterKey = "transp_fingerprint"
+const TransCtxKey TransporterKey = "trans_ctx_key"
 
 type Transporter struct {
 	network.Transporter
@@ -35,15 +33,12 @@ type Transporter struct {
 func (t *Transporter) ListenAndServe(onData network.OnData) error {
 	return t.Transporter.ListenAndServe(
 		func(ctx context.Context, conn any) error {
-			if tlsConn, ok := conn.(*standard.TLSConn); ok {
-				state := tlsConn.ConnectionState()
-				fp := fmt.Sprintf("%s-%x", state.ServerName, state.CipherSuite)
-				ctx = context.WithValue(ctx, Fingerprint, fp)
-				zlog.Debugf("httpxhz-transp: fingerprint=%s", fp)
-			}
+			// if tlsConn, ok := conn.(*standard.TLSConn); ok {
+			// 	state := tlsConn.ConnectionState()
+			// }
 
 			t := reflect.TypeOf(conn)
-			zlog.Debugf("httpxhz-transp: type of conn: %s", t.String())
+			zlog.Debugf("[httpxhz][transp] type of conn: %s", t.String())
 
 			return onData(ctx, conn)
 		},

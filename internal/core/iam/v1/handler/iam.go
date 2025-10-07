@@ -21,10 +21,10 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	"github.com/sentinez/sentinez/pkg/std/stdctx"
-	"github.com/sentinez/sentinez/pkg/std/stderr"
-	"github.com/sentinez/sentinez/pkg/std/stdperms"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zcontext"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zperms"
 )
 
 var _ iampb.
@@ -85,7 +85,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterStart(
 	}
 
 	if user.GetId() != "" {
-		return nil, stderr.AlreadyExistsF(
+		return nil, zerrors.AlreadyExistsF(
 			"username or email already exists: %s", req.GetEmailOrUsername())
 	}
 
@@ -96,13 +96,13 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := stdctx.GetAuthContext(ctx, iam.service.Config())
+	ss, err := zcontext.GetAuthContext(ctx, iam.service.Config())
 	if err != nil {
 		return nil, err
 	}
 
-	if !stdperms.HasLeastOne(
-		ss.GetPermissionBitwise(), stdperms.DefaultViewAny()) {
+	if !zperms.HasLeastOne(
+		ss.GetPermissionBitwise(), zperms.DefaultViewAny()) {
 		request.UserIds = []string{ss.GetUserId()}
 	}
 
@@ -228,7 +228,7 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 		return nil, err
 	}
 
-	ss, _ := stdctx.GetAuthContext(ctx, iam.service.Config())
+	ss, _ := zcontext.GetAuthContext(ctx, iam.service.Config())
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",

@@ -14,6 +14,7 @@ require (
 	github.com/cloudwego/hertz v0.10.2
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
+	github.com/exaring/ja4plus v0.0.2
 	github.com/go-webauthn/webauthn v0.14.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0

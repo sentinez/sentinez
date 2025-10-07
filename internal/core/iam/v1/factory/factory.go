@@ -25,9 +25,9 @@ import (
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/pkg/client"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/passkey"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/common/passkey"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 )
 
 // nolint:funlen

@@ -18,7 +18,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 func HandlerFunc(path string, handler func(Context) error) {

@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx/hz/proxy"
-	"github.com/sentinez/sentinez/pkg/std/zlog"
+	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 func NewRouter() *Router {
@@ -42,7 +42,7 @@ type Router struct {
 }
 
 func (r *Router) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("edge-handler: >>> Router")
+	zlog.Info("[edge][handler] >>> router")
 
 	return r.hdl(ctx)
 }

@@ -18,12 +18,12 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
-	"github.com/sentinez/sentinez/pkg/infra/database"
-	"github.com/sentinez/sentinez/pkg/infra/database/postgres"
-	"github.com/sentinez/sentinez/pkg/infra/table"
-	"github.com/sentinez/sentinez/pkg/uuid"
+	"github.com/sentinez/sentinez/pkg/common/uuid"
+	"github.com/sentinez/sentinez/pkg/stdcmn/ztable"
+	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 
 	sq "github.com/Masterminds/squirrel"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -52,8 +52,8 @@ type IAccount interface {
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
-func New(appConf *common.AppConfig) (IAccount, error) {
-	tableName := table.NewTable(appConf, table.Account)
+func New(appConf *commonpb.AppConfig) (IAccount, error) {
+	tableName := ztable.NewTable(appConf, ztable.Account)
 
 	storage, err := postgres.New[*iam.Accounts](appConf, tableName,
 		postgres.WithIndex("username", "user_id", "email"))
@@ -178,7 +178,7 @@ func (acc *Accounts) Create(ctx context.Context,
 	account *iam.Accounts) (*iam.Accounts, error) {
 
 	now := timestamppb.Now()
-	account.Id = uuid.NewID(table.NewPrimaryKey(table.Account))
+	account.Id = uuid.NewID(ztable.NewPrimaryKey(ztable.Account))
 	account.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,
