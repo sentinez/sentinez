@@ -15,11 +15,12 @@
 package config
 
 import (
-	"github.com/sentinez/sentinez/pkg/configx"
 	"sync"
 
+	"github.com/sentinez/sentinez/pkg/configx"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/flags"
 )
 

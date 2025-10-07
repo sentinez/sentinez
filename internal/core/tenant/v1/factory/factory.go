@@ -16,7 +16,7 @@ package tenantfac
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 )
 

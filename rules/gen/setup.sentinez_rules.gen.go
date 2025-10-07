@@ -3,7 +3,7 @@
 package rules
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
 )
 
 const SetupVersion = ""

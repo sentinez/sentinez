@@ -17,7 +17,7 @@ package secure
 import (
 	"strings"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"

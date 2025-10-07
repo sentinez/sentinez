@@ -16,7 +16,7 @@
 package cache
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/cache/routes"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"

@@ -23,7 +23,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
 	"github.com/sentinez/sentinez/pkg/zlog"

@@ -15,7 +15,7 @@
 package wsz
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxstd "github.com/sentinez/sentinez/pkg/core/net/httpx/std"

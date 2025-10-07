@@ -26,7 +26,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/network"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/crypto/tlsx"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"

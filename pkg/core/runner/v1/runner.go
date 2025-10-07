@@ -17,7 +17,7 @@ package runner
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc/grpclog"

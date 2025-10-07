@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"

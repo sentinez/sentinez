@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/zlog"
 
 	sq "github.com/Masterminds/squirrel"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/model/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 

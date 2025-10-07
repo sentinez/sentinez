@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"google.golang.org/protobuf/proto"

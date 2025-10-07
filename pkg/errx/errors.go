@@ -20,7 +20,7 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/version"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

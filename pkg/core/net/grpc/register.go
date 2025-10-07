@@ -22,7 +22,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )

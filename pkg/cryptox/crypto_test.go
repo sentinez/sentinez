@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

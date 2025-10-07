@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"

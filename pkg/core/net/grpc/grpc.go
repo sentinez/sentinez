@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/errx"

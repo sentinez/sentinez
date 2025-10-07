@@ -17,7 +17,7 @@ package runner
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 type runneappConfKey string

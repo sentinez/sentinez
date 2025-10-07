@@ -16,7 +16,7 @@ package passkey
 
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/version"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
