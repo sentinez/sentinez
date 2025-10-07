@@ -19,7 +19,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 func NewTable(appConf *common.AppConfig, tableName string) string {

@@ -20,8 +20,8 @@ import (
 
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/waf/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"

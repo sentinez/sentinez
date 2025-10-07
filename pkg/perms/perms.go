@@ -15,7 +15,7 @@
 package perms
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 func Add(perms int32, flag common.Permission) int32 {

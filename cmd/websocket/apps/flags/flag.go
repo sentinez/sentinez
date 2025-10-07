@@ -16,11 +16,12 @@
 package flags
 
 import (
-	"github.com/sentinez/sentinez/pkg/flagx"
-	"github.com/sentinez/sentinez/pkg/zlog"
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/pkg/flagx"
+	"github.com/sentinez/sentinez/pkg/zlog"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
 	"github.com/spf13/pflag"
 )

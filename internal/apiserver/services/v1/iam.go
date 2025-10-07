@@ -18,7 +18,7 @@ import (
 	"context"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 )
 

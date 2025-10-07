@@ -15,7 +15,7 @@
 package zlog
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )

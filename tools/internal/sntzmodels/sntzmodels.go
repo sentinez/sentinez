@@ -19,7 +19,7 @@ package sntzmodels
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/tools/internal/utils"
 	"google.golang.org/protobuf/proto"
 
@@ -39,7 +39,7 @@ func GenerateSntzModelsFile(gen *protogen.Plugin, file *protogen.File) *protogen
 	g.P("import (")
 	g.P("\t\"fmt\"\n")
 	g.P()
-	g.P("\t\"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1\"\n")
+	g.P("\t\"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1\"\n")
 	g.P(")")
 	g.P("\n")
 	g.P("var (")

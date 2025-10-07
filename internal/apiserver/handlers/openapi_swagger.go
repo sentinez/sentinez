@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 // RegisterSwaggerRoutes return api json and swagger ui

@@ -17,7 +17,7 @@ package contextx
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/cryptox"
 	"github.com/sentinez/sentinez/pkg/errx"
 

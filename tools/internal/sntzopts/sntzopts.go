@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -27,7 +27,7 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 	g.P("import (")
 	g.P("\t\"fmt\"\n")
 	g.P()
-	g.P("\t\"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1\"")
+	g.P("\t\"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1\"")
 	g.P("\t\"google.golang.org/protobuf/proto\"")
 	g.P()
 	g.P(")")
