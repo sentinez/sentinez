@@ -20,27 +20,27 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/net/http/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	zlog2 "github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func NewLogger() *Logger {
 	return &Logger{
 		Base: &chains.Base{},
-		logger: zlog.NewLoggingJSON(
+		logger: zlog2.NewLoggingJSON(
 			edge.GetMetaEdgeServiceKey(),
 			common.LogKind_LOG_KIND_HTTP,
-			zlog.LevelInfo,
+			zlog2.LevelInfo,
 		),
 	}
 }
 
 type Logger struct {
 	*chains.Base
-	logger zlog.Logger
+	logger zlog2.Logger
 }
 
 func (l *Logger) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("[edge][handler] >>> logger")
+	zlog2.Info("[edge][handler] >>> logger")
 
 	requestResourceHost := string(ctx.Host())
 

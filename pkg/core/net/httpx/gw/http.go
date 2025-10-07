@@ -19,13 +19,12 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
-
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var (
@@ -80,7 +79,7 @@ type HTTPServer struct {
 // Start implements Server.
 func (h *HTTPServer) Start(ctx context.Context) error {
 	_ = ctx
-	return zerrors.ErrUnimplemented
+	return errx.ErrUnimplemented
 }
 
 // Use middleware for the http server. Middleware will be called
@@ -107,7 +106,7 @@ func (h *HTTPServer) Listen(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	zversion.INFO(
+	version.INFO(
 		h.meta.GetServiceName(),
 		h.meta.GetServiceKey(),
 	)
@@ -146,6 +145,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set("Server", zversion.Name)
+		w.Header().Set("Server", version.Name)
 	})
 }

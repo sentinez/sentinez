@@ -15,9 +15,9 @@
 package edgeyaml
 
 import (
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"os"
 
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"gopkg.in/yaml.v3"
 )
 

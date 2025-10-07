@@ -15,12 +15,12 @@
 package config
 
 import (
+	"github.com/sentinez/sentinez/pkg/configx"
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zconfig"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 func Config() *common.AppConfig {
 	once.Do(func() {
 		flag := edgeflags.Parse()
-		envConf := zconfig.LoadEnv(flag.GetEnvFile())
+		envConf := configx.LoadEnv(flag.GetEnvFile())
 		appConf = &common.AppConfig{
 			Meta:    edge.GetMetaEdge(),
 			EnvConf: envConf,

@@ -26,8 +26,8 @@ import (
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/sentinez/sentinez/pkg/templ"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func decorNewTransaction(waf coraza.WAF) func(*http.Request) types.Transaction {

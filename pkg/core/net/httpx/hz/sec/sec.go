@@ -25,7 +25,7 @@ import (
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func decorNewTransaction(

@@ -16,10 +16,10 @@ syntax = "proto3";
 
 package sentinez.core.iam.v1;
 
-import "sentinez/std/common/v1/options.proto";
+import "sentinez/types/common/v1/options.proto";
 import "sentinez/core/iam/v1/model.proto";
-import "sentinez/std/common/v1/meta.proto";
-import "sentinez/std/common/v1/context.proto";
+import "sentinez/types/common/v1/meta.proto";
+import "sentinez/types/common/v1/context.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
@@ -55,7 +55,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-option (sentinez.std.common.v1.sntz_meta) = {
+option (sentinez.types.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // IAM",
   service_kind: KIND_CORE,
   service_key: "sentinez.core.iam.v1",
@@ -75,7 +75,7 @@ service IdentityAccessManagementService {
       get: "/iam/accounts"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){
@@ -83,7 +83,7 @@ service IdentityAccessManagementService {
       get: "/iam/users"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
@@ -91,7 +91,7 @@ service IdentityAccessManagementService {
       get: "/iam/status"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
@@ -100,7 +100,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc GetUser(GetUserRequest) returns (GetUserResponse){
@@ -108,7 +108,7 @@ service IdentityAccessManagementService {
       get: "/iam/user"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
@@ -116,7 +116,7 @@ service IdentityAccessManagementService {
       delete: "/iam/user/{id}"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc Login(LoginRequest) returns (LoginResponse) {
@@ -125,7 +125,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc PasskeyRegisterStart(PasskeyRegisterStartRequest) returns (PasskeyRegisterStartResponse) {
@@ -133,7 +133,7 @@ service IdentityAccessManagementService {
       get: "/iam/passkey/register-start",
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc PasskeyRegisterFinish(PasskeyRegisterFinishRequest) returns (PasskeyRegisterFinishResponse) {
@@ -142,7 +142,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc PasskeyLoginStart(PasskeyLoginStartRequest) returns (PasskeyLoginStartResponse) {
@@ -150,7 +150,7 @@ service IdentityAccessManagementService {
       get: "/iam/passkey/login-start",
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
   rpc PasskeyLoginFinish(PasskeyLoginFinishRequest) returns (PasskeyLoginFinishResponse) {
@@ -159,7 +159,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.std.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 }
 
@@ -240,7 +240,7 @@ message StatusRequest {
 
 message StatusResponse {
  string msg = 1;
- sentinez.std.common.v1.Context context = 2;
+ sentinez.types.common.v1.Context context = 2;
 }
 
 message UpdateUserRequest {
@@ -270,7 +270,7 @@ message GetUserResponse {
 }
 
 message ListUsersRequest {
-  sentinez.std.common.v1.Pages page = 1;
+  sentinez.types.common.v1.Pages page = 1;
   repeated string ids = 10;
   repeated string phone_numbers = 11;
   repeated string emails = 12;
@@ -282,7 +282,7 @@ message ListUsersResponse {
 }
 
 message ListAccountsRequest {
-  sentinez.std.common.v1.Pages page = 1;
+  sentinez.types.common.v1.Pages page = 1;
   repeated string ids = 10;
   repeated string user_ids = 11;
   repeated string usernames = 12;

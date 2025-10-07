@@ -20,15 +20,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-
-	"github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/storage/database/query"
-
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )

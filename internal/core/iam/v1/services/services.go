@@ -28,11 +28,11 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/common/passkey"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zcrypto"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zperms"
+	"github.com/sentinez/sentinez/pkg/cryptox"
+	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -94,7 +94,7 @@ func (srv *IAMService) PasskeyRegisterFinish(
 
 	session, ok := srv.dataStore.GetSession(ssToken)
 	if !ok {
-		return nil, zerrors.InvalidDataF("get session error")
+		return nil, errx.InvalidDataF("get session error")
 	}
 
 	user := srv.dataStore.GetUser(string(session.UserID))
@@ -112,7 +112,7 @@ func (srv *IAMService) PasskeyRegisterFinish(
 
 	credential, err := srv.webAuthn.CreateCredential(user, *session, parsedCCR)
 	if err != nil {
-		return nil, zerrors.InvalidDataF("can't finish registration: %v", err)
+		return nil, errx.InvalidDataF("can't finish registration: %v", err)
 	}
 
 	user.AddCredential(credential)
@@ -132,12 +132,12 @@ func (srv *IAMService) PasskeyRegisterStart(
 
 	opt, ss, err := srv.webAuthn.BeginRegistration(user)
 	if err != nil {
-		return nil, zerrors.InternalErrorF("can't begin registration: %v", err)
+		return nil, errx.InternalErrorF("can't begin registration: %v", err)
 	}
 
 	t, err := srv.dataStore.GenSessionID()
 	if err != nil {
-		return nil, zerrors.InternalErrorF("can't generate session id: %v", err)
+		return nil, errx.InternalErrorF("can't generate session id: %v", err)
 	}
 
 	srv.dataStore.SaveSession(t, ss)
@@ -180,20 +180,20 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, username)
-	if zerrors.NotRowsNotFound(err) {
+	if errx.NotRowsNotFound(err) {
 		return err
 	}
 	if acc.GetId() != "" {
-		return zerrors.AlreadyExistsF(
+		return errx.AlreadyExistsF(
 			"username %s already exists", acc.GetUsername())
 	}
 
 	acc, err = srv.accounts.GetByUsernameOrEmail(ctx, email)
-	if zerrors.NotRowsNotFound(err) {
+	if errx.NotRowsNotFound(err) {
 		return err
 	}
 	if acc.GetId() != "" {
-		return zerrors.AlreadyExistsF(
+		return errx.AlreadyExistsF(
 			"email %s already exists", acc.GetEmail())
 	}
 
@@ -224,7 +224,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 func (srv *IAMService) createAccount(ctx context.Context,
 	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
 
-	pw, err := zcrypto.HashPassword(req.GetPassword())
+	pw, err := cryptox.HashPassword(req.GetPassword())
 	if err != nil {
 		return "", err
 	}
@@ -263,7 +263,7 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
-		if zerrors.Is(err, pgx.ErrNoRows) {
+		if errx.Is(err, pgx.ErrNoRows) {
 			return &iam.Accounts{}, nil
 		}
 
@@ -282,9 +282,9 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	if !zcrypto.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
+	if !cryptox.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
 		return nil,
-			zerrors.UnauthorizedF("username, email or password is wrong!")
+			errx.UnauthorizedF("username, email or password is wrong!")
 	}
 
 	user, err := srv.users.Get(ctx, acc.GetUserId())
@@ -292,11 +292,11 @@ func (srv *IAMService) Login(ctx context.Context,
 		zlog.Debugf("faild to get user by username or email")
 		return nil, err
 	}
-	perm := zperms.DefaultOwner()
+	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = zperms.Add(perm, common.Permission_PERMISSION_ROOT)
+		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := zcrypto.TokenGenerator(srv.config.GetEnvConf(),
+	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnvConf(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
@@ -315,13 +315,13 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iam.CreateUserRequest) (*iam.CreateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
-	if zerrors.NotRowsNotFound(err) {
+	if errx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
 	if user.GetId() != "" {
 		return nil,
-			zerrors.AlreadyExistsF(
+			errx.AlreadyExistsF(
 				"email %s already exists", request.GetEmail())
 	}
 
@@ -356,7 +356,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iam.GetUserResponse{User: user}, nil
 	}
 
-	return nil, zerrors.InvalidDataF(
+	return nil, errx.InvalidDataF(
 		"invalid argument: must provide either id or username")
 }
 
@@ -385,12 +385,12 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
-	if zerrors.NotRowsNotFound(err) {
+	if errx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
 	if user.GetId() != "" {
-		return nil, zerrors.AlreadyExistsF(
+		return nil, errx.AlreadyExistsF(
 			"email %s already exists", request.GetEmail())
 	}
 

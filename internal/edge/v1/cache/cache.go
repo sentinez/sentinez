@@ -20,7 +20,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/cache/routes"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/sentinez/sentinez/rules"
 )
 

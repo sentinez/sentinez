@@ -20,11 +20,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sentinez/sentinez/api/client/discovery"
+	"github.com/sentinez/sentinez/api/client/options"
 	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func Register(name string, conf *commonpb.EnvConfig) {
@@ -56,7 +56,7 @@ func Register(name string, conf *commonpb.EnvConfig) {
 		break
 	}
 
-	cron.StartCron(context.Background(), 10*time.Second, func() {
+	cron.Start(context.Background(), 10*time.Second, func() {
 		_ = dcvr.Heartbeat(serviceID)
 	})
 }

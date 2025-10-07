@@ -16,11 +16,11 @@ syntax = "proto3";
 
 package sentinez.edge.v1;
 
-import "sentinez/std/common/v1/options.proto";
+import "sentinez/types/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edge";
 
-option (sentinez.std.common.v1.sntz_meta) = {
+option (sentinez.types.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // EDGE",
   service_kind: KIND_GATEWAY_EDGE,
   service_key: "sentinez.edge.v1",

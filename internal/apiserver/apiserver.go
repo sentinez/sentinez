@@ -18,9 +18,10 @@ package apiserver
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/pkg/zlog"
+
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
 )
 
 func New(server httpgw.Server) *Server {

@@ -26,13 +26,12 @@ import (
 	"github.com/cloudwego/hertz/pkg/network"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/crypto/tlsx"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
+	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -107,7 +106,9 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 	}
 
 	return &tls.Config{
-		GetConfigForClient: func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+		GetConfigForClient: func(
+			chi *tls.ClientHelloInfo) (*tls.Config, error) {
+
 			tlsSession := chi.Context().Value(TransCtxKey)
 
 			zlog.Debugf("[httpxhz][ja4] session=%v fingerprint=%s",
@@ -127,7 +128,7 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
-	zversion.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	version.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
 	zlog.Infof("server engine >>> %s", color.Magenta.Add("HERTZ"))
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),
@@ -158,7 +159,7 @@ func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.hdl)
-	s.core.Name = zversion.Name
+	s.core.Name = version.Name
 
 	return nil
 }

@@ -19,12 +19,12 @@ import (
 	"time"
 )
 
-// StartCron starts a cron job that runs at a given interval.
+// Start starts a cron job that runs at a given interval.
 // Parameters:
 // - ctx: used to cancel the job when needed
 // - interval: the duration between each job run
 // - job: the function to execute on each interval
-func StartCron(ctx context.Context, interval time.Duration, job func()) {
+func Start(ctx context.Context, interval time.Duration, job func()) {
 	ticker := time.NewTicker(interval)
 	job()
 

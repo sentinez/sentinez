@@ -20,11 +20,11 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/sentinez/api/client/discovery"
+	"github.com/sentinez/sentinez/api/client/options"
 	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/std/common/v1"
-	"github.com/sentinez/sentinez/pkg/client/discovery"
-	"github.com/sentinez/sentinez/pkg/client/options"
 	"github.com/sentinez/sentinez/pkg/common/cron"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -72,7 +72,7 @@ func RegisterServiceFromEndpoint(
 		ConsulURL: appConf.GetEnvConf().GetConsulUri(),
 	})
 
-	cron.StartCron(ctx, time.Second*10, func() {
+	cron.Start(ctx, time.Second*10, func() {
 		srv, err := dcvr.Discover(serviceKey)
 		if err != nil {
 			zlog.Errorf("[httpgw] discovery err=%v", err)

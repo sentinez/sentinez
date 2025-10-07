@@ -19,8 +19,8 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/pkg/core/runner/v1/internal"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zerrors"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"go.uber.org/fx"
 )
 
@@ -33,7 +33,7 @@ func OnStart(start any) {
 
 					go func() {
 						if err := fn(ctx); err != nil {
-							if zerrors.Is(err, zerrors.ErrServerClosed) {
+							if errx.Is(err, errx.ErrServerClosed) {
 								zlog.Infof("[runner] %+v", err)
 							}
 							//else {

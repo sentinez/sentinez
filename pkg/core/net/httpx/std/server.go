@@ -23,8 +23,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
 	"github.com/sentinez/sentinez/pkg/core/runner/v1"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
+	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -60,7 +60,7 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 		return err
 	}
 
-	zversion.INFO(
+	version.INFO(
 		s.appConf.GetMeta().GetServiceName(),
 		s.appConf.GetMeta().GetServiceKey(),
 	)
@@ -89,6 +89,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set("Server", zversion.Name)
+		w.Header().Set("Server", version.Name)
 	})
 }

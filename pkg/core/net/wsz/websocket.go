@@ -19,8 +19,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxstd "github.com/sentinez/sentinez/pkg/core/net/httpx/std"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zversion"
+	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func NewServer(meta *common.SntzMeta) *WebSocket {
@@ -55,7 +55,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	zversion.INFO(
+	version.INFO(
 		ws.meta.GetServiceName(),
 		ws.meta.GetServiceKey(),
 	)

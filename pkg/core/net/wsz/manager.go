@@ -17,7 +17,7 @@ package wsz
 import (
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/stdcmn/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func NewManager() *Manager {

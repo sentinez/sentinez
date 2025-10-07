@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package sentinez.types.net.waf.v1;
+
+import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/net/waf/v1/types.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1;waf";
+
+message Event {
+  option (sentinez.types.common.v1.sntz_msg_opts).database_model = true;
+
+  repeated int32 rule_ids = 1;
+  repeated string severities = 2;
+  repeated string messages = 3;
+  string path = 4;
+  int32 score = 5;
+  string ip = 6;
+  string request_domain = 7;
+  string transaction_id = 8;
+  int64 request_time = 9; // milisec
+  Service service = 10;
+  Action action = 11;
+  string http_req_id = 12;
+  string content_type = 13;
+}
