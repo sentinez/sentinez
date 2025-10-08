@@ -55,29 +55,24 @@ type IUser interface {
 }
 
 func New(appConf *commonpb.AppConfig) (IUser, error) {
-	tableName := table.NewTable(appConf, table.Users)
-
-	storage, err := postgres.New[*iam.Users](appConf, tableName,
+	storage, err := postgres.New[*iam.Users](appConf, table.Users,
 		postgres.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &Users{
-		storage:   storage,
-		tableName: tableName,
+		storage: storage,
 	}, nil
 }
 
 type Users struct {
-	tableName string
-	storage   database.Database[*iam.Users]
+	storage database.Database[*iam.Users]
 }
 
 func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	return &Users{
-		tableName: u.tableName,
-		storage:   postgres.WithTx[*iam.Users](tx, u.tableName),
+		storage: postgres.WithTx(tx, u.storage),
 	}
 }
 
@@ -85,12 +80,13 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	input string) (*iam.Users, error) {
 
-	builder := sq.Select(database.SchemalessFieldData).From(u.tableName).Where(
-		sq.Or{
+	builder := sq.
+		Select(database.SchemalessFieldData).
+		From(u.storage.Table()).
+		Where(sq.Or{
 			sq.Eq{postgres.Field(iam.UsersFieldFullName): input},
 			sq.Eq{postgres.Field(iam.UsersFieldEmail): input},
-		},
-	)
+		})
 
 	return u.storage.CollectOneRow(ctx, builder, postgres.Scan[*iam.Users])
 }
@@ -124,7 +120,10 @@ func buildListQuery(builder sq.SelectBuilder,
 func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
 
-	builder := sq.Select(database.SchemalessFieldData).From(u.tableName)
+	builder := sq.
+		Select(database.SchemalessFieldData).
+		From(u.storage.Table())
+
 	builder = postgres.Paging(builder, req.GetPage())
 	builder = buildListQuery(builder, req)
 
@@ -155,7 +154,10 @@ func (u *Users) List(ctx context.Context,
 func (u *Users) Total(ctx context.Context,
 	req *iam.ListUsersRequest) (int64, error) {
 
-	builder := sq.Select("COUNT(*) AS count").From(u.tableName)
+	builder := sq.
+		Select("COUNT(*) AS count").
+		From(u.storage.Table())
+
 	builder = buildListQuery(builder, req)
 
 	var count int64

@@ -15,7 +15,7 @@
 package logging
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
@@ -26,10 +26,8 @@ import (
 func NewLogger() *Logger {
 	return &Logger{
 		Base: &chains.Base{},
-		logger: zlog2.NewLoggingJSON(
-			edge.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_HTTP,
-			zlog2.LevelInfo,
+		logger: zlog2.NewLoggingJSON(edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_HTTP, zlog2.LevelInfo,
 		),
 	}
 }

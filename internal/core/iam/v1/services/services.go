@@ -27,6 +27,7 @@ import (
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/cryptox"
 	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/passkey"
@@ -142,7 +143,7 @@ func (srv *IAMService) PasskeyRegisterStart(
 
 	srv.dataStore.SaveSession(t, ss)
 
-	pub, _ := json.Marshal(opt)
+	pub, _ := jsonx.Marshal(opt)
 	var pbStruct structpb.Struct
 	_ = protojson.Unmarshal(pub, &pbStruct)
 

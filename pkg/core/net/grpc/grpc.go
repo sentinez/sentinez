@@ -28,8 +28,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const BufSize = 1024 * 1024
-
 var (
 	// Ensure Server implements ServiceServer.
 	_ ServiceServer = (*Server)(nil)

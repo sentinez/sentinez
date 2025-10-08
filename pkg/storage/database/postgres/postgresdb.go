@@ -25,6 +25,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
@@ -61,6 +62,8 @@ func getConnPool(conf *common.EnvConfig) (*pgxpool.Pool, error) {
 func New[T proto.Message](conf *common.AppConfig, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 
+	tableName = table.NewTable(conf, tableName)
+
 	conn, err := getConnPool(conf.GetEnvConf())
 	if err != nil {
 		return nil, err
@@ -90,8 +93,12 @@ type postgres[T proto.Message] struct {
 	tableName string
 }
 
+func (p *postgres[T]) Table() string {
+	return p.tableName
+}
+
 func (p *postgres[T]) Set(ctx context.Context, id string, entity T) error {
-	data, err := protojson.Marshal(entity)
+	data, err := jsonx.Marshal(entity)
 	if err != nil {
 		return nil
 	}

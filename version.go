@@ -22,7 +22,7 @@ import (
 	"github.com/common-nighthawk/go-figure"
 )
 
-var (
+const (
 
 	// Package is filled at linking time
 	Package = "github.com/sentinez/sentinez"
@@ -30,14 +30,19 @@ var (
 	// Version holds the complete version number. Filled in at linking time.
 	Version = "v0.0.1-beta"
 
-	// GoVersion is Go tree's version.
-	GoVersion = runtime.Version()
-
 	// Name is the full name of the project.
 	Name = "sentinez/1.0"
 
 	// Code is the code of the project.
 	Code = "SNTZ"
+
+	// PrefixRequestID is prefix of request id
+	PrefixRequestID = "SNTZREQ"
+)
+
+var (
+	// GoVersion is Go tree's version.
+	GoVersion = runtime.Version()
 )
 
 func INFO(serviceName string, key string) {

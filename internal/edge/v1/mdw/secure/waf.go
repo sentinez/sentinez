@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"
@@ -34,7 +34,7 @@ func NewWAF() *WAF {
 	return &WAF{
 		Base: &chains.Base{},
 		logger: zlog.NewLoggingJSON(
-			edge.GetMetaEdgeServiceKey(),
+			edgepb.GetMetaEdgeServiceKey(),
 			common.LogKind_LOG_KIND_WAF,
 			zlog.LevelInfo,
 		),

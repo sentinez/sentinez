@@ -11,6 +11,7 @@ require (
 	buf.build/go/protovalidate v0.14.0
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/a-h/templ v0.3.943
+	github.com/bytedance/sonic v1.14.0
 	github.com/cloudwego/hertz v0.10.2
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
@@ -49,7 +50,6 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/cloudwego/gopkg v0.1.4 // indirect

@@ -33,7 +33,7 @@ func NewPrimaryKey(tableName string) string {
 }
 
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(Pattern, tableName)
+	matched, err := regexp.MatchString(pattern, tableName)
 	if err != nil {
 		fmt.Println("Regex error:", err)
 		return false
@@ -46,7 +46,7 @@ func IsValidTableName(tableName string) bool {
 	return false
 }
 
-const Pattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
+const pattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
 
 const (
 	Users   = "users"

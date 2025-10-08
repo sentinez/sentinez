@@ -36,8 +36,8 @@ func NewTX(conf *common.AppConfig) *Tx {
 }
 
 func WithTx[T proto.Message](
-	ss *TxSession, tableName string) database.Database[T] {
-	return &postgres[T]{client: ss.tx, tableName: tableName}
+	ss *TxSession, db database.Database[T]) database.Database[T] {
+	return &postgres[T]{client: ss.tx, tableName: db.Table()}
 }
 
 type Tx struct {

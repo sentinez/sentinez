@@ -16,6 +16,7 @@ package chains
 
 import (
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 type Handler interface {
@@ -28,15 +29,30 @@ type Base struct {
 }
 
 func (b *Base) SetNext(handler Handler) Handler {
+	if b == nil {
+		zlog.Warn("chains: uninitialized base chains")
+		return nil
+	}
+	
 	b.next = handler
 	return handler
 }
 
 func (b *Base) GetNext() Handler {
+	if b == nil {
+		zlog.Warn("chains: uninitialized base chains")
+		return nil
+	}
+
 	return b.next
 }
 
 func (b *Base) HandleNext(ctx *httpxhz.Context) error {
+	if b == nil {
+		zlog.Warn("chains: uninitialized base chains")
+		return nil
+	}
+
 	if b.next != nil {
 		return b.next.Handle(ctx)
 	}
