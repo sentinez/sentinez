@@ -25,7 +25,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
 	"github.com/sentinez/sentinez/pkg/storage/utils"
@@ -172,7 +172,7 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 		return fn(rows)
 	}
 
-	return nil, errx.F("[CollectRows] missing scans function")
+	return nil, errorx.F("[CollectRows] missing scans function")
 }
 
 // CollectOneRow implements database.Database.
@@ -194,7 +194,7 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 		return scan(row)
 	}
 
-	return empty, errx.F("[CollectOneRow] missing scans function")
+	return empty, errorx.F("[CollectOneRow] missing scans function")
 }
 
 // Exec implements database.Database.

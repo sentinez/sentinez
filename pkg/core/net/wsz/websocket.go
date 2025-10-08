@@ -15,11 +15,11 @@
 package wsz
 
 import (
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxstd "github.com/sentinez/sentinez/pkg/core/net/httpx/std"
-	"github.com/sentinez/sentinez/pkg/version"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -55,7 +55,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	version.INFO(
+	sentinez.INFO(
 		ws.meta.GetServiceName(),
 		ws.meta.GetServiceKey(),
 	)

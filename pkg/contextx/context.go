@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/cryptox"
-	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/errorx"
 
 	"google.golang.org/grpc/metadata"
 )
@@ -32,12 +32,12 @@ func GetAuth(ctx context.Context,
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
 	if len(accessToken) == 0 {
-		return nil, errx.UnauthorizedF("Invalid Access Token")
+		return nil, errorx.UnauthorizedF("Invalid Access Token")
 	}
 
 	pl, ok := cryptox.BearerTokenVerifier(conf, accessToken[0])
 	if !ok {
-		return nil, errx.UnauthorizedF("Invalid Access Token")
+		return nil, errorx.UnauthorizedF("Invalid Access Token")
 	}
 
 	return pl, nil

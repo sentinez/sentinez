@@ -18,10 +18,10 @@ import (
 	"context"
 	"crypto/tls"
 
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/version"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/valyala/fasthttp"
 )
@@ -83,7 +83,7 @@ func (s *HTTPServer) Shutdown(_ context.Context) error {
 }
 
 func (s *HTTPServer) initialize(addr string) {
-	version.INFO(
+	sentinez.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)
@@ -93,7 +93,7 @@ func (s *HTTPServer) initialize(addr string) {
 		color.Magenta.Add(addr),
 	)
 
-	s.core.Name = version.Name
+	s.core.Name = sentinez.Name
 	s.core.NoDefaultContentType = true
 	s.core.DisableKeepalive = false
 	s.core.Handler = fasthttp.CompressHandler(s.core.Handler)

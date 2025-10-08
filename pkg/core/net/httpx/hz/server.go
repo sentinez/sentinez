@@ -26,11 +26,11 @@ import (
 	"github.com/cloudwego/hertz/pkg/network"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/core/crypto/tlsx"
+	"github.com/sentinez/sentinez/pkg/common/tlsx"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
-	"github.com/sentinez/sentinez/pkg/version"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -128,7 +128,7 @@ func (s *HTTPServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
-	version.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
 	zlog.Infof("server engine >>> %s", color.Magenta.Add("HERTZ"))
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),
@@ -159,7 +159,7 @@ func (s *HTTPServer) initialize(addr string, certFile, keyFile string) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.hdl)
-	s.core.Name = version.Name
+	s.core.Name = sentinez.Name
 
 	return nil
 }

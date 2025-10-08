@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx/hz/proxy"
-	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -115,7 +115,7 @@ func (r *Router) SetProxy(
 func (r *Router) match(ctx *httpxhz.Context) (string, error) {
 	hCtx, ok := httpxhz.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
-		return "", errx.F("unknown namespace of request")
+		return "", errorx.F("unknown namespace of request")
 	}
 
 	origin := ""
@@ -147,7 +147,7 @@ func (r *Router) match(ctx *httpxhz.Context) (string, error) {
 		return origin, nil
 	}
 
-	return "", errx.F("not found: %s", path)
+	return "", errorx.F("not found: %s", path)
 }
 
 func prefixPath(path string) string {

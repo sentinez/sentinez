@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package stderr provide all type of error in sentinez universal
-package errx
+package errorx
 
 import (
 	"testing"

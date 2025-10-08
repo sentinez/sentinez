@@ -20,10 +20,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
-	"github.com/sentinez/sentinez/pkg/version"
-
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"
 )
@@ -40,7 +39,7 @@ var flags = &common.Flag{
 
 func info(meta *common.SntzMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
-	return version.FigureGen(service, meta.GetServiceKey())
+	return sentinez.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args

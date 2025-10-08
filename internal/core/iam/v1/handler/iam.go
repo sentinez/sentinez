@@ -19,7 +19,7 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/pkg/contextx"
-	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/perms"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
@@ -86,7 +86,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterStart(
 	}
 
 	if user.GetId() != "" {
-		return nil, errx.AlreadyExistsF(
+		return nil, errorx.AlreadyExistsF(
 			"username or email already exists: %s", req.GetEmailOrUsername())
 	}
 
