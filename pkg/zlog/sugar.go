@@ -17,8 +17,9 @@ package zlog
 import (
 	"fmt"
 
+	"github.com/sentinez/sentinez"
+
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/version"
 	"go.uber.org/zap"
 )
 
@@ -51,14 +52,14 @@ type Sugard interface {
 }
 
 func NewConsole(scope string, level Level) Sugard {
-	logger := configConsoleLogger(scope).Sugar()
-	return createSugard(logger, ToLevel(level.String()).Int())
+	log := configConsoleLogger(scope).Sugar()
+	return createSugard(log, ToLevel(level.String()).Int())
 }
 
 func NewDefaultConsole(level Level) Sugard {
-	logger := configConsoleLogger(
-		color.Green.Add(fmt.Sprintf("[%s]", version.Code))).Sugar()
-	return createSugard(logger, ToLevel(level.String()).Int())
+	log := configConsoleLogger(
+		color.Green.Add(fmt.Sprintf("[%s]", sentinez.Code))).Sugar()
+	return createSugard(log, ToLevel(level.String()).Int())
 }
 
 // sugard is the logger for the package.

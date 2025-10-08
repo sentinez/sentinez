@@ -27,7 +27,7 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	"github.com/sentinez/sentinez/pkg/common/passkey"
+	"github.com/sentinez/sentinez/pkg/passkey"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 )
 

@@ -20,10 +20,10 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/errx"
-	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -79,7 +79,7 @@ type HTTPServer struct {
 // Start implements Server.
 func (h *HTTPServer) Start(ctx context.Context) error {
 	_ = ctx
-	return errx.ErrUnimplemented
+	return errorx.ErrUnimplemented
 }
 
 // Use middleware for the http server. Middleware will be called
@@ -106,7 +106,7 @@ func (h *HTTPServer) Listen(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	version.INFO(
+	sentinez.INFO(
 		h.meta.GetServiceName(),
 		h.meta.GetServiceKey(),
 	)
@@ -145,6 +145,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set("Server", version.Name)
+		w.Header().Set("Server", sentinez.Name)
 	})
 }

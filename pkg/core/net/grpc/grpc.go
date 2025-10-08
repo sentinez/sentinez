@@ -18,11 +18,11 @@ package grpc
 import (
 	"context"
 
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/errx"
-	"github.com/sentinez/sentinez/pkg/version"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -58,7 +58,7 @@ type Server struct {
 // Start implements Server.
 func (s *Server) Start(ctx context.Context) error {
 	_ = ctx
-	return errx.ErrUnimplemented
+	return errorx.ErrUnimplemented
 }
 
 // Shutdown implements ServiceServer.
@@ -82,7 +82,7 @@ func (s *Server) Serve(conf *common.AppConfig) error {
 		return err
 	}
 
-	version.INFO(
+	sentinez.INFO(
 		s.meta.GetServiceName(),
 		s.meta.GetServiceKey(),
 	)

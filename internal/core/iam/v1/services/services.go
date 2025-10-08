@@ -27,9 +27,9 @@ import (
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	"github.com/sentinez/sentinez/pkg/common/passkey"
 	"github.com/sentinez/sentinez/pkg/cryptox"
-	"github.com/sentinez/sentinez/pkg/errx"
+	"github.com/sentinez/sentinez/pkg/errorx"
+	"github.com/sentinez/sentinez/pkg/passkey"
 	"github.com/sentinez/sentinez/pkg/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -94,7 +94,7 @@ func (srv *IAMService) PasskeyRegisterFinish(
 
 	session, ok := srv.dataStore.GetSession(ssToken)
 	if !ok {
-		return nil, errx.InvalidDataF("get session error")
+		return nil, errorx.InvalidDataF("get session error")
 	}
 
 	user := srv.dataStore.GetUser(string(session.UserID))
@@ -112,7 +112,7 @@ func (srv *IAMService) PasskeyRegisterFinish(
 
 	credential, err := srv.webAuthn.CreateCredential(user, *session, parsedCCR)
 	if err != nil {
-		return nil, errx.InvalidDataF("can't finish registration: %v", err)
+		return nil, errorx.InvalidDataF("can't finish registration: %v", err)
 	}
 
 	user.AddCredential(credential)
@@ -132,12 +132,12 @@ func (srv *IAMService) PasskeyRegisterStart(
 
 	opt, ss, err := srv.webAuthn.BeginRegistration(user)
 	if err != nil {
-		return nil, errx.InternalErrorF("can't begin registration: %v", err)
+		return nil, errorx.InternalErrorF("can't begin registration: %v", err)
 	}
 
 	t, err := srv.dataStore.GenSessionID()
 	if err != nil {
-		return nil, errx.InternalErrorF("can't generate session id: %v", err)
+		return nil, errorx.InternalErrorF("can't generate session id: %v", err)
 	}
 
 	srv.dataStore.SaveSession(t, ss)
@@ -180,20 +180,20 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, username)
-	if errx.NotRowsNotFound(err) {
+	if errorx.NotRowsNotFound(err) {
 		return err
 	}
 	if acc.GetId() != "" {
-		return errx.AlreadyExistsF(
+		return errorx.AlreadyExistsF(
 			"username %s already exists", acc.GetUsername())
 	}
 
 	acc, err = srv.accounts.GetByUsernameOrEmail(ctx, email)
-	if errx.NotRowsNotFound(err) {
+	if errorx.NotRowsNotFound(err) {
 		return err
 	}
 	if acc.GetId() != "" {
-		return errx.AlreadyExistsF(
+		return errorx.AlreadyExistsF(
 			"email %s already exists", acc.GetEmail())
 	}
 
@@ -263,7 +263,7 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
-		if errx.Is(err, pgx.ErrNoRows) {
+		if errorx.Is(err, pgx.ErrNoRows) {
 			return &iam.Accounts{}, nil
 		}
 
@@ -284,7 +284,7 @@ func (srv *IAMService) Login(ctx context.Context,
 
 	if !cryptox.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
 		return nil,
-			errx.UnauthorizedF("username, email or password is wrong!")
+			errorx.UnauthorizedF("username, email or password is wrong!")
 	}
 
 	user, err := srv.users.Get(ctx, acc.GetUserId())
@@ -315,13 +315,13 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iam.CreateUserRequest) (*iam.CreateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
-	if errx.NotRowsNotFound(err) {
+	if errorx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
 	if user.GetId() != "" {
 		return nil,
-			errx.AlreadyExistsF(
+			errorx.AlreadyExistsF(
 				"email %s already exists", request.GetEmail())
 	}
 
@@ -356,7 +356,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iam.GetUserResponse{User: user}, nil
 	}
 
-	return nil, errx.InvalidDataF(
+	return nil, errorx.InvalidDataF(
 		"invalid argument: must provide either id or username")
 }
 
@@ -385,12 +385,12 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
-	if errx.NotRowsNotFound(err) {
+	if errorx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
 	if user.GetId() != "" {
-		return nil, errx.AlreadyExistsF(
+		return nil, errorx.AlreadyExistsF(
 			"email %s already exists", request.GetEmail())
 	}
 
