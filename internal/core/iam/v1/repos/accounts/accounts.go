@@ -54,23 +54,20 @@ type IAccount interface {
 }
 
 func New(appConf *commonpb.AppConfig) (IAccount, error) {
-	tableName := table.NewTable(appConf, table.Account)
 
-	storage, err := postgres.New[*iam.Accounts](appConf, tableName,
+	storage, err := postgres.New[*iam.Accounts](appConf, table.Account,
 		postgres.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &Accounts{
-		storage:   storage,
-		tableName: tableName,
+		storage: storage,
 	}, nil
 }
 
 type Accounts struct {
-	tableName string
-	storage   database.Database[*iam.Accounts]
+	storage database.Database[*iam.Accounts]
 }
 
 // nolint:funlen
@@ -105,8 +102,7 @@ func buildListQuery(builder sq.SelectBuilder,
 
 func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 	return &Accounts{
-		tableName: acc.tableName,
-		storage:   postgres.WithTx[*iam.Accounts](tx, acc.tableName),
+		storage: postgres.WithTx(tx, acc.storage),
 	}
 }
 
@@ -114,7 +110,8 @@ func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 func (acc *Accounts) List(ctx context.Context,
 	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
 
-	builder := sq.Select(database.SchemalessFieldData).From(acc.tableName)
+	builder := sq.Select(database.SchemalessFieldData).
+		From(acc.storage.Table())
 	builder = postgres.Paging(builder, req.GetPage())
 	builder = buildListQuery(builder, req)
 
@@ -148,7 +145,7 @@ func (acc *Accounts) List(ctx context.Context,
 func (acc *Accounts) Total(ctx context.Context,
 	req *iam.ListAccountsRequest) (int64, error) {
 
-	builder := sq.Select("COUNT(*) AS count").From(acc.tableName)
+	builder := sq.Select("COUNT(*) AS count").From(acc.storage.Table())
 	builder = buildListQuery(builder, req)
 
 	var count int64
@@ -162,13 +159,11 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*iam.Accounts, error) {
 
 	builder := sq.Select(database.SchemalessFieldData).
-		From(acc.tableName).
-		Where(
-			sq.Or{
-				sq.Eq{postgres.Field(iam.AccountsFieldUsername): input},
-				sq.Eq{postgres.Field(iam.AccountsFieldEmail): input},
-			},
-		)
+		From(acc.storage.Table()).
+		Where(sq.Or{
+			sq.Eq{postgres.Field(iam.AccountsFieldUsername): input},
+			sq.Eq{postgres.Field(iam.AccountsFieldEmail): input},
+		})
 
 	return acc.storage.
 		CollectOneRow(ctx, builder, postgres.Scan[*iam.Accounts])

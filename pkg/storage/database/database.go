@@ -51,6 +51,8 @@ type Database[T proto.Message] interface {
 	Set(ctx context.Context, id string, entity T) error
 	Get(ctx context.Context, id string) (T, error)
 	Delete(ctx context.Context, id string) error
+
+	Table() string
 }
 
 type TxSession interface {

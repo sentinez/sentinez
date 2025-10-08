@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/flagx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/spf13/pflag"
 )
@@ -52,7 +52,7 @@ func Parse() *common.Flag {
 		pflag.StringVar(&flagx.Get().CertKeyFile, "cert-key",
 			flagx.Get().GetCertKeyFile(), "TLS certificate key .pem")
 
-		flagx.Parse(edge.GetMetaEdge())
+		flagx.Parse(edgepb.GetMetaEdge())
 	})
 
 	if err := flagx.Validate(flagx.Get()); err != nil {

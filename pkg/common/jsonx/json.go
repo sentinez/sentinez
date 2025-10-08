@@ -12,33 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package jsonx
 
 import (
-	"sync"
-
-	"github.com/sentinez/sentinez/pkg/configx"
-
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
+	"github.com/bytedance/sonic"
 )
 
-var (
-	once    sync.Once
-	appConf *common.AppConfig
-)
+func Marshal(v any) ([]byte, error) {
+	return sonic.Marshal(v)
+}
 
-func Config() *common.AppConfig {
-	once.Do(func() {
-		flag := edgeflags.Parse()
-		envConf := configx.LoadEnv(flag.GetEnvFile())
-		appConf = &common.AppConfig{
-			Meta:    edgepb.GetMetaEdge(),
-			EnvConf: envConf,
-			Flag:    flag,
-		}
-	})
-
-	return appConf
+func Unmarshal(data []byte, v any) error {
+	return sonic.Unmarshal(data, v)
 }

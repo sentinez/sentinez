@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/mdw/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/mdw/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/mdw/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/mdw/waitingroom"
 )
 
 func (s *Server) initialize(appConf *common.AppConfig) error {
@@ -29,9 +30,10 @@ func (s *Server) initialize(appConf *common.AppConfig) error {
 
 	hostname := appConf.GetEnvConf().GetHostname()
 
-	begin := static.NewStatic()
+	begin := waitingroom.New()
 
-	begin.SetNext(logging.NewLogger()).
+	begin.SetNext(static.NewStatic()).
+		SetNext(logging.NewLogger()).
 		SetNext(secure.NewDomain(hostname)).
 		SetNext(secure.NewWAF()).
 		SetNext(routing.NewRouter())

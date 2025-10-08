@@ -17,7 +17,7 @@ package secure
 import (
 	"strings"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -63,7 +63,7 @@ func (d *Domain) Handle(ctx *httpxhz.Context) error {
 
 	ctxValue, ok := httpxhz.GetRequestContext(ctx)
 	if !ok {
-		ctxValue = &common.HTTPContext{}
+		ctxValue = &edgepb.Context{}
 	}
 
 	ctxValue.TenantNs = ns

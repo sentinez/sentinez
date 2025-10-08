@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/core/net/httpx"
@@ -104,7 +105,7 @@ func (c *Context) String(statusCode int, body string) error {
 }
 
 func setIdentifier(ctx context.Context) context.Context {
-	id := uuid.NewIDHex("SNTZREQ")
+	id := uuid.NewIDHex(sentinez.PrefixRequestID)
 	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now())
 	return context.WithValue(ctx, sntzRequestHTTPIDKey, id)
 }

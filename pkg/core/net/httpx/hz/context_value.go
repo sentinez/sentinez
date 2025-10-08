@@ -17,7 +17,7 @@ package httpxhz
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
 )
 
@@ -31,9 +31,9 @@ const (
 )
 
 // SetRequestContext returns a new context with the given message
-func SetRequestContext(parent *Context, msg *common.HTTPContext) *Context {
+func SetRequestContext(parent *Context, msg *edgepb.Context) *Context {
 	if msg == nil {
-		msg = &common.HTTPContext{}
+		msg = &edgepb.Context{}
 	}
 
 	if parent == nil {
@@ -47,13 +47,13 @@ func SetRequestContext(parent *Context, msg *common.HTTPContext) *Context {
 }
 
 // GetRequestContext returns the context value.
-func GetRequestContext(rctx *Context) (*common.HTTPContext, bool) {
+func GetRequestContext(rctx *Context) (*edgepb.Context, bool) {
 	msgBin, ok := rctx.ctx.Value(sntzRequestHTTPCtxKey).([]byte)
 	if !ok {
 		return nil, false
 	}
 
-	var msg common.HTTPContext
+	var msg edgepb.Context
 	if err := proto.Unmarshal(msgBin, &msg); err != nil {
 		return nil, false
 	}

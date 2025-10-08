@@ -18,7 +18,7 @@ package sentinez.edge.v1;
 
 import "sentinez/types/common/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edge";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
 option (sentinez.types.common.v1.sntz_meta) = {
   service_name: "SENTINEZ // EDGE",
@@ -26,17 +26,56 @@ option (sentinez.types.common.v1.sntz_meta) = {
   service_key: "sentinez.edge.v1",
 };
 
-message ReverseProxyPass {
-  repeated Namespace namespaces = 1;
+// Setting edge setting per user
+message Setting {
+  Metadata metadata = 1;
+  Origin origin = 2;
+  Security security = 3;
+  TrafficControl traffic_control = 4;
+  Personalization personal = 5;
 }
 
-message Namespace {
+// Metadata used for observability and debugging:
+message Metadata {
+
+}
+
+// Origin defines where the request goes and how the edge processes it:
+message Origin {
+  repeated OriginNamespace namespaces = 1;
+}
+
+message OriginNamespace {
   string namespace = 1;
-  repeated Route routes = 2;
+  repeated OriginRoute routes = 2;
 }
 
-message Route {
+message OriginRoute {
   string match_prefix = 1;
   string target = 2;
   string rewrite = 3;
+}
+
+// Security user-specific WAF, rate limiting, or bot protection rules
+message Security {
+
+}
+
+// TrafficControl for systems using a virtual waiting room or throttling:
+message TrafficControl {
+
+}
+
+// Personalization defines where the request goes and how the edge processes it
+message Personalization {
+
+}
+
+// Context helps the edge identify which user is connected
+message Context {
+  // tenant_ns namespace of tenant
+  // example: dev.sentinez.test
+  //  - namespace: dev
+  //  - root: sentinez.test
+  string tenant_ns = 1;
 }

@@ -18,6 +18,7 @@ package iamv1
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
@@ -48,6 +49,6 @@ type IAM struct {
 func (im *IAM) Start(_ context.Context) error {
 	iam.RegisterIdentityAccessManagementServiceServer(im.AsServer(), im.hdl)
 
-	bufLis = bufconn.Listen(grpcgw.BufSize)
+	bufLis = bufconn.Listen(local.BufSize)
 	return im.BufServe(bufLis)
 }
