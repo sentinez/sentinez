@@ -12,11 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package api contains the proto files used in the sentinez ecosystem,
-// including proto files used in the services, and domain layers.
-// All functions are separated and run completely independently of each other.
-//
-// Services: defines tasks by combining business logic through the domain layer
-//
-// Domain: defines business logic and data types
 package api

@@ -1,0 +1,13 @@
+tools
+
+=======================================================================
+
+This folder provide all necessary tools for sentinez projects. To install all,
+run this command in cmd at path:
+
+`${YOUR_FOLDER}/github.com/sentinez/sentinez/tools`
+
+```bash
+go mod tidy
+go install ./...
+```
