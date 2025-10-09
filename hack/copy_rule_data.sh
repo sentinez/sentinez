@@ -15,4 +15,4 @@
 # limitations under the License.
 
 # use in root project
-mkdir -p ./resources/waf/data/v4-16-0 && cp ./_patches/coreruleset/rules/*.data ./resources/waf/data/v4-16-0
+mkdir -p ./rules/data/v4-16-0 && cp ./_patches/coreruleset/rules/*.data ./rules/data/v4-16-0

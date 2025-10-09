@@ -62,10 +62,10 @@ Licensed under the [Apache 2.0](LICENSE) license.
 ### Logo
 
 <p align="left">
-  <img src="./assets/sntz.png" width="40"/>
-  <img src="./assets/sntz-black.png" width="40"/>
-  <img src="./assets/sntz-light.png" width="40"/>
-  <img src="./assets/sntz-light2.png" width="40"/>
+  <img src="./logo/sntz.png" width="40"/>
+  <img src="./logo/sntz-black.png" width="40"/>
+  <img src="./logo/sntz-light.png" width="40"/>
+  <img src="./logo/sntz-light2.png" width="40"/>
 </p>
 
 ![Creative Commons License](https://i.creativecommons.org/l/by/4.0/88x31.png)  

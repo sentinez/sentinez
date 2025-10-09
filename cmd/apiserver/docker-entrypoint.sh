@@ -18,6 +18,6 @@
 ./bin/apiserver \
     --log-level info  \
     --mode prod \
-    --api-specs-path ./resources/api/specs/v1 \
-    --swagger-path ./resources/api/swagger \
+    --api-specs-path ./api/docs/v1 \
+    --swagger-path ./api/docs/swagger \
     --env-file ""

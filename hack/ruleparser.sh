@@ -16,40 +16,40 @@
 
 ruleparser-sentinez \
     -out rules/gen/v4-16-0 \
-    -file resources/waf/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -file rules/modsec/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
     -out rules/gen/v4-16-0 \
-    -file resources/waf/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -file rules/modsec/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
     -out rules/gen \
-    -file resources/waf/rules/setup.conf
+    -file rules/modsec/setup.conf
 
 ruleparser-sentinez \
     -out rules/gen \
-    -file resources/waf/rules/default.conf
+    -file rules/modsec/default.conf
 
 # ruleparser-sentinez \
 #     -out rules/gen \
-#     -file resources/waf/rules/modsecurity.conf
+#     -file rules/modsec/modsecurity.conf
 
 ruleparser-sentinez \
     -out rules/gen/v4-16-0 \
-    -file resources/waf/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -file rules/modsec/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
     -out rules/gen \
-    -file resources/waf/rules/REQUEST-901-INITIALIZATION.conf
+    -file rules/modsec/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
     -out rules/gen/v4-16-0 \
-    -file resources/waf/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -file rules/modsec/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out rules/gen \
-    -file resources/waf/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -file rules/modsec/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out rules/gen \
-    -file resources/waf/rules/audit.conf
+    -file rules/modsec/audit.conf

@@ -31,11 +31,11 @@ var onceEdge sync.Once
 // Parse flag args for grpc service
 func Parse() *common.Flag {
 	onceEdge.Do(func() {
-		flagx.Get().RulePath = "./resources/waf/data/v4-16-0"
+		flagx.Get().RulePath = "./rules/data/v4-16-0"
 		flagx.Get().ProxyConfig = "./cmd/edge/v1/proxy.yaml"
 		flagx.Get().EnvFile = "./cmd/edge/v1/.env"
-		flagx.Get().CertificateFile = "./localhost.pem"
-		flagx.Get().CertKeyFile = "./localhost-key.pem"
+		flagx.Get().CertificateFile = "./_wildcard.sentinez.vn+1.pem"
+		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
 
 		pflag.StringVar(&flagx.Get().EnvFile, "env-file",
 			flagx.Get().GetEnvFile(), "environment variables config file")
