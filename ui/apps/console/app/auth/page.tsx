@@ -7,7 +7,7 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <Image width={600} height={600} src="/assets/cels.png" alt="Image" />
+            <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
           </div>
           SENTINEZ
         </a>

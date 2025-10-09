@@ -15,8 +15,8 @@ BUATAN VIETNAM
 --- 
 > **© 2025 SENTINEZ**
 <p align="left">
-  <img src="./docs/assets/cels.png" width="40"/>
-  <img src="./docs/assets/cels-black.png" width="40"/>
-  <img src="./docs/assets/cels-light.png" width="40"/>
-  <img src="./docs/assets/cels-light2.png" width="40"/>
+  <img src="./assets/sntz.png" width="40"/>
+  <img src="./assets/sntz-black.png" width="40"/>
+  <img src="./assets/sntz-light.png" width="40"/>
+  <img src="./assets/sntz-light2.png" width="40"/>
 </p>
