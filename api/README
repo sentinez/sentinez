@@ -1,1 +1,9 @@
+api
+
+=======================================================================
+
 This directory contains the gRPC, API definitions for Sentinez.
+
+Package api contains the proto files used in the sentinez ecosystem,
+including proto files used in the services, and domain layers.
+All functions are separated and run completely independently of each other.

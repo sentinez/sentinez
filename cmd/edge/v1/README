@@ -1,3 +1,32 @@
+
+
+[SENTINEZ] edge/v1
+
+=======================================================================
+
 cmd/edge/v1 directory is where you start the edge version 1
 
+```bash
 go run cmd/edge/v1/main.go
+```
+
+You need TLS certificate to start the app.
+
+For developer, run edge in local, run this command to generate local TLS
+certificate with domain `*.sentinez.vn` and `sentinez.vn`, run command at root
+of project
+
+```bash
+./hack/mkcert-local.sh
+```
+
+Add host to `/etc/hosts` if you on Linux
+```
+127.0.0.1 example.sentinez.vn
+127.0.0.1 sentinez.vn
+```
+
+If you have not install `mkcert`, please install it.
+
+See: https://github.com/FiloSottile/mkcert 
+
