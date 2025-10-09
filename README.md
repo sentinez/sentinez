@@ -3,7 +3,7 @@
 # Sentinez Guide
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](http://www.apache.org/licenses/LICENSE-2.0)
-[![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by-sa/4.0/)
+[![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by/4.0/)
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
 <img src="https://i.imgur.com/5Z8Qm77.png" alt="sentinez" width="300px">
@@ -62,15 +62,15 @@ Licensed under the [Apache 2.0](LICENSE) license.
 ### Logo
 
 <p align="left">
-  <img src="./docs/assets/cels.png" width="40"/>
-  <img src="./docs/assets/cels-black.png" width="40"/>
-  <img src="./docs/assets/cels-light.png" width="40"/>
-  <img src="./docs/assets/cels-light2.png" width="40"/>
+  <img src="./assets/sntz.png" width="40"/>
+  <img src="./assets/sntz-black.png" width="40"/>
+  <img src="./assets/sntz-light.png" width="40"/>
+  <img src="./assets/sntz-light2.png" width="40"/>
 </p>
 
-![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)  
+![Creative Commons License](https://i.creativecommons.org/l/by/4.0/88x31.png)  
 **Sentinez** – photo by **Duc-Hung Ho**  
-Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+Licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
 > **[© 2025 SENTINEZ](MADEINVIETNAM.md)** VN/CN/RU/IN/KR/US/JP/AU/FR/MY/NZ/ID/SG/TH

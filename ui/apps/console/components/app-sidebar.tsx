@@ -116,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                 <Link href="/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Image src="/assets/cels.png" alt="logo" width={100} height={100} />
+                    <Image src="/assets/sntz.png" alt="logo" width={100} height={100} />
                   </div>
                 </Link>
               </SidebarMenuButton>
