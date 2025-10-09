@@ -16,10 +16,11 @@ package httpxf1mdw
 
 import (
 	"github.com/corazawaf/coraza/v3/types"
+	"github.com/sentinez/sentinez/modsecx"
+	"github.com/sentinez/sentinez/modsecx/wafengine"
 	httpxf1 "github.com/sentinez/sentinez/pkg/core/net/httpx/f1"
 	httpfsec "github.com/sentinez/sentinez/pkg/core/net/httpx/f1/sec"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"github.com/sentinez/sentinez/rules"
 )
 
 func ProtectedWithCallback(
@@ -27,9 +28,9 @@ func ProtectedWithCallback(
 	cb func(*httpxf1.Context, types.Transaction),
 ) func(httpxf1.RequestHandler) httpxf1.RequestHandler {
 
-	flag := rules.ReqAppAttackRCE
+	flag := modsecx.ReqAppAttackRCE
 
-	waf, err := rules.NewWAF(rules.Ver4_16_0, ruleBasePath, flag)
+	waf, err := wafengine.NewWAF(modsecx.CRSv4160, ruleBasePath, flag)
 	if err != nil {
 		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
 		return nil

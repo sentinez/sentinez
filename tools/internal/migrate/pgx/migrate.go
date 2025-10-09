@@ -14,7 +14,7 @@ func Run(srcFiles, dbUrl, action string, step int) error {
 		return fmt.Errorf("failed to create migration: %w", err)
 	}
 
-	defer m.Close()
+	defer func() { _, _ = m.Close() }()
 
 	switch action {
 	case "up":

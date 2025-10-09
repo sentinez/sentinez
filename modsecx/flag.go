@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package modsecx
 
-type RulesetsFlag uint64
+type CRSFlag uint64
 
 const (
 	// ====== REQUEST PHASE ======
-	AllRulesets RulesetsFlag = 1 << iota
+	AllCRS CRSFlag = 1 << iota
 
 	ReqCommonExceptions         // REQUEST-905-COMMON-EXCEPTIONS.conf
 	ReqMethodEnforcement        // REQUEST-911-METHOD-ENFORCEMENT.conf
