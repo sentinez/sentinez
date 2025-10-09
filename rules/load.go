@@ -17,7 +17,7 @@ package rules
 import rulev4160 "github.com/sentinez/sentinez/rules/gen/v4-16-0"
 
 func R4160(rulesets *RuleLoader, flag RulesetsFlag) {
-	//rulesets.Load(rulev4160.Request942ApplicationAttackSqliOrder)
+
 	if flag&ReqAppAttackRCE != 0 {
 		rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
 	}

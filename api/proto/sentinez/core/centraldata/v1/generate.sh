@@ -31,7 +31,7 @@ fi
 
 SENTINEZ_PATH=$GOPATH/src/github.com/sentinez/sentinez
 SENTINEZ_GEN_OUT=$GOPATH/src
-SENTINEZ_OPENAPI_OUT=$SENTINEZ_PATH/resources/api/specs/v1
+SENTINEZ_OPENAPI_OUT=$SENTINEZ_PATH/api/docs/v1
 
 protoc \
   -I"$SENTINEZ_PATH"/api/proto \
