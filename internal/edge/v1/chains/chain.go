@@ -33,7 +33,7 @@ func (b *Base) SetNext(handler Handler) Handler {
 		zlog.Warn("chains: uninitialized base chains")
 		return nil
 	}
-	
+
 	b.next = handler
 	return handler
 }

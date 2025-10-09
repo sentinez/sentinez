@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/rules
+module github.com/sentinez/sentinez/modsecx
 
 go 1.25.0
 

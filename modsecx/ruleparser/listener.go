@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/rules/ruleparser/parser"
+	"github.com/sentinez/sentinez/modsecx/ruleparser/parser"
 )
 
 type ParserResult struct {

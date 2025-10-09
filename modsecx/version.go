@@ -12,21 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package modsecx
 
-import (
-	"os"
+type CRSVersion string
 
-	"github.com/corazawaf/coraza/v3"
+const (
+	CRSv4160 CRSVersion = "v4.16.0"
 )
-
-func NewWAF(version Version,
-	ruleBasePath string, rulesetsFlag RulesetsFlag) (coraza.WAF, error) {
-
-	rule := Load(version, rulesetsFlag)
-
-	rootFS := os.DirFS(ruleBasePath)
-	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
-
-	return coraza.NewWAF(conf)
-}

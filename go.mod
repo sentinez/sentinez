@@ -4,7 +4,7 @@ go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ./api
-	github.com/sentinez/sentinez/rules => ./rules
+	github.com/sentinez/sentinez/modsecx => ./modsecx
 )
 
 require (
@@ -30,7 +30,7 @@ require (
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/rules v0.0.0
+	github.com/sentinez/sentinez/modsecx v0.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1
 	github.com/valyala/fasthttp v1.65.0

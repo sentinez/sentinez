@@ -15,41 +15,41 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out rules/gen/v4-16-0 \
-    -file rules/modsec/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out modsecx/gen/v4-16-0 \
+    -file modsecx/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out rules/gen/v4-16-0 \
-    -file rules/modsec/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out modsecx/gen/v4-16-0 \
+    -file modsecx/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out rules/gen \
-    -file rules/modsec/setup.conf
+    -out modsecx/gen \
+    -file modsecx/rules/setup.conf
 
 ruleparser-sentinez \
-    -out rules/gen \
-    -file rules/modsec/default.conf
+    -out modsecx/gen \
+    -file modsecx/rules/default.conf
 
 # ruleparser-sentinez \
-#     -out rules/gen \
-#     -file rules/modsec/modsecurity.conf
+#     -out modsecx/gen \
+#     -file modsecx/modsecx/rulesurity.conf
 
 ruleparser-sentinez \
-    -out rules/gen/v4-16-0 \
-    -file rules/modsec/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -out modsecx/gen/v4-16-0 \
+    -file modsecx/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out rules/gen \
-    -file rules/modsec/REQUEST-901-INITIALIZATION.conf
+    -out modsecx/gen \
+    -file modsecx/rules/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out rules/gen/v4-16-0 \
-    -file rules/modsec/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out modsecx/gen/v4-16-0 \
+    -file modsecx/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out rules/gen \
-    -file rules/modsec/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out modsecx/gen \
+    -file modsecx/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out rules/gen \
-    -file rules/modsec/audit.conf
+    -out modsecx/gen \
+    -file modsecx/rules/audit.conf

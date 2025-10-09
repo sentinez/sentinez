@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package ruleloader
 
 import (
 	"bytes"
@@ -20,33 +20,7 @@ import (
 	"os"
 
 	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
-	rules "github.com/sentinez/sentinez/rules/gen"
 )
-
-func Load(version Version, rulesetsFlag RulesetsFlag) string {
-	var rulesets = &RuleLoader{}
-
-	// load setup rules
-	rulesets.Load(rules.SetupOrder)
-
-	// load init rule
-	rulesets.Load(rules.Request901InitializationOrder)
-
-	// load core rulesets
-	switch version {
-	case Ver4_16_0:
-		R4160(rulesets, rulesetsFlag)
-	}
-
-	//load extension rules
-	rulesets.Load(rules.AuditOrder)
-	rulesets.Load(rules.DefaultOrder)
-
-	// load evaluation rules
-	rulesets.Load(rules.Request949BlockingEvaluationOrder)
-
-	return rulesets.Export()
-}
 
 type RuleLoader struct {
 	buf bytes.Buffer
