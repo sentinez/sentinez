@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/modsecx/ruleparser/parser"
+	"github.com/sentinez/sentinez/security/ruleparser/parser"
 )
 
 type ParserResult struct {
@@ -55,20 +55,29 @@ type CustomErrorListener struct {
 }
 
 func NewCustomErrorListener() *CustomErrorListener {
-	return &CustomErrorListener{antlr.NewDefaultErrorListener(), make([]error, 0)}
+	return &CustomErrorListener{
+		antlr.NewDefaultErrorListener(), make([]error, 0)}
 }
 
-func (c *CustomErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{}, line, column int, msg string, e antlr.RecognitionException) {
+func (c *CustomErrorListener) SyntaxError(
+	_ antlr.Recognizer,
+	offendingSymbol any,
+	line, column int,
+	msg string,
+	_ antlr.RecognitionException,
+) {
 	var err error
 	if offendingSymbol == nil {
-		err = fmt.Errorf("recognition error at line %d, column %d: %s", line, column, msg)
+		err = fmt.Errorf("recognition error at line %d, column %d: %s",
+			line, column, msg)
 	} else {
-		err = fmt.Errorf("syntax error at line %d, column %d: %v", line, column, offendingSymbol)
+		err = fmt.Errorf("syntax error at line %d, column %d: %v",
+			line, column, offendingSymbol)
 	}
 	c.Errors = append(c.Errors, err)
 }
 
-func (l *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
+func (l *TreeShapeListener) EnterEveryRule(_ antlr.ParserRuleContext) {
 	// if you need to debug, enable this one below
 	// fmt.Println("Entering rule:", ctx.GetText())
 }
@@ -112,7 +121,7 @@ func (l *TreeShapeListener) EnterStmt(ctx *parser.StmtContext) {
 	l.results.Rules = append(l.results.Rules, stmt)
 }
 
-func (l *TreeShapeListener) ExitStmt(ctx *parser.StmtContext) {
+func (l *TreeShapeListener) ExitStmt(_ *parser.StmtContext) {
 
 }
 
@@ -138,10 +147,11 @@ func (l *TreeShapeListener) EnterAction(ctx *parser.ActionContext) {
 	}
 }
 
-func (l *TreeShapeListener) EnterAction_with_params(ctx *parser.Action_with_paramsContext) {
+func (l *TreeShapeListener) EnterAction_with_params(
+	_ *parser.Action_with_paramsContext) {
 }
 
-func (l *TreeShapeListener) EnterAction_value(ctx *parser.Action_valueContext) {
+func (l *TreeShapeListener) EnterAction_value(_ *parser.Action_valueContext) {
 
 }
 
