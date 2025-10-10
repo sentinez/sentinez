@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package security
+package corerule
 
 import (
-	"github.com/sentinez/sentinez/security/ruleloader"
+	"github.com/sentinez/sentinez/corerule/ruleloader"
 
-	rules "github.com/sentinez/sentinez/security/gen"
-	rulev4160 "github.com/sentinez/sentinez/security/gen/v4-16-0"
+	rules "github.com/sentinez/sentinez/corerule/gen"
+	rulev4160 "github.com/sentinez/sentinez/corerule/gen/v4-16-0"
 )
 
 func GetRule(version CRSVersion, rulesetsFlag CRSFlag) string {

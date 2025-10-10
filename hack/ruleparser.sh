@@ -15,41 +15,37 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out security/gen/v4-16-0 \
-    -file security/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out corerule/gen/v4-16-0 \
+    -file corerule/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out security/gen/v4-16-0 \
-    -file security/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out corerule/gen/v4-16-0 \
+    -file corerule/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out security/gen \
-    -file security/rules/setup.conf
+    -out corerule/gen \
+    -file corerule/rules/setup.conf
 
 ruleparser-sentinez \
-    -out security/gen \
-    -file security/rules/default.conf
-
-# ruleparser-sentinez \
-#     -out security/gen \
-#     -file security/security/rulesurity.conf
+    -out corerule/gen \
+    -file corerule/rules/default.conf
 
 ruleparser-sentinez \
-    -out security/gen/v4-16-0 \
-    -file security/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -out corerule/gen/v4-16-0 \
+    -file corerule/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out security/gen \
-    -file security/rules/REQUEST-901-INITIALIZATION.conf
+    -out corerule/gen \
+    -file corerule/rules/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out security/gen/v4-16-0 \
-    -file security/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out corerule/gen/v4-16-0 \
+    -file corerule/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out security/gen \
-    -file security/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out corerule/gen \
+    -file corerule/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out security/gen \
-    -file security/rules/audit.conf
+    -out corerule/gen \
+    -file corerule/rules/audit.conf

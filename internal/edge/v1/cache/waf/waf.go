@@ -19,11 +19,11 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/corerule"
+	"github.com/sentinez/sentinez/corerule/wafengine"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"github.com/sentinez/sentinez/security"
-	"github.com/sentinez/sentinez/security/wafengine"
 )
 
 var (
@@ -54,7 +54,7 @@ type WAFCache struct {
 }
 
 func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
-	version security.CRSVersion, flag security.CRSFlag) error {
+	version corerule.CRSVersion, flag corerule.CRSFlag) error {
 
 	waf, err := wafengine.NewWAF(version, conf.GetFlag().GetRulePath(), flag)
 	if err != nil {

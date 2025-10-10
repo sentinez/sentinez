@@ -18,6 +18,6 @@
 ./bin/main \
     --log-level info  \
     --mode prod \
-    --rule-path ./security/data/v4-16-0 \
+    --rule-path ./corerule/data/v4-16-0 \
     --proxy-config ./proxy.yaml \
     --env-file ""

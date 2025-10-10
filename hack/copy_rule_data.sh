@@ -15,4 +15,4 @@
 # limitations under the License.
 
 # use in root project
-mkdir -p ./security/data/v4-16-0 && cp ./_patches/coreruleset/rules/*.data ./security/data/v4-16-0
+mkdir -p ./corerule/data/v4-16-0 && cp ./_patches/coreruleset/rules/*.data ./corerule/data/v4-16-0

@@ -1,4 +1,4 @@
-module github.com/sentinez/sentinez/security
+module github.com/sentinez/sentinez/corerule
 
 go 1.25.0
 
