@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package modsecx
+package security
 
 import (
-	"github.com/sentinez/sentinez/modsecx/ruleloader"
+	"github.com/sentinez/sentinez/security/ruleloader"
 
-	rules "github.com/sentinez/sentinez/modsecx/gen"
-	rulev4160 "github.com/sentinez/sentinez/modsecx/gen/v4-16-0"
+	rules "github.com/sentinez/sentinez/security/gen"
+	rulev4160 "github.com/sentinez/sentinez/security/gen/v4-16-0"
 )
 
-func Load(version CRSVersion, rulesetsFlag CRSFlag) string {
+func GetRule(version CRSVersion, rulesetsFlag CRSFlag) string {
 	var rulesets = &ruleloader.RuleLoader{}
 
 	// load setup rules

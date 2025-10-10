@@ -18,16 +18,16 @@ import (
 	"net/http"
 
 	txhttp "github.com/corazawaf/coraza/v3/http"
-	"github.com/sentinez/sentinez/modsecx"
-	"github.com/sentinez/sentinez/modsecx/wafengine"
 	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/security"
+	"github.com/sentinez/sentinez/security/wafengine"
 )
 
 func Protected(ruleBasePath string) func(next http.Handler) http.Handler {
 
-	flag := modsecx.ReqAppAttackRCE
+	flag := security.ReqAppAttackRCE
 
-	waf, err := wafengine.NewWAF(modsecx.CRSv4160, ruleBasePath, flag)
+	waf, err := wafengine.NewWAF(security.CRSv4160, ruleBasePath, flag)
 	if err != nil {
 		zlog.Errorf("[httpxf1] failed to create WAF: %v", err)
 		return nil

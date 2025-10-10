@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package modsecx
+package security
 
 type CRSFlag uint64
 
@@ -20,21 +20,24 @@ const (
 	// ====== REQUEST PHASE ======
 	AllCRS CRSFlag = 1 << iota
 
-	ReqCommonExceptions         // REQUEST-905-COMMON-EXCEPTIONS.conf
-	ReqMethodEnforcement        // REQUEST-911-METHOD-ENFORCEMENT.conf
-	ReqScannerDetection         // REQUEST-913-SCANNER-DETECTION.conf
-	ReqProtocolEnforcement      // REQUEST-920-PROTOCOL-ENFORCEMENT.conf
-	ReqProtocolAttack           // REQUEST-921-PROTOCOL-ATTACK.conf
-	ReqMultipartAttack          // REQUEST-922-MULTIPART-ATTACK.conf
-	ReqAppAttackLFI             // REQUEST-930-APPLICATION-ATTACK-LFI.conf
-	ReqAppAttackRFI             // REQUEST-931-APPLICATION-ATTACK-RFI.conf
-	ReqAppAttackRCE             // REQUEST-932-APPLICATION-ATTACK-RCE.conf
-	ReqAppAttackPHP             // REQUEST-933-APPLICATION-ATTACK-PHP.conf
-	ReqAppAttackGeneric         // REQUEST-934-APPLICATION-ATTACK-GENERIC.conf
-	ReqAppAttackXSS             // REQUEST-941-APPLICATION-ATTACK-XSS.conf
-	ReqAppAttackSQLI            // REQUEST-942-APPLICATION-ATTACK-SQLI.conf
-	ReqAppAttackSessionFixation // REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf
-	ReqAppAttackJava            // REQUEST-944-APPLICATION-ATTACK-JAVA.conf
+	ReqCommonExceptions    // REQUEST-905-COMMON-EXCEPTIONS.conf
+	ReqMethodEnforcement   // REQUEST-911-METHOD-ENFORCEMENT.conf
+	ReqScannerDetection    // REQUEST-913-SCANNER-DETECTION.conf
+	ReqProtocolEnforcement // REQUEST-920-PROTOCOL-ENFORCEMENT.conf
+	ReqProtocolAttack      // REQUEST-921-PROTOCOL-ATTACK.conf
+	ReqMultipartAttack     // REQUEST-922-MULTIPART-ATTACK.conf
+	ReqAppAttackLFI        // REQUEST-930-APPLICATION-ATTACK-LFI.conf
+	ReqAppAttackRFI        // REQUEST-931-APPLICATION-ATTACK-RFI.conf
+	ReqAppAttackRCE        // REQUEST-932-APPLICATION-ATTACK-RCE.conf
+	ReqAppAttackPHP        // REQUEST-933-APPLICATION-ATTACK-PHP.conf
+	ReqAppAttackGeneric    // REQUEST-934-APPLICATION-ATTACK-GENERIC.conf
+	ReqAppAttackXSS        // REQUEST-941-APPLICATION-ATTACK-XSS.conf
+	ReqAppAttackSQLI       // REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+
+	// REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf
+	ReqAppAttackSessionFixation
+
+	ReqAppAttackJava // REQUEST-944-APPLICATION-ATTACK-JAVA.conf
 
 	// ====== RESPONSE PHASE ======
 	RespDataLeakages         // RESPONSE-950-DATA-LEAKAGES.conf

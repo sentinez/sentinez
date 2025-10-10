@@ -20,8 +20,8 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1/cache/routes"
 	wafcache "github.com/sentinez/sentinez/internal/edge/v1/cache/waf"
-	"github.com/sentinez/sentinez/modsecx"
 	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/security"
 )
 
 func Initialized(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
@@ -32,12 +32,12 @@ func Initialized(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
 }
 
 func wafCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
-	flag := modsecx.ReqAppAttackRCE
+	flag := security.ReqAppAttackRCE
 
 	cache := wafcache.New()
 	for _, proxy := range edgeYaml.ReverseProxies {
 
-		err := cache.Store(appConf, proxy.Namespace, modsecx.CRSv4160, flag)
+		err := cache.Store(appConf, proxy.Namespace, security.CRSv4160, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}

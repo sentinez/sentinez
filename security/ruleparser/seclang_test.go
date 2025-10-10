@@ -30,7 +30,7 @@ func TestGenerate(t *testing.T) {
 		t.Fatalf("Parse failed: %v", err)
 	}
 
-	WriteJSONToFile(outputPath, result)
+	_ = WriteJSONToFile(outputPath, result)
 
 	// Check if the output file was created
 	if _, err := os.Stat(outputPath); os.IsNotExist(err) {
