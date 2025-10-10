@@ -4,7 +4,7 @@ go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ../api
-	github.com/sentinez/sentinez/security => ../security
+	github.com/sentinez/sentinez/corerule => ../corerule
 )
 
 require (
@@ -14,7 +14,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/security v0.0.0
+	github.com/sentinez/sentinez/corerule v0.0.0
 	github.com/spf13/pflag v1.0.6
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/text v0.28.0

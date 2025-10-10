@@ -41,8 +41,8 @@ lint.proto:
 lint.tools:
 	@cd ./tools && golangci-lint run
 
-lint.security:
-	@cd ./security && golangci-lint run
+lint.corerule:
+	@cd ./corerule && golangci-lint run
 
 #####################################################################
 #####################################################################

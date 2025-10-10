@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/sentinez/sentinez/security/ruleparser/parser"
+	"github.com/sentinez/sentinez/corerule/ruleparser/parser"
 )
 
 type ParserResult struct {
