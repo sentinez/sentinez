@@ -17,14 +17,14 @@ package accountrepo
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/table"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
+	"github.com/sentinez/sentinez/internal/common/tables"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/table"
 
 	sq "github.com/Masterminds/squirrel"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -55,7 +55,7 @@ type IAccount interface {
 
 func New(appConf *commonpb.AppConfig) (IAccount, error) {
 
-	storage, err := postgres.New[*iam.Accounts](appConf, table.Account,
+	storage, err := postgres.New[*iam.Accounts](appConf, tables.Accounts,
 		postgres.WithIndex("username", "user_id", "email"))
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (acc *Accounts) Create(ctx context.Context,
 	account *iam.Accounts) (*iam.Accounts, error) {
 
 	now := timestamppb.Now()
-	account.Id = uuid.NewID(table.NewPrimaryKey(table.Account))
+	account.Id = uuid.NewID(table.NewPrimaryKey(tables.Accounts))
 	account.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

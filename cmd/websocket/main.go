@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/websocket/apps/config"
 	"github.com/sentinez/sentinez/internal/websocket"
-	wscore "github.com/sentinez/sentinez/pkg/core/net/wsz"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 func main() {

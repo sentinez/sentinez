@@ -20,17 +20,19 @@ package edge
 //      ↑
 //  (Cache + Logging + Security + Routing)
 
-// DMZ includes:
+// mdw (middlewares) includes:
 //  - Logging Layer
 //  - Secure Layer
 //  - Routing Layer
+//  - Static Layer
+//  - WaitingRoom Layer
 
 // Overview of Traffic Flow:
 //  Public Network
 //
 //       │
 //
-//      DMZ
+//      mdw (middlewares)
 //    (WAF, Routing, Process Traffic)
 //
 //       │

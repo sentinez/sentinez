@@ -2,8 +2,10 @@ internal
 
 =======================================================================
 
-Internal package of Sentinez, implement all business logic of the project
+internal package of Sentinez, implement all business logic of the project
 - apiserver: implement api endpoint, api gateway
-- core: implement grpc service server
 - edge: implement proxy edge server
 - websocket: implement websocket server
+- catinat: implement monitor server
+- core: implement grpc service server
+- common: all internal library serve for business logic

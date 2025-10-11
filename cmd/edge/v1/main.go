@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	httpxhz "github.com/sentinez/sentinez/pkg/core/net/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 
 	_ "net/http/pprof"
 )

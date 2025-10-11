@@ -38,6 +38,10 @@ const (
 
 	// PrefixRequestID is prefix of request id
 	PrefixRequestID = "SNTZREQ"
+
+	BaseName = "sentinez"
+
+	EnvPattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
 )
 
 var (
@@ -51,7 +55,7 @@ func INFO(serviceName string, key string) {
 
 // FigureGen generates the ASCII art of the project.
 func FigureGen(header string, footer string) string {
-	fig := figure.NewFigure("sntz", "speed", true)
+	fig := figure.NewFigure(strings.ToLower(Code), "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
 		"",
