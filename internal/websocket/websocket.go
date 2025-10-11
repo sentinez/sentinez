@@ -19,8 +19,8 @@ import (
 	"context"
 
 	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
-	"github.com/sentinez/sentinez/pkg/core/net/wsz"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	"github.com/sentinez/sentinez/pkg/network/wsz"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 func New(ws *wsz.WebSocket) *WebSocket {

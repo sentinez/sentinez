@@ -19,21 +19,22 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 func NewTable(appConf *common.AppConfig, tableName string) string {
-	tableName = fmt.Sprintf("%s.sentinez.%s",
-		appConf.GetFlag().GetEnvMode(), tableName)
+	tableName = fmt.Sprintf("%s.%s.%s",
+		appConf.GetFlag().GetEnvMode(), sentinez.BaseName, tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 
 func NewPrimaryKey(tableName string) string {
-	return fmt.Sprintf("sntz.%s.", tableName)
+	return fmt.Sprintf("%s.%s.", strings.ToLower(sentinez.Code), tableName)
 }
 
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(pattern, tableName)
+	matched, err := regexp.MatchString(sentinez.EnvPattern, tableName)
 	if err != nil {
 		fmt.Println("Regex error:", err)
 		return false
@@ -45,10 +46,3 @@ func IsValidTableName(tableName string) bool {
 
 	return false
 }
-
-const pattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
-
-const (
-	Users   = "users"
-	Account = "accounts"
-)

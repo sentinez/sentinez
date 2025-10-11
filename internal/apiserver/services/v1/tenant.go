@@ -19,7 +19,7 @@ import (
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
+	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
 )
 
 var _ httpgw.ServiceRegistrar = (*tenant)(nil)

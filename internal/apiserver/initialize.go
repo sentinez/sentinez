@@ -23,7 +23,7 @@ import (
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 func (srv *Server) Initialize(ctx context.Context) error {
@@ -37,9 +37,8 @@ func (srv *Server) Initialize(ctx context.Context) error {
 	// register all custom handlers to the server
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
-	// NOTE: Make sure the gRPC server is running properly and accessible
-	// Create file at registrar, inherit base package, override function,
-	// implement business logic
+	// NOTE: visit grpc service bellows
+	//
 	// err := srv.visitToEndpoint(ctx,
 	// 	services.NewGreeter(greeterfac.NewDefaultHandlerGreeter(appConf)),
 	// )

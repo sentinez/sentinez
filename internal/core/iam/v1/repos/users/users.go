@@ -17,6 +17,7 @@ package usersrepo
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/internal/common/tables"
 	"github.com/sentinez/sentinez/pkg/table"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
@@ -55,7 +56,7 @@ type IUser interface {
 }
 
 func New(appConf *commonpb.AppConfig) (IUser, error) {
-	storage, err := postgres.New[*iam.Users](appConf, table.Users,
+	storage, err := postgres.New[*iam.Users](appConf, tables.Users,
 		postgres.WithIndex("email", "phone_number", "username"))
 	if err != nil {
 		return nil, err
@@ -171,7 +172,7 @@ func (u *Users) Create(ctx context.Context,
 	user *iam.Users) (*iam.Users, error) {
 
 	now := timestamppb.Now()
-	user.Id = uuid.NewID(table.NewPrimaryKey(table.Users))
+	user.Id = uuid.NewID(table.NewPrimaryKey(tables.Users))
 	user.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

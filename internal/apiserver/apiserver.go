@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/pkg/zlog"
 
-	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 func New(server httpgw.Server) *Server {
@@ -85,7 +85,7 @@ func (srv *Server) Start(ctx context.Context) error {
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
 	appConf := runner.GetAppConfig(ctx)
-	return srv.server.Listen(appConf.GetEnvConf().GetAddress())
+	return srv.server.ListenAndServe(appConf.GetEnvConf().GetAddress())
 	// for DEBUG:
 	// return fmt.Errorf("apiserver: failed to listen and serve")
 }

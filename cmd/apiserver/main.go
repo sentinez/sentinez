@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
-	httpgw "github.com/sentinez/sentinez/pkg/core/net/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/core/runner/v1"
+	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 // This is the sentinez apiserver application, it will automatically
