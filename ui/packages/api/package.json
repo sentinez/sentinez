@@ -10,10 +10,12 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
-    "axios": "^1.9.0"
+    "axios": "^1.9.0",
+    "@sentinez/proto": "workspace:*"
   },
   "devDependencies": {
     "@sentinez/eslint-config": "workspace:*",
-    "@sentinez/tsconfig": "workspace:*"
+    "@sentinez/tsconfig": "workspace:*",
+    "ts-proto": "^2.7.7"
   }
 }

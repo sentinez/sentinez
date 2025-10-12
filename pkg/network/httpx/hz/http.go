@@ -19,7 +19,7 @@ import (
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/sentinez/sentinez/pkg/templ"
+	"github.com/sentinez/sentinez/pkg/templx"
 )
 
 func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
@@ -35,7 +35,7 @@ func Forbidden(ctx *Context) {
 	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
 
 	ctx.SetContentType("text/html; charset=utf-8")
-	err := templ.Forbidden().Render(ctx.Context(), ctx.Response.BodyWriter())
+	err := templx.Forbidden().Render(ctx.Context(), ctx.Response.BodyWriter())
 	if err != nil {
 		ctx.SetBodyString("Access denied")
 	}

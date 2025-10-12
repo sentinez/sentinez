@@ -9,14 +9,22 @@ import {
 } from '@sentinez/ui/components/card';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
+import Image from 'next/image';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login with your Sentinez account</CardDescription>
+          <CardTitle className="text-xl">
+            <a href="#" className="flex items-center gap-2 self-center font-medium">
+              <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
+              </div>
+              SENTINEZ
+            </a>
+          </CardTitle>
+          <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
         </CardHeader>
         <CardContent>
           <form>
@@ -40,9 +48,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{' '}
+                Don&apos;t have an account? <br />
                 <a href="#" className="underline underline-offset-4">
                   Sign up
+                </a>
+                <br />
+                or
+                <br />
+                <a href="/auth/passkey" className="underline underline-offset-4">
+                  Passkey
                 </a>
               </div>
             </div>

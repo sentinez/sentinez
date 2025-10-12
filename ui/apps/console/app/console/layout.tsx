@@ -1,9 +1,8 @@
 import { AppSidebar, AppSidebarInset } from '@/components/app-sidebar';
 import { SidebarProvider } from '@sentinez/ui/components/sidebar';
-import {Metadata} from 'next';
+import { Metadata } from 'next';
 
 import styles from '@/app/console/console.module.scss';
-
 
 export const metadata: Metadata = {
   title: 'Console | Sentinez',
