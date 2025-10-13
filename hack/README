@@ -2,3 +2,13 @@ Various hacks that are used by developers.
 use in root project
 
 $ bash hack/clear_none_image.sh
+
+-- to generate mockup use:
+```bash
+    mockery
+```
+
+-- to generate generate template using templ tools
+```bash
+    templ generate
+```

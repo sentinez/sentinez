@@ -1,0 +1,24 @@
+{
+  "name": "@sentinez/proto",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "sentinez proto api",
+  "keywords": [],
+  "author": "Duc-Hung Ho and Sentinez Authors",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-proto": "^2.7.7",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.9.0"
+  },
+  "files": [
+    "gen/ts",
+    "package.json",
+    "README.md"
+  ],
+  "exports": {
+    "./*": "./gen/ts/*.js"
+  }
+}

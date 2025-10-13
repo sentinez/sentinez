@@ -206,7 +206,10 @@ export function AppSidebarInset({ children }: { children: React.ReactNode }) {
       return (
         <>
           <BreadcrumbItem
-            className={cn('hidden md:block', index == pathArray.length - 1 && 'text-black dark:text-white')}
+            className={cn(
+              'hidden md:block',
+              index == pathArray.length - 1 && 'text-black dark:text-white',
+            )}
           >
             {path}
           </BreadcrumbItem>

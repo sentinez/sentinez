@@ -37,7 +37,7 @@ func NewDefaultHandler(appConf *common.AppConfig,
 
 	service := NewDefaultService(appConf)
 
-	geeterCli, err := client.NewLocalGreeterService(
+	geeterCli, err := client.NewLocalGreeter(
 		greeterfac.NewDefaultHandler(appConf),
 	)
 	if err != nil {
