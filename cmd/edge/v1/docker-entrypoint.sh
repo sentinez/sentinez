@@ -15,9 +15,11 @@
 # limitations under the License.
 
 
-./bin/main \
+./sntz \
     --log-level info  \
     --mode prod \
-    --rule-path ./corerule/data/v4-16-0 \
+    --rule-path ./data/v4-16-0 \
     --proxy-config ./proxy.yaml \
-    --env-file ""
+    --env-file "" \
+    --cert-file /etc/sntz/ssl/certs/_wildcard.sentinez.vn+1.pem \
+    --cert-key /etc/sntz/ssl/private/_wildcard.sentinez.vn+1-key.pem

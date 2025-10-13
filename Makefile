@@ -88,7 +88,12 @@ greeter.build.image:
 edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
-	./cmd/edge/v1/bin/$(SENTINEZ_OUT) --cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem --cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem
+	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
+		--cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem \
+		--cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem \
+		--rule-path=./corerule/data/v4-16-0 \
+		--proxy-config=./cmd/edge/v1/proxy.yaml \
+		--env-file=./cmd/edge/v1/.env
 
 edge.build: SENTINEZ_OUT ?= edge
 edge.build:
