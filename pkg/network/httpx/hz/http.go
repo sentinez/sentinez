@@ -39,7 +39,7 @@ func Forbidden(ctx *Context) error {
 }
 
 func InternalServerError(ctx *Context) error {
-	err := ctx.Render(http.StatusInternalServerError, templx.Forbidden())
+	err := ctx.Render(http.StatusInternalServerError, templx.InternalError())
 	if err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(
