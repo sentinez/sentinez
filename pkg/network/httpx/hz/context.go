@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
@@ -100,14 +101,12 @@ func (c *Context) String(statusCode int, body string) error {
 	return err
 }
 
-func setIdentifier(ctx context.Context) context.Context {
-	id := uuid.NewIDHex(sentinez.PrefixRequestID)
-	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now().UTC())
-	return context.WithValue(ctx, sntzRequestHTTPIDKey, id)
+func (c *Context) SetServer() {
+	c.Response.Header.Set("Server", sentinez.Name)
 }
 
-func GetContextIdentify(ctx *Context) string {
-	res, ok := ctx.ctx.Value(sntzRequestHTTPIDKey).(string)
+func (c *Context) GetReqID() string {
+	res, ok := c.ctx.Value(sntzRequestHTTPIDKey).(string)
 	if !ok {
 		return ""
 	}
@@ -115,8 +114,25 @@ func GetContextIdentify(ctx *Context) string {
 	return res
 }
 
-// GenerateContextKey nolint:funlen
-func GenerateContextKey(ctx *Context) string {
+func (c *Context) Render(statusCode int, component templ.Component) error {
+	c.SetStatusCode(statusCode)
+	c.SetContentType("text/html; charset=utf-8")
+	c.SetServer()
+
+	return component.Render(c.Context(), c.Response.BodyWriter())
+}
+
+func setIdentifier(ctx context.Context) context.Context {
+	// set request time
+	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now().UTC())
+
+	// set request id
+	id := uuid.NewIDHex(sentinez.PrefixRequestID)
+	return context.WithValue(ctx, sntzRequestHTTPIDKey, id)
+}
+
+// GenContextKey nolint:funlen
+func GenContextKey(ctx *Context) string {
 	method := string(ctx.Method())
 	host := string(ctx.Host())
 	path := string(ctx.Path())

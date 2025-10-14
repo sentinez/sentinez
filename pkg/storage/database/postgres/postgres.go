@@ -39,12 +39,6 @@ type Client interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
-func WithIndex(index ...string) database.Option {
-	return func(ref *database.Table) {
-		ref.Index = append(ref.Index, index...)
-	}
-}
-
 func Field(field string) string {
 	return fmt.Sprintf("%s->>'%s'", database.SchemalessFieldData, field)
 }
@@ -69,6 +63,17 @@ func Paging(builder squirrel.SelectBuilder,
 		Limit(uint64(page.GetSize())).
 		Offset(uint64(offset)).
 		OrderBy(fmt.Sprintf("%s DESC", database.SchemalessFieldCreatedAt))
+}
+
+func SelectBuilder[T proto.Message](
+	db database.Database[T], page *common.Pages) squirrel.SelectBuilder {
+
+	builder := squirrel.Select(database.SchemalessFieldData).From(db.Table())
+	if page == nil {
+		return builder
+	}
+
+	return Paging(builder, page)
 }
 
 func Scans[T proto.Message](r database.Rows) ([]T, error) {

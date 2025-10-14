@@ -42,7 +42,7 @@ type Static struct {
 }
 
 func (s *Static) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("[edge][handler] >>> static")
+	zlog.Debugf("[edge][%s] >>> visit static", ctx.GetReqID())
 
 	err := s.HandleNext(ctx)
 

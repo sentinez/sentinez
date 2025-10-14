@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -77,53 +76,16 @@ func dropIndex(ctx context.Context,
 }
 
 // nolint:funlen
-func syncProtoToPostgresJSONB(ctx context.Context,
-	pool *pgxpool.Pool,
-	table string,
-	indexFields []string,
-) error {
+func proto2JSONB(ctx context.Context, pool *pgxpool.Pool, table string) error {
 	exists, err := tableExists(ctx, pool, table)
 	if err != nil {
-		return fmt.Errorf("check table exists: %w", err)
+		return fmt.Errorf("check table exists err: %w", err)
 	}
 
 	if !exists {
 		ddl := fmt.Sprintf(database.SchemalessF, table)
 		if _, err := pool.Exec(ctx, ddl); err != nil {
-			return fmt.Errorf("create table: %w", err)
-		}
-	}
-
-	// Get existing indexes
-	existingIndexes, err := listIndexes(ctx, pool, table)
-	if err != nil {
-		return fmt.Errorf("list indexes: %w", err)
-	}
-
-	// Convert indexFields to a set
-	wanted := make(map[string]struct{}, len(indexFields))
-	for _, f := range indexFields {
-		indexName := fmt.Sprintf("idx_%s_%s", table, f)
-		wanted[indexName] = struct{}{}
-	}
-
-	// Create missing indexes
-	for indexName := range wanted {
-		found := slices.Contains(existingIndexes, indexName)
-		if !found {
-			field := strings.TrimPrefix(indexName, "idx_"+table+"_")
-			if err := createIndexOnJSONB(ctx, pool, table, field); err != nil {
-				return fmt.Errorf("create index %s: %w", indexName, err)
-			}
-		}
-	}
-
-	// Drop indexes that are no longer wanted
-	for _, existing := range existingIndexes {
-		if _, ok := wanted[existing]; !ok {
-			if err := dropIndex(ctx, pool, existing); err != nil {
-				return fmt.Errorf("drop index %s: %w", existing, err)
-			}
+			return fmt.Errorf("create table err: %w", err)
 		}
 	}
 

@@ -39,12 +39,11 @@ type Domain struct {
 }
 
 func (d *Domain) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("[edge][handler] >>> domain")
+	zlog.Debugf("[edge][%s] >>> visit domain", ctx.GetReqID())
 
 	ns, ok := d.isValidSingleLevelSubdomain(string(ctx.Host()), d.hostname)
 	if !ok {
-		httpxhz.Forbidden(ctx)
-		return nil
+		return httpxhz.Forbidden(ctx)
 	}
 
 	ctxValue, ok := httpxhz.GetRequestContext(ctx)

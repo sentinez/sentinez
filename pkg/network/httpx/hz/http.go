@@ -29,14 +29,31 @@ func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 	}
 }
 
-func Forbidden(ctx *Context) {
-
-	ctx.SetStatusCode(http.StatusForbidden)
-	ctx.Response.Header.Set("Content-Type", "text/plain; charset=utf-8")
-
-	ctx.SetContentType("text/html; charset=utf-8")
-	err := templx.Forbidden().Render(ctx.Context(), ctx.Response.BodyWriter())
-	if err != nil {
-		ctx.SetBodyString("Access denied")
+func Forbidden(ctx *Context) error {
+	if err := ctx.Render(http.StatusForbidden, templx.Forbidden()); err != nil {
+		ctx.Response.ResetBody()
+		return ctx.String(http.StatusForbidden, "Access denied")
 	}
+
+	return nil
+}
+
+func InternalServerError(ctx *Context) error {
+	err := ctx.Render(http.StatusInternalServerError, templx.Forbidden())
+	if err != nil {
+		ctx.Response.ResetBody()
+		return ctx.String(
+			http.StatusInternalServerError, "Internal server error")
+	}
+
+	return nil
+}
+
+func NotFound(ctx *Context) error {
+	if err := ctx.Render(http.StatusNotFound, templx.NotFound()); err != nil {
+		ctx.Response.ResetBody()
+		return ctx.String(http.StatusNotFound, "Not found")
+	}
+
+	return nil
 }

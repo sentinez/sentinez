@@ -44,7 +44,7 @@ type Router struct {
 }
 
 func (r *Router) Handle(ctx *httpxhz.Context) error {
-	zlog.Info("[edge][handler] >>> router")
+	zlog.Debugf("[edge][%s] >>> visit router", ctx.GetReqID())
 
 	return r.hdl(ctx)
 }

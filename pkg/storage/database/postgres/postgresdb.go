@@ -78,11 +78,9 @@ func New[T proto.Message](conf *common.AppConfig, tableName string,
 		opt(&tb)
 	}
 
-	err = syncProtoToPostgresJSONB(
-		context.Background(),
-		conn, tableName, tb.Index)
+	err = proto2JSONB(context.Background(), conn, tableName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sync proto to postgres: %w", err)
+		return nil, fmt.Errorf("failed to sync proto to pg err: %w", err)
 	}
 
 	return &postgres[T]{client: conn, tableName: tableName}, nil

@@ -74,7 +74,8 @@ func (s *serverx) Handle(fn func(ctx *Context) error) {
 		}
 
 		if err := fn(inCtx); err != nil {
-			zlog.Debugf("httpxhz: err=%v", err)
+			zlog.Errorf("[httpxhz]: internal err=%v", err)
+			_ = InternalServerError(inCtx)
 		}
 
 		inCtx.Release()
