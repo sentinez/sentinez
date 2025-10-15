@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@sentinez/ui/*": ["../../packages/ui/src/*"]
+      "@sentinez/ui/*": ["../../packages/ui/src/*"],
+      "@sentinez/api/*": ["../../packages/api/src/*"],
+      "@sentinez/proto/*": ["../../packages/proto/gen/ts/*"]
     },
     "plugins": [
       {

@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/common/uuid"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 )
@@ -42,7 +43,7 @@ type MemoryStorage struct {
 
 // GenSessionID implements Store.
 func (s *MemoryStorage) GenSessionID() (string, error) {
-	return uuid.NewIDHex("PK"), nil
+	return uuid.NewIDHex(sentinez.Code + "-SS-"), nil
 }
 
 // DeleteSession implements Store.
@@ -54,12 +55,12 @@ func (s *MemoryStorage) DeleteSession(token string) {
 func (s *MemoryStorage) GetSession(token string) (*webauthn.SessionData, bool) {
 	ss, ok := s.sessions.Get(token)
 	if !ok {
-		return nil, ok
+		return nil, false
 	}
 
 	s.SaveSession(token, ss)
 
-	return ss, false
+	return ss, true
 }
 
 // GetUser implements Store.
@@ -79,8 +80,8 @@ func (s *MemoryStorage) GetUser(userName string) Users {
 }
 
 // SaveSession implements Store.
-func (s *MemoryStorage) SaveSession(token string, data *webauthn.SessionData) {
-	s.sessions.SetWithTTL(token, data, s.ttl)
+func (s *MemoryStorage) SaveSession(token string, ss *webauthn.SessionData) {
+	s.sessions.SetWithTTL(token, ss, s.ttl)
 }
 
 // SaveUser implements Store.

@@ -41,6 +41,10 @@ func (m *PasskeyLoginFinishRequest) Validate() error {
 		return nil
 	}
 
+	// no validation rules for SessionId
+
+	// no validation rules for CredentialAssertionData
+
 	return nil
 }
 
@@ -175,6 +179,8 @@ func (m *PasskeyLoginStartRequest) Validate() error {
 		return nil
 	}
 
+	// no validation rules for EmailOrUsername
+
 	return nil
 }
 
@@ -241,6 +247,18 @@ func (m *PasskeyLoginStartResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
+
+	if v, ok := interface{}(m.GetOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PasskeyLoginStartResponseValidationError{
+				field:  "Options",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SessionId
 
 	return nil
 }
@@ -519,10 +537,10 @@ func (m *PasskeyRegisterStartResponse) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetEvent()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PasskeyRegisterStartResponseValidationError{
-				field:  "Event",
+				field:  "Options",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

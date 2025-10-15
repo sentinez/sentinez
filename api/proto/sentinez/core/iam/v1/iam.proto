@@ -164,7 +164,8 @@ service IdentityAccessManagementService {
 }
 
 message PasskeyLoginFinishRequest {
-
+  string session_id = 1;
+  bytes credential_assertion_data = 2;
 }
 
 message PasskeyLoginFinishResponse {
@@ -172,11 +173,14 @@ message PasskeyLoginFinishResponse {
 }
 
 message PasskeyLoginStartRequest {
-
+  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
+    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
+  }}];
 }
 
 message PasskeyLoginStartResponse {
-
+  google.protobuf.Struct options = 1;
+  string session_id = 2;
 }
 
 message PasskeyRegisterFinishRequest {
@@ -195,7 +199,7 @@ message PasskeyRegisterStartRequest {
 }
 
 message PasskeyRegisterStartResponse {
-  google.protobuf.Struct event = 1;
+  google.protobuf.Struct options = 1;
   string session_id = 2;
 }
 

@@ -217,6 +217,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "emailOrUsername",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "IdentityAccessManagementService"
         ]
@@ -664,13 +672,30 @@
       }
     },
     "v1PasskeyLoginFinishRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "credentialAssertionData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
     },
     "v1PasskeyLoginFinishResponse": {
       "type": "object"
     },
     "v1PasskeyLoginStartResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "options": {
+          "type": "object"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      }
     },
     "v1PasskeyRegisterFinishRequest": {
       "type": "object",
@@ -690,7 +715,7 @@
     "v1PasskeyRegisterStartResponse": {
       "type": "object",
       "properties": {
-        "event": {
+        "options": {
           "type": "object"
         },
         "sessionId": {

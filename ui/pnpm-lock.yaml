@@ -33,6 +33,9 @@ importers:
       '@sentinez/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@sentinez/proto':
+        specifier: workspace:*
+        version: link:../../packages/proto
       '@sentinez/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -119,6 +122,9 @@ importers:
       '@sentinez/proto':
         specifier: workspace:*
         version: link:../proto
+      '@simplewebauthn/browser':
+        specifier: ^13.2.2
+        version: 13.2.2
       axios:
         specifier: ^1.11.0
         version: 1.11.0
@@ -177,8 +183,6 @@ importers:
       typescript-eslint:
         specifier: ^8.24.1
         version: 8.39.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.7.3)
-
-  packages/proto: {}
 
   packages/tsconfig: {}
 
@@ -1041,6 +1045,9 @@ packages:
 
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
+
+  '@simplewebauthn/browser@13.2.2':
+    resolution: {integrity: sha512-FNW1oLQpTJyqG5kkDg5ZsotvWgmBaC6jCHR7Ej0qUNep36Wl9tj2eZu7J5rP+uhXgHaLk+QQ3lqcw2vS5MX1IA==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -3794,6 +3801,8 @@ snapshots:
       '@types/react-dom': 19.1.7(@types/react@19.1.9)
 
   '@radix-ui/rect@1.1.1': {}
+
+  '@simplewebauthn/browser@13.2.2': {}
 
   '@swc/helpers@0.5.15':
     dependencies:

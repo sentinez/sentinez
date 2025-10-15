@@ -51,7 +51,8 @@ func (iam *IdentityAccessManagement) PasskeyLoginFinish(
 	ctx context.Context,
 	req *iampb.PasskeyLoginFinishRequest,
 ) (*iampb.PasskeyLoginFinishResponse, error) {
-	panic("unimplemented")
+
+	return iam.service.PasskeyLoginFinish(ctx, req)
 }
 
 // PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
@@ -59,7 +60,8 @@ func (iam *IdentityAccessManagement) PasskeyLoginStart(
 	ctx context.Context,
 	req *iampb.PasskeyLoginStartRequest,
 ) (*iampb.PasskeyLoginStartResponse, error) {
-	panic("unimplemented")
+
+	return iam.service.PasskeyLoginStart(ctx, req)
 }
 
 // PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@sentinez/proto": "workspace:*",
+    "@simplewebauthn/browser": "^13.2.2",
     "axios": "^1.11.0"
   },
   "devDependencies": {

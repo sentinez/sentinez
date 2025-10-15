@@ -27,15 +27,13 @@ import (
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	"github.com/sentinez/sentinez/pkg/common/jsonx"
+	protox "github.com/sentinez/sentinez/pkg/common/protobuf/proto"
 	"github.com/sentinez/sentinez/pkg/cryptox"
 	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/passkey"
 	"github.com/sentinez/sentinez/pkg/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -70,35 +68,92 @@ type IAMService struct {
 }
 
 // PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyLoginFinish(
-	ctx context.Context,
+// nolint:funlen
+func (srv *IAMService) PasskeyLoginFinish(_ context.Context,
 	req *iam.PasskeyLoginFinishRequest,
 ) (*iam.PasskeyLoginFinishResponse, error) {
-	panic("unimplemented")
+
+	sid := req.GetSessionId()
+	ss, ok := srv.dataStore.GetSession(sid)
+	if !ok {
+		return nil, errorx.NotFoundF("session not found id=%s", sid)
+	}
+
+	user := srv.dataStore.GetUser(string(ss.UserID))
+
+	var car protocol.CredentialAssertionResponse
+	err := json.Unmarshal(req.GetCredentialAssertionData(), &car)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedCAR, err := car.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	credential, err := srv.webAuthn.ValidateLogin(user, *ss, parsedCAR)
+	if err != nil {
+		return nil, err
+	}
+
+	if credential.Authenticator.CloneWarning {
+		zlog.Warnf("can't finish login: %s", "CloneWarning")
+	}
+
+	user.UpdateCredential(credential)
+	srv.dataStore.SaveUser(user)
+	srv.dataStore.DeleteSession(sid)
+
+	sid, _ = srv.dataStore.GenSessionID()
+	srv.dataStore.SaveSession(sid, &webauthn.SessionData{
+		Expires: time.Now().Add(time.Hour * 2),
+	})
+
+	return &iam.PasskeyLoginFinishResponse{}, nil
 }
 
 // PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
 func (srv *IAMService) PasskeyLoginStart(
-	ctx context.Context,
+	_ context.Context,
 	req *iam.PasskeyLoginStartRequest,
 ) (*iam.PasskeyLoginStartResponse, error) {
-	panic("unimplemented")
+
+	emailOrUsername := req.GetEmailOrUsername()
+
+	user := srv.dataStore.GetUser(emailOrUsername)
+
+	options, session, err := srv.webAuthn.BeginLogin(user)
+	if err != nil {
+		return nil, errorx.InternalErrorF("begin login err=%v", err)
+	}
+
+	sid, _ := srv.dataStore.GenSessionID()
+	srv.dataStore.SaveSession(sid, session)
+
+	opts := protox.Struct(options)
+
+	return &iam.PasskeyLoginStartResponse{
+		SessionId: sid,
+		Options:   opts,
+	}, nil
 }
 
 // PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
 func (srv *IAMService) PasskeyRegisterFinish(
-	ctx context.Context,
+	_ context.Context,
 	req *iam.PasskeyRegisterFinishRequest,
 ) (*iam.PasskeyRegisterFinishResponse, error) {
 
-	ssToken := req.GetSessionId()
+	ssId := req.GetSessionId()
 
-	session, ok := srv.dataStore.GetSession(ssToken)
+	zlog.Debugf("[iam][service][PasskeyRegisterFinish] get session=%s", ssId)
+	ss, ok := srv.dataStore.GetSession(ssId)
 	if !ok {
-		return nil, errorx.InvalidDataF("get session error")
+		return nil, errorx.NotFoundF("session not found=%s", ssId)
 	}
 
-	user := srv.dataStore.GetUser(string(session.UserID))
+	user := srv.dataStore.GetUser(string(ss.UserID))
 
 	var ccr protocol.CredentialCreationResponse
 	err := json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
@@ -111,21 +166,21 @@ func (srv *IAMService) PasskeyRegisterFinish(
 		return nil, err
 	}
 
-	credential, err := srv.webAuthn.CreateCredential(user, *session, parsedCCR)
+	credential, err := srv.webAuthn.CreateCredential(user, *ss, parsedCCR)
 	if err != nil {
-		return nil, errorx.InvalidDataF("can't finish registration: %v", err)
+		return nil, errorx.InternalErrorF("can't finish registration: %v", err)
 	}
 
 	user.AddCredential(credential)
 	srv.dataStore.SaveUser(user)
-	srv.dataStore.DeleteSession(ssToken)
+	srv.dataStore.DeleteSession(ssId)
 
 	return &iam.PasskeyRegisterFinishResponse{}, nil
 }
 
 // PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
 func (srv *IAMService) PasskeyRegisterStart(
-	ctx context.Context,
+	_ context.Context,
 	req *iam.PasskeyRegisterStartRequest,
 ) (*iam.PasskeyRegisterStartResponse, error) {
 
@@ -141,14 +196,13 @@ func (srv *IAMService) PasskeyRegisterStart(
 		return nil, errorx.InternalErrorF("can't generate session id: %v", err)
 	}
 
+	zlog.Debugf("[iam][service][PasskeyRegisterStart] save session=%s", t)
 	srv.dataStore.SaveSession(t, ss)
 
-	pub, _ := jsonx.Marshal(opt)
-	var pbStruct structpb.Struct
-	_ = protojson.Unmarshal(pub, &pbStruct)
+	options := protox.Struct(opt)
 
 	return &iam.PasskeyRegisterStartResponse{
-		Event:     &pbStruct,
+		Options:   options,
 		SessionId: t,
 	}, nil
 }

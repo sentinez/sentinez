@@ -13,10 +13,13 @@
 // limitations under the License.
 
 // Package proto provides the proto package.
-package proto
+package protox
 
 import (
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
+	"google.golang.org/protobuf/encoding/protojson"
 	google "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Marshal marshals the input.
@@ -27,4 +30,12 @@ func Marshal(input google.Message) ([]byte, error) {
 // Unmarshal the input into the output.
 func Unmarshal(input []byte, output google.Message) error {
 	return google.Unmarshal(input, output)
+}
+
+func Struct(input any) *structpb.Struct {
+	opts, _ := jsonx.Marshal(input)
+	var pbStruct structpb.Struct
+	_ = protojson.Unmarshal(opts, &pbStruct)
+
+	return &pbStruct
 }
