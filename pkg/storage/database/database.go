@@ -76,7 +76,6 @@ type ExecResult interface {
 }
 
 type Table struct {
-	Index []string
 }
 
 type Option func(*Table)

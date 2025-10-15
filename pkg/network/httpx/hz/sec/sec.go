@@ -24,6 +24,7 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
+	"github.com/sentinez/sentinez/pkg/errorx"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -102,13 +103,12 @@ func processRequestHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 			ctx.Response.StatusCode(),
 		)
 
-		zlog.Debug("httpxhz: response status code ", code)
 		ctx.SetStatusCode(code)
 		if code == http.StatusForbidden {
-			httpxhz.Forbidden(ctx)
+			_ = httpxhz.Forbidden(ctx)
 		}
 
-		return fmt.Errorf("[interrupted] request with code: %d", code)
+		return errorx.F("[interrupted][request] with code: %d", code)
 	}
 
 	return nil
@@ -243,9 +243,10 @@ func processResponseHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 
 		ctx.Response.SetStatusCode(code)
 		if code == http.StatusForbidden {
-			httpxhz.Forbidden(ctx)
+			_ = httpxhz.Forbidden(ctx)
 		}
-		return nil
+
+		return errorx.F("[interrupted][response] with code: %d", code)
 	}
 	return releaseBodyReader(ctx, tx)
 }

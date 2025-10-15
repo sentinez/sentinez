@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
-    "lib": [
-      "ES2020",
-      "DOM"
-    ],
+    "lib": ["ES2020"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@sentinez/proto/*": [
-        "gen/ts/*"
-      ]
-    }
-  }
+      "@sentinez/proto/*": ["gen/ts/*"]
+    },
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["gen/ts"]
 }

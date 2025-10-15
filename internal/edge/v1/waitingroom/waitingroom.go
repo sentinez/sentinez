@@ -20,5 +20,6 @@ type WaitingRoom struct {
 }
 
 func (wr *WaitingRoom) Handle(ctx *httpxhz.Context) error {
+
 	return wr.HandleNext(ctx)
 }

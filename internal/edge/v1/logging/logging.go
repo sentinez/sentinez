@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
 	"github.com/sentinez/sentinez/internal/common/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	zlog2 "github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ chains.Handler = (*Logger)(nil)
@@ -28,26 +28,26 @@ var _ chains.Handler = (*Logger)(nil)
 func NewLogger() *Logger {
 	return &Logger{
 		BaseHandler: chains.New(),
-		logger: zlog2.NewLoggingJSON(edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_HTTP, zlog2.LevelInfo,
+		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_HTTP, zlog.LevelInfo,
 		),
 	}
 }
 
 type Logger struct {
 	*chains.BaseHandler
-	logger zlog2.Logger
+	logger zlog.Logger
 }
 
 func (l *Logger) Handle(ctx *httpxhz.Context) error {
-	zlog2.Info("[edge][handler] >>> logger")
+	zlog.Debugf("[edge][%s] >>> visit logger", ctx.GetReqID())
 
 	requestResourceHost := string(ctx.Host())
 
 	err := l.HandleNext(ctx)
 
 	l.logger.Info("edge http request", &http.Log4HTTP{
-		ReqId:         httpxhz.GetContextIdentify(ctx),
+		ReqId:         ctx.GetReqID(),
 		Scheme:        string(ctx.URI().Scheme()),
 		Host:          requestResourceHost,
 		Path:          ctx.Path(),

@@ -16,7 +16,6 @@ package routes
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 	"sync"
 
@@ -96,14 +95,14 @@ func (r *Router) SetProxy(
 		zlog.Debugf("[edge][request] host: %s", string(ctx.Host()))
 
 		if proxy == nil {
-			return ctx.String(http.StatusInternalServerError,
-				"proxy not initialized")
+			zlog.Error("[edge][routing]: proxy not initialized")
+			return httpxhz.InternalServerError(ctx)
 		}
 
 		target, err := r.match(ctx)
 		if err != nil {
 			zlog.Error("[edge] routing match error: ", err)
-			return ctx.String(http.StatusNotFound, "not found")
+			return httpxhz.NotFound(ctx)
 		}
 
 		proxy.Serve(ctx, target)

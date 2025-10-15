@@ -55,8 +55,7 @@ type IAccount interface {
 
 func New(appConf *commonpb.AppConfig) (IAccount, error) {
 
-	storage, err := postgres.New[*iam.Accounts](appConf, tables.Accounts,
-		postgres.WithIndex("username", "user_id", "email"))
+	storage, err := postgres.New[*iam.Accounts](appConf, tables.Accounts)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +109,7 @@ func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 func (acc *Accounts) List(ctx context.Context,
 	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
 
-	builder := sq.Select(database.SchemalessFieldData).
-		From(acc.storage.Table())
-	builder = postgres.Paging(builder, req.GetPage())
+	builder := postgres.SelectBuilder(acc.storage, req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	accounts, err := acc.storage.CollectRows(

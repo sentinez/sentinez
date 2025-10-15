@@ -33,7 +33,7 @@ import (
 func NewWAF() *WAF {
 	return &WAF{
 		BaseHandler: chains.New(),
-		logger: zlog.NewLoggingJSON(
+		logger: zlog.NewJSONLogger(
 			edgepb.GetMetaEdgeServiceKey(),
 			common.LogKind_LOG_KIND_WAF,
 			zlog.LevelInfo,
@@ -49,8 +49,7 @@ type WAF struct {
 }
 
 func (w *WAF) Handle(ctx *httpxhz.Context) error {
-
-	zlog.Info("[edge][handler] >>> WAF")
+	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.GetReqID())
 
 	waf := wafcache.GetWafCache().LoadContext(ctx)
 	if waf == nil {
@@ -73,7 +72,7 @@ func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 		return
 	}
 
-	if data, ok := w.cached.Get(httpxhz.GenerateContextKey(ctx)); ok {
+	if data, ok := w.cached.Get(httpxhz.GenContextKey(ctx)); ok {
 		var event waf.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
@@ -119,11 +118,11 @@ func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 		Service:       waf.Service_SERVICE_WAF_RULESETS,
 		Action:        waf.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
-		HttpReqId:     httpxhz.GetContextIdentify(ctx),
+		HttpReqId:     ctx.GetReqID(),
 		ContentType:   string(ctx.Request.Header.ContentType()),
 	}
 
 	w.logger.Info("rule engine ingress matched", event)
 	data, _ := event.MarshalVT()
-	w.cached.Set(httpxhz.GenerateContextKey(ctx), data)
+	w.cached.Set(httpxhz.GenContextKey(ctx), data)
 }

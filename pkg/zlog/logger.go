@@ -36,7 +36,7 @@ type Logger interface {
 	Sync() error
 }
 
-func NewLoggingJSON(named string, logKind common.LogKind, level Level) Logger {
+func NewJSONLogger(named string, logKind common.LogKind, level Level) Logger {
 	logger := configJSONLogger(named)
 	return createLogger(logger, logKind, ToLevel(level.String()).Int())
 }

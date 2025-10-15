@@ -23,10 +23,10 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ Sugard = (*sugard)(nil)
+var _ Sugar = (*sugard)(nil)
 
-// Sugard define default logger for logger
-type Sugard interface {
+// Sugar define default logger for logger
+type Sugar interface {
 	Info(args ...any)
 	Infof(template string, args ...any)
 	Infoln(args ...any)
@@ -51,12 +51,12 @@ type Sugard interface {
 	Sync() error
 }
 
-func NewConsole(scope string, level Level) Sugard {
+func NewConsole(scope string, level Level) Sugar {
 	log := configConsoleLogger(scope).Sugar()
 	return createSugard(log, ToLevel(level.String()).Int())
 }
 
-func NewDefaultConsole(level Level) Sugard {
+func NewDefaultConsole(level Level) Sugar {
 	log := configConsoleLogger(
 		color.Green.Add(fmt.Sprintf("[%s]", sentinez.Code))).Sugar()
 	return createSugard(log, ToLevel(level.String()).Int())

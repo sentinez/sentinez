@@ -46,8 +46,7 @@ type IUser interface {
 
 	// extra methods
 
-	GetByFullnameOrEmail(ctx context.Context,
-		input string) (*iam.Users, error)
+	GetByFullnameOrEmail(ctx context.Context, input string) (*iam.Users, error)
 
 	List(ctx context.Context,
 		req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
@@ -56,8 +55,7 @@ type IUser interface {
 }
 
 func New(appConf *commonpb.AppConfig) (IUser, error) {
-	storage, err := postgres.New[*iam.Users](appConf, tables.Users,
-		postgres.WithIndex("email", "phone_number", "username"))
+	storage, err := postgres.New[*iam.Users](appConf, tables.Users)
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +79,8 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	input string) (*iam.Users, error) {
 
-	builder := sq.
-		Select(database.SchemalessFieldData).
-		From(u.storage.Table()).
+	builder := postgres.SelectBuilder(u.storage, nil)
+	builder = builder.From(u.storage.Table()).
 		Where(sq.Or{
 			sq.Eq{postgres.Field(iam.UsersFieldFullName): input},
 			sq.Eq{postgres.Field(iam.UsersFieldEmail): input},
@@ -121,11 +118,7 @@ func buildListQuery(builder sq.SelectBuilder,
 func (u *Users) List(ctx context.Context,
 	req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
 
-	builder := sq.
-		Select(database.SchemalessFieldData).
-		From(u.storage.Table())
-
-	builder = postgres.Paging(builder, req.GetPage())
+	builder := postgres.SelectBuilder(u.storage, req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	var total int64
