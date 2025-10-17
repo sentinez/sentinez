@@ -128,34 +128,34 @@ service IdentityAccessManagementService {
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyRegisterStart(PasskeyRegisterStartRequest) returns (PasskeyRegisterStartResponse) {
+  rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/register-start",
+      get: "/iam/passkey/register/challenge",
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyRegisterFinish(PasskeyRegisterFinishRequest) returns (PasskeyRegisterFinishResponse) {
+  rpc PasskeyRegisterVerify(PasskeyRegisterVerifyRequest) returns (PasskeyRegisterVerifyResponse) {
     option (google.api.http) = {
-      post: "/iam/passkey/register-finish",
+      post: "/iam/passkey/register/verify",
       body: "*"
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyLoginStart(PasskeyLoginStartRequest) returns (PasskeyLoginStartResponse) {
+  rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/login-start",
+      get: "/iam/passkey/login/challenge",
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyLoginFinish(PasskeyLoginFinishRequest) returns (PasskeyLoginFinishResponse) {
+  rpc PasskeyLoginVerify(PasskeyLoginVerifyRequest) returns (PasskeyLoginVerifyResponse) {
     option (google.api.http) = {
-      put: "/iam/passkey/login-finish",
+      put: "/iam/passkey/login/verify",
       body: "*"
     };
 
@@ -163,39 +163,44 @@ service IdentityAccessManagementService {
   }
 }
 
-message PasskeyLoginFinishRequest {
-
-}
-
-message PasskeyLoginFinishResponse {
-
-}
-
-message PasskeyLoginStartRequest {
-
-}
-
-message PasskeyLoginStartResponse {
-
-}
-
-message PasskeyRegisterFinishRequest {
+message PasskeyLoginVerifyRequest {
   string session_id = 1;
-  bytes credential_creation_response =2;
+  bytes credential_assertion_data = 2;
 }
 
-message PasskeyRegisterFinishResponse {
-
+message PasskeyLoginVerifyResponse {
+  sentinez.core.iam.v1.User user = 1;
+  string access_token = 2;
 }
 
-message PasskeyRegisterStartRequest {
+message PasskeyLoginChallengeRequest {
   string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
     pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
   }}];
 }
 
-message PasskeyRegisterStartResponse {
-  google.protobuf.Struct event = 1;
+message PasskeyLoginChallengeResponse {
+  google.protobuf.Struct options = 1;
+  string session_id = 2;
+}
+
+message PasskeyRegisterVerifyRequest {
+  string session_id = 1;
+  bytes credential_creation_response =2;
+}
+
+message PasskeyRegisterVerifyResponse {
+
+}
+
+message PasskeyRegisterChallengeRequest {
+  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
+    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
+  }}];
+}
+
+message PasskeyRegisterChallengeResponse {
+  google.protobuf.Struct options = 1;
   string session_id = 2;
 }
 
@@ -208,7 +213,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
   string access_token = 2;
 }
 
@@ -254,7 +259,7 @@ message UpdateUserRequest {
 }
 
 message UpdateUserResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
 }
 
 message GetUserRequest {
@@ -266,7 +271,7 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
 }
 
 message ListUsersRequest {
@@ -277,7 +282,7 @@ message ListUsersRequest {
 }
 
 message ListUsersResponse {
-  repeated sentinez.core.iam.v1.Users users = 1;
+  repeated sentinez.core.iam.v1.User users = 1;
   int64 total = 2;
 }
 
@@ -290,7 +295,7 @@ message ListAccountsRequest {
 }
 
 message ListAccountsResponse {
-  repeated sentinez.core.iam.v1.AccountLite accounts = 1;
+  repeated sentinez.core.iam.v1.AccountResponse accounts = 1;
   int64 total = 2;
 }
 

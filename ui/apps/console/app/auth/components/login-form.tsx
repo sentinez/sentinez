@@ -55,7 +55,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 <br />
                 or
                 <br />
-                <a href="/auth/passkey" className="underline underline-offset-4">
+                <a href="/auth/passkey/login" className="underline underline-offset-4">
                   Passkey
                 </a>
               </div>

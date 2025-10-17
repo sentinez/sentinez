@@ -18,8 +18,8 @@ package runner
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/runner/v1/internal"
+	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"go.uber.org/fx"
 )

@@ -17,8 +17,9 @@ package httpxhz
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
 )
 
 // SentinezContextKey is the key type for the context.
@@ -40,7 +41,7 @@ func SetRequestContext(parent *Context, msg *edgepb.Context) *Context {
 		return nil
 	}
 
-	msgBin, _ := proto.Marshal(msg)
+	msgBin, _ := protox.Marshal(msg)
 
 	parent.ctx = context.WithValue(parent.ctx, sntzRequestHTTPCtxKey, msgBin)
 	return parent
@@ -54,7 +55,7 @@ func GetRequestContext(rctx *Context) (*edgepb.Context, bool) {
 	}
 
 	var msg edgepb.Context
-	if err := proto.Unmarshal(msgBin, &msg); err != nil {
+	if err := protox.Unmarshal(msgBin, &msg); err != nil {
 		return nil, false
 	}
 

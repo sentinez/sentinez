@@ -18,8 +18,8 @@ import (
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/sentinez/pkg/x/syncx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

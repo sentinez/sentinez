@@ -33,16 +33,16 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on Accounts with the rules defined in the
+// Validate checks the field values on Account with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Accounts) Validate() error {
+func (m *Account) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AccountsValidationError{
+			return AccountValidationError{
 				field:  "Metadata",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -60,12 +60,27 @@ func (m *Accounts) Validate() error {
 
 	// no validation rules for Email
 
+	for idx, item := range m.GetCredentials() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AccountValidationError{
+					field:  fmt.Sprintf("Credentials[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	return nil
 }
 
-// AccountsValidationError is the validation error returned by
-// Accounts.Validate if the designated constraints aren't met.
-type AccountsValidationError struct {
+// AccountValidationError is the validation error returned by Account.Validate
+// if the designated constraints aren't met.
+type AccountValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -73,22 +88,22 @@ type AccountsValidationError struct {
 }
 
 // Field function returns field value.
-func (e AccountsValidationError) Field() string { return e.field }
+func (e AccountValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AccountsValidationError) Reason() string { return e.reason }
+func (e AccountValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AccountsValidationError) Cause() error { return e.cause }
+func (e AccountValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AccountsValidationError) Key() bool { return e.key }
+func (e AccountValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AccountsValidationError) ErrorName() string { return "AccountsValidationError" }
+func (e AccountValidationError) ErrorName() string { return "AccountValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AccountsValidationError) Error() string {
+func (e AccountValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -100,14 +115,14 @@ func (e AccountsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAccounts.%s: %s%s",
+		"invalid %sAccount.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AccountsValidationError{}
+var _ error = AccountValidationError{}
 
 var _ interface {
 	Field() string
@@ -115,19 +130,19 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AccountsValidationError{}
+} = AccountValidationError{}
 
-// Validate checks the field values on AccountLite with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *AccountLite) Validate() error {
+// Validate checks the field values on AccountResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *AccountResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return AccountLiteValidationError{
+			return AccountResponseValidationError{
 				field:  "Metadata",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -146,9 +161,9 @@ func (m *AccountLite) Validate() error {
 	return nil
 }
 
-// AccountLiteValidationError is the validation error returned by
-// AccountLite.Validate if the designated constraints aren't met.
-type AccountLiteValidationError struct {
+// AccountResponseValidationError is the validation error returned by
+// AccountResponse.Validate if the designated constraints aren't met.
+type AccountResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -156,22 +171,22 @@ type AccountLiteValidationError struct {
 }
 
 // Field function returns field value.
-func (e AccountLiteValidationError) Field() string { return e.field }
+func (e AccountResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AccountLiteValidationError) Reason() string { return e.reason }
+func (e AccountResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AccountLiteValidationError) Cause() error { return e.cause }
+func (e AccountResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AccountLiteValidationError) Key() bool { return e.key }
+func (e AccountResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AccountLiteValidationError) ErrorName() string { return "AccountLiteValidationError" }
+func (e AccountResponseValidationError) ErrorName() string { return "AccountResponseValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AccountLiteValidationError) Error() string {
+func (e AccountResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -183,14 +198,14 @@ func (e AccountLiteValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAccountLite.%s: %s%s",
+		"invalid %sAccountResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AccountLiteValidationError{}
+var _ error = AccountResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -198,18 +213,18 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AccountLiteValidationError{}
+} = AccountResponseValidationError{}
 
-// Validate checks the field values on Users with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Users) Validate() error {
+// Validate checks the field values on User with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *User) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UsersValidationError{
+			return UserValidationError{
 				field:  "Metadata",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -228,9 +243,9 @@ func (m *Users) Validate() error {
 	return nil
 }
 
-// UsersValidationError is the validation error returned by Users.Validate if
-// the designated constraints aren't met.
-type UsersValidationError struct {
+// UserValidationError is the validation error returned by User.Validate if the
+// designated constraints aren't met.
+type UserValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -238,22 +253,22 @@ type UsersValidationError struct {
 }
 
 // Field function returns field value.
-func (e UsersValidationError) Field() string { return e.field }
+func (e UserValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UsersValidationError) Reason() string { return e.reason }
+func (e UserValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UsersValidationError) Cause() error { return e.cause }
+func (e UserValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UsersValidationError) Key() bool { return e.key }
+func (e UserValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UsersValidationError) ErrorName() string { return "UsersValidationError" }
+func (e UserValidationError) ErrorName() string { return "UserValidationError" }
 
 // Error satisfies the builtin error interface
-func (e UsersValidationError) Error() string {
+func (e UserValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -265,14 +280,14 @@ func (e UsersValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUsers.%s: %s%s",
+		"invalid %sUser.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UsersValidationError{}
+var _ error = UserValidationError{}
 
 var _ interface {
 	Field() string
@@ -280,4 +295,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UsersValidationError{}
+} = UserValidationError{}

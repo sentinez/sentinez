@@ -15,20 +15,20 @@
 package copier
 
 import (
-	"github.com/sentinez/sentinez/pkg/common/jsonx"
-	"github.com/sentinez/sentinez/pkg/common/protobuf/proto"
+	"github.com/sentinez/sentinez/pkg/x/jsonx"
+	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
 
 	google "google.golang.org/protobuf/proto"
 )
 
 // CopyProtoMessage copies the src message to the dst message.
 func CopyProtoMessage(src, dst google.Message) error {
-	bytes, err := proto.Marshal(src)
+	bytes, err := protox.Marshal(src)
 	if err != nil {
 		return err
 	}
 
-	return proto.Unmarshal(bytes, dst)
+	return protox.Unmarshal(bytes, dst)
 }
 
 // CopyJSON copies the src object to the dst object.

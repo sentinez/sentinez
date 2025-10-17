@@ -16,8 +16,8 @@
 package routing
 
 import (
-	"github.com/sentinez/sentinez/internal/common/chains"
-	"github.com/sentinez/sentinez/internal/common/memory/routes"
+	"github.com/sentinez/sentinez/internal/shared/chains"
+	"github.com/sentinez/sentinez/internal/shared/memory/routes"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/network/httpx/hz/proxy"
 	"github.com/sentinez/sentinez/pkg/zlog"

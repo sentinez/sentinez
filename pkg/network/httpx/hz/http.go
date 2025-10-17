@@ -19,7 +19,7 @@ import (
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/sentinez/sentinez/pkg/templx"
+	"github.com/sentinez/sentinez/pkg/htmlx"
 )
 
 func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
@@ -30,7 +30,7 @@ func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 }
 
 func Forbidden(ctx *Context) error {
-	if err := ctx.Render(http.StatusForbidden, templx.Forbidden()); err != nil {
+	if err := ctx.Render(http.StatusForbidden, htmlx.Forbidden()); err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(http.StatusForbidden, "Access denied")
 	}
@@ -39,7 +39,7 @@ func Forbidden(ctx *Context) error {
 }
 
 func InternalServerError(ctx *Context) error {
-	err := ctx.Render(http.StatusInternalServerError, templx.InternalError())
+	err := ctx.Render(http.StatusInternalServerError, htmlx.InternalError())
 	if err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(
@@ -50,7 +50,7 @@ func InternalServerError(ctx *Context) error {
 }
 
 func NotFound(ctx *Context) error {
-	if err := ctx.Render(http.StatusNotFound, templx.NotFound()); err != nil {
+	if err := ctx.Render(http.StatusNotFound, htmlx.NotFound()); err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(http.StatusNotFound, "Not found")
 	}

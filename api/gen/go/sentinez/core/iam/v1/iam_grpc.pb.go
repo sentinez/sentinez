@@ -33,19 +33,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IdentityAccessManagementService_CreateUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateUser"
-	IdentityAccessManagementService_UpdateUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/UpdateUser"
-	IdentityAccessManagementService_ListAccounts_FullMethodName          = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListAccounts"
-	IdentityAccessManagementService_ListUsers_FullMethodName             = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListUsers"
-	IdentityAccessManagementService_Status_FullMethodName                = "/sentinez.core.iam.v1.IdentityAccessManagementService/Status"
-	IdentityAccessManagementService_CreateAccount_FullMethodName         = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateAccount"
-	IdentityAccessManagementService_GetUser_FullMethodName               = "/sentinez.core.iam.v1.IdentityAccessManagementService/GetUser"
-	IdentityAccessManagementService_DeleteUser_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/DeleteUser"
-	IdentityAccessManagementService_Login_FullMethodName                 = "/sentinez.core.iam.v1.IdentityAccessManagementService/Login"
-	IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName  = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterStart"
-	IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterFinish"
-	IdentityAccessManagementService_PasskeyLoginStart_FullMethodName     = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginStart"
-	IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginFinish"
+	IdentityAccessManagementService_CreateUser_FullMethodName               = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateUser"
+	IdentityAccessManagementService_UpdateUser_FullMethodName               = "/sentinez.core.iam.v1.IdentityAccessManagementService/UpdateUser"
+	IdentityAccessManagementService_ListAccounts_FullMethodName             = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListAccounts"
+	IdentityAccessManagementService_ListUsers_FullMethodName                = "/sentinez.core.iam.v1.IdentityAccessManagementService/ListUsers"
+	IdentityAccessManagementService_Status_FullMethodName                   = "/sentinez.core.iam.v1.IdentityAccessManagementService/Status"
+	IdentityAccessManagementService_CreateAccount_FullMethodName            = "/sentinez.core.iam.v1.IdentityAccessManagementService/CreateAccount"
+	IdentityAccessManagementService_GetUser_FullMethodName                  = "/sentinez.core.iam.v1.IdentityAccessManagementService/GetUser"
+	IdentityAccessManagementService_DeleteUser_FullMethodName               = "/sentinez.core.iam.v1.IdentityAccessManagementService/DeleteUser"
+	IdentityAccessManagementService_Login_FullMethodName                    = "/sentinez.core.iam.v1.IdentityAccessManagementService/Login"
+	IdentityAccessManagementService_PasskeyRegisterChallenge_FullMethodName = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterChallenge"
+	IdentityAccessManagementService_PasskeyRegisterVerify_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterVerify"
+	IdentityAccessManagementService_PasskeyLoginChallenge_FullMethodName    = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginChallenge"
+	IdentityAccessManagementService_PasskeyLoginVerify_FullMethodName       = "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginVerify"
 )
 
 // IdentityAccessManagementServiceClient is the client API for IdentityAccessManagementService service.
@@ -61,10 +61,10 @@ type IdentityAccessManagementServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	PasskeyRegisterStart(ctx context.Context, in *PasskeyRegisterStartRequest, opts ...grpc.CallOption) (*PasskeyRegisterStartResponse, error)
-	PasskeyRegisterFinish(ctx context.Context, in *PasskeyRegisterFinishRequest, opts ...grpc.CallOption) (*PasskeyRegisterFinishResponse, error)
-	PasskeyLoginStart(ctx context.Context, in *PasskeyLoginStartRequest, opts ...grpc.CallOption) (*PasskeyLoginStartResponse, error)
-	PasskeyLoginFinish(ctx context.Context, in *PasskeyLoginFinishRequest, opts ...grpc.CallOption) (*PasskeyLoginFinishResponse, error)
+	PasskeyRegisterChallenge(ctx context.Context, in *PasskeyRegisterChallengeRequest, opts ...grpc.CallOption) (*PasskeyRegisterChallengeResponse, error)
+	PasskeyRegisterVerify(ctx context.Context, in *PasskeyRegisterVerifyRequest, opts ...grpc.CallOption) (*PasskeyRegisterVerifyResponse, error)
+	PasskeyLoginChallenge(ctx context.Context, in *PasskeyLoginChallengeRequest, opts ...grpc.CallOption) (*PasskeyLoginChallengeResponse, error)
+	PasskeyLoginVerify(ctx context.Context, in *PasskeyLoginVerifyRequest, opts ...grpc.CallOption) (*PasskeyLoginVerifyResponse, error)
 }
 
 type identityAccessManagementServiceClient struct {
@@ -165,40 +165,40 @@ func (c *identityAccessManagementServiceClient) Login(ctx context.Context, in *L
 	return out, nil
 }
 
-func (c *identityAccessManagementServiceClient) PasskeyRegisterStart(ctx context.Context, in *PasskeyRegisterStartRequest, opts ...grpc.CallOption) (*PasskeyRegisterStartResponse, error) {
+func (c *identityAccessManagementServiceClient) PasskeyRegisterChallenge(ctx context.Context, in *PasskeyRegisterChallengeRequest, opts ...grpc.CallOption) (*PasskeyRegisterChallengeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasskeyRegisterStartResponse)
-	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName, in, out, cOpts...)
+	out := new(PasskeyRegisterChallengeResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterChallenge_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *identityAccessManagementServiceClient) PasskeyRegisterFinish(ctx context.Context, in *PasskeyRegisterFinishRequest, opts ...grpc.CallOption) (*PasskeyRegisterFinishResponse, error) {
+func (c *identityAccessManagementServiceClient) PasskeyRegisterVerify(ctx context.Context, in *PasskeyRegisterVerifyRequest, opts ...grpc.CallOption) (*PasskeyRegisterVerifyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasskeyRegisterFinishResponse)
-	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName, in, out, cOpts...)
+	out := new(PasskeyRegisterVerifyResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyRegisterVerify_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *identityAccessManagementServiceClient) PasskeyLoginStart(ctx context.Context, in *PasskeyLoginStartRequest, opts ...grpc.CallOption) (*PasskeyLoginStartResponse, error) {
+func (c *identityAccessManagementServiceClient) PasskeyLoginChallenge(ctx context.Context, in *PasskeyLoginChallengeRequest, opts ...grpc.CallOption) (*PasskeyLoginChallengeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasskeyLoginStartResponse)
-	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginStart_FullMethodName, in, out, cOpts...)
+	out := new(PasskeyLoginChallengeResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginChallenge_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *identityAccessManagementServiceClient) PasskeyLoginFinish(ctx context.Context, in *PasskeyLoginFinishRequest, opts ...grpc.CallOption) (*PasskeyLoginFinishResponse, error) {
+func (c *identityAccessManagementServiceClient) PasskeyLoginVerify(ctx context.Context, in *PasskeyLoginVerifyRequest, opts ...grpc.CallOption) (*PasskeyLoginVerifyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PasskeyLoginFinishResponse)
-	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName, in, out, cOpts...)
+	out := new(PasskeyLoginVerifyResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLoginVerify_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -218,10 +218,10 @@ type IdentityAccessManagementServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	PasskeyRegisterStart(context.Context, *PasskeyRegisterStartRequest) (*PasskeyRegisterStartResponse, error)
-	PasskeyRegisterFinish(context.Context, *PasskeyRegisterFinishRequest) (*PasskeyRegisterFinishResponse, error)
-	PasskeyLoginStart(context.Context, *PasskeyLoginStartRequest) (*PasskeyLoginStartResponse, error)
-	PasskeyLoginFinish(context.Context, *PasskeyLoginFinishRequest) (*PasskeyLoginFinishResponse, error)
+	PasskeyRegisterChallenge(context.Context, *PasskeyRegisterChallengeRequest) (*PasskeyRegisterChallengeResponse, error)
+	PasskeyRegisterVerify(context.Context, *PasskeyRegisterVerifyRequest) (*PasskeyRegisterVerifyResponse, error)
+	PasskeyLoginChallenge(context.Context, *PasskeyLoginChallengeRequest) (*PasskeyLoginChallengeResponse, error)
+	PasskeyLoginVerify(context.Context, *PasskeyLoginVerifyRequest) (*PasskeyLoginVerifyResponse, error)
 }
 
 // UnimplementedIdentityAccessManagementServiceServer should be embedded to have
@@ -258,17 +258,17 @@ func (UnimplementedIdentityAccessManagementServiceServer) DeleteUser(context.Con
 func (UnimplementedIdentityAccessManagementServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterStart(context.Context, *PasskeyRegisterStartRequest) (*PasskeyRegisterStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterStart not implemented")
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterChallenge(context.Context, *PasskeyRegisterChallengeRequest) (*PasskeyRegisterChallengeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterChallenge not implemented")
 }
-func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterFinish(context.Context, *PasskeyRegisterFinishRequest) (*PasskeyRegisterFinishResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterFinish not implemented")
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterVerify(context.Context, *PasskeyRegisterVerifyRequest) (*PasskeyRegisterVerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyRegisterVerify not implemented")
 }
-func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginStart(context.Context, *PasskeyLoginStartRequest) (*PasskeyLoginStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginStart not implemented")
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginChallenge(context.Context, *PasskeyLoginChallengeRequest) (*PasskeyLoginChallengeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginChallenge not implemented")
 }
-func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginFinish(context.Context, *PasskeyLoginFinishRequest) (*PasskeyLoginFinishResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginFinish not implemented")
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginVerify(context.Context, *PasskeyLoginVerifyRequest) (*PasskeyLoginVerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PasskeyLoginVerify not implemented")
 }
 func (UnimplementedIdentityAccessManagementServiceServer) testEmbeddedByValue() {}
 
@@ -452,74 +452,74 @@ func _IdentityAccessManagementService_Login_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IdentityAccessManagementService_PasskeyRegisterStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasskeyRegisterStartRequest)
+func _IdentityAccessManagementService_PasskeyRegisterChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyRegisterChallengeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterStart(ctx, in)
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterChallenge(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IdentityAccessManagementService_PasskeyRegisterStart_FullMethodName,
+		FullMethod: IdentityAccessManagementService_PasskeyRegisterChallenge_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterStart(ctx, req.(*PasskeyRegisterStartRequest))
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterChallenge(ctx, req.(*PasskeyRegisterChallengeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IdentityAccessManagementService_PasskeyRegisterFinish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasskeyRegisterFinishRequest)
+func _IdentityAccessManagementService_PasskeyRegisterVerify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyRegisterVerifyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterFinish(ctx, in)
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterVerify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IdentityAccessManagementService_PasskeyRegisterFinish_FullMethodName,
+		FullMethod: IdentityAccessManagementService_PasskeyRegisterVerify_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterFinish(ctx, req.(*PasskeyRegisterFinishRequest))
+		return srv.(IdentityAccessManagementServiceServer).PasskeyRegisterVerify(ctx, req.(*PasskeyRegisterVerifyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IdentityAccessManagementService_PasskeyLoginStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasskeyLoginStartRequest)
+func _IdentityAccessManagementService_PasskeyLoginChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyLoginChallengeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginStart(ctx, in)
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginChallenge(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IdentityAccessManagementService_PasskeyLoginStart_FullMethodName,
+		FullMethod: IdentityAccessManagementService_PasskeyLoginChallenge_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginStart(ctx, req.(*PasskeyLoginStartRequest))
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginChallenge(ctx, req.(*PasskeyLoginChallengeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IdentityAccessManagementService_PasskeyLoginFinish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasskeyLoginFinishRequest)
+func _IdentityAccessManagementService_PasskeyLoginVerify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyLoginVerifyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginFinish(ctx, in)
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginVerify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IdentityAccessManagementService_PasskeyLoginFinish_FullMethodName,
+		FullMethod: IdentityAccessManagementService_PasskeyLoginVerify_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginFinish(ctx, req.(*PasskeyLoginFinishRequest))
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLoginVerify(ctx, req.(*PasskeyLoginVerifyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -568,20 +568,20 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IdentityAccessManagementService_Login_Handler,
 		},
 		{
-			MethodName: "PasskeyRegisterStart",
-			Handler:    _IdentityAccessManagementService_PasskeyRegisterStart_Handler,
+			MethodName: "PasskeyRegisterChallenge",
+			Handler:    _IdentityAccessManagementService_PasskeyRegisterChallenge_Handler,
 		},
 		{
-			MethodName: "PasskeyRegisterFinish",
-			Handler:    _IdentityAccessManagementService_PasskeyRegisterFinish_Handler,
+			MethodName: "PasskeyRegisterVerify",
+			Handler:    _IdentityAccessManagementService_PasskeyRegisterVerify_Handler,
 		},
 		{
-			MethodName: "PasskeyLoginStart",
-			Handler:    _IdentityAccessManagementService_PasskeyLoginStart_Handler,
+			MethodName: "PasskeyLoginChallenge",
+			Handler:    _IdentityAccessManagementService_PasskeyLoginChallenge_Handler,
 		},
 		{
-			MethodName: "PasskeyLoginFinish",
-			Handler:    _IdentityAccessManagementService_PasskeyLoginFinish_Handler,
+			MethodName: "PasskeyLoginVerify",
+			Handler:    _IdentityAccessManagementService_PasskeyLoginVerify_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

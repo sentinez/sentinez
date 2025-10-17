@@ -16,12 +16,12 @@ package edge
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/common/memory"
 	"github.com/sentinez/sentinez/internal/edge/v1/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/waitingroom"
+	"github.com/sentinez/sentinez/internal/shared/memory"
 )
 
 func (s *Server) initialize(appConf *common.AppConfig) error {

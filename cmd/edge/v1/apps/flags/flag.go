@@ -16,9 +16,9 @@
 package edgeflags
 
 import (
+	"github.com/sentinez/sentinez/pkg/x/flagx"
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/flagx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"

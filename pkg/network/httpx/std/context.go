@@ -21,10 +21,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
-
 	"github.com/gorilla/websocket"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
+	"github.com/sentinez/sentinez/pkg/x/syncx"
 )
 
 var _ IContext = (*Context)(nil)

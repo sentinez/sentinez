@@ -17,12 +17,13 @@ package proxy
 import (
 	"strings"
 
+	"github.com/sentinez/sentinez/pkg/x/errorx"
+	"github.com/sentinez/sentinez/pkg/x/syncx"
+
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/errorx"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 )
 

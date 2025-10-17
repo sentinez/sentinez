@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/internal/websocket/manager"
-	"github.com/sentinez/sentinez/pkg/errorx"
 	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

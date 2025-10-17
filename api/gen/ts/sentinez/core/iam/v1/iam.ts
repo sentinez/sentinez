@@ -9,36 +9,43 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Struct } from "../../../../google/protobuf/struct";
 import { Context } from "../../../types/common/v1/context";
 import { Pages } from "../../../types/common/v1/meta";
-import { AccountLite, Users } from "./model";
+import { AccountResponse, User } from "./model";
 
 export const protobufPackage = "sentinez.core.iam.v1";
 
-export interface PasskeyLoginFinishRequest {
+export interface PasskeyLoginVerifyRequest {
+  sessionId: string;
+  credentialAssertionData: Uint8Array;
 }
 
-export interface PasskeyLoginFinishResponse {
+export interface PasskeyLoginVerifyResponse {
+  user?: User | undefined;
+  accessToken: string;
 }
 
-export interface PasskeyLoginStartRequest {
+export interface PasskeyLoginChallengeRequest {
+  emailOrUsername: string;
 }
 
-export interface PasskeyLoginStartResponse {
+export interface PasskeyLoginChallengeResponse {
+  options?: { [key: string]: any } | undefined;
+  sessionId: string;
 }
 
-export interface PasskeyRegisterFinishRequest {
+export interface PasskeyRegisterVerifyRequest {
   sessionId: string;
   credentialCreationResponse: Uint8Array;
 }
 
-export interface PasskeyRegisterFinishResponse {
+export interface PasskeyRegisterVerifyResponse {
 }
 
-export interface PasskeyRegisterStartRequest {
+export interface PasskeyRegisterChallengeRequest {
   emailOrUsername: string;
 }
 
-export interface PasskeyRegisterStartResponse {
-  event?: { [key: string]: any } | undefined;
+export interface PasskeyRegisterChallengeResponse {
+  options?: { [key: string]: any } | undefined;
   sessionId: string;
 }
 
@@ -48,7 +55,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user?: Users | undefined;
+  user?: User | undefined;
   accessToken: string;
 }
 
@@ -90,7 +97,7 @@ export interface UpdateUserRequest {
 }
 
 export interface UpdateUserResponse {
-  user?: Users | undefined;
+  user?: User | undefined;
 }
 
 export interface GetUserRequest {
@@ -99,7 +106,7 @@ export interface GetUserRequest {
 }
 
 export interface GetUserResponse {
-  user?: Users | undefined;
+  user?: User | undefined;
 }
 
 export interface ListUsersRequest {
@@ -110,7 +117,7 @@ export interface ListUsersRequest {
 }
 
 export interface ListUsersResponse {
-  users: Users[];
+  users: User[];
   total: number;
 }
 
@@ -123,7 +130,7 @@ export interface ListAccountsRequest {
 }
 
 export interface ListAccountsResponse {
-  accounts: AccountLite[];
+  accounts: AccountResponse[];
   total: number;
 }
 
@@ -134,22 +141,44 @@ export interface DeleteUserRequest {
 export interface DeleteUserResponse {
 }
 
-function createBasePasskeyLoginFinishRequest(): PasskeyLoginFinishRequest {
-  return {};
+function createBasePasskeyLoginVerifyRequest(): PasskeyLoginVerifyRequest {
+  return { sessionId: "", credentialAssertionData: new Uint8Array(0) };
 }
 
-export const PasskeyLoginFinishRequest: MessageFns<PasskeyLoginFinishRequest> = {
-  encode(_: PasskeyLoginFinishRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyLoginVerifyRequest: MessageFns<PasskeyLoginVerifyRequest> = {
+  encode(message: PasskeyLoginVerifyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.sessionId !== "") {
+      writer.uint32(10).string(message.sessionId);
+    }
+    if (message.credentialAssertionData.length !== 0) {
+      writer.uint32(18).bytes(message.credentialAssertionData);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginFinishRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginVerifyRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyLoginFinishRequest();
+    const message = createBasePasskeyLoginVerifyRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.sessionId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.credentialAssertionData = reader.bytes();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -159,40 +188,75 @@ export const PasskeyLoginFinishRequest: MessageFns<PasskeyLoginFinishRequest> = 
     return message;
   },
 
-  fromJSON(_: any): PasskeyLoginFinishRequest {
-    return {};
+  fromJSON(object: any): PasskeyLoginVerifyRequest {
+    return {
+      sessionId: isSet(object.sessionId) ? globalThis.String(object.sessionId) : "",
+      credentialAssertionData: isSet(object.credentialAssertionData)
+        ? bytesFromBase64(object.credentialAssertionData)
+        : new Uint8Array(0),
+    };
   },
 
-  toJSON(_: PasskeyLoginFinishRequest): unknown {
+  toJSON(message: PasskeyLoginVerifyRequest): unknown {
     const obj: any = {};
+    if (message.sessionId !== "") {
+      obj.sessionId = message.sessionId;
+    }
+    if (message.credentialAssertionData.length !== 0) {
+      obj.credentialAssertionData = base64FromBytes(message.credentialAssertionData);
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyLoginFinishRequest>, I>>(base?: I): PasskeyLoginFinishRequest {
-    return PasskeyLoginFinishRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyLoginVerifyRequest>, I>>(base?: I): PasskeyLoginVerifyRequest {
+    return PasskeyLoginVerifyRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyLoginFinishRequest>, I>>(_: I): PasskeyLoginFinishRequest {
-    const message = createBasePasskeyLoginFinishRequest();
+  fromPartial<I extends Exact<DeepPartial<PasskeyLoginVerifyRequest>, I>>(object: I): PasskeyLoginVerifyRequest {
+    const message = createBasePasskeyLoginVerifyRequest();
+    message.sessionId = object.sessionId ?? "";
+    message.credentialAssertionData = object.credentialAssertionData ?? new Uint8Array(0);
     return message;
   },
 };
 
-function createBasePasskeyLoginFinishResponse(): PasskeyLoginFinishResponse {
-  return {};
+function createBasePasskeyLoginVerifyResponse(): PasskeyLoginVerifyResponse {
+  return { user: undefined, accessToken: "" };
 }
 
-export const PasskeyLoginFinishResponse: MessageFns<PasskeyLoginFinishResponse> = {
-  encode(_: PasskeyLoginFinishResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyLoginVerifyResponse: MessageFns<PasskeyLoginVerifyResponse> = {
+  encode(message: PasskeyLoginVerifyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.user !== undefined) {
+      User.encode(message.user, writer.uint32(10).fork()).join();
+    }
+    if (message.accessToken !== "") {
+      writer.uint32(18).string(message.accessToken);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginFinishResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginVerifyResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyLoginFinishResponse();
+    const message = createBasePasskeyLoginVerifyResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.user = User.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.accessToken = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -202,40 +266,62 @@ export const PasskeyLoginFinishResponse: MessageFns<PasskeyLoginFinishResponse> 
     return message;
   },
 
-  fromJSON(_: any): PasskeyLoginFinishResponse {
-    return {};
+  fromJSON(object: any): PasskeyLoginVerifyResponse {
+    return {
+      user: isSet(object.user) ? User.fromJSON(object.user) : undefined,
+      accessToken: isSet(object.accessToken) ? globalThis.String(object.accessToken) : "",
+    };
   },
 
-  toJSON(_: PasskeyLoginFinishResponse): unknown {
+  toJSON(message: PasskeyLoginVerifyResponse): unknown {
     const obj: any = {};
+    if (message.user !== undefined) {
+      obj.user = User.toJSON(message.user);
+    }
+    if (message.accessToken !== "") {
+      obj.accessToken = message.accessToken;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyLoginFinishResponse>, I>>(base?: I): PasskeyLoginFinishResponse {
-    return PasskeyLoginFinishResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyLoginVerifyResponse>, I>>(base?: I): PasskeyLoginVerifyResponse {
+    return PasskeyLoginVerifyResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyLoginFinishResponse>, I>>(_: I): PasskeyLoginFinishResponse {
-    const message = createBasePasskeyLoginFinishResponse();
+  fromPartial<I extends Exact<DeepPartial<PasskeyLoginVerifyResponse>, I>>(object: I): PasskeyLoginVerifyResponse {
+    const message = createBasePasskeyLoginVerifyResponse();
+    message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
+    message.accessToken = object.accessToken ?? "";
     return message;
   },
 };
 
-function createBasePasskeyLoginStartRequest(): PasskeyLoginStartRequest {
-  return {};
+function createBasePasskeyLoginChallengeRequest(): PasskeyLoginChallengeRequest {
+  return { emailOrUsername: "" };
 }
 
-export const PasskeyLoginStartRequest: MessageFns<PasskeyLoginStartRequest> = {
-  encode(_: PasskeyLoginStartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyLoginChallengeRequest: MessageFns<PasskeyLoginChallengeRequest> = {
+  encode(message: PasskeyLoginChallengeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.emailOrUsername !== "") {
+      writer.uint32(10).string(message.emailOrUsername);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginStartRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginChallengeRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyLoginStartRequest();
+    const message = createBasePasskeyLoginChallengeRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.emailOrUsername = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -245,40 +331,66 @@ export const PasskeyLoginStartRequest: MessageFns<PasskeyLoginStartRequest> = {
     return message;
   },
 
-  fromJSON(_: any): PasskeyLoginStartRequest {
-    return {};
+  fromJSON(object: any): PasskeyLoginChallengeRequest {
+    return { emailOrUsername: isSet(object.emailOrUsername) ? globalThis.String(object.emailOrUsername) : "" };
   },
 
-  toJSON(_: PasskeyLoginStartRequest): unknown {
+  toJSON(message: PasskeyLoginChallengeRequest): unknown {
     const obj: any = {};
+    if (message.emailOrUsername !== "") {
+      obj.emailOrUsername = message.emailOrUsername;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyLoginStartRequest>, I>>(base?: I): PasskeyLoginStartRequest {
-    return PasskeyLoginStartRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyLoginChallengeRequest>, I>>(base?: I): PasskeyLoginChallengeRequest {
+    return PasskeyLoginChallengeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyLoginStartRequest>, I>>(_: I): PasskeyLoginStartRequest {
-    const message = createBasePasskeyLoginStartRequest();
+  fromPartial<I extends Exact<DeepPartial<PasskeyLoginChallengeRequest>, I>>(object: I): PasskeyLoginChallengeRequest {
+    const message = createBasePasskeyLoginChallengeRequest();
+    message.emailOrUsername = object.emailOrUsername ?? "";
     return message;
   },
 };
 
-function createBasePasskeyLoginStartResponse(): PasskeyLoginStartResponse {
-  return {};
+function createBasePasskeyLoginChallengeResponse(): PasskeyLoginChallengeResponse {
+  return { options: undefined, sessionId: "" };
 }
 
-export const PasskeyLoginStartResponse: MessageFns<PasskeyLoginStartResponse> = {
-  encode(_: PasskeyLoginStartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyLoginChallengeResponse: MessageFns<PasskeyLoginChallengeResponse> = {
+  encode(message: PasskeyLoginChallengeResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.options !== undefined) {
+      Struct.encode(Struct.wrap(message.options), writer.uint32(10).fork()).join();
+    }
+    if (message.sessionId !== "") {
+      writer.uint32(18).string(message.sessionId);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginStartResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLoginChallengeResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyLoginStartResponse();
+    const message = createBasePasskeyLoginChallengeResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.options = Struct.unwrap(Struct.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.sessionId = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -288,30 +400,43 @@ export const PasskeyLoginStartResponse: MessageFns<PasskeyLoginStartResponse> = 
     return message;
   },
 
-  fromJSON(_: any): PasskeyLoginStartResponse {
-    return {};
+  fromJSON(object: any): PasskeyLoginChallengeResponse {
+    return {
+      options: isObject(object.options) ? object.options : undefined,
+      sessionId: isSet(object.sessionId) ? globalThis.String(object.sessionId) : "",
+    };
   },
 
-  toJSON(_: PasskeyLoginStartResponse): unknown {
+  toJSON(message: PasskeyLoginChallengeResponse): unknown {
     const obj: any = {};
+    if (message.options !== undefined) {
+      obj.options = message.options;
+    }
+    if (message.sessionId !== "") {
+      obj.sessionId = message.sessionId;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyLoginStartResponse>, I>>(base?: I): PasskeyLoginStartResponse {
-    return PasskeyLoginStartResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyLoginChallengeResponse>, I>>(base?: I): PasskeyLoginChallengeResponse {
+    return PasskeyLoginChallengeResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyLoginStartResponse>, I>>(_: I): PasskeyLoginStartResponse {
-    const message = createBasePasskeyLoginStartResponse();
+  fromPartial<I extends Exact<DeepPartial<PasskeyLoginChallengeResponse>, I>>(
+    object: I,
+  ): PasskeyLoginChallengeResponse {
+    const message = createBasePasskeyLoginChallengeResponse();
+    message.options = object.options ?? undefined;
+    message.sessionId = object.sessionId ?? "";
     return message;
   },
 };
 
-function createBasePasskeyRegisterFinishRequest(): PasskeyRegisterFinishRequest {
+function createBasePasskeyRegisterVerifyRequest(): PasskeyRegisterVerifyRequest {
   return { sessionId: "", credentialCreationResponse: new Uint8Array(0) };
 }
 
-export const PasskeyRegisterFinishRequest: MessageFns<PasskeyRegisterFinishRequest> = {
-  encode(message: PasskeyRegisterFinishRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyRegisterVerifyRequest: MessageFns<PasskeyRegisterVerifyRequest> = {
+  encode(message: PasskeyRegisterVerifyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.sessionId !== "") {
       writer.uint32(10).string(message.sessionId);
     }
@@ -321,10 +446,10 @@ export const PasskeyRegisterFinishRequest: MessageFns<PasskeyRegisterFinishReque
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterFinishRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterVerifyRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyRegisterFinishRequest();
+    const message = createBasePasskeyRegisterVerifyRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -353,7 +478,7 @@ export const PasskeyRegisterFinishRequest: MessageFns<PasskeyRegisterFinishReque
     return message;
   },
 
-  fromJSON(object: any): PasskeyRegisterFinishRequest {
+  fromJSON(object: any): PasskeyRegisterVerifyRequest {
     return {
       sessionId: isSet(object.sessionId) ? globalThis.String(object.sessionId) : "",
       credentialCreationResponse: isSet(object.credentialCreationResponse)
@@ -362,7 +487,7 @@ export const PasskeyRegisterFinishRequest: MessageFns<PasskeyRegisterFinishReque
     };
   },
 
-  toJSON(message: PasskeyRegisterFinishRequest): unknown {
+  toJSON(message: PasskeyRegisterVerifyRequest): unknown {
     const obj: any = {};
     if (message.sessionId !== "") {
       obj.sessionId = message.sessionId;
@@ -373,30 +498,30 @@ export const PasskeyRegisterFinishRequest: MessageFns<PasskeyRegisterFinishReque
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyRegisterFinishRequest>, I>>(base?: I): PasskeyRegisterFinishRequest {
-    return PasskeyRegisterFinishRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyRegisterVerifyRequest>, I>>(base?: I): PasskeyRegisterVerifyRequest {
+    return PasskeyRegisterVerifyRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterFinishRequest>, I>>(object: I): PasskeyRegisterFinishRequest {
-    const message = createBasePasskeyRegisterFinishRequest();
+  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterVerifyRequest>, I>>(object: I): PasskeyRegisterVerifyRequest {
+    const message = createBasePasskeyRegisterVerifyRequest();
     message.sessionId = object.sessionId ?? "";
     message.credentialCreationResponse = object.credentialCreationResponse ?? new Uint8Array(0);
     return message;
   },
 };
 
-function createBasePasskeyRegisterFinishResponse(): PasskeyRegisterFinishResponse {
+function createBasePasskeyRegisterVerifyResponse(): PasskeyRegisterVerifyResponse {
   return {};
 }
 
-export const PasskeyRegisterFinishResponse: MessageFns<PasskeyRegisterFinishResponse> = {
-  encode(_: PasskeyRegisterFinishResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyRegisterVerifyResponse: MessageFns<PasskeyRegisterVerifyResponse> = {
+  encode(_: PasskeyRegisterVerifyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterFinishResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterVerifyResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyRegisterFinishResponse();
+    const message = createBasePasskeyRegisterVerifyResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -409,40 +534,40 @@ export const PasskeyRegisterFinishResponse: MessageFns<PasskeyRegisterFinishResp
     return message;
   },
 
-  fromJSON(_: any): PasskeyRegisterFinishResponse {
+  fromJSON(_: any): PasskeyRegisterVerifyResponse {
     return {};
   },
 
-  toJSON(_: PasskeyRegisterFinishResponse): unknown {
+  toJSON(_: PasskeyRegisterVerifyResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyRegisterFinishResponse>, I>>(base?: I): PasskeyRegisterFinishResponse {
-    return PasskeyRegisterFinishResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyRegisterVerifyResponse>, I>>(base?: I): PasskeyRegisterVerifyResponse {
+    return PasskeyRegisterVerifyResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterFinishResponse>, I>>(_: I): PasskeyRegisterFinishResponse {
-    const message = createBasePasskeyRegisterFinishResponse();
+  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterVerifyResponse>, I>>(_: I): PasskeyRegisterVerifyResponse {
+    const message = createBasePasskeyRegisterVerifyResponse();
     return message;
   },
 };
 
-function createBasePasskeyRegisterStartRequest(): PasskeyRegisterStartRequest {
+function createBasePasskeyRegisterChallengeRequest(): PasskeyRegisterChallengeRequest {
   return { emailOrUsername: "" };
 }
 
-export const PasskeyRegisterStartRequest: MessageFns<PasskeyRegisterStartRequest> = {
-  encode(message: PasskeyRegisterStartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PasskeyRegisterChallengeRequest: MessageFns<PasskeyRegisterChallengeRequest> = {
+  encode(message: PasskeyRegisterChallengeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.emailOrUsername !== "") {
       writer.uint32(10).string(message.emailOrUsername);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterStartRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterChallengeRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyRegisterStartRequest();
+    const message = createBasePasskeyRegisterChallengeRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -463,11 +588,11 @@ export const PasskeyRegisterStartRequest: MessageFns<PasskeyRegisterStartRequest
     return message;
   },
 
-  fromJSON(object: any): PasskeyRegisterStartRequest {
+  fromJSON(object: any): PasskeyRegisterChallengeRequest {
     return { emailOrUsername: isSet(object.emailOrUsername) ? globalThis.String(object.emailOrUsername) : "" };
   },
 
-  toJSON(message: PasskeyRegisterStartRequest): unknown {
+  toJSON(message: PasskeyRegisterChallengeRequest): unknown {
     const obj: any = {};
     if (message.emailOrUsername !== "") {
       obj.emailOrUsername = message.emailOrUsername;
@@ -475,24 +600,26 @@ export const PasskeyRegisterStartRequest: MessageFns<PasskeyRegisterStartRequest
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyRegisterStartRequest>, I>>(base?: I): PasskeyRegisterStartRequest {
-    return PasskeyRegisterStartRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyRegisterChallengeRequest>, I>>(base?: I): PasskeyRegisterChallengeRequest {
+    return PasskeyRegisterChallengeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterStartRequest>, I>>(object: I): PasskeyRegisterStartRequest {
-    const message = createBasePasskeyRegisterStartRequest();
+  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterChallengeRequest>, I>>(
+    object: I,
+  ): PasskeyRegisterChallengeRequest {
+    const message = createBasePasskeyRegisterChallengeRequest();
     message.emailOrUsername = object.emailOrUsername ?? "";
     return message;
   },
 };
 
-function createBasePasskeyRegisterStartResponse(): PasskeyRegisterStartResponse {
-  return { event: undefined, sessionId: "" };
+function createBasePasskeyRegisterChallengeResponse(): PasskeyRegisterChallengeResponse {
+  return { options: undefined, sessionId: "" };
 }
 
-export const PasskeyRegisterStartResponse: MessageFns<PasskeyRegisterStartResponse> = {
-  encode(message: PasskeyRegisterStartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.event !== undefined) {
-      Struct.encode(Struct.wrap(message.event), writer.uint32(10).fork()).join();
+export const PasskeyRegisterChallengeResponse: MessageFns<PasskeyRegisterChallengeResponse> = {
+  encode(message: PasskeyRegisterChallengeResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.options !== undefined) {
+      Struct.encode(Struct.wrap(message.options), writer.uint32(10).fork()).join();
     }
     if (message.sessionId !== "") {
       writer.uint32(18).string(message.sessionId);
@@ -500,10 +627,10 @@ export const PasskeyRegisterStartResponse: MessageFns<PasskeyRegisterStartRespon
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterStartResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyRegisterChallengeResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePasskeyRegisterStartResponse();
+    const message = createBasePasskeyRegisterChallengeResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -512,7 +639,7 @@ export const PasskeyRegisterStartResponse: MessageFns<PasskeyRegisterStartRespon
             break;
           }
 
-          message.event = Struct.unwrap(Struct.decode(reader, reader.uint32()));
+          message.options = Struct.unwrap(Struct.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -532,17 +659,17 @@ export const PasskeyRegisterStartResponse: MessageFns<PasskeyRegisterStartRespon
     return message;
   },
 
-  fromJSON(object: any): PasskeyRegisterStartResponse {
+  fromJSON(object: any): PasskeyRegisterChallengeResponse {
     return {
-      event: isObject(object.event) ? object.event : undefined,
+      options: isObject(object.options) ? object.options : undefined,
       sessionId: isSet(object.sessionId) ? globalThis.String(object.sessionId) : "",
     };
   },
 
-  toJSON(message: PasskeyRegisterStartResponse): unknown {
+  toJSON(message: PasskeyRegisterChallengeResponse): unknown {
     const obj: any = {};
-    if (message.event !== undefined) {
-      obj.event = message.event;
+    if (message.options !== undefined) {
+      obj.options = message.options;
     }
     if (message.sessionId !== "") {
       obj.sessionId = message.sessionId;
@@ -550,12 +677,16 @@ export const PasskeyRegisterStartResponse: MessageFns<PasskeyRegisterStartRespon
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PasskeyRegisterStartResponse>, I>>(base?: I): PasskeyRegisterStartResponse {
-    return PasskeyRegisterStartResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PasskeyRegisterChallengeResponse>, I>>(
+    base?: I,
+  ): PasskeyRegisterChallengeResponse {
+    return PasskeyRegisterChallengeResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterStartResponse>, I>>(object: I): PasskeyRegisterStartResponse {
-    const message = createBasePasskeyRegisterStartResponse();
-    message.event = object.event ?? undefined;
+  fromPartial<I extends Exact<DeepPartial<PasskeyRegisterChallengeResponse>, I>>(
+    object: I,
+  ): PasskeyRegisterChallengeResponse {
+    const message = createBasePasskeyRegisterChallengeResponse();
+    message.options = object.options ?? undefined;
     message.sessionId = object.sessionId ?? "";
     return message;
   },
@@ -644,7 +775,7 @@ function createBaseLoginResponse(): LoginResponse {
 export const LoginResponse: MessageFns<LoginResponse> = {
   encode(message: LoginResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.user !== undefined) {
-      Users.encode(message.user, writer.uint32(10).fork()).join();
+      User.encode(message.user, writer.uint32(10).fork()).join();
     }
     if (message.accessToken !== "") {
       writer.uint32(18).string(message.accessToken);
@@ -664,7 +795,7 @@ export const LoginResponse: MessageFns<LoginResponse> = {
             break;
           }
 
-          message.user = Users.decode(reader, reader.uint32());
+          message.user = User.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -686,7 +817,7 @@ export const LoginResponse: MessageFns<LoginResponse> = {
 
   fromJSON(object: any): LoginResponse {
     return {
-      user: isSet(object.user) ? Users.fromJSON(object.user) : undefined,
+      user: isSet(object.user) ? User.fromJSON(object.user) : undefined,
       accessToken: isSet(object.accessToken) ? globalThis.String(object.accessToken) : "",
     };
   },
@@ -694,7 +825,7 @@ export const LoginResponse: MessageFns<LoginResponse> = {
   toJSON(message: LoginResponse): unknown {
     const obj: any = {};
     if (message.user !== undefined) {
-      obj.user = Users.toJSON(message.user);
+      obj.user = User.toJSON(message.user);
     }
     if (message.accessToken !== "") {
       obj.accessToken = message.accessToken;
@@ -707,7 +838,7 @@ export const LoginResponse: MessageFns<LoginResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<LoginResponse>, I>>(object: I): LoginResponse {
     const message = createBaseLoginResponse();
-    message.user = (object.user !== undefined && object.user !== null) ? Users.fromPartial(object.user) : undefined;
+    message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
     message.accessToken = object.accessToken ?? "";
     return message;
   },
@@ -1281,7 +1412,7 @@ function createBaseUpdateUserResponse(): UpdateUserResponse {
 export const UpdateUserResponse: MessageFns<UpdateUserResponse> = {
   encode(message: UpdateUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.user !== undefined) {
-      Users.encode(message.user, writer.uint32(10).fork()).join();
+      User.encode(message.user, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -1298,7 +1429,7 @@ export const UpdateUserResponse: MessageFns<UpdateUserResponse> = {
             break;
           }
 
-          message.user = Users.decode(reader, reader.uint32());
+          message.user = User.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1311,13 +1442,13 @@ export const UpdateUserResponse: MessageFns<UpdateUserResponse> = {
   },
 
   fromJSON(object: any): UpdateUserResponse {
-    return { user: isSet(object.user) ? Users.fromJSON(object.user) : undefined };
+    return { user: isSet(object.user) ? User.fromJSON(object.user) : undefined };
   },
 
   toJSON(message: UpdateUserResponse): unknown {
     const obj: any = {};
     if (message.user !== undefined) {
-      obj.user = Users.toJSON(message.user);
+      obj.user = User.toJSON(message.user);
     }
     return obj;
   },
@@ -1327,7 +1458,7 @@ export const UpdateUserResponse: MessageFns<UpdateUserResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<UpdateUserResponse>, I>>(object: I): UpdateUserResponse {
     const message = createBaseUpdateUserResponse();
-    message.user = (object.user !== undefined && object.user !== null) ? Users.fromPartial(object.user) : undefined;
+    message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
     return message;
   },
 };
@@ -1415,7 +1546,7 @@ function createBaseGetUserResponse(): GetUserResponse {
 export const GetUserResponse: MessageFns<GetUserResponse> = {
   encode(message: GetUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.user !== undefined) {
-      Users.encode(message.user, writer.uint32(10).fork()).join();
+      User.encode(message.user, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -1432,7 +1563,7 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
             break;
           }
 
-          message.user = Users.decode(reader, reader.uint32());
+          message.user = User.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1445,13 +1576,13 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
   },
 
   fromJSON(object: any): GetUserResponse {
-    return { user: isSet(object.user) ? Users.fromJSON(object.user) : undefined };
+    return { user: isSet(object.user) ? User.fromJSON(object.user) : undefined };
   },
 
   toJSON(message: GetUserResponse): unknown {
     const obj: any = {};
     if (message.user !== undefined) {
-      obj.user = Users.toJSON(message.user);
+      obj.user = User.toJSON(message.user);
     }
     return obj;
   },
@@ -1461,7 +1592,7 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<GetUserResponse>, I>>(object: I): GetUserResponse {
     const message = createBaseGetUserResponse();
-    message.user = (object.user !== undefined && object.user !== null) ? Users.fromPartial(object.user) : undefined;
+    message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
     return message;
   },
 };
@@ -1583,7 +1714,7 @@ function createBaseListUsersResponse(): ListUsersResponse {
 export const ListUsersResponse: MessageFns<ListUsersResponse> = {
   encode(message: ListUsersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.users) {
-      Users.encode(v!, writer.uint32(10).fork()).join();
+      User.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -1603,7 +1734,7 @@ export const ListUsersResponse: MessageFns<ListUsersResponse> = {
             break;
           }
 
-          message.users.push(Users.decode(reader, reader.uint32()));
+          message.users.push(User.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -1625,7 +1756,7 @@ export const ListUsersResponse: MessageFns<ListUsersResponse> = {
 
   fromJSON(object: any): ListUsersResponse {
     return {
-      users: globalThis.Array.isArray(object?.users) ? object.users.map((e: any) => Users.fromJSON(e)) : [],
+      users: globalThis.Array.isArray(object?.users) ? object.users.map((e: any) => User.fromJSON(e)) : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
@@ -1633,7 +1764,7 @@ export const ListUsersResponse: MessageFns<ListUsersResponse> = {
   toJSON(message: ListUsersResponse): unknown {
     const obj: any = {};
     if (message.users?.length) {
-      obj.users = message.users.map((e) => Users.toJSON(e));
+      obj.users = message.users.map((e) => User.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -1646,7 +1777,7 @@ export const ListUsersResponse: MessageFns<ListUsersResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ListUsersResponse>, I>>(object: I): ListUsersResponse {
     const message = createBaseListUsersResponse();
-    message.users = object.users?.map((e) => Users.fromPartial(e)) || [];
+    message.users = object.users?.map((e) => User.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },
@@ -1785,7 +1916,7 @@ function createBaseListAccountsResponse(): ListAccountsResponse {
 export const ListAccountsResponse: MessageFns<ListAccountsResponse> = {
   encode(message: ListAccountsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.accounts) {
-      AccountLite.encode(v!, writer.uint32(10).fork()).join();
+      AccountResponse.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -1805,7 +1936,7 @@ export const ListAccountsResponse: MessageFns<ListAccountsResponse> = {
             break;
           }
 
-          message.accounts.push(AccountLite.decode(reader, reader.uint32()));
+          message.accounts.push(AccountResponse.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -1828,7 +1959,7 @@ export const ListAccountsResponse: MessageFns<ListAccountsResponse> = {
   fromJSON(object: any): ListAccountsResponse {
     return {
       accounts: globalThis.Array.isArray(object?.accounts)
-        ? object.accounts.map((e: any) => AccountLite.fromJSON(e))
+        ? object.accounts.map((e: any) => AccountResponse.fromJSON(e))
         : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
@@ -1837,7 +1968,7 @@ export const ListAccountsResponse: MessageFns<ListAccountsResponse> = {
   toJSON(message: ListAccountsResponse): unknown {
     const obj: any = {};
     if (message.accounts?.length) {
-      obj.accounts = message.accounts.map((e) => AccountLite.toJSON(e));
+      obj.accounts = message.accounts.map((e) => AccountResponse.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -1850,7 +1981,7 @@ export const ListAccountsResponse: MessageFns<ListAccountsResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ListAccountsResponse>, I>>(object: I): ListAccountsResponse {
     const message = createBaseListAccountsResponse();
-    message.accounts = object.accounts?.map((e) => AccountLite.fromPartial(e)) || [];
+    message.accounts = object.accounts?.map((e) => AccountResponse.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },

@@ -17,7 +17,7 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/configx"
+	"github.com/sentinez/sentinez/pkg/config"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
@@ -32,7 +32,7 @@ var (
 func Config() *common.AppConfig {
 	once.Do(func() {
 		flag := flags.Parse()
-		envConf := configx.LoadEnv(flag.GetEnvFile())
+		envConf := config.LoadEnv(flag.GetEnvFile())
 		appConf = &common.AppConfig{
 			Meta:    greeter.GetMetaGreeter(),
 			EnvConf: envConf,

@@ -2,15 +2,17 @@
 // github.com/vektra/mockery
 // template: testify
 
-package accountrepo
+package accrepos
 
 import (
 	"context"
 
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	mock "github.com/stretchr/testify/mock"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 // NewMockIAccount creates a new instance of MockIAccount. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -41,26 +43,26 @@ func (_m *MockIAccount) EXPECT() *MockIAccount_Expecter {
 }
 
 // Create provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) Create(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error) {
+func (_mock *MockIAccount) Create(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error) {
 	ret := _mock.Called(ctx, account)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *iam.Accounts
+	var r0 *accrepos.AccountX
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.Accounts) (*iam.Accounts, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) (*accrepos.AccountX, error)); ok {
 		return returnFunc(ctx, account)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.Accounts) *iam.Accounts); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) *accrepos.AccountX); ok {
 		r0 = returnFunc(ctx, account)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.Accounts)
+			r0 = ret.Get(0).(*accrepos.AccountX)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.Accounts) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *accrepos.AccountX) error); ok {
 		r1 = returnFunc(ctx, account)
 	} else {
 		r1 = ret.Error(1)
@@ -75,20 +77,20 @@ type MockIAccount_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - account *iam.Accounts
+//   - account *accrepos.AccountX
 func (_e *MockIAccount_Expecter) Create(ctx interface{}, account interface{}) *MockIAccount_Create_Call {
 	return &MockIAccount_Create_Call{Call: _e.mock.On("Create", ctx, account)}
 }
 
-func (_c *MockIAccount_Create_Call) Run(run func(ctx context.Context, account *iam.Accounts)) *MockIAccount_Create_Call {
+func (_c *MockIAccount_Create_Call) Run(run func(ctx context.Context, account *accrepos.AccountX)) *MockIAccount_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.Accounts
+		var arg1 *accrepos.AccountX
 		if args[1] != nil {
-			arg1 = args[1].(*iam.Accounts)
+			arg1 = args[1].(*accrepos.AccountX)
 		}
 		run(
 			arg0,
@@ -98,12 +100,12 @@ func (_c *MockIAccount_Create_Call) Run(run func(ctx context.Context, account *i
 	return _c
 }
 
-func (_c *MockIAccount_Create_Call) Return(accounts *iam.Accounts, err error) *MockIAccount_Create_Call {
-	_c.Call.Return(accounts, err)
+func (_c *MockIAccount_Create_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_Create_Call {
+	_c.Call.Return(accountX, err)
 	return _c
 }
 
-func (_c *MockIAccount_Create_Call) RunAndReturn(run func(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error)) *MockIAccount_Create_Call {
+func (_c *MockIAccount_Create_Call) RunAndReturn(run func(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error)) *MockIAccount_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -166,23 +168,23 @@ func (_c *MockIAccount_Delete_Call) RunAndReturn(run func(ctx context.Context, i
 }
 
 // Get provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) Get(ctx context.Context, id string) (*iam.Accounts, error) {
+func (_mock *MockIAccount) Get(ctx context.Context, id string) (*accrepos.AccountX, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *iam.Accounts
+	var r0 *accrepos.AccountX
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iam.Accounts, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*accrepos.AccountX, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iam.Accounts); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *accrepos.AccountX); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.Accounts)
+			r0 = ret.Get(0).(*accrepos.AccountX)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -223,34 +225,34 @@ func (_c *MockIAccount_Get_Call) Run(run func(ctx context.Context, id string)) *
 	return _c
 }
 
-func (_c *MockIAccount_Get_Call) Return(accounts *iam.Accounts, err error) *MockIAccount_Get_Call {
-	_c.Call.Return(accounts, err)
+func (_c *MockIAccount_Get_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_Get_Call {
+	_c.Call.Return(accountX, err)
 	return _c
 }
 
-func (_c *MockIAccount_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*iam.Accounts, error)) *MockIAccount_Get_Call {
+func (_c *MockIAccount_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*accrepos.AccountX, error)) *MockIAccount_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByUsernameOrEmail provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) GetByUsernameOrEmail(ctx context.Context, input string) (*iam.Accounts, error) {
+func (_mock *MockIAccount) GetByUsernameOrEmail(ctx context.Context, input string) (*accrepos.AccountX, error) {
 	ret := _mock.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByUsernameOrEmail")
 	}
 
-	var r0 *iam.Accounts
+	var r0 *accrepos.AccountX
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iam.Accounts, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*accrepos.AccountX, error)); ok {
 		return returnFunc(ctx, input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iam.Accounts); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *accrepos.AccountX); ok {
 		r0 = returnFunc(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.Accounts)
+			r0 = ret.Get(0).(*accrepos.AccountX)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -291,12 +293,12 @@ func (_c *MockIAccount_GetByUsernameOrEmail_Call) Run(run func(ctx context.Conte
 	return _c
 }
 
-func (_c *MockIAccount_GetByUsernameOrEmail_Call) Return(accounts *iam.Accounts, err error) *MockIAccount_GetByUsernameOrEmail_Call {
-	_c.Call.Return(accounts, err)
+func (_c *MockIAccount_GetByUsernameOrEmail_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_GetByUsernameOrEmail_Call {
+	_c.Call.Return(accountX, err)
 	return _c
 }
 
-func (_c *MockIAccount_GetByUsernameOrEmail_Call) RunAndReturn(run func(ctx context.Context, input string) (*iam.Accounts, error)) *MockIAccount_GetByUsernameOrEmail_Call {
+func (_c *MockIAccount_GetByUsernameOrEmail_Call) RunAndReturn(run func(ctx context.Context, input string) (*accrepos.AccountX, error)) *MockIAccount_GetByUsernameOrEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -436,26 +438,26 @@ func (_c *MockIAccount_Total_Call) RunAndReturn(run func(ctx context.Context, re
 }
 
 // Update provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) Update(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error) {
+func (_mock *MockIAccount) Update(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error) {
 	ret := _mock.Called(ctx, account)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *iam.Accounts
+	var r0 *accrepos.AccountX
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.Accounts) (*iam.Accounts, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) (*accrepos.AccountX, error)); ok {
 		return returnFunc(ctx, account)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.Accounts) *iam.Accounts); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) *accrepos.AccountX); ok {
 		r0 = returnFunc(ctx, account)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.Accounts)
+			r0 = ret.Get(0).(*accrepos.AccountX)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.Accounts) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *accrepos.AccountX) error); ok {
 		r1 = returnFunc(ctx, account)
 	} else {
 		r1 = ret.Error(1)
@@ -470,20 +472,20 @@ type MockIAccount_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - account *iam.Accounts
+//   - account *accrepos.AccountX
 func (_e *MockIAccount_Expecter) Update(ctx interface{}, account interface{}) *MockIAccount_Update_Call {
 	return &MockIAccount_Update_Call{Call: _e.mock.On("Update", ctx, account)}
 }
 
-func (_c *MockIAccount_Update_Call) Run(run func(ctx context.Context, account *iam.Accounts)) *MockIAccount_Update_Call {
+func (_c *MockIAccount_Update_Call) Run(run func(ctx context.Context, account *accrepos.AccountX)) *MockIAccount_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.Accounts
+		var arg1 *accrepos.AccountX
 		if args[1] != nil {
-			arg1 = args[1].(*iam.Accounts)
+			arg1 = args[1].(*accrepos.AccountX)
 		}
 		run(
 			arg0,
@@ -493,30 +495,30 @@ func (_c *MockIAccount_Update_Call) Run(run func(ctx context.Context, account *i
 	return _c
 }
 
-func (_c *MockIAccount_Update_Call) Return(accounts *iam.Accounts, err error) *MockIAccount_Update_Call {
-	_c.Call.Return(accounts, err)
+func (_c *MockIAccount_Update_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_Update_Call {
+	_c.Call.Return(accountX, err)
 	return _c
 }
 
-func (_c *MockIAccount_Update_Call) RunAndReturn(run func(ctx context.Context, account *iam.Accounts) (*iam.Accounts, error)) *MockIAccount_Update_Call {
+func (_c *MockIAccount_Update_Call) RunAndReturn(run func(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error)) *MockIAccount_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // WithTX provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) WithTX(tx *postgres.TxSession) accountrepo.IAccount {
+func (_mock *MockIAccount) WithTX(tx *postgres.TxSession) accrepos.IAccount {
 	ret := _mock.Called(tx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for WithTX")
 	}
 
-	var r0 accountrepo.IAccount
-	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) accountrepo.IAccount); ok {
+	var r0 accrepos.IAccount
+	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) accrepos.IAccount); ok {
 		r0 = returnFunc(tx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(accountrepo.IAccount)
+			r0 = ret.Get(0).(accrepos.IAccount)
 		}
 	}
 	return r0
@@ -546,12 +548,345 @@ func (_c *MockIAccount_WithTX_Call) Run(run func(tx *postgres.TxSession)) *MockI
 	return _c
 }
 
-func (_c *MockIAccount_WithTX_Call) Return(iAccount accountrepo.IAccount) *MockIAccount_WithTX_Call {
+func (_c *MockIAccount_WithTX_Call) Return(iAccount accrepos.IAccount) *MockIAccount_WithTX_Call {
 	_c.Call.Return(iAccount)
 	return _c
 }
 
-func (_c *MockIAccount_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) accountrepo.IAccount) *MockIAccount_WithTX_Call {
+func (_c *MockIAccount_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) accrepos.IAccount) *MockIAccount_WithTX_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NewMockIAccountX creates a new instance of MockIAccountX. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewMockIAccountX(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *MockIAccountX {
+	mock := &MockIAccountX{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// MockIAccountX is an autogenerated mock type for the IAccountX type
+type MockIAccountX struct {
+	mock.Mock
+}
+
+type MockIAccountX_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *MockIAccountX) EXPECT() *MockIAccountX_Expecter {
+	return &MockIAccountX_Expecter{mock: &_m.Mock}
+}
+
+// AddCredential provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) AddCredential(credential *webauthn.Credential) {
+	_mock.Called(credential)
+	return
+}
+
+// MockIAccountX_AddCredential_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddCredential'
+type MockIAccountX_AddCredential_Call struct {
+	*mock.Call
+}
+
+// AddCredential is a helper method to define mock.On call
+//   - credential *webauthn.Credential
+func (_e *MockIAccountX_Expecter) AddCredential(credential interface{}) *MockIAccountX_AddCredential_Call {
+	return &MockIAccountX_AddCredential_Call{Call: _e.mock.On("AddCredential", credential)}
+}
+
+func (_c *MockIAccountX_AddCredential_Call) Run(run func(credential *webauthn.Credential)) *MockIAccountX_AddCredential_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *webauthn.Credential
+		if args[0] != nil {
+			arg0 = args[0].(*webauthn.Credential)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_AddCredential_Call) Return() *MockIAccountX_AddCredential_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockIAccountX_AddCredential_Call) RunAndReturn(run func(credential *webauthn.Credential)) *MockIAccountX_AddCredential_Call {
+	_c.Run(run)
+	return _c
+}
+
+// ProtoReflect provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) ProtoReflect() protoreflect.Message {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProtoReflect")
+	}
+
+	var r0 protoreflect.Message
+	if returnFunc, ok := ret.Get(0).(func() protoreflect.Message); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(protoreflect.Message)
+		}
+	}
+	return r0
+}
+
+// MockIAccountX_ProtoReflect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProtoReflect'
+type MockIAccountX_ProtoReflect_Call struct {
+	*mock.Call
+}
+
+// ProtoReflect is a helper method to define mock.On call
+func (_e *MockIAccountX_Expecter) ProtoReflect() *MockIAccountX_ProtoReflect_Call {
+	return &MockIAccountX_ProtoReflect_Call{Call: _e.mock.On("ProtoReflect")}
+}
+
+func (_c *MockIAccountX_ProtoReflect_Call) Run(run func()) *MockIAccountX_ProtoReflect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_ProtoReflect_Call) Return(message protoreflect.Message) *MockIAccountX_ProtoReflect_Call {
+	_c.Call.Return(message)
+	return _c
+}
+
+func (_c *MockIAccountX_ProtoReflect_Call) RunAndReturn(run func() protoreflect.Message) *MockIAccountX_ProtoReflect_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateCredential provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) UpdateCredential(credential *webauthn.Credential) {
+	_mock.Called(credential)
+	return
+}
+
+// MockIAccountX_UpdateCredential_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCredential'
+type MockIAccountX_UpdateCredential_Call struct {
+	*mock.Call
+}
+
+// UpdateCredential is a helper method to define mock.On call
+//   - credential *webauthn.Credential
+func (_e *MockIAccountX_Expecter) UpdateCredential(credential interface{}) *MockIAccountX_UpdateCredential_Call {
+	return &MockIAccountX_UpdateCredential_Call{Call: _e.mock.On("UpdateCredential", credential)}
+}
+
+func (_c *MockIAccountX_UpdateCredential_Call) Run(run func(credential *webauthn.Credential)) *MockIAccountX_UpdateCredential_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *webauthn.Credential
+		if args[0] != nil {
+			arg0 = args[0].(*webauthn.Credential)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_UpdateCredential_Call) Return() *MockIAccountX_UpdateCredential_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockIAccountX_UpdateCredential_Call) RunAndReturn(run func(credential *webauthn.Credential)) *MockIAccountX_UpdateCredential_Call {
+	_c.Run(run)
+	return _c
+}
+
+// WebAuthnCredentials provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) WebAuthnCredentials() []webauthn.Credential {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for WebAuthnCredentials")
+	}
+
+	var r0 []webauthn.Credential
+	if returnFunc, ok := ret.Get(0).(func() []webauthn.Credential); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]webauthn.Credential)
+		}
+	}
+	return r0
+}
+
+// MockIAccountX_WebAuthnCredentials_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WebAuthnCredentials'
+type MockIAccountX_WebAuthnCredentials_Call struct {
+	*mock.Call
+}
+
+// WebAuthnCredentials is a helper method to define mock.On call
+func (_e *MockIAccountX_Expecter) WebAuthnCredentials() *MockIAccountX_WebAuthnCredentials_Call {
+	return &MockIAccountX_WebAuthnCredentials_Call{Call: _e.mock.On("WebAuthnCredentials")}
+}
+
+func (_c *MockIAccountX_WebAuthnCredentials_Call) Run(run func()) *MockIAccountX_WebAuthnCredentials_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnCredentials_Call) Return(credentials []webauthn.Credential) *MockIAccountX_WebAuthnCredentials_Call {
+	_c.Call.Return(credentials)
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnCredentials_Call) RunAndReturn(run func() []webauthn.Credential) *MockIAccountX_WebAuthnCredentials_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WebAuthnDisplayName provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) WebAuthnDisplayName() string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for WebAuthnDisplayName")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockIAccountX_WebAuthnDisplayName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WebAuthnDisplayName'
+type MockIAccountX_WebAuthnDisplayName_Call struct {
+	*mock.Call
+}
+
+// WebAuthnDisplayName is a helper method to define mock.On call
+func (_e *MockIAccountX_Expecter) WebAuthnDisplayName() *MockIAccountX_WebAuthnDisplayName_Call {
+	return &MockIAccountX_WebAuthnDisplayName_Call{Call: _e.mock.On("WebAuthnDisplayName")}
+}
+
+func (_c *MockIAccountX_WebAuthnDisplayName_Call) Run(run func()) *MockIAccountX_WebAuthnDisplayName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnDisplayName_Call) Return(s string) *MockIAccountX_WebAuthnDisplayName_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnDisplayName_Call) RunAndReturn(run func() string) *MockIAccountX_WebAuthnDisplayName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WebAuthnID provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) WebAuthnID() []byte {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for WebAuthnID")
+	}
+
+	var r0 []byte
+	if returnFunc, ok := ret.Get(0).(func() []byte); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	return r0
+}
+
+// MockIAccountX_WebAuthnID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WebAuthnID'
+type MockIAccountX_WebAuthnID_Call struct {
+	*mock.Call
+}
+
+// WebAuthnID is a helper method to define mock.On call
+func (_e *MockIAccountX_Expecter) WebAuthnID() *MockIAccountX_WebAuthnID_Call {
+	return &MockIAccountX_WebAuthnID_Call{Call: _e.mock.On("WebAuthnID")}
+}
+
+func (_c *MockIAccountX_WebAuthnID_Call) Run(run func()) *MockIAccountX_WebAuthnID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnID_Call) Return(bytes []byte) *MockIAccountX_WebAuthnID_Call {
+	_c.Call.Return(bytes)
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnID_Call) RunAndReturn(run func() []byte) *MockIAccountX_WebAuthnID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WebAuthnName provides a mock function for the type MockIAccountX
+func (_mock *MockIAccountX) WebAuthnName() string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for WebAuthnName")
+	}
+
+	var r0 string
+	if returnFunc, ok := ret.Get(0).(func() string); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	return r0
+}
+
+// MockIAccountX_WebAuthnName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WebAuthnName'
+type MockIAccountX_WebAuthnName_Call struct {
+	*mock.Call
+}
+
+// WebAuthnName is a helper method to define mock.On call
+func (_e *MockIAccountX_Expecter) WebAuthnName() *MockIAccountX_WebAuthnName_Call {
+	return &MockIAccountX_WebAuthnName_Call{Call: _e.mock.On("WebAuthnName")}
+}
+
+func (_c *MockIAccountX_WebAuthnName_Call) Run(run func()) *MockIAccountX_WebAuthnName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnName_Call) Return(s string) *MockIAccountX_WebAuthnName_Call {
+	_c.Call.Return(s)
+	return _c
+}
+
+func (_c *MockIAccountX_WebAuthnName_Call) RunAndReturn(run func() string) *MockIAccountX_WebAuthnName_Call {
 	_c.Call.Return(run)
 	return _c
 }

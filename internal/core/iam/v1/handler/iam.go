@@ -18,14 +18,12 @@ package iamhdl
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/contextx"
-	"github.com/sentinez/sentinez/pkg/errorx"
-	"github.com/sentinez/sentinez/pkg/perms"
-	"github.com/sentinez/sentinez/pkg/zlog"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	"github.com/sentinez/sentinez/pkg/x/contextx"
+	"github.com/sentinez/sentinez/pkg/x/errorx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ iampb.
@@ -46,38 +44,40 @@ type IdentityAccessManagement struct {
 	service    *iamsvc.IAMService
 }
 
-// PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyLoginFinish(
+// PasskeyLoginVerify implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginVerify(
 	ctx context.Context,
-	req *iampb.PasskeyLoginFinishRequest,
-) (*iampb.PasskeyLoginFinishResponse, error) {
-	panic("unimplemented")
+	req *iampb.PasskeyLoginVerifyRequest,
+) (*iampb.PasskeyLoginVerifyResponse, error) {
+
+	return iam.service.PasskeyLoginVerify(ctx, req)
 }
 
-// PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyLoginStart(
+// PasskeyLoginChallenge implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginChallenge(
 	ctx context.Context,
-	req *iampb.PasskeyLoginStartRequest,
-) (*iampb.PasskeyLoginStartResponse, error) {
-	panic("unimplemented")
+	req *iampb.PasskeyLoginChallengeRequest,
+) (*iampb.PasskeyLoginChallengeResponse, error) {
+
+	return iam.service.PasskeyLoginChallenge(ctx, req)
 }
 
-// PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyRegisterFinish(
+// PasskeyRegisterVerify implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyRegisterVerify(
 	ctx context.Context,
-	req *iampb.PasskeyRegisterFinishRequest,
-) (*iampb.PasskeyRegisterFinishResponse, error) {
-	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterFinish]")
+	req *iampb.PasskeyRegisterVerifyRequest,
+) (*iampb.PasskeyRegisterVerifyResponse, error) {
+	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterVerify]")
 
-	return iam.service.PasskeyRegisterFinish(ctx, req)
+	return iam.service.PasskeyRegisterVerify(ctx, req)
 }
 
-// PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyRegisterStart(
+// PasskeyRegisterChallenge implements iam.IdentityAccessManagementServiceServer
+func (iam *IdentityAccessManagement) PasskeyRegisterChallenge(
 	ctx context.Context,
-	req *iampb.PasskeyRegisterStartRequest,
-) (*iampb.PasskeyRegisterStartResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.PasskeyRegisterStart] req = %v", req)
+	req *iampb.PasskeyRegisterChallengeRequest,
+) (*iampb.PasskeyRegisterChallengeResponse, error) {
+	zlog.Debugf("[IAMMNT.PasskeyRegisterChallenge] req = %v", req)
 
 	user, err := iam.service.
 		GetAccountByUsernameOrEmail(ctx, req.GetEmailOrUsername())
@@ -86,26 +86,26 @@ func (iam *IdentityAccessManagement) PasskeyRegisterStart(
 	}
 
 	if user.GetId() != "" {
-		return nil, errorx.AlreadyExistsF(
+		return nil, errorx.StatusAlreadyExistsF(
 			"username or email already exists: %s", req.GetEmailOrUsername())
 	}
 
-	return iam.service.PasskeyRegisterStart(ctx, req)
+	return iam.service.PasskeyRegisterChallenge(ctx, req)
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := contextx.GetAuth(ctx, iam.service.Config())
-	if err != nil {
-		return nil, err
-	}
+	// ss, err := contextx.GetAuth(ctx, iam.service.Config())
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	if !perms.HasLeastOne(
-		ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
-		request.UserIds = []string{ss.GetUserId()}
-	}
+	// if !perms.HasLeastOne(
+	// 	ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
+	// 	request.UserIds = []string{ss.GetUserId()}
+	// }
 
 	resp, err := iam.service.ListAccounts(ctx, request)
 	if err != nil {

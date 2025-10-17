@@ -14,6 +14,7 @@
   "dependencies": {
     "@sentinez/api": "workspace:*",
     "@sentinez/ui": "workspace:*",
+    "@sentinez/proto": "workspace:*",
     "lucide-react": "^0.479.0",
     "next": "^15.2.3",
     "next-themes": "^0.4.4",

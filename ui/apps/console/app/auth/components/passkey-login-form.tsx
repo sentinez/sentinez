@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -7,11 +10,33 @@ import {
   CardHeader,
   CardTitle,
 } from '@sentinez/ui/components/card';
+import { Alert, AlertDescription, AlertTitle } from '@sentinez/ui/components/alert';
+
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import Image from 'next/image';
+import { PasskeyLogin } from '@sentinez/api/iam/passkey';
+import { Terminal } from 'lucide-react';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const [email, setEmail] = useState('');
+
+  async function handleLoginPasskey(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) {
+      alert('Please enter your email first');
+      return;
+    }
+
+    try {
+      const resp = await PasskeyLogin({ emailOrUsername: email });
+      console.log(resp);
+      alert(`Welcome`);
+    } catch (err: any) {
+      alert(err.message || 'Login failed');
+    }
+  }
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -27,21 +52,28 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
           <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLoginPasskey}>
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="m@example.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer">
                   Login
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account? <br />
-                <a href="#" className="underline underline-offset-4">
-                  Sign up
+                Do not have an account? <br />
+                <a href="/auth/passkey/register" className="underline underline-offset-4">
+                  Register
                 </a>
               </div>
             </div>

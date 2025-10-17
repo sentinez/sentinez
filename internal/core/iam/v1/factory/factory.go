@@ -17,8 +17,6 @@ package iamfac
 import (
 	"time"
 
-	"github.com/sentinez/sentinez/pkg/zlog"
-
 	"github.com/sentinez/sentinez/api/client"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
@@ -27,8 +25,9 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	"github.com/sentinez/sentinez/pkg/passkey"
+	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 // nolint:funlen
