@@ -22,6 +22,7 @@ import (
 	"github.com/pashagolub/pgxmock/v2"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
 	"github.com/sentinez/sentinez/pkg/security/perms"
@@ -39,11 +40,13 @@ func TestLogin(t *testing.T) {
 	accountRepo := accountrepo.NewMockIAccount(t)
 
 	pw, _ := cryptox.HashPassword("secret123")
-	acc := &iam.Account{
-		Id:       "acc-123",
-		UserId:   "user-123",
-		Username: "admin",
-		Password: pw,
+	acc := &accrepos.AccountX{
+		Account: &iam.Account{
+			Id:       "acc-123",
+			UserId:   "user-123",
+			Username: "admin",
+			Password: pw,
+		},
 	}
 	accountRepo.On("GetByUsernameOrEmail", mock.Anything, "admin").
 		Return(acc, nil)
