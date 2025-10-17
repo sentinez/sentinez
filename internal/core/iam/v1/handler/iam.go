@@ -44,40 +44,40 @@ type IdentityAccessManagement struct {
 	service    *iamsvc.IAMService
 }
 
-// PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyLoginFinish(
+// PasskeyLoginVerify implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginVerify(
 	ctx context.Context,
-	req *iampb.PasskeyLoginFinishRequest,
-) (*iampb.PasskeyLoginFinishResponse, error) {
+	req *iampb.PasskeyLoginVerifyRequest,
+) (*iampb.PasskeyLoginVerifyResponse, error) {
 
-	return iam.service.PasskeyLoginFinish(ctx, req)
+	return iam.service.PasskeyLoginVerify(ctx, req)
 }
 
-// PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyLoginStart(
+// PasskeyLoginChallenge implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLoginChallenge(
 	ctx context.Context,
-	req *iampb.PasskeyLoginStartRequest,
-) (*iampb.PasskeyLoginStartResponse, error) {
+	req *iampb.PasskeyLoginChallengeRequest,
+) (*iampb.PasskeyLoginChallengeResponse, error) {
 
-	return iam.service.PasskeyLoginStart(ctx, req)
+	return iam.service.PasskeyLoginChallenge(ctx, req)
 }
 
-// PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyRegisterFinish(
+// PasskeyRegisterVerify implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyRegisterVerify(
 	ctx context.Context,
-	req *iampb.PasskeyRegisterFinishRequest,
-) (*iampb.PasskeyRegisterFinishResponse, error) {
-	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterFinish]")
+	req *iampb.PasskeyRegisterVerifyRequest,
+) (*iampb.PasskeyRegisterVerifyResponse, error) {
+	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterVerify]")
 
-	return iam.service.PasskeyRegisterFinish(ctx, req)
+	return iam.service.PasskeyRegisterVerify(ctx, req)
 }
 
-// PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
-func (iam *IdentityAccessManagement) PasskeyRegisterStart(
+// PasskeyRegisterChallenge implements iam.IdentityAccessManagementServiceServer
+func (iam *IdentityAccessManagement) PasskeyRegisterChallenge(
 	ctx context.Context,
-	req *iampb.PasskeyRegisterStartRequest,
-) (*iampb.PasskeyRegisterStartResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.PasskeyRegisterStart] req = %v", req)
+	req *iampb.PasskeyRegisterChallengeRequest,
+) (*iampb.PasskeyRegisterChallengeResponse, error) {
+	zlog.Debugf("[IAMMNT.PasskeyRegisterChallenge] req = %v", req)
 
 	user, err := iam.service.
 		GetAccountByUsernameOrEmail(ctx, req.GetEmailOrUsername())
@@ -90,7 +90,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterStart(
 			"username or email already exists: %s", req.GetEmailOrUsername())
 	}
 
-	return iam.service.PasskeyRegisterStart(ctx, req)
+	return iam.service.PasskeyRegisterChallenge(ctx, req)
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,

@@ -1,25 +1,27 @@
 import {
-  PasskeyLoginFinishRequest,
-  PasskeyLoginFinishResponse,
-  PasskeyLoginStartRequest,
-  PasskeyLoginStartResponse,
-  PasskeyRegisterFinishResponse,
-  PasskeyRegisterStartRequest,
-  PasskeyRegisterStartResponse,
+  PasskeyLoginVerifyResponse,
+  PasskeyLoginChallengeRequest,
+  PasskeyLoginChallengeResponse,
+  PasskeyRegisterVerifyResponse,
+  PasskeyRegisterChallengeRequest,
+  PasskeyRegisterChallengeResponse,
 } from '@sentinez/proto/sentinez/core/iam/v1/iam';
-import { startRegistration } from '@simplewebauthn/browser';
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 
 import axios from 'axios';
-import { PasskeyOption, PasskeyRegisterFinishRequest } from '@sentinez/api/types/passkey';
+import {
+  PasskeyLoginVerifyRequest,
+  PasskeyRegisterVerifyRequest,
+} from '@sentinez/api/types/passkey';
 
 const API_BASE_PATH = process.env.SNTZ_BASE_PATH || 'http://localhost:8080';
 
-async function PasskeyRegisterStart(
-  params: PasskeyRegisterStartRequest,
-): Promise<PasskeyRegisterStartResponse> {
+async function PasskeyRegisterChallenge(
+  params: PasskeyRegisterChallengeRequest,
+): Promise<PasskeyRegisterChallengeResponse> {
   try {
-    const endpoint = `${API_BASE_PATH}/iam/passkey/register-start`;
-    const resp = await axios.get<PasskeyRegisterStartResponse>(endpoint, {
+    const endpoint = `${API_BASE_PATH}/iam/passkey/register/challenge`;
+    const resp = await axios.get<PasskeyRegisterChallengeResponse>(endpoint, {
       params,
     });
 
@@ -29,13 +31,13 @@ async function PasskeyRegisterStart(
   }
 }
 
-async function PasskeyRegisterFinish(
-  params: PasskeyRegisterFinishRequest,
-): Promise<PasskeyRegisterFinishResponse> {
+async function PasskeyRegisterVerify(
+  params: PasskeyRegisterVerifyRequest,
+): Promise<PasskeyRegisterVerifyResponse> {
   try {
-    const endpoint = `${API_BASE_PATH}/iam/passkey/register-finish`;
+    const endpoint = `${API_BASE_PATH}/iam/passkey/register/verify`;
 
-    const resp = await axios.post<PasskeyRegisterFinishResponse>(endpoint, params);
+    const resp = await axios.post<PasskeyRegisterVerifyResponse>(endpoint, params);
 
     return resp.data;
   } catch (error) {
@@ -43,12 +45,12 @@ async function PasskeyRegisterFinish(
   }
 }
 
-async function PasskeyLoginStart(
-  params: PasskeyLoginStartRequest,
-): Promise<PasskeyLoginStartResponse> {
+async function PasskeyLoginChallenge(
+  params: PasskeyLoginChallengeRequest,
+): Promise<PasskeyLoginChallengeResponse> {
   try {
-    const endpoint = `${API_BASE_PATH}/iam/passkey/login-start`;
-    const resp = await axios.get<PasskeyLoginStartResponse>(endpoint, { params });
+    const endpoint = `${API_BASE_PATH}/iam/passkey/login/challenge`;
+    const resp = await axios.get<PasskeyLoginChallengeResponse>(endpoint, { params });
 
     return resp.data;
   } catch (error) {
@@ -56,13 +58,12 @@ async function PasskeyLoginStart(
   }
 }
 
-async function PasskeyLoginFinish(
-  params: PasskeyLoginFinishRequest,
-): Promise<PasskeyLoginFinishResponse> {
+async function PasskeyLoginVerify(
+  params: PasskeyLoginVerifyRequest,
+): Promise<PasskeyLoginVerifyResponse> {
   try {
-    const endpoint = `${API_BASE_PATH}/iam/passkey/login-finish`;
-    const body = PasskeyLoginFinishRequest.toJSON(params);
-    const resp = await axios.put<PasskeyLoginFinishResponse>(endpoint, body);
+    const endpoint = `${API_BASE_PATH}/iam/passkey/login/verify`;
+    const resp = await axios.put<PasskeyLoginVerifyResponse>(endpoint, params);
 
     return resp.data;
   } catch (error) {
@@ -71,10 +72,10 @@ async function PasskeyLoginFinish(
 }
 
 export async function PasskeyRegister(
-  params: PasskeyRegisterStartRequest,
-): Promise<PasskeyRegisterFinishResponse> {
+  params: PasskeyRegisterChallengeRequest,
+): Promise<PasskeyRegisterVerifyResponse> {
   try {
-    const start = await PasskeyRegisterStart(params);
+    const start = await PasskeyRegisterChallenge(params);
 
     const options = start.options ? start.options : undefined;
     if (options == undefined) {
@@ -87,9 +88,37 @@ export async function PasskeyRegister(
 
     const encoded = btoa(JSON.stringify(credential));
 
-    const finish = await PasskeyRegisterFinish({
+    const finish = await PasskeyRegisterVerify({
       sessionId: start.sessionId,
       credentialCreationResponse: encoded,
+    });
+
+    return finish;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function PasskeyLogin(
+  params: PasskeyLoginChallengeRequest,
+): Promise<PasskeyLoginVerifyResponse> {
+  try {
+    const start = await PasskeyLoginChallenge(params);
+
+    const options = start.options ? start.options : undefined;
+    if (options == undefined) {
+      throw new Error('publicKey is null');
+    }
+
+    const credential = await startAuthentication({
+      optionsJSON: options['publicKey'],
+    });
+
+    const encoded = btoa(JSON.stringify(credential));
+
+    const finish = await PasskeyLoginVerify({
+      sessionId: start.sessionId,
+      credentialAssertionData: encoded,
     });
 
     return finish;

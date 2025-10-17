@@ -70,11 +70,11 @@ type IAMService struct {
 	auth     *webauthn.WebAuthn
 }
 
-// PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
+// PasskeyLoginVerify implements iam.IdentityAccessManagementServiceServer.
 // nolint:funlen
-func (srv *IAMService) PasskeyLoginFinish(ctx context.Context,
-	req *iam.PasskeyLoginFinishRequest,
-) (*iam.PasskeyLoginFinishResponse, error) {
+func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
+	req *iam.PasskeyLoginVerifyRequest,
+) (*iam.PasskeyLoginVerifyResponse, error) {
 
 	sid := req.GetSessionId()
 	ss, ok := srv.store.GetSession(sid)
@@ -82,13 +82,9 @@ func (srv *IAMService) PasskeyLoginFinish(ctx context.Context,
 		return nil, errorx.StatusNotFoundF("session not found id=%s", sid)
 	}
 
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, string(ss.UserID))
+	acc, err := srv.accounts.Get(ctx, string(ss.UserID))
 	if err != nil {
 		return nil, err
-	}
-
-	if acc.GetId() == "" {
-		acc = &accrepos.AccountX{}
 	}
 
 	var car protocol.CredentialAssertionResponse
@@ -123,18 +119,48 @@ func (srv *IAMService) PasskeyLoginFinish(ctx context.Context,
 		Expires: time.Now().Add(time.Hour * 2),
 	})
 
-	return &iam.PasskeyLoginFinishResponse{}, nil
+	user, err := srv.users.Get(ctx, acc.GetUserId())
+	if err != nil {
+		zlog.Debugf("faild to get user by username or email")
+		return nil, err
+	}
+	perm := perms.DefaultOwner()
+	if acc.GetUsername() == "admin" {
+		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
+	}
+	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnvConf(),
+		&common.Context{
+			Name:              user.GetFullName(),
+			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
+			UserId:            user.GetId(),
+			PermissionBitwise: perm,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &iam.PasskeyLoginVerifyResponse{
+		AccessToken: accessToken,
+		User:        user,
+	}, nil
 }
 
-// PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyLoginStart(
+// PasskeyLoginChallenge implements iam.IdentityAccessManagementServiceServer.
+func (srv *IAMService) PasskeyLoginChallenge(
 	ctx context.Context,
-	req *iam.PasskeyLoginStartRequest,
-) (*iam.PasskeyLoginStartResponse, error) {
+	req *iam.PasskeyLoginChallengeRequest,
+) (*iam.PasskeyLoginChallengeResponse, error) {
+
+	zlog.Infof("PasskeyLoginChallenge req = %v", req)
 
 	emailOrUsername := req.GetEmailOrUsername()
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, emailOrUsername)
 	if err != nil {
+		if !errorx.NotRowsNotFound(err) {
+			return nil, errorx.StatusNotFoundF(
+				"not found username or email=%s", emailOrUsername)
+		}
 		return nil, err
 	}
 
@@ -148,20 +174,21 @@ func (srv *IAMService) PasskeyLoginStart(
 
 	opts := protox.Struct(options)
 
-	return &iam.PasskeyLoginStartResponse{
+	return &iam.PasskeyLoginChallengeResponse{
 		SessionId: sid,
 		Options:   opts,
 	}, nil
 }
 
-// PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyRegisterFinish(ctx context.Context,
-	req *iam.PasskeyRegisterFinishRequest,
-) (*iam.PasskeyRegisterFinishResponse, error) {
+// PasskeyRegisterVerify implements iam.IdentityAccessManagementServiceServer.
+// nolint:funlen
+func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
+	req *iam.PasskeyRegisterVerifyRequest,
+) (*iam.PasskeyRegisterVerifyResponse, error) {
 
 	ssId := req.GetSessionId()
 
-	zlog.Debugf("[iam][service][PasskeyRegisterFinish] get session=%s", ssId)
+	zlog.Debugf("[iam][service][PasskeyRegisterVerify] get session=%s", ssId)
 	ss, ok := srv.store.GetSession(ssId)
 	if !ok {
 		return nil, errorx.StatusNotFoundF("session not found=%s", ssId)
@@ -196,13 +223,13 @@ func (srv *IAMService) PasskeyRegisterFinish(ctx context.Context,
 
 	srv.store.DeleteSession(ssId)
 
-	return &iam.PasskeyRegisterFinishResponse{}, nil
+	return &iam.PasskeyRegisterVerifyResponse{}, nil
 }
 
-// PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyRegisterStart(ctx context.Context,
-	req *iam.PasskeyRegisterStartRequest,
-) (*iam.PasskeyRegisterStartResponse, error) {
+// PasskeyRegisterChallenge implements iam.IdentityAccessManagementServiceServer
+func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
+	req *iam.PasskeyRegisterChallengeRequest,
+) (*iam.PasskeyRegisterChallengeResponse, error) {
 
 	acc, err := srv.getOrCreateAccount(ctx, req.GetEmailOrUsername())
 	if err != nil {
@@ -221,12 +248,12 @@ func (srv *IAMService) PasskeyRegisterStart(ctx context.Context,
 			errorx.StatusInternalErrorF("can't generate session id: %v", err)
 	}
 
-	zlog.Debugf("[iam][service][PasskeyRegisterStart] save session=%s", t)
+	zlog.Debugf("[iam][service][PasskeyRegisterChallenge] save session=%s", t)
 	srv.store.SaveSession(t, ss)
 
 	options := protox.Struct(opt)
 
-	return &iam.PasskeyRegisterStartResponse{
+	return &iam.PasskeyRegisterChallengeResponse{
 		Options:   options,
 		SessionId: t,
 	}, nil
@@ -341,7 +368,6 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 
 func (srv *IAMService) createAccount(ctx context.Context,
 	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
-
 	pw, err := cryptox.HashPassword(req.GetPassword())
 	if err != nil {
 		return "", err

@@ -262,125 +262,125 @@ func local_request_IdentityAccessManagementService_Login_0(ctx context.Context, 
 }
 
 var (
-	filter_IdentityAccessManagementService_PasskeyRegisterStart_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_IdentityAccessManagementService_PasskeyRegisterChallenge_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_IdentityAccessManagementService_PasskeyRegisterStart_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyRegisterStartRequest
+func request_IdentityAccessManagementService_PasskeyRegisterChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyRegisterChallengeRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyRegisterStart_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyRegisterChallenge_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.PasskeyRegisterStart(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.PasskeyRegisterChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_IdentityAccessManagementService_PasskeyRegisterStart_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyRegisterStartRequest
+func local_request_IdentityAccessManagementService_PasskeyRegisterChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyRegisterChallengeRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyRegisterStart_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyRegisterChallenge_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.PasskeyRegisterStart(ctx, &protoReq)
+	msg, err := server.PasskeyRegisterChallenge(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_IdentityAccessManagementService_PasskeyRegisterFinish_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyRegisterFinishRequest
+func request_IdentityAccessManagementService_PasskeyRegisterVerify_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyRegisterVerifyRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.PasskeyRegisterFinish(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.PasskeyRegisterVerify(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_IdentityAccessManagementService_PasskeyRegisterFinish_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyRegisterFinishRequest
+func local_request_IdentityAccessManagementService_PasskeyRegisterVerify_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyRegisterVerifyRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.PasskeyRegisterFinish(ctx, &protoReq)
+	msg, err := server.PasskeyRegisterVerify(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
 var (
-	filter_IdentityAccessManagementService_PasskeyLoginStart_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_IdentityAccessManagementService_PasskeyLoginChallenge_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_IdentityAccessManagementService_PasskeyLoginStart_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyLoginStartRequest
+func request_IdentityAccessManagementService_PasskeyLoginChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLoginChallengeRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyLoginStart_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyLoginChallenge_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.PasskeyLoginStart(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.PasskeyLoginChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_IdentityAccessManagementService_PasskeyLoginStart_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyLoginStartRequest
+func local_request_IdentityAccessManagementService_PasskeyLoginChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLoginChallengeRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyLoginStart_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityAccessManagementService_PasskeyLoginChallenge_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.PasskeyLoginStart(ctx, &protoReq)
+	msg, err := server.PasskeyLoginChallenge(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_IdentityAccessManagementService_PasskeyLoginFinish_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyLoginFinishRequest
+func request_IdentityAccessManagementService_PasskeyLoginVerify_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLoginVerifyRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.PasskeyLoginFinish(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.PasskeyLoginVerify(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_IdentityAccessManagementService_PasskeyLoginFinish_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PasskeyLoginFinishRequest
+func local_request_IdentityAccessManagementService_PasskeyLoginVerify_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLoginVerifyRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.PasskeyLoginFinish(ctx, &protoReq)
+	msg, err := server.PasskeyLoginVerify(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -567,7 +567,7 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterStart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -575,12 +575,12 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterStart", runtime.WithHTTPPathPattern("/iam/passkey/register-start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterChallenge", runtime.WithHTTPPathPattern("/iam/passkey/register/challenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_IdentityAccessManagementService_PasskeyRegisterStart_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_IdentityAccessManagementService_PasskeyRegisterChallenge_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -588,11 +588,11 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyRegisterStart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyRegisterChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterVerify_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -600,12 +600,12 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterFinish", runtime.WithHTTPPathPattern("/iam/passkey/register-finish"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterVerify", runtime.WithHTTPPathPattern("/iam/passkey/register/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_IdentityAccessManagementService_PasskeyRegisterFinish_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_IdentityAccessManagementService_PasskeyRegisterVerify_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -613,11 +613,11 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyRegisterFinish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyRegisterVerify_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginStart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -625,12 +625,12 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginStart", runtime.WithHTTPPathPattern("/iam/passkey/login-start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginChallenge", runtime.WithHTTPPathPattern("/iam/passkey/login/challenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_IdentityAccessManagementService_PasskeyLoginStart_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_IdentityAccessManagementService_PasskeyLoginChallenge_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -638,11 +638,11 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyLoginStart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyLoginChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginVerify_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -650,12 +650,12 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginFinish", runtime.WithHTTPPathPattern("/iam/passkey/login-finish"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginVerify", runtime.WithHTTPPathPattern("/iam/passkey/login/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_IdentityAccessManagementService_PasskeyLoginFinish_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_IdentityAccessManagementService_PasskeyLoginVerify_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -663,7 +663,7 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyLoginFinish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyLoginVerify_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -862,91 +862,91 @@ func RegisterIdentityAccessManagementServiceHandlerClient(ctx context.Context, m
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterStart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyRegisterChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterStart", runtime.WithHTTPPathPattern("/iam/passkey/register-start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterChallenge", runtime.WithHTTPPathPattern("/iam/passkey/register/challenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_IdentityAccessManagementService_PasskeyRegisterStart_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_IdentityAccessManagementService_PasskeyRegisterChallenge_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyRegisterStart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyRegisterChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_IdentityAccessManagementService_PasskeyRegisterVerify_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterFinish", runtime.WithHTTPPathPattern("/iam/passkey/register-finish"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyRegisterVerify", runtime.WithHTTPPathPattern("/iam/passkey/register/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_IdentityAccessManagementService_PasskeyRegisterFinish_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_IdentityAccessManagementService_PasskeyRegisterVerify_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyRegisterFinish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyRegisterVerify_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginStart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginStart", runtime.WithHTTPPathPattern("/iam/passkey/login-start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginChallenge", runtime.WithHTTPPathPattern("/iam/passkey/login/challenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_IdentityAccessManagementService_PasskeyLoginStart_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_IdentityAccessManagementService_PasskeyLoginChallenge_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyLoginStart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyLoginChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginFinish_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_IdentityAccessManagementService_PasskeyLoginVerify_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginFinish", runtime.WithHTTPPathPattern("/iam/passkey/login-finish"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.core.iam.v1.IdentityAccessManagementService/PasskeyLoginVerify", runtime.WithHTTPPathPattern("/iam/passkey/login/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_IdentityAccessManagementService_PasskeyLoginFinish_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_IdentityAccessManagementService_PasskeyLoginVerify_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_IdentityAccessManagementService_PasskeyLoginFinish_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_IdentityAccessManagementService_PasskeyLoginVerify_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -968,13 +968,13 @@ var (
 
 	pattern_IdentityAccessManagementService_Login_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"iam", "login"}, ""))
 
-	pattern_IdentityAccessManagementService_PasskeyRegisterStart_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "passkey", "register-start"}, ""))
+	pattern_IdentityAccessManagementService_PasskeyRegisterChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "register", "challenge"}, ""))
 
-	pattern_IdentityAccessManagementService_PasskeyRegisterFinish_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "passkey", "register-finish"}, ""))
+	pattern_IdentityAccessManagementService_PasskeyRegisterVerify_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "register", "verify"}, ""))
 
-	pattern_IdentityAccessManagementService_PasskeyLoginStart_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "passkey", "login-start"}, ""))
+	pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "login", "challenge"}, ""))
 
-	pattern_IdentityAccessManagementService_PasskeyLoginFinish_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "passkey", "login-finish"}, ""))
+	pattern_IdentityAccessManagementService_PasskeyLoginVerify_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "login", "verify"}, ""))
 )
 
 var (
@@ -992,11 +992,11 @@ var (
 
 	forward_IdentityAccessManagementService_Login_0 = runtime.ForwardResponseMessage
 
-	forward_IdentityAccessManagementService_PasskeyRegisterStart_0 = runtime.ForwardResponseMessage
+	forward_IdentityAccessManagementService_PasskeyRegisterChallenge_0 = runtime.ForwardResponseMessage
 
-	forward_IdentityAccessManagementService_PasskeyRegisterFinish_0 = runtime.ForwardResponseMessage
+	forward_IdentityAccessManagementService_PasskeyRegisterVerify_0 = runtime.ForwardResponseMessage
 
-	forward_IdentityAccessManagementService_PasskeyLoginStart_0 = runtime.ForwardResponseMessage
+	forward_IdentityAccessManagementService_PasskeyLoginChallenge_0 = runtime.ForwardResponseMessage
 
-	forward_IdentityAccessManagementService_PasskeyLoginFinish_0 = runtime.ForwardResponseMessage
+	forward_IdentityAccessManagementService_PasskeyLoginVerify_0 = runtime.ForwardResponseMessage
 )

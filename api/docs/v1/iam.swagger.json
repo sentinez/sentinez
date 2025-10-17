@@ -168,14 +168,44 @@
         ]
       }
     },
-    "/iam/passkey/login-finish": {
+    "/iam/passkey/login/challenge": {
+      "get": {
+        "operationId": "IdentityAccessManagementService_PasskeyLoginChallenge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyLoginChallengeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "emailOrUsername",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
+    "/iam/passkey/login/verify": {
       "put": {
-        "operationId": "IdentityAccessManagementService_PasskeyLoginFinish",
+        "operationId": "IdentityAccessManagementService_PasskeyLoginVerify",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1PasskeyLoginFinishResponse"
+              "$ref": "#/definitions/v1PasskeyLoginVerifyResponse"
             }
           },
           "default": {
@@ -191,7 +221,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1PasskeyLoginFinishRequest"
+              "$ref": "#/definitions/v1PasskeyLoginVerifyRequest"
             }
           }
         ],
@@ -200,14 +230,14 @@
         ]
       }
     },
-    "/iam/passkey/login-start": {
+    "/iam/passkey/register/challenge": {
       "get": {
-        "operationId": "IdentityAccessManagementService_PasskeyLoginStart",
+        "operationId": "IdentityAccessManagementService_PasskeyRegisterChallenge",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1PasskeyLoginStartResponse"
+              "$ref": "#/definitions/v1PasskeyRegisterChallengeResponse"
             }
           },
           "default": {
@@ -230,14 +260,14 @@
         ]
       }
     },
-    "/iam/passkey/register-finish": {
+    "/iam/passkey/register/verify": {
       "post": {
-        "operationId": "IdentityAccessManagementService_PasskeyRegisterFinish",
+        "operationId": "IdentityAccessManagementService_PasskeyRegisterVerify",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1PasskeyRegisterFinishResponse"
+              "$ref": "#/definitions/v1PasskeyRegisterVerifyResponse"
             }
           },
           "default": {
@@ -253,38 +283,8 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1PasskeyRegisterFinishRequest"
+              "$ref": "#/definitions/v1PasskeyRegisterVerifyRequest"
             }
-          }
-        ],
-        "tags": [
-          "IdentityAccessManagementService"
-        ]
-      }
-    },
-    "/iam/passkey/register-start": {
-      "get": {
-        "operationId": "IdentityAccessManagementService_PasskeyRegisterStart",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1PasskeyRegisterStartResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "emailOrUsername",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "tags": [
@@ -671,7 +671,18 @@
         }
       }
     },
-    "v1PasskeyLoginFinishRequest": {
+    "v1PasskeyLoginChallengeResponse": {
+      "type": "object",
+      "properties": {
+        "options": {
+          "type": "object"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1PasskeyLoginVerifyRequest": {
       "type": "object",
       "properties": {
         "sessionId": {
@@ -683,10 +694,18 @@
         }
       }
     },
-    "v1PasskeyLoginFinishResponse": {
-      "type": "object"
+    "v1PasskeyLoginVerifyResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User"
+        },
+        "accessToken": {
+          "type": "string"
+        }
+      }
     },
-    "v1PasskeyLoginStartResponse": {
+    "v1PasskeyRegisterChallengeResponse": {
       "type": "object",
       "properties": {
         "options": {
@@ -697,7 +716,7 @@
         }
       }
     },
-    "v1PasskeyRegisterFinishRequest": {
+    "v1PasskeyRegisterVerifyRequest": {
       "type": "object",
       "properties": {
         "sessionId": {
@@ -709,19 +728,8 @@
         }
       }
     },
-    "v1PasskeyRegisterFinishResponse": {
+    "v1PasskeyRegisterVerifyResponse": {
       "type": "object"
-    },
-    "v1PasskeyRegisterStartResponse": {
-      "type": "object",
-      "properties": {
-        "options": {
-          "type": "object"
-        },
-        "sessionId": {
-          "type": "string"
-        }
-      }
     },
     "v1StatusResponse": {
       "type": "object",

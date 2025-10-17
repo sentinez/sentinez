@@ -6,20 +6,22 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Struct } from "../../../../google/protobuf/struct";
 import { Metadata } from "../../../types/model/v1/metadata";
 
 export const protobufPackage = "sentinez.core.iam.v1";
 
-export interface Accounts {
+export interface Account {
   metadata?: Metadata | undefined;
   id: string;
   userId: string;
   username: string;
   password: string;
   email: string;
+  credentials: { [key: string]: any }[];
 }
 
-export interface AccountLite {
+export interface AccountResponse {
   metadata?: Metadata | undefined;
   id: string;
   userId: string;
@@ -27,7 +29,7 @@ export interface AccountLite {
   email: string;
 }
 
-export interface Users {
+export interface User {
   metadata?: Metadata | undefined;
   id: string;
   fullName: string;
@@ -35,12 +37,12 @@ export interface Users {
   phoneNumber: string;
 }
 
-function createBaseAccounts(): Accounts {
-  return { metadata: undefined, id: "", userId: "", username: "", password: "", email: "" };
+function createBaseAccount(): Account {
+  return { metadata: undefined, id: "", userId: "", username: "", password: "", email: "", credentials: [] };
 }
 
-export const Accounts: MessageFns<Accounts> = {
-  encode(message: Accounts, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Account: MessageFns<Account> = {
+  encode(message: Account, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -59,13 +61,16 @@ export const Accounts: MessageFns<Accounts> = {
     if (message.email !== "") {
       writer.uint32(98).string(message.email);
     }
+    for (const v of message.credentials) {
+      Struct.encode(Struct.wrap(v!), writer.uint32(162).fork()).join();
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Accounts {
+  decode(input: BinaryReader | Uint8Array, length?: number): Account {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAccounts();
+    const message = createBaseAccount();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -117,6 +122,14 @@ export const Accounts: MessageFns<Accounts> = {
           message.email = reader.string();
           continue;
         }
+        case 20: {
+          if (tag !== 162) {
+            break;
+          }
+
+          message.credentials.push(Struct.unwrap(Struct.decode(reader, reader.uint32())));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -126,7 +139,7 @@ export const Accounts: MessageFns<Accounts> = {
     return message;
   },
 
-  fromJSON(object: any): Accounts {
+  fromJSON(object: any): Account {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
@@ -134,10 +147,11 @@ export const Accounts: MessageFns<Accounts> = {
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
+      credentials: globalThis.Array.isArray(object?.credentials) ? [...object.credentials] : [],
     };
   },
 
-  toJSON(message: Accounts): unknown {
+  toJSON(message: Account): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
@@ -157,14 +171,17 @@ export const Accounts: MessageFns<Accounts> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
+    if (message.credentials?.length) {
+      obj.credentials = message.credentials;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Accounts>, I>>(base?: I): Accounts {
-    return Accounts.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Account>, I>>(base?: I): Account {
+    return Account.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Accounts>, I>>(object: I): Accounts {
-    const message = createBaseAccounts();
+  fromPartial<I extends Exact<DeepPartial<Account>, I>>(object: I): Account {
+    const message = createBaseAccount();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;
@@ -173,16 +190,17 @@ export const Accounts: MessageFns<Accounts> = {
     message.username = object.username ?? "";
     message.password = object.password ?? "";
     message.email = object.email ?? "";
+    message.credentials = object.credentials?.map((e) => e) || [];
     return message;
   },
 };
 
-function createBaseAccountLite(): AccountLite {
+function createBaseAccountResponse(): AccountResponse {
   return { metadata: undefined, id: "", userId: "", username: "", email: "" };
 }
 
-export const AccountLite: MessageFns<AccountLite> = {
-  encode(message: AccountLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const AccountResponse: MessageFns<AccountResponse> = {
+  encode(message: AccountResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -201,10 +219,10 @@ export const AccountLite: MessageFns<AccountLite> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AccountLite {
+  decode(input: BinaryReader | Uint8Array, length?: number): AccountResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAccountLite();
+    const message = createBaseAccountResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -257,7 +275,7 @@ export const AccountLite: MessageFns<AccountLite> = {
     return message;
   },
 
-  fromJSON(object: any): AccountLite {
+  fromJSON(object: any): AccountResponse {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
@@ -267,7 +285,7 @@ export const AccountLite: MessageFns<AccountLite> = {
     };
   },
 
-  toJSON(message: AccountLite): unknown {
+  toJSON(message: AccountResponse): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
@@ -287,11 +305,11 @@ export const AccountLite: MessageFns<AccountLite> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AccountLite>, I>>(base?: I): AccountLite {
-    return AccountLite.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<AccountResponse>, I>>(base?: I): AccountResponse {
+    return AccountResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AccountLite>, I>>(object: I): AccountLite {
-    const message = createBaseAccountLite();
+  fromPartial<I extends Exact<DeepPartial<AccountResponse>, I>>(object: I): AccountResponse {
+    const message = createBaseAccountResponse();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;
@@ -303,12 +321,12 @@ export const AccountLite: MessageFns<AccountLite> = {
   },
 };
 
-function createBaseUsers(): Users {
+function createBaseUser(): User {
   return { metadata: undefined, id: "", fullName: "", email: "", phoneNumber: "" };
 }
 
-export const Users: MessageFns<Users> = {
-  encode(message: Users, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const User: MessageFns<User> = {
+  encode(message: User, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -327,10 +345,10 @@ export const Users: MessageFns<Users> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Users {
+  decode(input: BinaryReader | Uint8Array, length?: number): User {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUsers();
+    const message = createBaseUser();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -383,7 +401,7 @@ export const Users: MessageFns<Users> = {
     return message;
   },
 
-  fromJSON(object: any): Users {
+  fromJSON(object: any): User {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
@@ -393,7 +411,7 @@ export const Users: MessageFns<Users> = {
     };
   },
 
-  toJSON(message: Users): unknown {
+  toJSON(message: User): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
@@ -413,11 +431,11 @@ export const Users: MessageFns<Users> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Users>, I>>(base?: I): Users {
-    return Users.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<User>, I>>(base?: I): User {
+    return User.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Users>, I>>(object: I): Users {
-    const message = createBaseUsers();
+  fromPartial<I extends Exact<DeepPartial<User>, I>>(object: I): User {
+    const message = createBaseUser();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;

@@ -118,7 +118,7 @@ func Scan[T proto.Message](r database.Row) (T, error) {
 	}
 
 	if err := r.Scan(&data); err != nil {
-		//zlog.Debugf("scan: error= %v", err)
+		zlog.Debugf("scan: error= %v", err)
 		return empty, err
 	}
 

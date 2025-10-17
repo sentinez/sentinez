@@ -10,15 +10,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@sentinez/ui/components/card';
+import { Alert, AlertDescription, AlertTitle } from '@sentinez/ui/components/alert';
+
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import Image from 'next/image';
-import { PasskeyRegister } from '@sentinez/api/iam/passkey';
+import { PasskeyLogin } from '@sentinez/api/iam/passkey';
+import { Terminal } from 'lucide-react';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [email, setEmail] = useState('');
 
-  async function handleRegisterPasskey(e: React.FormEvent) {
+  async function handleLoginPasskey(e: React.FormEvent) {
     e.preventDefault();
     if (!email) {
       alert('Please enter your email first');
@@ -26,10 +29,11 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
     }
 
     try {
-      const _ = PasskeyRegister({ emailOrUsername: email });
+      const resp = await PasskeyLogin({ emailOrUsername: email });
+      console.log(resp);
+      alert(`Welcome`);
     } catch (err: any) {
-      console.error(err);
-      alert('Registration failed: ' + err.message);
+      alert(err.message || 'Login failed');
     }
   }
 
@@ -48,7 +52,7 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
           <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleRegisterPasskey}>
+          <form onSubmit={handleLoginPasskey}>
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
@@ -63,13 +67,13 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
                   />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer">
-                  Register Passkey
+                  Login
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Already have an account? <br />
-                <a href="#" className="underline underline-offset-4">
-                  Sign in
+                Do not have an account? <br />
+                <a href="/auth/passkey/register" className="underline underline-offset-4">
+                  Register
                 </a>
               </div>
             </div>

@@ -33,10 +33,10 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on PasskeyLoginFinishRequest with the rules
+// Validate checks the field values on PasskeyLoginVerifyRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyLoginFinishRequest) Validate() error {
+func (m *PasskeyLoginVerifyRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -48,9 +48,9 @@ func (m *PasskeyLoginFinishRequest) Validate() error {
 	return nil
 }
 
-// PasskeyLoginFinishRequestValidationError is the validation error returned by
-// PasskeyLoginFinishRequest.Validate if the designated constraints aren't met.
-type PasskeyLoginFinishRequestValidationError struct {
+// PasskeyLoginVerifyRequestValidationError is the validation error returned by
+// PasskeyLoginVerifyRequest.Validate if the designated constraints aren't met.
+type PasskeyLoginVerifyRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -58,24 +58,24 @@ type PasskeyLoginFinishRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyLoginFinishRequestValidationError) Field() string { return e.field }
+func (e PasskeyLoginVerifyRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyLoginFinishRequestValidationError) Reason() string { return e.reason }
+func (e PasskeyLoginVerifyRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyLoginFinishRequestValidationError) Cause() error { return e.cause }
+func (e PasskeyLoginVerifyRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyLoginFinishRequestValidationError) Key() bool { return e.key }
+func (e PasskeyLoginVerifyRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyLoginFinishRequestValidationError) ErrorName() string {
-	return "PasskeyLoginFinishRequestValidationError"
+func (e PasskeyLoginVerifyRequestValidationError) ErrorName() string {
+	return "PasskeyLoginVerifyRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyLoginFinishRequestValidationError) Error() string {
+func (e PasskeyLoginVerifyRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -87,14 +87,14 @@ func (e PasskeyLoginFinishRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyLoginFinishRequest.%s: %s%s",
+		"invalid %sPasskeyLoginVerifyRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyLoginFinishRequestValidationError{}
+var _ error = PasskeyLoginVerifyRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -102,22 +102,34 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyLoginFinishRequestValidationError{}
+} = PasskeyLoginVerifyRequestValidationError{}
 
-// Validate checks the field values on PasskeyLoginFinishResponse with the
+// Validate checks the field values on PasskeyLoginVerifyResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyLoginFinishResponse) Validate() error {
+func (m *PasskeyLoginVerifyResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
+	if v, ok := interface{}(m.GetUser()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PasskeyLoginVerifyResponseValidationError{
+				field:  "User",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AccessToken
+
 	return nil
 }
 
-// PasskeyLoginFinishResponseValidationError is the validation error returned
-// by PasskeyLoginFinishResponse.Validate if the designated constraints aren't met.
-type PasskeyLoginFinishResponseValidationError struct {
+// PasskeyLoginVerifyResponseValidationError is the validation error returned
+// by PasskeyLoginVerifyResponse.Validate if the designated constraints aren't met.
+type PasskeyLoginVerifyResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -125,24 +137,24 @@ type PasskeyLoginFinishResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyLoginFinishResponseValidationError) Field() string { return e.field }
+func (e PasskeyLoginVerifyResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyLoginFinishResponseValidationError) Reason() string { return e.reason }
+func (e PasskeyLoginVerifyResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyLoginFinishResponseValidationError) Cause() error { return e.cause }
+func (e PasskeyLoginVerifyResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyLoginFinishResponseValidationError) Key() bool { return e.key }
+func (e PasskeyLoginVerifyResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyLoginFinishResponseValidationError) ErrorName() string {
-	return "PasskeyLoginFinishResponseValidationError"
+func (e PasskeyLoginVerifyResponseValidationError) ErrorName() string {
+	return "PasskeyLoginVerifyResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyLoginFinishResponseValidationError) Error() string {
+func (e PasskeyLoginVerifyResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -154,14 +166,14 @@ func (e PasskeyLoginFinishResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyLoginFinishResponse.%s: %s%s",
+		"invalid %sPasskeyLoginVerifyResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyLoginFinishResponseValidationError{}
+var _ error = PasskeyLoginVerifyResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -169,12 +181,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyLoginFinishResponseValidationError{}
+} = PasskeyLoginVerifyResponseValidationError{}
 
-// Validate checks the field values on PasskeyLoginStartRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on PasskeyLoginChallengeRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyLoginStartRequest) Validate() error {
+func (m *PasskeyLoginChallengeRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -184,9 +196,10 @@ func (m *PasskeyLoginStartRequest) Validate() error {
 	return nil
 }
 
-// PasskeyLoginStartRequestValidationError is the validation error returned by
-// PasskeyLoginStartRequest.Validate if the designated constraints aren't met.
-type PasskeyLoginStartRequestValidationError struct {
+// PasskeyLoginChallengeRequestValidationError is the validation error returned
+// by PasskeyLoginChallengeRequest.Validate if the designated constraints
+// aren't met.
+type PasskeyLoginChallengeRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -194,24 +207,24 @@ type PasskeyLoginStartRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyLoginStartRequestValidationError) Field() string { return e.field }
+func (e PasskeyLoginChallengeRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyLoginStartRequestValidationError) Reason() string { return e.reason }
+func (e PasskeyLoginChallengeRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyLoginStartRequestValidationError) Cause() error { return e.cause }
+func (e PasskeyLoginChallengeRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyLoginStartRequestValidationError) Key() bool { return e.key }
+func (e PasskeyLoginChallengeRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyLoginStartRequestValidationError) ErrorName() string {
-	return "PasskeyLoginStartRequestValidationError"
+func (e PasskeyLoginChallengeRequestValidationError) ErrorName() string {
+	return "PasskeyLoginChallengeRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyLoginStartRequestValidationError) Error() string {
+func (e PasskeyLoginChallengeRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -223,14 +236,14 @@ func (e PasskeyLoginStartRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyLoginStartRequest.%s: %s%s",
+		"invalid %sPasskeyLoginChallengeRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyLoginStartRequestValidationError{}
+var _ error = PasskeyLoginChallengeRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -238,19 +251,19 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyLoginStartRequestValidationError{}
+} = PasskeyLoginChallengeRequestValidationError{}
 
-// Validate checks the field values on PasskeyLoginStartResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on PasskeyLoginChallengeResponse with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyLoginStartResponse) Validate() error {
+func (m *PasskeyLoginChallengeResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return PasskeyLoginStartResponseValidationError{
+			return PasskeyLoginChallengeResponseValidationError{
 				field:  "Options",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -263,9 +276,10 @@ func (m *PasskeyLoginStartResponse) Validate() error {
 	return nil
 }
 
-// PasskeyLoginStartResponseValidationError is the validation error returned by
-// PasskeyLoginStartResponse.Validate if the designated constraints aren't met.
-type PasskeyLoginStartResponseValidationError struct {
+// PasskeyLoginChallengeResponseValidationError is the validation error
+// returned by PasskeyLoginChallengeResponse.Validate if the designated
+// constraints aren't met.
+type PasskeyLoginChallengeResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -273,24 +287,24 @@ type PasskeyLoginStartResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyLoginStartResponseValidationError) Field() string { return e.field }
+func (e PasskeyLoginChallengeResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyLoginStartResponseValidationError) Reason() string { return e.reason }
+func (e PasskeyLoginChallengeResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyLoginStartResponseValidationError) Cause() error { return e.cause }
+func (e PasskeyLoginChallengeResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyLoginStartResponseValidationError) Key() bool { return e.key }
+func (e PasskeyLoginChallengeResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyLoginStartResponseValidationError) ErrorName() string {
-	return "PasskeyLoginStartResponseValidationError"
+func (e PasskeyLoginChallengeResponseValidationError) ErrorName() string {
+	return "PasskeyLoginChallengeResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyLoginStartResponseValidationError) Error() string {
+func (e PasskeyLoginChallengeResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -302,14 +316,14 @@ func (e PasskeyLoginStartResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyLoginStartResponse.%s: %s%s",
+		"invalid %sPasskeyLoginChallengeResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyLoginStartResponseValidationError{}
+var _ error = PasskeyLoginChallengeResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -317,12 +331,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyLoginStartResponseValidationError{}
+} = PasskeyLoginChallengeResponseValidationError{}
 
-// Validate checks the field values on PasskeyRegisterFinishRequest with the
+// Validate checks the field values on PasskeyRegisterVerifyRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyRegisterFinishRequest) Validate() error {
+func (m *PasskeyRegisterVerifyRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -334,10 +348,10 @@ func (m *PasskeyRegisterFinishRequest) Validate() error {
 	return nil
 }
 
-// PasskeyRegisterFinishRequestValidationError is the validation error returned
-// by PasskeyRegisterFinishRequest.Validate if the designated constraints
+// PasskeyRegisterVerifyRequestValidationError is the validation error returned
+// by PasskeyRegisterVerifyRequest.Validate if the designated constraints
 // aren't met.
-type PasskeyRegisterFinishRequestValidationError struct {
+type PasskeyRegisterVerifyRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -345,24 +359,24 @@ type PasskeyRegisterFinishRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyRegisterFinishRequestValidationError) Field() string { return e.field }
+func (e PasskeyRegisterVerifyRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyRegisterFinishRequestValidationError) Reason() string { return e.reason }
+func (e PasskeyRegisterVerifyRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyRegisterFinishRequestValidationError) Cause() error { return e.cause }
+func (e PasskeyRegisterVerifyRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyRegisterFinishRequestValidationError) Key() bool { return e.key }
+func (e PasskeyRegisterVerifyRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyRegisterFinishRequestValidationError) ErrorName() string {
-	return "PasskeyRegisterFinishRequestValidationError"
+func (e PasskeyRegisterVerifyRequestValidationError) ErrorName() string {
+	return "PasskeyRegisterVerifyRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyRegisterFinishRequestValidationError) Error() string {
+func (e PasskeyRegisterVerifyRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -374,14 +388,14 @@ func (e PasskeyRegisterFinishRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyRegisterFinishRequest.%s: %s%s",
+		"invalid %sPasskeyRegisterVerifyRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyRegisterFinishRequestValidationError{}
+var _ error = PasskeyRegisterVerifyRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -389,12 +403,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyRegisterFinishRequestValidationError{}
+} = PasskeyRegisterVerifyRequestValidationError{}
 
-// Validate checks the field values on PasskeyRegisterFinishResponse with the
+// Validate checks the field values on PasskeyRegisterVerifyResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyRegisterFinishResponse) Validate() error {
+func (m *PasskeyRegisterVerifyResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -402,10 +416,10 @@ func (m *PasskeyRegisterFinishResponse) Validate() error {
 	return nil
 }
 
-// PasskeyRegisterFinishResponseValidationError is the validation error
-// returned by PasskeyRegisterFinishResponse.Validate if the designated
+// PasskeyRegisterVerifyResponseValidationError is the validation error
+// returned by PasskeyRegisterVerifyResponse.Validate if the designated
 // constraints aren't met.
-type PasskeyRegisterFinishResponseValidationError struct {
+type PasskeyRegisterVerifyResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -413,24 +427,24 @@ type PasskeyRegisterFinishResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyRegisterFinishResponseValidationError) Field() string { return e.field }
+func (e PasskeyRegisterVerifyResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyRegisterFinishResponseValidationError) Reason() string { return e.reason }
+func (e PasskeyRegisterVerifyResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyRegisterFinishResponseValidationError) Cause() error { return e.cause }
+func (e PasskeyRegisterVerifyResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyRegisterFinishResponseValidationError) Key() bool { return e.key }
+func (e PasskeyRegisterVerifyResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyRegisterFinishResponseValidationError) ErrorName() string {
-	return "PasskeyRegisterFinishResponseValidationError"
+func (e PasskeyRegisterVerifyResponseValidationError) ErrorName() string {
+	return "PasskeyRegisterVerifyResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyRegisterFinishResponseValidationError) Error() string {
+func (e PasskeyRegisterVerifyResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -442,14 +456,14 @@ func (e PasskeyRegisterFinishResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyRegisterFinishResponse.%s: %s%s",
+		"invalid %sPasskeyRegisterVerifyResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyRegisterFinishResponseValidationError{}
+var _ error = PasskeyRegisterVerifyResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -457,12 +471,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyRegisterFinishResponseValidationError{}
+} = PasskeyRegisterVerifyResponseValidationError{}
 
-// Validate checks the field values on PasskeyRegisterStartRequest with the
+// Validate checks the field values on PasskeyRegisterChallengeRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *PasskeyRegisterStartRequest) Validate() error {
+func (m *PasskeyRegisterChallengeRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -472,10 +486,10 @@ func (m *PasskeyRegisterStartRequest) Validate() error {
 	return nil
 }
 
-// PasskeyRegisterStartRequestValidationError is the validation error returned
-// by PasskeyRegisterStartRequest.Validate if the designated constraints
-// aren't met.
-type PasskeyRegisterStartRequestValidationError struct {
+// PasskeyRegisterChallengeRequestValidationError is the validation error
+// returned by PasskeyRegisterChallengeRequest.Validate if the designated
+// constraints aren't met.
+type PasskeyRegisterChallengeRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -483,24 +497,24 @@ type PasskeyRegisterStartRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyRegisterStartRequestValidationError) Field() string { return e.field }
+func (e PasskeyRegisterChallengeRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyRegisterStartRequestValidationError) Reason() string { return e.reason }
+func (e PasskeyRegisterChallengeRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyRegisterStartRequestValidationError) Cause() error { return e.cause }
+func (e PasskeyRegisterChallengeRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyRegisterStartRequestValidationError) Key() bool { return e.key }
+func (e PasskeyRegisterChallengeRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyRegisterStartRequestValidationError) ErrorName() string {
-	return "PasskeyRegisterStartRequestValidationError"
+func (e PasskeyRegisterChallengeRequestValidationError) ErrorName() string {
+	return "PasskeyRegisterChallengeRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyRegisterStartRequestValidationError) Error() string {
+func (e PasskeyRegisterChallengeRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -512,14 +526,14 @@ func (e PasskeyRegisterStartRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyRegisterStartRequest.%s: %s%s",
+		"invalid %sPasskeyRegisterChallengeRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyRegisterStartRequestValidationError{}
+var _ error = PasskeyRegisterChallengeRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -527,19 +541,19 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyRegisterStartRequestValidationError{}
+} = PasskeyRegisterChallengeRequestValidationError{}
 
-// Validate checks the field values on PasskeyRegisterStartResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
-func (m *PasskeyRegisterStartResponse) Validate() error {
+// Validate checks the field values on PasskeyRegisterChallengeResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *PasskeyRegisterChallengeResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return PasskeyRegisterStartResponseValidationError{
+			return PasskeyRegisterChallengeResponseValidationError{
 				field:  "Options",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -552,10 +566,10 @@ func (m *PasskeyRegisterStartResponse) Validate() error {
 	return nil
 }
 
-// PasskeyRegisterStartResponseValidationError is the validation error returned
-// by PasskeyRegisterStartResponse.Validate if the designated constraints
-// aren't met.
-type PasskeyRegisterStartResponseValidationError struct {
+// PasskeyRegisterChallengeResponseValidationError is the validation error
+// returned by PasskeyRegisterChallengeResponse.Validate if the designated
+// constraints aren't met.
+type PasskeyRegisterChallengeResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -563,24 +577,24 @@ type PasskeyRegisterStartResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e PasskeyRegisterStartResponseValidationError) Field() string { return e.field }
+func (e PasskeyRegisterChallengeResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PasskeyRegisterStartResponseValidationError) Reason() string { return e.reason }
+func (e PasskeyRegisterChallengeResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PasskeyRegisterStartResponseValidationError) Cause() error { return e.cause }
+func (e PasskeyRegisterChallengeResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PasskeyRegisterStartResponseValidationError) Key() bool { return e.key }
+func (e PasskeyRegisterChallengeResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PasskeyRegisterStartResponseValidationError) ErrorName() string {
-	return "PasskeyRegisterStartResponseValidationError"
+func (e PasskeyRegisterChallengeResponseValidationError) ErrorName() string {
+	return "PasskeyRegisterChallengeResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e PasskeyRegisterStartResponseValidationError) Error() string {
+func (e PasskeyRegisterChallengeResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -592,14 +606,14 @@ func (e PasskeyRegisterStartResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPasskeyRegisterStartResponse.%s: %s%s",
+		"invalid %sPasskeyRegisterChallengeResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PasskeyRegisterStartResponseValidationError{}
+var _ error = PasskeyRegisterChallengeResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -607,7 +621,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PasskeyRegisterStartResponseValidationError{}
+} = PasskeyRegisterChallengeResponseValidationError{}
 
 // Validate checks the field values on LoginRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error

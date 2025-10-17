@@ -128,34 +128,34 @@ service IdentityAccessManagementService {
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyRegisterStart(PasskeyRegisterStartRequest) returns (PasskeyRegisterStartResponse) {
+  rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/register-start",
+      get: "/iam/passkey/register/challenge",
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyRegisterFinish(PasskeyRegisterFinishRequest) returns (PasskeyRegisterFinishResponse) {
+  rpc PasskeyRegisterVerify(PasskeyRegisterVerifyRequest) returns (PasskeyRegisterVerifyResponse) {
     option (google.api.http) = {
-      post: "/iam/passkey/register-finish",
+      post: "/iam/passkey/register/verify",
       body: "*"
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyLoginStart(PasskeyLoginStartRequest) returns (PasskeyLoginStartResponse) {
+  rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
     option (google.api.http) = {
-      get: "/iam/passkey/login-start",
+      get: "/iam/passkey/login/challenge",
     };
 
     option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
   }
 
-  rpc PasskeyLoginFinish(PasskeyLoginFinishRequest) returns (PasskeyLoginFinishResponse) {
+  rpc PasskeyLoginVerify(PasskeyLoginVerifyRequest) returns (PasskeyLoginVerifyResponse) {
     option (google.api.http) = {
-      put: "/iam/passkey/login-finish",
+      put: "/iam/passkey/login/verify",
       body: "*"
     };
 
@@ -163,42 +163,43 @@ service IdentityAccessManagementService {
   }
 }
 
-message PasskeyLoginFinishRequest {
+message PasskeyLoginVerifyRequest {
   string session_id = 1;
   bytes credential_assertion_data = 2;
 }
 
-message PasskeyLoginFinishResponse {
-
+message PasskeyLoginVerifyResponse {
+  sentinez.core.iam.v1.User user = 1;
+  string access_token = 2;
 }
 
-message PasskeyLoginStartRequest {
+message PasskeyLoginChallengeRequest {
   string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
     pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
   }}];
 }
 
-message PasskeyLoginStartResponse {
+message PasskeyLoginChallengeResponse {
   google.protobuf.Struct options = 1;
   string session_id = 2;
 }
 
-message PasskeyRegisterFinishRequest {
+message PasskeyRegisterVerifyRequest {
   string session_id = 1;
   bytes credential_creation_response =2;
 }
 
-message PasskeyRegisterFinishResponse {
+message PasskeyRegisterVerifyResponse {
 
 }
 
-message PasskeyRegisterStartRequest {
+message PasskeyRegisterChallengeRequest {
   string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
     pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
   }}];
 }
 
-message PasskeyRegisterStartResponse {
+message PasskeyRegisterChallengeResponse {
   google.protobuf.Struct options = 1;
   string session_id = 2;
 }
