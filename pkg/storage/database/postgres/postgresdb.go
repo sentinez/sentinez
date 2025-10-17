@@ -25,14 +25,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/jsonx"
-	"github.com/sentinez/sentinez/pkg/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"github.com/sentinez/sentinez/pkg/storage/utils"
-	"github.com/sentinez/sentinez/pkg/table"
+	storageutils "github.com/sentinez/sentinez/pkg/storage/utils"
+	"github.com/sentinez/sentinez/pkg/storage/utils/table"
+	"github.com/sentinez/sentinez/pkg/x/errorx"
+	"github.com/sentinez/sentinez/pkg/x/jsonx"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -49,7 +48,7 @@ func getConnPool(conf *common.EnvConfig) (*pgxpool.Pool, error) {
 		lock.Lock()
 		defer lock.Unlock()
 
-		pool, err = utils.NewPgxPool(conf)
+		pool, err = storageutils.NewPgxPool(conf)
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +137,11 @@ func (p *postgres[T]) Get(ctx context.Context, id string) (T, error) {
 		return empty, err
 	}
 
-	if err := protojson.Unmarshal([]byte(data), result); err != nil {
+	if data == "" {
+		return empty, errorx.ErrNotFound
+	}
+
+	if err := jsonx.Unmarshal([]byte(data), result); err != nil {
 		return empty, err
 	}
 

@@ -17,19 +17,17 @@ package usersrepo
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/internal/common/tables"
-	"github.com/sentinez/sentinez/pkg/table"
-	"github.com/sentinez/sentinez/pkg/zlog"
-
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
-	"github.com/sentinez/sentinez/pkg/common/uuid"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/utils/table"
+	"github.com/sentinez/sentinez/pkg/x/uuidx"
+	"github.com/sentinez/sentinez/pkg/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -37,16 +35,16 @@ var (
 )
 
 type IUser interface {
-	Create(ctx context.Context, user *iam.Users) (*iam.Users, error)
-	Update(ctx context.Context, user *iam.Users) (*iam.Users, error)
-	Get(ctx context.Context, id string) (*iam.Users, error)
+	Create(ctx context.Context, user *iam.User) (*iam.User, error)
+	Update(ctx context.Context, user *iam.User) (*iam.User, error)
+	Get(ctx context.Context, id string) (*iam.User, error)
 	Delete(ctx context.Context, id string) error
 
 	WithTX(tx *postgres.TxSession) IUser
 
 	// extra methods
 
-	GetByFullnameOrEmail(ctx context.Context, input string) (*iam.Users, error)
+	GetByFullnameOrEmail(ctx context.Context, input string) (*iam.User, error)
 
 	List(ctx context.Context,
 		req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
@@ -55,7 +53,7 @@ type IUser interface {
 }
 
 func New(appConf *commonpb.AppConfig) (IUser, error) {
-	storage, err := postgres.New[*iam.Users](appConf, tables.Users)
+	storage, err := postgres.New[*iam.User](appConf, tables.Users)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +64,7 @@ func New(appConf *commonpb.AppConfig) (IUser, error) {
 }
 
 type Users struct {
-	storage database.Database[*iam.Users]
+	storage database.Database[*iam.User]
 }
 
 func (u *Users) WithTX(tx *postgres.TxSession) IUser {
@@ -77,16 +75,16 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 
 // GetByFullnameOrEmail implements IUser.
 func (u *Users) GetByFullnameOrEmail(ctx context.Context,
-	input string) (*iam.Users, error) {
+	input string) (*iam.User, error) {
 
 	builder := postgres.SelectBuilder(u.storage, nil)
 	builder = builder.From(u.storage.Table()).
 		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.UsersFieldFullName): input},
-			sq.Eq{postgres.Field(iam.UsersFieldEmail): input},
+			sq.Eq{postgres.Field(iam.UserFieldFullName): input},
+			sq.Eq{postgres.Field(iam.UserFieldEmail): input},
 		})
 
-	return u.storage.CollectOneRow(ctx, builder, postgres.Scan[*iam.Users])
+	return u.storage.CollectOneRow(ctx, builder, postgres.Scan[*iam.User])
 }
 
 // nolint:funlen
@@ -94,19 +92,19 @@ func buildListQuery(builder sq.SelectBuilder,
 	req *iam.ListUsersRequest) sq.SelectBuilder {
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{
-			postgres.Primary(iam.UsersFieldId): id,
+			postgres.Primary(iam.UserFieldId): id,
 		})
 	}
 
 	for _, email := range req.GetEmails() {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.UsersFieldEmail): email,
+			postgres.Field(iam.UserFieldEmail): email,
 		})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.UsersFieldPhoneNumber): phone,
+			postgres.Field(iam.UserFieldPhoneNumber): phone,
 		})
 	}
 
@@ -130,7 +128,7 @@ func (u *Users) List(ctx context.Context,
 	zlog.Debug("[users] query: ", query, " args: ", args)
 
 	users, err := u.storage.CollectRows(
-		ctx, builder, postgres.Scans[*iam.Users])
+		ctx, builder, postgres.Scans[*iam.User])
 	if err != nil {
 		return nil, err
 	}
@@ -162,10 +160,10 @@ func (u *Users) Total(ctx context.Context,
 
 // Create implements IUser.
 func (u *Users) Create(ctx context.Context,
-	user *iam.Users) (*iam.Users, error) {
+	user *iam.User) (*iam.User, error) {
 
 	now := timestamppb.Now()
-	user.Id = uuid.NewID(table.NewPrimaryKey(tables.Users))
+	user.Id = uuidx.NewID(table.NewPrimaryKey(tables.Users))
 	user.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,
@@ -187,13 +185,13 @@ func (u *Users) Delete(ctx context.Context, id string) error {
 }
 
 // Get implements IUser.
-func (u *Users) Get(ctx context.Context, id string) (*iam.Users, error) {
+func (u *Users) Get(ctx context.Context, id string) (*iam.User, error) {
 	return u.storage.Get(ctx, id)
 }
 
 // Update implements IUser.
 func (u *Users) Update(
-	ctx context.Context, user *iam.Users) (*iam.Users, error) {
+	ctx context.Context, user *iam.User) (*iam.User, error) {
 
 	user.Metadata.UpdatedAt = timestamppb.Now()
 	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {

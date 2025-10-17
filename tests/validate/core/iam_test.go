@@ -18,19 +18,19 @@ import (
 	"testing"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
+	"github.com/sentinez/sentinez/pkg/x/protobuf"
 )
 
 //nolint:funlen
 func TestValidateUserModel(t *testing.T) {
 	type Test struct {
-		data   *iam.Users
+		data   *iam.User
 		result bool
 	}
 
 	tests := []*Test{
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "sntz.users.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
@@ -39,7 +39,7 @@ func TestValidateUserModel(t *testing.T) {
 			result: true,
 		},
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "sntz.usxers.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
@@ -48,7 +48,7 @@ func TestValidateUserModel(t *testing.T) {
 			result: false,
 		},
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "sntz.users.xxx",
 				FullName:    "",
 				PhoneNumber: "+84875470160",
@@ -57,7 +57,7 @@ func TestValidateUserModel(t *testing.T) {
 			result: false,
 		},
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "sntz.users.xxx",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160",
@@ -66,7 +66,7 @@ func TestValidateUserModel(t *testing.T) {
 			result: false,
 		},
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160z",
@@ -75,7 +75,7 @@ func TestValidateUserModel(t *testing.T) {
 			result: false,
 		},
 		{
-			data: &iam.Users{
+			data: &iam.User{
 				Id:          "",
 				FullName:    "Name x y z",
 				PhoneNumber: "+84875470160z",

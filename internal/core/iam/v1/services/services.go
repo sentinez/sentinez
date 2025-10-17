@@ -17,22 +17,25 @@ package iamsvc
 import (
 	"context"
 	"encoding/json"
+	"net/mail"
 	"time"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/jackc/pgx/v5"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
-	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
+	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	protox "github.com/sentinez/sentinez/pkg/common/protobuf/proto"
-	"github.com/sentinez/sentinez/pkg/cryptox"
-	"github.com/sentinez/sentinez/pkg/errorx"
-	"github.com/sentinez/sentinez/pkg/passkey"
-	"github.com/sentinez/sentinez/pkg/perms"
+	"github.com/sentinez/sentinez/pkg/security/passkey"
+	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/x/cryptox"
+	"github.com/sentinez/sentinez/pkg/x/errorx"
+	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+	"github.com/sentinez/sentinez/pkg/x/randx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -43,46 +46,53 @@ func New(config *common.AppConfig,
 	tx *postgres.Tx,
 	store passkey.Store,
 	users usersrepo.IUser,
-	account accountrepo.IAccount,
+	account accrepos.IAccount,
 ) *IAMService {
 
 	wauth := passkey.NewWebAuthn(config)
 
 	return &IAMService{
-		config:    config,
-		tx:        tx,
-		users:     users,
-		accounts:  account,
-		dataStore: store,
-		webAuthn:  wauth,
+		config:   config,
+		tx:       tx,
+		users:    users,
+		accounts: account,
+		store:    store,
+		auth:     wauth,
 	}
 }
 
 type IAMService struct {
-	config    *common.AppConfig
-	tx        *postgres.Tx
-	users     usersrepo.IUser
-	accounts  accountrepo.IAccount
-	dataStore passkey.Store
-	webAuthn  *webauthn.WebAuthn
+	config   *common.AppConfig
+	tx       *postgres.Tx
+	users    usersrepo.IUser
+	accounts accrepos.IAccount
+	store    passkey.Store
+	auth     *webauthn.WebAuthn
 }
 
 // PasskeyLoginFinish implements iam.IdentityAccessManagementServiceServer.
 // nolint:funlen
-func (srv *IAMService) PasskeyLoginFinish(_ context.Context,
+func (srv *IAMService) PasskeyLoginFinish(ctx context.Context,
 	req *iam.PasskeyLoginFinishRequest,
 ) (*iam.PasskeyLoginFinishResponse, error) {
 
 	sid := req.GetSessionId()
-	ss, ok := srv.dataStore.GetSession(sid)
+	ss, ok := srv.store.GetSession(sid)
 	if !ok {
-		return nil, errorx.NotFoundF("session not found id=%s", sid)
+		return nil, errorx.StatusNotFoundF("session not found id=%s", sid)
 	}
 
-	user := srv.dataStore.GetUser(string(ss.UserID))
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, string(ss.UserID))
+	if err != nil {
+		return nil, err
+	}
+
+	if acc.GetId() == "" {
+		acc = &accrepos.AccountX{}
+	}
 
 	var car protocol.CredentialAssertionResponse
-	err := json.Unmarshal(req.GetCredentialAssertionData(), &car)
+	err = json.Unmarshal(req.GetCredentialAssertionData(), &car)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +102,7 @@ func (srv *IAMService) PasskeyLoginFinish(_ context.Context,
 		return nil, err
 	}
 
-	credential, err := srv.webAuthn.ValidateLogin(user, *ss, parsedCAR)
+	credential, err := srv.auth.ValidateLogin(acc, *ss, parsedCAR)
 	if err != nil {
 		return nil, err
 	}
@@ -101,12 +111,15 @@ func (srv *IAMService) PasskeyLoginFinish(_ context.Context,
 		zlog.Warnf("can't finish login: %s", "CloneWarning")
 	}
 
-	user.UpdateCredential(credential)
-	srv.dataStore.SaveUser(user)
-	srv.dataStore.DeleteSession(sid)
+	acc.UpdateCredential(credential)
+	if _, err := srv.accounts.Update(ctx, acc); err != nil {
+		return nil, err
+	}
 
-	sid, _ = srv.dataStore.GenSessionID()
-	srv.dataStore.SaveSession(sid, &webauthn.SessionData{
+	srv.store.DeleteSession(sid)
+
+	sid, _ = srv.store.GenSessionID()
+	srv.store.SaveSession(sid, &webauthn.SessionData{
 		Expires: time.Now().Add(time.Hour * 2),
 	})
 
@@ -115,21 +128,23 @@ func (srv *IAMService) PasskeyLoginFinish(_ context.Context,
 
 // PasskeyLoginStart implements iam.IdentityAccessManagementServiceServer.
 func (srv *IAMService) PasskeyLoginStart(
-	_ context.Context,
+	ctx context.Context,
 	req *iam.PasskeyLoginStartRequest,
 ) (*iam.PasskeyLoginStartResponse, error) {
 
 	emailOrUsername := req.GetEmailOrUsername()
-
-	user := srv.dataStore.GetUser(emailOrUsername)
-
-	options, session, err := srv.webAuthn.BeginLogin(user)
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, emailOrUsername)
 	if err != nil {
-		return nil, errorx.InternalErrorF("begin login err=%v", err)
+		return nil, err
 	}
 
-	sid, _ := srv.dataStore.GenSessionID()
-	srv.dataStore.SaveSession(sid, session)
+	options, session, err := srv.auth.BeginLogin(acc)
+	if err != nil {
+		return nil, errorx.StatusInternalErrorF("begin login err=%v", err)
+	}
+
+	sid, _ := srv.store.GenSessionID()
+	srv.store.SaveSession(sid, session)
 
 	opts := protox.Struct(options)
 
@@ -140,23 +155,25 @@ func (srv *IAMService) PasskeyLoginStart(
 }
 
 // PasskeyRegisterFinish implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyRegisterFinish(
-	_ context.Context,
+func (srv *IAMService) PasskeyRegisterFinish(ctx context.Context,
 	req *iam.PasskeyRegisterFinishRequest,
 ) (*iam.PasskeyRegisterFinishResponse, error) {
 
 	ssId := req.GetSessionId()
 
 	zlog.Debugf("[iam][service][PasskeyRegisterFinish] get session=%s", ssId)
-	ss, ok := srv.dataStore.GetSession(ssId)
+	ss, ok := srv.store.GetSession(ssId)
 	if !ok {
-		return nil, errorx.NotFoundF("session not found=%s", ssId)
+		return nil, errorx.StatusNotFoundF("session not found=%s", ssId)
 	}
 
-	user := srv.dataStore.GetUser(string(ss.UserID))
+	acc, err := srv.accounts.Get(ctx, string(ss.UserID))
+	if err != nil {
+		return nil, err
+	}
 
 	var ccr protocol.CredentialCreationResponse
-	err := json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
+	err = json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
 	if err != nil {
 		return nil, err
 	}
@@ -166,38 +183,46 @@ func (srv *IAMService) PasskeyRegisterFinish(
 		return nil, err
 	}
 
-	credential, err := srv.webAuthn.CreateCredential(user, *ss, parsedCCR)
+	credential, err := srv.auth.CreateCredential(acc, *ss, parsedCCR)
 	if err != nil {
-		return nil, errorx.InternalErrorF("can't finish registration: %v", err)
+		return nil,
+			errorx.StatusInternalErrorF("can't finish registration: %v", err)
 	}
 
-	user.AddCredential(credential)
-	srv.dataStore.SaveUser(user)
-	srv.dataStore.DeleteSession(ssId)
+	acc.AddCredential(credential)
+	if _, err = srv.accounts.Update(ctx, acc); err != nil {
+		return nil, err
+	}
+
+	srv.store.DeleteSession(ssId)
 
 	return &iam.PasskeyRegisterFinishResponse{}, nil
 }
 
 // PasskeyRegisterStart implements iam.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyRegisterStart(
-	_ context.Context,
+func (srv *IAMService) PasskeyRegisterStart(ctx context.Context,
 	req *iam.PasskeyRegisterStartRequest,
 ) (*iam.PasskeyRegisterStartResponse, error) {
 
-	user := srv.dataStore.GetUser(req.GetEmailOrUsername())
-
-	opt, ss, err := srv.webAuthn.BeginRegistration(user)
+	acc, err := srv.getOrCreateAccount(ctx, req.GetEmailOrUsername())
 	if err != nil {
-		return nil, errorx.InternalErrorF("can't begin registration: %v", err)
+		return nil, err
 	}
 
-	t, err := srv.dataStore.GenSessionID()
+	opt, ss, err := srv.auth.BeginRegistration(acc)
 	if err != nil {
-		return nil, errorx.InternalErrorF("can't generate session id: %v", err)
+		return nil,
+			errorx.StatusInternalErrorF("can't begin registration: %v", err)
+	}
+
+	t, err := srv.store.GenSessionID()
+	if err != nil {
+		return nil,
+			errorx.StatusInternalErrorF("can't generate session id: %v", err)
 	}
 
 	zlog.Debugf("[iam][service][PasskeyRegisterStart] save session=%s", t)
-	srv.dataStore.SaveSession(t, ss)
+	srv.store.SaveSession(t, ss)
 
 	options := protox.Struct(opt)
 
@@ -205,6 +230,43 @@ func (srv *IAMService) PasskeyRegisterStart(
 		Options:   options,
 		SessionId: t,
 	}, nil
+}
+
+func (srv *IAMService) getOrCreateAccount(
+	ctx context.Context, usernameOrEmail string) (*accrepos.AccountX, error) {
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
+	if err != nil && errorx.NotRowsNotFound(err) {
+		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
+		return nil, err
+	}
+
+	if acc.GetId() == "" {
+		createReq := &iam.CreateAccountRequest{}
+		_, err = mail.ParseAddress(usernameOrEmail)
+		if err != nil {
+			createReq.Username = usernameOrEmail
+		}
+
+		if err == nil {
+			createReq.Email = usernameOrEmail
+		}
+
+		createReq.Password, _ = randx.RandomString(5)
+
+		createResp, err := srv.CreateAccount(ctx, createReq)
+		if err != nil {
+			zlog.Errorf("CreateAccount err=%v", err)
+			return nil, err
+		}
+
+		acc, err = srv.accounts.Get(ctx, createResp.GetAccountId())
+		if err != nil {
+			zlog.Errorf("accounts.Get err=%v", err)
+			return nil, err
+		}
+	}
+
+	return acc, nil
 }
 
 func (srv *IAMService) Config() *common.EnvConfig {
@@ -238,8 +300,9 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	if errorx.NotRowsNotFound(err) {
 		return err
 	}
+
 	if acc.GetId() != "" {
-		return errorx.AlreadyExistsF(
+		return errorx.StatusAlreadyExistsF(
 			"username %s already exists", acc.GetUsername())
 	}
 
@@ -248,7 +311,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 		return err
 	}
 	if acc.GetId() != "" {
-		return errorx.AlreadyExistsF(
+		return errorx.StatusAlreadyExistsF(
 			"email %s already exists", acc.GetEmail())
 	}
 
@@ -284,7 +347,7 @@ func (srv *IAMService) createAccount(ctx context.Context,
 		return "", err
 	}
 
-	user, err := srv.users.WithTX(txss).Create(ctx, &iam.Users{
+	user, err := srv.users.WithTX(txss).Create(ctx, &iam.User{
 		Metadata: &modelpb.Metadata{
 			CreatedBy: req.GetUsername(),
 			UpdatedBy: req.GetUsername(),
@@ -298,11 +361,13 @@ func (srv *IAMService) createAccount(ctx context.Context,
 		return "", err
 	}
 
-	acc, err := srv.accounts.WithTX(txss).Create(ctx, &iam.Accounts{
-		UserId:   user.GetId(),
-		Email:    req.GetEmail(),
-		Username: req.GetUsername(),
-		Password: pw,
+	acc, err := srv.accounts.WithTX(txss).Create(ctx, &accrepos.AccountX{
+		Account: &iam.Account{
+			UserId:   user.GetId(),
+			Email:    req.GetEmail(),
+			Username: req.GetUsername(),
+			Password: pw,
+		},
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -314,12 +379,12 @@ func (srv *IAMService) createAccount(ctx context.Context,
 }
 
 func (srv *IAMService) GetAccountByUsernameOrEmail(
-	ctx context.Context, usernameOrEmail string) (*iam.Accounts, error) {
+	ctx context.Context, usernameOrEmail string) (*accrepos.AccountX, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
 		if errorx.Is(err, pgx.ErrNoRows) {
-			return &iam.Accounts{}, nil
+			return &accrepos.AccountX{}, nil
 		}
 
 		return nil, err
@@ -339,7 +404,7 @@ func (srv *IAMService) Login(ctx context.Context,
 
 	if !cryptox.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
 		return nil,
-			errorx.UnauthorizedF("username, email or password is wrong!")
+			errorx.StatusUnauthorizedF("username, email or password is wrong!")
 	}
 
 	user, err := srv.users.Get(ctx, acc.GetUserId())
@@ -376,11 +441,11 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 
 	if user.GetId() != "" {
 		return nil,
-			errorx.AlreadyExistsF(
+			errorx.StatusAlreadyExistsF(
 				"email %s already exists", request.GetEmail())
 	}
 
-	user, err = srv.users.Create(ctx, &iam.Users{
+	user, err = srv.users.Create(ctx, &iam.User{
 		FullName:    request.GetFullName(),
 		Email:       request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
@@ -411,7 +476,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iam.GetUserResponse{User: user}, nil
 	}
 
-	return nil, errorx.InvalidDataF(
+	return nil, errorx.StatusInvalidDataF(
 		"invalid argument: must provide either id or username")
 }
 
@@ -445,7 +510,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	}
 
 	if user.GetId() != "" {
-		return nil, errorx.AlreadyExistsF(
+		return nil, errorx.StatusAlreadyExistsF(
 			"email %s already exists", request.GetEmail())
 	}
 
@@ -464,7 +529,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	return &iam.UpdateUserResponse{}, nil
 }
 
-func copyUserUpdateParams(dest *iam.Users, req *iam.UpdateUserRequest) {
+func copyUserUpdateParams(dest *iam.User, req *iam.UpdateUserRequest) {
 
 	if req.GetEmail() != "" {
 		dest.Email = req.GetEmail()

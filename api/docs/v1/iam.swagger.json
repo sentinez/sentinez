@@ -492,7 +492,7 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "v1AccountLite": {
+    "v1AccountResponse": {
       "type": "object",
       "properties": {
         "metadata": {
@@ -574,7 +574,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/v1Users"
+          "$ref": "#/definitions/v1User"
         }
       }
     },
@@ -585,7 +585,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1AccountLite"
+            "$ref": "#/definitions/v1AccountResponse"
           }
         },
         "total": {
@@ -601,7 +601,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Users"
+            "$ref": "#/definitions/v1User"
           }
         },
         "total": {
@@ -625,7 +625,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/v1Users"
+          "$ref": "#/definitions/v1User"
         },
         "accessToken": {
           "type": "string"
@@ -738,11 +738,11 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/v1Users"
+          "$ref": "#/definitions/v1User"
         }
       }
     },
-    "v1Users": {
+    "v1User": {
       "type": "object",
       "properties": {
         "metadata": {

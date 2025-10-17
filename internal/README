@@ -8,4 +8,4 @@ internal package of Sentinez, implement all business logic of the project
 - websocket: implement websocket server
 - catinat: implement monitor server
 - core: implement grpc service server
-- common: all internal library serve for business logic
+- libs: all internal library serve for business logic

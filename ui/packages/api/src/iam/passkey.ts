@@ -76,7 +76,7 @@ export async function PasskeyRegister(
   try {
     const start = await PasskeyRegisterStart(params);
 
-    const options = start.event ? start.event : undefined;
+    const options = start.options ? start.options : undefined;
     if (options == undefined) {
       throw new Error('publicKey is null');
     }

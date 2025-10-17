@@ -18,11 +18,10 @@ package flags
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/flagx"
-	"github.com/sentinez/sentinez/pkg/zlog"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/pkg/x/flagx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/spf13/pflag"
 )
 

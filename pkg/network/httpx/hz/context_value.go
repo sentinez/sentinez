@@ -17,8 +17,9 @@ package httpxhz
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	protox "github.com/sentinez/sentinez/pkg/common/protobuf/proto"
 )
 
 // SentinezContextKey is the key type for the context.

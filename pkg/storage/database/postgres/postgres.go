@@ -26,8 +26,8 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/x/jsonx"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -91,7 +91,7 @@ func Scans[T proto.Message](r database.Rows) ([]T, error) {
 		obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
 			Interface().(proto.Message)
 
-		if err := protojson.Unmarshal(data, obj); err != nil {
+		if err := jsonx.Unmarshal(data, obj); err != nil {
 			return nil, err
 		}
 
@@ -106,8 +106,11 @@ func Scans[T proto.Message](r database.Rows) ([]T, error) {
 }
 
 func Scan[T proto.Message](r database.Row) (T, error) {
-	var empty T
-	var data string
+
+	var (
+		empty T
+		data  []byte
+	)
 
 	if r == nil {
 		zlog.Debug("Row is nil")
@@ -122,7 +125,7 @@ func Scan[T proto.Message](r database.Row) (T, error) {
 	obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
 		Interface().(proto.Message)
 
-	if err := protojson.Unmarshal([]byte(data), obj); err != nil {
+	if err := jsonx.Unmarshal(data, obj); err != nil {
 		return empty, err
 	}
 

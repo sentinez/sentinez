@@ -212,7 +212,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
   string access_token = 2;
 }
 
@@ -258,7 +258,7 @@ message UpdateUserRequest {
 }
 
 message UpdateUserResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
 }
 
 message GetUserRequest {
@@ -270,7 +270,7 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
-  sentinez.core.iam.v1.Users user = 1;
+  sentinez.core.iam.v1.User user = 1;
 }
 
 message ListUsersRequest {
@@ -281,7 +281,7 @@ message ListUsersRequest {
 }
 
 message ListUsersResponse {
-  repeated sentinez.core.iam.v1.Users users = 1;
+  repeated sentinez.core.iam.v1.User users = 1;
   int64 total = 2;
 }
 
@@ -294,7 +294,7 @@ message ListAccountsRequest {
 }
 
 message ListAccountsResponse {
-  repeated sentinez.core.iam.v1.AccountLite accounts = 1;
+  repeated sentinez.core.iam.v1.AccountResponse accounts = 1;
   int64 total = 2;
 }
 

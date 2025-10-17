@@ -24,9 +24,9 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
-	"github.com/sentinez/sentinez/pkg/cryptox"
-	"github.com/sentinez/sentinez/pkg/perms"
+	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/x/cryptox"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -39,7 +39,7 @@ func TestLogin(t *testing.T) {
 	accountRepo := accountrepo.NewMockIAccount(t)
 
 	pw, _ := cryptox.HashPassword("secret123")
-	acc := &iam.Accounts{
+	acc := &iam.Account{
 		Id:       "acc-123",
 		UserId:   "user-123",
 		Username: "admin",
@@ -48,7 +48,7 @@ func TestLogin(t *testing.T) {
 	accountRepo.On("GetByUsernameOrEmail", mock.Anything, "admin").
 		Return(acc, nil)
 
-	user := &iam.Users{
+	user := &iam.User{
 		Id:       "user-123",
 		FullName: "Test Admin",
 	}

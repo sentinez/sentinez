@@ -15,18 +15,19 @@ var (
 )
 
 const (
-	AccountsFieldMetadata = "metadata"
-	AccountsFieldId       = "id"
-	AccountsFieldUserId   = "userId"
-	AccountsFieldUsername = "username"
-	AccountsFieldPassword = "password"
-	AccountsFieldEmail    = "email"
+	AccountFieldMetadata    = "metadata"
+	AccountFieldId          = "id"
+	AccountFieldUserId      = "userId"
+	AccountFieldUsername    = "username"
+	AccountFieldPassword    = "password"
+	AccountFieldEmail       = "email"
+	AccountFieldCredentials = "credentials"
 )
 
 const (
-	UsersFieldMetadata    = "metadata"
-	UsersFieldId          = "id"
-	UsersFieldFullName    = "fullName"
-	UsersFieldEmail       = "email"
-	UsersFieldPhoneNumber = "phoneNumber"
+	UserFieldMetadata    = "metadata"
+	UserFieldId          = "id"
+	UserFieldFullName    = "fullName"
+	UserFieldEmail       = "email"
+	UserFieldPhoneNumber = "phoneNumber"
 )
