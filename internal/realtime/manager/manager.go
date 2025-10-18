@@ -12,16 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-syntax = "proto3";
+package realtimemnt
 
-package sentinez.ws.v1;
+import (
+	"sync"
 
-import "sentinez/types/common/v1/options.proto";
+	"github.com/sentinez/sentinez/pkg/network/wsz"
+)
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1;ws";
+var (
+	manager *wsz.Manager
+	once    sync.Once
+)
 
-option (sentinez.types.common.v1.sntz_meta) = {
-  service_name: "SENTINEZ // WS",
-  service_kind: KIND_GATEWAY_WEBSOCKET,
-  service_key: "sentinez.websocket.v1",
-};
+func Manager() *wsz.Manager {
+	once.Do(func() {
+		manager = wsz.NewManager()
+	})
+
+	return manager
+}

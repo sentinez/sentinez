@@ -16,13 +16,12 @@
 package flags
 
 import (
-	"github.com/sentinez/sentinez/pkg/x/flagx"
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/zlog"
-
+	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
+	"github.com/sentinez/sentinez/pkg/x/flagx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/spf13/pflag"
 )
 
@@ -31,12 +30,12 @@ var onceWS sync.Once
 // ParseFlag flag args for apiserver service
 func Parse() *common.Flag {
 	onceWS.Do(func() {
-		flagx.Get().EnvFile = "./cmd/websocket/.env"
+		flagx.Get().EnvFile = "./cmd/realtime/.env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, "env-file",
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
-		flagx.Parse(ws.GetMetaWs())
+		flagx.Parse(realtimepb.GetMetaRealtime())
 
 	})
 

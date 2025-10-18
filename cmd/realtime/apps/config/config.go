@@ -12,23 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package manager
+package config
 
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/network/wsz"
+	"github.com/sentinez/sentinez/pkg/config"
+
+	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/cmd/realtime/apps/flags"
 )
 
 var (
-	manager *wsz.Manager
 	once    sync.Once
+	appConf *common.AppConfig
 )
 
-func Manager() *wsz.Manager {
+func Config() *common.AppConfig {
 	once.Do(func() {
-		manager = wsz.NewManager()
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &common.AppConfig{
+			Meta:    realtimepb.GetMetaRealtime(),
+			EnvConf: envConf,
+			Flag:    flag,
+		}
 	})
 
-	return manager
+	return appConf
 }
