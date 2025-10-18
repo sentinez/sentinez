@@ -31,7 +31,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/corerule v0.0.0
-	github.com/spf13/pflag v1.0.7
+	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
