@@ -17,8 +17,8 @@ package main
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/cmd/websocket/apps/config"
-	"github.com/sentinez/sentinez/internal/websocket"
+	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
+	"github.com/sentinez/sentinez/internal/realtime"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
@@ -27,10 +27,10 @@ func main() {
 	runner.Main(config.Config(), func(ctx context.Context) error {
 		conf := runner.GetAppConfig(ctx)
 		wsSrv := wscore.NewServer(conf.GetMeta())
-		ws := websocket.New(wsSrv)
+		rt := realtime.New(wsSrv)
 
-		runner.OnStart(ws.Start)
-		runner.OnStop(ws.Shutdown)
+		runner.OnStart(rt.Start)
+		runner.OnStop(rt.Shutdown)
 
 		return nil
 	})

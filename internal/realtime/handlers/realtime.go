@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package wshandlers provides the handlers for the websocket server
-package wshandlers
+// Package realtimehdl provides the handlers for the realtime server
+package realtimehdl
 
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/internal/websocket/manager"
+	realtimemnt "github.com/sentinez/sentinez/internal/realtime/manager"
 	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -38,8 +38,8 @@ func Handler(ctx httpxstd.Context) error {
 		return errorx.ErrInvalidData
 	}
 
-	manager.Manager().AddClient(clientID, conn)
-	defer manager.Manager().RemoveClient(clientID)
+	realtimemnt.Manager().AddClient(clientID, conn)
+	defer realtimemnt.Manager().RemoveClient(clientID)
 
 	for {
 		_, msg, err := conn.ReadMessage()
@@ -50,7 +50,7 @@ func Handler(ctx httpxstd.Context) error {
 		}
 
 		zlog.Debugf("wshandlers.Handler received from %s: %s", clientID, msg)
-		manager.Manager().
+		realtimemnt.Manager().
 			Broadcast(fmt.Appendf(nil, "From %s: %s", clientID, msg))
 	}
 

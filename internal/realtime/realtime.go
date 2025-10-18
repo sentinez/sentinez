@@ -12,40 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package websocket provides the websocket server for the apiserver
-package websocket
+// Package realtime provides the realtime server for the apiserver
+package realtime
 
 import (
 	"context"
 
-	wshandlers "github.com/sentinez/sentinez/internal/websocket/handlers"
+	realtimehdl "github.com/sentinez/sentinez/internal/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
-func New(ws *wsz.WebSocket) *WebSocket {
-	return &WebSocket{
+func New(ws *wsz.WebSocket) *Realtime {
+	return &Realtime{
 		core: ws,
 	}
 }
 
-type WebSocket struct {
+type Realtime struct {
 	core *wsz.WebSocket
 }
 
-func (w *WebSocket) router() {
-	w.core.HandlerFunc("/ws", wshandlers.Handler)
+func (r *Realtime) router() {
+	r.core.HandlerFunc("/ws", realtimehdl.Handler)
 }
 
 // Start implements runner.Server.
-func (w *WebSocket) Start(ctx context.Context) error {
+func (r *Realtime) Start(ctx context.Context) error {
 	appConf := runner.GetAppConfig(ctx)
 	// register the route with websocket handler
-	w.router()
-	return w.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
+	r.router()
+	return r.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
 }
 
 // Shutdown implements runner.Server.
-func (w *WebSocket) Shutdown(_ context.Context) error {
-	return w.core.Shutdown()
+func (r *Realtime) Shutdown(_ context.Context) error {
+	return r.core.Shutdown()
 }

@@ -12,33 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+syntax = "proto3";
 
-import (
-	"sync"
+package sentinez.realtime.v1;
 
-	"github.com/sentinez/sentinez/pkg/config"
+import "sentinez/types/common/v1/options.proto";
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/ws/v1"
-	"github.com/sentinez/sentinez/cmd/websocket/apps/flags"
-)
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1;realtimepb";
 
-var (
-	once    sync.Once
-	appConf *common.AppConfig
-)
-
-func Config() *common.AppConfig {
-	once.Do(func() {
-		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &common.AppConfig{
-			Meta:    ws.GetMetaWs(),
-			EnvConf: envConf,
-			Flag:    flag,
-		}
-	})
-
-	return appConf
-}
+option (sentinez.types.common.v1.sntz_meta) = {
+  service_name: "SENTINEZ // REALTIME",
+  service_kind: KIND_GATEWAY_WEBSOCKET,
+  service_key: "sentinez.realtime.v1",
+};

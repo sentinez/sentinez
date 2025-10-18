@@ -18,7 +18,7 @@ default: default.print 	\
 	apiserver.build 	\
 	greeter.build 		\
 	edge.build			\
-	websocket.build
+	realtime.build
 
 default.print:
 	@echo "[BUILD] SNTZ: build sentinez and services"
@@ -29,12 +29,14 @@ test.cover:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto
+lint: lint.go lint.proto lint.corerule
 
 lint.go:
+	@echo "[LINT] sentinez is linting ..."
 	@golangci-lint run
 
 lint.proto:
+	@echo "[LINT] api is linting ..."
 	@cd ./api && buf lint
 	@cd ./api && golangci-lint run
 
@@ -42,20 +44,21 @@ lint.tools:
 	@cd ./tools && golangci-lint run
 
 lint.corerule:
+	@echo "[LINT] corerule is linting ..."
 	@cd ./corerule && golangci-lint run
 
 #####################################################################
 #####################################################################
 
-websocket.run: SENTINEZ_OUT ?= websocket
-websocket.run:
-	@go build -ldflags="-s -w" -o ./cmd/websocket/bin/$(SENTINEZ_OUT) ./cmd/websocket && \
- 	./cmd/websocket/bin/$(SENTINEZ_OUT)
+realtime.run: SENTINEZ_OUT ?= realtime
+realtime.run:
+	@go build -ldflags="-s -w" -o ./cmd/realtime/bin/$(SENTINEZ_OUT) ./cmd/realtime && \
+ 	./cmd/realtime/bin/$(SENTINEZ_OUT)
 
-websocket.build: SENTINEZ_OUT ?= websocket
-websocket.build:
-	@go build -ldflags="-s -w" -o ./cmd/websocket/bin/$(SENTINEZ_OUT) ./cmd/websocket
-	@echo "[DONE]  SNTZ: gateway.websocket ... ok"
+realtime.build: SENTINEZ_OUT ?= realtime
+realtime.build:
+	@go build -ldflags="-s -w" -o ./cmd/realtime/bin/$(SENTINEZ_OUT) ./cmd/realtime
+	@echo "[DONE]  SNTZ: gateway.realtime ... ok"
 
 apiserver.build: SENTINEZ_OUT ?= apiserver
 apiserver.build:

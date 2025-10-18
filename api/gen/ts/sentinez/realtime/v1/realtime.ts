@@ -2,8 +2,8 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/ws/v1/ws.proto
+// source: sentinez/realtime/v1/realtime.proto
 
 /* eslint-disable */
 
-export const protobufPackage = "sentinez.ws.v1";
+export const protobufPackage = "sentinez.realtime.v1";
