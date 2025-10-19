@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sentinez.types.rule.common.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1;rulecmn";
+
+enum Service {
+  SERVICE_UNSPECIFIED = 0;
+  SERVICE_RULE_CORE_RULESETS = 1;
+  SERVICE_RULE_CUSTOM_RULES = 2;
+  SERVICE_RULE_RATE_LIMIT = 3;
+}
+
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  ACTION_DENY = 1;
+}

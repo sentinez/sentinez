@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/x/contextx"
 	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -97,15 +98,15 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	// ss, err := contextx.GetAuth(ctx, iam.service.Config())
-	// if err != nil {
-	// 	return nil, err
-	// }
+	ss, err := contextx.GetAuth(ctx, iam.service.Config())
+	if err != nil {
+		return nil, err
+	}
 
-	// if !perms.HasLeastOne(
-	// 	ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
-	// 	request.UserIds = []string{ss.GetUserId()}
-	// }
+	if !perms.HasLeastOne(
+		ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
+		request.UserIds = []string{ss.GetUserId()}
+	}
 
 	resp, err := iam.service.ListAccounts(ctx, request)
 	if err != nil {

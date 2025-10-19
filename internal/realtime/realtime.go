@@ -42,7 +42,7 @@ func (r *Realtime) Start(ctx context.Context) error {
 	appConf := runner.GetAppConfig(ctx)
 	// register the route with websocket handler
 	r.router()
-	return r.core.ListenAndServe(appConf.GetEnvConf().GetAddress())
+	return r.core.ListenAndServe(appConf.GetEnvConf().GetHttpAddress())
 }
 
 // Shutdown implements runner.Server.

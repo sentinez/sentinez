@@ -55,7 +55,7 @@ func (s *Server) Start(ctx context.Context) error {
 	}
 
 	var (
-		addr     = appConf.GetEnvConf().GetAddress()
+		addr     = appConf.GetEnvConf().GetHttpAddress()
 		certFile = appConf.GetFlag().GetCertificateFile()
 		keyFile  = appConf.GetFlag().GetCertKeyFile()
 	)

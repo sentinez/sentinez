@@ -32,7 +32,7 @@ type interceptor struct {
 
 func (i *interceptor) WriteResponseHeader(ctx *httpxhz.Context) {
 	if i.wroteHeader {
-		zlog.Debug("httpx.secure.http2: skip writing header")
+		zlog.Debug("httpx.secure: skip writing header")
 		return
 	}
 

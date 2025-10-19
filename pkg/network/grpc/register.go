@@ -28,7 +28,7 @@ import (
 )
 
 func Register(name string, conf *common.EnvConfig) {
-	addr, port, err := net.SplitHostPort(conf.GetAddress())
+	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
 		return

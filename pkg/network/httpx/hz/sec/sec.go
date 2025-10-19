@@ -29,57 +29,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func decorNewTransaction(
-	waf coraza.WAF) func(*httpxhz.Context) types.Transaction {
-
-	newTX := func(*httpxhz.Context) types.Transaction {
-		return waf.NewTransaction()
-	}
-
-	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
-		newTX = func(ctx *httpxhz.Context) types.Transaction {
-			return ctxWAF.NewTransactionWithOptions(experimental.Options{
-				Context: ctx.Context(),
-			})
-		}
-	}
-
-	return newTX
-}
-
-// nolint:funlen
-func WrapHandlerWithCallback(waf coraza.WAF, next httpxhz.RequestHandler,
-	cb func(*httpxhz.Context, types.Transaction)) httpxhz.RequestHandler {
-	if waf == nil {
-		return next
-	}
-	newTX := decorNewTransaction(waf)
-
-	return func(ctx *httpxhz.Context) error {
-		tx := newTX(ctx)
-		defer postProcess(ctx, tx, cb)
-
-		if tx.IsRuleEngineOff() {
-			return next(ctx)
-		}
-
-		if err := processRequestHandler(ctx, tx); err != nil {
-			debugLogger(tx, err, "failed to process request")
-			return nil
-		}
-
-		err := next(ctx)
-
-		if err := processResponseHandler(ctx, tx); err != nil {
-			debugLogger(tx, err, "failed to process response")
-			return nil
-		}
-
-		return err
-	}
-}
-
-func postProcess(ctx *httpxhz.Context, tx types.Transaction,
+func PostProcess(ctx *httpxhz.Context, tx types.Transaction,
 	callback func(*httpxhz.Context, types.Transaction)) {
 	// final phase
 	tx.ProcessLogging()
@@ -89,11 +39,11 @@ func postProcess(ctx *httpxhz.Context, tx types.Transaction,
 	}
 
 	if err := tx.Close(); err != nil {
-		debugLogger(tx, err, "failed to close transaction")
+		DebugLogger(tx, err, "failed to close transaction")
 	}
 }
 
-func processRequestHandler(ctx *httpxhz.Context, tx types.Transaction) error {
+func ProcessRequestHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 	if it, err := processRequest(ctx, tx); err != nil {
 		zlog.Debugf("failed to process request: %v", err)
 		return err
@@ -114,7 +64,7 @@ func processRequestHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 	return nil
 }
 
-func debugLogger(tx types.Transaction, err error, msg string) {
+func DebugLogger(tx types.Transaction, err error, msg string) {
 	tx.DebugLogger().
 		Error().
 		Err(err).
@@ -224,7 +174,7 @@ func canRequestBodyAccessible(ctx *httpxhz.Context,
 	return nil, nil
 }
 
-func processResponseHandler(ctx *httpxhz.Context, tx types.Transaction) error {
+func ProcessResponseHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 	if tx.IsInterrupted() {
 		return nil
 	}
@@ -248,6 +198,7 @@ func processResponseHandler(ctx *httpxhz.Context, tx types.Transaction) error {
 
 		return errorx.F("[interrupted][response] with code: %d", code)
 	}
+
 	return releaseBodyReader(ctx, tx)
 }
 
@@ -264,4 +215,22 @@ func releaseBodyReader(ctx *httpxhz.Context, tx types.Transaction) error {
 	}
 
 	return nil
+}
+
+func DecorNewTransaction(
+	waf coraza.WAF, ctx *httpxhz.Context) types.Transaction {
+
+	newTX := func(*httpxhz.Context) types.Transaction {
+		return waf.NewTransaction()
+	}
+
+	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
+		newTX = func(ctx *httpxhz.Context) types.Transaction {
+			return ctxWAF.NewTransactionWithOptions(experimental.Options{
+				Context: ctx.Context(),
+			})
+		}
+	}
+
+	return newTX(ctx)
 }

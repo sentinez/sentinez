@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "sentinez/core/rulesengine/v1/rulesengine.proto",
+    "title": "sentinez/core/rule/v1/rulesengine.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "RulesEngineService"
+      "name": "RuleService"
     }
   ],
   "consumes": [

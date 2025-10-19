@@ -19,14 +19,14 @@ import (
 	"encoding/base64"
 	"os"
 
-	wafpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
+	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 )
 
 type RuleLoader struct {
 	buf bytes.Buffer
 }
 
-func (rl *RuleLoader) Load(rulesetsFn []func() *wafpb.Rule) {
+func (rl *RuleLoader) Load(rulesetsFn []func() *rulecmn.Rule) {
 	for _, rule := range rulesetsFn {
 
 		conf, err := base64.StdEncoding.DecodeString(rule().Configuration)

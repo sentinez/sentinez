@@ -10,7 +10,7 @@
 
 ---
 
-### 🛡️ WAF, Anti DDoS, Layer 7 protector
+### 🛡️ Sentinel of the Seventh Layer
 
 > [!WARNING]
 > Please keep in mind that ***Sentinez*** is still under active development

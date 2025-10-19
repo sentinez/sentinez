@@ -26,7 +26,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
+	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 	"github.com/sentinez/sentinez/corerule/ruleparser"
 	templatez "github.com/sentinez/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
@@ -56,7 +56,7 @@ func normalizeVersion(input string) string {
 	return input
 }
 
-func generateRulesGoFile(outputPath string, data *waf.CoreRulesets) error {
+func generateRulesGoFile(outputPath string, data *rulecmn.CoreRulesets) error {
 
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -103,7 +103,7 @@ func PascalCaseFileName(filePath string) string {
 	return result
 }
 
-func parse(filePath string) *waf.CoreRulesets {
+func parse(filePath string) *rulecmn.CoreRulesets {
 
 	result, err := ruleparser.Parse(filePath)
 	if err != nil {
@@ -115,7 +115,7 @@ func parse(filePath string) *waf.CoreRulesets {
 		panic(err)
 	}
 
-	rules := waf.CoreRulesets{Name: PascalCaseFileName(filePath)}
+	rules := rulecmn.CoreRulesets{Name: PascalCaseFileName(filePath)}
 	if err = json.Unmarshal(data, &rules); err != nil {
 		panic(err)
 	}

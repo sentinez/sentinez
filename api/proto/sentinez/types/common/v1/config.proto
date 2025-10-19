@@ -21,16 +21,29 @@ import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/common/v1/flags.proto";
 
 message EnvConfig {
+  // hostname of service.
+  // eg s6z.io.vn
   string hostname = 1;
-  string address = 2;
+
+  // http address, api, application ...
+  string http_address = 2;
+
+  // secret key base64 encoded
   string secret_key = 3;
-  string gateway_addr = 4;
-  string passkey_origin = 5;
+
+  // address of api gateway
+  string gateway_address= 4;
+
+  // origin of client, used to gen passkey
+  string client_origin = 5;
 
   string timescale_uri = 10;
   string postgres_uri = 11;
   string clickhouse_uri = 12;
   string consul_uri = 13;
+
+  // The address where the gRPC service will listen when it starts.
+  string grpc_address = 20;
 }
 
 message AppConfig {

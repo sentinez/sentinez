@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/sentinez/api/client/options"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 )
 
 func NewIAM(opt *options.Options,
@@ -52,6 +53,20 @@ func NewLocalIAM(hdl iam.IdentityAccessManagementServiceServer,
 	}
 
 	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+}
+
+func NewLocalEdgeEngine(hdl edgepb.EdgeEngineServiceServer,
+) (edgepb.EdgeEngineServiceClient, error) {
+	bufLis := local.RegisterServiceServer(
+		edgepb.GetMetaEdgeServiceKey(), hdl,
+		edgepb.RegisterEdgeEngineServiceServer)
+
+	conn, err := connection.BufConn(bufLis)
+	if err != nil {
+		return nil, err
+	}
+
+	return edgepb.NewEdgeEngineServiceClient(conn), nil
 }
 
 func NewLocalGreeter(hdl greeter.GreeterServiceServer,

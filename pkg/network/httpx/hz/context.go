@@ -26,13 +26,15 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
+	rulectx "github.com/sentinez/sentinez/corerule/context"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
 	"github.com/sentinez/sentinez/pkg/x/uuidx"
 )
 
 var (
-	_        httpx.Context = (*Context)(nil)
+	_        httpx.Context   = (*Context)(nil)
+	_        rulectx.Context = (*Context)(nil)
 	oncePool sync.Once
 	ctxPool  *syncx.Pool[Context]
 )
@@ -55,6 +57,68 @@ type RequestHandler func(ctx *Context) error
 type Context struct {
 	*app.RequestContext
 	ctx context.Context
+}
+
+// GetBody implements rulectx.Context.
+func (c *Context) GetBody() []byte {
+	return c.Request.Body()
+}
+
+// GetContext implements rulectx.Context.
+func (c *Context) GetContext() context.Context {
+	return c.Context()
+}
+
+// GetHeader implements rulectx.Context.
+// Subtle: this method shadows the
+// method (*RequestContext).GetHeader of Context.RequestContext.
+func (c *Context) GetHeader() map[string]string {
+	headers := make(map[string]string)
+	c.VisitAllHeaders(func(key, value []byte) {
+		headers[(string(key))] = string(value)
+	})
+
+	return headers
+}
+
+// GetHost implements rulectx.Context.
+func (c *Context) GetHost() string {
+	return string(c.Request.Host())
+}
+
+// GetIP implements rulectx.Context.
+func (c *Context) GetIP() string {
+	return c.ClientIP()
+}
+
+// GetJA4 implements rulectx.Context.
+func (c *Context) GetJA4() string {
+	return ""
+}
+
+// GetMethod implements rulectx.Context.
+func (c *Context) GetMethod() string {
+	return string(c.Request.Method())
+}
+
+// GetPath implements rulectx.Context.
+func (c *Context) GetPath() string {
+	return string(c.Request.Path())
+}
+
+// GetQueries implements rulectx.Context.
+func (c *Context) GetQueries() []string {
+	var queries []string
+	c.VisitAllQueryArgs(func(key, _ []byte) {
+		queries = append(queries, string(key))
+	})
+
+	return queries
+}
+
+// GetTLS implements rulectx.Context.
+func (c *Context) GetTLS() bool {
+	return true
 }
 
 func (c *Context) Time() time.Time {

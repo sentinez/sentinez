@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/common-nighthawk/go-figure"
 )
@@ -47,10 +48,14 @@ const (
 var (
 	// GoVersion is Go tree's version.
 	GoVersion = runtime.Version()
+
+	once sync.Once
 )
 
 func INFO(serviceName string, key string) {
-	fmt.Print(FigureGen(serviceName, key))
+	once.Do(func() {
+		fmt.Print(FigureGen(serviceName, key))
+	})
 }
 
 // FigureGen generates the ASCII art of the project.

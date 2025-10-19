@@ -89,7 +89,7 @@ func (h *serverx) Use(handlers ...func(http.Handler) http.Handler) {
 	h.middlewares = append(h.middlewares, handlers...)
 }
 
-// Listen starts the runtime mux.
+// ListenAndServe starts the runtime mux.
 func (h *serverx) ListenAndServe(address string) error {
 	if address == "" {
 		address = ":9000"

@@ -42,13 +42,13 @@ func (m *EnvConfig) Validate() error {
 
 	// no validation rules for Hostname
 
-	// no validation rules for Address
+	// no validation rules for HttpAddress
 
 	// no validation rules for SecretKey
 
-	// no validation rules for GatewayAddr
+	// no validation rules for GatewayAddress
 
-	// no validation rules for PasskeyOrigin
+	// no validation rules for ClientOrigin
 
 	// no validation rules for TimescaleUri
 
@@ -57,6 +57,8 @@ func (m *EnvConfig) Validate() error {
 	// no validation rules for ClickhouseUri
 
 	// no validation rules for ConsulUri
+
+	// no validation rules for GrpcAddress
 
 	return nil
 }

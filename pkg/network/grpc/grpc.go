@@ -75,7 +75,7 @@ func (s *Server) AsServer() *grpc.Server {
 // return error if the http server fails to start.
 func (s *Server) Serve(conf *common.AppConfig) error {
 
-	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetAddress())
+	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (s *Server) Serve(conf *common.AppConfig) error {
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("gRPC"),
-		color.Magenta.Add(conf.GetEnvConf().GetAddress()),
+		color.Magenta.Add(conf.GetEnvConf().GetGrpcAddress()),
 	)
 
 	go Register(s.meta.GetServiceKey(), conf.GetEnvConf())

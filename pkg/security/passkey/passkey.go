@@ -35,7 +35,7 @@ func NewWebAuthn(config *common.AppConfig) *webauthn.WebAuthn {
 		// Generally the FQDN for your site
 		RPID: config.GetEnvConf().GetHostname(),
 		// The origin URLs allowed for WebAuthn
-		RPOrigins: []string{config.GetEnvConf().GetPasskeyOrigin()},
+		RPOrigins: []string{config.GetEnvConf().GetClientOrigin()},
 	}
 
 	wauth, err := webauthn.New(wconfig)
