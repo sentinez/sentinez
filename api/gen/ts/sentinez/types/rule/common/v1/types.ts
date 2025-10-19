@@ -2,17 +2,17 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/net/waf/v1/types.proto
+// source: sentinez/types/rule/common/v1/types.proto
 
 /* eslint-disable */
 
-export const protobufPackage = "sentinez.types.net.waf.v1";
+export const protobufPackage = "sentinez.types.rule.common.v1";
 
 export enum Service {
   SERVICE_UNSPECIFIED = 0,
-  SERVICE_WAF_RULESETS = 1,
-  SERVICE_WAF_RULES = 2,
-  SERVICE_WAF_RATE_LIMIT = 3,
+  SERVICE_RULE_CORE_RULESETS = 1,
+  SERVICE_RULE_CUSTOM_RULES = 2,
+  SERVICE_RULE_RATE_LIMIT = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -22,14 +22,14 @@ export function serviceFromJSON(object: any): Service {
     case "SERVICE_UNSPECIFIED":
       return Service.SERVICE_UNSPECIFIED;
     case 1:
-    case "SERVICE_WAF_RULESETS":
-      return Service.SERVICE_WAF_RULESETS;
+    case "SERVICE_RULE_CORE_RULESETS":
+      return Service.SERVICE_RULE_CORE_RULESETS;
     case 2:
-    case "SERVICE_WAF_RULES":
-      return Service.SERVICE_WAF_RULES;
+    case "SERVICE_RULE_CUSTOM_RULES":
+      return Service.SERVICE_RULE_CUSTOM_RULES;
     case 3:
-    case "SERVICE_WAF_RATE_LIMIT":
-      return Service.SERVICE_WAF_RATE_LIMIT;
+    case "SERVICE_RULE_RATE_LIMIT":
+      return Service.SERVICE_RULE_RATE_LIMIT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -41,12 +41,12 @@ export function serviceToJSON(object: Service): string {
   switch (object) {
     case Service.SERVICE_UNSPECIFIED:
       return "SERVICE_UNSPECIFIED";
-    case Service.SERVICE_WAF_RULESETS:
-      return "SERVICE_WAF_RULESETS";
-    case Service.SERVICE_WAF_RULES:
-      return "SERVICE_WAF_RULES";
-    case Service.SERVICE_WAF_RATE_LIMIT:
-      return "SERVICE_WAF_RATE_LIMIT";
+    case Service.SERVICE_RULE_CORE_RULESETS:
+      return "SERVICE_RULE_CORE_RULESETS";
+    case Service.SERVICE_RULE_CUSTOM_RULES:
+      return "SERVICE_RULE_CUSTOM_RULES";
+    case Service.SERVICE_RULE_RATE_LIMIT:
+      return "SERVICE_RULE_RATE_LIMIT";
     case Service.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
