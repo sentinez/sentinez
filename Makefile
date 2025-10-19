@@ -70,7 +70,7 @@ apiserver.run:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
  	./cmd/apiserver/bin/$(SENTINEZ_OUT)
 
-apiserver.build.image: TAG ?= sentinez/sentinez_api
+apiserver.build.image: TAG ?= sentinez/apiserver
 apiserver.build.image:
 	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
 
@@ -84,7 +84,7 @@ greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
 	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
 
-greeter.build.image: TAG ?= sentinez/sentinez_core_greeter
+greeter.build.image: TAG ?= sentinez/greeter
 greeter.build.image:
 	docker buildx build -f ./cmd/greeter/v1/Dockerfile -t $(TAG):latest .
 
@@ -103,7 +103,7 @@ edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
 	@echo "[DONE]  SNTZ: gateway.edge.v1 ... ok"
 
-edge.build.image: TAG ?= sentinez/sentinez_edge
+edge.build.image: TAG ?= sentinez/edge
 edge.build.image:
 	@docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
 

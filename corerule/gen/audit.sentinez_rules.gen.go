@@ -3,11 +3,11 @@
 package rules
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
+	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 )
 
 const AuditVersion = ""
 
-var AuditOrder = []func() *waf.Rule{}
+var AuditOrder = []func() *rulecmn.Rule{}
 
-var Audit = map[string]*waf.Rule{}
+var Audit = map[string]*rulecmn.Rule{}

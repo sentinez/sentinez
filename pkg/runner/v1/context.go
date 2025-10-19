@@ -20,16 +20,16 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
-type runneappConfKey string
+type runnerAppConfKey string
 
-const runneappConf runneappConfKey = "RunnerContextValue"
+const runnerAppConf runnerAppConfKey = "RunnerContextValue"
 
 func newContext(appConf *common.AppConfig) context.Context {
-	return context.WithValue(context.Background(), runneappConf, appConf)
+	return context.WithValue(context.Background(), runnerAppConf, appConf)
 }
 
 func GetAppConfig(ctx context.Context) *common.AppConfig {
-	val := ctx.Value(runneappConf)
+	val := ctx.Value(runnerAppConf)
 	if val == nil {
 		return nil
 	}

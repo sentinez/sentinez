@@ -42,9 +42,12 @@ func main() {
 
 		httpSrv := httpxhz.NewServer(conf.GetMeta())
 		edgeServer := edge.New(httpSrv, yamlconf)
-
 		runner.OnStart(edgeServer.Start)
 		runner.OnStop(edgeServer.Shutdown)
+
+		// engine := edge.NewEngine(conf.GetMeta())
+		// runner.OnStart(engine.Start)
+		// runner.OnStop(engine.Shutdown)
 
 		return nil
 	})

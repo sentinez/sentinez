@@ -21,7 +21,7 @@ import (
 	"github.com/corazawaf/coraza/v3/types"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
+	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 	"github.com/sentinez/sentinez/internal/shared/chains"
 	wafcache "github.com/sentinez/sentinez/internal/shared/memory/waf"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
@@ -61,9 +61,28 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return nil
 	}
 
-	nx := httpxhzsec.WrapHandlerWithCallback(waf, next.Handle, w.callback)
+	tx := httpxhzsec.DecorNewTransaction(waf, ctx)
+	defer httpxhzsec.PostProcess(ctx, tx, w.callback)
 
-	return nx(ctx)
+	if tx.IsRuleEngineOff() {
+		return w.HandleNext(ctx)
+	}
+
+	// error for debuf WAF engine, not response
+	if err := httpxhzsec.ProcessRequestHandler(ctx, tx); err != nil {
+		httpxhzsec.DebugLogger(tx, err, "failed to process request")
+		return nil
+	}
+
+	err := w.HandleNext(ctx)
+
+	// error for debuf WAF engine, not response
+	if err := httpxhzsec.ProcessResponseHandler(ctx, tx); err != nil {
+		httpxhzsec.DebugLogger(tx, err, "failed to process response")
+		return nil
+	}
+
+	return err
 }
 
 // nolint:funlen
@@ -73,7 +92,7 @@ func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 	}
 
 	if data, ok := w.cached.Get(httpxhz.GenContextKey(ctx)); ok {
-		var event waf.Event
+		var event rulecmn.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
 		}
@@ -106,7 +125,7 @@ func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 		}
 	}
 
-	event := &waf.Event{
+	event := &rulecmn.Event{
 		RuleIds:       ruleIDs,
 		Severities:    severities,
 		Messages:      msgs,
@@ -115,8 +134,8 @@ func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
 		Ip:            ctx.ClientIP(),
 		RequestDomain: string(ctx.Host()),
 		TransactionId: tx.ID(),
-		Service:       waf.Service_SERVICE_WAF_RULESETS,
-		Action:        waf.Action_ACTION_DENY,
+		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
+		Action:        rulecmn.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
 		HttpReqId:     ctx.GetReqID(),
 		ContentType:   string(ctx.Request.Header.ContentType()),

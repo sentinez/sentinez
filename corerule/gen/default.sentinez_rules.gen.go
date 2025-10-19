@@ -3,11 +3,11 @@
 package rules
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/waf/v1"
+	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 )
 
 const DefaultVersion = ""
 
-var DefaultOrder = []func() *waf.Rule{}
+var DefaultOrder = []func() *rulecmn.Rule{}
 
-var Default = map[string]*waf.Rule{}
+var Default = map[string]*rulecmn.Rule{}

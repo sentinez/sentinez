@@ -12,15 +12,25 @@ import { SntzMeta } from "./options";
 export const protobufPackage = "sentinez.types.common.v1";
 
 export interface EnvConfig {
+  /**
+   * hostname of service.
+   * eg s6z.io.vn
+   */
   hostname: string;
-  address: string;
+  /** http address, api, application ... */
+  httpAddress: string;
+  /** secret key base64 encoded */
   secretKey: string;
-  gatewayAddr: string;
-  passkeyOrigin: string;
+  /** address of api gateway */
+  gatewayAddress: string;
+  /** origin of client, used to gen passkey */
+  clientOrigin: string;
   timescaleUri: string;
   postgresUri: string;
   clickhouseUri: string;
   consulUri: string;
+  /** The address where the gRPC service will listen when it starts. */
+  grpcAddress: string;
 }
 
 export interface AppConfig {
@@ -32,14 +42,15 @@ export interface AppConfig {
 function createBaseEnvConfig(): EnvConfig {
   return {
     hostname: "",
-    address: "",
+    httpAddress: "",
     secretKey: "",
-    gatewayAddr: "",
-    passkeyOrigin: "",
+    gatewayAddress: "",
+    clientOrigin: "",
     timescaleUri: "",
     postgresUri: "",
     clickhouseUri: "",
     consulUri: "",
+    grpcAddress: "",
   };
 }
 
@@ -48,17 +59,17 @@ export const EnvConfig: MessageFns<EnvConfig> = {
     if (message.hostname !== "") {
       writer.uint32(10).string(message.hostname);
     }
-    if (message.address !== "") {
-      writer.uint32(18).string(message.address);
+    if (message.httpAddress !== "") {
+      writer.uint32(18).string(message.httpAddress);
     }
     if (message.secretKey !== "") {
       writer.uint32(26).string(message.secretKey);
     }
-    if (message.gatewayAddr !== "") {
-      writer.uint32(34).string(message.gatewayAddr);
+    if (message.gatewayAddress !== "") {
+      writer.uint32(34).string(message.gatewayAddress);
     }
-    if (message.passkeyOrigin !== "") {
-      writer.uint32(42).string(message.passkeyOrigin);
+    if (message.clientOrigin !== "") {
+      writer.uint32(42).string(message.clientOrigin);
     }
     if (message.timescaleUri !== "") {
       writer.uint32(82).string(message.timescaleUri);
@@ -71,6 +82,9 @@ export const EnvConfig: MessageFns<EnvConfig> = {
     }
     if (message.consulUri !== "") {
       writer.uint32(106).string(message.consulUri);
+    }
+    if (message.grpcAddress !== "") {
+      writer.uint32(162).string(message.grpcAddress);
     }
     return writer;
   },
@@ -95,7 +109,7 @@ export const EnvConfig: MessageFns<EnvConfig> = {
             break;
           }
 
-          message.address = reader.string();
+          message.httpAddress = reader.string();
           continue;
         }
         case 3: {
@@ -111,7 +125,7 @@ export const EnvConfig: MessageFns<EnvConfig> = {
             break;
           }
 
-          message.gatewayAddr = reader.string();
+          message.gatewayAddress = reader.string();
           continue;
         }
         case 5: {
@@ -119,7 +133,7 @@ export const EnvConfig: MessageFns<EnvConfig> = {
             break;
           }
 
-          message.passkeyOrigin = reader.string();
+          message.clientOrigin = reader.string();
           continue;
         }
         case 10: {
@@ -154,6 +168,14 @@ export const EnvConfig: MessageFns<EnvConfig> = {
           message.consulUri = reader.string();
           continue;
         }
+        case 20: {
+          if (tag !== 162) {
+            break;
+          }
+
+          message.grpcAddress = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -166,14 +188,15 @@ export const EnvConfig: MessageFns<EnvConfig> = {
   fromJSON(object: any): EnvConfig {
     return {
       hostname: isSet(object.hostname) ? globalThis.String(object.hostname) : "",
-      address: isSet(object.address) ? globalThis.String(object.address) : "",
+      httpAddress: isSet(object.httpAddress) ? globalThis.String(object.httpAddress) : "",
       secretKey: isSet(object.secretKey) ? globalThis.String(object.secretKey) : "",
-      gatewayAddr: isSet(object.gatewayAddr) ? globalThis.String(object.gatewayAddr) : "",
-      passkeyOrigin: isSet(object.passkeyOrigin) ? globalThis.String(object.passkeyOrigin) : "",
+      gatewayAddress: isSet(object.gatewayAddress) ? globalThis.String(object.gatewayAddress) : "",
+      clientOrigin: isSet(object.clientOrigin) ? globalThis.String(object.clientOrigin) : "",
       timescaleUri: isSet(object.timescaleUri) ? globalThis.String(object.timescaleUri) : "",
       postgresUri: isSet(object.postgresUri) ? globalThis.String(object.postgresUri) : "",
       clickhouseUri: isSet(object.clickhouseUri) ? globalThis.String(object.clickhouseUri) : "",
       consulUri: isSet(object.consulUri) ? globalThis.String(object.consulUri) : "",
+      grpcAddress: isSet(object.grpcAddress) ? globalThis.String(object.grpcAddress) : "",
     };
   },
 
@@ -182,17 +205,17 @@ export const EnvConfig: MessageFns<EnvConfig> = {
     if (message.hostname !== "") {
       obj.hostname = message.hostname;
     }
-    if (message.address !== "") {
-      obj.address = message.address;
+    if (message.httpAddress !== "") {
+      obj.httpAddress = message.httpAddress;
     }
     if (message.secretKey !== "") {
       obj.secretKey = message.secretKey;
     }
-    if (message.gatewayAddr !== "") {
-      obj.gatewayAddr = message.gatewayAddr;
+    if (message.gatewayAddress !== "") {
+      obj.gatewayAddress = message.gatewayAddress;
     }
-    if (message.passkeyOrigin !== "") {
-      obj.passkeyOrigin = message.passkeyOrigin;
+    if (message.clientOrigin !== "") {
+      obj.clientOrigin = message.clientOrigin;
     }
     if (message.timescaleUri !== "") {
       obj.timescaleUri = message.timescaleUri;
@@ -206,6 +229,9 @@ export const EnvConfig: MessageFns<EnvConfig> = {
     if (message.consulUri !== "") {
       obj.consulUri = message.consulUri;
     }
+    if (message.grpcAddress !== "") {
+      obj.grpcAddress = message.grpcAddress;
+    }
     return obj;
   },
 
@@ -215,14 +241,15 @@ export const EnvConfig: MessageFns<EnvConfig> = {
   fromPartial<I extends Exact<DeepPartial<EnvConfig>, I>>(object: I): EnvConfig {
     const message = createBaseEnvConfig();
     message.hostname = object.hostname ?? "";
-    message.address = object.address ?? "";
+    message.httpAddress = object.httpAddress ?? "";
     message.secretKey = object.secretKey ?? "";
-    message.gatewayAddr = object.gatewayAddr ?? "";
-    message.passkeyOrigin = object.passkeyOrigin ?? "";
+    message.gatewayAddress = object.gatewayAddress ?? "";
+    message.clientOrigin = object.clientOrigin ?? "";
     message.timescaleUri = object.timescaleUri ?? "";
     message.postgresUri = object.postgresUri ?? "";
     message.clickhouseUri = object.clickhouseUri ?? "";
     message.consulUri = object.consulUri ?? "";
+    message.grpcAddress = object.grpcAddress ?? "";
     return message;
   },
 };

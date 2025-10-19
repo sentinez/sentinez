@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package sentinez.types.rule.engine.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1;ruleenginepb";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// The possible sources from which a field can be extracted in a request
+enum FieldSource {
+  FIELD_SOURCE_UNSPECIFIED = 0;
+  FIELD_SOURCE_HEADER = 1;
+  FIELD_SOURCE_QUERY = 2;
+  FIELD_SOURCE_PATH = 3;
+  FIELD_SOURCE_BODY = 4;
+  FIELD_SOURCE_IP = 5;
+  FIELD_SOURCE_JA4 = 6;
+  FIELD_SOURCE_TLS = 7;
+  FIELD_SOURCE_METHOD = 8;
+  FIELD_SOURCE_HOST = 9;
+}
+
+// A logical condition expression
+message Condition {
+  string id = 1;
+  FieldSource source = 2;   // The source of the field
+  string key = 3;           // Example: "User-Agent" or "country"
+  Operator operator = 4;      // Supported operators: "eq", "ne", "contains", "matches", "in", "prefix", "suffix", "gt", "lt"
+  google.protobuf.Value value = 5; // The value to compare against
+  repeated Condition children = 6; // Nested conditions are supported
+  Logic logic = 7;         // Logical operator between children: "AND" or "OR"
+}
+
+enum Operator {
+  OPERATOR_UNSPECIFIED = 0;
+  OPERATOR_EQ = 1;
+  OPERATOR_NE = 2;
+  OPERATOR_CONTAINS = 3;
+  OPERATOR_MATCHES = 4;
+  OPERATOR_IN = 5;
+  OPERATOR_PREFIX = 6;
+  OPERATOR_SUFFIX = 7;
+  OPERATOR_GT = 8;
+  OPERATOR_GTE = 9;
+  OPERATOR_LT = 10;
+  OPERATOR_LTE = 11;
+}
+
+enum Logic {
+  LOGIC_UNSPECIFIED = 0;
+  LOGIC_AND = 1;
+  LOGIC_OR = 2;
+}
+
+// An action to execute when a rule matches
+message Action {
+  string id = 1;
+  ActionType type = 2; // Example types: "block", "log", "modify_header", "redirect", "set_tag", "route_to"
+  google.protobuf.Struct params = 3; // Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_BLOCK = 1;
+  ACTION_TYPE_LOG = 2;
+  ACTION_TYPE_MODIFY_HEADER = 3;
+  ACTION_TYPE_REDIRECT = 4;
+  ACTION_TYPE_SET_TAG = 5;
+  ACTION_TYPE_ROUTE_TO = 6;
+}
+
+// A complete rule definition
+message Rule {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  Condition condition = 4;
+  repeated Action actions = 5;
+  int32 priority = 6;
+  bool enabled = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// A collection of rules (e.g., grouped by tenant or domain)
+message RuleSet {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated Rule rules = 4;
+  bool enabled = 5;
+}

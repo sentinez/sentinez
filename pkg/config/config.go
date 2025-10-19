@@ -38,15 +38,16 @@ func LoadEnv(envFile string) *common.EnvConfig {
 
 	once.Do(func() {
 		envConf = &common.EnvConfig{
-			TimescaleUri:  os.Getenv("SNTZ_TIMESCALE_URI"),
-			PostgresUri:   os.Getenv("SNTZ_POSTGRES_URI"),
-			ClickhouseUri: os.Getenv("SNTZ_CLICKHOUSE_URI"),
-			ConsulUri:     os.Getenv("SNTZ_CONSUL_URI"),
-			SecretKey:     os.Getenv("SNTZ_SECRET_KEY"),
-			GatewayAddr:   os.Getenv("SNTZ_GATEWAY_ADDR"),
-			Hostname:      os.Getenv("SNTZ_HOSTNAME"),
-			Address:       os.Getenv("SNTZ_ADDRESS"),
-			PasskeyOrigin: os.Getenv("SNTZ_PASSKEY_ORIGIN"),
+			TimescaleUri:   os.Getenv("SNTZ_TIMESCALE_URI"),
+			PostgresUri:    os.Getenv("SNTZ_POSTGRES_URI"),
+			ClickhouseUri:  os.Getenv("SNTZ_CLICKHOUSE_URI"),
+			ConsulUri:      os.Getenv("SNTZ_CONSUL_URI"),
+			SecretKey:      os.Getenv("SNTZ_SECRET_KEY"),
+			GatewayAddress: os.Getenv("SNTZ_GATEWAY_ADDRESS"),
+			Hostname:       os.Getenv("SNTZ_HOSTNAME"),
+			HttpAddress:    os.Getenv("SNTZ_HTTP_ADDRESS"),
+			ClientOrigin:   os.Getenv("SNTZ_CLIENT_ORIGIN"),
+			GrpcAddress:    os.Getenv("SNTZ_GRPC_ADDRESS"),
 		}
 	})
 

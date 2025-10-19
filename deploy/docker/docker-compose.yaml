@@ -67,7 +67,7 @@ services:
   #   # command: -js # Enable JetStream
 
   sentinez.apiserver:
-    image: sentinez/sentinez_api:latest
+    image: sentinez/apiserver:latest
     hostname: sentinez.apiserver
     container_name: sentinez.apiserver
     restart: on-failure:3
@@ -83,12 +83,13 @@ services:
       - sentinez.postgres
   
   sentinez.edge:
-    image: sentinez/sentinez_edge:latest
+    image: sentinez/edge:latest
     hostname: sentinez.edge
     container_name: sentinez.edge
     restart: on-failure:3
     ports:
-      - "7443:7443"
+      - "7443:7443" # HTTPS connection
+      - "8443:8443" # gRPC connection
     networks:
       - sentinez-network
     env_file:

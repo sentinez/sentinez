@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package iam provides the Identity Access Management service.
+// Package iamv1 provides the Identity Access Management service.
 package iamv1
 
 import (
