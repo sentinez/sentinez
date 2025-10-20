@@ -15,14 +15,14 @@
 package secure
 
 import (
-	ruleengine "github.com/sentinez/sentinez/corerule/engine"
+	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/internal/shared/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 )
 
 type Rule struct {
 	chains.BaseHandler
-	ingress ruleengine.Ingress
+	ingress core.RuleIngress
 }
 
 func (r *Rule) Handler(ctx *httpxhz.Context) error {

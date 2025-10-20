@@ -29,7 +29,7 @@ test.cover:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto lint.corerule
+lint: lint.go lint.proto lint.core
 
 lint.go:
 	@echo "[LINT] sentinez is linting ..."
@@ -43,9 +43,9 @@ lint.proto:
 lint.tools:
 	@cd ./tools && golangci-lint run
 
-lint.corerule:
-	@echo "[LINT] corerule is linting ..."
-	@cd ./corerule && golangci-lint run
+lint.core:
+	@echo "[LINT] core is linting ..."
+	@cd ./core && golangci-lint run
 
 #####################################################################
 #####################################################################
@@ -94,7 +94,7 @@ edge.run:
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
 		--cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem \
 		--cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem \
-		--rule-path=./corerule/data/v4-16-0 \
+		--rule-path=./datasets/crs/v4-16-0 \
 		--proxy-config=./cmd/edge/v1/proxy.yaml \
 		--env-file=./cmd/edge/v1/.env
 

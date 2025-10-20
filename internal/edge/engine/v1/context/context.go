@@ -18,12 +18,12 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	rulenginectx "github.com/sentinez/sentinez/corerule/context"
+	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
 )
 
 var (
-	_ rulenginectx.Context = (*Context)(nil)
+	_ core.RequestContext = (*Context)(nil)
 
 	pool = syncx.NewPool[Context]()
 )

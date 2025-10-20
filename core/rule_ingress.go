@@ -12,48 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleengine
+package core
 
 import (
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	rulectx "github.com/sentinez/sentinez/corerule/context"
-	"github.com/sentinez/sentinez/corerule/engine/condition"
+	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 )
 
-var _ Ingress = (*ingress)(nil)
+var _ RuleIngress = (*ruleIngress)(nil)
 
-type Ingress interface {
-	ExecRule(ctx rulectx.Context, rule *ruleenginepb.Rule) bool
-	ExecRuleSet(ctx rulectx.Context, rule *ruleenginepb.RuleSet) bool
+type RuleIngress interface {
+	ExecRule(ctx RequestContext, rule *ruleengpb.Rule) bool
+	ExecRuleSet(ctx RequestContext, rule *ruleengpb.RuleSet) bool
 }
 
-func NewIngress() Ingress {
-	return &ingress{}
+func NewRuleIngress() RuleIngress {
+	return &ruleIngress{}
 }
 
-type ingress struct{}
+type ruleIngress struct{}
 
-func (i *ingress) ExecRule(ctx rulectx.Context, rule *ruleenginepb.Rule) bool {
+func (ri *ruleIngress) ExecRule(
+	ctx RequestContext, rule *ruleengpb.Rule) bool {
+
 	if !rule.GetEnabled() {
 		return false
 	}
 
-	cond := condition.New(rule.GetCondition())
-	ruleCtx := condition.NewEvaluator(ctx)
+	cond := newCondition(rule.GetCondition())
+	ruleCtx := newEvaluator(ctx)
 	defer ruleCtx.Release()
 
 	return cond.Accept(ruleCtx)
 }
 
-func (i *ingress) ExecRuleSet(
-	ctx rulectx.Context, ruleSet *ruleenginepb.RuleSet) bool {
+func (ri *ruleIngress) ExecRuleSet(
+	ctx RequestContext, ruleSet *ruleengpb.RuleSet) bool {
 	if !ruleSet.GetEnabled() {
 		return false
 	}
 
 	for _, rule := range ruleSet.Rules {
-		cond := condition.New(rule.GetCondition())
-		ruleCtx := condition.NewEvaluator(ctx)
+		cond := newCondition(rule.GetCondition())
+		ruleCtx := newEvaluator(ctx)
 
 		if !cond.Accept(ruleCtx) {
 			return false

@@ -26,15 +26,15 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
-	rulectx "github.com/sentinez/sentinez/corerule/context"
+	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
 	"github.com/sentinez/sentinez/pkg/x/uuidx"
 )
 
 var (
-	_        httpx.Context   = (*Context)(nil)
-	_        rulectx.Context = (*Context)(nil)
+	_        httpx.Context       = (*Context)(nil)
+	_        core.RequestContext = (*Context)(nil)
 	oncePool sync.Once
 	ctxPool  *syncx.Pool[Context]
 )

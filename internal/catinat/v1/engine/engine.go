@@ -12,38 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulectx
-
-import "context"
-
-// Context rule engine context
-type Context interface {
-	GetContext() context.Context
-
-	// GetHeader request or response header
-	GetHeader() map[string]string
-
-	// GetQueries request queries
-	GetQueries() []string
-
-	// GetPath request path
-	GetPath() string
-
-	// GetBody request or response body
-	GetBody() []byte
-
-	// GetIP request ip address
-	GetIP() string
-
-	// GetJA4 JA4 fingerprint
-	GetJA4() string
-
-	// GetTLS is the connection secure
-	GetTLS() bool
-
-	// GetMethod request method
-	GetMethod() string
-
-	// GetHost hostname
-	GetHost() string
-}
+package catinategn
