@@ -12,4 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package operator
+package core
+
+type WAFVersion string
+
+const (
+	WAF4160 WAFVersion = "v4.16.0"
+)

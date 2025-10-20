@@ -4,7 +4,7 @@ go 1.25.0
 
 replace (
 	github.com/sentinez/sentinez/api => ./api
-	github.com/sentinez/sentinez/corerule => ./corerule
+	github.com/sentinez/sentinez/core => ./core
 )
 
 require (
@@ -30,7 +30,7 @@ require (
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/corerule v0.0.0
+	github.com/sentinez/sentinez/core v0.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/fx v1.24.0

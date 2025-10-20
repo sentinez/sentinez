@@ -27,7 +27,7 @@ import (
 	"text/template"
 
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
-	"github.com/sentinez/sentinez/corerule/ruleparser"
+	"github.com/sentinez/sentinez/core/waf/ruleparser"
 	templatez "github.com/sentinez/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"

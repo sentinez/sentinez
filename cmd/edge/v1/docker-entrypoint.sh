@@ -18,7 +18,7 @@
 ./sntz \
     --log-level info  \
     --mode prod \
-    --rule-path ./data/v4-16-0 \
+    --rule-path ./crs/v4-16-0 \
     --proxy-config ./proxy.yaml \
     --env-file "" \
     --cert-file /etc/sntz/ssl/certs/_wildcard.sentinez.vn+1.pem \

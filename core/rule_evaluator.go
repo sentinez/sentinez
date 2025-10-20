@@ -12,36 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package condition
+package core
 
 import (
 	"sync"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	rulectx "github.com/sentinez/sentinez/corerule/context"
+	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 )
 
 var (
 	_ Evaluator = (*evaluator)(nil)
 
 	evPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return &evaluator{}
 		},
 	}
 )
 
 type Evaluator interface {
-	visitBinary(cond *ruleenginepb.Condition) bool
-	visitLogical(cond *ruleenginepb.Condition) bool
+	visitBinary(cond *ruleengpb.Condition) bool
+	visitLogical(cond *ruleengpb.Condition) bool
 
 	Release()
 }
 
-// NewEvaluator creates a new Evaluator instance.
+// newEvaluator creates a new Evaluator instance.
 // Remember to call Evaluator.Release when the
 // context is done to avoid memory leaks.
-func NewEvaluator(ctx rulectx.Context) Evaluator {
+func newEvaluator(ctx RequestContext) Evaluator {
 
 	ev := evPool.Get().(*evaluator)
 	ev.ctx = ctx
@@ -50,7 +49,7 @@ func NewEvaluator(ctx rulectx.Context) Evaluator {
 }
 
 type evaluator struct {
-	ctx rulectx.Context
+	ctx RequestContext
 }
 
 func (ev *evaluator) Release() {
@@ -58,17 +57,17 @@ func (ev *evaluator) Release() {
 	evPool.Put(ev)
 }
 
-func (ev *evaluator) visitBinary(cond *ruleenginepb.Condition) bool {
+func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
 	_ = cond
 	//TODO implement me
 	panic("implement me")
 }
 
-func (ev *evaluator) visitLogical(cond *ruleenginepb.Condition) bool {
+func (ev *evaluator) visitLogical(cond *ruleengpb.Condition) bool {
 	switch cond.GetLogic() {
-	case ruleenginepb.Logic_LOGIC_AND:
+	case ruleengpb.Logic_LOGIC_AND:
 		for _, child := range cond.GetChildren() {
-			childX := New(child)
+			childX := newCondition(child)
 
 			if !childX.Accept(ev) {
 				childX.Release()
@@ -81,9 +80,9 @@ func (ev *evaluator) visitLogical(cond *ruleenginepb.Condition) bool {
 
 		return true
 
-	case ruleenginepb.Logic_LOGIC_OR:
+	case ruleengpb.Logic_LOGIC_OR:
 		for _, child := range cond.Children {
-			childX := New(child)
+			childX := newCondition(child)
 
 			if childX.Accept(ev) {
 				childX.Release()

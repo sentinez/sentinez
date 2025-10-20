@@ -15,37 +15,37 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out corerule/gen/v4-16-0 \
-    -file corerule/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out core/waf/gen/v4-16-0 \
+    -file datasets/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out corerule/gen/v4-16-0 \
-    -file corerule/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out core/waf/gen/v4-16-0 \
+    -file datasets/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out corerule/gen \
-    -file corerule/rules/setup.conf
+    -out core/waf/gen \
+    -file datasets/rules/setup.conf
 
 ruleparser-sentinez \
-    -out corerule/gen \
-    -file corerule/rules/default.conf
+    -out core/waf/gen \
+    -file datasets/rules/default.conf
 
 ruleparser-sentinez \
-    -out corerule/gen/v4-16-0 \
-    -file corerule/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -out core/waf/gen/v4-16-0 \
+    -file datasets/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out corerule/gen \
-    -file corerule/rules/REQUEST-901-INITIALIZATION.conf
+    -out core/waf/gen \
+    -file datasets/rules/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out corerule/gen/v4-16-0 \
-    -file corerule/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out core/waf/gen/v4-16-0 \
+    -file datasets/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out corerule/gen \
-    -file corerule/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out core/waf/gen \
+    -file datasets/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out corerule/gen \
-    -file corerule/rules/audit.conf
+    -out core/waf/gen \
+    -file datasets/rules/audit.conf

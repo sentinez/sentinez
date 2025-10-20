@@ -89,7 +89,7 @@ services:
     restart: on-failure:3
     ports:
       - "7443:7443" # HTTPS connection
-      - "8443:8443" # gRPC connection
+      # - "8443:8443" # gRPC connection
     networks:
       - sentinez-network
     env_file:

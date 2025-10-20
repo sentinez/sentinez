@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package condition
+package core
 
 import (
 	"sync"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 )
 
 var (
 	_ Condition = (*conditionX)(nil)
 
 	condPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return &conditionX{}
 		},
 	}
@@ -35,10 +35,10 @@ type Condition interface {
 	Release()
 }
 
-// New creates a new Condition instance.
+// newCondition creates a new Condition instance.
 // Remember to call Condition.Release when the
 // context is done to avoid memory leaks.
-func New(cdt *ruleenginepb.Condition) Condition {
+func newCondition(cdt *ruleengpb.Condition) Condition {
 
 	cond := condPool.Get().(*conditionX)
 	cond.Condition = cdt
@@ -47,7 +47,7 @@ func New(cdt *ruleenginepb.Condition) Condition {
 
 // conditionX its means: condition extend
 type conditionX struct {
-	*ruleenginepb.Condition
+	*ruleengpb.Condition
 }
 
 func (c *conditionX) Release() {
@@ -57,7 +57,7 @@ func (c *conditionX) Release() {
 
 func (c *conditionX) Accept(v Evaluator) bool {
 	switch c.GetLogic() {
-	case ruleenginepb.Logic_LOGIC_OR:
+	case ruleengpb.Logic_LOGIC_OR:
 		return v.visitLogical(c.Condition)
 	default:
 		return v.visitBinary(c.Condition)

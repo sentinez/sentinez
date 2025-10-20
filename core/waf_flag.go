@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package corerule
+package core
 
-type CRSFlag uint64
+type WAFFlag uint64
 
 const (
 	// ====== REQUEST PHASE ======
-	AllCRS CRSFlag = 1 << iota
+	AllCRS WAFFlag = 1 << iota
 
 	ReqCommonExceptions    // REQUEST-905-COMMON-EXCEPTIONS.conf
 	ReqMethodEnforcement   // REQUEST-911-METHOD-ENFORCEMENT.conf

@@ -18,7 +18,7 @@ package memory
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/corerule"
+	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/internal/shared/memory/routes"
 	wafcache "github.com/sentinez/sentinez/internal/shared/memory/waf"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -34,12 +34,12 @@ func Initialized(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
 }
 
 func wafCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
-	flag := corerule.ReqAppAttackRCE
+	flag := core.ReqAppAttackRCE
 
 	cache := wafcache.New()
 	for _, proxy := range edgeYaml.ReverseProxies {
 
-		err := cache.Store(appConf, proxy.Namespace, corerule.CRSv4160, flag)
+		err := cache.Store(appConf, proxy.Namespace, core.WAF4160, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}

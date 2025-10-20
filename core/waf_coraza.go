@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package wafengine
+package core
 
 import (
 	"os"
 
 	"github.com/corazawaf/coraza/v3"
-	"github.com/sentinez/sentinez/corerule"
 )
 
-func NewWAF(version corerule.CRSVersion,
-	ruleBasePath string, rulesetsFlag corerule.CRSFlag) (coraza.WAF, error) {
+func NewWAF(version WAFVersion,
+	srcDataset string, flag WAFFlag) (coraza.WAF, error) {
 
-	rule := corerule.GetRule(version, rulesetsFlag)
+	rule := GetWAFRule(version, flag)
 
-	rootFS := os.DirFS(ruleBasePath)
+	rootFS := os.DirFS(srcDataset)
 	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
 
 	return coraza.NewWAF(conf)

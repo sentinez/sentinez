@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package corerule
+package core
 
 import (
-	"github.com/sentinez/sentinez/corerule/ruleloader"
-
-	rules "github.com/sentinez/sentinez/corerule/gen"
-	rulev4160 "github.com/sentinez/sentinez/corerule/gen/v4-16-0"
+	rules "github.com/sentinez/sentinez/core/waf/gen"
+	rulev4160 "github.com/sentinez/sentinez/core/waf/gen/v4-16-0"
 )
 
-func GetRule(version CRSVersion, rulesetsFlag CRSFlag) string {
-	var rulesets = &ruleloader.RuleLoader{}
+func GetWAFRule(version WAFVersion, flag WAFFlag) string {
+	var rulesets = &RuleLoader{}
 
 	// load setup rules
 	rulesets.Load(rules.SetupOrder)
@@ -32,8 +30,8 @@ func GetRule(version CRSVersion, rulesetsFlag CRSFlag) string {
 
 	// load core rulesets
 	switch version {
-	case CRSv4160:
-		r4160(rulesets, rulesetsFlag)
+	case WAF4160:
+		r4160(rulesets, flag)
 	}
 
 	//load extension rules
@@ -46,7 +44,7 @@ func GetRule(version CRSVersion, rulesetsFlag CRSFlag) string {
 	return rulesets.Export()
 }
 
-func r4160(rulesets *ruleloader.RuleLoader, flag CRSFlag) {
+func r4160(rulesets *RuleLoader, flag WAFFlag) {
 
 	if flag&ReqAppAttackRCE != 0 {
 		rulesets.Load(rulev4160.Request932ApplicationAttackRceOrder)
