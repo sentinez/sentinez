@@ -2,8 +2,8 @@
 .idea/
 .vscode/
 
-_dumpdata/
-dumpdata/
+_volume/
+volume/
 deploy/
 
 bin/

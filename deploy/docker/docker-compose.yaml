@@ -7,7 +7,7 @@ services:
   #     - "6379:6379"
   #   command: /bin/sh -c "redis-server --requirepass password"
   #   volumes:
-  #     - ./_dumpdata/redis:/data
+  #     - ./_volume/redis:/data
   #   networks:
   #     - sentinez-network
 
@@ -23,7 +23,7 @@ services:
   #     POSTGRES_PASSWORD: root
   #     POSTGRES_DB: sentinez
   #   volumes:
-  #     - ./_dumpdata/timescale:/var/lib/timescale/data
+  #     - ./_volume/timescale:/var/lib/timescale/data
   #   networks:
   #     - sentinez-network
 
@@ -39,7 +39,7 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: sentinez
     volumes:
-      - ./_dumpdata/postgres:/var/lib/postgresql/data
+      - ./_volume/postgres:/var/lib/postgresql/data
     networks:
       - sentinez-network
 
@@ -53,7 +53,7 @@ services:
       - "8600:8600/udp" # DNS
     command: "agent -dev -client=0.0.0.0"
     volumes:
-      - ./_dumpdata:/consul/data
+      - ./_volume:/consul/data
     networks:
       - sentinez-network
 
@@ -96,7 +96,7 @@ services:
       - ../../cmd/edge/v1/.env
 
 volumes:
-  _dumpdata:
+  _volume:
 
 networks:
   sentinez-network:

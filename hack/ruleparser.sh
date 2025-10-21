@@ -16,36 +16,36 @@
 
 ruleparser-sentinez \
     -out core/waf/gen/v4-16-0 \
-    -file datasets/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -file deploy/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
     -out core/waf/gen/v4-16-0 \
-    -file datasets/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -file deploy/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
     -out core/waf/gen \
-    -file datasets/rules/setup.conf
+    -file deploy/rules/setup.conf
 
 ruleparser-sentinez \
     -out core/waf/gen \
-    -file datasets/rules/default.conf
+    -file deploy/rules/default.conf
 
 ruleparser-sentinez \
     -out core/waf/gen/v4-16-0 \
-    -file datasets/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -file deploy/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
     -out core/waf/gen \
-    -file datasets/rules/REQUEST-901-INITIALIZATION.conf
+    -file deploy/rules/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
     -out core/waf/gen/v4-16-0 \
-    -file datasets/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -file deploy/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out core/waf/gen \
-    -file datasets/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -file deploy/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out core/waf/gen \
-    -file datasets/rules/audit.conf
+    -file deploy/rules/audit.conf
