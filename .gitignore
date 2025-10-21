@@ -77,5 +77,5 @@ next-env.d.ts
 *.prof
 
 # local volume
-dumpdata/
-_dumpdata/
+volume/
+_volume/

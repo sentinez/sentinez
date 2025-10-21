@@ -70,8 +70,8 @@ apiserver.run:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
  	./cmd/apiserver/bin/$(SENTINEZ_OUT)
 
-apiserver.build.image: TAG ?= sentinez/apiserver
-apiserver.build.image:
+apiserver.image.build: TAG ?= sentinez/apiserver
+apiserver.image.build:
 	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
 
 greeter.build: SENTINEZ_OUT ?= greeter
@@ -84,8 +84,8 @@ greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
 	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
 
-greeter.build.image: TAG ?= sentinez/greeter
-greeter.build.image:
+greeter.image.build: TAG ?= sentinez/greeter
+greeter.image.build:
 	docker buildx build -f ./cmd/greeter/v1/Dockerfile -t $(TAG):latest .
 
 edge.run: SENTINEZ_OUT ?= edge
@@ -94,7 +94,7 @@ edge.run:
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
 		--cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem \
 		--cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem \
-		--rule-path=./datasets/crs/v4-16-0 \
+		--rule-path=./data/crs/v4-16-0 \
 		--proxy-config=./cmd/edge/v1/proxy.yaml \
 		--env-file=./cmd/edge/v1/.env
 
@@ -103,8 +103,8 @@ edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
 	@echo "[DONE]  SNTZ: gateway.edge.v1 ... ok"
 
-edge.build.image: TAG ?= sentinez/edge
-edge.build.image:
+edge.image.build: TAG ?= sentinez/edge
+edge.image.build:
 	@docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
 
 image.clear:
