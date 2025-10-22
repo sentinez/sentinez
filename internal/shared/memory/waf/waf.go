@@ -33,7 +33,7 @@ var (
 func New() *WAFCache {
 	once.Do(func() {
 		wafInst = &WAFCache{
-			wafMap: syncx.NewMap[string, coraza.WAF](),
+			space: syncx.NewMap[string, coraza.WAF](),
 		}
 	})
 
@@ -49,7 +49,7 @@ type WAFCache struct {
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	wafMap *syncx.Map[string, coraza.WAF]
+	space *syncx.Map[string, coraza.WAF]
 }
 
 func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
@@ -60,7 +60,7 @@ func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
 		return err
 	}
 
-	w.wafMap.Store(namespace, waf)
+	w.space.Store(namespace, waf)
 	if waf != nil {
 		zlog.Infof("[edge] WAF initialized successfully, ns=%s", namespace)
 	}
@@ -69,7 +69,7 @@ func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
 }
 
 func (w *WAFCache) Load(namespace string) coraza.WAF {
-	value, ok := w.wafMap.Load(namespace)
+	value, ok := w.space.Load(namespace)
 	if !ok {
 		return nil
 	}

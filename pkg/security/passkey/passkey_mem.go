@@ -27,9 +27,6 @@ func NewMemoryStorage(ttl time.Duration) Store {
 	return &MemoryStorage{
 		ttl: ttl,
 
-		// key: username
-		users: mem.NewDefault[Users](),
-
 		// key: token
 		sessions: mem.NewDefault[*webauthn.SessionData](),
 	}
@@ -37,7 +34,6 @@ func NewMemoryStorage(ttl time.Duration) Store {
 
 type MemoryStorage struct {
 	ttl      time.Duration
-	users    *mem.Cache[Users]
 	sessions *mem.Cache[*webauthn.SessionData]
 }
 
