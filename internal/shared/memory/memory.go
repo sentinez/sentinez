@@ -30,10 +30,15 @@ func Initialized(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
 	routesCache(edgeYaml)
 
 	// WAF rulesets config
-	wafCache(edgeYaml, appConf)
+	wafRuleCache(edgeYaml, appConf)
 }
 
-func wafCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
+func routesCache(edgeYaml *edgeyaml.Config) {
+	router := routes.NewRouter()
+	router.Store(edgeYaml)
+}
+
+func wafRuleCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
 	flag := core.ReqAppAttackRCE
 
 	cache := wafcache.New()
@@ -44,9 +49,4 @@ func wafCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}
 	}
-}
-
-func routesCache(edgeYaml *edgeyaml.Config) {
-	router := routes.NewRouter()
-	router.Store(edgeYaml)
 }

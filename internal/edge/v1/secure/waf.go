@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/internal/shared/chains"
 	wafcache "github.com/sentinez/sentinez/internal/shared/memory/waf"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	httpxhzsec "github.com/sentinez/sentinez/pkg/network/httpx/hz/sec"
+	"github.com/sentinez/sentinez/pkg/security/httpsec"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -61,24 +61,24 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return nil
 	}
 
-	tx := httpxhzsec.NewTransaction(waf, ctx)
-	defer httpxhzsec.PostProcess(ctx, tx, w.callback)
+	tx := httpsec.NewTransaction(waf, ctx)
+	defer httpsec.PostProcess(ctx, tx, w.capture)
 
 	if tx.IsRuleEngineOff() {
 		return w.HandleNext(ctx)
 	}
 
 	// error for debuf WAF engine, not response
-	if err := httpxhzsec.ProcessRequestHandler(ctx, tx); err != nil {
-		httpxhzsec.DebugLogger(tx, err, "failed to process request")
+	if err := httpsec.ProcessRequestHandler(ctx, tx); err != nil {
+		httpsec.DebugLogger(tx, err, "failed to process request")
 		return nil
 	}
 
 	err := w.HandleNext(ctx)
 
 	// error for debuf WAF engine, not response
-	if err := httpxhzsec.ProcessResponseHandler(ctx, tx); err != nil {
-		httpxhzsec.DebugLogger(tx, err, "failed to process response")
+	if err := httpsec.ProcessResponseHandler(ctx, tx); err != nil {
+		httpsec.DebugLogger(tx, err, "failed to process response")
 		return nil
 	}
 
@@ -86,7 +86,7 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) callback(ctx *httpxhz.Context, tx types.Transaction) {
+func (w *WAF) capture(ctx *httpxhz.Context, tx types.Transaction) {
 	if !tx.IsInterrupted() {
 		return
 	}
