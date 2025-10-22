@@ -53,10 +53,11 @@ func NewServer(meta *common.SntzMeta) Server {
 
 // serverx implements the Server interface.
 type serverx struct {
-	chains []func(RequestHandler) RequestHandler
-	meta   *common.SntzMeta
-	hdl    app.HandlerFunc
-	core   *server.Hertz
+	chains    []func(RequestHandler) RequestHandler
+	meta      *common.SntzMeta
+	handler   app.HandlerFunc
+	handlerWS app.HandlerFunc
+	core      *server.Hertz
 }
 
 // Use implements Server.
@@ -65,7 +66,6 @@ func (s *serverx) Use(mdw ...func(handler RequestHandler) RequestHandler) {
 }
 
 func (s *serverx) Handle(fn func(ctx *Context) error) {
-
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
 
@@ -81,7 +81,7 @@ func (s *serverx) Handle(fn func(ctx *Context) error) {
 		inCtx.Release()
 	}
 
-	s.hdl = WrapHandler(handler)
+	s.handler = WrapHandler(handler)
 }
 
 // Shutdown implements platform.Server.
@@ -153,7 +153,7 @@ func (s *serverx) initialize(addr string, certFile, keyFile string) error {
 	// register http2 server factory
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
-	s.core.NoRoute(s.hdl)
+	s.core.NoRoute(s.handler)
 	s.core.Name = sentinez.Name
 
 	return nil

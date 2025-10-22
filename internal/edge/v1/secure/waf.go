@@ -61,7 +61,7 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return nil
 	}
 
-	tx := httpxhzsec.DecorNewTransaction(waf, ctx)
+	tx := httpxhzsec.NewTransaction(waf, ctx)
 	defer httpxhzsec.PostProcess(ctx, tx, w.callback)
 
 	if tx.IsRuleEngineOff() {

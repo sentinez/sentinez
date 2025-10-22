@@ -69,6 +69,10 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 	return proxy, nil
 }
 
+type ReverseEngine interface {
+	Serve(ctx *httpxhz.Context, target string)
+}
+
 type ReverseProxy struct {
 	tlsClient   *client.Client
 	plainClient *client.Client

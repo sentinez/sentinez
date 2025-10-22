@@ -217,8 +217,7 @@ func releaseBodyReader(ctx *httpxhz.Context, tx types.Transaction) error {
 	return nil
 }
 
-func DecorNewTransaction(
-	waf coraza.WAF, ctx *httpxhz.Context) types.Transaction {
+func NewTransaction(waf coraza.WAF, ctx *httpxhz.Context) types.Transaction {
 
 	newTX := func(*httpxhz.Context) types.Transaction {
 		return waf.NewTransaction()
