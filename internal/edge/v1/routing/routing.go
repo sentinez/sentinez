@@ -31,20 +31,28 @@ func NewRouter() *Router {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 	}
 
-	handler := routes.GetRouter().SetProxy(reverseProxy)
+	wsReverseProxy, _ := proxy.NewWSReverseProxy()
+
 	return &Router{
 		BaseHandler: chains.New(),
-		hdl:         handler,
+		httpHandler: routes.GetRouter().SetReverseProxy(reverseProxy),
+		wsHandler:   routes.GetRouter().SetReverseProxy(wsReverseProxy),
 	}
 }
 
 type Router struct {
 	*chains.BaseHandler
-	hdl func(ctx *httpxhz.Context) error
+	httpHandler func(ctx *httpxhz.Context) error
+	wsHandler   func(ctx *httpxhz.Context) error
 }
 
 func (r *Router) Handle(ctx *httpxhz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit router", ctx.GetReqID())
 
-	return r.hdl(ctx)
+	upgrade := string(ctx.Request.Header.Peek("Upgrade"))
+	if upgrade == "websocket" || upgrade == "WebSocket" {
+		return r.wsHandler(ctx)
+	}
+
+	return r.httpHandler(ctx)
 }

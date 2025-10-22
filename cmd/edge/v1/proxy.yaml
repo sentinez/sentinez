@@ -11,10 +11,22 @@ reverse_proxies:
       # - match_prefix: /api
       #   target: localhost:8080
 
-  - namespace: dev
+  - namespace: news
     routes:
       - match_prefix: /
         target: https://vneconomy.vn
+
+      # - match_prefix: /v1
+      #   target: http://localhost:3000
+      #   rewrite: /v1
+
+      # - match_prefix: /api
+      #   target: localhost:8080
+
+  - namespace: dev
+    routes:
+      - match_prefix: /
+        target: ws://localhost:7778
 
       # - match_prefix: /v1
       #   target: http://localhost:3000

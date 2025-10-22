@@ -32,6 +32,8 @@ func Handler(ctx httpxstd.Context) error {
 	}
 	defer func() { _ = conn.Close() }()
 
+	zlog.Debugf("wshandlers.Handler full path %s", ctx.Request().URL.Path)
+
 	clientID := ctx.Request().URL.Query().Get("id")
 	if clientID == "" {
 		zlog.Error("wshandlers.Handler missing client ID")

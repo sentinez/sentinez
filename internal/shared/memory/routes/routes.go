@@ -88,8 +88,8 @@ func (r *Router) Store(config *edgeyaml.Config) {
 	}
 }
 
-func (r *Router) SetProxy(
-	proxy *proxy.ReverseProxy) func(ctx *httpxhz.Context) error {
+func (r *Router) SetReverseProxy(
+	proxy proxy.ReverseEngine) func(ctx *httpxhz.Context) error {
 
 	return func(ctx *httpxhz.Context) error {
 		zlog.Debugf("[edge][request] host: %s", string(ctx.Host()))
