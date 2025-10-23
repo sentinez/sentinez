@@ -61,7 +61,7 @@ func (r *Router) Store(config *edgeyaml.Config) {
 	for _, prx := range config.ReverseProxies {
 		for _, routeConfig := range prx.Routes {
 			zlog.Debugf(
-				"[edge] routing store: ns=%s prefix=%s -> %s (rewrite: %s)",
+				"[edge] ns=%s %s -> %s (rewrite: %s)",
 				prx.Namespace, routeConfig.MatchPrefix,
 				routeConfig.Target, routeConfig.Rewrite,
 			)
@@ -69,7 +69,7 @@ func (r *Router) Store(config *edgeyaml.Config) {
 			target, ok := r.dynamic.Load(routeConfig.MatchPrefix)
 			if ok && target != "" {
 				zlog.Warnf(
-					"[edge] duplicate prefix: %s -> %s (new: %s), ignoring",
+					"[edge] dup prefix: %s -> %s (new: %s), ignoring",
 					routeConfig.MatchPrefix, target, routeConfig.Target,
 				)
 

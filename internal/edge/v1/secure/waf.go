@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 	"github.com/sentinez/sentinez/internal/shared/chains"
-	wafcache "github.com/sentinez/sentinez/internal/shared/memory/waf"
+	"github.com/sentinez/sentinez/internal/shared/memory/wafengine"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/security/httpsec"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
@@ -51,7 +51,7 @@ type WAF struct {
 func (w *WAF) Handle(ctx *httpxhz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.GetReqID())
 
-	waf := wafcache.GetWafCache().LoadContext(ctx)
+	waf := wafengine.GetEngine().LoadContext(ctx)
 	if waf == nil {
 		return w.HandleNext(ctx)
 	}

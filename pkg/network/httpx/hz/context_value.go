@@ -27,7 +27,6 @@ type SentinezContextKey string
 
 const (
 	sntzRequestHTTPCtxKey  SentinezContextKey = "sntz.ctx.request.http"
-	sntzRequestHTTPIDKey   SentinezContextKey = "sntz.ctx.request.id"
 	sntzRequestHTTPTimeKey SentinezContextKey = "sntz.ctx.request.time"
 )
 
