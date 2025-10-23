@@ -1,36 +1,105 @@
-reverse_proxies:
-  - namespace: badcheese
-    routes:
-      - match_prefix: /
-        target: http://badcheese.com/
+# Copyright 2025 Duc-Hung Ho.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-      # - match_prefix: /v1
+setting:
+  # ----------------------------------------------------------
+  # ORIGIN — ROUTING CONFIGURATION
+  # ----------------------------------------------------------
+  # Defines where incoming requests are forwarded to
+  # and how URLs are rewritten before reaching the origin server.
+  # ----------------------------------------------------------
+  origin:
+    namespace: badcheese # Logical namespace grouping related routes
+    routes:
+      - matchPrefix: / # URL prefix to match incoming requests
+        target: http://badcheese.com/ # Destination origin endpoint
+        # rewrite: /                   # (Optional) rewrite prefix before forwarding
+
+      # Example 1 (disabled):
+      # - matchPrefix: /v1
       #   target: http://localhost:3000
       #   rewrite: /v1
+      #
+      # Example 2 (disabled):
+      # - matchPrefix: /api
+      #   target: http://localhost:8080
 
-      # - match_prefix: /api
-      #   target: localhost:8080
+    # --------------------------------------------------------
+    # EXAMPLE: NEWS NAMESPACE
+    # --------------------------------------------------------
+    # namespace: news
+    # routes:
+    #   - matchPrefix: /
+    #     target: https://vneconomy.vn
+    #
+    #   # English version route
+    #   # - matchPrefix: /en
+    #   #   target: https://vneconomy.vn/en
+    #
+    #   # Vietnamese version route
+    #   # - matchPrefix: /vi
+    #   #   target: https://vneconomy.vn
+    # --------------------------------------------------------
 
-  - namespace: news
-    routes:
-      - match_prefix: /
-        target: https://vneconomy.vn
+  # ----------------------------------------------------------
+  # SECURITY — WAF, RATE LIMIT, BOT DEFENSE
+  # ----------------------------------------------------------
+  # Defines Web Application Firewall (WAF) rules,
+  # rate limiting thresholds, and bot detection policies
+  # for each user or tenant.
+  # ----------------------------------------------------------
+  security:
+    # wafRuleset: "default"            # WAF ruleset name
+    # rateLimit:
+    #   requestsPerSecond: 100         # Allowed requests per second
+    # botProtection: true              # Enable bot protection
+    {}
 
-      # - match_prefix: /v1
-      #   target: http://localhost:3000
-      #   rewrite: /v1
+  # ----------------------------------------------------------
+  # TRAFFIC CONTROL — THROTTLING, WAITING ROOM
+  # ----------------------------------------------------------
+  # Controls request flow, concurrency limits, and queuing
+  # during high-traffic periods.
+  # ----------------------------------------------------------
+  trafficControl:
+    # maxConcurrent: 500               # Maximum concurrent users
+    # waitingRoom:
+    #   enabled: true
+    #   message: "Server is busy, please wait..."  # Message shown to waiting users
+    {}
 
-      # - match_prefix: /api
-      #   target: localhost:8080
+  # ----------------------------------------------------------
+  # PERSONALIZATION — USER CUSTOMIZATION
+  # ----------------------------------------------------------
+  # Allows per-user customization at the edge layer
+  # for theme, language, and request headers.
+  # ----------------------------------------------------------
+  personal:
+    # theme: "dark"                    # UI theme preference
+    # language: "en"                   # Preferred language
+    # customHeader:                    # Custom HTTP headers
+    #   X-User-Type: "premium"
+    {}
 
-  - namespace: trade
-    routes:
-      - match_prefix: /
-        target: ws://localhost:7778
-
-      # - match_prefix: /v1
-      #   target: http://localhost:3000
-      #   rewrite: /v1
-
-      # - match_prefix: /api
-      #   target: localhost:8080
+  # ----------------------------------------------------------
+  # METADATA — DEBUG & OBSERVABILITY
+  # ----------------------------------------------------------
+  # Contains configuration metadata for monitoring,
+  # versioning, and debugging purposes.
+  # ----------------------------------------------------------
+  metadata:
+    # version: "v1"                    # Configuration version
+    # owner: "hunghd"                  # Maintainer or tenant identifier
+    # traceId: "abc123"                # Optional trace ID for tracking
+    {}

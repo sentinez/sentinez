@@ -15,28 +15,19 @@
 package edgeyaml
 
 import (
-	"github.com/sentinez/sentinez/pkg/zlog"
 	"os"
+
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	"github.com/sentinez/sentinez/pkg/zlog"
 
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	ReverseProxies []ProxyConfig `yaml:"reverse_proxies"`
+	Setting *edgepb.Setting `yaml:"setting"`
 }
 
-type ProxyConfig struct {
-	Namespace string        `yaml:"namespace"`
-	Routes    []RouteConfig `yaml:"routes"`
-}
-
-type RouteConfig struct {
-	MatchPrefix string `yaml:"match_prefix"`
-	Target      string `yaml:"target"`
-	Rewrite     string `yaml:"rewrite,omitempty"`
-}
-
-func LoadRouteConfig(filename string) *Config {
+func LoadSetting(filename string) *edgepb.Setting {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		zlog.Fatal(err)
@@ -47,5 +38,5 @@ func LoadRouteConfig(filename string) *Config {
 		zlog.Fatal(err)
 	}
 
-	return &cfg
+	return cfg.Setting
 }

@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/network/httpx/hz/proxy"
 	"github.com/sentinez/sentinez/pkg/x/errorx"
@@ -56,35 +56,33 @@ func key(ns, prefix string) string {
 	return fmt.Sprintf("%s|%s", ns, prefix)
 }
 
-func (r *Router) Store(config *edgeyaml.Config) {
+func (r *Router) Store(origin *edgepb.Origin) {
 
-	for _, prx := range config.ReverseProxies {
-		for _, routeConfig := range prx.Routes {
-			zlog.Debugf(
-				"[edge] ns=%s %s -> %s (rewrite: %s)",
-				prx.Namespace, routeConfig.MatchPrefix,
-				routeConfig.Target, routeConfig.Rewrite,
+	for _, routeConfig := range origin.Routes {
+		zlog.Debugf(
+			"[edge] ns=%s %s -> %s (rewrite: %s)",
+			origin.Namespace, routeConfig.MatchPrefix,
+			routeConfig.Target, routeConfig.Rewrite,
+		)
+
+		target, ok := r.dynamic.Load(routeConfig.MatchPrefix)
+		if ok && target != "" {
+			zlog.Warnf(
+				"[edge] dup prefix: %s -> %s (new: %s), ignoring",
+				routeConfig.MatchPrefix, target, routeConfig.Target,
 			)
 
-			target, ok := r.dynamic.Load(routeConfig.MatchPrefix)
-			if ok && target != "" {
-				zlog.Warnf(
-					"[edge] dup prefix: %s -> %s (new: %s), ignoring",
-					routeConfig.MatchPrefix, target, routeConfig.Target,
-				)
-
-				continue
-			}
-
-			if routeConfig.Rewrite == "" {
-				routeConfig.Rewrite = routeConfig.MatchPrefix
-			}
-
-			k := key(prx.Namespace, routeConfig.MatchPrefix)
-
-			r.dynamic.Store(k, routeConfig.Target)
-			r.rewrite.Store(k, routeConfig.Rewrite)
+			continue
 		}
+
+		if routeConfig.Rewrite == "" {
+			routeConfig.Rewrite = routeConfig.MatchPrefix
+		}
+
+		k := key(origin.Namespace, routeConfig.MatchPrefix)
+
+		r.dynamic.Store(k, routeConfig.Target)
+		r.rewrite.Store(k, routeConfig.Rewrite)
 	}
 }
 

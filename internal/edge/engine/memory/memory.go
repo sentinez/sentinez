@@ -16,37 +16,34 @@
 package memory
 
 import (
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/core"
-	"github.com/sentinez/sentinez/internal/shared/memory/routes"
-	"github.com/sentinez/sentinez/internal/shared/memory/wafengine"
+	"github.com/sentinez/sentinez/internal/edge/engine/memory/routes"
+	"github.com/sentinez/sentinez/internal/edge/engine/memory/wafengine"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func Initialized(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
+func Initialized(origin *edgepb.Origin, appConf *common.AppConfig) {
 
 	// routing for each tenant
-	routesCache(edgeYaml)
+	routesCache(origin)
 
 	// WAF rulesets config
-	wafEngineCache(edgeYaml, appConf)
+	wafEngineCache(origin, appConf)
 }
 
-func routesCache(edgeYaml *edgeyaml.Config) {
+func routesCache(origin *edgepb.Origin) {
 	router := routes.NewRouter()
-	router.Store(edgeYaml)
+	router.Store(origin)
 }
 
-func wafEngineCache(edgeYaml *edgeyaml.Config, appConf *common.AppConfig) {
+func wafEngineCache(origin *edgepb.Origin, appConf *common.AppConfig) {
 	flag := core.ReqAppAttackRCE
 
 	engine := wafengine.New()
-	for _, proxy := range edgeYaml.ReverseProxies {
-
-		err := engine.Store(appConf, proxy.Namespace, core.WAF4160, flag)
-		if err != nil {
-			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
-		}
+	err := engine.Store(appConf, origin.Namespace, core.WAF4160, flag)
+	if err != nil {
+		zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 	}
 }

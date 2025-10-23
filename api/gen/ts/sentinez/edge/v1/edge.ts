@@ -11,10 +11,23 @@ export const protobufPackage = "sentinez.edge.v1";
 
 /** Setting edge setting per user */
 export interface Setting {
-  metadata?: Metadata | undefined;
-  origin?: Origin | undefined;
-  security?: Security | undefined;
-  trafficControl?: TrafficControl | undefined;
+  /** @gotags: yaml:"metadata" */
+  metadata?:
+    | Metadata
+    | undefined;
+  /** @gotags: yaml:"origin" */
+  origin?:
+    | Origin
+    | undefined;
+  /** @gotags: yaml:"security" */
+  security?:
+    | Security
+    | undefined;
+  /** @gotags: yaml:"trafficControl" */
+  trafficControl?:
+    | TrafficControl
+    | undefined;
+  /** @gotags: yaml:"personal" */
   personal?: Personalization | undefined;
 }
 
@@ -24,17 +37,18 @@ export interface Metadata {
 
 /** Origin defines where the request goes and how the edge processes it: */
 export interface Origin {
-  namespaces: OriginNamespace[];
-}
-
-export interface OriginNamespace {
+  /** @gotags: yaml:"namespace" */
   namespace: string;
+  /** @gotags: yaml:"routes" */
   routes: OriginRoute[];
 }
 
 export interface OriginRoute {
+  /** @gotags: yaml:"matchPrefix" */
   matchPrefix: string;
+  /** @gotags: yaml:"target" */
   target: string;
+  /** @gotags: yaml:"rewrite" */
   rewrite: string;
 }
 
@@ -245,73 +259,11 @@ export const Metadata: MessageFns<Metadata> = {
 };
 
 function createBaseOrigin(): Origin {
-  return { namespaces: [] };
+  return { namespace: "", routes: [] };
 }
 
 export const Origin: MessageFns<Origin> = {
   encode(message: Origin, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.namespaces) {
-      OriginNamespace.encode(v!, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Origin {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOrigin();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.namespaces.push(OriginNamespace.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Origin {
-    return {
-      namespaces: globalThis.Array.isArray(object?.namespaces)
-        ? object.namespaces.map((e: any) => OriginNamespace.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: Origin): unknown {
-    const obj: any = {};
-    if (message.namespaces?.length) {
-      obj.namespaces = message.namespaces.map((e) => OriginNamespace.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<Origin>, I>>(base?: I): Origin {
-    return Origin.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<Origin>, I>>(object: I): Origin {
-    const message = createBaseOrigin();
-    message.namespaces = object.namespaces?.map((e) => OriginNamespace.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseOriginNamespace(): OriginNamespace {
-  return { namespace: "", routes: [] };
-}
-
-export const OriginNamespace: MessageFns<OriginNamespace> = {
-  encode(message: OriginNamespace, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.namespace !== "") {
       writer.uint32(10).string(message.namespace);
     }
@@ -321,10 +273,10 @@ export const OriginNamespace: MessageFns<OriginNamespace> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): OriginNamespace {
+  decode(input: BinaryReader | Uint8Array, length?: number): Origin {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOriginNamespace();
+    const message = createBaseOrigin();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -353,14 +305,14 @@ export const OriginNamespace: MessageFns<OriginNamespace> = {
     return message;
   },
 
-  fromJSON(object: any): OriginNamespace {
+  fromJSON(object: any): Origin {
     return {
       namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
       routes: globalThis.Array.isArray(object?.routes) ? object.routes.map((e: any) => OriginRoute.fromJSON(e)) : [],
     };
   },
 
-  toJSON(message: OriginNamespace): unknown {
+  toJSON(message: Origin): unknown {
     const obj: any = {};
     if (message.namespace !== "") {
       obj.namespace = message.namespace;
@@ -371,11 +323,11 @@ export const OriginNamespace: MessageFns<OriginNamespace> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OriginNamespace>, I>>(base?: I): OriginNamespace {
-    return OriginNamespace.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Origin>, I>>(base?: I): Origin {
+    return Origin.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OriginNamespace>, I>>(object: I): OriginNamespace {
-    const message = createBaseOriginNamespace();
+  fromPartial<I extends Exact<DeepPartial<Origin>, I>>(object: I): Origin {
+    const message = createBaseOrigin();
     message.namespace = object.namespace ?? "";
     message.routes = object.routes?.map((e) => OriginRoute.fromPartial(e)) || [];
     return message;

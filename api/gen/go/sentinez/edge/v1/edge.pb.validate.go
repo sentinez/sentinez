@@ -218,13 +218,15 @@ func (m *Origin) Validate() error {
 		return nil
 	}
 
-	for idx, item := range m.GetNamespaces() {
+	// no validation rules for Namespace
+
+	for idx, item := range m.GetRoutes() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return OriginValidationError{
-					field:  fmt.Sprintf("Namespaces[%v]", idx),
+					field:  fmt.Sprintf("Routes[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -289,88 +291,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = OriginValidationError{}
-
-// Validate checks the field values on OriginNamespace with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *OriginNamespace) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	// no validation rules for Namespace
-
-	for idx, item := range m.GetRoutes() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return OriginNamespaceValidationError{
-					field:  fmt.Sprintf("Routes[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// OriginNamespaceValidationError is the validation error returned by
-// OriginNamespace.Validate if the designated constraints aren't met.
-type OriginNamespaceValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e OriginNamespaceValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e OriginNamespaceValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e OriginNamespaceValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e OriginNamespaceValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e OriginNamespaceValidationError) ErrorName() string { return "OriginNamespaceValidationError" }
-
-// Error satisfies the builtin error interface
-func (e OriginNamespaceValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sOriginNamespace.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = OriginNamespaceValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = OriginNamespaceValidationError{}
 
 // Validate checks the field values on OriginRoute with the rules defined in
 // the proto definition for this message. If any rules are violated, an error

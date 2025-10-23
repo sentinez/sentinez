@@ -10,6 +10,7 @@ replace (
 require (
 	github.com/bufbuild/buf v1.50.1
 	github.com/codesenberg/bombardier v1.2.6
+	github.com/favadi/protoc-go-inject-tag v1.4.0
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/joho/godotenv v1.5.1

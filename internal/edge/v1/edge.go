@@ -18,17 +18,17 @@ package edge
 import (
 	"context"
 
-	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 // New creates a new Edge Server instance.
-func New(server httpxhz.Server, yaml *edgeyaml.Config) *Server {
+func New(server httpxhz.Server, setting *edgepb.Setting) *Server {
 	return &Server{
-		core: server,
-		yaml: yaml,
+		core:    server,
+		setting: setting,
 	}
 }
 
@@ -36,8 +36,8 @@ func New(server httpxhz.Server, yaml *edgeyaml.Config) *Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core httpxhz.Server
-	yaml *edgeyaml.Config
+	core    httpxhz.Server
+	setting *edgepb.Setting
 }
 
 // Shutdown implements v1.Server.
