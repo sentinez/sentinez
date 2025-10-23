@@ -53,11 +53,10 @@ func NewServer(meta *common.SntzMeta) Server {
 
 // serverx implements the Server interface.
 type serverx struct {
-	chains    []func(RequestHandler) RequestHandler
-	meta      *common.SntzMeta
-	handler   app.HandlerFunc
-	handlerWS app.HandlerFunc
-	core      *server.Hertz
+	chains  []func(RequestHandler) RequestHandler
+	meta    *common.SntzMeta
+	handler app.HandlerFunc
+	core    *server.Hertz
 }
 
 // Use implements Server.

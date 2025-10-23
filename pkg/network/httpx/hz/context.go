@@ -29,7 +29,6 @@ import (
 	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
-	"github.com/sentinez/sentinez/pkg/x/uuidx"
 )
 
 var (
@@ -170,12 +169,7 @@ func (c *Context) SetServer() {
 }
 
 func (c *Context) GetReqID() string {
-	res, ok := c.ctx.Value(sntzRequestHTTPIDKey).(string)
-	if !ok {
-		return ""
-	}
-
-	return res
+	return c.Request.Header.Get(HeaderXRequest)
 }
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
@@ -186,13 +180,11 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 	return component.Render(c.Context(), c.Response.BodyWriter())
 }
 
-func setIdentifier(ctx context.Context) context.Context {
+func setRequestTime(ctx context.Context) context.Context {
 	// set request time
 	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now().UTC())
 
-	// set request id
-	id := uuidx.NewIDHex(sentinez.PrefixRequestID)
-	return context.WithValue(ctx, sntzRequestHTTPIDKey, id)
+	return ctx
 }
 
 // GenContextKey nolint:funlen

@@ -19,18 +19,30 @@ import (
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/htmlx"
+	"github.com/sentinez/sentinez/pkg/x/uuidx"
+)
+
+const (
+	HeaderXRequest = "X-Request-ID"
 )
 
 func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		ctx = setIdentifier(ctx)
+
+		c.Request.Header.Add(HeaderXRequest,
+			uuidx.NewIDHex(sentinez.PrefixRequestID))
+
+		ctx = setRequestTime(ctx)
+
 		next(ctx, c)
 	}
 }
 
 func Forbidden(ctx *Context) error {
-	if err := ctx.Render(http.StatusForbidden, htmlx.Forbidden()); err != nil {
+	err := ctx.Render(http.StatusForbidden, htmlx.Forbidden(ctx.GetReqID()))
+	if err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(http.StatusForbidden, "Access denied")
 	}
@@ -39,7 +51,8 @@ func Forbidden(ctx *Context) error {
 }
 
 func InternalServerError(ctx *Context) error {
-	err := ctx.Render(http.StatusInternalServerError, htmlx.InternalError())
+	err := ctx.Render(
+		http.StatusInternalServerError, htmlx.InternalError(ctx.GetReqID()))
 	if err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(
@@ -50,7 +63,8 @@ func InternalServerError(ctx *Context) error {
 }
 
 func NotFound(ctx *Context) error {
-	if err := ctx.Render(http.StatusNotFound, htmlx.NotFound()); err != nil {
+	err := ctx.Render(http.StatusNotFound, htmlx.NotFound(ctx.GetReqID()))
+	if err != nil {
 		ctx.Response.ResetBody()
 		return ctx.String(http.StatusNotFound, "Not found")
 	}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package wafcache
+package wafengine
 
 import (
 	"sync"
@@ -40,7 +40,7 @@ func New() *WAFCache {
 	return wafInst
 }
 
-func GetWafCache() *WAFCache {
+func GetEngine() *WAFCache {
 	return wafInst
 }
 

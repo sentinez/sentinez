@@ -23,7 +23,7 @@ reverse_proxies:
       # - match_prefix: /api
       #   target: localhost:8080
 
-  - namespace: dev
+  - namespace: trade
     routes:
       - match_prefix: /
         target: ws://localhost:7778
