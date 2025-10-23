@@ -18,7 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sentinez/sentinez/internal/shared/chains"
+	"github.com/sentinez/sentinez/internal/edge/engine/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )

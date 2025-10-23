@@ -28,11 +28,11 @@ option (sentinez.types.common.v1.sntz_meta) = {
 
 // Setting edge setting per user
 message Setting {
-  Metadata metadata = 1;
-  Origin origin = 2;
-  Security security = 3;
-  TrafficControl traffic_control = 4;
-  Personalization personal = 5;
+  Metadata metadata = 1;              // @gotags: yaml:"metadata"
+  Origin origin = 2;                  // @gotags: yaml:"origin"
+  Security security = 3;              // @gotags: yaml:"security"
+  TrafficControl traffic_control = 4; // @gotags: yaml:"trafficControl"
+  Personalization personal = 5;       // @gotags: yaml:"personal"
 }
 
 // Metadata used for observability and debugging:
@@ -42,18 +42,14 @@ message Metadata {
 
 // Origin defines where the request goes and how the edge processes it:
 message Origin {
-  repeated OriginNamespace namespaces = 1;
-}
-
-message OriginNamespace {
-  string namespace = 1;
-  repeated OriginRoute routes = 2;
+  string namespace = 1;             // @gotags: yaml:"namespace"
+  repeated OriginRoute routes = 2;  // @gotags: yaml:"routes"
 }
 
 message OriginRoute {
-  string match_prefix = 1;
-  string target = 2;
-  string rewrite = 3;
+  string match_prefix = 1;  // @gotags: yaml:"matchPrefix"
+  string target = 2;        // @gotags: yaml:"target"
+  string rewrite = 3;       // @gotags: yaml:"rewrite"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules

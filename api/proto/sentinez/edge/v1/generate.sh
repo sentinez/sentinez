@@ -45,3 +45,5 @@ protoc \
   --go-sntzmodels_out="$SENTINEZ_GEN_OUT" \
   --go-sntzopts_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto || exit 1
+
+protoc-go-inject-tag -input="$SENTINEZ_GEN_OUT"/github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1/*.pb.go

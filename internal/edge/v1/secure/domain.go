@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/internal/shared/chains"
+	"github.com/sentinez/sentinez/internal/edge/engine/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
