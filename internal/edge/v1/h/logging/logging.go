@@ -18,7 +18,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
-	"github.com/sentinez/sentinez/internal/edge/engine/chains"
+	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -46,7 +46,7 @@ func (l *Logger) Handle(ctx *httpxhz.Context) error {
 
 	err := l.HandleNext(ctx)
 
-	l.logger.Info("edge http request", &http.Log4HTTP{
+	l.logger.Info("[http][request]", &http.Log4HTTP{
 		ReqId:         ctx.GetReqID(),
 		Scheme:        string(ctx.URI().Scheme()),
 		Host:          requestResourceHost,

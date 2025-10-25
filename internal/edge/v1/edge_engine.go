@@ -19,21 +19,21 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/edge/engine/v1"
-	grpcgw "github.com/sentinez/sentinez/pkg/network/grpc"
+	edgegrpc "github.com/sentinez/sentinez/internal/edge/v1/engine"
+	grpc "github.com/sentinez/sentinez/pkg/network/grpc"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
 func NewEngine(meta *common.SntzMeta) *Engine {
 	return &Engine{
-		Server: grpcgw.NewDefault(meta),
-		Engine: engine.New(),
+		Server: grpc.NewDefault(meta),
+		Engine: edgegrpc.New(),
 	}
 }
 
 type Engine struct {
-	*grpcgw.Server
-	*engine.Engine
+	*grpc.Server
+	*edgegrpc.Engine
 }
 
 func (e *Engine) Start(ctx context.Context) error {

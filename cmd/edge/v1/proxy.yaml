@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ----------------------------------------------------------
+# EDGE SETTINGS PER USER
+# ----------------------------------------------------------
+# Defines how the edge proxy behaves for each user or tenant.
+# Includes routing configuration, security policies,
+# traffic control rules, and user personalization.
+# ----------------------------------------------------------
 setting:
   # ----------------------------------------------------------
   # ORIGIN — ROUTING CONFIGURATION

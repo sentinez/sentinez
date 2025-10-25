@@ -32,7 +32,7 @@ package edge
 //
 //       │
 //
-//      mdw (middlewares)
+//    chains (middlewares)
 //    (WAF, Routing, Process Traffic)
 //
 //       │

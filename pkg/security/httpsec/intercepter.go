@@ -84,7 +84,7 @@ func obtainStatusCodeFromInterruptionOrDefault(
 		return defaultStatusCode
 	}
 
-	zlog.Debugf("httpxhz: interuption action: %s", it.Action)
+	zlog.Debugf("httpsec: interuption action: %s", it.Action)
 
 	if it.Status != 0 {
 		return it.Status
