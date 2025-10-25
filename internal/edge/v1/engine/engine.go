@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package engine
+package edgegrpc
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/sentinez/core"
-	enginectx "github.com/sentinez/sentinez/internal/edge/engine/v1/context"
+	enginectx "github.com/sentinez/sentinez/internal/edge/pkgs/context"
 )
 
 var _ edgepb.EdgeEngineServiceServer = (*Engine)(nil)

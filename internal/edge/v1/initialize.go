@@ -16,17 +16,17 @@ package edge
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/edge/engine/memory"
-	"github.com/sentinez/sentinez/internal/edge/v1/logging"
-	"github.com/sentinez/sentinez/internal/edge/v1/routing"
-	"github.com/sentinez/sentinez/internal/edge/v1/secure"
-	"github.com/sentinez/sentinez/internal/edge/v1/static"
-	"github.com/sentinez/sentinez/internal/edge/v1/waitingroom"
+	"github.com/sentinez/sentinez/internal/edge/pkgs/memory"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 )
 
 func (s *Server) initialize(appConf *common.AppConfig) error {
 	// init cache repository
-	memory.Initialized(s.setting.GetOrigin(), appConf)
+	memory.Initialized(s.setting, appConf)
 
 	hostname := appConf.GetEnvConf().GetHostname()
 

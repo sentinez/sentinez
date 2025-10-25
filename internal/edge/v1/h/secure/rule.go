@@ -16,7 +16,7 @@ package secure
 
 import (
 	"github.com/sentinez/sentinez/core"
-	"github.com/sentinez/sentinez/internal/edge/engine/chains"
+	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 )
 

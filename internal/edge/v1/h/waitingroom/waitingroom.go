@@ -1,8 +1,8 @@
 package waitingroom
 
 import (
-	"github.com/sentinez/sentinez/internal/edge/engine/chains"
-	"github.com/sentinez/sentinez/internal/edge/engine/queue"
+	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
+	"github.com/sentinez/sentinez/internal/edge/pkgs/queue"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
 )
 
