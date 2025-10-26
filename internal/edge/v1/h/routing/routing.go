@@ -49,7 +49,7 @@ type Router struct {
 func (r *Router) Handle(ctx *httpxhz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit router", ctx.GetReqID())
 
-	upgrade := string(ctx.Request.Header.Peek("Upgrade"))
+	upgrade := string(ctx.Unwrap().Request.Header.Peek("Upgrade"))
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		zlog.Debugf("[edge][websocket] upgrade connection !!!")
 		return r.wsHandler(ctx)

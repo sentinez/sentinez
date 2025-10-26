@@ -16,13 +16,14 @@ package core
 
 import (
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/core/networks"
 )
 
 var _ RuleIngress = (*ruleIngress)(nil)
 
 type RuleIngress interface {
-	ExecRule(ctx RequestContext, rule *ruleengpb.Rule) bool
-	ExecRuleSet(ctx RequestContext, rule *ruleengpb.RuleSet) bool
+	ExecRule(ctx networks.Context, rule *ruleengpb.Rule) bool
+	ExecRuleSet(ctx networks.Context, rule *ruleengpb.RuleSet) bool
 }
 
 func NewRuleIngress() RuleIngress {
@@ -32,7 +33,7 @@ func NewRuleIngress() RuleIngress {
 type ruleIngress struct{}
 
 func (ri *ruleIngress) ExecRule(
-	ctx RequestContext, rule *ruleengpb.Rule) bool {
+	ctx networks.Context, rule *ruleengpb.Rule) bool {
 
 	if !rule.GetEnabled() {
 		return false
@@ -46,7 +47,7 @@ func (ri *ruleIngress) ExecRule(
 }
 
 func (ri *ruleIngress) ExecRuleSet(
-	ctx RequestContext, ruleSet *ruleengpb.RuleSet) bool {
+	ctx networks.Context, ruleSet *ruleengpb.RuleSet) bool {
 	if !ruleSet.GetEnabled() {
 		return false
 	}

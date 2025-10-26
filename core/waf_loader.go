@@ -15,8 +15,8 @@
 package core
 
 import (
-	rules "github.com/sentinez/sentinez/core/waf/gen"
-	rulev4160 "github.com/sentinez/sentinez/core/waf/gen/v4-16-0"
+	rules "github.com/sentinez/sentinez/core/modsec/gen"
+	rulev4160 "github.com/sentinez/sentinez/core/modsec/gen/v4-16-0"
 )
 
 func GetWAFRule(version WAFVersion, flag WAFFlag) string {

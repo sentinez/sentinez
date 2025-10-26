@@ -102,5 +102,5 @@ func (p *ReverseProxy) Serve(ctx *httpxhz.Context, target string) {
 		r.SetClient(p.plainClient)
 	}
 
-	r.ServeHTTP(ctx.Context(), ctx.RequestContext)
+	r.ServeHTTP(ctx.Context(), ctx.Unwrap())
 }

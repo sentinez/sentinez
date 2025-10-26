@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpsec
+package core
 
 import (
 	"net/http"
 
 	"github.com/corazawaf/coraza/v3/types"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/core/networks"
 )
 
 // interceptor for fasthttp
@@ -30,9 +29,8 @@ type interceptor struct {
 	proto       string
 }
 
-func (i *interceptor) WriteResponseHeader(ctx *httpxhz.Context) {
+func (i *interceptor) writeResponseHeader(ctx networks.XContext) {
 	if i.wroteHeader {
-		zlog.Debug("httpx.secure: skip writing header")
 		return
 	}
 
@@ -47,18 +45,17 @@ func (i *interceptor) WriteResponseHeader(ctx *httpxhz.Context) {
 	i.wroteHeader = true
 }
 
-func (i *interceptor) WriteResponseBody(
-	ctx *httpxhz.Context) (*types.Interruption, error) {
+func (i *interceptor) writeResponseBody(
+	ctx networks.XContext) (*types.Interruption, error) {
 	if i.tx.IsInterrupted() {
 		return nil, nil
 	}
 
 	if !i.wroteHeader {
-		i.WriteResponseHeader(ctx)
+		i.writeResponseHeader(ctx)
 	}
 
 	if i.tx.IsResponseBodyAccessible() && i.tx.IsResponseBodyProcessable() {
-		zlog.Debug("let's write response body ", len(ctx.Body()))
 		it, _, err := i.tx.WriteResponseBody(ctx.Body())
 		if err != nil {
 
@@ -82,8 +79,6 @@ func obtainStatusCodeFromInterruptionOrDefault(
 	if it == nil {
 		return defaultStatusCode
 	}
-
-	zlog.Debugf("httpsec: interuption action: %s", it.Action)
 
 	if it.Status != 0 {
 		return it.Status

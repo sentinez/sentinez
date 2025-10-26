@@ -90,7 +90,7 @@ func (r *Router) SetReverseProxy(
 	proxy proxy.ReverseEngine) func(ctx *httpxhz.Context) error {
 
 	return func(ctx *httpxhz.Context) error {
-		zlog.Debugf("[edge][request] host: %s", string(ctx.Host()))
+		zlog.Debugf("[edge][request] host: %s", ctx.Host())
 
 		if proxy == nil {
 			zlog.Error("[edge][routing]: proxy not initialized")
@@ -134,7 +134,7 @@ func (r *Router) match(ctx *httpxhz.Context) (string, error) {
 		)
 
 		remainingPath := strings.TrimPrefix(path, matchPrefix) + rewritePrefix
-		ctx.Request.URI().SetPath(remainingPath)
+		ctx.Unwrap().URI().SetPath(remainingPath)
 		origin = target
 
 		return target, nil
