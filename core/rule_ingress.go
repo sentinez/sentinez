@@ -48,6 +48,7 @@ func (ri *ruleIngress) ExecRule(
 
 func (ri *ruleIngress) ExecRuleSet(
 	ctx networks.Context, ruleSet *ruleengpb.RuleSet) bool {
+
 	if !ruleSet.GetEnabled() {
 		return false
 	}

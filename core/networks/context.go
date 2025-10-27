@@ -21,8 +21,6 @@ import (
 
 type Context interface {
 	Context() context.Context
-
-	// Request info
 	Header() map[string]string
 	Queries() []string
 	Path() string

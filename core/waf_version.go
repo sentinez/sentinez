@@ -18,4 +18,5 @@ type WAFVersion string
 
 const (
 	WAF4160 WAFVersion = "v4.16.0"
+	WAF4170 WAFVersion = "v4.17.0"
 )
