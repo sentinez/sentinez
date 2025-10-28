@@ -60,5 +60,6 @@ func r4160(rulesets *RuleLoader, flag WAFFlag) {
 }
 
 func r4167(rulesets *RuleLoader, flag WAFFlag) {
-
+	_ = rulesets
+	_ = flag
 }

@@ -72,19 +72,6 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return w.HandleNext(ctx)
 	}
 
-	// tx := httpsec.NewTransaction(waf, ctx)
-	// defer httpsec.PostProcess(ctx, tx, w.capture)
-
-	// if tx.IsRuleEngineOff() {
-	// 	return w.HandleNext(ctx)
-	// }
-
-	// error for debuf WAF engine, not response
-	// if err := httpsec.ProcessRequestHandler(ctx, tx); err != nil {
-	// 	httpsec.DebugLogger(tx, err, "failed to process request")
-	// 	return nil
-	// }
-
 	if err := rulesets.ExecIngress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
 			return httpxhz.Forbidden(ctx)
@@ -98,12 +85,6 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 			return httpxhz.Forbidden(ctx)
 		}
 	}
-
-	// error for debuf WAF engine, not response
-	// if err := httpsec.ProcessResponseHandler(ctx, tx); err != nil {
-	// 	httpsec.DebugLogger(tx, err, "failed to process response")
-	// 	return nil
-	// }
 
 	return err
 }
@@ -165,7 +146,7 @@ func (w *WAF) capture(ctx *httpxhz.Context, rulesets *core.Rulesets) {
 		ContentType:   string(ctx.Unwrap().Request.Header.ContentType()),
 	}
 
-	w.logger.Info("rule engine ingress matched", event)
+	w.logger.Info("[rulesets] [matched]", event)
 	data, _ := event.MarshalVT()
 	w.cached.Set(httpxhz.GenContextKey(ctx), data)
 }
