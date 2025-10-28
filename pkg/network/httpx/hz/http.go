@@ -43,7 +43,7 @@ func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 func Forbidden(ctx *Context) error {
 	err := ctx.Render(http.StatusForbidden, htmlx.Forbidden(ctx.GetReqID()))
 	if err != nil {
-		ctx.Response.ResetBody()
+		ctx.req.Response.ResetBody()
 		return ctx.String(http.StatusForbidden, "Access denied")
 	}
 
@@ -54,7 +54,7 @@ func InternalServerError(ctx *Context) error {
 	err := ctx.Render(
 		http.StatusInternalServerError, htmlx.InternalError(ctx.GetReqID()))
 	if err != nil {
-		ctx.Response.ResetBody()
+		ctx.req.Response.ResetBody()
 		return ctx.String(
 			http.StatusInternalServerError, "Internal server error")
 	}
@@ -65,7 +65,7 @@ func InternalServerError(ctx *Context) error {
 func NotFound(ctx *Context) error {
 	err := ctx.Render(http.StatusNotFound, htmlx.NotFound(ctx.GetReqID()))
 	if err != nil {
-		ctx.Response.ResetBody()
+		ctx.req.Response.ResetBody()
 		return ctx.String(http.StatusNotFound, "Not found")
 	}
 

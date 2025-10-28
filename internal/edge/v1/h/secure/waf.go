@@ -15,17 +15,17 @@
 package secure
 
 import (
+	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/corazawaf/coraza/v3/types"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
+	"github.com/sentinez/sentinez/core"
 	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
 	"github.com/sentinez/sentinez/internal/edge/pkgs/memory/wafengine"
 	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/security/httpsec"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -48,6 +48,7 @@ type WAF struct {
 	cached *mem.Cache[[]byte]
 }
 
+// nolint:funlen
 func (w *WAF) Handle(ctx *httpxhz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.GetReqID())
 
@@ -61,33 +62,38 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return nil
 	}
 
-	tx := httpsec.NewTransaction(waf, ctx)
-	defer httpsec.PostProcess(ctx, tx, w.capture)
+	rulesets := core.NewRulesets(ctx, waf)
+	defer func() {
+		rulesets.Final(func() { w.capture(ctx, rulesets) })
+		rulesets.Release()
+	}()
 
-	if tx.IsRuleEngineOff() {
+	if rulesets.IsRuleEngineOff() {
 		return w.HandleNext(ctx)
 	}
 
-	// error for debuf WAF engine, not response
-	if err := httpsec.ProcessRequestHandler(ctx, tx); err != nil {
-		httpsec.DebugLogger(tx, err, "failed to process request")
-		return nil
+	if err := rulesets.ExecIngress(ctx); err != nil {
+		if ctx.StatusCode() == http.StatusForbidden {
+			return httpxhz.Forbidden(ctx)
+		}
 	}
 
 	err := w.HandleNext(ctx)
 
-	// error for debuf WAF engine, not response
-	if err := httpsec.ProcessResponseHandler(ctx, tx); err != nil {
-		httpsec.DebugLogger(tx, err, "failed to process response")
-		return nil
+	if err := rulesets.ExecEgress(ctx); err != nil {
+		if ctx.StatusCode() == http.StatusForbidden {
+			return httpxhz.Forbidden(ctx)
+		}
 	}
 
 	return err
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx *httpxhz.Context, tx types.Transaction) {
-	if !tx.IsInterrupted() {
+func (w *WAF) capture(ctx *httpxhz.Context, rulesets *core.Rulesets) {
+
+	interruption, matched, isInterrupted := rulesets.Matched()
+	if !isInterrupted {
 		return
 	}
 
@@ -109,9 +115,8 @@ func (w *WAF) capture(ctx *httpxhz.Context, tx types.Transaction) {
 		score      int
 	)
 
-	matched := tx.MatchedRules()
 	for _, rule := range matched {
-		if rule.Rule().ID() == tx.Interruption().RuleID {
+		if rule.Rule().ID() == interruption.RuleID {
 			score, _ = strconv.Atoi(rule.Data())
 			continue
 		}
@@ -129,19 +134,19 @@ func (w *WAF) capture(ctx *httpxhz.Context, tx types.Transaction) {
 		RuleIds:       ruleIDs,
 		Severities:    severities,
 		Messages:      msgs,
-		Path:          string(ctx.Request.URI().RequestURI()),
+		Path:          ctx.URI(),
 		Score:         int32(score),
 		Ip:            ctx.ClientIP(),
 		RequestDomain: string(ctx.Host()),
-		TransactionId: tx.ID(),
+		TransactionId: rulesets.GetTxId(),
 		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
 		Action:        rulecmn.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
 		HttpReqId:     ctx.GetReqID(),
-		ContentType:   string(ctx.Request.Header.ContentType()),
+		ContentType:   string(ctx.Unwrap().Request.Header.ContentType()),
 	}
 
-	w.logger.Info("rule engine ingress matched", event)
+	w.logger.Info("[rulesets] [matched]", event)
 	data, _ := event.MarshalVT()
 	w.cached.Set(httpxhz.GenContextKey(ctx), data)
 }

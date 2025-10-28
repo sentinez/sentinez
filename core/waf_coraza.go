@@ -23,7 +23,7 @@ import (
 func NewWAF(version WAFVersion,
 	srcDataset string, flag WAFFlag) (coraza.WAF, error) {
 
-	rule := GetWAFRule(version, flag)
+	rule := getRulesets(version, flag)
 
 	rootFS := os.DirFS(srcDataset)
 	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)

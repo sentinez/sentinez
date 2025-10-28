@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"sort"
 	"sync"
 	"time"
@@ -26,14 +27,14 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/core"
+	"github.com/sentinez/sentinez/core/networks"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
 )
 
 var (
-	_        httpx.Context       = (*Context)(nil)
-	_        core.RequestContext = (*Context)(nil)
+	_        httpx.Context     = (*Context)(nil)
+	_        networks.XContext = (*Context)(nil)
 	oncePool sync.Once
 	ctxPool  *syncx.Pool[Context]
 )
@@ -45,7 +46,7 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 
 	httpCtx := ctxPool.Get()
 
-	httpCtx.RequestContext = c
+	httpCtx.req = c
 	httpCtx.ctx = ctx
 
 	return httpCtx
@@ -54,13 +55,83 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 type RequestHandler func(ctx *Context) error
 
 type Context struct {
-	*app.RequestContext
+	req *app.RequestContext
 	ctx context.Context
 }
 
-// GetBody implements rulectx.Context.
-func (c *Context) GetBody() []byte {
-	return c.Request.Body()
+// Copy implements networks.XContext.
+func (c *Context) Copy(src io.Reader) error {
+	_, err := io.Copy(c.req, src)
+	return err
+}
+
+// RequestBodyStream implements networks.XContext.
+func (c *Context) RequestBodyStream() io.Reader {
+	return c.req.RequestBodyStream()
+}
+
+// GetRespHeader implements networks.XContext.
+func (c *Context) GetRespHeader(k string) string {
+	return c.req.Response.Header.Get(k)
+}
+
+// VisitRespHeaders implements networks.XContext.
+func (c *Context) VisitRespHeaders(visitor func(k []byte, v []byte)) {
+	c.req.Response.Header.VisitAll(func(key, value []byte) {
+		visitor(key, value)
+	})
+}
+
+// GetReqHeader implements networks.Context.
+func (c *Context) GetReqHeader(k string) string {
+	return string(c.req.GetHeader(k))
+}
+
+// GetProtocol implements networks.Context.
+func (c *Context) GetReqProtocol() string {
+	return c.req.Request.Header.GetProtocol()
+}
+
+// RemoteAddress implements networks.Context.
+func (c *Context) RemoteAddress() string {
+	return c.req.RemoteAddr().String()
+}
+
+// ResetResponse implements networks.Context.
+func (c *Context) ResetResponse() {
+	c.req.Response.Reset()
+}
+
+// SetBody implements networks.Context.
+func (c *Context) SetBody(body []byte) {
+	c.req.Response.SetBody(body)
+}
+
+// SetStatusCode implements networks.Context.
+func (c *Context) SetStatusCode(code int) {
+	c.req.SetStatusCode(code)
+}
+
+// StatusCode implements networks.Context.
+func (c *Context) StatusCode() int {
+	return c.req.Response.StatusCode()
+}
+
+// URI implements networks.Context.
+func (c *Context) URI() string {
+	return c.req.URI().String()
+}
+
+// VisitHeaders implements networks.Context.
+func (c *Context) VisitReqHeaders(visitor func(k []byte, v []byte)) {
+	c.req.VisitAllHeaders(func(key, value []byte) {
+		visitor(key, value)
+	})
+}
+
+// Body implements rulectx.Context.
+func (c *Context) Body() []byte {
+	return c.req.Request.Body()
 }
 
 // GetContext implements rulectx.Context.
@@ -68,55 +139,48 @@ func (c *Context) GetContext() context.Context {
 	return c.Context()
 }
 
-// GetHeader implements rulectx.Context.
-// Subtle: this method shadows the
-// method (*RequestContext).GetHeader of Context.RequestContext.
-func (c *Context) GetHeader() map[string]string {
+// Header implements rulectx.Context.
+func (c *Context) Header() map[string]string {
 	headers := make(map[string]string)
-	c.VisitAllHeaders(func(key, value []byte) {
+	c.req.VisitAllHeaders(func(key, value []byte) {
 		headers[(string(key))] = string(value)
 	})
 
 	return headers
 }
 
-// GetHost implements rulectx.Context.
-func (c *Context) GetHost() string {
-	return string(c.Request.Host())
+// Host implements rulectx.Context.
+func (c *Context) Host() string {
+	return string(c.req.Request.Host())
 }
 
 // GetIP implements rulectx.Context.
-func (c *Context) GetIP() string {
-	return c.ClientIP()
+func (c *Context) ClientIP() string {
+	return c.req.ClientIP()
 }
 
-// GetJA4 implements rulectx.Context.
-func (c *Context) GetJA4() string {
+// JA4 implements rulectx.Context.
+func (c *Context) JA4() string {
 	return ""
 }
 
-// GetMethod implements rulectx.Context.
-func (c *Context) GetMethod() string {
-	return string(c.Request.Method())
-}
-
-// GetPath implements rulectx.Context.
-func (c *Context) GetPath() string {
-	return string(c.Request.Path())
+// Method implements rulectx.Context.
+func (c *Context) Method() string {
+	return string(c.req.Request.Method())
 }
 
 // GetQueries implements rulectx.Context.
-func (c *Context) GetQueries() []string {
+func (c *Context) Queries() []string {
 	var queries []string
-	c.VisitAllQueryArgs(func(key, _ []byte) {
+	c.req.VisitAllQueryArgs(func(key, _ []byte) {
 		queries = append(queries, string(key))
 	})
 
 	return queries
 }
 
-// GetTLS implements rulectx.Context.
-func (c *Context) GetTLS() bool {
+// TLS implements rulectx.Context.
+func (c *Context) TLS() bool {
 	return true
 }
 
@@ -130,54 +194,58 @@ func (c *Context) Time() time.Time {
 
 // Context implements HTTPContext.
 func (c *Context) Context() context.Context {
-	c.GetConn()
+	c.req.GetConn()
 	return c.ctx
 }
 
 // JSON implements HTTPContext.
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.SetContentType("application/json")
-	c.SetStatusCode(statusCode)
+	c.req.SetContentType("application/json")
+	c.req.SetStatusCode(statusCode)
 
-	_, err := c.Write(body)
+	_, err := c.req.Write(body)
 	return err
 }
 
 // Path implements HTTPContext.
 func (c *Context) Path() string {
-	return string(c.RequestContext.Request.URI().PathOriginal())
+	return string(c.req.Request.URI().PathOriginal())
 }
 
 // Release implements HTTPContext.
 func (c *Context) Release() {
-	c.RequestContext = nil
+	c.req = nil
 	c.ctx = nil
 	ctxPool.Put(c)
 }
 
 // String implements HTTPContext.
 func (c *Context) String(statusCode int, body string) error {
-	c.SetContentType("text/plain; charset=utf-8")
-	c.SetStatusCode(statusCode)
+	c.req.SetContentType("text/plain; charset=utf-8")
+	c.req.SetStatusCode(statusCode)
 
-	_, err := c.WriteString(body)
+	_, err := c.req.WriteString(body)
 	return err
 }
 
 func (c *Context) SetServer() {
-	c.Response.Header.Set("Server", sentinez.Name)
+	c.req.Response.Header.Set("Server", sentinez.Name)
 }
 
 func (c *Context) GetReqID() string {
-	return c.Request.Header.Get(HeaderXRequest)
+	return c.req.Request.Header.Get(HeaderXRequest)
 }
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
-	c.SetStatusCode(statusCode)
-	c.SetContentType("text/html; charset=utf-8")
+	c.req.SetStatusCode(statusCode)
+	c.req.SetContentType("text/html; charset=utf-8")
 	c.SetServer()
 
-	return component.Render(c.Context(), c.Response.BodyWriter())
+	return component.Render(c.Context(), c.req.Response.BodyWriter())
+}
+
+func (c *Context) Unwrap() *app.RequestContext {
+	return c.req
 }
 
 func setRequestTime(ctx context.Context) context.Context {
@@ -189,11 +257,11 @@ func setRequestTime(ctx context.Context) context.Context {
 
 // GenContextKey nolint:funlen
 func GenContextKey(ctx *Context) string {
-	method := string(ctx.Method())
-	host := string(ctx.Host())
+	method := string(ctx.req.Method())
+	host := string(ctx.req.Host())
 	path := string(ctx.Path())
 
-	args := ctx.QueryArgs()
+	args := ctx.req.QueryArgs()
 	var keys []string
 	args.VisitAll(func(key, _ []byte) {
 		keys = append(keys, string(key))
@@ -205,9 +273,9 @@ func GenContextKey(ctx *Context) string {
 		sortedQuery += fmt.Sprintf("%s=%s&", k, args.Peek(k))
 	}
 
-	ct := string(ctx.Request.Header.ContentType())
+	ct := string(ctx.req.Request.Header.ContentType())
 
-	body := ctx.Request.Body()
+	body := ctx.req.Request.Body()
 	if len(body) > 1024 {
 		body = body[:1024]
 	}

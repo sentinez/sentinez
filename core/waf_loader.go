@@ -15,11 +15,11 @@
 package core
 
 import (
-	rules "github.com/sentinez/sentinez/core/waf/gen"
-	rulev4160 "github.com/sentinez/sentinez/core/waf/gen/v4-16-0"
+	rules "github.com/sentinez/sentinez/core/modsec/gen"
+	rulev4160 "github.com/sentinez/sentinez/core/modsec/gen/v4-16-0"
 )
 
-func GetWAFRule(version WAFVersion, flag WAFFlag) string {
+func getRulesets(version WAFVersion, flag WAFFlag) string {
 	var rulesets = &RuleLoader{}
 
 	// load setup rules
@@ -32,6 +32,9 @@ func GetWAFRule(version WAFVersion, flag WAFFlag) string {
 	switch version {
 	case WAF4160:
 		r4160(rulesets, flag)
+
+	case WAF4170:
+		r4167(rulesets, flag)
 	}
 
 	//load extension rules
@@ -54,4 +57,9 @@ func r4160(rulesets *RuleLoader, flag WAFFlag) {
 		rulesets.Load(rulev4160.Request942ApplicationAttackSqliOrder)
 	}
 
+}
+
+func r4167(rulesets *RuleLoader, flag WAFFlag) {
+	_ = rulesets
+	_ = flag
 }

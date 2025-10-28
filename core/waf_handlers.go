@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpsec
+package core
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -24,47 +23,25 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/core/networks"
 )
 
-func PostProcess(ctx *httpxhz.Context, tx types.Transaction,
-	callback func(*httpxhz.Context, types.Transaction)) {
-	// final phase
-	tx.ProcessLogging()
-
-	if callback != nil {
-		callback(ctx, tx)
-	}
-
-	if err := tx.Close(); err != nil {
-		DebugLogger(tx, err, "failed to close transaction")
-	}
-}
-
-func ProcessRequestHandler(ctx *httpxhz.Context, tx types.Transaction) error {
+func processRequestHandler(ctx networks.XContext, tx types.Transaction) error {
 	if it, err := processRequest(ctx, tx); err != nil {
-		zlog.Debugf("failed to process request: %v", err)
 		return err
 	} else if it != nil {
 
-		code := obtainStatusCodeFromInterruptionOrDefault(it,
-			ctx.Response.StatusCode(),
-		)
+		code := obtainStatusCodeFromInterruptionOrDefault(it, ctx.StatusCode())
 
 		ctx.SetStatusCode(code)
-		if code == http.StatusForbidden {
-			_ = httpxhz.Forbidden(ctx)
-		}
 
-		return errorx.F("[interrupted][request] with code: %d", code)
+		return fmt.Errorf("[interrupted][request] with code: %d", code)
 	}
 
 	return nil
 }
 
-func DebugLogger(tx types.Transaction, err error, msg string) {
+func debugLogger(tx types.Transaction, err error, msg string) {
 	tx.DebugLogger().
 		Error().
 		Err(err).
@@ -73,7 +50,7 @@ func DebugLogger(tx types.Transaction, err error, msg string) {
 
 // processRequest ...
 // ref: https://github.com/corazawaf/coraza/blob/main/http/middleware.go#L27
-func processRequest(ctx *httpxhz.Context,
+func processRequest(ctx networks.XContext,
 	tx types.Transaction) (*types.Interruption, error) {
 
 	if it := processRequestHeader(ctx, tx); it != nil {
@@ -90,7 +67,7 @@ func processRequest(ctx *httpxhz.Context,
 	return nil, nil
 }
 
-func processRequestHeader(ctx *httpxhz.Context,
+func processRequestHeader(ctx networks.XContext,
 	tx types.Transaction) *types.Interruption {
 
 	processRequestConnection(ctx, tx)
@@ -101,7 +78,7 @@ func processRequestHeader(ctx *httpxhz.Context,
 		tx.SetServerName(host)
 	}
 
-	transferEncoding := ctx.Request.Header.Get("Transfer-Encoding")
+	transferEncoding := ctx.GetReqHeader("Transfer-Encoding")
 	if transferEncoding != "" {
 		tx.AddRequestHeader("Transfer-Encoding", transferEncoding)
 	}
@@ -114,29 +91,29 @@ func processRequestHeader(ctx *httpxhz.Context,
 	return nil
 }
 
-func processRequestConnection(ctx *httpxhz.Context, tx types.Transaction) {
+func processRequestConnection(ctx networks.XContext, tx types.Transaction) {
 
 	var client string
 	var cport int
 
-	idx := strings.LastIndexByte(ctx.RemoteAddr().String(), ':')
+	idx := strings.LastIndexByte(ctx.RemoteAddress(), ':')
 	if idx != -1 {
-		client = ctx.RemoteAddr().String()[:idx]
-		cport, _ = strconv.Atoi(ctx.RemoteAddr().String()[idx+1:])
+		client = ctx.RemoteAddress()[:idx]
+		cport, _ = strconv.Atoi(ctx.RemoteAddress()[idx+1:])
 	}
 
 	tx.ProcessConnection(client, cport, "", 0)
 	tx.ProcessURI(
-		ctx.URI().String(),
+		ctx.URI(),
 		string(ctx.Method()),
-		ctx.Request.Header.GetProtocol(),
+		ctx.GetReqProtocol(),
 	)
-	ctx.Request.Header.VisitAll(func(k, v []byte) {
+	ctx.VisitReqHeaders(func(k, v []byte) {
 		tx.AddRequestHeader(string(k), string(v))
 	})
 }
 
-func processRequestBody(ctx *httpxhz.Context,
+func processRequestBody(ctx networks.XContext,
 	tx types.Transaction) (*types.Interruption, error) {
 
 	if tx.IsRequestBodyAccessible() {
@@ -150,15 +127,12 @@ func processRequestBody(ctx *httpxhz.Context,
 	return tx.ProcessRequestBody()
 }
 
-func canRequestBodyAccessible(ctx *httpxhz.Context,
+func canRequestBodyAccessible(ctx networks.XContext,
 	tx types.Transaction) (*types.Interruption, error) {
 
-	body, err := ctx.Body()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get body: %v", err)
-	}
+	body := ctx.Body()
 
-	if len(ctx.Request.Body()) != 0 {
+	if len(body) != 0 {
 		it, _, err := tx.ReadRequestBodyFrom(ctx.RequestBodyStream())
 		if err != nil {
 			return nil, fmt.Errorf("failed to append request body: %v", err)
@@ -168,41 +142,36 @@ func canRequestBodyAccessible(ctx *httpxhz.Context,
 			return it, nil
 		}
 
-		ctx.Request.SetBody(body)
+		ctx.SetBody(body)
 	}
 
 	return nil, nil
 }
 
-func ProcessResponseHandler(ctx *httpxhz.Context, tx types.Transaction) error {
+func processResponseHandler(ctx networks.XContext, tx types.Transaction) error {
 	if tx.IsInterrupted() {
 		return nil
 	}
 
-	i := interceptor{tx: tx, proto: ctx.Request.Header.GetProtocol()}
-	it, err := i.WriteResponseBody(ctx)
+	i := interceptor{tx: tx, proto: ctx.GetReqProtocol()}
+	it, err := i.writeResponseBody(ctx)
 	if err != nil {
 		return err
 	}
 
 	if it != nil {
-		ctx.Response.Reset()
-		code := obtainStatusCodeFromInterruptionOrDefault(it,
-			ctx.Response.StatusCode(),
-		)
+		ctx.ResetResponse()
+		code := obtainStatusCodeFromInterruptionOrDefault(it, ctx.StatusCode())
 
-		ctx.Response.SetStatusCode(code)
-		if code == http.StatusForbidden {
-			_ = httpxhz.Forbidden(ctx)
-		}
+		ctx.SetStatusCode(code)
 
-		return errorx.F("[interrupted][response] with code: %d", code)
+		return fmt.Errorf("[interrupted][response] with code: %d", code)
 	}
 
 	return releaseBodyReader(ctx, tx)
 }
 
-func releaseBodyReader(ctx *httpxhz.Context, tx types.Transaction) error {
+func releaseBodyReader(ctx networks.XContext, tx types.Transaction) error {
 
 	reader, err := tx.ResponseBodyReader()
 	if err != nil {
@@ -210,21 +179,21 @@ func releaseBodyReader(ctx *httpxhz.Context, tx types.Transaction) error {
 		return fmt.Errorf("failed to release resp body reader: %v", err)
 	}
 
-	if _, err = io.Copy(ctx, reader); err != nil {
+	if err = ctx.Copy(reader); err != nil {
 		return fmt.Errorf("failed to copy the resp body: %v", err)
 	}
 
 	return nil
 }
 
-func NewTransaction(waf coraza.WAF, ctx *httpxhz.Context) types.Transaction {
+func newTransaction(waf coraza.WAF, ctx networks.XContext) types.Transaction {
 
-	newTX := func(*httpxhz.Context) types.Transaction {
+	newTX := func(networks.XContext) types.Transaction {
 		return waf.NewTransaction()
 	}
 
 	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
-		newTX = func(ctx *httpxhz.Context) types.Transaction {
+		newTX = func(ctx networks.XContext) types.Transaction {
 			return ctxWAF.NewTransactionWithOptions(experimental.Options{
 				Context: ctx.Context(),
 			})

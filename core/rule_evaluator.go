@@ -18,6 +18,7 @@ import (
 	"sync"
 
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/core/networks"
 )
 
 var (
@@ -40,7 +41,7 @@ type Evaluator interface {
 // newEvaluator creates a new Evaluator instance.
 // Remember to call Evaluator.Release when the
 // context is done to avoid memory leaks.
-func newEvaluator(ctx RequestContext) Evaluator {
+func newEvaluator(ctx networks.Context) Evaluator {
 
 	ev := evPool.Get().(*evaluator)
 	ev.ctx = ctx
@@ -49,7 +50,7 @@ func newEvaluator(ctx RequestContext) Evaluator {
 }
 
 type evaluator struct {
-	ctx RequestContext
+	ctx networks.Context
 }
 
 func (ev *evaluator) Release() {

@@ -48,15 +48,15 @@ func (l *Logger) Handle(ctx *httpxhz.Context) error {
 
 	l.logger.Info("[http][request]", &http.Log4HTTP{
 		ReqId:         ctx.GetReqID(),
-		Scheme:        string(ctx.URI().Scheme()),
+		Scheme:        string(ctx.Unwrap().URI().Scheme()),
 		Host:          requestResourceHost,
 		Path:          ctx.Path(),
-		Method:        string(ctx.Method()),
-		Status:        int32(ctx.Response.StatusCode()),
-		RemoteAddress: ctx.RemoteAddr().String(),
-		Protocol:      ctx.Request.Header.GetProtocol(),
-		Query:         ctx.QueryArgs().String(),
-		UserAgent:     string(ctx.UserAgent()),
+		Method:        ctx.Method(),
+		Status:        int32(ctx.StatusCode()),
+		RemoteAddress: ctx.RemoteAddress(),
+		Protocol:      ctx.GetReqProtocol(),
+		Query:         ctx.Unwrap().QueryArgs().String(),
+		UserAgent:     string(ctx.Unwrap().UserAgent()),
 	})
 
 	return err

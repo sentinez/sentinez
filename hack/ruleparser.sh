@@ -15,37 +15,37 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out core/waf/gen/v4-16-0 \
+    -out core/modsec/gen/v4-16-0 \
     -file deploy/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen/v4-16-0 \
+    -out core/modsec/gen/v4-16-0 \
     -file deploy/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen \
+    -out core/modsec/gen \
     -file deploy/rules/setup.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen \
+    -out core/modsec/gen \
     -file deploy/rules/default.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen/v4-16-0 \
+    -out core/modsec/gen/v4-16-0 \
     -file deploy/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen \
+    -out core/modsec/gen \
     -file deploy/rules/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen/v4-16-0 \
+    -out core/modsec/gen/v4-16-0 \
     -file deploy/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen \
+    -out core/modsec/gen \
     -file deploy/rules/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out core/waf/gen \
+    -out core/modsec/gen \
     -file deploy/rules/audit.conf

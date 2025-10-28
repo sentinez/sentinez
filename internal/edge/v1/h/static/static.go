@@ -47,7 +47,7 @@ func (s *Static) Handle(ctx *httpxhz.Context) error {
 	err := s.HandleNext(ctx)
 
 	if s.isStaticAsset(ctx.Path()) {
-		ctx.Response.Header.Set(
+		ctx.Unwrap().Response.Header.Set(
 			"Cache-Control",
 			"public, max-age=3600, immutable",
 		)

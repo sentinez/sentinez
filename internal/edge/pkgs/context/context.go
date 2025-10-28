@@ -18,80 +18,130 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/core"
+	"github.com/sentinez/sentinez/core/networks"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
 )
 
 var (
-	_ core.RequestContext = (*Context)(nil)
+	_ networks.Context = (*Context)(nil)
 
 	pool = syncx.NewPool[Context]()
 )
 
 func New(ctx context.Context, ectx *edgepb.EngineContext) *Context {
 	enginectx := pool.Get()
-	enginectx.EngineContext = ectx
+	enginectx.ectx = ectx
 	enginectx.ctx = ctx
 	return enginectx
 }
 
 type Context struct {
-	*edgepb.EngineContext
-	ctx context.Context
+	ectx *edgepb.EngineContext
+	ctx  context.Context
+}
+
+// GetReqProtocol implements networks.Context.
+func (c *Context) GetReqProtocol() string {
+	panic("unimplemented")
+}
+
+// RemoteAddress implements networks.Context.
+func (c *Context) RemoteAddress() string {
+	panic("unimplemented")
+}
+
+// StatusCode implements networks.Context.
+func (c *Context) StatusCode() int {
+	panic("unimplemented")
+}
+
+// URI implements networks.Context.
+func (c *Context) URI() string {
+	panic("unimplemented")
+}
+
+// Header implements networks.Context.
+func (c *Context) Header() map[string]string {
+	return c.ectx.GetHeader()
+}
+
+// Host implements networks.Context.
+func (c *Context) Host() string {
+	return c.ectx.GetHost()
+}
+
+// JA4 implements networks.Context.
+func (c *Context) JA4() string {
+	return c.ectx.GetJa4()
+}
+
+// Method implements networks.Context.
+func (c *Context) Method() string {
+	return c.ectx.GetMethod()
+}
+
+// Path implements networks.Context.
+func (c *Context) Path() string {
+	return c.ectx.GetPath()
+}
+
+// Queries implements networks.Context.
+func (c *Context) Queries() []string {
+	return c.ectx.GetQueries()
+}
+
+// TLS implements networks.Context.
+func (c *Context) TLS() bool {
+	return c.ectx.GetTls()
 }
 
 func (c *Context) Release() {
-	c.EngineContext = nil
+	c.ectx = nil
 	c.ctx = nil
 	pool.Put(c)
 }
 
-// GetBody implements context.Context.
-func (c *Context) GetBody() []byte {
-	return c.EngineContext.GetBody()
+// Body implements context.Context.
+func (c *Context) Body() []byte {
+	return c.ectx.GetBody()
 }
 
-// GetContext implements context.Context.
-func (c *Context) GetContext() context.Context {
+// Context implements context.Context.
+func (c *Context) Context() context.Context {
 	return c.ctx
 }
 
 // GetHeader implements context.Context.
 func (c *Context) GetHeader() map[string]string {
-	return c.EngineContext.GetHeader()
+	return c.ectx.GetHeader()
 }
 
 // GetHost implements context.Context.
 func (c *Context) GetHost() string {
-	return c.EngineContext.GetHost()
+	return c.ectx.GetHost()
 }
 
-// GetIP implements context.Context.
-func (c *Context) GetIP() string {
-	return c.GetIp()
-}
-
-// GetJA4 implements context.Context.
-func (c *Context) GetJA4() string {
-	return c.GetJa4()
+// ClientIP implements context.Context.
+func (c *Context) ClientIP() string {
+	return c.ectx.GetIp()
 }
 
 // GetMethod implements context.Context.
 func (c *Context) GetMethod() string {
-	return c.EngineContext.GetMethod()
+	return c.ectx.GetMethod()
 }
 
 // GetPath implements context.Context.
 func (c *Context) GetPath() string {
-	return c.EngineContext.GetPath()
+	return c.ectx.GetPath()
 }
 
 // GetQueries implements context.Context.
 func (c *Context) GetQueries() []string {
-	return c.EngineContext.GetQueries()
+	return c.ectx.GetQueries()
 }
 
 // GetTLS implements context.Context.
 func (c *Context) GetTLS() bool {
-	return c.GetTls()
+	return c.ectx.GetTls()
 }
