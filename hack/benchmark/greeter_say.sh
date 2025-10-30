@@ -16,4 +16,4 @@
 
 # -c 100: 100 concurrent users.
 # -n 10000: 10,000 requests.
-bombardier -c 100 -n 10000 http://badcheese.localhost:7777/
+bombardier -k -c 100 -n 10000 https://badcheese.is.s6z.io.vn:7443/

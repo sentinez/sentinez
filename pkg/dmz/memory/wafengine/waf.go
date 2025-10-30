@@ -55,6 +55,10 @@ type WAFCache struct {
 func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
 	version rulesets.Version, flag rulesets.Flag) error {
 
+	if w == nil {
+		return nil
+	}
+
 	waf, err := rulesets.NewWAF(version, conf.GetFlag().GetRulePath(), flag)
 	if err != nil {
 		return err
@@ -69,6 +73,10 @@ func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
 }
 
 func (w *WAFCache) Load(namespace string) coraza.WAF {
+	if w == nil {
+		return nil
+	}
+
 	value, ok := w.space.Load(namespace)
 	if !ok {
 		return nil
@@ -78,6 +86,10 @@ func (w *WAFCache) Load(namespace string) coraza.WAF {
 }
 
 func (w *WAFCache) LoadContext(ctx *httpxdmz.Context) coraza.WAF {
+	if w == nil {
+		return nil
+	}
+
 	hCtx, ok := httpxdmz.GetRequestContext(ctx)
 	if !ok {
 		return nil

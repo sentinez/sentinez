@@ -55,6 +55,11 @@ func loadRouting() {
 
 func loadWAF(appConf *common.AppConfig) {
 	settings.Get().Visit(func(s *edgepb.Setting) bool {
+		if !s.GetSecurity().GetIsWafEngineOn() {
+			zlog.Infof("[edge][wafengine] ignore '%s'", s.GetOrigin().GetNamespace())
+			return true
+		}
+
 		var (
 			ns     = s.GetOrigin().GetNamespace()
 			engine = wafengine.New()

@@ -67,11 +67,11 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    # wafRuleset: "default"            # WAF ruleset name
     # rateLimit:
     #   requestsPerSecond: 100         # Allowed requests per second
     # botProtection: true              # Enable bot protection
-    {}
+    
+    isWafEngineOn: false
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

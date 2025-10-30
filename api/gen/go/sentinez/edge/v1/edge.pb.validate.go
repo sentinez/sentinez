@@ -370,6 +370,8 @@ func (m *Security) Validate() error {
 		return nil
 	}
 
+	// no validation rules for IsWafEngineOn
+
 	return nil
 }
 

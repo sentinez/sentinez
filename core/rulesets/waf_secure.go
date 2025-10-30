@@ -31,6 +31,9 @@ var (
 )
 
 func NewRulesets(ctx networks.XContext, waf coraza.WAF) *Rulesets {
+	if waf == nil {
+		return nil
+	}
 
 	rule := poolWAF.Get().(*Rulesets)
 	rule.tx = newTransaction(waf, ctx)
@@ -43,6 +46,10 @@ type Rulesets struct {
 }
 
 func (rs *Rulesets) ExecIngress(ctx networks.XContext) error {
+	if rs == nil {
+		return nil
+	}
+
 	if err := processRequestHandler(ctx, rs.tx); err != nil {
 		debugLogger(rs.tx, err, "faild to process request")
 		return err
@@ -52,6 +59,10 @@ func (rs *Rulesets) ExecIngress(ctx networks.XContext) error {
 }
 
 func (rs *Rulesets) ExecEgress(ctx networks.XContext) error {
+	if rs == nil {
+		return nil
+	}
+
 	if err := processResponseHandler(ctx, rs.tx); err != nil {
 		debugLogger(rs.tx, err, "faild to process response")
 		return err
@@ -61,6 +72,10 @@ func (rs *Rulesets) ExecEgress(ctx networks.XContext) error {
 }
 
 func (rs *Rulesets) Final(callback func()) {
+	if rs == nil {
+		return
+	}
+
 	// final phase
 	rs.tx.ProcessLogging()
 
@@ -72,6 +87,10 @@ func (rs *Rulesets) Final(callback func()) {
 }
 
 func (rs *Rulesets) Matched() (*types.Interruption, []types.MatchedRule, bool) {
+	if rs == nil {
+		return nil, nil, false
+	}
+
 	if !rs.tx.IsInterrupted() {
 		return nil, nil, false
 	}
@@ -80,14 +99,26 @@ func (rs *Rulesets) Matched() (*types.Interruption, []types.MatchedRule, bool) {
 }
 
 func (rs *Rulesets) GetTxId() string {
+	if rs == nil {
+		return ""
+	}
+
 	return rs.tx.ID()
 }
 
 func (rs *Rulesets) Release() {
+	if rs == nil {
+		return
+	}
+
 	rs.tx = nil
 	poolWAF.Put(rs)
 }
 
 func (rs *Rulesets) IsRuleEngineOff() bool {
+	if rs == nil {
+		return false
+	}
+
 	return rs.tx.IsRuleEngineOff()
 }
