@@ -92,8 +92,8 @@ edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem \
-		--cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem \
+		--cert-file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert-key=cmd/edge/v1/is.s6z.io.vn.key \
 		--rule-path=./data/crs/v4-16-0 \
 		--proxy-config=./cmd/edge/v1/proxy.yaml \
 		--env-file=./cmd/edge/v1/.env

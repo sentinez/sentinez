@@ -21,16 +21,20 @@ import "sentinez/types/rule/engine/v1/ruleengine.proto";
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
 // Context represents the essential information extracted from an HTTP request.
-message EngineContext {
-  bytes body = 1;                    // Raw request body
-  map<string, string> header = 2;    // HTTP headers
-  string host = 3;                   // Hostname or domain
-  string ip = 4;                     // Client IP address
-  string ja4 = 5;                    // JA4 fingerprint
-  string method = 6;                 // HTTP method (GET, POST, etc.)
-  string path = 7;                   // Request path
-  repeated string queries = 8;       // Query parameters
-  bool tls = 9;                      // Whether the connection used TLS
+message RequestContext {
+  bytes body = 1;                 // Raw request body
+  map<string, string> header = 2; // HTTP headers
+  string host = 3;                // Hostname or domain
+  string ip = 4;                  // Client IP address
+  string ja4 = 5;                 // JA4 fingerprint
+  string method = 6;              // HTTP method (GET, POST, etc.)
+  string path = 7;                // Request path
+  repeated string queries = 8;    // Query parameters
+  bool tls = 9;                   // Whether the connection used TLS
+  string protocol = 10;
+  string remote_address = 11;
+  int32 status_code = 12;
+  string uri = 13;
 }
 
 service EdgeEngineService {
@@ -39,7 +43,7 @@ service EdgeEngineService {
 
 message EvaluateIngressRequest {
   string ruleset_id = 1;
-  EngineContext request_context = 2;
+  RequestContext request_context = 2;
 }
 
 message EvaluationResult {
@@ -48,6 +52,4 @@ message EvaluationResult {
   repeated sentinez.types.rule.engine.v1.Action actions = 3;
 }
 
-message EvaluateIngressResponse {
-  repeated EvaluationResult results = 1;
-}
+message EvaluateIngressResponse { repeated EvaluationResult results = 1; }

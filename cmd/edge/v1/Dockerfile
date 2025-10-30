@@ -39,8 +39,8 @@ COPY data/crs/ /sentinez/data/crs
 COPY cmd/edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
 COPY cmd/edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
 
-COPY cmd/edge/v1/_wildcard.sentinez.vn+1.pem /etc/sntz/ssl/certs/
-COPY cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem /etc/sntz/ssl/private/
+COPY cmd/edge/v1/is.s6z.io.vn.cert /etc/sntz/ssl/certs/
+COPY cmd/edge/v1/is.s6z.io.vn.key /etc/sntz/ssl/private/
 
 
 # Stage run

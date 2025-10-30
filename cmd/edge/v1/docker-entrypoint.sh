@@ -21,5 +21,5 @@
     --rule-path ./crs/v4-16-0 \
     --proxy-config ./proxy.yaml \
     --env-file "" \
-    --cert-file /etc/sntz/ssl/certs/_wildcard.sentinez.vn+1.pem \
-    --cert-key /etc/sntz/ssl/private/_wildcard.sentinez.vn+1-key.pem
+    --cert-file /etc/sntz/ssl/certs/is.s6z.io.vn.cert \
+    --cert-key /etc/sntz/ssl/private/is.s6z.io.vn.key

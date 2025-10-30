@@ -11,7 +11,7 @@ import { Action } from "../../types/rule/engine/v1/ruleengine";
 export const protobufPackage = "sentinez.edge.v1";
 
 /** Context represents the essential information extracted from an HTTP request. */
-export interface EngineContext {
+export interface RequestContext {
   /** Raw request body */
   body: Uint8Array;
   /** HTTP headers */
@@ -30,16 +30,20 @@ export interface EngineContext {
   queries: string[];
   /** Whether the connection used TLS */
   tls: boolean;
+  protocol: string;
+  remoteAddress: string;
+  statusCode: number;
+  uri: string;
 }
 
-export interface EngineContext_HeaderEntry {
+export interface RequestContext_HeaderEntry {
   key: string;
   value: string;
 }
 
 export interface EvaluateIngressRequest {
   rulesetId: string;
-  requestContext?: EngineContext | undefined;
+  requestContext?: RequestContext | undefined;
 }
 
 export interface EvaluationResult {
@@ -52,7 +56,7 @@ export interface EvaluateIngressResponse {
   results: EvaluationResult[];
 }
 
-function createBaseEngineContext(): EngineContext {
+function createBaseRequestContext(): RequestContext {
   return {
     body: new Uint8Array(0),
     header: {},
@@ -63,16 +67,20 @@ function createBaseEngineContext(): EngineContext {
     path: "",
     queries: [],
     tls: false,
+    protocol: "",
+    remoteAddress: "",
+    statusCode: 0,
+    uri: "",
   };
 }
 
-export const EngineContext: MessageFns<EngineContext> = {
-  encode(message: EngineContext, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const RequestContext: MessageFns<RequestContext> = {
+  encode(message: RequestContext, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.body.length !== 0) {
       writer.uint32(10).bytes(message.body);
     }
     Object.entries(message.header).forEach(([key, value]) => {
-      EngineContext_HeaderEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
+      RequestContext_HeaderEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
     });
     if (message.host !== "") {
       writer.uint32(26).string(message.host);
@@ -95,13 +103,25 @@ export const EngineContext: MessageFns<EngineContext> = {
     if (message.tls !== false) {
       writer.uint32(72).bool(message.tls);
     }
+    if (message.protocol !== "") {
+      writer.uint32(82).string(message.protocol);
+    }
+    if (message.remoteAddress !== "") {
+      writer.uint32(90).string(message.remoteAddress);
+    }
+    if (message.statusCode !== 0) {
+      writer.uint32(96).int32(message.statusCode);
+    }
+    if (message.uri !== "") {
+      writer.uint32(106).string(message.uri);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EngineContext {
+  decode(input: BinaryReader | Uint8Array, length?: number): RequestContext {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEngineContext();
+    const message = createBaseRequestContext();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -118,7 +138,7 @@ export const EngineContext: MessageFns<EngineContext> = {
             break;
           }
 
-          const entry2 = EngineContext_HeaderEntry.decode(reader, reader.uint32());
+          const entry2 = RequestContext_HeaderEntry.decode(reader, reader.uint32());
           if (entry2.value !== undefined) {
             message.header[entry2.key] = entry2.value;
           }
@@ -180,6 +200,38 @@ export const EngineContext: MessageFns<EngineContext> = {
           message.tls = reader.bool();
           continue;
         }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.protocol = reader.string();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.remoteAddress = reader.string();
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.statusCode = reader.int32();
+          continue;
+        }
+        case 13: {
+          if (tag !== 106) {
+            break;
+          }
+
+          message.uri = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -189,7 +241,7 @@ export const EngineContext: MessageFns<EngineContext> = {
     return message;
   },
 
-  fromJSON(object: any): EngineContext {
+  fromJSON(object: any): RequestContext {
     return {
       body: isSet(object.body) ? bytesFromBase64(object.body) : new Uint8Array(0),
       header: isObject(object.header)
@@ -205,10 +257,14 @@ export const EngineContext: MessageFns<EngineContext> = {
       path: isSet(object.path) ? globalThis.String(object.path) : "",
       queries: globalThis.Array.isArray(object?.queries) ? object.queries.map((e: any) => globalThis.String(e)) : [],
       tls: isSet(object.tls) ? globalThis.Boolean(object.tls) : false,
+      protocol: isSet(object.protocol) ? globalThis.String(object.protocol) : "",
+      remoteAddress: isSet(object.remoteAddress) ? globalThis.String(object.remoteAddress) : "",
+      statusCode: isSet(object.statusCode) ? globalThis.Number(object.statusCode) : 0,
+      uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
     };
   },
 
-  toJSON(message: EngineContext): unknown {
+  toJSON(message: RequestContext): unknown {
     const obj: any = {};
     if (message.body.length !== 0) {
       obj.body = base64FromBytes(message.body);
@@ -243,14 +299,26 @@ export const EngineContext: MessageFns<EngineContext> = {
     if (message.tls !== false) {
       obj.tls = message.tls;
     }
+    if (message.protocol !== "") {
+      obj.protocol = message.protocol;
+    }
+    if (message.remoteAddress !== "") {
+      obj.remoteAddress = message.remoteAddress;
+    }
+    if (message.statusCode !== 0) {
+      obj.statusCode = Math.round(message.statusCode);
+    }
+    if (message.uri !== "") {
+      obj.uri = message.uri;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EngineContext>, I>>(base?: I): EngineContext {
-    return EngineContext.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RequestContext>, I>>(base?: I): RequestContext {
+    return RequestContext.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<EngineContext>, I>>(object: I): EngineContext {
-    const message = createBaseEngineContext();
+  fromPartial<I extends Exact<DeepPartial<RequestContext>, I>>(object: I): RequestContext {
+    const message = createBaseRequestContext();
     message.body = object.body ?? new Uint8Array(0);
     message.header = Object.entries(object.header ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
       if (value !== undefined) {
@@ -265,16 +333,20 @@ export const EngineContext: MessageFns<EngineContext> = {
     message.path = object.path ?? "";
     message.queries = object.queries?.map((e) => e) || [];
     message.tls = object.tls ?? false;
+    message.protocol = object.protocol ?? "";
+    message.remoteAddress = object.remoteAddress ?? "";
+    message.statusCode = object.statusCode ?? 0;
+    message.uri = object.uri ?? "";
     return message;
   },
 };
 
-function createBaseEngineContext_HeaderEntry(): EngineContext_HeaderEntry {
+function createBaseRequestContext_HeaderEntry(): RequestContext_HeaderEntry {
   return { key: "", value: "" };
 }
 
-export const EngineContext_HeaderEntry: MessageFns<EngineContext_HeaderEntry> = {
-  encode(message: EngineContext_HeaderEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const RequestContext_HeaderEntry: MessageFns<RequestContext_HeaderEntry> = {
+  encode(message: RequestContext_HeaderEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
@@ -284,10 +356,10 @@ export const EngineContext_HeaderEntry: MessageFns<EngineContext_HeaderEntry> = 
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EngineContext_HeaderEntry {
+  decode(input: BinaryReader | Uint8Array, length?: number): RequestContext_HeaderEntry {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEngineContext_HeaderEntry();
+    const message = createBaseRequestContext_HeaderEntry();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -316,14 +388,14 @@ export const EngineContext_HeaderEntry: MessageFns<EngineContext_HeaderEntry> = 
     return message;
   },
 
-  fromJSON(object: any): EngineContext_HeaderEntry {
+  fromJSON(object: any): RequestContext_HeaderEntry {
     return {
       key: isSet(object.key) ? globalThis.String(object.key) : "",
       value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
-  toJSON(message: EngineContext_HeaderEntry): unknown {
+  toJSON(message: RequestContext_HeaderEntry): unknown {
     const obj: any = {};
     if (message.key !== "") {
       obj.key = message.key;
@@ -334,11 +406,11 @@ export const EngineContext_HeaderEntry: MessageFns<EngineContext_HeaderEntry> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EngineContext_HeaderEntry>, I>>(base?: I): EngineContext_HeaderEntry {
-    return EngineContext_HeaderEntry.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RequestContext_HeaderEntry>, I>>(base?: I): RequestContext_HeaderEntry {
+    return RequestContext_HeaderEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<EngineContext_HeaderEntry>, I>>(object: I): EngineContext_HeaderEntry {
-    const message = createBaseEngineContext_HeaderEntry();
+  fromPartial<I extends Exact<DeepPartial<RequestContext_HeaderEntry>, I>>(object: I): RequestContext_HeaderEntry {
+    const message = createBaseRequestContext_HeaderEntry();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
     return message;
@@ -355,7 +427,7 @@ export const EvaluateIngressRequest: MessageFns<EvaluateIngressRequest> = {
       writer.uint32(10).string(message.rulesetId);
     }
     if (message.requestContext !== undefined) {
-      EngineContext.encode(message.requestContext, writer.uint32(18).fork()).join();
+      RequestContext.encode(message.requestContext, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -380,7 +452,7 @@ export const EvaluateIngressRequest: MessageFns<EvaluateIngressRequest> = {
             break;
           }
 
-          message.requestContext = EngineContext.decode(reader, reader.uint32());
+          message.requestContext = RequestContext.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -395,7 +467,7 @@ export const EvaluateIngressRequest: MessageFns<EvaluateIngressRequest> = {
   fromJSON(object: any): EvaluateIngressRequest {
     return {
       rulesetId: isSet(object.rulesetId) ? globalThis.String(object.rulesetId) : "",
-      requestContext: isSet(object.requestContext) ? EngineContext.fromJSON(object.requestContext) : undefined,
+      requestContext: isSet(object.requestContext) ? RequestContext.fromJSON(object.requestContext) : undefined,
     };
   },
 
@@ -405,7 +477,7 @@ export const EvaluateIngressRequest: MessageFns<EvaluateIngressRequest> = {
       obj.rulesetId = message.rulesetId;
     }
     if (message.requestContext !== undefined) {
-      obj.requestContext = EngineContext.toJSON(message.requestContext);
+      obj.requestContext = RequestContext.toJSON(message.requestContext);
     }
     return obj;
   },
@@ -417,7 +489,7 @@ export const EvaluateIngressRequest: MessageFns<EvaluateIngressRequest> = {
     const message = createBaseEvaluateIngressRequest();
     message.rulesetId = object.rulesetId ?? "";
     message.requestContext = (object.requestContext !== undefined && object.requestContext !== null)
-      ? EngineContext.fromPartial(object.requestContext)
+      ? RequestContext.fromPartial(object.requestContext)
       : undefined;
     return message;
   },

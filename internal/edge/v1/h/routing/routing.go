@@ -16,10 +16,10 @@
 package routing
 
 import (
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/memory/routes"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
-	"github.com/sentinez/sentinez/pkg/network/httpx/hz/proxy"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	"github.com/sentinez/sentinez/pkg/dmz/httpx/proxy"
+	"github.com/sentinez/sentinez/pkg/dmz/memory/routes"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -42,11 +42,11 @@ func NewRouter() *Router {
 
 type Router struct {
 	*chains.BaseHandler
-	httpHandler func(ctx *httpxhz.Context) error
-	wsHandler   func(ctx *httpxhz.Context) error
+	httpHandler func(ctx *httpxdmz.Context) error
+	wsHandler   func(ctx *httpxdmz.Context) error
 }
 
-func (r *Router) Handle(ctx *httpxhz.Context) error {
+func (r *Router) Handle(ctx *httpxdmz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit router", ctx.GetReqID())
 
 	upgrade := string(ctx.Unwrap().Request.Header.Peek("Upgrade"))

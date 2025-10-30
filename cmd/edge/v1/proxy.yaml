@@ -30,7 +30,7 @@ setting:
     namespace: badcheese # Logical namespace grouping related routes
     routes:
       - matchPrefix: / # URL prefix to match incoming requests
-        target: http://badcheese.com/ # Destination origin endpoint
+        target: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
         # rewrite: /                   # (Optional) rewrite prefix before forwarding
 
       # Example 1 (disabled):

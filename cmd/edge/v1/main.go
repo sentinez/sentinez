@@ -21,13 +21,13 @@ import (
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 
 	_ "net/http/pprof"
 )
 
-// expose pprof
+// Expose pprof
 //
 // func init() {
 // 	go func() {
@@ -40,11 +40,13 @@ func main() {
 		conf := runner.GetAppConfig(ctx)
 		setting := edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
 
-		httpSrv := httpxhz.NewServer(conf.GetMeta())
+		httpSrv := httpxdmz.NewServer(conf.GetMeta())
 		edgeServer := edge.New(httpSrv, setting)
+
 		runner.OnStart(edgeServer.Start)
 		runner.OnStop(edgeServer.Shutdown)
 
+		// Run the Edge Engine gRPC handler
 		// engine := edge.NewEngine(conf.GetMeta())
 		// runner.OnStart(engine.Start)
 		// runner.OnStop(engine.Shutdown)

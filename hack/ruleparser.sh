@@ -49,3 +49,13 @@ ruleparser-sentinez \
 ruleparser-sentinez \
     -out core/modsec/gen \
     -file deploy/rules/audit.conf
+
+
+ruleparser-sentinez \
+    -out core/modsec/gen/v4-17-0 \
+    -file deploy/rules/v4-17-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+
+ruleparser-sentinez \
+    -out core/modsec/gen/v4-17-0 \
+    -file deploy/rules/v4-17-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+

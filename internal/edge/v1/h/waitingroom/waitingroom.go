@@ -1,9 +1,9 @@
 package waitingroom
 
 import (
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/queue"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	"github.com/sentinez/sentinez/pkg/dmz/queue"
 )
 
 var _ chains.Handler = (*WaitingRoom)(nil)
@@ -19,7 +19,7 @@ type WaitingRoom struct {
 	_ *queue.Queue
 }
 
-func (wr *WaitingRoom) Handle(ctx *httpxhz.Context) error {
+func (wr *WaitingRoom) Handle(ctx *httpxdmz.Context) error {
 
 	return wr.HandleNext(ctx)
 }
