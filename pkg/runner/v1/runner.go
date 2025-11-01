@@ -17,7 +17,7 @@ package runner
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/runner/v1/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc/grpclog"
@@ -30,7 +30,7 @@ type Engine interface {
 	Shutdown(ctx context.Context) error
 }
 
-func Main(appConf *common.AppConfig, start func(ctx context.Context) error) {
+func Main(appConf *configspb.AppConfig, start func(ctx context.Context) error) {
 	logging := zlog.NewDefaultConsole(zlog.LevelError)
 
 	grpclog.SetLoggerV2(logging)

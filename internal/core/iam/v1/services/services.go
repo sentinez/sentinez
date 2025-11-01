@@ -26,6 +26,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
@@ -42,7 +43,7 @@ import (
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(config *common.AppConfig,
+func New(config *configspb.AppConfig,
 	tx *postgres.Tx,
 	store passkey.Store,
 	users usersrepo.IUser,
@@ -62,7 +63,7 @@ func New(config *common.AppConfig,
 }
 
 type IAMService struct {
-	config   *common.AppConfig
+	config   *configspb.AppConfig
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accrepos.IAccount
@@ -296,7 +297,7 @@ func (srv *IAMService) getOrCreateAccount(
 	return acc, nil
 }
 
-func (srv *IAMService) Config() *common.EnvConfig {
+func (srv *IAMService) Config() *configspb.EnvConfig {
 	return srv.config.GetEnvConf()
 }
 

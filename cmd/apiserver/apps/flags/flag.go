@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
 	"github.com/sentinez/sentinez/pkg/x/flagx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/spf13/pflag"
@@ -28,19 +28,19 @@ import (
 var onceAPIServer sync.Once
 
 // Parse flag args for apiserver service
-func Parse() *common.Flag {
+func Parse() *flagspb.Flag {
 	onceAPIServer.Do(func() {
 		flagx.Get().ApiSpecsPath = "./api/docs/v1"
 		flagx.Get().SwaggerPath = "./api/docs/swagger"
 		flagx.Get().EnvFile = "./cmd/apiserver/.env"
 
-		pflag.StringVar(&flagx.Get().ApiSpecsPath, "api-specs-path",
+		pflag.StringVar(&flagx.Get().ApiSpecsPath, flagspb.FlagFieldsApiSpecsPath,
 			flagx.Get().GetApiSpecsPath(), "openapi specification path")
 
-		pflag.StringVar(&flagx.Get().SwaggerPath, "swagger-path",
+		pflag.StringVar(&flagx.Get().SwaggerPath, flagspb.FlagFieldsSwaggerPath,
 			flagx.Get().GetSwaggerPath(), "swagger user interface path")
 
-		pflag.StringVar(&flagx.Get().EnvFile, "env-file",
+		pflag.StringVar(&flagx.Get().EnvFile, flagspb.FlagFieldsEnvFile,
 			flagx.Get().GetEnvFile(), "environment variable config file")
 
 		flagx.Parse(apiserver.GetMetaApiserver())

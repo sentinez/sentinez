@@ -17,22 +17,22 @@ package runner
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 )
 
 type runnerAppConfKey string
 
 const runnerAppConf runnerAppConfKey = "RunnerContextValue"
 
-func newContext(appConf *common.AppConfig) context.Context {
+func newContext(appConf *configspb.AppConfig) context.Context {
 	return context.WithValue(context.Background(), runnerAppConf, appConf)
 }
 
-func GetAppConfig(ctx context.Context) *common.AppConfig {
+func GetAppConfig(ctx context.Context) *configspb.AppConfig {
 	val := ctx.Value(runnerAppConf)
 	if val == nil {
 		return nil
 	}
 
-	return val.(*common.AppConfig)
+	return val.(*configspb.AppConfig)
 }

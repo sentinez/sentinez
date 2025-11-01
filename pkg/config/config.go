@@ -20,15 +20,15 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var envConf *common.EnvConfig
+var envConf *configspb.EnvConfig
 var once sync.Once
 
 // LoadEnv returns the environment.
-func LoadEnv(envFile string) *common.EnvConfig {
+func LoadEnv(envFile string) *configspb.EnvConfig {
 	if envFile != "" {
 		err := godotenv.Load(envFile)
 		if err != nil {
@@ -37,7 +37,7 @@ func LoadEnv(envFile string) *common.EnvConfig {
 	}
 
 	once.Do(func() {
-		envConf = &common.EnvConfig{
+		envConf = &configspb.EnvConfig{
 			TimescaleUri:   os.Getenv("SNTZ_TIMESCALE_URI"),
 			PostgresUri:    os.Getenv("SNTZ_POSTGRES_URI"),
 			ClickhouseUri:  os.Getenv("SNTZ_CLICKHOUSE_URI"),

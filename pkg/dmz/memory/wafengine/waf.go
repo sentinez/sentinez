@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
 	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/x/syncx"
@@ -52,7 +52,7 @@ type WAFCache struct {
 	space *syncx.Map[string, coraza.WAF]
 }
 
-func (w *WAFCache) Store(conf *common.AppConfig, namespace string,
+func (w *WAFCache) Store(conf *configspb.AppConfig, namespace string,
 	version rulesets.Version, flag rulesets.Flag) error {
 
 	if w == nil {

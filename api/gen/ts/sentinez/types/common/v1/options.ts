@@ -20,6 +20,7 @@ export interface SntzMeta {
 
 export interface SntzMsgOpts {
   databaseModel: boolean;
+  exportField: boolean;
 }
 
 export interface SntzMthOpts {
@@ -125,13 +126,16 @@ export const SntzMeta: MessageFns<SntzMeta> = {
 };
 
 function createBaseSntzMsgOpts(): SntzMsgOpts {
-  return { databaseModel: false };
+  return { databaseModel: false, exportField: false };
 }
 
 export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
   encode(message: SntzMsgOpts, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.databaseModel !== false) {
       writer.uint32(8).bool(message.databaseModel);
+    }
+    if (message.exportField !== false) {
+      writer.uint32(16).bool(message.exportField);
     }
     return writer;
   },
@@ -151,6 +155,14 @@ export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
           message.databaseModel = reader.bool();
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.exportField = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -161,13 +173,19 @@ export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
   },
 
   fromJSON(object: any): SntzMsgOpts {
-    return { databaseModel: isSet(object.databaseModel) ? globalThis.Boolean(object.databaseModel) : false };
+    return {
+      databaseModel: isSet(object.databaseModel) ? globalThis.Boolean(object.databaseModel) : false,
+      exportField: isSet(object.exportField) ? globalThis.Boolean(object.exportField) : false,
+    };
   },
 
   toJSON(message: SntzMsgOpts): unknown {
     const obj: any = {};
     if (message.databaseModel !== false) {
       obj.databaseModel = message.databaseModel;
+    }
+    if (message.exportField !== false) {
+      obj.exportField = message.exportField;
     }
     return obj;
   },
@@ -178,6 +196,7 @@ export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
   fromPartial<I extends Exact<DeepPartial<SntzMsgOpts>, I>>(object: I): SntzMsgOpts {
     const message = createBaseSntzMsgOpts();
     message.databaseModel = object.databaseModel ?? false;
+    message.exportField = object.exportField ?? false;
     return message;
   },
 };

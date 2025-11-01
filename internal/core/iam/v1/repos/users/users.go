@@ -19,7 +19,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
@@ -52,7 +52,7 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(appConf *commonpb.AppConfig) (IUser, error) {
+func New(appConf *configspb.AppConfig) (IUser, error) {
 	storage, err := postgres.New[*iam.User](appConf, tables.Users)
 	if err != nil {
 		return nil, err

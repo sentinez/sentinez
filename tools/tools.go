@@ -14,6 +14,7 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/sentinez/sentinez/tools/cmd/protoc-gen-go-sntzmodels"
 	_ "github.com/sentinez/sentinez/tools/cmd/protoc-gen-go-sntzopts"
+	_ "github.com/sentinez/sentinez/tools/cmd/protoc-gen-go-sntzfields"
 	_ "github.com/sentinez/sentinez/tools/cmd/ruleparser-sentinez"
 	_ "github.com/vektra/mockery/v2"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"

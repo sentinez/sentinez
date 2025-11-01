@@ -92,11 +92,11 @@ edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert-file=cmd/edge/v1/is.s6z.io.vn.cert \
-		--cert-key=cmd/edge/v1/is.s6z.io.vn.key \
-		--rule-path=./data/crs/v4-16-0 \
-		--proxy-config=./cmd/edge/v1/proxy.yaml \
-		--env-file=./cmd/edge/v1/.env
+		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
+		--rule_path=./data/crs/v4-16-0 \
+		--proxy_config=./cmd/edge/v1/proxy.yaml \
+		--env_file=./cmd/edge/v1/.env
 
 edge.build: SENTINEZ_OUT ?= edge
 edge.build:
@@ -111,3 +111,9 @@ image.clear:
 	@docker rmi hashicorp/consul
 	@docker rmi sentinez/sentinez_api
 	@docker rmi sentinez/sentinez_edge
+
+compose.up:
+	@docker compose -f deploy/docker/docker-compose.yaml up -d
+
+compose.down:
+	@docker compose -f deploy/docker/docker-compose.yaml down

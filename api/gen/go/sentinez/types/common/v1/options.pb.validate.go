@@ -113,6 +113,8 @@ func (m *SntzMsgOpts) Validate() error {
 
 	// no validation rules for DatabaseModel
 
+	// no validation rules for ExportField
+
 	return nil
 }
 

@@ -16,10 +16,10 @@
 
 
 ./sntz \
-    --log-level info  \
+    --log_level info  \
     --mode prod \
-    --rule-path ./crs/v4-16-0 \
-    --proxy-config ./proxy.yaml \
-    --env-file "" \
-    --cert-file /etc/sntz/ssl/certs/is.s6z.io.vn.cert \
-    --cert-key /etc/sntz/ssl/private/is.s6z.io.vn.key
+    --rule_path ./crs/v4-16-0 \
+    --proxy_config ./proxy.yaml \
+    --env_file "" \
+	--certificate_file /etc/sntz/ssl/certs/is.s6z.io.vn.cert \
+    --cert_key_file /etc/sntz/ssl/private/is.s6z.io.vn.key

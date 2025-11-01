@@ -100,6 +100,16 @@ func (m *SntzMsgOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.ExportField {
+		i--
+		if m.ExportField {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
+	}
 	if m.DatabaseModel {
 		i--
 		if m.DatabaseModel {
@@ -239,6 +249,9 @@ func (m *SntzMsgOpts) SizeVT() (n int) {
 	var l int
 	_ = l
 	if m.DatabaseModel {
+		n += 2
+	}
+	if m.ExportField {
 		n += 2
 	}
 	n += len(m.unknownFields)
@@ -463,6 +476,26 @@ func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			m.DatabaseModel = bool(v != 0)
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExportField", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ExportField = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])

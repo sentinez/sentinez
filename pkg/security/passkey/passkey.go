@@ -17,7 +17,7 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -28,7 +28,7 @@ type Store interface {
 	GenSessionID() (string, error)
 }
 
-func NewWebAuthn(config *common.AppConfig) *webauthn.WebAuthn {
+func NewWebAuthn(config *configspb.AppConfig) *webauthn.WebAuthn {
 	wconfig := &webauthn.Config{
 		// Display Name for your site
 		RPDisplayName: sentinez.Name,

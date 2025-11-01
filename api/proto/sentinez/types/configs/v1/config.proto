@@ -14,11 +14,11 @@
 
 syntax = "proto3";
 
-package sentinez.types.common.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;common";
+package sentinez.types.configs.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1;configspb";
 
 import "sentinez/types/common/v1/options.proto";
-import "sentinez/types/common/v1/flags.proto";
+import "sentinez/types/flags/v1/flags.proto";
 
 message EnvConfig {
   // hostname of service.
@@ -47,7 +47,7 @@ message EnvConfig {
 }
 
 message AppConfig {
-  SntzMeta meta = 1;
+  sentinez.types.common.v1.SntzMeta meta = 1;
   EnvConfig env_conf = 2;
-  Flag flag = 3;
+  sentinez.types.flags.v1.Flag flag = 3;
 }

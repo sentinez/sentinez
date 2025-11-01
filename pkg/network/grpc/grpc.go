@@ -20,6 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/x/errorx"
@@ -36,7 +37,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *common.AppConfig) error
+	Serve(conf *configspb.AppConfig) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -73,7 +74,7 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *common.AppConfig) error {
+func (s *Server) Serve(conf *configspb.AppConfig) error {
 
 	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
 	if err != nil {

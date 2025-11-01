@@ -14,16 +14,20 @@
 
 syntax = "proto3";
 
-package sentinez.types.common.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;common";
+package sentinez.types.flags.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1;flagspb";
 
-
+import "sentinez/types/common/v1/options.proto";
 import "buf/validate/validate.proto";
 
 message Flag {
+  option (sentinez.types.common.v1.sntz_msg_opts).export_field = true;
+
   // base
-  string env_mode = 1 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
-  string log_level = 2 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
+  string env_mode = 1
+      [ (buf.validate.field).string.pattern = "^(dev|prod|sandbox)$" ];
+  string log_level = 2
+      [ (buf.validate.field).string.pattern = "^(debug|info|warn|error)$" ];
 
   // extra
   string env_file = 3;
