@@ -167,9 +167,10 @@ var _ interface {
 	ErrorName() string
 } = QueryValuesValidationError{}
 
-// Validate checks the field values on Log4HTTP with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Log4HTTP) Validate() error {
+// Validate checks the field values on RequestEvent with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RequestEvent) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -191,7 +192,7 @@ func (m *Log4HTTP) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return Log4HTTPValidationError{
+				return RequestEventValidationError{
 					field:  fmt.Sprintf("Headers[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -222,9 +223,9 @@ func (m *Log4HTTP) Validate() error {
 	return nil
 }
 
-// Log4HTTPValidationError is the validation error returned by
-// Log4HTTP.Validate if the designated constraints aren't met.
-type Log4HTTPValidationError struct {
+// RequestEventValidationError is the validation error returned by
+// RequestEvent.Validate if the designated constraints aren't met.
+type RequestEventValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -232,22 +233,22 @@ type Log4HTTPValidationError struct {
 }
 
 // Field function returns field value.
-func (e Log4HTTPValidationError) Field() string { return e.field }
+func (e RequestEventValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e Log4HTTPValidationError) Reason() string { return e.reason }
+func (e RequestEventValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e Log4HTTPValidationError) Cause() error { return e.cause }
+func (e RequestEventValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e Log4HTTPValidationError) Key() bool { return e.key }
+func (e RequestEventValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e Log4HTTPValidationError) ErrorName() string { return "Log4HTTPValidationError" }
+func (e RequestEventValidationError) ErrorName() string { return "RequestEventValidationError" }
 
 // Error satisfies the builtin error interface
-func (e Log4HTTPValidationError) Error() string {
+func (e RequestEventValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -259,14 +260,14 @@ func (e Log4HTTPValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sLog4HTTP.%s: %s%s",
+		"invalid %sRequestEvent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = Log4HTTPValidationError{}
+var _ error = RequestEventValidationError{}
 
 var _ interface {
 	Field() string
@@ -274,4 +275,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = Log4HTTPValidationError{}
+} = RequestEventValidationError{}

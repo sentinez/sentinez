@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { SntzMeta } from "../../common/v1/options";
+import { XMeta } from "../../common/v1/options";
 import { Flag } from "../../flags/v1/flags";
 
 export const protobufPackage = "sentinez.types.configs.v1";
@@ -34,7 +34,7 @@ export interface EnvConfig {
 }
 
 export interface AppConfig {
-  meta?: SntzMeta | undefined;
+  meta?: XMeta | undefined;
   envConf?: EnvConfig | undefined;
   flag?: Flag | undefined;
 }
@@ -261,7 +261,7 @@ function createBaseAppConfig(): AppConfig {
 export const AppConfig: MessageFns<AppConfig> = {
   encode(message: AppConfig, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.meta !== undefined) {
-      SntzMeta.encode(message.meta, writer.uint32(10).fork()).join();
+      XMeta.encode(message.meta, writer.uint32(10).fork()).join();
     }
     if (message.envConf !== undefined) {
       EnvConfig.encode(message.envConf, writer.uint32(18).fork()).join();
@@ -284,7 +284,7 @@ export const AppConfig: MessageFns<AppConfig> = {
             break;
           }
 
-          message.meta = SntzMeta.decode(reader, reader.uint32());
+          message.meta = XMeta.decode(reader, reader.uint32());
           continue;
         }
         case 2: {
@@ -314,7 +314,7 @@ export const AppConfig: MessageFns<AppConfig> = {
 
   fromJSON(object: any): AppConfig {
     return {
-      meta: isSet(object.meta) ? SntzMeta.fromJSON(object.meta) : undefined,
+      meta: isSet(object.meta) ? XMeta.fromJSON(object.meta) : undefined,
       envConf: isSet(object.envConf) ? EnvConfig.fromJSON(object.envConf) : undefined,
       flag: isSet(object.flag) ? Flag.fromJSON(object.flag) : undefined,
     };
@@ -323,7 +323,7 @@ export const AppConfig: MessageFns<AppConfig> = {
   toJSON(message: AppConfig): unknown {
     const obj: any = {};
     if (message.meta !== undefined) {
-      obj.meta = SntzMeta.toJSON(message.meta);
+      obj.meta = XMeta.toJSON(message.meta);
     }
     if (message.envConf !== undefined) {
       obj.envConf = EnvConfig.toJSON(message.envConf);
@@ -339,7 +339,7 @@ export const AppConfig: MessageFns<AppConfig> = {
   },
   fromPartial<I extends Exact<DeepPartial<AppConfig>, I>>(object: I): AppConfig {
     const message = createBaseAppConfig();
-    message.meta = (object.meta !== undefined && object.meta !== null) ? SntzMeta.fromPartial(object.meta) : undefined;
+    message.meta = (object.meta !== undefined && object.meta !== null) ? XMeta.fromPartial(object.meta) : undefined;
     message.envConf = (object.envConf !== undefined && object.envConf !== null)
       ? EnvConfig.fromPartial(object.envConf)
       : undefined;

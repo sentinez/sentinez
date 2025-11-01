@@ -43,7 +43,7 @@ type Server interface {
 }
 
 // New creates a new http server.
-func New(meta *common.SntzMeta, opts ...runtime.ServeMuxOption) Server {
+func New(meta *common.XMeta, opts ...runtime.ServeMuxOption) Server {
 	return &serverx{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
@@ -51,7 +51,7 @@ func New(meta *common.SntzMeta, opts ...runtime.ServeMuxOption) Server {
 	}
 }
 
-func NewServer(meta *common.SntzMeta) Server {
+func NewServer(meta *common.XMeta) Server {
 	return &serverx{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
@@ -73,7 +73,7 @@ type serverx struct {
 	// http server
 	server *http.Server
 
-	meta *common.SntzMeta
+	meta *common.XMeta
 }
 
 // Start implements Server.

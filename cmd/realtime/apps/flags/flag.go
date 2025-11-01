@@ -32,7 +32,7 @@ func Parse() *flagspb.Flag {
 	onceWS.Do(func() {
 		flagx.Get().EnvFile = "./cmd/realtime/.env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, flagspb.FlagFieldsEnvFile,
+		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
 		flagx.Parse(realtimepb.GetMetaRealtime())

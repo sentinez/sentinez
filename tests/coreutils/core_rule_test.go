@@ -18,6 +18,6 @@ import (
 	"testing"
 )
 
-func TestIngressCustomRuleExternal(t *testing.T) {
+func TestIngressCustomRuleExternal(_ *testing.T) {
 
 }

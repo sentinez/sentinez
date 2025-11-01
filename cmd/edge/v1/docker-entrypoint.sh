@@ -15,11 +15,11 @@
 # limitations under the License.
 
 
-./sntz \
+./senz \
     --log_level info  \
     --mode prod \
     --rule_path ./crs/v4-16-0 \
     --proxy_config ./proxy.yaml \
     --env_file "" \
-	--certificate_file /etc/sntz/ssl/certs/is.s6z.io.vn.cert \
-    --cert_key_file /etc/sntz/ssl/private/is.s6z.io.vn.key
+	--certificate_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
+    --cert_key_file /etc/senz/ssl/private/is.s6z.io.vn.key

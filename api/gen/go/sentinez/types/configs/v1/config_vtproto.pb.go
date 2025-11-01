@@ -727,7 +727,7 @@ func (m *AppConfig) UnmarshalVT(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Meta == nil {
-				m.Meta = &v1.SntzMeta{}
+				m.Meta = &v1.XMeta{}
 			}
 			if unmarshal, ok := interface{}(m.Meta).(interface {
 				UnmarshalVT([]byte) error

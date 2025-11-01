@@ -46,7 +46,7 @@ func (l *Logger) Handle(ctx *httpxdmz.Context) error {
 
 	err := l.HandleNext(ctx)
 
-	l.logger.Info("[http][request]", &http.Log4HTTP{
+	l.logger.Info("[http][request]", &http.RequestEvent{
 		ReqId:         ctx.GetReqID(),
 		Scheme:        string(ctx.Unwrap().URI().Scheme()),
 		Host:          requestResourceHost,

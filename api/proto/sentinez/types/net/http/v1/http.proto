@@ -23,11 +23,9 @@ message RequestHeader {
   string value = 2;
 }
 
-message QueryValues {
-  repeated string values = 1;
-}
+message QueryValues { repeated string values = 1; }
 
-message Log4HTTP {
+message RequestEvent {
   string req_id = 1;
   string method = 2;
   string scheme = 3;

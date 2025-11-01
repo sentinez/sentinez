@@ -178,7 +178,7 @@ func (c *Context) TLS() bool {
 }
 
 func (c *Context) Time() time.Time {
-	t, ok := c.ctx.Value(sntzRequestHTTPTimeKey).(time.Time)
+	t, ok := c.ctx.Value(senzRequestHTTPTimeKey).(time.Time)
 	if ok {
 		return t
 	}
@@ -243,7 +243,7 @@ func (c *Context) Unwrap() *app.RequestContext {
 
 func setRequestTime(ctx context.Context) context.Context {
 	// set request time
-	ctx = context.WithValue(ctx, sntzRequestHTTPTimeKey, time.Now().UTC())
+	ctx = context.WithValue(ctx, senzRequestHTTPTimeKey, time.Now().UTC())
 
 	return ctx
 }

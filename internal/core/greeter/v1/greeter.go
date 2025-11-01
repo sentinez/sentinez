@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
-func NewService(meta *common.SntzMeta) *Greeter {
+func NewService(meta *common.XMeta) *Greeter {
 	return &Greeter{
 		Server:  grpcgw.NewDefault(meta),
 		handler: greeterhdl.New(),

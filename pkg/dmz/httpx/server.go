@@ -45,7 +45,7 @@ type Server interface {
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer(meta *common.SntzMeta) Server {
+func NewServer(meta *common.XMeta) Server {
 	return &serverx{
 		meta: meta,
 	}
@@ -54,7 +54,7 @@ func NewServer(meta *common.SntzMeta) Server {
 // serverx implements the Server interface.
 type serverx struct {
 	chains  []func(RequestHandler) RequestHandler
-	meta    *common.SntzMeta
+	meta    *common.XMeta
 	handler app.HandlerFunc
 	core    *server.Hertz
 }

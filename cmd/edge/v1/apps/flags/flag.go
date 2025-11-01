@@ -38,19 +38,19 @@ func Parse() *flagspb.Flag {
 		flagx.Get().CertificateFile = "./_wildcard.sentinez.vn+1.pem"
 		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
 
-		pflag.StringVar(&flagx.Get().EnvFile, flagspb.FlagFieldsEnvFile,
+		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&flagx.Get().RulePath, flagspb.FlagFieldsRulePath,
+		pflag.StringVar(&flagx.Get().RulePath, flagspb.XFlag_RulePath,
 			flagx.Get().GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&flagx.Get().ProxyConfig, flagspb.FlagFieldsProxyConfig,
+		pflag.StringVar(&flagx.Get().ProxyConfig, flagspb.XFlag_ProxyConfig,
 			flagx.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		pflag.StringVar(&flagx.Get().CertificateFile, flagspb.FlagFieldsCertificateFile,
+		pflag.StringVar(&flagx.Get().CertificateFile, flagspb.XFlag_CertificateFile,
 			flagx.Get().GetCertificateFile(), "TLS certificate file")
 
-		pflag.StringVar(&flagx.Get().CertKeyFile, flagspb.FlagFieldsCertKeyFile,
+		pflag.StringVar(&flagx.Get().CertKeyFile, flagspb.XFlag_CertKeyFile,
 			flagx.Get().GetCertKeyFile(), "TLS certificate key")
 
 		flagx.Parse(edgepb.GetMetaEdge())

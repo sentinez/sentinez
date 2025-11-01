@@ -32,7 +32,7 @@ func Parse() *flagspb.Flag {
 	onceGRPCService.Do(func() {
 		flagx.Get().EnvFile = "./cmd/greeter/v1/.env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, flagspb.FlagFieldsEnvFile,
+		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
 		flagx.Parse(greeter.GetMetaGreeter())

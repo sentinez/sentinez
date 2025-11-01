@@ -47,7 +47,7 @@ message EnvConfig {
 }
 
 message AppConfig {
-  sentinez.types.common.v1.SntzMeta meta = 1;
+  sentinez.types.common.v1.XMeta meta = 1;
   EnvConfig env_conf = 2;
   sentinez.types.flags.v1.Flag flag = 3;
 }

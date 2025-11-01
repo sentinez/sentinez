@@ -26,8 +26,8 @@ import (
 type SentinezContextKey string
 
 const (
-	sntzRequestHTTPCtxKey  SentinezContextKey = "sntz.ctx.request.http"
-	sntzRequestHTTPTimeKey SentinezContextKey = "sntz.ctx.request.time"
+	senzRequestHTTPCtxKey  SentinezContextKey = "senz.ctx.request.http"
+	senzRequestHTTPTimeKey SentinezContextKey = "senz.ctx.request.time"
 )
 
 // SetRequestContext returns a new context with the given message
@@ -42,13 +42,13 @@ func SetRequestContext(parent *Context, msg *edgepb.Context) *Context {
 
 	msgBin, _ := protox.Marshal(msg)
 
-	parent.ctx = context.WithValue(parent.ctx, sntzRequestHTTPCtxKey, msgBin)
+	parent.ctx = context.WithValue(parent.ctx, senzRequestHTTPCtxKey, msgBin)
 	return parent
 }
 
 // GetRequestContext returns the context value.
 func GetRequestContext(rctx *Context) (*edgepb.Context, bool) {
-	msgBin, ok := rctx.ctx.Value(sntzRequestHTTPCtxKey).([]byte)
+	msgBin, ok := rctx.ctx.Value(senzRequestHTTPCtxKey).([]byte)
 	if !ok {
 		return nil, false
 	}

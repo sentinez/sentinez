@@ -21,7 +21,7 @@ import "sentinez/types/common/v1/options.proto";
 import "buf/validate/validate.proto";
 
 message Flag {
-  option (sentinez.types.common.v1.sntz_msg_opts).export_field = true;
+  option (sentinez.types.common.v1.x_message).export_field = true;
 
   // base
   string env_mode = 1

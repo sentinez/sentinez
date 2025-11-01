@@ -74,24 +74,24 @@ func buildListQuery(builder sq.SelectBuilder,
 
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(
-			sq.Eq{postgres.Primary(iam.AccountFieldId): req.GetIds()})
+			sq.Eq{postgres.Primary(iam.Account_Id): req.GetIds()})
 	}
 
 	if len(req.GetEmails()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldEmail): req.GetEmails(),
+			postgres.Field(iam.Account_Email): req.GetEmails(),
 		})
 	}
 
 	if len(req.GetUserIds()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldUserId): req.GetUserIds(),
+			postgres.Field(iam.Account_UserId): req.GetUserIds(),
 		})
 	}
 
 	if len(req.GetUsernames()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldUsername): req.GetUsernames(),
+			postgres.Field(iam.Account_Username): req.GetUsernames(),
 		})
 	}
 
@@ -156,8 +156,8 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 
 	builder := postgres.SelectBuilder(acc.storage, nil).
 		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.AccountFieldUsername): input},
-			sq.Eq{postgres.Field(iam.AccountFieldEmail): input},
+			sq.Eq{postgres.Field(iam.Account_Username): input},
+			sq.Eq{postgres.Field(iam.Account_Email): input},
 		})
 
 	resp, err := acc.storage.

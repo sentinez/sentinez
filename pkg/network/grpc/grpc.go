@@ -51,7 +51,7 @@ type ServiceServer interface {
 //	}
 type Server struct {
 	server *grpc.Server
-	meta   *common.SntzMeta
+	meta   *common.XMeta
 }
 
 // Start implements Server.
@@ -101,7 +101,7 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
+func New(meta *common.XMeta, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
 		meta:   meta,
@@ -109,7 +109,7 @@ func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(meta *common.SntzMeta) *Server {
+func NewDefault(meta *common.XMeta) *Server {
 	return New(meta)
 }
 

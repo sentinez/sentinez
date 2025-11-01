@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
-func NewEngine(meta *common.SntzMeta) *Engine {
+func NewEngine(meta *common.XMeta) *Engine {
 	return &Engine{
 		Server: grpc.NewDefault(meta),
 		Engine: engine.New(),

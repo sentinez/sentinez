@@ -55,7 +55,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-option (sentinez.types.common.v1.sntz_meta) = {
+option (sentinez.types.common.v1.x_meta) = {
   service_name: "SENTINEZ // IAM",
   service_kind: KIND_CORE,
   service_key: "sentinez.core.iam.v1",
@@ -75,7 +75,7 @@ service IdentityAccessManagementService {
       get: "/iam/accounts"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){
@@ -83,7 +83,7 @@ service IdentityAccessManagementService {
       get: "/iam/users"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
@@ -91,7 +91,7 @@ service IdentityAccessManagementService {
       get: "/iam/status"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
@@ -100,7 +100,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc GetUser(GetUserRequest) returns (GetUserResponse){
@@ -108,7 +108,7 @@ service IdentityAccessManagementService {
       get: "/iam/user"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
@@ -116,7 +116,7 @@ service IdentityAccessManagementService {
       delete: "/iam/user/{id}"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc Login(LoginRequest) returns (LoginResponse) {
@@ -125,7 +125,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
@@ -133,7 +133,7 @@ service IdentityAccessManagementService {
       get: "/iam/passkey/register/challenge",
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyRegisterVerify(PasskeyRegisterVerifyRequest) returns (PasskeyRegisterVerifyResponse) {
@@ -142,7 +142,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
@@ -150,7 +150,7 @@ service IdentityAccessManagementService {
       get: "/iam/passkey/login/challenge",
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyLoginVerify(PasskeyLoginVerifyRequest) returns (PasskeyLoginVerifyResponse) {
@@ -159,7 +159,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 }
 
@@ -250,7 +250,7 @@ message StatusResponse {
 
 message UpdateUserRequest {
   string id = 1 [(buf.validate.field) = { required: false, string: {
-    prefix: "sntz.users.",
+    prefix: "senz.users.",
   }}];
   
   string full_name = 10 [(buf.validate.field).required = true];
@@ -264,7 +264,7 @@ message UpdateUserResponse {
 
 message GetUserRequest {
   string id = 1 [(buf.validate.field) = { required: false, string: {
-    prefix: "sntz.users.",
+    prefix: "senz.users.",
   }}];
 
   string email = 2 [(buf.validate.field).string.email = true];
@@ -300,7 +300,7 @@ message ListAccountsResponse {
 }
 
 message DeleteUserRequest {
-  string id = 1 [(buf.validate.field).string.prefix = "sntz.users."];
+  string id = 1 [(buf.validate.field).string.prefix = "senz.users."];
 }
 
 message DeleteUserResponse {}

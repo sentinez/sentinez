@@ -18,6 +18,6 @@ import (
 	"testing"
 )
 
-func TestCoreRulesetsIngressExternal(t *testing.T) {
+func TestCoreRulesetsIngressExternal(_ *testing.T) {
 
 }

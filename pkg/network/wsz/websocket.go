@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func NewServer(meta *common.SntzMeta) *WebSocket {
+func NewServer(meta *common.XMeta) *WebSocket {
 	return &WebSocket{
 		routers: syncx.Map[string, func(httpxstd.Context) error]{},
 		meta:    meta,
@@ -32,7 +32,7 @@ func NewServer(meta *common.SntzMeta) *WebSocket {
 
 type WebSocket struct {
 	routers syncx.Map[string, func(httpxstd.Context) error]
-	meta    *common.SntzMeta
+	meta    *common.XMeta
 }
 
 func (ws *WebSocket) HandlerFunc(

@@ -61,7 +61,7 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		lw.Logger.Info("allow http request", &httppb.Log4HTTP{
+		lw.Logger.Info("allow http request", &httppb.RequestEvent{
 			Scheme:        r.URL.Scheme,
 			Host:          r.Host,
 			Path:          r.URL.Path,

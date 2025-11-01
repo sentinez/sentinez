@@ -39,8 +39,8 @@ COPY data/crs/ /sentinez/data/crs
 COPY cmd/edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
 COPY cmd/edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
 
-COPY cmd/edge/v1/is.s6z.io.vn.cert /etc/sntz/ssl/certs/
-COPY cmd/edge/v1/is.s6z.io.vn.key /etc/sntz/ssl/private/
+COPY cmd/edge/v1/is.s6z.io.vn.cert /etc/senz/ssl/certs/
+COPY cmd/edge/v1/is.s6z.io.vn.key /etc/senz/ssl/private/
 
 
 # Stage run
@@ -51,12 +51,12 @@ RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /app
 
-COPY --from=builder /bin/main ./sntz
+COPY --from=builder /bin/main ./senz
 COPY --from=builder /sentinez/data/crs/ ./crs/
 COPY --from=builder /sentinez/edge/v1/proxy.yaml ./proxy.yaml
 COPY --from=builder /sentinez/edge/v1/docker-entrypoint.sh ./docker-entrypoint.sh
 
-COPY --from=builder /etc/sntz/ssl /etc/sntz/ssl
+COPY --from=builder /etc/senz/ssl /etc/senz/ssl
 
 RUN chmod +x ./docker-entrypoint.sh
 
