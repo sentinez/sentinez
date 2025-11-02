@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/zlog"
 
 	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func New(server httpgw.Server) *Server {

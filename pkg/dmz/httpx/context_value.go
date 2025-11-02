@@ -17,7 +17,7 @@ package httpxdmz
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+	"google.golang.org/protobuf/proto"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 )
@@ -40,7 +40,7 @@ func SetRequestContext(parent *Context, msg *edgepb.Context) *Context {
 		return nil
 	}
 
-	msgBin, _ := protox.Marshal(msg)
+	msgBin, _ := proto.Marshal(msg)
 
 	parent.ctx = context.WithValue(parent.ctx, senzRequestHTTPCtxKey, msgBin)
 	return parent
@@ -54,7 +54,7 @@ func GetRequestContext(rctx *Context) (*edgepb.Context, bool) {
 	}
 
 	var msg edgepb.Context
-	if err := protox.Unmarshal(msgBin, &msg); err != nil {
+	if err := proto.Unmarshal(msgBin, &msg); err != nil {
 		return nil, false
 	}
 

@@ -24,9 +24,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"github.com/sentinez/sentinez/pkg/x/jsonx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/proto"
 )

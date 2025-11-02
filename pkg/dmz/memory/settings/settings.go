@@ -18,8 +18,8 @@ import (
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 )
 
 var (

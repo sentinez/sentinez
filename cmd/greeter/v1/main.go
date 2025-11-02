@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func main() {

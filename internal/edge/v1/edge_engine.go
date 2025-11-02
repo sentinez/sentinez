@@ -21,8 +21,24 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/engine"
 	grpc "github.com/sentinez/sentinez/pkg/network/grpc"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
+
+//
+// Package edge implements the core Edge Server component.
+//
+// The Edge Engine provides remote procedure call (RPC) capabilities over gRPC,
+// allowing other services to connect to edge layer, execute remote functions
+// and interact with its internal processing pipelines.
+//
+// Togeter with the Edge Server (HTTP entrypoint), these components form
+// the foundation of the edge platform - responsible for traffic handling,
+// routing, proxing, policy enforcement.
+//
+// This package integrates tightly with the `runner` package to ensure
+// controlled startup, graceful shutdown, and consistent lifecycle management
+// across the entire edge system.
+//
 
 func NewEngine(meta *common.XMeta) *Engine {
 	return &Engine{

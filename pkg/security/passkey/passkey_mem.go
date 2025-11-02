@@ -19,8 +19,8 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/pkg/common/uuidx"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
-	"github.com/sentinez/sentinez/pkg/x/uuidx"
 )
 
 func NewMemoryStorage(ttl time.Duration) Store {

@@ -21,9 +21,9 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	"github.com/sentinez/sentinez/pkg/common/contextx"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/security/perms"
-	"github.com/sentinez/sentinez/pkg/x/contextx"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

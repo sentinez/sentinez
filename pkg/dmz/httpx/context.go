@@ -26,8 +26,8 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
 )
 
 var (

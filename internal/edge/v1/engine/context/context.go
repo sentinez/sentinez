@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package enginectx
+package ectx
 
 import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/core/networks"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 )
 
 var (

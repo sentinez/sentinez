@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package grpcgw provides a gRPC server for the sentinez.
-package grpc
+// Package netgrpc provides a gRPC server for the sentinez.
+package netgrpc
 
 import (
 	"context"
@@ -22,8 +22,8 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
 	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -42,13 +42,6 @@ type ServiceServer interface {
 }
 
 // Server is a gRPC server that registers services.
-// inherit in <Service>Server:
-//
-//	type Greeter struct {
-//		*core.Server
-//		config *types.Config
-//		srv    greeter.GreeterServiceServer
-//	}
 type Server struct {
 	server *grpc.Server
 	meta   *common.XMeta

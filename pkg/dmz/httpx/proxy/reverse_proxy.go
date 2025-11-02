@@ -17,8 +17,8 @@ package proxy
 import (
 	"strings"
 
-	"github.com/sentinez/sentinez/pkg/x/errorx"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/network/standard"

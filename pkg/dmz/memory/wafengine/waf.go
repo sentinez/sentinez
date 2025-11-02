@@ -20,8 +20,8 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

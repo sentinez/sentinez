@@ -14,12 +14,65 @@
 
 package rules
 
-import "testing"
+import (
+	"context"
+	"testing"
 
-func TestExecRule(t *testing.T) {
-	t.Logf("[TestRule] ===== begin")
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/core/networks"
+	"google.golang.org/protobuf/types/known/structpb"
+)
+
+//nolint:lll
+func newContext() networks.Context {
+	reqCtx := &edgepb.RequestContext{
+		Body: []byte(`{"username":"hung","password":"123456"}`),
+		Header: map[string]string{
+			"Content-Type":  "application/json",
+			"User-Agent":    "curl/8.0.1",
+			"Accept":        "*/*",
+			"Authorization": "Bearer abc.def.ghi",
+		},
+		Host:          "api.example.com",
+		Ip:            "203.0.113.42",
+		Ja4:           "ja4:abcd1234efgh5678ijkl9012mnop3456",
+		Method:        "POST",
+		Path:          "/v1/login",
+		Queries:       []string{"redirect=/home", "lang=en"},
+		Tls:           true,
+		Protocol:      "HTTP/1.1",
+		RemoteAddress: "203.0.113.42:52341",
+		StatusCode:    200,
+		Uri:           "https://api.example.com/v1/login?redirect=/home&lang=en",
+	}
+
+	return networks.NewContext(context.Background(), reqCtx)
 }
 
-func TestRuleSet(t *testing.T) {
+func TestRule(t *testing.T) {
+	t.Logf("[TestRule] ===== begin")
+
+	rule := NewIngress()
+
+	ok := rule.Exec(newContext(), &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("/v1/login"),
+			Key:      "path",
+		},
+	})
+	if ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Logf("rule engine does not match !!!")
+}
+
+func TestChain(t *testing.T) {
 	t.Logf("[TestRuleSet] ===== begin")
 }

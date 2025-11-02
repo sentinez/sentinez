@@ -23,7 +23,7 @@ import (
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func (srv *Server) Initialize(ctx context.Context) error {

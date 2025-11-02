@@ -272,7 +272,7 @@ func (m *Rule) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *RuleSet) MarshalVT() (dAtA []byte, err error) {
+func (m *Chain) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -285,12 +285,12 @@ func (m *RuleSet) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *RuleSet) MarshalToVT(dAtA []byte) (int, error) {
+func (m *Chain) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *RuleSet) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *Chain) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -452,7 +452,7 @@ func (m *Rule) SizeVT() (n int) {
 	return n
 }
 
-func (m *RuleSet) SizeVT() (n int) {
+func (m *Chain) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1191,7 +1191,7 @@ func (m *Rule) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *RuleSet) UnmarshalVT(dAtA []byte) error {
+func (m *Chain) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1214,10 +1214,10 @@ func (m *RuleSet) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: RuleSet: wiretype end group for non-group")
+			return fmt.Errorf("proto: Chain: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RuleSet: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Chain: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

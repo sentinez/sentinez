@@ -26,15 +26,16 @@ import (
 	"github.com/cloudwego/hertz/pkg/network"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
+
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/pkg/common/tlsx"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/sentinez/pkg/x/tlsx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var _ httpx.Server = (*serverx)(nil)
+var _ httpx.Server = (*httpServer)(nil)
 
 type Server interface {
 	httpx.Server
@@ -46,13 +47,13 @@ type Server interface {
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
 func NewServer(meta *common.XMeta) Server {
-	return &serverx{
+	return &httpServer{
 		meta: meta,
 	}
 }
 
-// serverx implements the Server interface.
-type serverx struct {
+// httpServer implements the Server interface.
+type httpServer struct {
 	chains  []func(RequestHandler) RequestHandler
 	meta    *common.XMeta
 	handler app.HandlerFunc
@@ -60,11 +61,11 @@ type serverx struct {
 }
 
 // Use implements Server.
-func (s *serverx) Use(mdw ...func(handler RequestHandler) RequestHandler) {
+func (s *httpServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
 	s.chains = append(s.chains, mdw...)
 }
 
-func (s *serverx) Handle(fn func(ctx *Context) error) {
+func (s *httpServer) Handle(fn func(ctx *Context) error) {
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
 
@@ -73,7 +74,7 @@ func (s *serverx) Handle(fn func(ctx *Context) error) {
 		}
 
 		if err := fn(inCtx); err != nil {
-			zlog.Errorf("[httpxhz]: internal err=%v", err)
+			zlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = InternalServerError(inCtx)
 		}
 
@@ -84,7 +85,7 @@ func (s *serverx) Handle(fn func(ctx *Context) error) {
 }
 
 // Shutdown implements platform.Server.
-func (s *serverx) Shutdown(ctx context.Context) error {
+func (s *httpServer) Shutdown(ctx context.Context) error {
 	if s.core == nil {
 		return nil
 	}
@@ -92,7 +93,7 @@ func (s *serverx) Shutdown(ctx context.Context) error {
 	return s.core.Shutdown(ctx)
 }
 
-func (s *serverx) TLS(certFile, keyFile string) (*tls.Config, error) {
+func (s *httpServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 	var certificates []tls.Certificate
 	if certFile != "" && keyFile != "" {
 		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
@@ -107,7 +108,7 @@ func (s *serverx) TLS(certFile, keyFile string) (*tls.Config, error) {
 		GetConfigForClient: func(
 			chi *tls.ClientHelloInfo) (*tls.Config, error) {
 
-			zlog.Debugf("[httpxhz][ja4] fingerprint=%s", tlsx.JA4(chi))
+			zlog.Debugf("[httpxdmz][ja4] fingerprint=%s", tlsx.JA4(chi))
 
 			return &tls.Config{
 				Certificates: certificates,
@@ -121,9 +122,9 @@ func (s *serverx) TLS(certFile, keyFile string) (*tls.Config, error) {
 	}, nil
 }
 
-func (s *serverx) initialize(addr string, certFile, keyFile string) error {
+func (s *httpServer) initialize(addr string, certFile, keyFile string) error {
 	sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
-	zlog.Infof("server engine >>> %s", color.Magenta.Add("HERTZ"))
+
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),
 		color.Magenta.Add(addr),
@@ -159,7 +160,7 @@ func (s *serverx) initialize(addr string, certFile, keyFile string) error {
 }
 
 // ListenAndServe implements platform.Server.
-func (s *serverx) ListenAndServe(addr string) error {
+func (s *httpServer) ListenAndServe(addr string) error {
 
 	if err := s.initialize(addr, "", ""); err != nil {
 		return err
@@ -168,7 +169,7 @@ func (s *serverx) ListenAndServe(addr string) error {
 	return s.core.Run()
 }
 
-func (s *serverx) ListenAndServeTLS(addr, certFile, keyFile string) error {
+func (s *httpServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
 
 	if err := s.initialize(addr, certFile, keyFile); err != nil {
 		return err

@@ -20,7 +20,7 @@ import (
 
 	realtimehdl "github.com/sentinez/sentinez/internal/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func New(ws *wsz.WebSocket) *Realtime {

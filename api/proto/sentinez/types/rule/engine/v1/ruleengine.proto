@@ -84,7 +84,7 @@ message Rule {
 }
 
 // A collection of rules (e.g., grouped by tenant or domain)
-message RuleSet {
+message Chain {
   string id = 1;
   string name = 2;
   string description = 3;

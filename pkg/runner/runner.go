@@ -18,7 +18,7 @@ import (
 	"context"
 
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	"github.com/sentinez/sentinez/pkg/runner/v1/internal"
+	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc/grpclog"
 

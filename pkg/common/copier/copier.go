@@ -15,8 +15,8 @@
 package copier
 
 import (
-	"github.com/sentinez/sentinez/pkg/x/jsonx"
-	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
+	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 
 	google "google.golang.org/protobuf/proto"
 )

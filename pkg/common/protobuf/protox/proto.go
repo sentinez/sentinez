@@ -16,7 +16,7 @@
 package protox
 
 import (
-	"github.com/sentinez/sentinez/pkg/x/jsonx"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"google.golang.org/protobuf/encoding/protojson"
 	google "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"

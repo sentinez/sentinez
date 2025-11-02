@@ -26,9 +26,9 @@ import (
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
+	"github.com/sentinez/sentinez/pkg/common/cryptox"
 	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"github.com/sentinez/sentinez/pkg/x/cryptox"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

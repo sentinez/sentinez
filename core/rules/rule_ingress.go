@@ -23,7 +23,7 @@ var _ Rules = (*ingress)(nil)
 
 type Rules interface {
 	Exec(ctx networks.Context, rule *ruleengpb.Rule) bool
-	ExecChain(ctx networks.Context, rule *ruleengpb.RuleSet) bool
+	ExecChain(ctx networks.Context, rule *ruleengpb.Chain) bool
 }
 
 func NewIngress() Rules {
@@ -32,8 +32,7 @@ func NewIngress() Rules {
 
 type ingress struct{}
 
-func (ir *ingress) Exec(
-	ctx networks.Context, rule *ruleengpb.Rule) bool {
+func (i *ingress) Exec(ctx networks.Context, rule *ruleengpb.Rule) bool {
 
 	if !rule.GetEnabled() {
 		return false
@@ -46,14 +45,13 @@ func (ir *ingress) Exec(
 	return cond.Accept(ruleCtx)
 }
 
-func (ir *ingress) ExecChain(
-	ctx networks.Context, ruleSet *ruleengpb.RuleSet) bool {
+func (i *ingress) ExecChain(ctx networks.Context, chain *ruleengpb.Chain) bool {
 
-	if !ruleSet.GetEnabled() {
+	if !chain.GetEnabled() {
 		return false
 	}
 
-	for _, rule := range ruleSet.Rules {
+	for _, rule := range chain.Rules {
 		cond := newCondition(rule.GetCondition())
 		ruleCtx := newEvaluator(ctx)
 

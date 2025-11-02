@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package rules
 
 import (
-	"context"
-
-	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
-	"github.com/sentinez/sentinez/internal/realtime"
-	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
-	"github.com/sentinez/sentinez/pkg/runner"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/core/networks"
 )
 
-func main() {
-	runner.Main(config.Config(), func(ctx context.Context) error {
-		conf := runner.GetAppConfig(ctx)
-		wsSrv := wscore.NewServer(conf.GetMeta())
+const byPass = false
 
-		rt := realtime.New(wsSrv)
+func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+	des := cond.GetValue().GetStringValue()
+	src := ctx.Path()
 
-		runner.OnStart(rt.Start)
-		runner.OnStop(rt.Shutdown)
+	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
-		return nil
-	})
+	switch cond.GetOperator() {
+	case ruleenginepb.Operator_OPERATOR_EQ:
+		return src == des
+	case ruleenginepb.Operator_OPERATOR_NE:
+		return src != des
+	default:
+		return byPass
+	}
 }

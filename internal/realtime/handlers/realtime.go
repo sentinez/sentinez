@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	realtimemnt "github.com/sentinez/sentinez/internal/realtime/manager"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
 	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

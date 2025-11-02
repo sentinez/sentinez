@@ -22,10 +22,10 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
+	"github.com/sentinez/sentinez/pkg/common/uuidx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
-	"github.com/sentinez/sentinez/pkg/x/uuidx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

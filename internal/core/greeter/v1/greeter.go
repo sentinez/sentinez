@@ -21,20 +21,20 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
-	grpcgw "github.com/sentinez/sentinez/pkg/network/grpc"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
+	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func NewService(meta *common.XMeta) *Greeter {
 	return &Greeter{
-		Server:  grpcgw.NewDefault(meta),
+		Server:  netgrpc.NewDefault(meta),
 		handler: greeterhdl.New(),
 	}
 }
 
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
-	*grpcgw.Server
+	*netgrpc.Server
 	handler greeter.GreeterServiceServer
 }
 

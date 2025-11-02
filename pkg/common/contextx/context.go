@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	"github.com/sentinez/sentinez/pkg/x/cryptox"
-	"github.com/sentinez/sentinez/pkg/x/errorx"
+	"github.com/sentinez/sentinez/pkg/common/cryptox"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"google.golang.org/grpc/metadata"
 )
 

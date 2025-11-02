@@ -16,7 +16,7 @@ package wsz
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/sentinez/sentinez/pkg/x/syncx"
+	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package grpc
+package netgrpc
 
 import (
 	"context"
@@ -25,8 +25,10 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sony/gobreaker"
 )
 
+// nolint:funlen
 func Register(name string, conf *configspb.EnvConfig) {
 	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
 	if err != nil {
@@ -34,29 +36,81 @@ func Register(name string, conf *configspb.EnvConfig) {
 		return
 	}
 
-	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: conf.GetConsulUri(),
-	})
 	portInt, _ := strconv.Atoi(port)
-	serviceID := ""
+	dcvr := discovery.GetDiscovery(
+		&options.Options{ConsulURL: conf.GetConsulUri()})
 
+	var (
+		serviceId = ""
+		timeout   = 10 * time.Second
+		ttl       = 15 * time.Second
+	)
+
+	cb := circuitBreaker(timeout)
 	for {
-		serviceID, err = dcvr.Register(&discovery.RegisterRequest{
-			Name:    name,
-			Address: addr,
-			Port:    portInt,
-			TTL:     time.Second * 15,
-		})
-		if err != nil {
-			zlog.Errorf("failed to register service: %v, retrying...", err)
-			time.Sleep(time.Second * 5)
+		if state := cb.State(); state == gobreaker.StateOpen {
+			zlog.Warnf("breaker is OPEN - waiting %v before retry...", timeout)
+			time.Sleep(timeout)
+
 			continue
 		}
 
+		if _, err := cb.Execute(func() (any, error) {
+			id, err := dcvr.Register(&discovery.RegisterRequest{
+				Name: name, Address: addr, Port: portInt, TTL: ttl})
+			if err == nil {
+				serviceId = id
+			}
+
+			return nil, err
+
+		}); err != nil {
+			zlog.Errorf("failed to register service: %v, retrying...", err)
+			time.Sleep(time.Second * 1)
+
+			continue
+		}
 		break
 	}
 
-	cron.Start(context.Background(), 10*time.Second, func() {
-		_ = dcvr.Heartbeat(serviceID)
+	startCron(cb, dcvr, serviceId, timeout)
+}
+
+func startCron(
+	cb *gobreaker.CircuitBreaker,
+	d *discovery.Discovery,
+	serviceId string,
+	timeout time.Duration,
+) {
+	// Periodic heartbeat, also protected by breaker
+	cron.Start(context.Background(), timeout, func() {
+		if _, err := cb.Execute(func() (any, error) {
+			return nil, d.Heartbeat(serviceId)
+
+		}); err != nil {
+			zlog.Warnf(
+				"heartbeat failed for %s: %v (breaker: %s)",
+				serviceId,
+				err,
+				cb.State(),
+			)
+		}
+	})
+}
+
+func circuitBreaker(timeout time.Duration) *gobreaker.CircuitBreaker {
+	return gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:        "grpcRegister",
+		MaxRequests: 1,
+		Interval:    30 * time.Second, // reset counts every 30s
+		Timeout:     timeout,          // time before trying again after open
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			// Open circuit if more than 3 consecutive failures
+			return counts.ConsecutiveFailures >= 1
+		},
+		OnStateChange: func(name string, from, to gobreaker.State) {
+			zlog.Infof(
+				"CircuitBreaker[%s] state changed: %s > %s", name, from, to)
+		},
 	})
 }

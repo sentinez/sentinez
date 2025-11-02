@@ -19,7 +19,7 @@ func (p *WSReverseProxy) Serve(ctx *httpxdmz.Context, target string) {
 		target += string(uri)
 	}
 
-	// TODO: forward custom header of sentine-egde
+	// TODO: forward custom header of sentine-edge
 
 	wsReverseProxy := reverseproxy.NewWSReverseProxy(target)
 	wsReverseProxy.ServeHTTP(ctx.Context(), ctx.Unwrap())

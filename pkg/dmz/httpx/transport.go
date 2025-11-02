@@ -38,7 +38,7 @@ func (t *Transporter) ListenAndServe(onData network.OnData) error {
 			// }
 
 			t := reflect.TypeOf(conn)
-			zlog.Debugf("[httpxhz][transp] type of conn: %s", t.String())
+			zlog.Debugf("[httpxdmz][transp] type of conn: %s", t.String())
 
 			return onData(ctx, conn)
 		},

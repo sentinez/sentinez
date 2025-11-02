@@ -18,7 +18,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/common/copier"
-	"github.com/sentinez/sentinez/pkg/x/protobuf/protox"
+	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -17,10 +17,10 @@ package greeterfac
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	greeterhandler "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
+	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 )
 
 func NewDefaultHandler(_ *configspb.AppConfig,
 ) greeter.GreeterServiceServer {
-	return greeterhandler.New()
+	return greeterhdl.New()
 }

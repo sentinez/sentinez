@@ -28,8 +28,10 @@ var _ chains.Handler = (*Logger)(nil)
 func NewLogger() *Logger {
 	return &Logger{
 		BaseHandler: chains.New(),
-		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_HTTP, zlog.LevelInfo,
+		logger: zlog.NewJSONLogger(
+			edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_HTTP,
+			zlog.LevelInfo,
 		),
 	}
 }

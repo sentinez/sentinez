@@ -330,7 +330,7 @@ export interface Rule {
 }
 
 /** A collection of rules (e.g., grouped by tenant or domain) */
-export interface RuleSet {
+export interface Chain {
   id: string;
   name: string;
   description: string;
@@ -788,12 +788,12 @@ export const Rule: MessageFns<Rule> = {
   },
 };
 
-function createBaseRuleSet(): RuleSet {
+function createBaseChain(): Chain {
   return { id: "", name: "", description: "", rules: [], enabled: false };
 }
 
-export const RuleSet: MessageFns<RuleSet> = {
-  encode(message: RuleSet, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Chain: MessageFns<Chain> = {
+  encode(message: Chain, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -812,10 +812,10 @@ export const RuleSet: MessageFns<RuleSet> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleSet {
+  decode(input: BinaryReader | Uint8Array, length?: number): Chain {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRuleSet();
+    const message = createBaseChain();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -868,7 +868,7 @@ export const RuleSet: MessageFns<RuleSet> = {
     return message;
   },
 
-  fromJSON(object: any): RuleSet {
+  fromJSON(object: any): Chain {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
@@ -878,7 +878,7 @@ export const RuleSet: MessageFns<RuleSet> = {
     };
   },
 
-  toJSON(message: RuleSet): unknown {
+  toJSON(message: Chain): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -898,11 +898,11 @@ export const RuleSet: MessageFns<RuleSet> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleSet>, I>>(base?: I): RuleSet {
-    return RuleSet.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Chain>, I>>(base?: I): Chain {
+    return Chain.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleSet>, I>>(object: I): RuleSet {
-    const message = createBaseRuleSet();
+  fromPartial<I extends Exact<DeepPartial<Chain>, I>>(object: I): Chain {
+    const message = createBaseChain();
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";

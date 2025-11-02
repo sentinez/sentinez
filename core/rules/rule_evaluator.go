@@ -59,9 +59,40 @@ func (ev *evaluator) Release() {
 }
 
 func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
-	_ = cond
-	//TODO implement me
-	panic("implement me")
+	// zlog.Debug("ev: visit binary")
+
+	switch cond.GetSource() {
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_PATH:
+		return matchSourcePath(ev.ctx, cond)
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_QUERY:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_HEADER:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
+		return byPass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
+		return byPass
+
+	default:
+		return byPass
+	}
 }
 
 func (ev *evaluator) visitLogical(cond *ruleengpb.Condition) bool {

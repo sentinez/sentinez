@@ -20,8 +20,8 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/pkg/common/uuidx"
 	"github.com/sentinez/sentinez/pkg/render"
-	"github.com/sentinez/sentinez/pkg/x/uuidx"
 )
 
 const (
