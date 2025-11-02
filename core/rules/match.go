@@ -15,6 +15,8 @@
 package rules
 
 import (
+	"strings"
+
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/sentinez/core/networks"
 )
@@ -32,6 +34,30 @@ func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 		return src == des
 	case ruleenginepb.Operator_OPERATOR_NE:
 		return src != des
+	default:
+		return byPass
+	}
+}
+
+func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+	des := cond.GetValue().GetListValue().String()
+	src := ctx.Queries()
+
+	switch cond.GetOperator() {
+	case ruleenginepb.Operator_OPERATOR_IN:
+		for _, query := range src {
+			if !strings.Contains(des, query) {
+				return false
+			}
+		}
+		return true
+	case ruleenginepb.Operator_OPERATOR_NOT_IN:
+		for _, query := range src {
+			if strings.Contains(des, query) {
+				return false
+			}
+		}
+		return true
 	default:
 		return byPass
 	}

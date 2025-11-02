@@ -67,7 +67,7 @@ func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
 		return matchSourcePath(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_QUERY:
-		return byPass
+		return matchSourceQuery(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
 		return byPass
