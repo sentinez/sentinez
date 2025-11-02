@@ -33,10 +33,10 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on EngineContext with the rules defined in
+// Validate checks the field values on RequestContext with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
-func (m *EngineContext) Validate() error {
+func (m *RequestContext) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -57,12 +57,20 @@ func (m *EngineContext) Validate() error {
 
 	// no validation rules for Tls
 
+	// no validation rules for Protocol
+
+	// no validation rules for RemoteAddress
+
+	// no validation rules for StatusCode
+
+	// no validation rules for Uri
+
 	return nil
 }
 
-// EngineContextValidationError is the validation error returned by
-// EngineContext.Validate if the designated constraints aren't met.
-type EngineContextValidationError struct {
+// RequestContextValidationError is the validation error returned by
+// RequestContext.Validate if the designated constraints aren't met.
+type RequestContextValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -70,22 +78,22 @@ type EngineContextValidationError struct {
 }
 
 // Field function returns field value.
-func (e EngineContextValidationError) Field() string { return e.field }
+func (e RequestContextValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EngineContextValidationError) Reason() string { return e.reason }
+func (e RequestContextValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EngineContextValidationError) Cause() error { return e.cause }
+func (e RequestContextValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EngineContextValidationError) Key() bool { return e.key }
+func (e RequestContextValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EngineContextValidationError) ErrorName() string { return "EngineContextValidationError" }
+func (e RequestContextValidationError) ErrorName() string { return "RequestContextValidationError" }
 
 // Error satisfies the builtin error interface
-func (e EngineContextValidationError) Error() string {
+func (e RequestContextValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -97,14 +105,14 @@ func (e EngineContextValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEngineContext.%s: %s%s",
+		"invalid %sRequestContext.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EngineContextValidationError{}
+var _ error = RequestContextValidationError{}
 
 var _ interface {
 	Field() string
@@ -112,7 +120,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EngineContextValidationError{}
+} = RequestContextValidationError{}
 
 // Validate checks the field values on EvaluateIngressRequest with the rules
 // defined in the proto definition for this message. If any rules are

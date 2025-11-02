@@ -30,7 +30,7 @@ setting:
     namespace: badcheese # Logical namespace grouping related routes
     routes:
       - matchPrefix: / # URL prefix to match incoming requests
-        target: http://badcheese.com/ # Destination origin endpoint
+        target: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
         # rewrite: /                   # (Optional) rewrite prefix before forwarding
 
       # Example 1 (disabled):
@@ -67,11 +67,11 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    # wafRuleset: "default"            # WAF ruleset name
     # rateLimit:
     #   requestsPerSecond: 100         # Allowed requests per second
     # botProtection: true              # Enable bot protection
-    {}
+    
+    isWafEngineOn: false
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

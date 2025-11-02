@@ -42,8 +42,8 @@ protoc \
   --go_out="$SENTINEZ_GEN_OUT" \
   --go-grpc_out="$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
-  --go-sntzmodels_out="$SENTINEZ_GEN_OUT" \
-  --go-sntzopts_out="$SENTINEZ_GEN_OUT" \
+  --go-senz-msg_out="$SENTINEZ_GEN_OUT" \
+  --go-senz-meta_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_opt=features=marshal+unmarshal+size \
   "$(pwd)"/*.proto || exit 1

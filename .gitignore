@@ -43,6 +43,7 @@ node_modules
 .DS_Store
 *.pem
 .turbo/
+*.key
 
 # debug
 npm-debug.log*

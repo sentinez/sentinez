@@ -21,7 +21,7 @@ default: default.print 	\
 	realtime.build
 
 default.print:
-	@echo "[BUILD] SNTZ: build sentinez and services"
+	@echo "[BUILD] senz: build sentinez and services"
 
 test.cover:
 	@go test ./... -cover
@@ -58,12 +58,12 @@ realtime.run:
 realtime.build: SENTINEZ_OUT ?= realtime
 realtime.build:
 	@go build -ldflags="-s -w" -o ./cmd/realtime/bin/$(SENTINEZ_OUT) ./cmd/realtime
-	@echo "[DONE]  SNTZ: gateway.realtime ... ok"
+	@echo "[DONE]  senz: gateway.realtime ... ok"
 
 apiserver.build: SENTINEZ_OUT ?= apiserver
 apiserver.build:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver
-	@echo "[DONE]  SNTZ: gateway.apiserver ... ok"
+	@echo "[DONE]  senz: gateway.apiserver ... ok"
 
 apiserver.run: SENTINEZ_OUT ?= apiserver
 apiserver.run:
@@ -77,7 +77,7 @@ apiserver.image.build:
 greeter.build: SENTINEZ_OUT ?= greeter
 greeter.build:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1
-	@echo "[DONE]  SNTZ: core.greeter.v1 ... ok"
+	@echo "[DONE]  senz: core.greeter.v1 ... ok"
 
 greeter.run: SENTINEZ_OUT ?= greeter
 greeter.run:
@@ -92,16 +92,16 @@ edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert-file=cmd/edge/v1/_wildcard.sentinez.vn+1.pem \
-		--cert-key=cmd/edge/v1/_wildcard.sentinez.vn+1-key.pem \
-		--rule-path=./data/crs/v4-16-0 \
-		--proxy-config=./cmd/edge/v1/proxy.yaml \
-		--env-file=./cmd/edge/v1/.env
+		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
+		--rule_path=./data/crs/v4-16-0 \
+		--proxy_config=./cmd/edge/v1/proxy.yaml \
+		--env_file=./cmd/edge/v1/.env
 
 edge.build: SENTINEZ_OUT ?= edge
 edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
-	@echo "[DONE]  SNTZ: gateway.edge.v1 ... ok"
+	@echo "[DONE]  senz: gateway.edge.v1 ... ok"
 
 edge.image.build: TAG ?= sentinez/edge
 edge.image.build:
@@ -111,3 +111,9 @@ image.clear:
 	@docker rmi hashicorp/consul
 	@docker rmi sentinez/sentinez_api
 	@docker rmi sentinez/sentinez_edge
+
+compose.up:
+	@docker compose -f deploy/docker/docker-compose.yaml up -d
+
+compose.down:
+	@docker compose -f deploy/docker/docker-compose.yaml down

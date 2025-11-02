@@ -35,10 +35,10 @@ const (
 	Name = "sentinez/1.0"
 
 	// Code is the code of the project.
-	Code = "SNTZ"
+	Code = "SENZ"
 
 	// PrefixRequestID is prefix of request id
-	PrefixRequestID = "SNTZREQ"
+	PrefixRequestID = "SENZREQ"
 
 	BaseName = "sentinez"
 

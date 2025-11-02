@@ -22,6 +22,7 @@ import (
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
 	"github.com/sentinez/sentinez/pkg/x/protobuf"
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"
@@ -32,24 +33,24 @@ var (
 )
 
 // flags global variable
-var flags = &common.Flag{
+var flags = &flagspb.Flag{
 	EnvMode:  "dev",
 	LogLevel: "debug",
 }
 
-func info(meta *common.SntzMeta) string {
+func info(meta *common.XMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
 	return sentinez.FigureGen(service, meta.GetServiceKey())
 }
 
 // Parse flag args
-func Parse(meta *common.SntzMeta) {
+func Parse(meta *common.XMeta) {
 	once.Do(func() {
 
 		pflag.StringVarP(&flags.EnvMode, "mode", "m",
 			flags.GetEnvMode(), "run mode (dev|prod|sandbox)")
 
-		pflag.StringVar(&flags.LogLevel, "log-level",
+		pflag.StringVar(&flags.LogLevel, "log_level",
 			flags.GetLogLevel(), "log level (debug|info|warn|error)")
 
 		pflag.Usage = func() {
@@ -63,7 +64,7 @@ func Parse(meta *common.SntzMeta) {
 	})
 }
 
-func Get() *common.Flag {
+func Get() *flagspb.Flag {
 	return flags
 }
 

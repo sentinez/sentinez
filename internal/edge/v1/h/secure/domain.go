@@ -18,8 +18,8 @@ import (
 	"strings"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -37,22 +37,22 @@ type Domain struct {
 	hostname string
 }
 
-func (d *Domain) Handle(ctx *httpxhz.Context) error {
+func (d *Domain) Handle(ctx *httpxdmz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit domain", ctx.GetReqID())
 
 	ns, ok := d.isValidSingleLevelSubdomain(string(ctx.Host()), d.hostname)
 	if !ok {
-		return httpxhz.Forbidden(ctx)
+		return httpxdmz.Forbidden(ctx)
 	}
 
-	ctxValue, ok := httpxhz.GetRequestContext(ctx)
+	ctxValue, ok := httpxdmz.GetRequestContext(ctx)
 	if !ok {
 		ctxValue = &edgepb.Context{}
 	}
 
 	ctxValue.TenantNs = ns
 
-	ctx = httpxhz.SetRequestContext(ctx, ctxValue)
+	ctx = httpxdmz.SetRequestContext(ctx, ctxValue)
 
 	return d.HandleNext(ctx)
 }

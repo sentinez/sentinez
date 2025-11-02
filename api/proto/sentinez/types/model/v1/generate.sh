@@ -37,5 +37,5 @@ protoc \
   -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
   --go_out="$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
-  --go-sntzmodels_out="$SENTINEZ_GEN_OUT" \
+  --go-senz-msg_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto

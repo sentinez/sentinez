@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
@@ -31,7 +31,7 @@ import (
 )
 
 // nolint:funlen
-func NewDefaultHandler(appConf *common.AppConfig,
+func NewDefaultHandler(appConf *configspb.AppConfig,
 ) iam.IdentityAccessManagementServiceServer {
 
 	service := NewDefaultService(appConf)
@@ -46,7 +46,7 @@ func NewDefaultHandler(appConf *common.AppConfig,
 	return iamhdl.New(service, geeterCli)
 }
 
-func NewDefaultService(appConf *common.AppConfig) *iamsvc.IAMService {
+func NewDefaultService(appConf *configspb.AppConfig) *iamsvc.IAMService {
 	userrepos, err := usersrepo.New(appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)

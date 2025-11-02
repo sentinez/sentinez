@@ -12,32 +12,33 @@ import { Kind, kindFromJSON, kindToJSON } from "./service";
 
 export const protobufPackage = "sentinez.types.common.v1";
 
-export interface SntzMeta {
+export interface XMeta {
   serviceName: string;
   serviceKind: Kind;
   serviceKey: string;
 }
 
-export interface SntzMsgOpts {
+export interface XMessage {
   databaseModel: boolean;
+  exportField: boolean;
 }
 
-export interface SntzMthOpts {
+export interface XMethod {
   ignore: boolean;
-  require: SntzRequire[];
+  require: XRequire[];
 }
 
-export interface SntzRequire {
+export interface XRequire {
   role: Role;
   permission: Permission;
 }
 
-function createBaseSntzMeta(): SntzMeta {
+function createBaseXMeta(): XMeta {
   return { serviceName: "", serviceKind: 0, serviceKey: "" };
 }
 
-export const SntzMeta: MessageFns<SntzMeta> = {
-  encode(message: SntzMeta, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const XMeta: MessageFns<XMeta> = {
+  encode(message: XMeta, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.serviceName !== "") {
       writer.uint32(10).string(message.serviceName);
     }
@@ -50,10 +51,10 @@ export const SntzMeta: MessageFns<SntzMeta> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SntzMeta {
+  decode(input: BinaryReader | Uint8Array, length?: number): XMeta {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSntzMeta();
+    const message = createBaseXMeta();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -90,7 +91,7 @@ export const SntzMeta: MessageFns<SntzMeta> = {
     return message;
   },
 
-  fromJSON(object: any): SntzMeta {
+  fromJSON(object: any): XMeta {
     return {
       serviceName: isSet(object.serviceName) ? globalThis.String(object.serviceName) : "",
       serviceKind: isSet(object.serviceKind) ? kindFromJSON(object.serviceKind) : 0,
@@ -98,7 +99,7 @@ export const SntzMeta: MessageFns<SntzMeta> = {
     };
   },
 
-  toJSON(message: SntzMeta): unknown {
+  toJSON(message: XMeta): unknown {
     const obj: any = {};
     if (message.serviceName !== "") {
       obj.serviceName = message.serviceName;
@@ -112,11 +113,11 @@ export const SntzMeta: MessageFns<SntzMeta> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SntzMeta>, I>>(base?: I): SntzMeta {
-    return SntzMeta.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<XMeta>, I>>(base?: I): XMeta {
+    return XMeta.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SntzMeta>, I>>(object: I): SntzMeta {
-    const message = createBaseSntzMeta();
+  fromPartial<I extends Exact<DeepPartial<XMeta>, I>>(object: I): XMeta {
+    const message = createBaseXMeta();
     message.serviceName = object.serviceName ?? "";
     message.serviceKind = object.serviceKind ?? 0;
     message.serviceKey = object.serviceKey ?? "";
@@ -124,22 +125,25 @@ export const SntzMeta: MessageFns<SntzMeta> = {
   },
 };
 
-function createBaseSntzMsgOpts(): SntzMsgOpts {
-  return { databaseModel: false };
+function createBaseXMessage(): XMessage {
+  return { databaseModel: false, exportField: false };
 }
 
-export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
-  encode(message: SntzMsgOpts, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const XMessage: MessageFns<XMessage> = {
+  encode(message: XMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.databaseModel !== false) {
       writer.uint32(8).bool(message.databaseModel);
+    }
+    if (message.exportField !== false) {
+      writer.uint32(16).bool(message.exportField);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SntzMsgOpts {
+  decode(input: BinaryReader | Uint8Array, length?: number): XMessage {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSntzMsgOpts();
+    const message = createBaseXMessage();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -151,6 +155,14 @@ export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
           message.databaseModel = reader.bool();
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.exportField = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -160,47 +172,54 @@ export const SntzMsgOpts: MessageFns<SntzMsgOpts> = {
     return message;
   },
 
-  fromJSON(object: any): SntzMsgOpts {
-    return { databaseModel: isSet(object.databaseModel) ? globalThis.Boolean(object.databaseModel) : false };
+  fromJSON(object: any): XMessage {
+    return {
+      databaseModel: isSet(object.databaseModel) ? globalThis.Boolean(object.databaseModel) : false,
+      exportField: isSet(object.exportField) ? globalThis.Boolean(object.exportField) : false,
+    };
   },
 
-  toJSON(message: SntzMsgOpts): unknown {
+  toJSON(message: XMessage): unknown {
     const obj: any = {};
     if (message.databaseModel !== false) {
       obj.databaseModel = message.databaseModel;
     }
+    if (message.exportField !== false) {
+      obj.exportField = message.exportField;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SntzMsgOpts>, I>>(base?: I): SntzMsgOpts {
-    return SntzMsgOpts.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<XMessage>, I>>(base?: I): XMessage {
+    return XMessage.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SntzMsgOpts>, I>>(object: I): SntzMsgOpts {
-    const message = createBaseSntzMsgOpts();
+  fromPartial<I extends Exact<DeepPartial<XMessage>, I>>(object: I): XMessage {
+    const message = createBaseXMessage();
     message.databaseModel = object.databaseModel ?? false;
+    message.exportField = object.exportField ?? false;
     return message;
   },
 };
 
-function createBaseSntzMthOpts(): SntzMthOpts {
+function createBaseXMethod(): XMethod {
   return { ignore: false, require: [] };
 }
 
-export const SntzMthOpts: MessageFns<SntzMthOpts> = {
-  encode(message: SntzMthOpts, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const XMethod: MessageFns<XMethod> = {
+  encode(message: XMethod, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ignore !== false) {
       writer.uint32(8).bool(message.ignore);
     }
     for (const v of message.require) {
-      SntzRequire.encode(v!, writer.uint32(18).fork()).join();
+      XRequire.encode(v!, writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SntzMthOpts {
+  decode(input: BinaryReader | Uint8Array, length?: number): XMethod {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSntzMthOpts();
+    const message = createBaseXMethod();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -217,7 +236,7 @@ export const SntzMthOpts: MessageFns<SntzMthOpts> = {
             break;
           }
 
-          message.require.push(SntzRequire.decode(reader, reader.uint32()));
+          message.require.push(XRequire.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -229,41 +248,41 @@ export const SntzMthOpts: MessageFns<SntzMthOpts> = {
     return message;
   },
 
-  fromJSON(object: any): SntzMthOpts {
+  fromJSON(object: any): XMethod {
     return {
       ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
-      require: globalThis.Array.isArray(object?.require) ? object.require.map((e: any) => SntzRequire.fromJSON(e)) : [],
+      require: globalThis.Array.isArray(object?.require) ? object.require.map((e: any) => XRequire.fromJSON(e)) : [],
     };
   },
 
-  toJSON(message: SntzMthOpts): unknown {
+  toJSON(message: XMethod): unknown {
     const obj: any = {};
     if (message.ignore !== false) {
       obj.ignore = message.ignore;
     }
     if (message.require?.length) {
-      obj.require = message.require.map((e) => SntzRequire.toJSON(e));
+      obj.require = message.require.map((e) => XRequire.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SntzMthOpts>, I>>(base?: I): SntzMthOpts {
-    return SntzMthOpts.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<XMethod>, I>>(base?: I): XMethod {
+    return XMethod.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SntzMthOpts>, I>>(object: I): SntzMthOpts {
-    const message = createBaseSntzMthOpts();
+  fromPartial<I extends Exact<DeepPartial<XMethod>, I>>(object: I): XMethod {
+    const message = createBaseXMethod();
     message.ignore = object.ignore ?? false;
-    message.require = object.require?.map((e) => SntzRequire.fromPartial(e)) || [];
+    message.require = object.require?.map((e) => XRequire.fromPartial(e)) || [];
     return message;
   },
 };
 
-function createBaseSntzRequire(): SntzRequire {
+function createBaseXRequire(): XRequire {
   return { role: 0, permission: 0 };
 }
 
-export const SntzRequire: MessageFns<SntzRequire> = {
-  encode(message: SntzRequire, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const XRequire: MessageFns<XRequire> = {
+  encode(message: XRequire, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.role !== 0) {
       writer.uint32(8).int32(message.role);
     }
@@ -273,10 +292,10 @@ export const SntzRequire: MessageFns<SntzRequire> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SntzRequire {
+  decode(input: BinaryReader | Uint8Array, length?: number): XRequire {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSntzRequire();
+    const message = createBaseXRequire();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -305,14 +324,14 @@ export const SntzRequire: MessageFns<SntzRequire> = {
     return message;
   },
 
-  fromJSON(object: any): SntzRequire {
+  fromJSON(object: any): XRequire {
     return {
       role: isSet(object.role) ? roleFromJSON(object.role) : 0,
       permission: isSet(object.permission) ? permissionFromJSON(object.permission) : 0,
     };
   },
 
-  toJSON(message: SntzRequire): unknown {
+  toJSON(message: XRequire): unknown {
     const obj: any = {};
     if (message.role !== 0) {
       obj.role = roleToJSON(message.role);
@@ -323,11 +342,11 @@ export const SntzRequire: MessageFns<SntzRequire> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SntzRequire>, I>>(base?: I): SntzRequire {
-    return SntzRequire.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<XRequire>, I>>(base?: I): XRequire {
+    return XRequire.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SntzRequire>, I>>(object: I): SntzRequire {
-    const message = createBaseSntzRequire();
+  fromPartial<I extends Exact<DeepPartial<XRequire>, I>>(object: I): XRequire {
+    const message = createBaseXRequire();
     message.role = object.role ?? 0;
     message.permission = object.permission ?? 0;
     return message;

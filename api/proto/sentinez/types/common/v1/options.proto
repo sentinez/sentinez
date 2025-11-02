@@ -23,35 +23,29 @@ import "sentinez/types/common/v1/service.proto";
 
 import "google/protobuf/descriptor.proto";
 
+extend google.protobuf.MethodOptions { XMethod x_method = 50001; }
 
-extend google.protobuf.MethodOptions {
-  SntzMthOpts sntz_mth_opts = 50001;
-}
+extend google.protobuf.MessageOptions { XMessage x_message = 51001; }
 
-extend google.protobuf.MessageOptions {
-  SntzMsgOpts sntz_msg_opts = 51001;
-}
+extend google.protobuf.FileOptions { XMeta x_meta = 52001; }
 
-extend google.protobuf.FileOptions {
-  SntzMeta sntz_meta = 52001;
-}
-
-message SntzMeta {
+message XMeta {
   string service_name = 1;
   Kind service_kind = 2;
   string service_key = 3;
 }
 
-message SntzMsgOpts {
+message XMessage {
   bool database_model = 1;
+  bool export_field = 2;
 }
 
-message SntzMthOpts {
+message XMethod {
   bool ignore = 1;
-  repeated SntzRequire require = 2;
+  repeated XRequire require = 2;
 }
 
-message SntzRequire {
+message XRequire {
   Role role = 1;
   Permission permission = 2;
 }

@@ -16,24 +16,23 @@
 package flags
 
 import (
-	"github.com/sentinez/sentinez/pkg/x/flagx"
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/zlog"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	"github.com/sentinez/sentinez/pkg/x/flagx"
+	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/spf13/pflag"
 )
 
 var onceGRPCService sync.Once
 
 // ParseFlag flag args for grpc service
-func Parse() *common.Flag {
+func Parse() *flagspb.Flag {
 	onceGRPCService.Do(func() {
 		flagx.Get().EnvFile = "./cmd/greeter/v1/.env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, "env-file",
+		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
 		flagx.Parse(greeter.GetMetaGreeter())

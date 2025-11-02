@@ -27,6 +27,7 @@ func main() {
 	runner.Main(config.Config(), func(ctx context.Context) error {
 		conf := runner.GetAppConfig(ctx)
 		wsSrv := wscore.NewServer(conf.GetMeta())
+
 		rt := realtime.New(wsSrv)
 
 		runner.OnStart(rt.Start)

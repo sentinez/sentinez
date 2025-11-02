@@ -15,16 +15,16 @@
 package edge
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/memory"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
+	"github.com/sentinez/sentinez/pkg/dmz/memory"
 )
 
-func (s *Server) initialize(appConf *common.AppConfig) error {
+func (s *Server) initialize(appConf *configspb.AppConfig) error {
 	// init cache repository
 	memory.Initialized(s.setting, appConf)
 

@@ -18,8 +18,8 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -39,14 +39,14 @@ type Logger struct {
 	logger zlog.Logger
 }
 
-func (l *Logger) Handle(ctx *httpxhz.Context) error {
+func (l *Logger) Handle(ctx *httpxdmz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit logger", ctx.GetReqID())
 
 	requestResourceHost := string(ctx.Host())
 
 	err := l.HandleNext(ctx)
 
-	l.logger.Info("[http][request]", &http.Log4HTTP{
+	l.logger.Info("[http][request]", &http.RequestEvent{
 		ReqId:         ctx.GetReqID(),
 		Scheme:        string(ctx.Unwrap().URI().Scheme()),
 		Host:          requestResourceHost,

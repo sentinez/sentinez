@@ -20,15 +20,15 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var envConf *common.EnvConfig
+var envConf *configspb.EnvConfig
 var once sync.Once
 
 // LoadEnv returns the environment.
-func LoadEnv(envFile string) *common.EnvConfig {
+func LoadEnv(envFile string) *configspb.EnvConfig {
 	if envFile != "" {
 		err := godotenv.Load(envFile)
 		if err != nil {
@@ -37,17 +37,17 @@ func LoadEnv(envFile string) *common.EnvConfig {
 	}
 
 	once.Do(func() {
-		envConf = &common.EnvConfig{
-			TimescaleUri:   os.Getenv("SNTZ_TIMESCALE_URI"),
-			PostgresUri:    os.Getenv("SNTZ_POSTGRES_URI"),
-			ClickhouseUri:  os.Getenv("SNTZ_CLICKHOUSE_URI"),
-			ConsulUri:      os.Getenv("SNTZ_CONSUL_URI"),
-			SecretKey:      os.Getenv("SNTZ_SECRET_KEY"),
-			GatewayAddress: os.Getenv("SNTZ_GATEWAY_ADDRESS"),
-			Hostname:       os.Getenv("SNTZ_HOSTNAME"),
-			HttpAddress:    os.Getenv("SNTZ_HTTP_ADDRESS"),
-			ClientOrigin:   os.Getenv("SNTZ_CLIENT_ORIGIN"),
-			GrpcAddress:    os.Getenv("SNTZ_GRPC_ADDRESS"),
+		envConf = &configspb.EnvConfig{
+			TimescaleUri:   os.Getenv("SENZ_TIMESCALE_URI"),
+			PostgresUri:    os.Getenv("SENZ_POSTGRES_URI"),
+			ClickhouseUri:  os.Getenv("SENZ_CLICKHOUSE_URI"),
+			ConsulUri:      os.Getenv("SENZ_CONSUL_URI"),
+			SecretKey:      os.Getenv("SENZ_SECRET_KEY"),
+			GatewayAddress: os.Getenv("SENZ_GATEWAY_ADDRESS"),
+			Hostname:       os.Getenv("SENZ_HOSTNAME"),
+			HttpAddress:    os.Getenv("SENZ_HTTP_ADDRESS"),
+			ClientOrigin:   os.Getenv("SENZ_CLIENT_ORIGIN"),
+			GrpcAddress:    os.Getenv("SENZ_GRPC_ADDRESS"),
 		}
 	})
 

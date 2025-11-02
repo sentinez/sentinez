@@ -54,6 +54,8 @@ export interface OriginRoute {
 
 /** Security user-specific WAF, rate limiting, or bot protection rules */
 export interface Security {
+  /** @gotags: yaml:"isWafEngineOn" */
+  isWafEngineOn: boolean;
 }
 
 /** TrafficControl for systems using a virtual waiting room or throttling: */
@@ -427,11 +429,14 @@ export const OriginRoute: MessageFns<OriginRoute> = {
 };
 
 function createBaseSecurity(): Security {
-  return {};
+  return { isWafEngineOn: false };
 }
 
 export const Security: MessageFns<Security> = {
-  encode(_: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isWafEngineOn !== false) {
+      writer.uint32(8).bool(message.isWafEngineOn);
+    }
     return writer;
   },
 
@@ -442,6 +447,14 @@ export const Security: MessageFns<Security> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isWafEngineOn = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -451,20 +464,24 @@ export const Security: MessageFns<Security> = {
     return message;
   },
 
-  fromJSON(_: any): Security {
-    return {};
+  fromJSON(object: any): Security {
+    return { isWafEngineOn: isSet(object.isWafEngineOn) ? globalThis.Boolean(object.isWafEngineOn) : false };
   },
 
-  toJSON(_: Security): unknown {
+  toJSON(message: Security): unknown {
     const obj: any = {};
+    if (message.isWafEngineOn !== false) {
+      obj.isWafEngineOn = message.isWafEngineOn;
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<Security>, I>>(base?: I): Security {
     return Security.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Security>, I>>(_: I): Security {
+  fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
+    message.isWafEngineOn = object.isWafEngineOn ?? false;
     return message;
   },
 };

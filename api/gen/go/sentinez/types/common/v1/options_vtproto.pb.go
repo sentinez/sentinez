@@ -18,7 +18,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-func (m *SntzMeta) MarshalVT() (dAtA []byte, err error) {
+func (m *XMeta) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -31,12 +31,12 @@ func (m *SntzMeta) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SntzMeta) MarshalToVT(dAtA []byte) (int, error) {
+func (m *XMeta) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SntzMeta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *XMeta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -70,7 +70,7 @@ func (m *SntzMeta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SntzMsgOpts) MarshalVT() (dAtA []byte, err error) {
+func (m *XMessage) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -83,12 +83,12 @@ func (m *SntzMsgOpts) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SntzMsgOpts) MarshalToVT(dAtA []byte) (int, error) {
+func (m *XMessage) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SntzMsgOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *XMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -99,6 +99,16 @@ func (m *SntzMsgOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
+	}
+	if m.ExportField {
+		i--
+		if m.ExportField {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
 	}
 	if m.DatabaseModel {
 		i--
@@ -113,7 +123,7 @@ func (m *SntzMsgOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SntzMthOpts) MarshalVT() (dAtA []byte, err error) {
+func (m *XMethod) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -126,12 +136,12 @@ func (m *SntzMthOpts) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SntzMthOpts) MarshalToVT(dAtA []byte) (int, error) {
+func (m *XMethod) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SntzMthOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *XMethod) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -168,7 +178,7 @@ func (m *SntzMthOpts) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SntzRequire) MarshalVT() (dAtA []byte, err error) {
+func (m *XRequire) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -181,12 +191,12 @@ func (m *SntzRequire) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SntzRequire) MarshalToVT(dAtA []byte) (int, error) {
+func (m *XRequire) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SntzRequire) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *XRequire) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -211,7 +221,7 @@ func (m *SntzRequire) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SntzMeta) SizeVT() (n int) {
+func (m *XMeta) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -232,7 +242,7 @@ func (m *SntzMeta) SizeVT() (n int) {
 	return n
 }
 
-func (m *SntzMsgOpts) SizeVT() (n int) {
+func (m *XMessage) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -241,11 +251,14 @@ func (m *SntzMsgOpts) SizeVT() (n int) {
 	if m.DatabaseModel {
 		n += 2
 	}
+	if m.ExportField {
+		n += 2
+	}
 	n += len(m.unknownFields)
 	return n
 }
 
-func (m *SntzMthOpts) SizeVT() (n int) {
+func (m *XMethod) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -264,7 +277,7 @@ func (m *SntzMthOpts) SizeVT() (n int) {
 	return n
 }
 
-func (m *SntzRequire) SizeVT() (n int) {
+func (m *XRequire) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -280,7 +293,7 @@ func (m *SntzRequire) SizeVT() (n int) {
 	return n
 }
 
-func (m *SntzMeta) UnmarshalVT(dAtA []byte) error {
+func (m *XMeta) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -303,10 +316,10 @@ func (m *SntzMeta) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SntzMeta: wiretype end group for non-group")
+			return fmt.Errorf("proto: XMeta: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SntzMeta: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: XMeta: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -414,7 +427,7 @@ func (m *SntzMeta) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
+func (m *XMessage) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -437,10 +450,10 @@ func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SntzMsgOpts: wiretype end group for non-group")
+			return fmt.Errorf("proto: XMessage: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SntzMsgOpts: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: XMessage: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -463,6 +476,26 @@ func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			m.DatabaseModel = bool(v != 0)
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExportField", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ExportField = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -485,7 +518,7 @@ func (m *SntzMsgOpts) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SntzMthOpts) UnmarshalVT(dAtA []byte) error {
+func (m *XMethod) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -508,10 +541,10 @@ func (m *SntzMthOpts) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SntzMthOpts: wiretype end group for non-group")
+			return fmt.Errorf("proto: XMethod: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SntzMthOpts: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: XMethod: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -563,7 +596,7 @@ func (m *SntzMthOpts) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Require = append(m.Require, &SntzRequire{})
+			m.Require = append(m.Require, &XRequire{})
 			if err := m.Require[len(m.Require)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -590,7 +623,7 @@ func (m *SntzMthOpts) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SntzRequire) UnmarshalVT(dAtA []byte) error {
+func (m *XRequire) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -613,10 +646,10 @@ func (m *SntzRequire) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SntzRequire: wiretype end group for non-group")
+			return fmt.Errorf("proto: XRequire: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SntzRequire: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: XRequire: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

@@ -18,7 +18,7 @@ export interface QueryValues {
   values: string[];
 }
 
-export interface Log4HTTP {
+export interface RequestEvent {
   reqId: string;
   method: string;
   scheme: string;
@@ -173,7 +173,7 @@ export const QueryValues: MessageFns<QueryValues> = {
   },
 };
 
-function createBaseLog4HTTP(): Log4HTTP {
+function createBaseRequestEvent(): RequestEvent {
   return {
     reqId: "",
     method: "",
@@ -194,8 +194,8 @@ function createBaseLog4HTTP(): Log4HTTP {
   };
 }
 
-export const Log4HTTP: MessageFns<Log4HTTP> = {
-  encode(message: Log4HTTP, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const RequestEvent: MessageFns<RequestEvent> = {
+  encode(message: RequestEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.reqId !== "") {
       writer.uint32(10).string(message.reqId);
     }
@@ -247,10 +247,10 @@ export const Log4HTTP: MessageFns<Log4HTTP> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Log4HTTP {
+  decode(input: BinaryReader | Uint8Array, length?: number): RequestEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseLog4HTTP();
+    const message = createBaseRequestEvent();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -391,7 +391,7 @@ export const Log4HTTP: MessageFns<Log4HTTP> = {
     return message;
   },
 
-  fromJSON(object: any): Log4HTTP {
+  fromJSON(object: any): RequestEvent {
     return {
       reqId: isSet(object.reqId) ? globalThis.String(object.reqId) : "",
       method: isSet(object.method) ? globalThis.String(object.method) : "",
@@ -414,7 +414,7 @@ export const Log4HTTP: MessageFns<Log4HTTP> = {
     };
   },
 
-  toJSON(message: Log4HTTP): unknown {
+  toJSON(message: RequestEvent): unknown {
     const obj: any = {};
     if (message.reqId !== "") {
       obj.reqId = message.reqId;
@@ -467,11 +467,11 @@ export const Log4HTTP: MessageFns<Log4HTTP> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Log4HTTP>, I>>(base?: I): Log4HTTP {
-    return Log4HTTP.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RequestEvent>, I>>(base?: I): RequestEvent {
+    return RequestEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Log4HTTP>, I>>(object: I): Log4HTTP {
-    const message = createBaseLog4HTTP();
+  fromPartial<I extends Exact<DeepPartial<RequestEvent>, I>>(object: I): RequestEvent {
+    const message = createBaseRequestEvent();
     message.reqId = object.reqId ?? "";
     message.method = object.method ?? "";
     message.scheme = object.scheme ?? "";

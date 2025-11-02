@@ -51,7 +51,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-option (sentinez.types.common.v1.sntz_meta) = {
+option (sentinez.types.common.v1.x_meta) = {
   service_name: "SENTINEZ // GREETER",
   service_kind: KIND_CORE,
   service_key: "sentinez.core.greeter.v1",
@@ -63,7 +63,7 @@ service GreeterService {
       get: "/greeter/say"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
@@ -71,7 +71,7 @@ service GreeterService {
       get: "/greeter/status"
     };
 
-    option (sentinez.types.common.v1.sntz_mth_opts) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 }
 

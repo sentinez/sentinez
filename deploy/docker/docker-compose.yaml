@@ -72,7 +72,7 @@ services:
     container_name: sentinez.apiserver
     restart: on-failure:3
     environment:
-      - SNTZ_POSTGRES_URI=postgres://root:root@sentinez.postgres:5432/sentinez?sslmode=disable
+      - SENZ_POSTGRES_URI=postgres://root:root@sentinez.postgres:5432/sentinez?sslmode=disable
     ports:
       - "8080:8080"
     networks:

@@ -19,7 +19,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
@@ -52,7 +52,7 @@ type IAccount interface {
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
-func New(appConf *commonpb.AppConfig) (IAccount, error) {
+func New(appConf *configspb.AppConfig) (IAccount, error) {
 
 	storage, err := postgres.New[*AccountX](appConf, tables.Accounts)
 	if err != nil {
@@ -74,24 +74,24 @@ func buildListQuery(builder sq.SelectBuilder,
 
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(
-			sq.Eq{postgres.Primary(iam.AccountFieldId): req.GetIds()})
+			sq.Eq{postgres.Primary(iam.Account_Id): req.GetIds()})
 	}
 
 	if len(req.GetEmails()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldEmail): req.GetEmails(),
+			postgres.Field(iam.Account_Email): req.GetEmails(),
 		})
 	}
 
 	if len(req.GetUserIds()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldUserId): req.GetUserIds(),
+			postgres.Field(iam.Account_UserId): req.GetUserIds(),
 		})
 	}
 
 	if len(req.GetUsernames()) > 0 {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.AccountFieldUsername): req.GetUsernames(),
+			postgres.Field(iam.Account_Username): req.GetUsernames(),
 		})
 	}
 
@@ -156,8 +156,8 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 
 	builder := postgres.SelectBuilder(acc.storage, nil).
 		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.AccountFieldUsername): input},
-			sq.Eq{postgres.Field(iam.AccountFieldEmail): input},
+			sq.Eq{postgres.Field(iam.Account_Username): input},
+			sq.Eq{postgres.Field(iam.Account_Email): input},
 		})
 
 	resp, err := acc.storage.

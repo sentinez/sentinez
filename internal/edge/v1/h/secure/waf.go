@@ -22,10 +22,10 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
-	"github.com/sentinez/sentinez/core"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	"github.com/sentinez/sentinez/internal/edge/pkgs/memory/wafengine"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/core/rulesets"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	"github.com/sentinez/sentinez/pkg/dmz/memory/wafengine"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -49,7 +49,7 @@ type WAF struct {
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx *httpxhz.Context) error {
+func (w *WAF) Handle(ctx *httpxdmz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.GetReqID())
 
 	waf := wafengine.GetEngine().LoadContext(ctx)
@@ -62,27 +62,27 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 		return nil
 	}
 
-	rulesets := core.NewRulesets(ctx, waf)
+	ruleset := rulesets.NewRulesets(ctx, waf)
 	defer func() {
-		rulesets.Final(func() { w.capture(ctx, rulesets) })
-		rulesets.Release()
+		ruleset.Final(func() { w.capture(ctx, ruleset) })
+		ruleset.Release()
 	}()
 
-	if rulesets.IsRuleEngineOff() {
+	if ruleset.IsRuleEngineOff() {
 		return w.HandleNext(ctx)
 	}
 
-	if err := rulesets.ExecIngress(ctx); err != nil {
+	if err := ruleset.ExecIngress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return httpxhz.Forbidden(ctx)
+			return httpxdmz.Forbidden(ctx)
 		}
 	}
 
 	err := w.HandleNext(ctx)
 
-	if err := rulesets.ExecEgress(ctx); err != nil {
+	if err := ruleset.ExecEgress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return httpxhz.Forbidden(ctx)
+			return httpxdmz.Forbidden(ctx)
 		}
 	}
 
@@ -90,14 +90,14 @@ func (w *WAF) Handle(ctx *httpxhz.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx *httpxhz.Context, rulesets *core.Rulesets) {
+func (w *WAF) capture(ctx *httpxdmz.Context, ruleset *rulesets.Rulesets) {
 
-	interruption, matched, isInterrupted := rulesets.Matched()
+	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {
 		return
 	}
 
-	if data, ok := w.cached.Get(httpxhz.GenContextKey(ctx)); ok {
+	if data, ok := w.cached.Get(httpxdmz.GenContextKey(ctx)); ok {
 		var event rulecmn.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
@@ -138,7 +138,7 @@ func (w *WAF) capture(ctx *httpxhz.Context, rulesets *core.Rulesets) {
 		Score:         int32(score),
 		Ip:            ctx.ClientIP(),
 		RequestDomain: string(ctx.Host()),
-		TransactionId: rulesets.GetTxId(),
+		TransactionId: ruleset.GetTxId(),
 		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
 		Action:        rulecmn.Action_ACTION_DENY,
 		RequestTime:   ctx.Time().UnixMilli(),
@@ -148,5 +148,5 @@ func (w *WAF) capture(ctx *httpxhz.Context, rulesets *core.Rulesets) {
 
 	w.logger.Info("[rulesets] [matched]", event)
 	data, _ := event.MarshalVT()
-	w.cached.Set(httpxhz.GenContextKey(ctx), data)
+	w.cached.Set(httpxdmz.GenContextKey(ctx), data)
 }

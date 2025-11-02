@@ -18,13 +18,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/x/protobuf"
-
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
+	"github.com/sentinez/sentinez/pkg/x/protobuf"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -45,7 +44,7 @@ func NewServer(ctx context.Context) Server {
 
 type HTTPServer struct {
 	mdw     []func(http.Handler) http.Handler
-	appConf *common.AppConfig
+	appConf *configspb.AppConfig
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {

@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sentinez/sentinez/internal/edge/pkgs/chains"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -41,7 +41,7 @@ type Static struct {
 	staticExits map[string]struct{}
 }
 
-func (s *Static) Handle(ctx *httpxhz.Context) error {
+func (s *Static) Handle(ctx *httpxdmz.Context) error {
 	zlog.Debugf("[edge][%s] >>> visit static", ctx.GetReqID())
 
 	err := s.HandleNext(ctx)

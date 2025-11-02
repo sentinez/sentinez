@@ -19,13 +19,13 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	httpxhz "github.com/sentinez/sentinez/pkg/network/httpx/hz"
+	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/runner/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 // New creates a new Edge Server instance.
-func New(server httpxhz.Server, setting *edgepb.Setting) *Server {
+func New(server httpxdmz.Server, setting *edgepb.Setting) *Server {
 	return &Server{
 		core:    server,
 		setting: setting,
@@ -36,7 +36,7 @@ func New(server httpxhz.Server, setting *edgepb.Setting) *Server {
 // Main function and handler of the edge service.
 // All traffic will be handled by this server.
 type Server struct {
-	core    httpxhz.Server
+	core    httpxdmz.Server
 	setting *edgepb.Setting
 }
 

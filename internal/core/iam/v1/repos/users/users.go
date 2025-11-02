@@ -19,7 +19,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
@@ -52,7 +52,7 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(appConf *commonpb.AppConfig) (IUser, error) {
+func New(appConf *configspb.AppConfig) (IUser, error) {
 	storage, err := postgres.New[*iam.User](appConf, tables.Users)
 	if err != nil {
 		return nil, err
@@ -80,8 +80,8 @@ func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	builder := postgres.SelectBuilder(u.storage, nil)
 	builder = builder.From(u.storage.Table()).
 		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.UserFieldFullName): input},
-			sq.Eq{postgres.Field(iam.UserFieldEmail): input},
+			sq.Eq{postgres.Field(iam.User_FullName): input},
+			sq.Eq{postgres.Field(iam.User_Email): input},
 		})
 
 	return u.storage.CollectOneRow(ctx, builder, postgres.Scan[*iam.User])
@@ -92,19 +92,19 @@ func buildListQuery(builder sq.SelectBuilder,
 	req *iam.ListUsersRequest) sq.SelectBuilder {
 	for _, id := range req.GetIds() {
 		builder = builder.Where(sq.Eq{
-			postgres.Primary(iam.UserFieldId): id,
+			postgres.Primary(iam.User_Id): id,
 		})
 	}
 
 	for _, email := range req.GetEmails() {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.UserFieldEmail): email,
+			postgres.Field(iam.User_Email): email,
 		})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
 		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.UserFieldPhoneNumber): phone,
+			postgres.Field(iam.User_PhoneNumber): phone,
 		})
 	}
 

@@ -20,6 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/x/errorx"
@@ -36,7 +37,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *common.AppConfig) error
+	Serve(conf *configspb.AppConfig) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -50,7 +51,7 @@ type ServiceServer interface {
 //	}
 type Server struct {
 	server *grpc.Server
-	meta   *common.SntzMeta
+	meta   *common.XMeta
 }
 
 // Start implements Server.
@@ -73,7 +74,7 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *common.AppConfig) error {
+func (s *Server) Serve(conf *configspb.AppConfig) error {
 
 	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
 	if err != nil {
@@ -100,7 +101,7 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
+func New(meta *common.XMeta, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
 		meta:   meta,
@@ -108,7 +109,7 @@ func New(meta *common.SntzMeta, opts ...grpc.ServerOption) *Server {
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(meta *common.SntzMeta) *Server {
+func NewDefault(meta *common.XMeta) *Server {
 	return New(meta)
 }
 

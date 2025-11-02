@@ -20,10 +20,10 @@ import "sentinez/types/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
-option (sentinez.types.common.v1.sntz_meta) = {
-  service_name: "SENTINEZ // EDGE ENGINE",
-  service_kind: KIND_GATEWAY_EDGE,
-  service_key: "sentinez.edge.v1",
+option (sentinez.types.common.v1.x_meta) = {
+  service_name : "SENTINEZ // EDGE ENGINE",
+  service_kind : KIND_GATEWAY_EDGE,
+  service_key : "sentinez.edge.v1",
 };
 
 // Setting edge setting per user
@@ -36,36 +36,30 @@ message Setting {
 }
 
 // Metadata used for observability and debugging:
-message Metadata {
-
-}
+message Metadata {}
 
 // Origin defines where the request goes and how the edge processes it:
 message Origin {
-  string namespace = 1;             // @gotags: yaml:"namespace"
-  repeated OriginRoute routes = 2;  // @gotags: yaml:"routes"
+  string namespace = 1;            // @gotags: yaml:"namespace"
+  repeated OriginRoute routes = 2; // @gotags: yaml:"routes"
 }
 
 message OriginRoute {
-  string match_prefix = 1;  // @gotags: yaml:"matchPrefix"
-  string target = 2;        // @gotags: yaml:"target"
-  string rewrite = 3;       // @gotags: yaml:"rewrite"
+  string match_prefix = 1; // @gotags: yaml:"matchPrefix"
+  string target = 2;       // @gotags: yaml:"target"
+  string rewrite = 3;      // @gotags: yaml:"rewrite"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-
+  bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
 }
 
 // TrafficControl for systems using a virtual waiting room or throttling:
-message TrafficControl {
-
-}
+message TrafficControl {}
 
 // Personalization defines where the request goes and how the edge processes it
-message Personalization {
-
-}
+message Personalization {}
 
 // Context helps the edge identify which user is connected
 message Context {

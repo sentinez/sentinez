@@ -33,9 +33,9 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on SntzMeta with the rules defined in the
+// Validate checks the field values on XMeta with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *SntzMeta) Validate() error {
+func (m *XMeta) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -49,9 +49,9 @@ func (m *SntzMeta) Validate() error {
 	return nil
 }
 
-// SntzMetaValidationError is the validation error returned by
-// SntzMeta.Validate if the designated constraints aren't met.
-type SntzMetaValidationError struct {
+// XMetaValidationError is the validation error returned by XMeta.Validate if
+// the designated constraints aren't met.
+type XMetaValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -59,22 +59,22 @@ type SntzMetaValidationError struct {
 }
 
 // Field function returns field value.
-func (e SntzMetaValidationError) Field() string { return e.field }
+func (e XMetaValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SntzMetaValidationError) Reason() string { return e.reason }
+func (e XMetaValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SntzMetaValidationError) Cause() error { return e.cause }
+func (e XMetaValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SntzMetaValidationError) Key() bool { return e.key }
+func (e XMetaValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SntzMetaValidationError) ErrorName() string { return "SntzMetaValidationError" }
+func (e XMetaValidationError) ErrorName() string { return "XMetaValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SntzMetaValidationError) Error() string {
+func (e XMetaValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -86,14 +86,14 @@ func (e SntzMetaValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSntzMeta.%s: %s%s",
+		"invalid %sXMeta.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SntzMetaValidationError{}
+var _ error = XMetaValidationError{}
 
 var _ interface {
 	Field() string
@@ -101,24 +101,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SntzMetaValidationError{}
+} = XMetaValidationError{}
 
-// Validate checks the field values on SntzMsgOpts with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *SntzMsgOpts) Validate() error {
+// Validate checks the field values on XMessage with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *XMessage) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	// no validation rules for DatabaseModel
 
+	// no validation rules for ExportField
+
 	return nil
 }
 
-// SntzMsgOptsValidationError is the validation error returned by
-// SntzMsgOpts.Validate if the designated constraints aren't met.
-type SntzMsgOptsValidationError struct {
+// XMessageValidationError is the validation error returned by
+// XMessage.Validate if the designated constraints aren't met.
+type XMessageValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -126,22 +127,22 @@ type SntzMsgOptsValidationError struct {
 }
 
 // Field function returns field value.
-func (e SntzMsgOptsValidationError) Field() string { return e.field }
+func (e XMessageValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SntzMsgOptsValidationError) Reason() string { return e.reason }
+func (e XMessageValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SntzMsgOptsValidationError) Cause() error { return e.cause }
+func (e XMessageValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SntzMsgOptsValidationError) Key() bool { return e.key }
+func (e XMessageValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SntzMsgOptsValidationError) ErrorName() string { return "SntzMsgOptsValidationError" }
+func (e XMessageValidationError) ErrorName() string { return "XMessageValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SntzMsgOptsValidationError) Error() string {
+func (e XMessageValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -153,14 +154,14 @@ func (e SntzMsgOptsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSntzMsgOpts.%s: %s%s",
+		"invalid %sXMessage.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SntzMsgOptsValidationError{}
+var _ error = XMessageValidationError{}
 
 var _ interface {
 	Field() string
@@ -168,12 +169,11 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SntzMsgOptsValidationError{}
+} = XMessageValidationError{}
 
-// Validate checks the field values on SntzMthOpts with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *SntzMthOpts) Validate() error {
+// Validate checks the field values on XMethod with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *XMethod) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -185,7 +185,7 @@ func (m *SntzMthOpts) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return SntzMthOptsValidationError{
+				return XMethodValidationError{
 					field:  fmt.Sprintf("Require[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -198,9 +198,9 @@ func (m *SntzMthOpts) Validate() error {
 	return nil
 }
 
-// SntzMthOptsValidationError is the validation error returned by
-// SntzMthOpts.Validate if the designated constraints aren't met.
-type SntzMthOptsValidationError struct {
+// XMethodValidationError is the validation error returned by XMethod.Validate
+// if the designated constraints aren't met.
+type XMethodValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -208,22 +208,22 @@ type SntzMthOptsValidationError struct {
 }
 
 // Field function returns field value.
-func (e SntzMthOptsValidationError) Field() string { return e.field }
+func (e XMethodValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SntzMthOptsValidationError) Reason() string { return e.reason }
+func (e XMethodValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SntzMthOptsValidationError) Cause() error { return e.cause }
+func (e XMethodValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SntzMthOptsValidationError) Key() bool { return e.key }
+func (e XMethodValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SntzMthOptsValidationError) ErrorName() string { return "SntzMthOptsValidationError" }
+func (e XMethodValidationError) ErrorName() string { return "XMethodValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SntzMthOptsValidationError) Error() string {
+func (e XMethodValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -235,14 +235,14 @@ func (e SntzMthOptsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSntzMthOpts.%s: %s%s",
+		"invalid %sXMethod.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SntzMthOptsValidationError{}
+var _ error = XMethodValidationError{}
 
 var _ interface {
 	Field() string
@@ -250,12 +250,11 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SntzMthOptsValidationError{}
+} = XMethodValidationError{}
 
-// Validate checks the field values on SntzRequire with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *SntzRequire) Validate() error {
+// Validate checks the field values on XRequire with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *XRequire) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -267,9 +266,9 @@ func (m *SntzRequire) Validate() error {
 	return nil
 }
 
-// SntzRequireValidationError is the validation error returned by
-// SntzRequire.Validate if the designated constraints aren't met.
-type SntzRequireValidationError struct {
+// XRequireValidationError is the validation error returned by
+// XRequire.Validate if the designated constraints aren't met.
+type XRequireValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -277,22 +276,22 @@ type SntzRequireValidationError struct {
 }
 
 // Field function returns field value.
-func (e SntzRequireValidationError) Field() string { return e.field }
+func (e XRequireValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SntzRequireValidationError) Reason() string { return e.reason }
+func (e XRequireValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SntzRequireValidationError) Cause() error { return e.cause }
+func (e XRequireValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SntzRequireValidationError) Key() bool { return e.key }
+func (e XRequireValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SntzRequireValidationError) ErrorName() string { return "SntzRequireValidationError" }
+func (e XRequireValidationError) ErrorName() string { return "XRequireValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SntzRequireValidationError) Error() string {
+func (e XRequireValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -304,14 +303,14 @@ func (e SntzRequireValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSntzRequire.%s: %s%s",
+		"invalid %sXRequire.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SntzRequireValidationError{}
+var _ error = XRequireValidationError{}
 
 var _ interface {
 	Field() string
@@ -319,4 +318,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SntzRequireValidationError{}
+} = XRequireValidationError{}

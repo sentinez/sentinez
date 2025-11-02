@@ -22,12 +22,12 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func Register(name string, conf *common.EnvConfig) {
+func Register(name string, conf *configspb.EnvConfig) {
 	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
