@@ -29,12 +29,16 @@ message RequestContext {
   string ja4 = 5;                 // JA4 fingerprint
   string method = 6;              // HTTP method (GET, POST, etc.)
   string path = 7;                // Request path
-  repeated string queries = 8;    // Query parameters
+  map<string, RequestQuery> queries = 8;    // Query parameters
   bool tls = 9;                   // Whether the connection used TLS
   string protocol = 10;
   string remote_address = 11;
   int32 status_code = 12;
   string uri = 13;
+}
+
+message RequestQuery {
+  repeated string value = 1;
 }
 
 service EdgeEngineService {

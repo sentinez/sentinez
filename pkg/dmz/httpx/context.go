@@ -81,7 +81,7 @@ func (c *Context) GetReqHeader(k string) string {
 }
 
 // GetProtocol implements networks.Context.
-func (c *Context) GetReqProtocol() string {
+func (c *Context) Protocol() string {
 	return c.req.Request.Header.GetProtocol()
 }
 
@@ -163,13 +163,16 @@ func (c *Context) Method() string {
 }
 
 // GetQueries implements rulectx.Context.
-func (c *Context) Queries() []string {
-	var queries []string
-	c.req.VisitAllQueryArgs(func(key, _ []byte) {
-		queries = append(queries, string(key))
+func (c *Context) Queries() map[string][]string {
+	params := make(map[string][]string)
+
+	c.req.VisitAllQueryArgs(func(key, value []byte) {
+		k := string(key)
+		v := string(value)
+		params[k] = append(params[k], v)
 	})
 
-	return queries
+	return params
 }
 
 // TLS implements rulectx.Context.

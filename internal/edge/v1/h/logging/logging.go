@@ -56,7 +56,7 @@ func (l *Logger) Handle(ctx *httpxdmz.Context) error {
 		Method:        ctx.Method(),
 		Status:        int32(ctx.StatusCode()),
 		RemoteAddress: ctx.RemoteAddress(),
-		Protocol:      ctx.GetReqProtocol(),
+		Protocol:      ctx.Protocol(),
 		Query:         ctx.Unwrap().QueryArgs().String(),
 		UserAgent:     string(ctx.Unwrap().UserAgent()),
 	})

@@ -15,9 +15,8 @@
 package rules
 
 import (
-	"strings"
-
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/core/internal/zlog"
 	"github.com/sentinez/sentinez/core/networks"
 )
 
@@ -40,24 +39,40 @@ func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 }
 
 func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
-	des := cond.GetValue().GetListValue().String()
+	// debug, _ := protojson.Marshal(cond)
+	// zlog.Debug(string(debug))
+
+	des := cond.Value.GetListValue().AsSlice()
 	src := ctx.Queries()
+	zlog.Debugf("rules: src: %s -> des: %s", src, des)
+
+	if len(src) == 0 {
+		return true
+	}
 
 	switch cond.GetOperator() {
 	case ruleenginepb.Operator_OPERATOR_IN:
-		for _, query := range src {
-			if !strings.Contains(des, query) {
-				return false
+		for _, d := range des {
+			if ds, ok := d.(string); ok {
+				if _, exist := src[ds]; !exist {
+					return false
+				}
 			}
 		}
+
 		return true
+
 	case ruleenginepb.Operator_OPERATOR_NOT_IN:
-		for _, query := range src {
-			if strings.Contains(des, query) {
-				return false
+		for _, d := range des {
+			if ds, ok := d.(string); ok {
+				if _, exist := src[ds]; exist {
+					return false
+				}
 			}
 		}
+
 		return true
+
 	default:
 		return byPass
 	}

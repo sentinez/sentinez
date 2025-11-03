@@ -32,7 +32,7 @@ func NewContext(ctx context.Context, req *edgepb.RequestContext) Context {
 	}
 }
 
-func (c *RequestContext) GetReqProtocol() string {
+func (c *RequestContext) Protocol() string {
 	return c.Req.GetProtocol()
 }
 
@@ -68,8 +68,13 @@ func (c *RequestContext) Path() string {
 	return c.Req.GetPath()
 }
 
-func (c *RequestContext) Queries() []string {
-	return c.Req.GetQueries()
+func (c *RequestContext) Queries() map[string][]string {
+	params := make(map[string][]string)
+	for k, v := range c.Req.GetQueries() {
+		params[k] = v.GetValue()
+	}
+
+	return params
 }
 
 func (c *RequestContext) TLS() bool {
@@ -84,26 +89,6 @@ func (c *RequestContext) Context() context.Context {
 	return c.Ctx
 }
 
-func (c *RequestContext) GetHeader() map[string]string {
-	return c.Req.GetHeader()
-}
-
-func (c *RequestContext) GetHost() string {
-	return c.Req.GetHost()
-}
-
 func (c *RequestContext) ClientIP() string {
 	return c.Req.GetIp()
-}
-
-func (c *RequestContext) GetMethod() string {
-	return c.Req.GetMethod()
-}
-
-func (c *RequestContext) GetPath() string {
-	return c.Req.GetPath()
-}
-
-func (c *RequestContext) GetQueries() []string {
-	return c.Req.GetQueries()
 }

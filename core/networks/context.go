@@ -37,7 +37,7 @@ type Context interface {
 	Header() map[string]string
 
 	// Queries returns the list of query parameters included in the URL.
-	Queries() []string
+	Queries() map[string][]string
 
 	// Path returns the raw path component of the
 	// request URI (e.g. /api/v1/users).
@@ -72,9 +72,9 @@ type Context interface {
 	// status code associated with this request.
 	StatusCode() int
 
-	// GetReqProtocol returns the protocol version
+	// Protocol returns the protocol version
 	// used for the request (e.g. HTTP/1.1, HTTP/2).
-	GetReqProtocol() string
+	Protocol() string
 
 	// RemoteAddress returns the full remote
 	// address of the client, including port if available.

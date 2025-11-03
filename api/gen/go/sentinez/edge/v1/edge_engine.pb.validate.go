@@ -55,6 +55,23 @@ func (m *RequestContext) Validate() error {
 
 	// no validation rules for Path
 
+	for key, val := range m.GetQueries() {
+		_ = val
+
+		// no validation rules for Queries[key]
+
+		if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RequestContextValidationError{
+					field:  fmt.Sprintf("Queries[%v]", key),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	// no validation rules for Tls
 
 	// no validation rules for Protocol
@@ -121,6 +138,71 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RequestContextValidationError{}
+
+// Validate checks the field values on RequestQuery with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RequestQuery) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// RequestQueryValidationError is the validation error returned by
+// RequestQuery.Validate if the designated constraints aren't met.
+type RequestQueryValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RequestQueryValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RequestQueryValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RequestQueryValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RequestQueryValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RequestQueryValidationError) ErrorName() string { return "RequestQueryValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RequestQueryValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRequestQuery.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RequestQueryValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RequestQueryValidationError{}
 
 // Validate checks the field values on EvaluateIngressRequest with the rules
 // defined in the proto definition for this message. If any rules are

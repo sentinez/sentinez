@@ -34,12 +34,15 @@ func newContext() networks.Context {
 			"Accept":        "*/*",
 			"Authorization": "Bearer abc.def.ghi",
 		},
-		Host:          "api.example.com",
-		Ip:            "203.0.113.42",
-		Ja4:           "ja4:abcd1234efgh5678ijkl9012mnop3456",
-		Method:        "POST",
-		Path:          "/v1/login",
-		Queries:       []string{"redirect=/home", "lang=en"},
+		Host:   "api.example.com",
+		Ip:     "203.0.113.42",
+		Ja4:    "ja4:abcd1234efgh5678ijkl9012mnop3456",
+		Method: "POST",
+		Path:   "/v1/login",
+		Queries: map[string]*edgepb.RequestQuery{
+			"lang":  {Value: []string{"vi"}},
+			"lang2": {Value: []string{"vi"}},
+		},
 		Tls:           true,
 		Protocol:      "HTTP/1.1",
 		RemoteAddress: "203.0.113.42:52341",
@@ -50,8 +53,8 @@ func newContext() networks.Context {
 	return networks.NewContext(context.Background(), reqCtx)
 }
 
-func TestRule(t *testing.T) {
-	t.Logf("[TestRule] ===== begin")
+func TestRulePath(t *testing.T) {
+	t.Logf("[TestRulePath] ===== begin")
 
 	rule := NewIngress()
 
@@ -65,6 +68,35 @@ func TestRule(t *testing.T) {
 			Key:      "path",
 		},
 	})
+	if ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Logf("rule engine does not match !!!")
+}
+
+func TestRuleQuery(t *testing.T) {
+	t.Logf("[TestRuleQuery] ===== begin")
+
+	rule := NewIngress()
+
+	ok := rule.Exec(newContext(), &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
+			Operator: ruleenginepb.Operator_OPERATOR_IN,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value: structpb.NewListValue(&structpb.ListValue{
+				Values: []*structpb.Value{
+					structpb.NewStringValue("lang"),
+					structpb.NewStringValue("lang2"),
+				},
+			}),
+			Key: "query",
+		},
+	})
+
 	if ok {
 		t.Logf("rule engine matched !!!")
 		return

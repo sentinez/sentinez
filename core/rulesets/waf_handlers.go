@@ -106,7 +106,7 @@ func processRequestConnection(ctx networks.XContext, tx types.Transaction) {
 	tx.ProcessURI(
 		ctx.URI(),
 		string(ctx.Method()),
-		ctx.GetReqProtocol(),
+		ctx.Protocol(),
 	)
 	ctx.VisitReqHeaders(func(k, v []byte) {
 		tx.AddRequestHeader(string(k), string(v))
@@ -153,7 +153,7 @@ func processResponseHandler(ctx networks.XContext, tx types.Transaction) error {
 		return nil
 	}
 
-	i := interceptor{tx: tx, proto: ctx.GetReqProtocol()}
+	i := interceptor{tx: tx, proto: ctx.Protocol()}
 	it, err := i.writeResponseBody(ctx)
 	if err != nil {
 		return err
