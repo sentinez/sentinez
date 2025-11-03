@@ -19,13 +19,13 @@ import (
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 )
 
-var _ httpgw.ServiceRegistrar = (*tenant)(nil)
+var _ httpx.ServiceRegistrar = (*tenant)(nil)
 
 // NewTenant creates a new tenant service registrar.
-func NewTenant(srv tenantpb.TenantServiceServer) httpgw.ServiceRegistrar {
+func NewTenant(srv tenantpb.TenantServiceServer) httpx.ServiceRegistrar {
 	return &tenant{server: srv}
 }
 
@@ -34,11 +34,11 @@ type tenant struct {
 	server tenantpb.TenantServiceServer
 }
 
-// AcceptFromEndpoint implements httpgw.ServiceRegistrar.
+// AcceptFromEndpoint implements httpx.ServiceRegistrar.
 func (t *tenant) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server, appConf *configspb.AppConfig) error {
+	server httpx.Server, appConf *configspb.AppConfig) error {
 
-	return httpgw.RegisterServiceFromEndpoint(ctx,
+	return httpx.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		tenantpb.GetMetaTenantServiceKey(),
@@ -47,9 +47,9 @@ func (t *tenant) AcceptFromEndpoint(ctx context.Context,
 }
 
 // Accept to visit the tenant service.
-func (t *tenant) Accept(ctx context.Context, server httpgw.Server) error {
+func (t *tenant) Accept(ctx context.Context, server httpx.Server) error {
 
-	return httpgw.RegisterServiceHandlerServer(ctx,
+	return httpx.RegisterServiceHandlerServer(ctx,
 		server.RuntimeMux(),
 		t.server,
 		tenantpb.RegisterTenantServiceHandlerServer,

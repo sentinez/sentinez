@@ -21,12 +21,12 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
-	"github.com/sentinez/sentinez/pkg/dmz/memory"
+	"github.com/sentinez/sentinez/pkg/dmz/mem"
 )
 
 func (s *Server) initialize(appConf *configspb.AppConfig) error {
 	// init cache repository
-	memory.Initialized(s.setting, appConf)
+	mem.Initialized(s.setting, appConf)
 
 	hostname := appConf.GetEnvConf().GetHostname()
 

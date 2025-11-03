@@ -16,6 +16,11 @@ package httpxdmz
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"sort"
+	"time"
 
 	"google.golang.org/protobuf/proto"
 
@@ -59,4 +64,49 @@ func GetRequestContext(rctx *Context) (*edgepb.Context, bool) {
 	}
 
 	return &msg, true
+}
+
+func setRequestTime(ctx context.Context) context.Context {
+	// set request time
+	ctx = context.WithValue(ctx, senzRequestHTTPTimeKey, time.Now().UTC())
+
+	return ctx
+}
+
+// GenContextKey nolint:funlen
+func GenContextKey(ctx *Context) string {
+	method := string(ctx.req.Method())
+	host := string(ctx.req.Host())
+	path := string(ctx.Path())
+
+	args := ctx.req.QueryArgs()
+	var keys []string
+	args.VisitAll(func(key, _ []byte) {
+		keys = append(keys, string(key))
+	})
+	sort.Strings(keys)
+
+	sortedQuery := ""
+	for _, k := range keys {
+		sortedQuery += fmt.Sprintf("%s=%s&", k, args.Peek(k))
+	}
+
+	ct := string(ctx.req.Request.Header.ContentType())
+
+	body := ctx.req.Request.Body()
+	if len(body) > 1024 {
+		body = body[:1024]
+	}
+	bodyHash := ""
+	if len(body) > 0 {
+		sum := sha256.Sum256(body)
+		bodyHash = hex.EncodeToString(sum[:])
+	}
+
+	rawKey := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
+		method, host, path, sortedQuery, ct, bodyHash,
+	)
+
+	sum := sha256.Sum256([]byte(rawKey))
+	return hex.EncodeToString(sum[:])
 }

@@ -31,14 +31,14 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/tlsx"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var _ httpx.Server = (*httpServer)(nil)
+var _ httpxbase.Server = (*XServer)(nil)
 
 type Server interface {
-	httpx.Server
+	httpxbase.Server
 	Use(mdw ...func(handler RequestHandler) RequestHandler)
 	Handle(fn func(ctx *Context) error)
 	ListenAndServeTLS(addr, certFile, keyFile string) error
@@ -47,25 +47,25 @@ type Server interface {
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
 func NewServer(meta *common.XMeta) Server {
-	return &httpServer{
+	return &XServer{
 		meta: meta,
 	}
 }
 
-// httpServer implements the Server interface.
-type httpServer struct {
+// XServer implements the Server interface.
+type XServer struct {
 	chains  []func(RequestHandler) RequestHandler
-	meta    *common.XMeta
 	handler app.HandlerFunc
+	meta    *common.XMeta
 	core    *server.Hertz
 }
 
 // Use implements Server.
-func (s *httpServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
+func (s *XServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
 	s.chains = append(s.chains, mdw...)
 }
 
-func (s *httpServer) Handle(fn func(ctx *Context) error) {
+func (s *XServer) Handle(fn func(ctx *Context) error) {
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
 
@@ -85,7 +85,7 @@ func (s *httpServer) Handle(fn func(ctx *Context) error) {
 }
 
 // Shutdown implements platform.Server.
-func (s *httpServer) Shutdown(ctx context.Context) error {
+func (s *XServer) Shutdown(ctx context.Context) error {
 	if s.core == nil {
 		return nil
 	}
@@ -93,7 +93,7 @@ func (s *httpServer) Shutdown(ctx context.Context) error {
 	return s.core.Shutdown(ctx)
 }
 
-func (s *httpServer) TLS(certFile, keyFile string) (*tls.Config, error) {
+func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 	var certificates []tls.Certificate
 	if certFile != "" && keyFile != "" {
 		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
@@ -122,7 +122,7 @@ func (s *httpServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 	}, nil
 }
 
-func (s *httpServer) initialize(addr string, certFile, keyFile string) error {
+func (s *XServer) initialize(addr string, certFile, keyFile string) error {
 	sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
 
 	zlog.Infof("%s >>> running on %s",
@@ -160,7 +160,7 @@ func (s *httpServer) initialize(addr string, certFile, keyFile string) error {
 }
 
 // ListenAndServe implements platform.Server.
-func (s *httpServer) ListenAndServe(addr string) error {
+func (s *XServer) ListenAndServe(addr string) error {
 
 	if err := s.initialize(addr, "", ""); err != nil {
 		return err
@@ -169,7 +169,7 @@ func (s *httpServer) ListenAndServe(addr string) error {
 	return s.core.Run()
 }
 
-func (s *httpServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
+func (s *XServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
 
 	if err := s.initialize(addr, certFile, keyFile); err != nil {
 		return err

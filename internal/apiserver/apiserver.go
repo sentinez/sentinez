@@ -18,13 +18,13 @@ package apiserver
 import (
 	"context"
 
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
 	"github.com/sentinez/sentinez/pkg/runner"
 )
 
-func New(server httpgw.Server) *Server {
+func New(server httpx.Server) *Server {
 	srv := &Server{
 		server: server,
 	}
@@ -43,12 +43,12 @@ func New(server httpgw.Server) *Server {
 type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server httpgw.Server
+	server httpx.Server
 }
 
 // visitToEndpoint all service to external grpc server
 func (srv *Server) VisitToEndpoint(ctx context.Context,
-	services ...httpgw.ServiceRegistrar) error {
+	services ...httpx.ServiceRegistrar) error {
 
 	appConf := runner.GetAppConfig(ctx)
 	for _, service := range services {
@@ -64,7 +64,7 @@ func (srv *Server) VisitToEndpoint(ctx context.Context,
 
 // Visit all service to internal grpc handler
 func (srv *Server) Visit(ctx context.Context,
-	services ...httpgw.ServiceRegistrar) error {
+	services ...httpx.ServiceRegistrar) error {
 
 	for _, service := range services {
 		if err := service.Accept(ctx, srv.server); err != nil {

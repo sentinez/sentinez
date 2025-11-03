@@ -1,8 +1,8 @@
-package proxy
+package proxydmz
 
 import (
 	"github.com/hertz-contrib/reverseproxy"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 )
 
 func NewWSReverseProxy() (*WSReverseProxy, error) {

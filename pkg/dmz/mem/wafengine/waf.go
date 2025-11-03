@@ -21,7 +21,7 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

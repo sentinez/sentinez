@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/sentinez/core/rules"
-	ectx "github.com/sentinez/sentinez/internal/edge/v1/engine/context"
+	"github.com/sentinez/sentinez/internal/edge/v1/engine/requests"
 )
 
 var _ edgepb.EdgeEngineServiceServer = (*Engine)(nil)
@@ -39,8 +39,8 @@ func (e *Engine) EvaluateIngress(ctx context.Context,
 	request *edgepb.EvaluateIngressRequest,
 ) (*edgepb.EvaluateIngressResponse, error) {
 
-	enginectx := ectx.New(ctx, request.GetRequestContext())
-	defer ectx.Free(enginectx)
+	enginectx := requests.New(ctx, request.GetRequestContext())
+	defer requests.Free(enginectx)
 
 	rule := ruleenginepb.Rule{}
 	if ok := e.in.Exec(enginectx, &rule); !ok {

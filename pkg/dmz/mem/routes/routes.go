@@ -22,8 +22,8 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/dmz/httpx/proxy"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	proxydmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz/proxy"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -87,7 +87,7 @@ func (r *Router) Store(origin *edgepb.Origin) {
 }
 
 func (r *Router) SetReverseProxy(
-	proxy proxy.ReverseEngine) func(ctx *httpxdmz.Context) error {
+	proxy proxydmz.ReverseEngine) func(ctx *httpxdmz.Context) error {
 
 	return func(ctx *httpxdmz.Context) error {
 		zlog.Debugf("[edge][request] host: %s", ctx.Host())

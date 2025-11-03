@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpgw provide functions extended of http/net
-package httpgw
+// Package httpx provide functions extended of http/net
+package httpx
 
 import (
 	"net"

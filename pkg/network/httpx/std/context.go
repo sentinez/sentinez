@@ -23,7 +23,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 )
 
 var _ IContext = (*Context)(nil)
@@ -34,7 +34,7 @@ var (
 )
 
 type IContext interface {
-	httpx.Context
+	httpxbase.Context
 	Upgrade() (*websocket.Conn, error)
 }
 

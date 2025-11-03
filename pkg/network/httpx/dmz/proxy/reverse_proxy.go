@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package proxy
+package proxydmz
 
 import (
 	"strings"
@@ -24,7 +24,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 )
 
 const (

@@ -24,8 +24,8 @@ import (
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/wafengine"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )

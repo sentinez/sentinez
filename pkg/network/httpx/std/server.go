@@ -22,7 +22,7 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 	"github.com/sentinez/sentinez/pkg/runner"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -30,7 +30,7 @@ import (
 var _ Server = (*HTTPServer)(nil)
 
 type Server interface {
-	httpx.Server
+	httpxbase.Server
 	Use(mdw ...func(http.Handler) http.Handler)
 	Handle(fn func(ctx Context) error)
 }

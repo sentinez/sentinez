@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpgw provides a http server with grpc-gateway support.
-package httpgw
+// Package httpx provides a http server with grpc-gateway support.
+package httpx
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -36,7 +36,7 @@ var (
 // Server is an interface for a http server.
 // default port is 9000
 type Server interface {
-	httpx.Server
+	httpxbase.Server
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)

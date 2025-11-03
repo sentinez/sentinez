@@ -2,8 +2,8 @@ package waitingroom
 
 import (
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/dmz/queue"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 )
 
 var _ chains.Handler = (*WaitingRoom)(nil)

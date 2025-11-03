@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/runner"
 )
 
@@ -39,7 +39,7 @@ import (
 func main() {
 	runner.Main(config.Config(), func(ctx context.Context) error {
 		conf := runner.GetAppConfig(ctx)
-		httpSrv := httpgw.NewServer(conf.GetMeta())
+		httpSrv := httpx.NewServer(conf.GetMeta())
 		server := apiserver.New(httpSrv)
 
 		runner.OnStart(server.Start)

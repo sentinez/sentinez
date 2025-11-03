@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpgw provides utility functions for sentinez.
-package httpgw
+// Package httpx provides utility functions for sentinez.
+package httpx
 
 import (
 	"context"
@@ -75,7 +75,7 @@ func RegisterServiceFromEndpoint(
 	cron.Start(ctx, time.Second*10, func() {
 		srv, err := dcvr.Discover(serviceKey)
 		if err != nil {
-			zlog.Errorf("[httpgw] discovery err=%v", err)
+			zlog.Errorf("[httpx] discovery err=%v", err)
 			return
 		}
 

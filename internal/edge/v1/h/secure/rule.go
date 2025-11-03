@@ -17,7 +17,7 @@ package secure
 import (
 	"github.com/sentinez/sentinez/core/rules"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 )
 
 type Rule struct {

@@ -17,21 +17,21 @@ package routing
 
 import (
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/dmz/httpx/proxy"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/routes"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
+	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	proxydmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz/proxy"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ chains.Handler = (*Router)(nil)
 
 func NewRouter() *Router {
-	reverseProxy, err := proxy.NewReverseProxy()
+	reverseProxy, err := proxydmz.NewReverseProxy()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)
 	}
 
-	wsReverseProxy, _ := proxy.NewWSReverseProxy()
+	wsReverseProxy, _ := proxydmz.NewWSReverseProxy()
 
 	return &Router{
 		BaseHandler: chains.New(),

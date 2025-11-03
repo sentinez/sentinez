@@ -16,23 +16,23 @@ package httpxdmz
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
 	"io"
-	"sort"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 )
 
 var (
-	_       httpx.Context = (*Context)(nil)
-	ctxPool               = syncx.NewPool[Context]()
+	_       httpxbase.Context = (*Context)(nil)
+	ctxPool                   = syncx.NewPool[Context]()
+)
+
+const (
+	HeaderXRequest = "X-Request-ID"
 )
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
@@ -242,49 +242,4 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 
 func (c *Context) Unwrap() *app.RequestContext {
 	return c.req
-}
-
-func setRequestTime(ctx context.Context) context.Context {
-	// set request time
-	ctx = context.WithValue(ctx, senzRequestHTTPTimeKey, time.Now().UTC())
-
-	return ctx
-}
-
-// GenContextKey nolint:funlen
-func GenContextKey(ctx *Context) string {
-	method := string(ctx.req.Method())
-	host := string(ctx.req.Host())
-	path := string(ctx.Path())
-
-	args := ctx.req.QueryArgs()
-	var keys []string
-	args.VisitAll(func(key, _ []byte) {
-		keys = append(keys, string(key))
-	})
-	sort.Strings(keys)
-
-	sortedQuery := ""
-	for _, k := range keys {
-		sortedQuery += fmt.Sprintf("%s=%s&", k, args.Peek(k))
-	}
-
-	ct := string(ctx.req.Request.Header.ContentType())
-
-	body := ctx.req.Request.Body()
-	if len(body) > 1024 {
-		body = body[:1024]
-	}
-	bodyHash := ""
-	if len(body) > 0 {
-		sum := sha256.Sum256(body)
-		bodyHash = hex.EncodeToString(sum[:])
-	}
-
-	rawKey := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
-		method, host, path, sortedQuery, ct, bodyHash,
-	)
-
-	sum := sha256.Sum256([]byte(rawKey))
-	return hex.EncodeToString(sum[:])
 }

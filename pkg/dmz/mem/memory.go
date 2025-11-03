@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package memory ...
-package memory
+// Package mem ...
+package mem
 
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/routes"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/settings"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/wafengine"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 

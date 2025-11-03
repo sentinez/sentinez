@@ -23,7 +23,7 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -69,7 +69,7 @@ func (s *Server) AsServer() *grpc.Server {
 // return error if the http server fails to start.
 func (s *Server) Serve(conf *configspb.AppConfig) error {
 
-	listener, err := httpgw.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
+	listener, err := httpx.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
 	if err != nil {
 		return err
 	}

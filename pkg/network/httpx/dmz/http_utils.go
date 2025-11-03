@@ -24,10 +24,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/render"
 )
 
-const (
-	HeaderXRequest = "X-Request-ID"
-)
-
 func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 
