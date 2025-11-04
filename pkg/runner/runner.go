@@ -20,7 +20,6 @@ import (
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
-	"google.golang.org/grpc/grpclog"
 
 	"go.uber.org/fx"
 )
@@ -30,20 +29,16 @@ type Engine interface {
 	Shutdown(ctx context.Context) error
 }
 
-func Main(appConf *configspb.AppConfig, start func(ctx context.Context) error) {
-	logging := zlog.NewDefaultConsole(zlog.LevelError)
-
-	grpclog.SetLoggerV2(logging)
-	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())
-
-	if appConf.GetFlag().GetEnvMode() != "dev" {
-		internal.AppendOption(fx.NopLogger)
+func Serve(ctx context.Context, app *App) {
+	if app.start != nil {
+		if err := app.start(app.conf); err != nil {
+			zlog.Fatal(err)
+		}
 	}
 
-	ctx := newContext(appConf)
-	if err := start(ctx); err != nil {
-		zlog.Fatal(err)
-	}
+	app.Inject(func() *configspb.AppConfig {
+		return app.conf
+	})
 
 	ctn := container{engine: fx.New(internal.Option())}
 	_ = ctn.Run(ctx)

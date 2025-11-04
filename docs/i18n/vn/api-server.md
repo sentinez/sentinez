@@ -43,5 +43,5 @@ go run cmd/apiserver/main.go
 - `handlers`: hiện thực các custom handler mà không cần thiết phải thông qua `internal/core`. vd: open API Swagger handler request
 - `middleware`: setup các middleware http request cho apiserver
 - `registrar`: hiện thực cách gọi để đăng kí dịch vụ bằng cả 2 cách. Nhúng trực tiếp service vào apiserver hoặc đăng kí endpoint microservice
-- `apiserver.go`: hiện thực `runner.Server` interface để build ứng dụng bằng hàm `runner.New().Build()`
+- `apiserver.go`: hiện thực api gateway
 - `bootloader.go`: chạy các hàm `visit` để kích hoạt đăng kí dịch vụ thông qua gói `registrar` khi server khởi động

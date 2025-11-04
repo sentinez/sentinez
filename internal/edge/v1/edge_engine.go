@@ -19,9 +19,9 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/engine"
 	grpc "github.com/sentinez/sentinez/pkg/network/grpc"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 //
@@ -52,9 +52,8 @@ type Engine struct {
 	*engine.Engine
 }
 
-func (e *Engine) Start(ctx context.Context) error {
+func (e *Engine) Start(_ context.Context, conf *configspb.AppConfig) error {
 	edgepb.RegisterEdgeEngineServiceServer(e.AsServer(), e)
 
-	appConf := runner.GetAppConfig(ctx)
-	return e.Serve(appConf)
+	return e.Serve(conf)
 }

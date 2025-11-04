@@ -18,6 +18,7 @@ package main
 import (
 	"context"
 
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
@@ -49,37 +50,19 @@ import (
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	// runner.Main handles the service lifecycle, including initialization,
-	// start, graceful shutdown, and signal handling.
-	runner.Main(config.Config(), func(ctx context.Context) error {
-		// Retrieve the current application configuration from context.
-		conf := runner.GetAppConfig(ctx)
+	app := runner.NewApp(config.Config())
+	app.Handle(func(conf *configspb.AppConfig) error {
+		var (
+			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
+			httpSrv    = httpxdmz.NewServer(conf.GetMeta())
+			edgeServer = edge.New(httpSrv, setting)
+		)
 
-		// Load YAML-based proxy
-		// configuration (routes, backends, policies, etc.).
-		setting := edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
-
-		// Initialize the DMZ HTTP server.
-		// This server is the public-facing entrypoint that forwards requests
-		// to the internal Edge Engine for processing.
-		httpSrv := httpxdmz.NewServer(conf.GetMeta())
-
-		// Create the Edge server
-		// instance using the HTTP layer and proxy settings.
-		edgeServer := edge.New(httpSrv, setting)
-
-		// Register startup and shutdown hooks for the Edge HTTP server.
-		runner.OnStart(edgeServer.Start)
-		runner.OnStop(edgeServer.Shutdown)
-
-		// Initialize the Edge Engine (gRPC handler) responsible for
-		// handling internal communication, WAF logic, and routing control.
-		// engine := edge.NewEngine(conf.GetMeta())
-
-		// Register startup and shutdown hooks for the Edge Engine.
-		// runner.OnStart(engine.Start)
-		// runner.OnStop(engine.Shutdown)
+		app.OnStart(edgeServer.Start)
+		app.OnStop(edgeServer.Shutdown)
 
 		return nil
 	})
+
+	runner.Serve(context.Background(), app)
 }

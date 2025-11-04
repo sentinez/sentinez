@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 type Config struct {

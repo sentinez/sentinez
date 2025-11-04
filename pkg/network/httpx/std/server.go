@@ -19,11 +19,10 @@ import (
 	"net/http"
 
 	"github.com/sentinez/sentinez"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
-	"github.com/sentinez/sentinez/pkg/runner"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -35,16 +34,15 @@ type Server interface {
 	Handle(fn func(ctx Context) error)
 }
 
-func NewServer(ctx context.Context) Server {
-	runneappConf := runner.GetAppConfig(ctx)
+func NewServer(meta *common.XMeta) Server {
 	return &HTTPServer{
-		appConf: runneappConf,
+		meta: meta,
 	}
 }
 
 type HTTPServer struct {
-	mdw     []func(http.Handler) http.Handler
-	appConf *configspb.AppConfig
+	mdw  []func(http.Handler) http.Handler
+	meta *common.XMeta
 }
 
 func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
@@ -56,13 +54,13 @@ func (s *HTTPServer) Handle(fn func(ctx Context) error) {
 }
 
 func (s *HTTPServer) ListenAndServe(addr string) error {
-	if err := protobuf.Validate(s.appConf); err != nil {
+	if err := protobuf.Validate(s.meta); err != nil {
 		return err
 	}
 
 	sentinez.INFO(
-		s.appConf.GetMeta().GetServiceName(),
-		s.appConf.GetMeta().GetServiceKey(),
+		s.meta.GetServiceName(),
+		s.meta.GetServiceKey(),
 	)
 
 	zlog.Infof("%s >>> running on %s",

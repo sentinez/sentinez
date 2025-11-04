@@ -70,28 +70,28 @@ func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
 		return matchSourceQuery(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
-		return byPass
+		return bypass
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_HEADER:
-		return byPass
+		return bypass
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
-		return byPass
+		return matchSourceMethod(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
-		return byPass
+		return bypass
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
-		return byPass
+		return bypass
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
-		return byPass
+		return matchSourceIP(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
-		return byPass
+		return bypass
 
 	default:
-		return byPass
+		return bypass
 	}
 }
 

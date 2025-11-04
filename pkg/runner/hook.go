@@ -18,13 +18,36 @@ package runner
 import (
 	"context"
 
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"go.uber.org/fx"
+	"google.golang.org/grpc/grpclog"
 )
 
-func OnStart(start any) {
+func NewApp(appConf *configspb.AppConfig) *App {
+	logging := zlog.NewDefaultConsole(zlog.LevelError)
+	grpclog.SetLoggerV2(logging)
+	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())
+
+	if appConf.GetFlag().GetEnvMode() != "dev" {
+		internal.AppendOption(fx.NopLogger)
+	}
+
+	return &App{conf: appConf}
+}
+
+type App struct {
+	conf  *configspb.AppConfig
+	start func(conf *configspb.AppConfig) error
+}
+
+func (a *App) Handle(start func(conf *configspb.AppConfig) error) {
+	a.start = start
+}
+
+func (a *App) OnStart(start any) {
 	switch fn := start.(type) {
 	case func(context.Context) error:
 		function := func(lc fx.Lifecycle) {
@@ -52,7 +75,7 @@ func OnStart(start any) {
 	}
 }
 
-func OnStop(stop func(ctx context.Context) error) {
+func (a *App) OnStop(stop func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
 			OnStop: stop,
@@ -62,10 +85,10 @@ func OnStop(stop func(ctx context.Context) error) {
 	internal.Invoke(function)
 }
 
-func Invoke(fn any) {
+func (a *App) Invoke(fn any) {
 	internal.Invoke(fn)
 }
 
-func Inject(fn ...any) {
+func (a *App) Inject(fn ...any) {
 	internal.Provide(fn...)
 }

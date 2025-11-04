@@ -15,12 +15,18 @@
 package rules
 
 import (
+	"net"
+
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/sentinez/core/internal/zlog"
 	"github.com/sentinez/sentinez/core/networks"
 )
 
-const byPass = false
+const (
+	bypass    = false
+	matched   = true
+	unmatched = false
+)
 
 func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
@@ -34,7 +40,7 @@ func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	case ruleenginepb.Operator_OPERATOR_NE:
 		return src != des
 	default:
-		return byPass
+		return bypass
 	}
 }
 
@@ -47,7 +53,7 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
 	if len(src) == 0 {
-		return true
+		return bypass
 	}
 
 	switch cond.GetOperator() {
@@ -55,25 +61,60 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 		for _, d := range des {
 			if ds, ok := d.(string); ok {
 				if _, exist := src[ds]; !exist {
-					return false
+					return unmatched
 				}
 			}
 		}
 
-		return true
+		return matched
 
 	case ruleenginepb.Operator_OPERATOR_NOT_IN:
 		for _, d := range des {
 			if ds, ok := d.(string); ok {
 				if _, exist := src[ds]; exist {
-					return false
+					return unmatched
 				}
 			}
 		}
 
-		return true
+		return matched
 
 	default:
-		return byPass
+		return bypass
+	}
+}
+
+func matchSourceIP(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+	src := ctx.ClientIP()
+	des := cond.GetValue().GetStringValue()
+
+	switch cond.GetOperator() {
+	case ruleenginepb.Operator_OPERATOR_EQ:
+		_, ipnet, err := net.ParseCIDR(des)
+		if err != nil {
+			return src == des
+		}
+
+		return ipnet.Contains(net.ParseIP(src))
+	case ruleenginepb.Operator_OPERATOR_NE:
+		_, ipnet, err := net.ParseCIDR(des)
+		if err != nil {
+			return src != des
+		}
+
+		return !ipnet.Contains(net.ParseIP(src))
+	default:
+		return bypass
+	}
+}
+
+func matchSourceMethod(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+	switch cond.GetOperator() {
+	case ruleenginepb.Operator_OPERATOR_EQ:
+		return bypass
+	case ruleenginepb.Operator_OPERATOR_NE:
+		return bypass
+	default:
+		return bypass
 	}
 }

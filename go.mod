@@ -17,6 +17,7 @@ require (
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/exaring/ja4plus v0.0.2
 	github.com/go-webauthn/webauthn v0.14.0
+	github.com/goccy/go-yaml v1.18.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
@@ -39,7 +40,6 @@ require (
 	golang.org/x/crypto v0.42.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -109,5 +109,6 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )

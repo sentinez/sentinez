@@ -17,18 +17,19 @@ package apiserver
 import (
 	"context"
 
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
-func (srv *Server) Initialize(ctx context.Context) error {
-	appConf := runner.GetAppConfig(ctx)
-	flag := appConf.GetFlag()
+func (srv *Server) Initialize(
+	ctx context.Context, conf *configspb.AppConfig) error {
+
+	flag := conf.GetFlag()
 
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
@@ -37,19 +38,9 @@ func (srv *Server) Initialize(ctx context.Context) error {
 	// register all custom handlers to the server
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
-	// NOTE: visit grpc service bellows
-	//
-	// err := srv.visitToEndpoint(ctx,
-	// 	services.NewGreeter(greeterfac.NewDefaultHandlerGreeter(appConf)),
-	// )
-	// if err != nil {
-	// 	zlog.Errorf("apiserver: failed to visit service: %v", err)
-	// 	return err
-	// }
-
 	return srv.Visit(ctx,
-		services.NewGreeter(greeterfac.NewDefaultHandler(appConf)),
-		services.NewIAM(iamfac.NewDefaultHandler(appConf)),
-		services.NewTenant(tenantfac.NewDefaultHandlerTenant(appConf)),
+		services.NewGreeter(greeterfac.NewDefaultHandler(conf)),
+		services.NewIAM(iamfac.NewDefaultHandler(conf)),
+		services.NewTenant(tenantfac.NewDefaultHandlerTenant(conf)),
 	)
 }

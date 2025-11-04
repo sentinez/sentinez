@@ -16,13 +16,11 @@
 package greeter
 
 import (
-	"context"
-
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func NewService(meta *common.XMeta) *Greeter {
@@ -38,10 +36,8 @@ type Greeter struct {
 	handler greeter.GreeterServiceServer
 }
 
-// Start implements IGreeter, override runner.Server.Start
-func (g *Greeter) Start(ctx context.Context) error {
+func (g *Greeter) Start(conf *configspb.AppConfig) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	appConf := runner.GetAppConfig(ctx)
-	return g.Serve(appConf)
+	return g.Serve(conf)
 }

@@ -22,7 +22,6 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
@@ -45,12 +44,6 @@ type ServiceServer interface {
 type Server struct {
 	server *grpc.Server
 	meta   *common.XMeta
-}
-
-// Start implements Server.
-func (s *Server) Start(ctx context.Context) error {
-	_ = ctx
-	return errorx.ErrUnimplemented
 }
 
 // Shutdown implements ServiceServer.

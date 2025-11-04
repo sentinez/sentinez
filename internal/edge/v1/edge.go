@@ -19,8 +19,8 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
-	"github.com/sentinez/sentinez/pkg/runner"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -88,20 +88,20 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // Parameters:
 //   - ctx: The lifecycle context provided by the runner.
+//   - conf: application configuration
 //
 // Returns:
 //   - error: Any error that occurred during startup or serving.
-func (s *Server) Start(ctx context.Context) error {
-	appConf := runner.GetAppConfig(ctx)
-	if err := s.initialize(appConf); err != nil {
+func (s *Server) Start(conf *configspb.AppConfig) error {
+	if err := s.initialize(conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
 	}
 
 	var (
-		addr     = appConf.GetEnvConf().GetHttpAddress()
-		certFile = appConf.GetFlag().GetCertificateFile()
-		keyFile  = appConf.GetFlag().GetCertKeyFile()
+		addr     = conf.GetEnvConf().GetHttpAddress()
+		certFile = conf.GetFlag().GetCertificateFile()
+		keyFile  = conf.GetFlag().GetCertKeyFile()
 	)
 
 	return s.core.ListenAndServeTLS(addr, certFile, keyFile)

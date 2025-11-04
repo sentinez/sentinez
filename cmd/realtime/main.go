@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
 	"github.com/sentinez/sentinez/internal/realtime"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
@@ -24,15 +25,18 @@ import (
 )
 
 func main() {
-	runner.Main(config.Config(), func(ctx context.Context) error {
-		conf := runner.GetAppConfig(ctx)
-		wsSrv := wscore.NewServer(conf.GetMeta())
+	app := runner.NewApp(config.Config())
+	app.Handle(func(conf *configspb.AppConfig) error {
+		var (
+			wsSrv = wscore.NewServer(conf.GetMeta())
+			rt    = realtime.New(wsSrv)
+		)
 
-		rt := realtime.New(wsSrv)
-
-		runner.OnStart(rt.Start)
-		runner.OnStop(rt.Shutdown)
+		app.OnStart(rt.Start)
+		app.OnStop(rt.Shutdown)
 
 		return nil
 	})
+
+	runner.Serve(context.Background(), app)
 }

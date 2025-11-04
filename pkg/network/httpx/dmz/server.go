@@ -123,7 +123,9 @@ func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *XServer) initialize(addr string, certFile, keyFile string) error {
-	sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	if s.meta != nil {
+		sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
+	}
 
 	zlog.Infof("%s >>> running on %s",
 		color.Blue.Add("https"),

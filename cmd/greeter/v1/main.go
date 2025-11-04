@@ -18,19 +18,22 @@ package main
 import (
 	"context"
 
+	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func main() {
-	runner.Main(config.Config(), func(ctx context.Context) error {
-		conf := runner.GetAppConfig(ctx)
+	app := runner.NewApp(config.Config())
+	app.Handle(func(conf *configspb.AppConfig) error {
 		grpc := greeter.NewService(conf.GetMeta())
 
-		runner.OnStart(grpc.Start)
-		runner.OnStop(grpc.Shutdown)
+		app.OnStart(grpc.Start)
+		app.OnStop(grpc.Shutdown)
 
 		return nil
 	})
+
+	runner.Serve(context.Background(), app)
 }
