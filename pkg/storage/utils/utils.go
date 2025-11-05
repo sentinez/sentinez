@@ -21,17 +21,17 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 )
 
 // NewPgxPool create new pool connection for multiple query
-func NewPgxPool(conf *configspb.EnvConfig) (*pgxpool.Pool, error) {
+func NewPgxPool(conf *confpb.EnvConfig) (*pgxpool.Pool, error) {
 	return pgxpool.New(context.Background(), conf.GetPostgresUri())
 }
 
 // NewPgxConn create new connection for single query
 func NewPgxConn(
-	ctx context.Context, conf *configspb.EnvConfig) (*pgx.Conn, error) {
+	ctx context.Context, conf *confpb.EnvConfig) (*pgx.Conn, error) {
 
 	_ = conf
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",

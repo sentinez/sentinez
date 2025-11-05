@@ -17,15 +17,15 @@ package httpx
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
-	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var (
@@ -106,15 +106,9 @@ func (h *serverx) ListenAndServe(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	sentinez.INFO(
-		h.meta.GetServiceName(),
-		h.meta.GetServiceKey(),
-	)
+	figure.INFO(h.meta.GetServiceName(),
+		h.meta.GetServiceKey(), fmt.Sprintf("running on http %s", address))
 
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("http"),
-		color.Magenta.Add(address),
-	)
 	return h.server.ListenAndServe()
 }
 

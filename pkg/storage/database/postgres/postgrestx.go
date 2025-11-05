@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"google.golang.org/protobuf/proto"
@@ -31,8 +31,8 @@ var (
 	txSSPool *syncx.Pool[TxSession]
 )
 
-func NewTX(conf *configspb.AppConfig) *Tx {
-	return &Tx{conf: conf.GetEnvConf()}
+func NewTX(conf *confpb.Config) *Tx {
+	return &Tx{conf: conf.GetEnv()}
 }
 
 func WithTx[T proto.Message](
@@ -41,7 +41,7 @@ func WithTx[T proto.Message](
 }
 
 type Tx struct {
-	conf *configspb.EnvConfig
+	conf *confpb.EnvConfig
 	mock pgx.Tx
 }
 

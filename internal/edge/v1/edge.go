@@ -19,7 +19,7 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -92,14 +92,14 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // Returns:
 //   - error: Any error that occurred during startup or serving.
-func (s *Server) Start(conf *configspb.AppConfig) error {
+func (s *Server) Start(conf *confpb.Config) error {
 	if err := s.initialize(conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
 	}
 
 	var (
-		addr     = conf.GetEnvConf().GetHttpAddress()
+		addr     = conf.GetEnv().GetHttpAddress()
 		certFile = conf.GetFlag().GetCertificateFile()
 		keyFile  = conf.GetFlag().GetCertKeyFile()
 	)

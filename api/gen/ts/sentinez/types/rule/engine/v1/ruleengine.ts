@@ -106,6 +106,7 @@ export enum Operator {
   OPERATOR_GTE = 9,
   OPERATOR_LT = 10,
   OPERATOR_LTE = 11,
+  OPERATOR_NOT_IN = 12,
   UNRECOGNIZED = -1,
 }
 
@@ -147,6 +148,9 @@ export function operatorFromJSON(object: any): Operator {
     case 11:
     case "OPERATOR_LTE":
       return Operator.OPERATOR_LTE;
+    case 12:
+    case "OPERATOR_NOT_IN":
+      return Operator.OPERATOR_NOT_IN;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -180,6 +184,8 @@ export function operatorToJSON(object: Operator): string {
       return "OPERATOR_LT";
     case Operator.OPERATOR_LTE:
       return "OPERATOR_LTE";
+    case Operator.OPERATOR_NOT_IN:
+      return "OPERATOR_NOT_IN";
     case Operator.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -295,9 +301,9 @@ export interface Condition {
   source: FieldSource;
   /** Example: "User-Agent" or "country" */
   key: string;
-  /** Supported operators: "eq", "ne", "contains", "matches", "in", "prefix", "suffix", "gt", "lt" */
+  /** Supported operators: "eq", "ne", "contains", */
   operator: Operator;
-  /** The value to compare against */
+  /** "matches", "in", "prefix", "suffix", "gt", "lt" */
   value?:
     | any
     | undefined;
@@ -310,9 +316,9 @@ export interface Condition {
 /** An action to execute when a rule matches */
 export interface Action {
   id: string;
-  /** Example types: "block", "log", "modify_header", "redirect", "set_tag", "route_to" */
+  /** Example types: "block", "log", "modify_header", */
   type: ActionType;
-  /** Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" } */
+  /** "redirect", "set_tag", "route_to" */
   params?: { [key: string]: any } | undefined;
 }
 

@@ -17,13 +17,12 @@ package netgrpc
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
@@ -36,7 +35,7 @@ var (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *configspb.AppConfig) error
+	Serve(conf *confpb.Config) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -60,24 +59,18 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *configspb.AppConfig) error {
+func (s *Server) Serve(conf *confpb.Config) error {
 
-	listener, err := httpx.ListenNetworkTCP(conf.GetEnvConf().GetGrpcAddress())
+	addr := conf.GetEnv().GetGrpcAddress()
+	listener, err := httpx.ListenNetworkTCP(addr)
 	if err != nil {
 		return err
 	}
 
-	sentinez.INFO(
-		s.meta.GetServiceName(),
-		s.meta.GetServiceKey(),
-	)
+	figure.INFO(s.meta.GetServiceName(),
+		s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
 
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("gRPC"),
-		color.Magenta.Add(conf.GetEnvConf().GetGrpcAddress()),
-	)
-
-	go Register(s.meta.GetServiceKey(), conf.GetEnvConf())
+	go Register(s.meta.GetServiceKey(), conf.GetEnv())
 	return s.AsServer().Serve(listener)
 }
 

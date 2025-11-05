@@ -16,14 +16,14 @@ package httpxstd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
-	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ Server = (*HTTPServer)(nil)
@@ -58,15 +58,8 @@ func (s *HTTPServer) ListenAndServe(addr string) error {
 		return err
 	}
 
-	sentinez.INFO(
-		s.meta.GetServiceName(),
-		s.meta.GetServiceKey(),
-	)
-
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("http"),
-		color.Magenta.Add(addr),
-	)
+	figure.INFO(s.meta.GetServiceName(),
+		s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
 
 	return http.ListenAndServe(addr, nil)
 }

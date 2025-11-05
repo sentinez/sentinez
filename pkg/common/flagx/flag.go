@@ -20,9 +20,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"
@@ -40,7 +40,7 @@ var flags = &flagspb.Flag{
 
 func info(meta *common.XMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
-	return sentinez.FigureGen(service, meta.GetServiceKey())
+	return figure.Gen(service, meta.GetServiceKey())
 }
 
 // Parse flag args

@@ -16,12 +16,12 @@ package tenantfac
 
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 )
 
 func NewDefaultHandlerTenant(
-	_ *configspb.AppConfig) tenant.TenantServiceServer {
+	_ *confpb.Config) tenant.TenantServiceServer {
 
 	return tenanthandler.New()
 }

@@ -15,7 +15,7 @@
 package edge
 
 import (
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
@@ -24,11 +24,11 @@ import (
 	"github.com/sentinez/sentinez/pkg/dmz/mem"
 )
 
-func (s *Server) initialize(appConf *configspb.AppConfig) error {
+func (s *Server) initialize(appConf *confpb.Config) error {
 	// init cache repository
 	mem.Initialized(s.setting, appConf)
 
-	hostname := appConf.GetEnvConf().GetHostname()
+	hostname := appConf.GetEnv().GetHostname()
 
 	begin := waitingroom.New()
 

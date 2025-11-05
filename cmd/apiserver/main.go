@@ -18,7 +18,7 @@ package main
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -40,7 +40,7 @@ import (
 func main() {
 	app := runner.NewApp(config.Config())
 
-	app.Handle(func(conf *configspb.AppConfig) error {
+	app.Handle(func(conf *confpb.Config) error {
 		var (
 			httpSrv = httpx.NewServer(conf.GetMeta())
 			server  = apiserver.New(httpSrv)

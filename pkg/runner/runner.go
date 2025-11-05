@@ -17,7 +17,7 @@ package runner
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
 
@@ -36,7 +36,7 @@ func Serve(ctx context.Context, app *App) {
 		}
 	}
 
-	app.Inject(func() *configspb.AppConfig {
+	app.Inject(func() *confpb.Config {
 		return app.conf
 	})
 

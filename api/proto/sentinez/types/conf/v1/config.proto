@@ -14,8 +14,8 @@
 
 syntax = "proto3";
 
-package sentinez.types.configs.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1;configspb";
+package sentinez.types.conf.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1;confpb";
 
 import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/flags/v1/flags.proto";
@@ -46,8 +46,8 @@ message EnvConfig {
   string grpc_address = 20;
 }
 
-message AppConfig {
+message Config {
   sentinez.types.common.v1.XMeta meta = 1;
-  EnvConfig env_conf = 2;
+  EnvConfig env = 2;
   sentinez.types.flags.v1.Flag flag = 3;
 }

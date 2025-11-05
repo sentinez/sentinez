@@ -18,7 +18,7 @@ package main
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
@@ -51,7 +51,7 @@ import (
 // and registers their start/stop hooks with the runner framework.
 func main() {
 	app := runner.NewApp(config.Config())
-	app.Handle(func(conf *configspb.AppConfig) error {
+	app.Handle(func(conf *confpb.Config) error {
 		var (
 			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
 			httpSrv    = httpxdmz.NewServer(conf.GetMeta())

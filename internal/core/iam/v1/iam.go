@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
 	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -32,7 +32,7 @@ func GetListener() *bufconn.Listener {
 	return bufLis
 }
 
-func NewService(appConf *configspb.AppConfig) *IAM {
+func NewService(appConf *confpb.Config) *IAM {
 	return &IAM{
 		Server: netgrpc.NewDefault(appConf.GetMeta()),
 		hdl:    iamfac.NewDefaultHandler(appConf),

@@ -18,7 +18,7 @@ package runner
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 )
 
-func NewApp(appConf *configspb.AppConfig) *App {
+func NewApp(appConf *confpb.Config) *App {
 	logging := zlog.NewDefaultConsole(zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())
@@ -39,11 +39,11 @@ func NewApp(appConf *configspb.AppConfig) *App {
 }
 
 type App struct {
-	conf  *configspb.AppConfig
-	start func(conf *configspb.AppConfig) error
+	conf  *confpb.Config
+	start func(conf *confpb.Config) error
 }
 
-func (a *App) Handle(start func(conf *configspb.AppConfig) error) {
+func (a *App) Handle(start func(conf *confpb.Config) error) {
 	a.start = start
 }
 

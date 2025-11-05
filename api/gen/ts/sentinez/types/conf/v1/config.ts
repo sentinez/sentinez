@@ -2,14 +2,14 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/configs/v1/config.proto
+// source: sentinez/types/conf/v1/config.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { XMeta } from "../../common/v1/options";
 import { Flag } from "../../flags/v1/flags";
 
-export const protobufPackage = "sentinez.types.configs.v1";
+export const protobufPackage = "sentinez.types.conf.v1";
 
 export interface EnvConfig {
   /**
@@ -33,9 +33,9 @@ export interface EnvConfig {
   grpcAddress: string;
 }
 
-export interface AppConfig {
+export interface Config {
   meta?: XMeta | undefined;
-  envConf?: EnvConfig | undefined;
+  env?: EnvConfig | undefined;
   flag?: Flag | undefined;
 }
 
@@ -254,17 +254,17 @@ export const EnvConfig: MessageFns<EnvConfig> = {
   },
 };
 
-function createBaseAppConfig(): AppConfig {
-  return { meta: undefined, envConf: undefined, flag: undefined };
+function createBaseConfig(): Config {
+  return { meta: undefined, env: undefined, flag: undefined };
 }
 
-export const AppConfig: MessageFns<AppConfig> = {
-  encode(message: AppConfig, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Config: MessageFns<Config> = {
+  encode(message: Config, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.meta !== undefined) {
       XMeta.encode(message.meta, writer.uint32(10).fork()).join();
     }
-    if (message.envConf !== undefined) {
-      EnvConfig.encode(message.envConf, writer.uint32(18).fork()).join();
+    if (message.env !== undefined) {
+      EnvConfig.encode(message.env, writer.uint32(18).fork()).join();
     }
     if (message.flag !== undefined) {
       Flag.encode(message.flag, writer.uint32(26).fork()).join();
@@ -272,10 +272,10 @@ export const AppConfig: MessageFns<AppConfig> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AppConfig {
+  decode(input: BinaryReader | Uint8Array, length?: number): Config {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAppConfig();
+    const message = createBaseConfig();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -292,7 +292,7 @@ export const AppConfig: MessageFns<AppConfig> = {
             break;
           }
 
-          message.envConf = EnvConfig.decode(reader, reader.uint32());
+          message.env = EnvConfig.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -312,21 +312,21 @@ export const AppConfig: MessageFns<AppConfig> = {
     return message;
   },
 
-  fromJSON(object: any): AppConfig {
+  fromJSON(object: any): Config {
     return {
       meta: isSet(object.meta) ? XMeta.fromJSON(object.meta) : undefined,
-      envConf: isSet(object.envConf) ? EnvConfig.fromJSON(object.envConf) : undefined,
+      env: isSet(object.env) ? EnvConfig.fromJSON(object.env) : undefined,
       flag: isSet(object.flag) ? Flag.fromJSON(object.flag) : undefined,
     };
   },
 
-  toJSON(message: AppConfig): unknown {
+  toJSON(message: Config): unknown {
     const obj: any = {};
     if (message.meta !== undefined) {
       obj.meta = XMeta.toJSON(message.meta);
     }
-    if (message.envConf !== undefined) {
-      obj.envConf = EnvConfig.toJSON(message.envConf);
+    if (message.env !== undefined) {
+      obj.env = EnvConfig.toJSON(message.env);
     }
     if (message.flag !== undefined) {
       obj.flag = Flag.toJSON(message.flag);
@@ -334,15 +334,13 @@ export const AppConfig: MessageFns<AppConfig> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AppConfig>, I>>(base?: I): AppConfig {
-    return AppConfig.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Config>, I>>(base?: I): Config {
+    return Config.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AppConfig>, I>>(object: I): AppConfig {
-    const message = createBaseAppConfig();
+  fromPartial<I extends Exact<DeepPartial<Config>, I>>(object: I): Config {
+    const message = createBaseConfig();
     message.meta = (object.meta !== undefined && object.meta !== null) ? XMeta.fromPartial(object.meta) : undefined;
-    message.envConf = (object.envConf !== undefined && object.envConf !== null)
-      ? EnvConfig.fromPartial(object.envConf)
-      : undefined;
+    message.env = (object.env !== undefined && object.env !== null) ? EnvConfig.fromPartial(object.env) : undefined;
     message.flag = (object.flag !== undefined && object.flag !== null) ? Flag.fromPartial(object.flag) : undefined;
     return message;
   },

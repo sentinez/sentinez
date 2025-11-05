@@ -20,14 +20,14 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestGenAndVerifyToken(t *testing.T) {
 	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-	conf := &configspb.EnvConfig{SecretKey: secBase64}
+	conf := &confpb.EnvConfig{SecretKey: secBase64}
 
 	token, err := TokenGenerator(conf, &common.Context{
 		Name:     "test gen & verify",

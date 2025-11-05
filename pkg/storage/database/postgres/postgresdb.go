@@ -25,7 +25,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
@@ -43,7 +43,7 @@ var (
 	lock sync.Mutex
 )
 
-func getConnPool(conf *configspb.EnvConfig) (*pgxpool.Pool, error) {
+func getConnPool(conf *confpb.EnvConfig) (*pgxpool.Pool, error) {
 	if pool == nil {
 		var err error
 		lock.Lock()
@@ -59,12 +59,12 @@ func getConnPool(conf *configspb.EnvConfig) (*pgxpool.Pool, error) {
 }
 
 //nolint:funlen
-func New[T proto.Message](conf *configspb.AppConfig, tableName string,
+func New[T proto.Message](conf *confpb.Config, tableName string,
 	opts ...database.Option) (database.Database[T], error) {
 
 	tableName = table.NewTable(conf, tableName)
 
-	conn, err := getConnPool(conf.GetEnvConf())
+	conn, err := getConnPool(conf.GetEnv())
 	if err != nil {
 		return nil, err
 	}

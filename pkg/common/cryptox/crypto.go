@@ -21,7 +21,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -33,7 +33,7 @@ const (
 	expKey    = "exp"
 )
 
-func TokenGenerator(conf *configspb.EnvConfig,
+func TokenGenerator(conf *confpb.EnvConfig,
 	payload *common.Context) (string, error) {
 
 	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
@@ -55,7 +55,7 @@ func TokenGenerator(conf *configspb.EnvConfig,
 	return tokenString, err
 }
 
-func BearerTokenVerifier(conf *configspb.EnvConfig,
+func BearerTokenVerifier(conf *confpb.EnvConfig,
 	bearerToken string) (*common.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, bearer)

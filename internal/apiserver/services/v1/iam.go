@@ -18,7 +18,7 @@ import (
 	"context"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 )
 
@@ -37,7 +37,7 @@ type identityAccessManagement struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
-	server httpx.Server, appConf *configspb.AppConfig) error {
+	server httpx.Server, appConf *confpb.Config) error {
 
 	return httpx.RegisterServiceFromEndpoint(ctx,
 		appConf,

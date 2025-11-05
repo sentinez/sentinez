@@ -17,7 +17,7 @@ package mem
 
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func Initialized(st *edgepb.Setting, appConf *configspb.AppConfig) {
+func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
 	// save all setting for each tenant
 	loadSetting(st)
 
@@ -53,7 +53,7 @@ func loadRouting() {
 	})
 }
 
-func loadWAF(appConf *configspb.AppConfig) {
+func loadWAF(appConf *confpb.Config) {
 	settings.Get().Visit(func(s *edgepb.Setting) bool {
 		if !s.GetSecurity().GetIsWafEngineOn() {
 			zlog.Infof("[edge][waf] ignore '%s'", s.GetOrigin().GetNamespace())

@@ -18,7 +18,7 @@ package realtime
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	realtimehdl "github.com/sentinez/sentinez/internal/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 )
@@ -37,10 +37,10 @@ func (r *Realtime) router() {
 	r.core.HandlerFunc("/ws", realtimehdl.Handler)
 }
 
-func (r *Realtime) Start(conf *configspb.AppConfig) error {
+func (r *Realtime) Start(conf *confpb.Config) error {
 	// register the route with websocket handler
 	r.router()
-	return r.core.ListenAndServe(conf.GetEnvConf().GetHttpAddress())
+	return r.core.ListenAndServe(conf.GetEnv().GetHttpAddress())
 }
 
 func (r *Realtime) Shutdown(_ context.Context) error {

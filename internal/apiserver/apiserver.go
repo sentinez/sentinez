@@ -18,7 +18,7 @@ package apiserver
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -47,7 +47,7 @@ type Server struct {
 
 // visitToEndpoint all service to external grpc server
 func (srv *Server) VisitToEndpoint(ctx context.Context,
-	conf *configspb.AppConfig,
+	conf *confpb.Config,
 	services ...httpx.ServiceRegistrar) error {
 
 	for _, service := range services {
@@ -76,14 +76,14 @@ func (srv *Server) Visit(ctx context.Context,
 }
 
 // Start the apiserver/gateway app
-func (srv *Server) Start(ctx context.Context, conf *configspb.AppConfig) error {
+func (srv *Server) Start(ctx context.Context, conf *confpb.Config) error {
 	if err := srv.Initialize(ctx, conf); err != nil {
 		zlog.Errorf("apiserver: failed to initialize: %v", err)
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.ListenAndServe(conf.GetEnvConf().GetHttpAddress())
+	return srv.server.ListenAndServe(conf.GetEnv().GetHttpAddress())
 	// for DEBUG:
 	// return fmt.Errorf("apiserver: failed to listen and serve")
 }

@@ -20,10 +20,10 @@ import (
 	"strings"
 
 	"github.com/sentinez/sentinez"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 )
 
-func NewTable(appConf *configspb.AppConfig, tableName string) string {
+func NewTable(appConf *confpb.Config, tableName string) string {
 	tableName = fmt.Sprintf("%s.%s.%s",
 		appConf.GetFlag().GetEnvMode(), sentinez.BaseName, tableName)
 	return strings.ReplaceAll(tableName, ".", "_")

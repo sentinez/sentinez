@@ -18,7 +18,7 @@ package greeter
 import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
 )
@@ -36,7 +36,7 @@ type Greeter struct {
 	handler greeter.GreeterServiceServer
 }
 
-func (g *Greeter) Start(conf *configspb.AppConfig) error {
+func (g *Greeter) Start(conf *confpb.Config) error {
 	greeter.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
 	return g.Serve(conf)

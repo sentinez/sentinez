@@ -15,12 +15,12 @@
 package wsz
 
 import (
-	"github.com/sentinez/sentinez"
+	"fmt"
+
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 func NewServer(meta *common.XMeta) *WebSocket {
@@ -55,15 +55,8 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	sentinez.INFO(
-		ws.meta.GetServiceName(),
-		ws.meta.GetServiceKey(),
-	)
-
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("ws"),
-		color.Magenta.Add(addr),
-	)
+	figure.INFO(ws.meta.GetServiceName(),
+		ws.meta.GetServiceKey(), fmt.Sprintf("running on ws %s", addr))
 
 	return httpxstd.ListenAndServe(addr)
 }

@@ -17,7 +17,7 @@ package apiserver
 import (
 	"context"
 
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
@@ -27,7 +27,7 @@ import (
 )
 
 func (srv *Server) Initialize(
-	ctx context.Context, conf *configspb.AppConfig) error {
+	ctx context.Context, conf *confpb.Config) error {
 
 	flag := conf.GetFlag()
 

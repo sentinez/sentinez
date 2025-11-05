@@ -26,7 +26,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
@@ -43,7 +43,7 @@ import (
 
 var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(config *configspb.AppConfig,
+func New(config *confpb.Config,
 	tx *postgres.Tx,
 	store passkey.Store,
 	users usersrepo.IUser,
@@ -63,7 +63,7 @@ func New(config *configspb.AppConfig,
 }
 
 type IAMService struct {
-	config   *configspb.AppConfig
+	config   *confpb.Config
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accrepos.IAccount
@@ -129,7 +129,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	if acc.GetUsername() == "admin" {
 		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnvConf(),
+	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnv(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
@@ -297,8 +297,8 @@ func (srv *IAMService) getOrCreateAccount(
 	return acc, nil
 }
 
-func (srv *IAMService) Config() *configspb.EnvConfig {
-	return srv.config.GetEnvConf()
+func (srv *IAMService) Config() *confpb.EnvConfig {
+	return srv.config.GetEnv()
 }
 
 func (srv *IAMService) ListAccounts(ctx context.Context,
@@ -443,7 +443,7 @@ func (srv *IAMService) Login(ctx context.Context,
 	if acc.GetUsername() == "admin" {
 		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnvConf(),
+	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnv(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),

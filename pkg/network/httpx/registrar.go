@@ -22,7 +22,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/grpc"
@@ -32,7 +32,7 @@ import (
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
 	Accept(context.Context, Server) error
-	AcceptFromEndpoint(context.Context, Server, *configspb.AppConfig) error
+	AcceptFromEndpoint(context.Context, Server, *confpb.Config) error
 }
 
 type (
@@ -59,7 +59,7 @@ func RegisterServiceHandlerServer[T any](
 
 func RegisterServiceFromEndpoint(
 	ctx context.Context,
-	appConf *configspb.AppConfig,
+	appConf *confpb.Config,
 	mux *runtime.ServeMux,
 	serviceKey string,
 	fn RegisterEndpointFn,
@@ -69,7 +69,7 @@ func RegisterServiceFromEndpoint(
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: appConf.GetEnvConf().GetConsulUri(),
+		ConsulURL: appConf.GetEnv().GetConsulUri(),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {

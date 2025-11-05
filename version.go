@@ -15,12 +15,7 @@
 package sentinez
 
 import (
-	"fmt"
 	"runtime"
-	"strings"
-	"sync"
-
-	"github.com/common-nighthawk/go-figure"
 )
 
 const (
@@ -48,36 +43,4 @@ const (
 var (
 	// GoVersion is Go tree's version.
 	GoVersion = runtime.Version()
-
-	once sync.Once
 )
-
-func INFO(serviceName string, key string) {
-	once.Do(func() {
-		fmt.Print(FigureGen(serviceName, key))
-	})
-}
-
-// FigureGen generates the ASCII art of the project.
-func FigureGen(header string, footer string) string {
-	fig := figure.NewFigure(strings.ToLower(Code), "speed", true)
-	figureLines := strings.Split(fig.String(), "\n")
-	sideText := []string{
-		"",
-		"",
-		header,
-		"------------",
-		footer,
-	}
-
-	var v string
-	for i, line := range figureLines {
-		side := ""
-		if i < len(sideText) {
-			side = sideText[i]
-		}
-		v += fmt.Sprintf("%-40s %s\n", line, side)
-	}
-
-	return v
-}

@@ -20,23 +20,23 @@ import (
 	"github.com/sentinez/sentinez/pkg/config"
 
 	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/flags"
 )
 
 var (
 	once    sync.Once
-	appConf *configspb.AppConfig
+	appConf *confpb.Config
 )
 
-func Config() *configspb.AppConfig {
+func Config() *confpb.Config {
 	once.Do(func() {
 		flag := flags.Parse()
 		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &configspb.AppConfig{
-			Meta:    realtimepb.GetMetaRealtime(),
-			EnvConf: envConf,
-			Flag:    flag,
+		appConf = &confpb.Config{
+			Meta: realtimepb.GetMetaRealtime(),
+			Env:  envConf,
+			Flag: flag,
 		}
 	})
 

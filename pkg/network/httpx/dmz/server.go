@@ -17,6 +17,7 @@ package httpxdmz
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -29,7 +30,7 @@ import (
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/tlsx"
 	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 	"github.com/sentinez/sentinez/pkg/zlog"
@@ -123,15 +124,6 @@ func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func (s *XServer) initialize(addr string, certFile, keyFile string) error {
-	if s.meta != nil {
-		sentinez.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey())
-	}
-
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("https"),
-		color.Magenta.Add(addr),
-	)
-
 	hlog.SetLevel(hlog.LevelError)
 
 	tlsConf, err := s.TLS(certFile, keyFile)
@@ -163,6 +155,10 @@ func (s *XServer) initialize(addr string, certFile, keyFile string) error {
 
 // ListenAndServe implements platform.Server.
 func (s *XServer) ListenAndServe(addr string) error {
+	if s.meta != nil {
+		figure.INFO(s.meta.GetServiceName(),
+			s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
+	}
 
 	if err := s.initialize(addr, "", ""); err != nil {
 		return err
@@ -172,6 +168,10 @@ func (s *XServer) ListenAndServe(addr string) error {
 }
 
 func (s *XServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
+	if s.meta != nil {
+		figure.INFO(s.meta.GetServiceName(),
+			s.meta.GetServiceKey(), fmt.Sprintf("running on https %s", addr))
+	}
 
 	if err := s.initialize(addr, certFile, keyFile); err != nil {
 		return err

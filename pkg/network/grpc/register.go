@@ -22,14 +22,14 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/cron"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/sony/gobreaker"
 )
 
 // nolint:funlen
-func Register(name string, conf *configspb.EnvConfig) {
+func Register(name string, conf *confpb.EnvConfig) {
 	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
