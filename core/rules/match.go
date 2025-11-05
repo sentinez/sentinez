@@ -18,7 +18,6 @@ import (
 	"net"
 
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/internal/zlog"
 	"github.com/sentinez/sentinez/core/networks"
 )
 
@@ -50,7 +49,8 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 
 	des := cond.Value.GetListValue().AsSlice()
 	src := ctx.Queries()
-	zlog.Debugf("rules: src: %s -> des: %s", src, des)
+
+	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
 	if len(src) == 0 {
 		return bypass
@@ -108,12 +108,14 @@ func matchSourceIP(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	}
 }
 
-func matchSourceMethod(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+func matchSourceMethod(
+	ctx networks.Context, cond *ruleenginepb.Condition) bool {
+
 	switch cond.GetOperator() {
 	case ruleenginepb.Operator_OPERATOR_EQ:
-		return bypass
+		return ctx.Method() == cond.GetValue().GetStringValue()
 	case ruleenginepb.Operator_OPERATOR_NE:
-		return bypass
+		return ctx.Method() != cond.GetValue().GetStringValue()
 	default:
 		return bypass
 	}

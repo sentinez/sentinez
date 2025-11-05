@@ -14,20 +14,19 @@
 
 syntax = "proto3";
 
-package sentinez.core.greeter.v1;
-
-import "sentinez/types/common/v1/meta.proto";
-import "sentinez/types/common/v1/options.proto";
+package sentinez.core.rule.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/rule/v1;rulepb";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "buf/validate/validate.proto";
+// import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1;greeter";
+import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/rule/engine/v1/ruleengine.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Greeter Service";
+    title: "Rule Service";
     version: "1.0";
   };
   schemes: HTTP;
@@ -52,40 +51,30 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 option (sentinez.types.common.v1.x_meta) = {
-  service_name : "SENTINEZ // GREETER",
+  service_name : "SENTINEZ // RULE",
   service_kind : KIND_CORE,
-  service_key : "sentinez.core.greeter.v1",
+  service_key : "sentinez.core.rule.v1",
 };
 
-service GreeterService {
-  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
+service RuleService {
+  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
     option (google.api.http) = {
-      get : "/greeter/say"
-    };
-
-    option (sentinez.types.common.v1.x_method) = {
-      ignore : true
+      post : "/rule",
+      body: "*"
     };
   }
 
-  rpc Status(StatusRequest) returns (StatusResponse) {
-    option (google.api.http) = {
-      get : "/greeter/status"
-    };
-
-    option (sentinez.types.common.v1.x_method) = {
-      ignore : true
-    };
-  }
+  rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
-message SayHelloRequest {
-  sentinez.types.common.v1.Pages page = 1;
-  string name = 2 [ (buf.validate.field).string.min_len = 1 ];
+message CreateRuleRequest {
+  sentinez.types.rule.engine.v1.Rule rule = 1;
 }
 
-message SayHelloResponse { string message = 1; }
-
-message StatusResponse { string message = 1; }
+message CreateRuleResponse {
+  
+}
 
 message StatusRequest {}
+
+message StatusResponse { string msg = 1; }

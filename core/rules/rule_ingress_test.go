@@ -16,6 +16,7 @@ package rules
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -58,7 +59,7 @@ func TestRulePath(t *testing.T) {
 
 	rule := NewIngress()
 
-	ok := rule.Exec(newContext(), &ruleenginepb.Rule{
+	req := &ruleenginepb.Rule{
 		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
@@ -67,7 +68,12 @@ func TestRulePath(t *testing.T) {
 			Value:    structpb.NewStringValue("/v1/login"),
 			Key:      "path",
 		},
-	})
+	}
+
+	val, _ := json.Marshal(req)
+	t.Logf("[request][rule] %s", string(val))
+
+	ok := rule.Exec(newContext(), req)
 	if ok {
 		t.Logf("rule engine matched !!!")
 		return
@@ -81,7 +87,7 @@ func TestRuleQuery(t *testing.T) {
 
 	rule := NewIngress()
 
-	ok := rule.Exec(newContext(), &ruleenginepb.Rule{
+	req := &ruleenginepb.Rule{
 		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
@@ -95,7 +101,12 @@ func TestRuleQuery(t *testing.T) {
 			}),
 			Key: "query",
 		},
-	})
+	}
+
+	val, _ := json.Marshal(req)
+	t.Logf("[request][rule] %v", string(val))
+
+	ok := rule.Exec(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")

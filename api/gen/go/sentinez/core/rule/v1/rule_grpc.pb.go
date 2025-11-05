@@ -16,7 +16,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: sentinez/core/rule/v1/rulesengine.proto
+// source: sentinez/core/rule/v1/rule.proto
 
 package rulepb
 
@@ -33,13 +33,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RuleService_Status_FullMethodName = "/sentinez.core.rule.v1.RuleService/Status"
+	RuleService_CreateRule_FullMethodName = "/sentinez.core.rule.v1.RuleService/CreateRule"
+	RuleService_Status_FullMethodName     = "/sentinez.core.rule.v1.RuleService/Status"
 )
 
 // RuleServiceClient is the client API for RuleService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RuleServiceClient interface {
+	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
@@ -49,6 +51,16 @@ type ruleServiceClient struct {
 
 func NewRuleServiceClient(cc grpc.ClientConnInterface) RuleServiceClient {
 	return &ruleServiceClient{cc}
+}
+
+func (c *ruleServiceClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateRuleResponse)
+	err := c.cc.Invoke(ctx, RuleService_CreateRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *ruleServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
@@ -65,6 +77,7 @@ func (c *ruleServiceClient) Status(ctx context.Context, in *StatusRequest, opts 
 // All implementations should embed UnimplementedRuleServiceServer
 // for forward compatibility.
 type RuleServiceServer interface {
+	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
 
@@ -75,6 +88,9 @@ type RuleServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRuleServiceServer struct{}
 
+func (UnimplementedRuleServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRule not implemented")
+}
 func (UnimplementedRuleServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
@@ -96,6 +112,24 @@ func RegisterRuleServiceServer(s grpc.ServiceRegistrar, srv RuleServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&RuleService_ServiceDesc, srv)
+}
+
+func _RuleService_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RuleServiceServer).CreateRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RuleService_CreateRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RuleServiceServer).CreateRule(ctx, req.(*CreateRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _RuleService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -124,10 +158,14 @@ var RuleService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RuleServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreateRule",
+			Handler:    _RuleService_CreateRule_Handler,
+		},
+		{
 			MethodName: "Status",
 			Handler:    _RuleService_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "sentinez/core/rule/v1/rulesengine.proto",
+	Metadata: "sentinez/core/rule/v1/rule.proto",
 }

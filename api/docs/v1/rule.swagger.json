@@ -1,0 +1,278 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Rule Service",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "RuleService"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rule": {
+      "post": {
+        "operationId": "RuleService_CreateRule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RuleService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "v1Action": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/v1ActionType",
+          "title": "Example types: \"block\", \"log\", \"modify_header\","
+        },
+        "params": {
+          "type": "object",
+          "description": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }",
+          "title": "\"redirect\", \"set_tag\", \"route_to\""
+        }
+      },
+      "title": "An action to execute when a rule matches"
+    },
+    "v1ActionType": {
+      "type": "string",
+      "enum": [
+        "ACTION_TYPE_UNSPECIFIED",
+        "ACTION_TYPE_BLOCK",
+        "ACTION_TYPE_LOG",
+        "ACTION_TYPE_MODIFY_HEADER",
+        "ACTION_TYPE_REDIRECT",
+        "ACTION_TYPE_SET_TAG",
+        "ACTION_TYPE_ROUTE_TO"
+      ],
+      "default": "ACTION_TYPE_UNSPECIFIED"
+    },
+    "v1Condition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/v1FieldSource",
+          "title": "The source of the field"
+        },
+        "key": {
+          "type": "string",
+          "title": "Example: \"User-Agent\" or \"country\""
+        },
+        "operator": {
+          "$ref": "#/definitions/v1Operator",
+          "title": "Supported operators: \"eq\", \"ne\", \"contains\","
+        },
+        "value": {
+          "description": "The value to compare against",
+          "title": "\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Condition"
+          },
+          "title": "Nested conditions are supported"
+        },
+        "logic": {
+          "$ref": "#/definitions/v1Logic",
+          "title": "Logical operator between children: \"AND\" or \"OR\""
+        }
+      },
+      "title": "A logical condition expression"
+    },
+    "v1CreateRuleRequest": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/v1Rule"
+        }
+      }
+    },
+    "v1CreateRuleResponse": {
+      "type": "object"
+    },
+    "v1FieldSource": {
+      "type": "string",
+      "enum": [
+        "FIELD_SOURCE_UNSPECIFIED",
+        "FIELD_SOURCE_HEADER",
+        "FIELD_SOURCE_QUERY",
+        "FIELD_SOURCE_PATH",
+        "FIELD_SOURCE_BODY",
+        "FIELD_SOURCE_IP",
+        "FIELD_SOURCE_JA4",
+        "FIELD_SOURCE_TLS",
+        "FIELD_SOURCE_METHOD",
+        "FIELD_SOURCE_HOST"
+      ],
+      "default": "FIELD_SOURCE_UNSPECIFIED",
+      "title": "The possible sources from which a field can be extracted in a request"
+    },
+    "v1Logic": {
+      "type": "string",
+      "enum": [
+        "LOGIC_UNSPECIFIED",
+        "LOGIC_AND",
+        "LOGIC_OR"
+      ],
+      "default": "LOGIC_UNSPECIFIED"
+    },
+    "v1Operator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_UNSPECIFIED",
+        "OPERATOR_EQ",
+        "OPERATOR_NE",
+        "OPERATOR_CONTAINS",
+        "OPERATOR_MATCHES",
+        "OPERATOR_IN",
+        "OPERATOR_PREFIX",
+        "OPERATOR_SUFFIX",
+        "OPERATOR_GT",
+        "OPERATOR_GTE",
+        "OPERATOR_LT",
+        "OPERATOR_LTE",
+        "OPERATOR_NOT_IN"
+      ],
+      "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/definitions/v1Condition"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Action"
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "A complete rule definition"
+    },
+    "v1StatusResponse": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
