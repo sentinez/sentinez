@@ -71,7 +71,7 @@ setting:
     #   requestsPerSecond: 100         # Allowed requests per second
     # botProtection: true              # Enable bot protection
     
-    isWafEngineOn: false
+    isWafEngineOn: true
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

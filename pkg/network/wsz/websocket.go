@@ -18,25 +18,26 @@ import (
 	"fmt"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )
 
 func NewServer(meta *common.XMeta) *WebSocket {
 	return &WebSocket{
-		routers: syncx.Map[string, func(httpxstd.Context) error]{},
+		routers: syncx.Map[string, func(corehttp.Context) error]{},
 		meta:    meta,
 	}
 }
 
 type WebSocket struct {
-	routers syncx.Map[string, func(httpxstd.Context) error]
+	routers syncx.Map[string, func(corehttp.Context) error]
 	meta    *common.XMeta
 }
 
 func (ws *WebSocket) HandlerFunc(
-	path string, handler func(httpxstd.Context) error) {
+	path string, handler func(corehttp.Context) error) {
 
 	_, ok := ws.routers.Load(path)
 	if ok {
@@ -48,8 +49,8 @@ func (ws *WebSocket) HandlerFunc(
 
 func (ws *WebSocket) ListenAndServe(addr string) error {
 	ws.routers.Range(
-		func(path string, handler func(httpxstd.Context) error) bool {
-			httpxstd.HandlerFunc(path, handler)
+		func(path string, handler func(corehttp.Context) error) bool {
+			stdhttpx.HandlerFunc(path, handler)
 			return true
 		})
 
@@ -58,9 +59,9 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 	figure.INFO(ws.meta.GetServiceName(),
 		ws.meta.GetServiceKey(), fmt.Sprintf("running on ws %s", addr))
 
-	return httpxstd.ListenAndServe(addr)
+	return stdhttpx.ListenAndServe(addr)
 }
 
 func (ws *WebSocket) Shutdown() error {
-	return httpxstd.Shutdown()
+	return stdhttpx.Shutdown()
 }

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package corerule
 
 import (
 	"sync"
 
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
 var (
@@ -41,7 +41,7 @@ type Evaluator interface {
 // newEvaluator creates a new Evaluator instance.
 // Remember to call Evaluator.Release when the
 // context is done to avoid memory leaks.
-func newEvaluator(ctx networks.Context) Evaluator {
+func newEvaluator(ctx corehttp.RequestContext) Evaluator {
 
 	ev := evPool.Get().(*evaluator)
 	ev.ctx = ctx
@@ -50,7 +50,7 @@ func newEvaluator(ctx networks.Context) Evaluator {
 }
 
 type evaluator struct {
-	ctx networks.Context
+	ctx corehttp.RequestContext
 }
 
 func (ev *evaluator) Release() {

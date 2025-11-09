@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -41,14 +41,13 @@ type Static struct {
 	staticExits map[string]struct{}
 }
 
-func (s *Static) Handle(ctx *httpxdmz.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit static", ctx.GetReqID())
+func (s *Static) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit static", ctx.RequestId())
 
 	err := s.HandleNext(ctx)
 
 	if s.isStaticAsset(ctx.Path()) {
-		ctx.Unwrap().Response.Header.Set(
-			"Cache-Control",
+		ctx.SetResponseHeader(corehttp.HeaderCacheControl,
 			"public, max-age=3600, immutable",
 		)
 	}

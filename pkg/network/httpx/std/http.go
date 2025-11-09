@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxstd
+package stdhttpx
 
 import (
-	"io"
 	"net/http"
 
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	"github.com/sentinez/sentinez/pkg/common/uuidx"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 
-func HandlerFunc(path string, handler func(Context) error) {
+func HandlerFunc(path string, handler corehttp.RequestHandler) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		ctx := NewContext(r, w)
 
-		if err := handler(*ctx); err != nil {
-			zlog.Errorf("httpxstd: error in path %s: %v", path, err)
-		}
+		_ = handler(ctx)
 
 		ctx.Release()
 	})
@@ -43,50 +43,19 @@ func Shutdown() error {
 	return nil
 }
 
-// Do acts as a proxy: forwards the incoming request to the target URI and
-// returns the response.
-func Do(ctx Context, uri string) error {
-	req, err := http.NewRequestWithContext(
-		ctx.req.Context(), ctx.req.Method, uri, ctx.req.Body)
-	if err != nil {
-		zlog.Errorf("httpxstd: failed to create request: %v", err)
-		return err
-	}
-	for name, values := range ctx.req.Header {
-		for _, value := range values {
-			req.Header.Add(name, value)
-		}
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		zlog.Errorf("httpxstd: failed to perform request: %v", err)
-		return err
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	ctx.resp.WriteHeader(resp.StatusCode)
-	for name, values := range resp.Header {
-		for _, value := range values {
-			ctx.resp.Header().Add(name, value)
-		}
-	}
-	if _, err := io.Copy(ctx.resp, resp.Body); err != nil {
-		zlog.Errorf("httpxstd: failed to copy response body: %v", err)
-		return err
-	}
-	return nil
-}
-
-func Convert(handler func(ctx Context) error,
-) func(resp http.ResponseWriter, req *http.Request) {
-
+func Convert(handler corehttp.RequestHandler) http.HandlerFunc {
 	return func(resp http.ResponseWriter, req *http.Request) {
-		ctx := NewContext(req, resp)
-		if err := handler(*ctx); err != nil {
+		rctx := NewContext(req, resp)
+
+		requestId := uuidx.NewNanoID(sentinez.PrefixRequestID)
+		rctx.req.Header.Set(corehttp.HeaderXRequest, requestId)
+
+		rctx.ctx = httpxcmn.SetRequestTime(rctx.ctx)
+
+		if err := handler(rctx); err != nil {
 			http.Error(resp, err.Error(), http.StatusInternalServerError)
 		}
 
-		ctx.Release()
+		rctx.Release()
 	}
 }

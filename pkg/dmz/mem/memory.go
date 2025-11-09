@@ -18,7 +18,7 @@ package mem
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/core/rulesets"
+	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
@@ -63,10 +63,10 @@ func loadWAF(appConf *confpb.Config) {
 		var (
 			ns     = s.GetOrigin().GetNamespace()
 			engine = wafengine.New()
-			flag   = rulesets.ReqAppAttackRCE
+			flag   = corers.ReqAppAttackRCE
 		)
 
-		err := engine.Store(appConf, ns, rulesets.WAF4160, flag)
+		err := engine.Store(appConf, ns, corers.WAF4160, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}

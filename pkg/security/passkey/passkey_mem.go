@@ -39,7 +39,7 @@ type MemoryStorage struct {
 
 // GenSessionID implements Store.
 func (s *MemoryStorage) GenSessionID() (string, error) {
-	return uuidx.NewIDHex(sentinez.Code + "-SS-"), nil
+	return uuidx.NewNanoID(sentinez.Code + "-SS-"), nil
 }
 
 // DeleteSession implements Store.

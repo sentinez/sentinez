@@ -18,13 +18,13 @@ package realtimehdl
 import (
 	"fmt"
 
+	corehttp "github.com/sentinez/sentinez/core/http"
 	realtimemnt "github.com/sentinez/sentinez/internal/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	httpxstd "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func Handler(ctx httpxstd.Context) error {
+func Handler(ctx corehttp.Context) error {
 	conn, err := ctx.Upgrade()
 	if err != nil {
 		zlog.Errorf("wshandlers.Handler upgrade error: %v", err)
@@ -32,9 +32,9 @@ func Handler(ctx httpxstd.Context) error {
 	}
 	defer func() { _ = conn.Close() }()
 
-	zlog.Debugf("wshandlers.Handler full path %s", ctx.Request().URL.Path)
+	zlog.Debugf("wshandlers.Handler full path %s", ctx.Path())
 
-	clientID := ctx.Request().URL.Query().Get("id")
+	clientID := ctx.Query("id")
 	if clientID == "" {
 		zlog.Error("wshandlers.Handler missing client ID")
 		return errorx.ErrInvalidData

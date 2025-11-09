@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 // NewID generates a new UUID and returns it as a string.
@@ -26,7 +27,7 @@ func NewID(prefix string) string {
 	return fmt.Sprintf("%s%s", prefix, id.String())
 }
 
-func NewIDHex(prefix string) string {
-	id := uuid.New()
-	return fmt.Sprintf("%s%d", prefix, id.ID())
+func NewNanoID(prefix string) string {
+	id, _ := gonanoid.New()
+	return fmt.Sprintf("%s%s", prefix, id)
 }

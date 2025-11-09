@@ -23,28 +23,29 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
 )
 
 var (
 	// Ensure httpServer implements HttpServer.
-	_ Server = (*serverx)(nil)
+	_ Server = (*XServer)(nil)
 )
 
 // Server is an interface for a http server.
 // default port is 9000
 type Server interface {
-	httpxbase.Server
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)
+	ListenAndServe(addr string) error
+	Shutdown(ctx context.Context) error
 }
 
 // New creates a new http server.
 func New(meta *common.XMeta, opts ...runtime.ServeMuxOption) Server {
-	return &serverx{
+	return &XServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
 		meta:       meta,
@@ -52,15 +53,15 @@ func New(meta *common.XMeta, opts ...runtime.ServeMuxOption) Server {
 }
 
 func NewServer(meta *common.XMeta) Server {
-	return &serverx{
+	return &XServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
 		meta:       meta,
 	}
 }
 
-// serverx is a http server with http serve mux and grpc-gateway serve mux.
-type serverx struct {
+// XServer is a http server with http serve mux and grpc-gateway serve mux.
+type XServer struct {
 	// grpc-gateway runtime mux
 	runtimeMux *runtime.ServeMux
 
@@ -77,7 +78,7 @@ type serverx struct {
 }
 
 // Start implements Server.
-func (h *serverx) Start(ctx context.Context) error {
+func (h *XServer) Start(ctx context.Context) error {
 	_ = ctx
 	return errorx.ErrUnimplemented
 }
@@ -85,12 +86,12 @@ func (h *serverx) Start(ctx context.Context) error {
 // Use middleware for the http server. Middleware will be called
 // in the order they are added, top to bottom. the middleware will
 // be executed before the http handler.
-func (h *serverx) Use(handlers ...func(http.Handler) http.Handler) {
+func (h *XServer) Use(handlers ...func(http.Handler) http.Handler) {
 	h.middlewares = append(h.middlewares, handlers...)
 }
 
 // ListenAndServe starts the runtime mux.
-func (h *serverx) ListenAndServe(address string) error {
+func (h *XServer) ListenAndServe(address string) error {
 	if address == "" {
 		address = ":9000"
 	}
@@ -113,17 +114,17 @@ func (h *serverx) ListenAndServe(address string) error {
 }
 
 // RuntimeMux returns the underlying runtime mux.
-func (h *serverx) RuntimeMux() *runtime.ServeMux {
+func (h *XServer) RuntimeMux() *runtime.ServeMux {
 	return h.runtimeMux
 }
 
 // HTTPMux returns the underlying http mux
-func (h *serverx) HTTPMux() *http.ServeMux {
+func (h *XServer) HTTPMux() *http.ServeMux {
 	return h.httpMux
 }
 
 // Shutdown implements HttpServer.
-func (h *serverx) Shutdown(ctx context.Context) error {
+func (h *XServer) Shutdown(ctx context.Context) error {
 	return h.server.Shutdown(ctx)
 }
 
@@ -139,6 +140,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set("Server", sentinez.Name)
+		w.Header().Set(corehttp.HeaderServer, sentinez.Name)
 	})
 }

@@ -19,9 +19,10 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/core/rulesets"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -53,13 +54,13 @@ type WAFCache struct {
 }
 
 func (w *WAFCache) Store(conf *confpb.Config, namespace string,
-	version rulesets.Version, flag rulesets.Flag) error {
+	version corers.Version, flag corers.Flag) error {
 
 	if w == nil {
 		return nil
 	}
 
-	waf, err := rulesets.NewWAF(version, conf.GetFlag().GetRulePath(), flag)
+	waf, err := corers.NewWAF(version, conf.GetFlag().GetRulePath(), flag)
 	if err != nil {
 		return err
 	}
@@ -85,12 +86,12 @@ func (w *WAFCache) Load(namespace string) coraza.WAF {
 	return value
 }
 
-func (w *WAFCache) LoadContext(ctx *httpxdmz.Context) coraza.WAF {
+func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
 	if w == nil {
 		return nil
 	}
 
-	hCtx, ok := httpxdmz.GetRequestContext(ctx)
+	hCtx, ok := httpxcmn.GetRequestContext(ctx)
 	if !ok {
 		return nil
 	}

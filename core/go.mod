@@ -5,8 +5,10 @@ go 1.25.0
 replace github.com/sentinez/sentinez/api => ../api
 
 require (
+	github.com/a-h/templ v0.3.960
 	github.com/antlr4-go/antlr/v4 v4.13.1
 	github.com/corazawaf/coraza/v3 v3.3.3
+	github.com/gorilla/websocket v1.5.3
 	github.com/sentinez/sentinez/api v0.0.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.36.5

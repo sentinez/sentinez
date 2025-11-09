@@ -16,54 +16,22 @@ package httpxdmz
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/sentinez"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/uuidx"
-	"github.com/sentinez/sentinez/pkg/render"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 
 func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 
-		c.Request.Header.Add(HeaderXRequest,
-			uuidx.NewIDHex(sentinez.PrefixRequestID))
+		requestId := uuidx.NewNanoID(sentinez.PrefixRequestID)
+		c.Request.Header.Set(corehttp.HeaderXRequest, requestId)
 
-		ctx = setRequestTime(ctx)
+		ctx = httpxcmn.SetRequestTime(ctx)
 
 		next(ctx, c)
 	}
-}
-
-func Forbidden(ctx *Context) error {
-	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.GetReqID()))
-	if err != nil {
-		ctx.req.Response.ResetBody()
-		return ctx.String(http.StatusForbidden, "Access denied")
-	}
-
-	return nil
-}
-
-func InternalServerError(ctx *Context) error {
-	err := ctx.Render(
-		http.StatusInternalServerError, render.InternalError(ctx.GetReqID()))
-	if err != nil {
-		ctx.req.Response.ResetBody()
-		return ctx.String(
-			http.StatusInternalServerError, "Internal server error")
-	}
-
-	return nil
-}
-
-func NotFound(ctx *Context) error {
-	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.GetReqID()))
-	if err != nil {
-		ctx.req.Response.ResetBody()
-		return ctx.String(http.StatusNotFound, "Not found")
-	}
-
-	return nil
 }

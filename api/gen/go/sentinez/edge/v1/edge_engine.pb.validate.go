@@ -41,6 +41,8 @@ func (m *RequestContext) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
 	// no validation rules for Body
 
 	// no validation rules for Header

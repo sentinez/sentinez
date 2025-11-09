@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package corerule
 
 import (
 	"context"
@@ -21,13 +21,14 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttpreq "github.com/sentinez/sentinez/core/http/request"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-//nolint:lll
-func newContext() networks.Context {
-	reqCtx := &edgepb.RequestContext{
+// nolint
+func newBaseContext() *edgepb.RequestContext {
+	return &edgepb.RequestContext{
 		Body: []byte(`{"username":"hung","password":"123456"}`),
 		Header: map[string]string{
 			"Content-Type":  "application/json",
@@ -50,13 +51,15 @@ func newContext() networks.Context {
 		StatusCode:    200,
 		Uri:           "https://api.example.com/v1/login?redirect=/home&lang=en",
 	}
+}
 
-	return networks.NewContext(context.Background(), reqCtx)
+//nolint:lll
+func newContext() corehttp.RequestContext {
+	reqCtx := newBaseContext()
+	return corehttpreq.NewRequestContext(context.Background(), reqCtx)
 }
 
 func TestRulePath(t *testing.T) {
-	t.Logf("[TestRulePath] ===== begin")
-
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
@@ -79,12 +82,10 @@ func TestRulePath(t *testing.T) {
 		return
 	}
 
-	t.Logf("rule engine does not match !!!")
+	t.Error("rule engine does not match !!!")
 }
 
 func TestRuleQuery(t *testing.T) {
-	t.Logf("[TestRuleQuery] ===== begin")
-
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
@@ -113,9 +114,142 @@ func TestRuleQuery(t *testing.T) {
 		return
 	}
 
-	t.Logf("rule engine does not match !!!")
+	t.Error("rule engine does not match !!!")
 }
 
+func TestRuleClientIP(t *testing.T) {
+	rule := NewIngress()
+
+	req := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("203.0.113.42"),
+			Key:      "ip",
+		},
+	}
+
+	val, _ := json.Marshal(req)
+	t.Logf("[request][rule] %v", string(val))
+
+	ok := rule.Exec(newContext(), req)
+
+	if ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Error("rule engine does not match !!!")
+}
+
+func TestRuleClientIPRange(t *testing.T) {
+	rule := NewIngress()
+
+	req := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("203.0.113.0/24"),
+			Key:      "ip",
+		},
+	}
+
+	val, _ := json.Marshal(req)
+	t.Logf("[request][rule] %v", string(val))
+
+	ok := rule.Exec(newContext(), req)
+
+	if ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Error("rule engine does not match !!!")
+}
+
+func TestRuleClientIPRangeNotEQ(t *testing.T) {
+	rule := NewIngress()
+
+	req := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: ruleenginepb.Operator_OPERATOR_NE,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("203.1.113.0/24"),
+			Key:      "ip",
+		},
+	}
+
+	val, _ := json.Marshal(req)
+	t.Logf("[request][rule] %v", string(val))
+
+	ok := rule.Exec(newContext(), req)
+
+	if ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Error("rule engine does not match !!!")
+}
+
+//nolint:funlen
 func TestChain(t *testing.T) {
-	t.Logf("[TestRuleSet] ===== begin")
+	rulePath := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("/v1/login"),
+			Key:      "path",
+		},
+	}
+
+	ruleQuery := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
+			Operator: ruleenginepb.Operator_OPERATOR_IN,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value: structpb.NewListValue(&structpb.ListValue{
+				Values: []*structpb.Value{
+					structpb.NewStringValue("lang"),
+					structpb.NewStringValue("lang2"),
+				},
+			}),
+			Key: "query",
+		},
+	}
+
+	ruleClientIP := &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Logic:    ruleenginepb.Logic_LOGIC_AND,
+			Value:    structpb.NewStringValue("203.0.113.42"),
+			Key:      "ip",
+		},
+	}
+
+	ruleChain := &ruleenginepb.Chain{
+		Enabled: true,
+		Rules:   []*ruleenginepb.Rule{rulePath, ruleQuery, ruleClientIP},
+	}
+
+	ig := NewIngress()
+
+	if ok := ig.ExecChain(newContext(), ruleChain); ok {
+		t.Logf("rule engine matched !!!")
+		return
+	}
+
+	t.Error("rule engine does not match !!!")
+
 }

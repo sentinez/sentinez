@@ -30,24 +30,20 @@ import (
 
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/tlsx"
-	httpxbase "github.com/sentinez/sentinez/pkg/network/httpx/base"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var _ httpxbase.Server = (*XServer)(nil)
-
-type Server interface {
-	httpxbase.Server
-	Use(mdw ...func(handler RequestHandler) RequestHandler)
-	Handle(fn func(ctx *Context) error)
-	ListenAndServeTLS(addr, certFile, keyFile string) error
-}
+var (
+	_ corehttp.Server = (*XServer)(nil)
+)
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer(meta *common.XMeta) Server {
+func NewServer(meta *common.XMeta) corehttp.Server {
 	return &XServer{
 		meta: meta,
 	}
@@ -55,18 +51,19 @@ func NewServer(meta *common.XMeta) Server {
 
 // XServer implements the Server interface.
 type XServer struct {
-	chains  []func(RequestHandler) RequestHandler
+	chains  []func(corehttp.RequestHandler) corehttp.RequestHandler
 	handler app.HandlerFunc
 	meta    *common.XMeta
 	core    *server.Hertz
 }
 
 // Use implements Server.
-func (s *XServer) Use(mdw ...func(handler RequestHandler) RequestHandler) {
+func (s *XServer) Use(
+	mdw ...func(handler corehttp.RequestHandler) corehttp.RequestHandler) {
 	s.chains = append(s.chains, mdw...)
 }
 
-func (s *XServer) Handle(fn func(ctx *Context) error) {
+func (s *XServer) Handle(fn corehttp.RequestHandler) {
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
 
@@ -76,7 +73,7 @@ func (s *XServer) Handle(fn func(ctx *Context) error) {
 
 		if err := fn(inCtx); err != nil {
 			zlog.Errorf("[httpxdmz]: internal err=%v", err)
-			_ = InternalServerError(inCtx)
+			_ = httpxcmn.InternalServerError(inCtx)
 		}
 
 		inCtx.Release()

@@ -20,7 +20,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -48,7 +48,7 @@ import (
 //
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
-func New(server httpxdmz.Server, setting *edgepb.Setting) *Server {
+func New(server corehttp.Server, setting *edgepb.Setting) *Server {
 	return &Server{
 		core:    server,
 		setting: setting,
@@ -62,7 +62,7 @@ func New(server httpxdmz.Server, setting *edgepb.Setting) *Server {
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	core    httpxdmz.Server
+	core    corehttp.Server
 	setting *edgepb.Setting
 }
 

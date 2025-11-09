@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package corerule
 
 import (
 	"net"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	chttp "github.com/sentinez/sentinez/core/http"
 )
 
 const (
@@ -27,23 +27,23 @@ const (
 	unmatched = false
 )
 
-func matchSourcePath(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := ctx.Path()
 
 	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
 	switch cond.GetOperator() {
-	case ruleenginepb.Operator_OPERATOR_EQ:
+	case rulepb.Operator_OPERATOR_EQ:
 		return src == des
-	case ruleenginepb.Operator_OPERATOR_NE:
+	case rulepb.Operator_OPERATOR_NE:
 		return src != des
 	default:
 		return bypass
 	}
 }
 
-func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	// debug, _ := protojson.Marshal(cond)
 	// zlog.Debug(string(debug))
 
@@ -57,7 +57,7 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	}
 
 	switch cond.GetOperator() {
-	case ruleenginepb.Operator_OPERATOR_IN:
+	case rulepb.Operator_OPERATOR_IN:
 		for _, d := range des {
 			if ds, ok := d.(string); ok {
 				if _, exist := src[ds]; !exist {
@@ -68,7 +68,7 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 
 		return matched
 
-	case ruleenginepb.Operator_OPERATOR_NOT_IN:
+	case rulepb.Operator_OPERATOR_NOT_IN:
 		for _, d := range des {
 			if ds, ok := d.(string); ok {
 				if _, exist := src[ds]; exist {
@@ -84,19 +84,19 @@ func matchSourceQuery(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 	}
 }
 
-func matchSourceIP(ctx networks.Context, cond *ruleenginepb.Condition) bool {
+func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	src := ctx.ClientIP()
 	des := cond.GetValue().GetStringValue()
 
 	switch cond.GetOperator() {
-	case ruleenginepb.Operator_OPERATOR_EQ:
+	case rulepb.Operator_OPERATOR_EQ:
 		_, ipnet, err := net.ParseCIDR(des)
 		if err != nil {
 			return src == des
 		}
 
 		return ipnet.Contains(net.ParseIP(src))
-	case ruleenginepb.Operator_OPERATOR_NE:
+	case rulepb.Operator_OPERATOR_NE:
 		_, ipnet, err := net.ParseCIDR(des)
 		if err != nil {
 			return src != des
@@ -109,12 +109,12 @@ func matchSourceIP(ctx networks.Context, cond *ruleenginepb.Condition) bool {
 }
 
 func matchSourceMethod(
-	ctx networks.Context, cond *ruleenginepb.Condition) bool {
+	ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 	switch cond.GetOperator() {
-	case ruleenginepb.Operator_OPERATOR_EQ:
+	case rulepb.Operator_OPERATOR_EQ:
 		return ctx.Method() == cond.GetValue().GetStringValue()
-	case ruleenginepb.Operator_OPERATOR_NE:
+	case rulepb.Operator_OPERATOR_NE:
 		return ctx.Method() != cond.GetValue().GetStringValue()
 	default:
 		return bypass

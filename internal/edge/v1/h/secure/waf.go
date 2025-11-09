@@ -22,21 +22,20 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
-	"github.com/sentinez/sentinez/core/rulesets"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func NewWAF() *WAF {
+func NewWAF(logLevel zlog.Level) *WAF {
 	return &WAF{
 		BaseHandler: chains.New(),
-		logger: zlog.NewJSONLogger(
-			edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_WAF,
-			zlog.LevelInfo,
+		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_WAF, logLevel,
 		),
 		cached: mem.New[[]byte](time.Second*30, time.Second*31),
 	}
@@ -49,8 +48,8 @@ type WAF struct {
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx *httpxdmz.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.GetReqID())
+func (w *WAF) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.RequestId())
 
 	waf := wafengine.GetEngine().LoadContext(ctx)
 	if waf == nil {
@@ -62,7 +61,7 @@ func (w *WAF) Handle(ctx *httpxdmz.Context) error {
 		return nil
 	}
 
-	ruleset := rulesets.NewRulesets(ctx, waf)
+	ruleset := corers.NewRulesets(ctx, waf)
 	defer func() {
 		ruleset.Final(func() { w.capture(ctx, ruleset) })
 		ruleset.Release()
@@ -74,7 +73,7 @@ func (w *WAF) Handle(ctx *httpxdmz.Context) error {
 
 	if err := ruleset.ExecIngress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return httpxdmz.Forbidden(ctx)
+			return httpxcmn.Forbidden(ctx)
 		}
 	}
 
@@ -82,7 +81,7 @@ func (w *WAF) Handle(ctx *httpxdmz.Context) error {
 
 	if err := ruleset.ExecEgress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return httpxdmz.Forbidden(ctx)
+			return httpxcmn.Forbidden(ctx)
 		}
 	}
 
@@ -90,20 +89,20 @@ func (w *WAF) Handle(ctx *httpxdmz.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx *httpxdmz.Context, ruleset *rulesets.Rulesets) {
+func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 
 	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {
 		return
 	}
 
-	if data, ok := w.cached.Get(httpxdmz.GenContextKey(ctx)); ok {
+	if data, ok := w.cached.Get(httpxcmn.GenContextKey(ctx)); ok {
 		var event rulecmn.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
 		}
 
-		event.RequestTime = ctx.Time().UnixMilli()
+		event.RequestTime = ctx.RequestTime().UnixMilli()
 		w.logger.Info("cache hit: rule engine ingress matched", &event)
 		return
 	}
@@ -141,12 +140,12 @@ func (w *WAF) capture(ctx *httpxdmz.Context, ruleset *rulesets.Rulesets) {
 		TransactionId: ruleset.GetTxId(),
 		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
 		Action:        rulecmn.Action_ACTION_DENY,
-		RequestTime:   ctx.Time().UnixMilli(),
-		HttpReqId:     ctx.GetReqID(),
-		ContentType:   string(ctx.Unwrap().Request.Header.ContentType()),
+		RequestTime:   ctx.RequestTime().UnixMilli(),
+		HttpReqId:     ctx.RequestId(),
+		ContentType:   ctx.Header(corehttp.HeaderContentType),
 	}
 
 	w.logger.Info("[rulesets] [matched]", event)
 	data, _ := event.MarshalVT()
-	w.cached.Set(httpxdmz.GenContextKey(ctx), data)
+	w.cached.Set(httpxcmn.GenContextKey(ctx), data)
 }

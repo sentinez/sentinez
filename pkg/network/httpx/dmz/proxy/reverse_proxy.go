@@ -17,14 +17,15 @@ package proxydmz
 import (
 	"strings"
 
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 )
 
 const (
@@ -70,7 +71,7 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 }
 
 type ReverseEngine interface {
-	Serve(ctx *httpxdmz.Context, target string)
+	Serve(ctx corehttp.Context, target string)
 }
 
 type ReverseProxy struct {
@@ -80,7 +81,7 @@ type ReverseProxy struct {
 	rPrxPool *syncx.Pool[reverseproxy.ReverseProxy]
 }
 
-func (p *ReverseProxy) Serve(ctx *httpxdmz.Context, target string) {
+func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
 	r := p.rPrxPool.Get()
 	defer p.rPrxPool.Put(r)
 
@@ -102,5 +103,5 @@ func (p *ReverseProxy) Serve(ctx *httpxdmz.Context, target string) {
 		r.SetClient(p.plainClient)
 	}
 
-	r.ServeHTTP(ctx.Context(), ctx.Unwrap())
+	r.ServeHTTP(ctx.Context(), ctx.Unwrap().(*app.RequestContext))
 }

@@ -18,16 +18,16 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttpreq "github.com/sentinez/sentinez/core/http/request"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
 )
 
 var (
-	pool = syncx.NewPool[networks.RequestContext]()
+	pool = syncx.NewPool[corehttpreq.RequestContext]()
 )
 
 func New(ctx context.Context,
-	req *edgepb.RequestContext) *networks.RequestContext {
+	req *edgepb.RequestContext) *corehttpreq.RequestContext {
 
 	rctx := pool.Get()
 
@@ -37,7 +37,7 @@ func New(ctx context.Context,
 	return rctx
 }
 
-func Free(rctx *networks.RequestContext) {
+func Free(rctx *corehttpreq.RequestContext) {
 	if rctx == nil {
 		return
 	}

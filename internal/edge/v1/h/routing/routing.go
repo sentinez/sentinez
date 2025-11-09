@@ -16,9 +16,11 @@
 package routing
 
 import (
+	"net/http"
+
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	proxydmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz/proxy"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -42,18 +44,32 @@ func NewRouter() *Router {
 
 type Router struct {
 	*chains.BaseHandler
-	httpHandler func(ctx *httpxdmz.Context) error
-	wsHandler   func(ctx *httpxdmz.Context) error
+	httpHandler func(ctx corehttp.Context) error
+	wsHandler   func(ctx corehttp.Context) error
 }
 
-func (r *Router) Handle(ctx *httpxdmz.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit router", ctx.GetReqID())
+func (r *Router) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit router", ctx.RequestId())
 
-	upgrade := string(ctx.Unwrap().Request.Header.Peek("Upgrade"))
+	upgrade := ctx.Header(corehttp.HeaderUpgrade)
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		zlog.Debugf("[edge][websocket] upgrade connection !!!")
 		return r.wsHandler(ctx)
 	}
 
 	return r.httpHandler(ctx)
+}
+
+func NewMockRouter() *Mock {
+	return &Mock{
+		BaseHandler: chains.New(),
+	}
+}
+
+type Mock struct {
+	*chains.BaseHandler
+}
+
+func (r *Mock) Handle(ctx corehttp.Context) error {
+	return ctx.String(http.StatusOK, "OK")
 }

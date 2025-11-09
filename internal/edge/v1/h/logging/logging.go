@@ -18,20 +18,18 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 var _ chains.Handler = (*Logger)(nil)
 
-func NewLogger() *Logger {
+func NewLogger(logLevel zlog.Level) *Logger {
 	return &Logger{
 		BaseHandler: chains.New(),
-		logger: zlog.NewJSONLogger(
-			edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_HTTP,
-			zlog.LevelInfo,
+		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_HTTP, logLevel,
 		),
 	}
 }
@@ -41,25 +39,27 @@ type Logger struct {
 	logger zlog.Logger
 }
 
-func (l *Logger) Handle(ctx *httpxdmz.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit logger", ctx.GetReqID())
+func (l *Logger) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit logger", ctx.RequestId())
 
 	requestResourceHost := string(ctx.Host())
 
 	err := l.HandleNext(ctx)
 
-	l.logger.Info("[http][request]", &http.RequestEvent{
-		ReqId:         ctx.GetReqID(),
-		Scheme:        string(ctx.Unwrap().URI().Scheme()),
-		Host:          requestResourceHost,
-		Path:          ctx.Path(),
-		Method:        ctx.Method(),
-		Status:        int32(ctx.StatusCode()),
-		RemoteAddress: ctx.RemoteAddress(),
-		Protocol:      ctx.Protocol(),
-		Query:         ctx.Unwrap().QueryArgs().String(),
-		UserAgent:     string(ctx.Unwrap().UserAgent()),
-	})
+	if l.logger.V(zlog.LevelInfo.Int()) {
+		l.logger.Info("[http][request]", &http.RequestEvent{
+			ReqId:         ctx.RequestId(),
+			Scheme:        ctx.Scheme(),
+			Host:          requestResourceHost,
+			Path:          ctx.Path(),
+			Method:        ctx.Method(),
+			Status:        int32(ctx.StatusCode()),
+			RemoteAddress: ctx.RemoteAddr(),
+			Protocol:      ctx.Protocol(),
+			Query:         ctx.QueryStr(),
+			UserAgent:     ctx.Header(corehttp.HeaderUserAgent),
+		})
+	}
 
 	return err
 }

@@ -15,20 +15,21 @@
 package secure
 
 import (
-	"github.com/sentinez/sentinez/core/rules"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	corerules "github.com/sentinez/sentinez/core/rules"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 
 type Rule struct {
 	chains.BaseHandler
-	ingress rules.Rules
+	ingress corerules.Rules
 }
 
-func (r *Rule) Handler(ctx *httpxdmz.Context) error {
+func (r *Rule) Handler(ctx corehttp.Context) error {
 
 	if ok := r.ingress.Exec(ctx, nil); ok {
-		return httpxdmz.Forbidden(ctx)
+		return httpxcmn.Forbidden(ctx)
 	}
 
 	return r.HandleNext(ctx)

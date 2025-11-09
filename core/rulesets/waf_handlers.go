@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulesets
+package corers
 
 import (
 	"fmt"
@@ -23,10 +23,10 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
-func processRequestHandler(ctx networks.XContext, tx types.Transaction) error {
+func processRequestHandler(ctx corehttp.Context, tx types.Transaction) error {
 	if it, err := processRequest(ctx, tx); err != nil {
 		return err
 	} else if it != nil {
@@ -50,7 +50,7 @@ func debugLogger(tx types.Transaction, err error, msg string) {
 
 // processRequest ...
 // ref: https://github.com/corazawaf/coraza/blob/main/http/middleware.go#L27
-func processRequest(ctx networks.XContext,
+func processRequest(ctx corehttp.Context,
 	tx types.Transaction) (*types.Interruption, error) {
 
 	if it := processRequestHeader(ctx, tx); it != nil {
@@ -67,7 +67,7 @@ func processRequest(ctx networks.XContext,
 	return nil, nil
 }
 
-func processRequestHeader(ctx networks.XContext,
+func processRequestHeader(ctx corehttp.Context,
 	tx types.Transaction) *types.Interruption {
 
 	processRequestConnection(ctx, tx)
@@ -78,7 +78,7 @@ func processRequestHeader(ctx networks.XContext,
 		tx.SetServerName(host)
 	}
 
-	transferEncoding := ctx.GetReqHeader("Transfer-Encoding")
+	transferEncoding := ctx.Header("Transfer-Encoding")
 	if transferEncoding != "" {
 		tx.AddRequestHeader("Transfer-Encoding", transferEncoding)
 	}
@@ -91,15 +91,15 @@ func processRequestHeader(ctx networks.XContext,
 	return nil
 }
 
-func processRequestConnection(ctx networks.XContext, tx types.Transaction) {
+func processRequestConnection(ctx corehttp.Context, tx types.Transaction) {
 
 	var client string
 	var cport int
 
-	idx := strings.LastIndexByte(ctx.RemoteAddress(), ':')
+	idx := strings.LastIndexByte(ctx.RemoteAddr(), ':')
 	if idx != -1 {
-		client = ctx.RemoteAddress()[:idx]
-		cport, _ = strconv.Atoi(ctx.RemoteAddress()[idx+1:])
+		client = ctx.RemoteAddr()[:idx]
+		cport, _ = strconv.Atoi(ctx.RemoteAddr()[idx+1:])
 	}
 
 	tx.ProcessConnection(client, cport, "", 0)
@@ -108,12 +108,12 @@ func processRequestConnection(ctx networks.XContext, tx types.Transaction) {
 		string(ctx.Method()),
 		ctx.Protocol(),
 	)
-	ctx.VisitReqHeaders(func(k, v []byte) {
+	ctx.VisitRequestHeaders(func(k, v []byte) {
 		tx.AddRequestHeader(string(k), string(v))
 	})
 }
 
-func processRequestBody(ctx networks.XContext,
+func processRequestBody(ctx corehttp.Context,
 	tx types.Transaction) (*types.Interruption, error) {
 
 	if tx.IsRequestBodyAccessible() {
@@ -127,7 +127,7 @@ func processRequestBody(ctx networks.XContext,
 	return tx.ProcessRequestBody()
 }
 
-func canRequestBodyAccessible(ctx networks.XContext,
+func canRequestBodyAccessible(ctx corehttp.Context,
 	tx types.Transaction) (*types.Interruption, error) {
 
 	body := ctx.Body()
@@ -148,7 +148,7 @@ func canRequestBodyAccessible(ctx networks.XContext,
 	return nil, nil
 }
 
-func processResponseHandler(ctx networks.XContext, tx types.Transaction) error {
+func processResponseHandler(ctx corehttp.Context, tx types.Transaction) error {
 	if tx.IsInterrupted() {
 		return nil
 	}
@@ -171,7 +171,7 @@ func processResponseHandler(ctx networks.XContext, tx types.Transaction) error {
 	return releaseBodyReader(ctx, tx)
 }
 
-func releaseBodyReader(ctx networks.XContext, tx types.Transaction) error {
+func releaseBodyReader(ctx corehttp.Context, tx types.Transaction) error {
 
 	reader, err := tx.ResponseBodyReader()
 	if err != nil {
@@ -186,14 +186,14 @@ func releaseBodyReader(ctx networks.XContext, tx types.Transaction) error {
 	return nil
 }
 
-func newTransaction(waf coraza.WAF, ctx networks.XContext) types.Transaction {
+func newTransaction(waf coraza.WAF, ctx corehttp.Context) types.Transaction {
 
-	newTX := func(networks.XContext) types.Transaction {
+	newTX := func(corehttp.Context) types.Transaction {
 		return waf.NewTransaction()
 	}
 
 	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
-		newTX = func(ctx networks.XContext) types.Transaction {
+		newTX = func(ctx corehttp.Context) types.Transaction {
 			return ctxWAF.NewTransactionWithOptions(experimental.Options{
 				Context: ctx.Context(),
 			})

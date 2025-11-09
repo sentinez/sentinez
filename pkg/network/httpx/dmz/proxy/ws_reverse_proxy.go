@@ -1,8 +1,9 @@
 package proxydmz
 
 import (
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/reverseproxy"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
 func NewWSReverseProxy() (*WSReverseProxy, error) {
@@ -12,7 +13,7 @@ func NewWSReverseProxy() (*WSReverseProxy, error) {
 
 type WSReverseProxy struct{}
 
-func (p *WSReverseProxy) Serve(ctx *httpxdmz.Context, target string) {
+func (p *WSReverseProxy) Serve(ctx corehttp.Context, target string) {
 
 	uri := ctx.URI()
 	if len(uri) != 0 {
@@ -22,5 +23,5 @@ func (p *WSReverseProxy) Serve(ctx *httpxdmz.Context, target string) {
 	// TODO: forward custom header of sentine-edge
 
 	wsReverseProxy := reverseproxy.NewWSReverseProxy(target)
-	wsReverseProxy.ServeHTTP(ctx.Context(), ctx.Unwrap())
+	wsReverseProxy.ServeHTTP(ctx.Context(), ctx.Unwrap().(*app.RequestContext))
 }

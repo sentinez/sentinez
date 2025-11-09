@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulesets
+package corers
 
 import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 	}
 )
 
-func NewRulesets(ctx networks.XContext, waf coraza.WAF) *Rulesets {
+func NewRulesets(ctx corehttp.Context, waf coraza.WAF) *Rulesets {
 	if waf == nil {
 		return nil
 	}
@@ -45,7 +45,7 @@ type Rulesets struct {
 	tx types.Transaction
 }
 
-func (rs *Rulesets) ExecIngress(ctx networks.XContext) error {
+func (rs *Rulesets) ExecIngress(ctx corehttp.Context) error {
 	if rs == nil {
 		return nil
 	}
@@ -58,7 +58,7 @@ func (rs *Rulesets) ExecIngress(ctx networks.XContext) error {
 	return nil
 }
 
-func (rs *Rulesets) ExecEgress(ctx networks.XContext) error {
+func (rs *Rulesets) ExecEgress(ctx corehttp.Context) error {
 	if rs == nil {
 		return nil
 	}

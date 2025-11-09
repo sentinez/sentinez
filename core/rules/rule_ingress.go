@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package corerule
 
 import (
-	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	"github.com/sentinez/sentinez/core/internal/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
 
 type Rules interface {
-	Exec(ctx networks.Context, rule *ruleengpb.Rule) bool
-	ExecChain(ctx networks.Context, rule *ruleengpb.Chain) bool
+	Exec(ctx corehttp.RequestContext, rule *rulepb.Rule) bool
+	ExecChain(ctx corehttp.RequestContext, rule *rulepb.Chain) bool
 }
 
 func NewIngress() Rules {
@@ -32,7 +33,7 @@ func NewIngress() Rules {
 
 type ingress struct{}
 
-func (i *ingress) Exec(ctx networks.Context, rule *ruleengpb.Rule) bool {
+func (i *ingress) Exec(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
 
 	if !rule.GetEnabled() {
 		return false
@@ -45,20 +46,48 @@ func (i *ingress) Exec(ctx networks.Context, rule *ruleengpb.Rule) bool {
 	return cond.Accept(ruleCtx)
 }
 
-func (i *ingress) ExecChain(ctx networks.Context, chain *ruleengpb.Chain) bool {
+// ExecChain a list of rule
+//
+// eg:
+// A OR B AND C => A OR (B AND C)
+// run A, if A is true, return true and stop chain, if A is false run B AND C
+// run B, if B is true, run C, else if B is false, stop the chain, not run C
+func (i *ingress) ExecChain(
+	ctx corehttp.RequestContext, chain *rulepb.Chain) bool {
 
 	if !chain.GetEnabled() {
 		return false
 	}
 
-	for _, rule := range chain.Rules {
+	result := true
+
+	for i, rule := range chain.Rules {
+
 		cond := newCondition(rule.GetCondition())
 		ruleCtx := newEvaluator(ctx)
 
-		if !cond.Accept(ruleCtx) {
-			return false
+		switch rule.GetCondition().GetLogic() {
+		case rulepb.Logic_LOGIC_OR:
+			// with logic OR, we use `||` to combine all results
+			// first element in rule array, or next accept is fasle
+			// we accept next condition util last element
+			// if result of the accept is true, return true
+			result = result || cond.Accept(ruleCtx)
+			zlog.Debugf("[index=%d] return %v op=%s", i, cond.Accept(ruleCtx), rule.GetCondition().GetLogic())
+
+			if result {
+				return true
+			}
+
+		default:
+			// with logic AND, we use `&&` to combine all results
+			// if first element in array, or next accept is false
+			// we stop the chain, and return false
+			// (its mean chains of rule are not match)
+			result = result && cond.Accept(ruleCtx)
+			zlog.Debugf("[index=%d] return %v op=%s", i, cond.Accept(ruleCtx), rule.GetCondition().GetLogic())
 		}
 	}
 
-	return true
+	return result
 }

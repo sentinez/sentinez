@@ -15,31 +15,56 @@
 package edge
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
-	"github.com/sentinez/sentinez/pkg/dmz/mem"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func (s *Server) initialize(appConf *confpb.Config) error {
-	// init cache repository
-	mem.Initialized(s.setting, appConf)
-
-	hostname := appConf.GetEnv().GetHostname()
+func BenchmarkHandler(b *testing.B) {
+	req := httptest.NewRequest(http.MethodGet,
+		"https://badcheese.is.s6z.io.vn:7443/", nil)
+	w := httptest.NewRecorder()
+	ctx := stdhttpx.NewContext(req, w)
 
 	begin := waitingroom.New()
 
+	zlog.SetLogLevel(zlog.LevelFatal.String())
+
+	begin.SetNext(static.NewStatic()).
+		SetNext(logging.NewLogger(zlog.LevelError)).
+		SetNext(secure.NewDomain("is.s6z.io.vn")).
+		SetNext(secure.NewWAF(zlog.LevelError)).
+		SetNext(routing.NewMockRouter())
+
+	b.ReportAllocs()
+
+	for b.Loop() {
+		_ = begin.Handle(ctx)
+	}
+}
+
+func TestHandleChain(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet,
+		"https://badcheese.is.s6z.io.vn:7443/", nil)
+	w := httptest.NewRecorder()
+	ctx := stdhttpx.NewContext(req, w)
+
+	begin := waitingroom.New()
 	begin.SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelInfo)).
-		SetNext(secure.NewDomain(hostname)).
+		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewWAF(zlog.LevelInfo)).
-		SetNext(routing.NewRouter())
+		SetNext(routing.NewMockRouter())
 
-	s.core.Handle(begin.Handle)
-
-	return nil
+	if err := begin.Handle(ctx); err != nil {
+		t.Error(err)
+	}
 }

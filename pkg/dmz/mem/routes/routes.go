@@ -20,9 +20,10 @@ import (
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	proxydmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz/proxy"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
@@ -87,20 +88,20 @@ func (r *Router) Store(origin *edgepb.Origin) {
 }
 
 func (r *Router) SetReverseProxy(
-	proxy proxydmz.ReverseEngine) func(ctx *httpxdmz.Context) error {
+	proxy proxydmz.ReverseEngine) func(ctx corehttp.Context) error {
 
-	return func(ctx *httpxdmz.Context) error {
+	return func(ctx corehttp.Context) error {
 		zlog.Debugf("[edge][request] host: %s", ctx.Host())
 
 		if proxy == nil {
 			zlog.Error("[edge][routing]: proxy not initialized")
-			return httpxdmz.InternalServerError(ctx)
+			return httpxcmn.InternalServerError(ctx)
 		}
 
 		target, err := r.match(ctx)
 		if err != nil {
 			zlog.Error("[edge] routing match error: ", err)
-			return httpxdmz.NotFound(ctx)
+			return httpxcmn.NotFound(ctx)
 		}
 
 		proxy.Serve(ctx, target)
@@ -109,8 +110,8 @@ func (r *Router) SetReverseProxy(
 	}
 }
 
-func (r *Router) match(ctx *httpxdmz.Context) (string, error) {
-	hCtx, ok := httpxdmz.GetRequestContext(ctx)
+func (r *Router) match(ctx corehttp.Context) (string, error) {
+	hCtx, ok := httpxcmn.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
 		return "", errorx.F("unknown namespace of request")
 	}
@@ -134,7 +135,7 @@ func (r *Router) match(ctx *httpxdmz.Context) (string, error) {
 		)
 
 		remainingPath := strings.TrimPrefix(path, matchPrefix) + rewritePrefix
-		ctx.Unwrap().URI().SetPath(remainingPath)
+		ctx.SetPath(remainingPath)
 		origin = target
 
 		return target, nil

@@ -25,6 +25,7 @@ import (
 	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
 	"github.com/sentinez/sentinez/pkg/runner"
 
+	"net/http"
 	_ "net/http/pprof"
 )
 
@@ -38,13 +39,13 @@ import (
 // Uncomment this block to expose runtime profiling data at :6060.
 //
 // Example:
-//   go tool pprof http://localhost:6060/debug/pprof/profile
 //
-// func init() {
-// 	go func() {
-// 		_ = http.ListenAndServe(":6060", nil)
-// 	}()
-// }
+//	go tool pprof http://localhost:6060/debug/pprof/profile
+func init() {
+	go func() {
+		_ = http.ListenAndServe(":6060", nil)
+	}()
+}
 
 // main is the entrypoint of the Edge application.
 // It initializes configuration, creates the HTTP server and Edge Engine,
