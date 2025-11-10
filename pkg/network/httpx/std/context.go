@@ -317,7 +317,7 @@ func (c *Context) URI() string {
 
 // Unwrap implements corehttp.Context.
 func (c *Context) Unwrap() any {
-	return c.req
+	return c
 }
 
 func (c *Context) QueryStr() string {
@@ -391,7 +391,12 @@ func (c *Context) Upgrade() (*websocket.Conn, error) {
 }
 
 func (c *Context) Scheme() string {
-	return c.req.URL.Scheme
+	scheme := corehttp.SchemeInsecure
+	if c.req.TLS != nil {
+		scheme = corehttp.SchemeSecure
+	}
+
+	return scheme
 }
 
 func (c *Context) Request() *http.Request {

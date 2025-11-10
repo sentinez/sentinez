@@ -37,7 +37,7 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 		SetNext(logging.NewLogger(zlog.LevelInfo)).
 		SetNext(secure.NewDomain(hostname)).
 		SetNext(secure.NewWAF(zlog.LevelInfo)).
-		SetNext(routing.NewRouter())
+		SetNext(routing.NewStandardRouter())
 
 	s.core.Handle(begin.Handle)
 

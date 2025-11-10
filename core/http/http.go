@@ -24,22 +24,27 @@ type Server interface {
 	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
+type ReverseProxy interface {
+	Serve(ctx Context, target string)
+}
+
 const (
 	HeaderServer        = "Server"
 	HeaderXRequest      = "X-Request-Id"
 	HeaderContentType   = "Content-Type"
-	HeaderUpgrade       = "Upgrade"	
+	HeaderUpgrade       = "Upgrade"
 	HeaderUserAgent     = "User-Agent"
 	HeaderXForwardedFor = "X-Forwarded-For"
 	HeaderXRealIP       = "X-Real-IP"
 	HeaderCacheControl  = "Cache-Control"
-)
 
-const (
 	ValueNotFound            = "Not found"
 	ValueInternalServerError = "Internal server error"
 	ValueAccessDenied        = "Access denied"
 	ValueTextPlain           = "text/plain; charset=utf-8"
 	ValueTextHTML            = "text/html; charset=utf-8"
 	ValueApplicationJSON     = "application/json; charset=utf-8"
+
+	SchemeSecure   = "https"
+	SchemeInsecure = "http"
 )

@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	httpxdmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/runner"
 
 	"net/http"
@@ -55,7 +55,7 @@ func main() {
 	app.Handle(func(conf *confpb.Config) error {
 		var (
 			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
-			httpSrv    = httpxdmz.NewServer(conf.GetMeta())
+			httpSrv    = stdhttpx.NewServer(conf.GetMeta())
 			edgeServer = edge.New(httpSrv, setting)
 		)
 

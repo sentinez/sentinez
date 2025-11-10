@@ -28,6 +28,8 @@ import (
 	"github.com/hertz-contrib/reverseproxy"
 )
 
+var _ corehttp.ReverseProxy = (*ReverseProxy)(nil)
+
 const (
 	hzHostClientName = "sentinez-edge-reverse-proxy"
 )
@@ -68,10 +70,6 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 	}
 
 	return proxy, nil
-}
-
-type ReverseEngine interface {
-	Serve(ctx corehttp.Context, target string)
 }
 
 type ReverseProxy struct {
