@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ast
+package logic
 
-import "sync"
+import (
+	"sync"
+
+	corehttp "github.com/sentinez/sentinez/core/http"
+)
 
 var (
 	pool = sync.Pool{
@@ -25,7 +29,7 @@ var (
 )
 
 type (
-	NodeFunc  func() bool
+	NodeFunc  func(corehttp.RequestContext) bool
 	NodeType  int
 	LogicType int
 )
@@ -82,35 +86,80 @@ type Node struct {
 	fn    NodeFunc
 }
 
-func (n *Node) Exec() bool {
+func (n *Node) Eval(ctx corehttp.RequestContext) bool {
+	if n == nil {
+		return false
+	}
+
 	switch n.types {
 	case NodeBase:
-		return n.fn()
+		return n.fn(ctx)
 	case NodeLogic:
 		switch n.op {
 		case LogicAnd:
-			l := n.left.Exec()
+			l := n.left.Eval(ctx)
 			if !l {
 				// stop branch AND, left is fasle
+				// zlog.Debug("OR is false, stop")
 				return false
 			}
 
-			res := n.right.Exec()
+			// zlog.Debug("visit right")
+			res := n.right.Eval(ctx)
 			return res
-
 		case LogicOr:
-			l := n.left.Exec()
+			l := n.left.Eval(ctx)
 			if l {
 				// stop branch OR, left is true
+				// zlog.Debug("OR is true, stop")
 				return true
 			}
-
-			res := n.right.Exec()
+			// zlog.Debug("visit right")
+			res := n.right.Eval(ctx)
 			return res
 		}
 
 		return false
 	default:
 		return false
+	}
+}
+
+func TraversePostfix(node *Node, traveler func(*Node) bool) {
+	if node == nil {
+		// zlog.Debugf("node is nil")
+		return
+	}
+
+	if node.left != nil {
+		// zlog.Debugf("visit left")
+		TraversePostfix(node.left, traveler)
+	}
+
+	if node.right != nil {
+		// zlog.Debugf("visit right")
+		TraversePostfix(node.right, traveler)
+	}
+
+	if !traveler(node) {
+		return
+	}
+}
+
+func TraversePrefix(node *Node, traveler func(*Node) bool) {
+	if node == nil {
+		return
+	}
+
+	if !traveler(node) {
+		return
+	}
+
+	if node.left != nil {
+		TraversePrefix(node.left, traveler)
+	}
+
+	if node.right != nil {
+		TraversePrefix(node.right, traveler)
 	}
 }

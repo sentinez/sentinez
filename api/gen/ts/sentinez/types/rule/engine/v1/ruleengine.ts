@@ -340,8 +340,9 @@ export interface Chain {
   id: string;
   name: string;
   description: string;
-  rules: Rule[];
   enabled: boolean;
+  rules: Rule[];
+  logics: Logic[];
 }
 
 function createBaseCondition(): Condition {
@@ -795,7 +796,7 @@ export const Rule: MessageFns<Rule> = {
 };
 
 function createBaseChain(): Chain {
-  return { id: "", name: "", description: "", rules: [], enabled: false };
+  return { id: "", name: "", description: "", enabled: false, rules: [], logics: [] };
 }
 
 export const Chain: MessageFns<Chain> = {
@@ -809,12 +810,17 @@ export const Chain: MessageFns<Chain> = {
     if (message.description !== "") {
       writer.uint32(26).string(message.description);
     }
-    for (const v of message.rules) {
-      Rule.encode(v!, writer.uint32(34).fork()).join();
-    }
     if (message.enabled !== false) {
-      writer.uint32(40).bool(message.enabled);
+      writer.uint32(32).bool(message.enabled);
     }
+    for (const v of message.rules) {
+      Rule.encode(v!, writer.uint32(42).fork()).join();
+    }
+    writer.uint32(50).fork();
+    for (const v of message.logics) {
+      writer.int32(v);
+    }
+    writer.join();
     return writer;
   },
 
@@ -850,20 +856,38 @@ export const Chain: MessageFns<Chain> = {
           continue;
         }
         case 4: {
-          if (tag !== 34) {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.enabled = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
           message.rules.push(Rule.decode(reader, reader.uint32()));
           continue;
         }
-        case 5: {
-          if (tag !== 40) {
-            break;
+        case 6: {
+          if (tag === 48) {
+            message.logics.push(reader.int32() as any);
+
+            continue;
           }
 
-          message.enabled = reader.bool();
-          continue;
+          if (tag === 50) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.logics.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
         }
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -879,8 +903,9 @@ export const Chain: MessageFns<Chain> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
+      logics: globalThis.Array.isArray(object?.logics) ? object.logics.map((e: any) => logicFromJSON(e)) : [],
     };
   },
 
@@ -895,11 +920,14 @@ export const Chain: MessageFns<Chain> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
+    }
     if (message.rules?.length) {
       obj.rules = message.rules.map((e) => Rule.toJSON(e));
     }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
+    if (message.logics?.length) {
+      obj.logics = message.logics.map((e) => logicToJSON(e));
     }
     return obj;
   },
@@ -912,8 +940,9 @@ export const Chain: MessageFns<Chain> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.enabled = object.enabled ?? false;
+    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
+    message.logics = object.logics?.map((e) => e) || [];
     return message;
   },
 };

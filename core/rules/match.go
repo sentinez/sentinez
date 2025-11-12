@@ -88,6 +88,12 @@ func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	src := ctx.ClientIP()
 	des := cond.GetValue().GetStringValue()
 
+	// zlog.Debugf("src: %v", src)
+	// zlog.Debugf("des: %v", des)
+
+	// val, _ := json.Marshal(cond)
+	// zlog.Debugf("[request][cond] %v", string(val))
+
 	switch cond.GetOperator() {
 	case rulepb.Operator_OPERATOR_EQ:
 		_, ipnet, err := net.ParseCIDR(des)

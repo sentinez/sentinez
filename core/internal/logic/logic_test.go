@@ -12,30 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ast
+package logic
 
-import "testing"
+import (
+	"testing"
+
+	corehttp "github.com/sentinez/sentinez/core/http"
+)
 
 //nolint:funlen
 func TestAST(t *testing.T) {
-	cmd1 := NewNode(func() bool {
+	cmd1 := NewNode(func(_ corehttp.RequestContext) bool {
 		t.Log("cmd1 is running")
 		return false
 	})
 
-	cmd2 := NewNode(func() bool {
+	cmd2 := NewNode(func(_ corehttp.RequestContext) bool {
 		t.Log("cmd2 is running")
 		return false
 	})
 
-	cmd3 := NewNode(func() bool {
+	cmd3 := NewNode(func(_ corehttp.RequestContext) bool {
 		t.Log("cmd3 is running")
 		return true
 	})
 
-	ans := cmd1.Exec() || cmd2.Exec() && cmd3.Exec()
+	ans := cmd1.Eval(nil) || cmd2.Eval(nil) && cmd3.Eval(nil)
 	tree := NewLogic(cmd1, LogicOr, NewLogic(cmd2, LogicAnd, cmd3))
-	if ok := tree.Exec(); ok != ans {
+	if ok := tree.Eval(nil); ok != ans {
 		t.Error("cmd does not match with answer")
 		return
 	}
@@ -43,7 +47,7 @@ func TestAST(t *testing.T) {
 	t.Log("pass")
 }
 
-//nolint:funlen
+// nolint
 func TestAST2(t *testing.T) {
 	tests := []struct {
 		name string
@@ -68,15 +72,15 @@ func TestAST2(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// mock node functions
-			cmd1 := NewNode(func() bool {
+			cmd1 := NewNode(func(_ corehttp.RequestContext) bool {
 				t.Log("cmd1 running:", tt.f1)
 				return tt.f1
 			})
-			cmd2 := NewNode(func() bool {
+			cmd2 := NewNode(func(_ corehttp.RequestContext) bool {
 				t.Log("cmd2 running:", tt.f2)
 				return tt.f2
 			})
-			cmd3 := NewNode(func() bool {
+			cmd3 := NewNode(func(_ corehttp.RequestContext) bool {
 				t.Log("cmd3 running:", tt.f3)
 				return tt.f3
 			})
@@ -85,21 +89,21 @@ func TestAST2(t *testing.T) {
 			var ans bool
 			if tt.op1 == LogicAnd {
 				if tt.op2 == LogicAnd {
-					ans = cmd1.Exec() && cmd2.Exec() && cmd3.Exec()
+					ans = cmd1.Eval(nil) && cmd2.Eval(nil) && cmd3.Eval(nil)
 				} else {
-					ans = cmd1.Exec() && (cmd2.Exec() || cmd3.Exec())
+					ans = cmd1.Eval(nil) && (cmd2.Eval(nil) || cmd3.Eval(nil))
 				}
 			} else {
 				if tt.op2 == LogicAnd {
-					ans = cmd1.Exec() || (cmd2.Exec() && cmd3.Exec())
+					ans = cmd1.Eval(nil) || (cmd2.Eval(nil) && cmd3.Eval(nil))
 				} else {
-					ans = cmd1.Exec() || cmd2.Exec() || cmd3.Exec()
+					ans = cmd1.Eval(nil) || cmd2.Eval(nil) || cmd3.Eval(nil)
 				}
 			}
 
 			// Xây cây AST tương ứng
 			tree := NewLogic(cmd1, tt.op1, NewLogic(cmd2, tt.op2, cmd3))
-			got := tree.Exec()
+			got := tree.Eval(nil)
 
 			// So sánh kết quả
 			if got != ans {
@@ -112,18 +116,17 @@ func TestAST2(t *testing.T) {
 }
 
 func BenchmarkAST(b *testing.B) {
-	cmd1 := NewNode(func() bool { return false })
-	cmd2 := NewNode(func() bool { return false })
-	cmd3 := NewNode(func() bool { return true })
+	cmd1 := NewNode(func(_ corehttp.RequestContext) bool { return false })
+	cmd2 := NewNode(func(_ corehttp.RequestContext) bool { return false })
+	cmd3 := NewNode(func(_ corehttp.RequestContext) bool { return true })
 	tree := NewLogic(cmd1, LogicOr, NewLogic(cmd2, LogicAnd, cmd3))
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = tree.Exec()
+	for b.Loop() {
+		_ = tree.Eval(nil)
 	}
 }
 
-//nolint:funlen
+// nolint
 func BenchmarkAST_TableDriven(b *testing.B) {
 	tests := []struct {
 		name string
@@ -147,14 +150,14 @@ func BenchmarkAST_TableDriven(b *testing.B) {
 
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
-			cmd1 := NewNode(func() bool { return tt.f1 })
-			cmd2 := NewNode(func() bool { return tt.f2 })
-			cmd3 := NewNode(func() bool { return tt.f3 })
+			cmd1 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f1 })
+			cmd2 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f2 })
+			cmd3 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f3 })
 			tree := NewLogic(cmd1, tt.op1, NewLogic(cmd2, tt.op2, cmd3))
 
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				_ = tree.Exec()
+				_ = tree.Eval(nil)
 			}
 
 			Free(cmd1)

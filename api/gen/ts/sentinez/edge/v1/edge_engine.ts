@@ -12,6 +12,7 @@ export const protobufPackage = "sentinez.edge.v1";
 
 /** Context represents the essential information extracted from an HTTP request. */
 export interface RequestContext {
+  id: string;
   /** Raw request body */
   body: Uint8Array;
   /** HTTP headers */
@@ -67,6 +68,7 @@ export interface EvaluateIngressResponse {
 
 function createBaseRequestContext(): RequestContext {
   return {
+    id: "",
     body: new Uint8Array(0),
     header: {},
     host: "",
@@ -85,44 +87,47 @@ function createBaseRequestContext(): RequestContext {
 
 export const RequestContext: MessageFns<RequestContext> = {
   encode(message: RequestContext, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
     if (message.body.length !== 0) {
-      writer.uint32(10).bytes(message.body);
+      writer.uint32(18).bytes(message.body);
     }
     Object.entries(message.header).forEach(([key, value]) => {
-      RequestContext_HeaderEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
+      RequestContext_HeaderEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
     });
     if (message.host !== "") {
-      writer.uint32(26).string(message.host);
+      writer.uint32(34).string(message.host);
     }
     if (message.ip !== "") {
-      writer.uint32(34).string(message.ip);
+      writer.uint32(42).string(message.ip);
     }
     if (message.ja4 !== "") {
-      writer.uint32(42).string(message.ja4);
+      writer.uint32(50).string(message.ja4);
     }
     if (message.method !== "") {
-      writer.uint32(50).string(message.method);
+      writer.uint32(58).string(message.method);
     }
     if (message.path !== "") {
-      writer.uint32(58).string(message.path);
+      writer.uint32(66).string(message.path);
     }
     Object.entries(message.queries).forEach(([key, value]) => {
-      RequestContext_QueriesEntry.encode({ key: key as any, value }, writer.uint32(66).fork()).join();
+      RequestContext_QueriesEntry.encode({ key: key as any, value }, writer.uint32(74).fork()).join();
     });
     if (message.tls !== false) {
-      writer.uint32(72).bool(message.tls);
+      writer.uint32(80).bool(message.tls);
     }
     if (message.protocol !== "") {
-      writer.uint32(82).string(message.protocol);
+      writer.uint32(90).string(message.protocol);
     }
     if (message.remoteAddress !== "") {
-      writer.uint32(90).string(message.remoteAddress);
+      writer.uint32(98).string(message.remoteAddress);
     }
     if (message.statusCode !== 0) {
-      writer.uint32(96).int32(message.statusCode);
+      writer.uint32(104).int32(message.statusCode);
     }
     if (message.uri !== "") {
-      writer.uint32(106).string(message.uri);
+      writer.uint32(114).string(message.uri);
     }
     return writer;
   },
@@ -139,7 +144,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.body = reader.bytes();
+          message.id = reader.string();
           continue;
         }
         case 2: {
@@ -147,10 +152,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          const entry2 = RequestContext_HeaderEntry.decode(reader, reader.uint32());
-          if (entry2.value !== undefined) {
-            message.header[entry2.key] = entry2.value;
-          }
+          message.body = reader.bytes();
           continue;
         }
         case 3: {
@@ -158,7 +160,10 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.host = reader.string();
+          const entry3 = RequestContext_HeaderEntry.decode(reader, reader.uint32());
+          if (entry3.value !== undefined) {
+            message.header[entry3.key] = entry3.value;
+          }
           continue;
         }
         case 4: {
@@ -166,7 +171,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.ip = reader.string();
+          message.host = reader.string();
           continue;
         }
         case 5: {
@@ -174,7 +179,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.ja4 = reader.string();
+          message.ip = reader.string();
           continue;
         }
         case 6: {
@@ -182,7 +187,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.method = reader.string();
+          message.ja4 = reader.string();
           continue;
         }
         case 7: {
@@ -190,7 +195,7 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.path = reader.string();
+          message.method = reader.string();
           continue;
         }
         case 8: {
@@ -198,26 +203,26 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          const entry8 = RequestContext_QueriesEntry.decode(reader, reader.uint32());
-          if (entry8.value !== undefined) {
-            message.queries[entry8.key] = entry8.value;
-          }
+          message.path = reader.string();
           continue;
         }
         case 9: {
-          if (tag !== 72) {
+          if (tag !== 74) {
+            break;
+          }
+
+          const entry9 = RequestContext_QueriesEntry.decode(reader, reader.uint32());
+          if (entry9.value !== undefined) {
+            message.queries[entry9.key] = entry9.value;
+          }
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
             break;
           }
 
           message.tls = reader.bool();
-          continue;
-        }
-        case 10: {
-          if (tag !== 82) {
-            break;
-          }
-
-          message.protocol = reader.string();
           continue;
         }
         case 11: {
@@ -225,19 +230,27 @@ export const RequestContext: MessageFns<RequestContext> = {
             break;
           }
 
-          message.remoteAddress = reader.string();
+          message.protocol = reader.string();
           continue;
         }
         case 12: {
-          if (tag !== 96) {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.remoteAddress = reader.string();
+          continue;
+        }
+        case 13: {
+          if (tag !== 104) {
             break;
           }
 
           message.statusCode = reader.int32();
           continue;
         }
-        case 13: {
-          if (tag !== 106) {
+        case 14: {
+          if (tag !== 114) {
             break;
           }
 
@@ -255,6 +268,7 @@ export const RequestContext: MessageFns<RequestContext> = {
 
   fromJSON(object: any): RequestContext {
     return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
       body: isSet(object.body) ? bytesFromBase64(object.body) : new Uint8Array(0),
       header: isObject(object.header)
         ? Object.entries(object.header).reduce<{ [key: string]: string }>((acc, [key, value]) => {
@@ -283,6 +297,9 @@ export const RequestContext: MessageFns<RequestContext> = {
 
   toJSON(message: RequestContext): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     if (message.body.length !== 0) {
       obj.body = base64FromBytes(message.body);
     }
@@ -342,6 +359,7 @@ export const RequestContext: MessageFns<RequestContext> = {
   },
   fromPartial<I extends Exact<DeepPartial<RequestContext>, I>>(object: I): RequestContext {
     const message = createBaseRequestContext();
+    message.id = object.id ?? "";
     message.body = object.body ?? new Uint8Array(0);
     message.header = Object.entries(object.header ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
       if (value !== undefined) {

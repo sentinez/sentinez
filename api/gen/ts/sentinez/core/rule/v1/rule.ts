@@ -2,12 +2,20 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/rule/v1/rulesengine.proto
+// source: sentinez/core/rule/v1/rule.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Rule } from "../../../types/rule/engine/v1/ruleengine";
 
 export const protobufPackage = "sentinez.core.rule.v1";
+
+export interface CreateRuleRequest {
+  rule?: Rule | undefined;
+}
+
+export interface CreateRuleResponse {
+}
 
 export interface StatusRequest {
 }
@@ -15,6 +23,107 @@ export interface StatusRequest {
 export interface StatusResponse {
   msg: string;
 }
+
+function createBaseCreateRuleRequest(): CreateRuleRequest {
+  return { rule: undefined };
+}
+
+export const CreateRuleRequest: MessageFns<CreateRuleRequest> = {
+  encode(message: CreateRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rule !== undefined) {
+      Rule.encode(message.rule, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateRuleRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rule = Rule.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateRuleRequest {
+    return { rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined };
+  },
+
+  toJSON(message: CreateRuleRequest): unknown {
+    const obj: any = {};
+    if (message.rule !== undefined) {
+      obj.rule = Rule.toJSON(message.rule);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(base?: I): CreateRuleRequest {
+    return CreateRuleRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(object: I): CreateRuleRequest {
+    const message = createBaseCreateRuleRequest();
+    message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
+    return message;
+  },
+};
+
+function createBaseCreateRuleResponse(): CreateRuleResponse {
+  return {};
+}
+
+export const CreateRuleResponse: MessageFns<CreateRuleResponse> = {
+  encode(_: CreateRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateRuleResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): CreateRuleResponse {
+    return {};
+  },
+
+  toJSON(_: CreateRuleResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(base?: I): CreateRuleResponse {
+    return CreateRuleResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(_: I): CreateRuleResponse {
+    const message = createBaseCreateRuleResponse();
+    return message;
+  },
+};
 
 function createBaseStatusRequest(): StatusRequest {
   return {};

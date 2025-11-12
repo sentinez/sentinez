@@ -342,6 +342,8 @@ func (m *Chain) Validate() error {
 
 	// no validation rules for Description
 
+	// no validation rules for Enabled
+
 	for idx, item := range m.GetRules() {
 		_, _ = idx, item
 
@@ -356,8 +358,6 @@ func (m *Chain) Validate() error {
 		}
 
 	}
-
-	// no validation rules for Enabled
 
 	return nil
 }

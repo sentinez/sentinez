@@ -28,7 +28,7 @@ type Rule struct {
 
 func (r *Rule) Handler(ctx corehttp.Context) error {
 
-	if ok := r.ingress.Exec(ctx, nil); ok {
+	if ok := r.ingress.Eval(ctx, nil); ok {
 		return httpxcmn.Forbidden(ctx)
 	}
 
