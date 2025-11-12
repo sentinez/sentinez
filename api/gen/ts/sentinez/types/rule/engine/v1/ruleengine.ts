@@ -106,6 +106,7 @@ export enum Operator {
   OPERATOR_GTE = 9,
   OPERATOR_LT = 10,
   OPERATOR_LTE = 11,
+  OPERATOR_NOT_IN = 12,
   UNRECOGNIZED = -1,
 }
 
@@ -147,6 +148,9 @@ export function operatorFromJSON(object: any): Operator {
     case 11:
     case "OPERATOR_LTE":
       return Operator.OPERATOR_LTE;
+    case 12:
+    case "OPERATOR_NOT_IN":
+      return Operator.OPERATOR_NOT_IN;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -180,6 +184,8 @@ export function operatorToJSON(object: Operator): string {
       return "OPERATOR_LT";
     case Operator.OPERATOR_LTE:
       return "OPERATOR_LTE";
+    case Operator.OPERATOR_NOT_IN:
+      return "OPERATOR_NOT_IN";
     case Operator.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -295,9 +301,9 @@ export interface Condition {
   source: FieldSource;
   /** Example: "User-Agent" or "country" */
   key: string;
-  /** Supported operators: "eq", "ne", "contains", "matches", "in", "prefix", "suffix", "gt", "lt" */
+  /** Supported operators: "eq", "ne", "contains", */
   operator: Operator;
-  /** The value to compare against */
+  /** "matches", "in", "prefix", "suffix", "gt", "lt" */
   value?:
     | any
     | undefined;
@@ -310,9 +316,9 @@ export interface Condition {
 /** An action to execute when a rule matches */
 export interface Action {
   id: string;
-  /** Example types: "block", "log", "modify_header", "redirect", "set_tag", "route_to" */
+  /** Example types: "block", "log", "modify_header", */
   type: ActionType;
-  /** Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" } */
+  /** "redirect", "set_tag", "route_to" */
   params?: { [key: string]: any } | undefined;
 }
 
@@ -330,12 +336,13 @@ export interface Rule {
 }
 
 /** A collection of rules (e.g., grouped by tenant or domain) */
-export interface RuleSet {
+export interface Chain {
   id: string;
   name: string;
   description: string;
-  rules: Rule[];
   enabled: boolean;
+  rules: Rule[];
+  logics: Logic[];
 }
 
 function createBaseCondition(): Condition {
@@ -788,12 +795,12 @@ export const Rule: MessageFns<Rule> = {
   },
 };
 
-function createBaseRuleSet(): RuleSet {
-  return { id: "", name: "", description: "", rules: [], enabled: false };
+function createBaseChain(): Chain {
+  return { id: "", name: "", description: "", enabled: false, rules: [], logics: [] };
 }
 
-export const RuleSet: MessageFns<RuleSet> = {
-  encode(message: RuleSet, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Chain: MessageFns<Chain> = {
+  encode(message: Chain, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -803,19 +810,24 @@ export const RuleSet: MessageFns<RuleSet> = {
     if (message.description !== "") {
       writer.uint32(26).string(message.description);
     }
-    for (const v of message.rules) {
-      Rule.encode(v!, writer.uint32(34).fork()).join();
-    }
     if (message.enabled !== false) {
-      writer.uint32(40).bool(message.enabled);
+      writer.uint32(32).bool(message.enabled);
     }
+    for (const v of message.rules) {
+      Rule.encode(v!, writer.uint32(42).fork()).join();
+    }
+    writer.uint32(50).fork();
+    for (const v of message.logics) {
+      writer.int32(v);
+    }
+    writer.join();
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleSet {
+  decode(input: BinaryReader | Uint8Array, length?: number): Chain {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRuleSet();
+    const message = createBaseChain();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -844,20 +856,38 @@ export const RuleSet: MessageFns<RuleSet> = {
           continue;
         }
         case 4: {
-          if (tag !== 34) {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.enabled = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
           message.rules.push(Rule.decode(reader, reader.uint32()));
           continue;
         }
-        case 5: {
-          if (tag !== 40) {
-            break;
+        case 6: {
+          if (tag === 48) {
+            message.logics.push(reader.int32() as any);
+
+            continue;
           }
 
-          message.enabled = reader.bool();
-          continue;
+          if (tag === 50) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.logics.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
         }
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -868,17 +898,18 @@ export const RuleSet: MessageFns<RuleSet> = {
     return message;
   },
 
-  fromJSON(object: any): RuleSet {
+  fromJSON(object: any): Chain {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
+      logics: globalThis.Array.isArray(object?.logics) ? object.logics.map((e: any) => logicFromJSON(e)) : [],
     };
   },
 
-  toJSON(message: RuleSet): unknown {
+  toJSON(message: Chain): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -889,25 +920,29 @@ export const RuleSet: MessageFns<RuleSet> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
+    }
     if (message.rules?.length) {
       obj.rules = message.rules.map((e) => Rule.toJSON(e));
     }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
+    if (message.logics?.length) {
+      obj.logics = message.logics.map((e) => logicToJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleSet>, I>>(base?: I): RuleSet {
-    return RuleSet.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Chain>, I>>(base?: I): Chain {
+    return Chain.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleSet>, I>>(object: I): RuleSet {
-    const message = createBaseRuleSet();
+  fromPartial<I extends Exact<DeepPartial<Chain>, I>>(object: I): Chain {
+    const message = createBaseChain();
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.enabled = object.enabled ?? false;
+    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
+    message.logics = object.logics?.map((e) => e) || [];
     return message;
   },
 };

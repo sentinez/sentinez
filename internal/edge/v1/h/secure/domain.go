@@ -18,8 +18,9 @@ import (
 	"strings"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -37,22 +38,22 @@ type Domain struct {
 	hostname string
 }
 
-func (d *Domain) Handle(ctx *httpxdmz.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit domain", ctx.GetReqID())
+func (d *Domain) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit domain", ctx.RequestId())
 
-	ns, ok := d.isValidSingleLevelSubdomain(string(ctx.Host()), d.hostname)
+	ns, ok := d.isValidSingleLevelSubdomain(ctx.Host(), d.hostname)
 	if !ok {
-		return httpxdmz.Forbidden(ctx)
+		return httpxcmn.Forbidden(ctx)
 	}
 
-	ctxValue, ok := httpxdmz.GetRequestContext(ctx)
+	ctxValue, ok := httpxcmn.GetRequestContext(ctx)
 	if !ok {
 		ctxValue = &edgepb.Context{}
 	}
 
 	ctxValue.TenantNs = ns
 
-	ctx = httpxdmz.SetRequestContext(ctx, ctxValue)
+	ctx = httpxcmn.SetRequestContext(ctx, ctxValue)
 
 	return d.HandleNext(ctx)
 }
@@ -60,18 +61,24 @@ func (d *Domain) Handle(ctx *httpxdmz.Context) error {
 func (d *Domain) isValidSingleLevelSubdomain(
 	subdomain, root string) (string, bool) {
 
-	subLabels := strings.Split(subdomain, ".")
-	rootLabels := strings.Split(root, ".")
+	// Remove port if present
+	if colon := strings.IndexByte(subdomain, ':'); colon >= 0 {
+		subdomain = subdomain[:colon]
+	}
 
-	if len(subLabels) != len(rootLabels)+1 {
+	// Check if it ends with "." + root
+	suffix := "." + root
+	if !strings.HasSuffix(subdomain, suffix) {
 		return "", false
 	}
 
-	rootMatch := strings.Join(subLabels[len(subLabels)-len(rootLabels):], ".")
-	rootMatch = strings.Split(rootMatch, ":")[0]
-	if rootMatch == root {
-		return subLabels[0], true
+	// Extract subdomain part (before root)
+	subPart := subdomain[:len(subdomain)-len(suffix)]
+
+	// Ensure single-level (no extra dots) and non-empty
+	if subPart == "" || strings.IndexByte(subPart, '.') >= 0 {
+		return "", false
 	}
 
-	return "", false
+	return subPart, true
 }

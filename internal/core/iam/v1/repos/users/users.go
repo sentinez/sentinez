@@ -19,13 +19,13 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
+	"github.com/sentinez/sentinez/pkg/common/uuidx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
-	"github.com/sentinez/sentinez/pkg/x/uuidx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -52,7 +52,7 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(appConf *configspb.AppConfig) (IUser, error) {
+func New(appConf *confpb.Config) (IUser, error) {
 	storage, err := postgres.New[*iam.User](appConf, tables.Users)
 	if err != nil {
 		return nil, err

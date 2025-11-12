@@ -18,39 +18,52 @@ package main
 import (
 	"context"
 
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/sentinez/pkg/runner"
 
+	"net/http"
 	_ "net/http/pprof"
 )
 
-// Expose pprof
 //
-// func init() {
-// 	go func() {
-// 		_ = http.ListenAndServe(":6060", nil)
-// 	}()
-// }
+// The main package is the entrypoint for the Sentinez Edge Proxy service.
+// It initializes the DMZ HTTP proxy server, the Edge Engine (gRPC handler),
+// and manages their lifecycles using the internal runner framework.
+//
 
+// func init enables the pprof HTTP server for profiling purposes.
+// Uncomment this block to expose runtime profiling data at :6060.
+//
+// Example:
+//
+//	go tool pprof http://localhost:6060/debug/pprof/profile
+func init() {
+	go func() {
+		_ = http.ListenAndServe(":6060", nil)
+	}()
+}
+
+// main is the entrypoint of the Edge application.
+// It initializes configuration, creates the HTTP server and Edge Engine,
+// and registers their start/stop hooks with the runner framework.
 func main() {
-	runner.Main(config.Config(), func(ctx context.Context) error {
-		conf := runner.GetAppConfig(ctx)
-		setting := edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
+	app := runner.NewApp(config.Config())
+	app.Handle(func(conf *confpb.Config) error {
+		var (
+			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
+			httpSrv    = stdhttpx.NewServer(conf.GetMeta())
+			edgeServer = edge.New(httpSrv, setting)
+		)
 
-		httpSrv := httpxdmz.NewServer(conf.GetMeta())
-		edgeServer := edge.New(httpSrv, setting)
-
-		runner.OnStart(edgeServer.Start)
-		runner.OnStop(edgeServer.Shutdown)
-
-		// Run the Edge Engine gRPC handler
-		// engine := edge.NewEngine(conf.GetMeta())
-		// runner.OnStart(engine.Start)
-		// runner.OnStop(engine.Shutdown)
+		app.OnStart(edgeServer.Start)
+		app.OnStop(edgeServer.Shutdown)
 
 		return nil
 	})
+
+	runner.Serve(context.Background(), app)
 }

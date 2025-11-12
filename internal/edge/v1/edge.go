@@ -19,45 +19,89 @@ import (
 	"context"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-// New creates a new Edge Server instance.
-func New(server httpxdmz.Server, setting *edgepb.Setting) *Server {
+//
+// Package edge implements the core Edge Server component.
+//
+// The Edge Server acts as the main HTTP entrypoint of the system,
+// handling incoming traffic and routing it through the configured
+// proxy, WAF, and routing layers.
+//
+// This component integrates tightly with the `runner` package for
+// controlled startup and graceful shutdown.
+//
+
+// New initializes and returns a new Edge Server instance.
+//
+// The Edge Server is responsible for handling all external HTTP traffic,
+// using the provided `httpxdmz.Server` as its underlying HTTP layer,
+// and a given proxy `setting` configuration to determine routing,
+// security, and behavior policies.
+//
+// Parameters:
+//   - server: The HTTP DMZ server implementation handling request I/O.
+//   - setting: The loaded proxy configuration for routing and filtering.
+//
+// Returns:
+//   - *Server: A new Edge Server instance ready to be started.
+func New(server corehttp.Server, setting *edgepb.Setting) *Server {
 	return &Server{
 		core:    server,
 		setting: setting,
 	}
 }
 
-// Server implements the Edge Server interface.
-// Main function and handler of the edge service.
-// All traffic will be handled by this server.
+// Server represents the core Edge Server.
+// It wraps an `httpxdmz.Server` for network operations
+// and holds the runtime proxy configuration.
+//
+// The Server is the main handler of the edge service —
+// all ingress traffic is processed and dispatched here.
 type Server struct {
-	core    httpxdmz.Server
+	core    corehttp.Server
 	setting *edgepb.Setting
 }
 
-// Shutdown implements v1.Server.
+// Shutdown gracefully stops the Edge Server.
+//
+// It ensures all active connections are closed and releases
+// underlying resources before the application exits.
+//
+// This method is automatically invoked by the `runner` package
+// during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
 	return s.core.Shutdown(ctx)
 }
 
-// Start implements v1.Server.
-func (s *Server) Start(ctx context.Context) error {
-	appConf := runner.GetAppConfig(ctx)
-	if err := s.initialize(appConf); err != nil {
-		zlog.Errorf("failed to initial: %v", err)
+// Start begins serving incoming HTTP (or HTTPS) traffic.
+//
+// The method initializes runtime configuration from the application context,
+// prepares TLS if certificates are provided, and delegates
+// the serving process to the underlying `httpxdmz.Server`.
+//
+// This method should always be invoked through the `runner` lifecycle manager.
+//
+// Parameters:
+//   - ctx: The lifecycle context provided by the runner.
+//   - conf: application configuration
+//
+// Returns:
+//   - error: Any error that occurred during startup or serving.
+func (s *Server) Start(conf *confpb.Config) error {
+	if err := s.initialize(conf); err != nil {
+		zlog.Errorf("failed to initialize: %v", err)
 		return err
 	}
 
 	var (
-		addr     = appConf.GetEnvConf().GetHttpAddress()
-		certFile = appConf.GetFlag().GetCertificateFile()
-		keyFile  = appConf.GetFlag().GetCertKeyFile()
+		addr     = conf.GetEnv().GetHttpAddress()
+		certFile = conf.GetFlag().GetCertificateFile()
+		keyFile  = conf.GetFlag().GetCertKeyFile()
 	)
 
 	return s.core.ListenAndServeTLS(addr, certFile, keyFile)

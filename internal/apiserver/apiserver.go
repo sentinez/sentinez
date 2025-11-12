@@ -18,13 +18,12 @@ package apiserver
 import (
 	"context"
 
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/sentinez/pkg/zlog"
-
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
 )
 
-func New(server httpgw.Server) *Server {
+func New(server httpx.Server) *Server {
 	srv := &Server{
 		server: server,
 	}
@@ -43,16 +42,16 @@ func New(server httpgw.Server) *Server {
 type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server httpgw.Server
+	server httpx.Server
 }
 
 // visitToEndpoint all service to external grpc server
 func (srv *Server) VisitToEndpoint(ctx context.Context,
-	services ...httpgw.ServiceRegistrar) error {
+	conf *confpb.Config,
+	services ...httpx.ServiceRegistrar) error {
 
-	appConf := runner.GetAppConfig(ctx)
 	for _, service := range services {
-		err := service.AcceptFromEndpoint(ctx, srv.server, appConf)
+		err := service.AcceptFromEndpoint(ctx, srv.server, conf)
 		if err != nil {
 			return err
 		}
@@ -64,7 +63,7 @@ func (srv *Server) VisitToEndpoint(ctx context.Context,
 
 // Visit all service to internal grpc handler
 func (srv *Server) Visit(ctx context.Context,
-	services ...httpgw.ServiceRegistrar) error {
+	services ...httpx.ServiceRegistrar) error {
 
 	for _, service := range services {
 		if err := service.Accept(ctx, srv.server); err != nil {
@@ -77,20 +76,18 @@ func (srv *Server) Visit(ctx context.Context,
 }
 
 // Start the apiserver/gateway app
-func (srv *Server) Start(ctx context.Context) error {
-	if err := srv.Initialize(ctx); err != nil {
+func (srv *Server) Start(ctx context.Context, conf *confpb.Config) error {
+	if err := srv.Initialize(ctx, conf); err != nil {
 		zlog.Errorf("apiserver: failed to initialize: %v", err)
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	appConf := runner.GetAppConfig(ctx)
-	return srv.server.ListenAndServe(appConf.GetEnvConf().GetHttpAddress())
+	return srv.server.ListenAndServe(conf.GetEnv().GetHttpAddress())
 	// for DEBUG:
 	// return fmt.Errorf("apiserver: failed to listen and serve")
 }
 
-// Shutdown implements runner.Server.
 func (srv *Server) Shutdown(ctx context.Context) error {
 	return srv.server.Shutdown(ctx)
 }

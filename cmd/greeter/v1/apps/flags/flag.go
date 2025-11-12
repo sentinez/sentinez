@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
-	"github.com/sentinez/sentinez/pkg/x/flagx"
+	"github.com/sentinez/sentinez/pkg/common/flagx"
 	"github.com/sentinez/sentinez/pkg/zlog"
 	"github.com/spf13/pflag"
 )

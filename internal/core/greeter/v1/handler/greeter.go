@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package greeterhandler provides the controller for the greeter service.
-package greeterhandler
+// Package greeterhdl provides the controller for the greeter service.
+package greeterhdl
 
 import (
 	"context"

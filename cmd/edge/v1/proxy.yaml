@@ -31,16 +31,16 @@ setting:
     routes:
       - matchPrefix: / # URL prefix to match incoming requests
         target: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
-        # rewrite: /                   # (Optional) rewrite prefix before forwarding
+        rewrite: /                   # (Optional) rewrite prefix before forwarding
 
       # Example 1 (disabled):
-      # - matchPrefix: /v1
-      #   target: http://localhost:3000
-      #   rewrite: /v1
+      # - matchPrefix: /
+      #   target: http://localhost:7778
+      #   rewrite: /
       #
       # Example 2 (disabled):
       # - matchPrefix: /api
-      #   target: http://localhost:8080
+      #   target: https://shark-app-8dkwp.ondigitalocean.app/
 
     # --------------------------------------------------------
     # EXAMPLE: NEWS NAMESPACE
@@ -48,7 +48,7 @@ setting:
     # namespace: news
     # routes:
     #   - matchPrefix: /
-    #     target: https://vneconomy.vn
+    #     target: http://badcheese.com/
     #
     #   # English version route
     #   # - matchPrefix: /en
@@ -71,7 +71,7 @@ setting:
     #   requestsPerSecond: 100         # Allowed requests per second
     # botProtection: true              # Enable bot protection
     
-    isWafEngineOn: false
+    isWafEngineOn: true
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

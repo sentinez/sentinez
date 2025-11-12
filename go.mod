@@ -10,13 +10,14 @@ replace (
 require (
 	buf.build/go/protovalidate v0.14.0
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/a-h/templ v0.3.943
+	github.com/a-h/templ v0.3.960
 	github.com/bytedance/sonic v1.14.0
 	github.com/cloudwego/hertz v0.10.2
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/exaring/ja4plus v0.0.2
 	github.com/go-webauthn/webauthn v0.14.0
+	github.com/goccy/go-yaml v1.18.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
@@ -27,10 +28,12 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
+	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/core v0.0.0
+	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/fx v1.24.0
@@ -38,7 +41,6 @@ require (
 	golang.org/x/crypto v0.42.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -90,7 +92,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/savsgio/gotils v0.0.0-20250408102913-196191ec6287 // indirect
-	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
@@ -109,5 +110,6 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )

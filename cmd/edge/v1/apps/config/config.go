@@ -20,23 +20,23 @@ import (
 	"github.com/sentinez/sentinez/pkg/config"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
 )
 
 var (
 	once    sync.Once
-	appConf *configspb.AppConfig
+	appConf *confpb.Config
 )
 
-func Config() *configspb.AppConfig {
+func Config() *confpb.Config {
 	once.Do(func() {
 		flag := edgeflags.Parse()
 		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &configspb.AppConfig{
-			Meta:    edgepb.GetMetaEdge(),
-			EnvConf: envConf,
-			Flag:    flag,
+		appConf = &confpb.Config{
+			Meta: edgepb.GetMetaEdge(),
+			Env:  envConf,
+			Flag: flag,
 		}
 	})
 

@@ -1,8 +1,8 @@
 package waitingroom
 
 import (
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
 	"github.com/sentinez/sentinez/pkg/dmz/queue"
 )
 
@@ -19,7 +19,7 @@ type WaitingRoom struct {
 	_ *queue.Queue
 }
 
-func (wr *WaitingRoom) Handle(ctx *httpxdmz.Context) error {
+func (wr *WaitingRoom) Handle(ctx corehttp.Context) error {
 
 	return wr.HandleNext(ctx)
 }

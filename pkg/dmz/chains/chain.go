@@ -15,13 +15,13 @@
 package chains
 
 import (
-	httpxdmz "github.com/sentinez/sentinez/pkg/dmz/httpx"
+	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
 type Handler interface {
 	SetNext(mdw Handler) Handler
-	Handle(ctx *httpxdmz.Context) error
+	Handle(ctx corehttp.Context) error
 }
 
 func New() *BaseHandler {
@@ -51,7 +51,7 @@ func (b *BaseHandler) GetNext() Handler {
 	return b.next
 }
 
-func (b *BaseHandler) HandleNext(ctx *httpxdmz.Context) error {
+func (b *BaseHandler) HandleNext(ctx corehttp.Context) error {
 	if b == nil {
 		zlog.Warn("chains: uninitialized base chains")
 		return nil

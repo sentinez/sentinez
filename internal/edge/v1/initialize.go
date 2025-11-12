@@ -15,28 +15,29 @@
 package edge
 
 import (
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
-	"github.com/sentinez/sentinez/pkg/dmz/memory"
+	"github.com/sentinez/sentinez/pkg/dmz/mem"
+	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-func (s *Server) initialize(appConf *configspb.AppConfig) error {
+func (s *Server) initialize(appConf *confpb.Config) error {
 	// init cache repository
-	memory.Initialized(s.setting, appConf)
+	mem.Initialized(s.setting, appConf)
 
-	hostname := appConf.GetEnvConf().GetHostname()
+	hostname := appConf.GetEnv().GetHostname()
 
 	begin := waitingroom.New()
 
 	begin.SetNext(static.NewStatic()).
-		SetNext(logging.NewLogger()).
+		SetNext(logging.NewLogger(zlog.LevelInfo)).
 		SetNext(secure.NewDomain(hostname)).
-		SetNext(secure.NewWAF()).
-		SetNext(routing.NewRouter())
+		SetNext(secure.NewWAF(zlog.LevelInfo)).
+		SetNext(routing.NewStandardRouter())
 
 	s.core.Handle(begin.Handle)
 

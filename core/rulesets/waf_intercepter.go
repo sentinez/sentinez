@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulesets
+package corers
 
 import (
 	"net/http"
 
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
 // interceptor for fasthttp
@@ -29,12 +29,12 @@ type interceptor struct {
 	proto       string
 }
 
-func (i *interceptor) writeResponseHeader(ctx networks.XContext) {
+func (i *interceptor) writeResponseHeader(ctx corehttp.Context) {
 	if i.wroteHeader {
 		return
 	}
 
-	ctx.VisitRespHeaders(func(k, v []byte) {
+	ctx.VisitResponseHeaders(func(k, v []byte) {
 		i.tx.AddResponseHeader(string(k), string(v))
 	})
 
@@ -46,7 +46,7 @@ func (i *interceptor) writeResponseHeader(ctx networks.XContext) {
 }
 
 func (i *interceptor) writeResponseBody(
-	ctx networks.XContext) (*types.Interruption, error) {
+	ctx corehttp.Context) (*types.Interruption, error) {
 	if i.tx.IsInterrupted() {
 		return nil, nil
 	}

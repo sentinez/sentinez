@@ -28,3 +28,16 @@ Statistics        Avg      Stdev        Max
     others - 0
   Throughput:     9.21MB/s
 ```
+
+```
+Bombarding https://badcheese.is.s6z.io.vn:7443/ with 10000 request(s) using 100 connection(s)
+ 10000 / 10000 [========================================================================================] 100.00% 1213/s 8s
+Done!
+Statistics        Avg      Stdev        Max
+  Reqs/sec      1240.46     717.70    4381.30
+  Latency       75.20ms    41.03ms      1.04s
+  HTTP codes:
+    1xx - 0, 2xx - 10000, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:     8.83MB/s
+```

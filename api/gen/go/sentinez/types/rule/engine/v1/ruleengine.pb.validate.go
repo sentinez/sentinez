@@ -329,9 +329,9 @@ var _ interface {
 	ErrorName() string
 } = RuleValidationError{}
 
-// Validate checks the field values on RuleSet with the rules defined in the
+// Validate checks the field values on Chain with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *RuleSet) Validate() error {
+func (m *Chain) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -342,12 +342,14 @@ func (m *RuleSet) Validate() error {
 
 	// no validation rules for Description
 
+	// no validation rules for Enabled
+
 	for idx, item := range m.GetRules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RuleSetValidationError{
+				return ChainValidationError{
 					field:  fmt.Sprintf("Rules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -357,14 +359,12 @@ func (m *RuleSet) Validate() error {
 
 	}
 
-	// no validation rules for Enabled
-
 	return nil
 }
 
-// RuleSetValidationError is the validation error returned by RuleSet.Validate
-// if the designated constraints aren't met.
-type RuleSetValidationError struct {
+// ChainValidationError is the validation error returned by Chain.Validate if
+// the designated constraints aren't met.
+type ChainValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -372,22 +372,22 @@ type RuleSetValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleSetValidationError) Field() string { return e.field }
+func (e ChainValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleSetValidationError) Reason() string { return e.reason }
+func (e ChainValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleSetValidationError) Cause() error { return e.cause }
+func (e ChainValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleSetValidationError) Key() bool { return e.key }
+func (e ChainValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleSetValidationError) ErrorName() string { return "RuleSetValidationError" }
+func (e ChainValidationError) ErrorName() string { return "ChainValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleSetValidationError) Error() string {
+func (e ChainValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -399,14 +399,14 @@ func (e RuleSetValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleSet.%s: %s%s",
+		"invalid %sChain.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleSetValidationError{}
+var _ error = ChainValidationError{}
 
 var _ interface {
 	Field() string
@@ -414,4 +414,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleSetValidationError{}
+} = ChainValidationError{}

@@ -12,83 +12,84 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxstd
+package stdhttpx
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
-	"github.com/sentinez/sentinez"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	"github.com/sentinez/sentinez/pkg/common/color"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/sentinez/pkg/runner/v1"
-	"github.com/sentinez/sentinez/pkg/x/protobuf"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	"github.com/sentinez/sentinez/internal/shared/figure"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
 )
 
-var _ Server = (*HTTPServer)(nil)
+var _ corehttp.Server = (*Server)(nil)
 
-type Server interface {
-	httpx.Server
-	Use(mdw ...func(http.Handler) http.Handler)
-	Handle(fn func(ctx Context) error)
-}
-
-func NewServer(ctx context.Context) Server {
-	runneappConf := runner.GetAppConfig(ctx)
-	return &HTTPServer{
-		appConf: runneappConf,
+func NewServer(meta *common.XMeta) corehttp.Server {
+	return &Server{
+		meta: meta,
+		core: &http.Server{},
+		mux:  http.NewServeMux(),
 	}
 }
 
-type HTTPServer struct {
-	mdw     []func(http.Handler) http.Handler
-	appConf *configspb.AppConfig
+type Server struct {
+	mdw  []func(corehttp.RequestHandler) corehttp.RequestHandler
+	meta *common.XMeta
+	core *http.Server
+	mux  *http.ServeMux
 }
 
-func (s *HTTPServer) Use(mdw ...func(http.Handler) http.Handler) {
+func (s *Server) Use(
+	mdw ...func(next corehttp.RequestHandler) corehttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
-func (s *HTTPServer) Handle(fn func(ctx Context) error) {
-	http.Handle("/", chain(http.HandlerFunc(Convert(fn)), s.mdw...))
+func (s *Server) Handle(fn corehttp.RequestHandler) {
+
+	s.mux.Handle("/", Convert(chain(fn, s.mdw...)))
 }
 
-func (s *HTTPServer) ListenAndServe(addr string) error {
-	if err := protobuf.Validate(s.appConf); err != nil {
+func (s *Server) ListenAndServe(addr string) error {
+	if err := protobuf.Validate(s.meta); err != nil {
 		return err
 	}
 
-	sentinez.INFO(
-		s.appConf.GetMeta().GetServiceName(),
-		s.appConf.GetMeta().GetServiceKey(),
-	)
+	figure.INFO(s.meta.GetServiceName(),
+		s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
 
-	zlog.Infof("%s >>> running on %s",
-		color.Blue.Add("http"),
-		color.Magenta.Add(addr),
-	)
-
-	return http.ListenAndServe(addr, nil)
+	s.core.Addr = addr
+	s.core.Handler = s.mux
+	return s.core.ListenAndServe()
 }
 
-func (s *HTTPServer) Shutdown(_ context.Context) error {
-	return Shutdown()
+func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
+	if err := protobuf.Validate(s.meta); err != nil {
+		return err
+	}
+
+	figure.INFO(s.meta.GetServiceName(),
+		s.meta.GetServiceKey(), fmt.Sprintf("running on https %s", addr))
+
+	s.core.Addr = addr
+	s.core.Handler = s.mux
+
+	return s.core.ListenAndServeTLS(certFile, keyFile)
 }
 
-func chain(h http.Handler, m ...func(http.Handler) http.Handler) http.Handler {
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.core.Shutdown(ctx)
+}
+
+func chain(
+	h corehttp.RequestHandler,
+	m ...func(corehttp.RequestHandler) corehttp.RequestHandler,
+) corehttp.RequestHandler {
 	for i := len(m) - 1; i >= 0; i-- {
 		h = m[i](h)
 	}
 
-	return extendHeader(h)
-}
-
-func extendHeader(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r)
-
-		w.Header().Set("Server", sentinez.Name)
-	})
+	return h
 }

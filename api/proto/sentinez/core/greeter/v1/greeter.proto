@@ -52,40 +52,40 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 option (sentinez.types.common.v1.x_meta) = {
-  service_name: "SENTINEZ // GREETER",
-  service_kind: KIND_CORE,
-  service_key: "sentinez.core.greeter.v1",
+  service_name : "SENTINEZ // GREETER",
+  service_kind : KIND_CORE,
+  service_key : "sentinez.core.greeter.v1",
 };
 
 service GreeterService {
   rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
     option (google.api.http) = {
-      get: "/greeter/say"
+      get : "/greeter/say"
     };
 
-    option (sentinez.types.common.v1.x_method) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {
+      ignore : true
+    };
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
-      get: "/greeter/status"
+      get : "/greeter/status"
     };
 
-    option (sentinez.types.common.v1.x_method) = {ignore: true};
+    option (sentinez.types.common.v1.x_method) = {
+      ignore : true
+    };
   }
 }
 
 message SayHelloRequest {
   sentinez.types.common.v1.Pages page = 1;
-  string name = 2 [(buf.validate.field).string.min_len = 1];
+  string name = 2 [ (buf.validate.field).string.min_len = 1 ];
 }
 
-message SayHelloResponse {
-  string message = 1;
-}
+message SayHelloResponse { string message = 1; }
 
-message StatusResponse {
-  string message = 1;
-}
+message StatusResponse { string message = 1; }
 
 message StatusRequest {}

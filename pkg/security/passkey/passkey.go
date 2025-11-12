@@ -17,7 +17,7 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
@@ -28,14 +28,14 @@ type Store interface {
 	GenSessionID() (string, error)
 }
 
-func NewWebAuthn(config *configspb.AppConfig) *webauthn.WebAuthn {
+func NewWebAuthn(config *confpb.Config) *webauthn.WebAuthn {
 	wconfig := &webauthn.Config{
 		// Display Name for your site
 		RPDisplayName: sentinez.Name,
 		// Generally the FQDN for your site
-		RPID: config.GetEnvConf().GetHostname(),
+		RPID: config.GetEnv().GetHostname(),
 		// The origin URLs allowed for WebAuthn
-		RPOrigins: []string{config.GetEnvConf().GetClientOrigin()},
+		RPOrigins: []string{config.GetEnv().GetClientOrigin()},
 	}
 
 	wauth, err := webauthn.New(wconfig)

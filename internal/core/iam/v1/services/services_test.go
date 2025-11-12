@@ -22,13 +22,13 @@ import (
 	"github.com/pashagolub/pgxmock/v2"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
+	"github.com/sentinez/sentinez/pkg/common/cryptox"
 	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"github.com/sentinez/sentinez/pkg/x/cryptox"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -69,7 +69,7 @@ func TestLogin(t *testing.T) {
 
 	tx, _ := pgxMock.Begin(context.Background())
 	txss := postgres.NewTXMock(tx)
-	conf := &configspb.AppConfig{EnvConf: &configspb.EnvConfig{
+	conf := &confpb.Config{Env: &confpb.EnvConfig{
 		SecretKey: "congchualunglinhlunglinhxinhlunglinh",
 	}}
 
@@ -87,7 +87,7 @@ func TestLogin(t *testing.T) {
 
 	// check permission chứa ROOT
 	tokenCtx, ok := cryptox.BearerTokenVerifier(
-		conf.EnvConf, resp.AccessToken)
+		conf.Env, resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}

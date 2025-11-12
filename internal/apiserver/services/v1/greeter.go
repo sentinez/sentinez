@@ -19,11 +19,11 @@ import (
 	"context"
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	configspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/configs/v1"
-	httpgw "github.com/sentinez/sentinez/pkg/network/httpx/gw"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 )
 
-var _ httpgw.ServiceRegistrar = (*Greeter)(nil)
+var _ httpx.ServiceRegistrar = (*Greeter)(nil)
 
 // NewGreeter creates a new greeter service to register handler to gateway
 func NewGreeter(server greeterpb.GreeterServiceServer) *Greeter {
@@ -37,9 +37,9 @@ type Greeter struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
-	server httpgw.Server, appConf *configspb.AppConfig) error {
+	server httpx.Server, appConf *confpb.Config) error {
 
-	return httpgw.RegisterServiceFromEndpoint(ctx,
+	return httpx.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		greeterpb.GetMetaGreeterServiceKey(),
@@ -48,9 +48,9 @@ func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
 }
 
 // Accept accepts the greeter service
-func (g *Greeter) Accept(ctx context.Context, server httpgw.Server) error {
+func (g *Greeter) Accept(ctx context.Context, server httpx.Server) error {
 
-	return httpgw.RegisterServiceHandlerServer(ctx,
+	return httpx.RegisterServiceHandlerServer(ctx,
 		server.RuntimeMux(),
 		g.server,
 		greeterpb.RegisterGreeterServiceHandlerServer,

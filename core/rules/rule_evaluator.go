@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package corerule
 
 import (
 	"sync"
 
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	"github.com/sentinez/sentinez/core/networks"
+	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
 var (
@@ -41,7 +41,7 @@ type Evaluator interface {
 // newEvaluator creates a new Evaluator instance.
 // Remember to call Evaluator.Release when the
 // context is done to avoid memory leaks.
-func newEvaluator(ctx networks.Context) Evaluator {
+func newEvaluator(ctx corehttp.RequestContext) Evaluator {
 
 	ev := evPool.Get().(*evaluator)
 	ev.ctx = ctx
@@ -50,7 +50,7 @@ func newEvaluator(ctx networks.Context) Evaluator {
 }
 
 type evaluator struct {
-	ctx networks.Context
+	ctx corehttp.RequestContext
 }
 
 func (ev *evaluator) Release() {
@@ -59,9 +59,40 @@ func (ev *evaluator) Release() {
 }
 
 func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
-	_ = cond
-	//TODO implement me
-	panic("implement me")
+	// zlog.Debug("ev: visit binary")
+
+	switch cond.GetSource() {
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_PATH:
+		return matchSourcePath(ev.ctx, cond)
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_QUERY:
+		return matchSourceQuery(ev.ctx, cond)
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
+		return bypass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_HEADER:
+		return bypass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
+		return matchSourceMethod(ev.ctx, cond)
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
+		return bypass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
+		return bypass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
+		return matchSourceIP(ev.ctx, cond)
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
+		return bypass
+
+	default:
+		return bypass
+	}
 }
 
 func (ev *evaluator) visitLogical(cond *ruleengpb.Condition) bool {
