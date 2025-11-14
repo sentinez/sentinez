@@ -1,10 +1,10 @@
-// Copyright 2025 Sentinez Labs.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package uuidx
+package httpxdmz
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/google/uuid"
-	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/cloudwego/hertz/pkg/app"
+	corehttp "github.com/sentinez/sentinez/core/http"
+	sids "github.com/sentinez/sentinez/shared/ids"
 )
 
-// NewID generates a new UUID and returns it as a string.
-func NewID(prefix string) string {
-	id := uuid.New()
-	return fmt.Sprintf("%s%s", prefix, id.String())
-}
+func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
 
-func NewNanoID(prefix string) string {
-	id, _ := gonanoid.New()
-	return fmt.Sprintf("%s%s", prefix, id)
+		requestId := sids.NewNanoID("REQ")
+		c.Request.Header.Set(corehttp.HeaderXRequest, requestId)
+
+		ctx = corehttp.SetRequestTime(ctx)
+
+		next(ctx, c)
+	}
 }

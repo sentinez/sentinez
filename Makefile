@@ -29,7 +29,7 @@ test.cover:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto lint.core
+lint: lint.go lint.proto lint.core lint.core lint.shared
 
 lint.go:
 	@echo "[LINT] sentinez is linting ..."
@@ -46,6 +46,14 @@ lint.tools:
 lint.core:
 	@echo "[LINT] core is linting ..."
 	@cd ./core && golangci-lint run
+
+lint.shared:
+	@echo "[LINT] shared is linting ..."
+	@cd ./shared && golangci-lint run
+
+lint.x.httphz:
+	@echo "[LINT] httphz is linting ..."
+	@cd ./x/httphz && golangci-lint run
 
 #####################################################################
 #####################################################################

@@ -19,7 +19,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func NewStandardRouter() *StandardRouter {

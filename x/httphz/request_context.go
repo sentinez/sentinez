@@ -23,17 +23,15 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/gorilla/websocket"
-	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
 	_       corehttp.Context = (*Context)(nil)
-	ctxPool                  = syncx.NewPool[Context]()
+	ctxPool                  = sync.NewPool[Context]()
 )
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
@@ -259,11 +257,7 @@ func (c *Context) TLS() bool {
 }
 
 func (c *Context) RequestTime() time.Time {
-	t, ok := c.ctx.Value(httpxcmn.RequestHTTPTimeKey).(time.Time)
-	if ok {
-		return t
-	}
-	return time.Time{}
+	return corehttp.GetRequestTime(c.ctx)
 }
 
 func (c *Context) Context() context.Context {
@@ -274,7 +268,7 @@ func (c *Context) Context() context.Context {
 func (c *Context) JSON(statusCode int, body []byte) error {
 	c.req.SetContentType("application/json")
 	c.req.SetStatusCode(statusCode)
-	c.SetServer(sentinez.Name)
+	// c.SetServer(sentinez.Name)
 
 	_, err := c.req.Write(body)
 	return err
@@ -292,7 +286,7 @@ func (c *Context) Path() string {
 func (c *Context) String(statusCode int, body string) error {
 	c.req.SetContentType(corehttp.ValueTextPlain)
 	c.req.SetStatusCode(statusCode)
-	c.SetServer(sentinez.Name)
+	// c.SetServer(sentinez.Name)
 
 	_, err := c.req.WriteString(body)
 	return err
@@ -301,7 +295,7 @@ func (c *Context) String(statusCode int, body string) error {
 func (c *Context) Render(statusCode int, component templ.Component) error {
 	c.req.SetStatusCode(statusCode)
 	c.req.SetContentType(corehttp.ValueTextHTML)
-	c.SetServer(sentinez.Name)
+	// c.SetServer(sentinez.Name)
 
 	return component.Render(c.Context(), c.req.Response.BodyWriter())
 }

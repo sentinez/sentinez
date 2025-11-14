@@ -297,13 +297,19 @@ export function actionTypeToJSON(object: ActionType): string {
 /** A logical condition expression */
 export interface Condition {
   id: string;
-  /** The source of the field */
+  /**
+   * The source of the field
+   * Example: "User-Agent" or "country"
+   */
   source: FieldSource;
-  /** Example: "User-Agent" or "country" */
+  /** @gotags: yaml:"key" */
   key: string;
-  /** Supported operators: "eq", "ne", "contains", */
+  /**
+   * Supported operators: "eq", "ne", "contains",
+   * "matches", "in", "prefix", "suffix", "gt", "lt"
+   */
   operator: Operator;
-  /** "matches", "in", "prefix", "suffix", "gt", "lt" */
+  /** The value to compare against */
   value?:
     | any
     | undefined;
@@ -316,33 +322,98 @@ export interface Condition {
 /** An action to execute when a rule matches */
 export interface Action {
   id: string;
-  /** Example types: "block", "log", "modify_header", */
+  /**
+   * Example types: "block", "log", "modify_header",
+   * "redirect", "set_tag", "route_to"
+   */
   type: ActionType;
-  /** "redirect", "set_tag", "route_to" */
+  /** Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" } */
   params?: { [key: string]: any } | undefined;
 }
 
 /** A complete rule definition */
 export interface Rule {
   id: string;
+  /** @gotags: yaml:"name" */
   name: string;
   description: string;
-  condition?: Condition | undefined;
+  /** @gotags: yaml:"condition" */
+  condition?:
+    | Condition
+    | undefined;
+  /** @gotags: yaml:"actions" */
   actions: Action[];
+  /** @gotags: yaml:"priority" */
   priority: number;
+  /** @gotags: yaml:"enabled" */
   enabled: boolean;
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
 }
 
 /** A collection of rules (e.g., grouped by tenant or domain) */
-export interface Chain {
+export interface Expr {
   id: string;
+  /** @gotags: yaml:"name" */
   name: string;
   description: string;
+  /** @gotags: yaml:"enabled" */
   enabled: boolean;
+  /** @gotags: yaml:"rules" */
   rules: Rule[];
+  /** @gotags: yaml:"logics" */
   logics: Logic[];
+}
+
+export interface ExprLite {
+  id: string;
+  /** @gotags: yaml:"name" */
+  name: string;
+  /** @gotags: yaml:"enabled" */
+  enabled: boolean;
+  /** @gotags: yaml:"rules" */
+  rules: RuleLite[];
+  /** @gotags: yaml:"logics" */
+  logics: string[];
+}
+
+/** A complete rule definition */
+export interface RuleLite {
+  id: string;
+  /** @gotags: yaml:"name" */
+  name: string;
+  /** @gotags: yaml:"condition" */
+  condition?:
+    | ConditionLite
+    | undefined;
+  /** @gotags: yaml:"actions" */
+  actions: string[];
+  /** @gotags: yaml:"priority" */
+  priority: number;
+  /** @gotags: yaml:"enabled" */
+  enabled: boolean;
+}
+
+/** A logical condition expression */
+export interface ConditionLite {
+  /**
+   * The source of the field
+   * Example: "User-Agent" or "country"
+   */
+  source: string;
+  /** @gotags: yaml:"key" */
+  key: string;
+  /**
+   * Supported operators: "eq", "ne", "contains",
+   * "matches", "in", "prefix", "suffix", "gt", "lt"
+   */
+  operator: string;
+  /** The value to compare against */
+  value: string;
+  /** Nested conditions are supported */
+  children: Condition[];
+  /** Logical operator between children: "AND" or "OR" */
+  logic: string;
 }
 
 function createBaseCondition(): Condition {
@@ -795,12 +866,12 @@ export const Rule: MessageFns<Rule> = {
   },
 };
 
-function createBaseChain(): Chain {
+function createBaseExpr(): Expr {
   return { id: "", name: "", description: "", enabled: false, rules: [], logics: [] };
 }
 
-export const Chain: MessageFns<Chain> = {
-  encode(message: Chain, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Expr: MessageFns<Expr> = {
+  encode(message: Expr, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -824,10 +895,10 @@ export const Chain: MessageFns<Chain> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Chain {
+  decode(input: BinaryReader | Uint8Array, length?: number): Expr {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChain();
+    const message = createBaseExpr();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -898,7 +969,7 @@ export const Chain: MessageFns<Chain> = {
     return message;
   },
 
-  fromJSON(object: any): Chain {
+  fromJSON(object: any): Expr {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
@@ -909,7 +980,7 @@ export const Chain: MessageFns<Chain> = {
     };
   },
 
-  toJSON(message: Chain): unknown {
+  toJSON(message: Expr): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -932,17 +1003,425 @@ export const Chain: MessageFns<Chain> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Chain>, I>>(base?: I): Chain {
-    return Chain.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Expr>, I>>(base?: I): Expr {
+    return Expr.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Chain>, I>>(object: I): Chain {
-    const message = createBaseChain();
+  fromPartial<I extends Exact<DeepPartial<Expr>, I>>(object: I): Expr {
+    const message = createBaseExpr();
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
     message.enabled = object.enabled ?? false;
     message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.logics = object.logics?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseExprLite(): ExprLite {
+  return { id: "", name: "", enabled: false, rules: [], logics: [] };
+}
+
+export const ExprLite: MessageFns<ExprLite> = {
+  encode(message: ExprLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.enabled !== false) {
+      writer.uint32(32).bool(message.enabled);
+    }
+    for (const v of message.rules) {
+      RuleLite.encode(v!, writer.uint32(42).fork()).join();
+    }
+    for (const v of message.logics) {
+      writer.uint32(50).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ExprLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseExprLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.enabled = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.rules.push(RuleLite.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.logics.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ExprLite {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleLite.fromJSON(e)) : [],
+      logics: globalThis.Array.isArray(object?.logics) ? object.logics.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: ExprLite): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
+    }
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => RuleLite.toJSON(e));
+    }
+    if (message.logics?.length) {
+      obj.logics = message.logics;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ExprLite>, I>>(base?: I): ExprLite {
+    return ExprLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ExprLite>, I>>(object: I): ExprLite {
+    const message = createBaseExprLite();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.enabled = object.enabled ?? false;
+    message.rules = object.rules?.map((e) => RuleLite.fromPartial(e)) || [];
+    message.logics = object.logics?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseRuleLite(): RuleLite {
+  return { id: "", name: "", condition: undefined, actions: [], priority: 0, enabled: false };
+}
+
+export const RuleLite: MessageFns<RuleLite> = {
+  encode(message: RuleLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.condition !== undefined) {
+      ConditionLite.encode(message.condition, writer.uint32(34).fork()).join();
+    }
+    for (const v of message.actions) {
+      writer.uint32(42).string(v!);
+    }
+    if (message.priority !== 0) {
+      writer.uint32(48).int32(message.priority);
+    }
+    if (message.enabled !== false) {
+      writer.uint32(56).bool(message.enabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.condition = ConditionLite.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.actions.push(reader.string());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.priority = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.enabled = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleLite {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      condition: isSet(object.condition) ? ConditionLite.fromJSON(object.condition) : undefined,
+      actions: globalThis.Array.isArray(object?.actions) ? object.actions.map((e: any) => globalThis.String(e)) : [],
+      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
+      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+    };
+  },
+
+  toJSON(message: RuleLite): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.condition !== undefined) {
+      obj.condition = ConditionLite.toJSON(message.condition);
+    }
+    if (message.actions?.length) {
+      obj.actions = message.actions;
+    }
+    if (message.priority !== 0) {
+      obj.priority = Math.round(message.priority);
+    }
+    if (message.enabled !== false) {
+      obj.enabled = message.enabled;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleLite>, I>>(base?: I): RuleLite {
+    return RuleLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleLite>, I>>(object: I): RuleLite {
+    const message = createBaseRuleLite();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.condition = (object.condition !== undefined && object.condition !== null)
+      ? ConditionLite.fromPartial(object.condition)
+      : undefined;
+    message.actions = object.actions?.map((e) => e) || [];
+    message.priority = object.priority ?? 0;
+    message.enabled = object.enabled ?? false;
+    return message;
+  },
+};
+
+function createBaseConditionLite(): ConditionLite {
+  return { source: "", key: "", operator: "", value: "", children: [], logic: "" };
+}
+
+export const ConditionLite: MessageFns<ConditionLite> = {
+  encode(message: ConditionLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.source !== "") {
+      writer.uint32(18).string(message.source);
+    }
+    if (message.key !== "") {
+      writer.uint32(26).string(message.key);
+    }
+    if (message.operator !== "") {
+      writer.uint32(34).string(message.operator);
+    }
+    if (message.value !== "") {
+      writer.uint32(42).string(message.value);
+    }
+    for (const v of message.children) {
+      Condition.encode(v!, writer.uint32(50).fork()).join();
+    }
+    if (message.logic !== "") {
+      writer.uint32(58).string(message.logic);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ConditionLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseConditionLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.source = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.operator = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.children.push(Condition.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.logic = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ConditionLite {
+    return {
+      source: isSet(object.source) ? globalThis.String(object.source) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+      children: globalThis.Array.isArray(object?.children)
+        ? object.children.map((e: any) => Condition.fromJSON(e))
+        : [],
+      logic: isSet(object.logic) ? globalThis.String(object.logic) : "",
+    };
+  },
+
+  toJSON(message: ConditionLite): unknown {
+    const obj: any = {};
+    if (message.source !== "") {
+      obj.source = message.source;
+    }
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.operator !== "") {
+      obj.operator = message.operator;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    if (message.children?.length) {
+      obj.children = message.children.map((e) => Condition.toJSON(e));
+    }
+    if (message.logic !== "") {
+      obj.logic = message.logic;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ConditionLite>, I>>(base?: I): ConditionLite {
+    return ConditionLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ConditionLite>, I>>(object: I): ConditionLite {
+    const message = createBaseConditionLite();
+    message.source = object.source ?? "";
+    message.key = object.key ?? "";
+    message.operator = object.operator ?? "";
+    message.value = object.value ?? "";
+    message.children = object.children?.map((e) => Condition.fromPartial(e)) || [];
+    message.logic = object.logic ?? "";
     return message;
   },
 };

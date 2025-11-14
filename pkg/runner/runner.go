@@ -19,7 +19,7 @@ import (
 
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 
 	"go.uber.org/fx"
 )

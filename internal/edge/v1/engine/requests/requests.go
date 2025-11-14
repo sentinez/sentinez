@@ -19,11 +19,11 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	corehttpreq "github.com/sentinez/sentinez/core/http/request"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
+	"github.com/sentinez/sentinez/shared/sync"
 )
 
 var (
-	pool = syncx.NewPool[corehttpreq.RequestContext]()
+	pool = sync.NewPool[corehttpreq.RequestContext]()
 )
 
 func New(ctx context.Context,

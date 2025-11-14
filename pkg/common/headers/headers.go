@@ -12,35 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cryptox
+package headers
 
 import (
-	"encoding/base64"
-	"testing"
-	"time"
+	"context"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
+	"github.com/sentinez/sentinez/pkg/security/crypto"
+	"google.golang.org/grpc/metadata"
 )
 
-func TestGenAndVerifyToken(t *testing.T) {
-	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
+const AuthHeader string = "Authorization"
 
-	conf := &confpb.EnvConfig{SecretKey: secBase64}
+func GetAuth(ctx context.Context,
+	conf *confpb.EnvConfig) (*common.Context, error) {
 
-	token, err := TokenGenerator(conf, &common.Context{
-		Name:     "test gen & verify",
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-	})
-	if err != nil {
-		t.Error(err)
+	md, _ := metadata.FromIncomingContext(ctx)
+	accessToken := md.Get(AuthHeader)
+	if len(accessToken) == 0 {
+		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	tp, ok := BearerTokenVerifier(conf, token)
+	pl, ok := crypto.BearerTokenVerifier(conf, accessToken[0])
 	if !ok {
-		t.Error("fail to verify bearer token")
+		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	t.Log("token payload: ", tp.String())
+	return pl, nil
 }

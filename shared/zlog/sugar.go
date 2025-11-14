@@ -17,8 +17,7 @@ package zlog
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/pkg/common/color"
+	"github.com/sentinez/sentinez/shared/color"
 
 	"go.uber.org/zap"
 )
@@ -52,13 +51,13 @@ type Sugar interface {
 }
 
 func NewConsole(scope string, level Level) Sugar {
+	scope = color.Green.Add(fmt.Sprintf("[%s]", scope))
 	log := configConsoleLogger(scope).Sugar()
 	return createSugard(log, ToLevel(level.String()).Int())
 }
 
 func NewDefaultConsole(level Level) Sugar {
-	log := configConsoleLogger(
-		color.Green.Add(fmt.Sprintf("[%s]", sentinez.Code))).Sugar()
+	log := configConsoleLogger("").Sugar()
 	return createSugard(log, ToLevel(level.String()).Int())
 }
 

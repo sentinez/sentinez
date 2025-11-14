@@ -2,7 +2,10 @@ module github.com/sentinez/sentinez/core
 
 go 1.25.0
 
-replace github.com/sentinez/sentinez/api => ../api
+replace (
+	github.com/sentinez/sentinez/api => ../api
+	github.com/sentinez/sentinez/shared => ../shared
+)
 
 require (
 	github.com/a-h/templ v0.3.960
@@ -11,7 +14,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/sentinez/sentinez/api v0.0.0
-	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.36.5
 )
 
@@ -24,7 +26,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/valllabh/ocsf-schema-golang v1.0.3 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect

@@ -19,8 +19,7 @@ import (
 
 	"github.com/sentinez/sentinez"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/uuidx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
+	sids "github.com/sentinez/sentinez/shared/ids"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
@@ -47,10 +46,10 @@ func Convert(handler corehttp.RequestHandler) http.HandlerFunc {
 	return func(resp http.ResponseWriter, req *http.Request) {
 		rctx := NewContext(req, resp)
 
-		requestId := uuidx.NewNanoID(sentinez.PrefixRequestID)
+		requestId := sids.NewNanoID(sentinez.PrefixRequestID)
 		rctx.req.Header.Set(corehttp.HeaderXRequest, requestId)
 
-		rctx.ctx = httpxcmn.SetRequestTime(rctx.ctx)
+		rctx.ctx = corehttp.SetRequestTime(rctx.ctx)
 
 		if err := handler(rctx); err != nil {
 			http.Error(resp, err.Error(), http.StatusInternalServerError)

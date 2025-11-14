@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func BenchmarkHandler(b *testing.B) {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cryptox
+package crypto
 
 import (
 	"encoding/base64"
@@ -22,7 +22,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
 )

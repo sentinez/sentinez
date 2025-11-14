@@ -72,6 +72,20 @@ setting:
     # botProtection: true              # Enable bot protection
     
     isWafEngineOn: true
+    expression:
+      name: "AND: path, method, ip all match"
+      enabled: true
+      logics:
+      rules:
+        - name: "block login"
+          enabled: true
+          priority: 1
+          condition:
+            source: FIELD_SOURCE_PATH
+            key: "/v1/login"
+            operator: OPERATOR_EQ
+            value: "/v1/login"
+            logic: LOGIC_AND
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

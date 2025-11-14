@@ -20,7 +20,7 @@ import (
 
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Static)(nil)

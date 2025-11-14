@@ -21,10 +21,10 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
-	"github.com/sentinez/sentinez/pkg/common/contextx"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
+	"github.com/sentinez/sentinez/pkg/common/headers"
 	"github.com/sentinez/sentinez/pkg/security/perms"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var _ iampb.
@@ -98,7 +98,7 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := contextx.GetAuth(ctx, iam.service.Config())
+	ss, err := headers.GetAuth(ctx, iam.service.Config())
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +230,7 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 		return nil, err
 	}
 
-	ss, _ := contextx.GetAuth(ctx, iam.service.Config())
+	ss, _ := headers.GetAuth(ctx, iam.service.Config())
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",

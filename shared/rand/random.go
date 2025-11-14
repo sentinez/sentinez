@@ -12,14 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tlsx
+package rand
 
 import (
-	"crypto/tls"
-
-	"github.com/exaring/ja4plus"
+	"crypto/rand"
+	"math/big"
 )
 
-func JA4(hello *tls.ClientHelloInfo) string {
-	return ja4plus.JA4(hello)
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func RandomString(n int) (string, error) {
+	result := make([]byte, n)
+	charsetLen := int64(len(charset))
+	for i := range n {
+		idxBig, err := rand.Int(rand.Reader, big.NewInt(charsetLen))
+		if err != nil {
+			return "", err
+		}
+		result[i] = charset[idxBig.Int64()]
+	}
+	return string(result), nil
 }

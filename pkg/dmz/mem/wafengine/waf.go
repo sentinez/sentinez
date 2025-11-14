@@ -21,9 +21,8 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 	corers "github.com/sentinez/sentinez/core/rulesets"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	ssync "github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -34,7 +33,7 @@ var (
 func New() *WAFCache {
 	once.Do(func() {
 		wafInst = &WAFCache{
-			space: syncx.NewMap[string, coraza.WAF](),
+			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
 
@@ -50,7 +49,7 @@ type WAFCache struct {
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	space *syncx.Map[string, coraza.WAF]
+	space *ssync.Map[string, coraza.WAF]
 }
 
 func (w *WAFCache) Store(conf *confpb.Config, namespace string,
@@ -91,7 +90,7 @@ func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
 		return nil
 	}
 
-	hCtx, ok := httpxcmn.GetRequestContext(ctx)
+	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok {
 		return nil
 	}

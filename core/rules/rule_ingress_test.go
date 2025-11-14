@@ -240,7 +240,7 @@ func TestChain(t *testing.T) {
 		},
 	}
 
-	ruleChain := &ruleenginepb.Chain{
+	ruleChain := &ruleenginepb.Expr{
 		Enabled: true,
 		Rules:   []*ruleenginepb.Rule{rulePath, ruleQuery, ruleClientIP, ruleClientIP},
 		Logics:  []ruleenginepb.Logic{ruleenginepb.Logic_LOGIC_AND, ruleenginepb.Logic_LOGIC_AND, ruleenginepb.Logic_LOGIC_AND},
@@ -384,7 +384,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			chain := &ruleenginepb.Chain{
+			chain := &ruleenginepb.Expr{
 				Id:      uuid.New().String(),
 				Enabled: true,
 				Rules:   tt.rules,

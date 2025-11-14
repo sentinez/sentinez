@@ -17,7 +17,7 @@ package httpxdmz
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -28,13 +28,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
 
-	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/internal/shared/figure"
-	"github.com/sentinez/sentinez/pkg/common/tlsx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	tlsx "github.com/sentinez/sentinez/shared/tls"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -43,17 +39,14 @@ var (
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer(meta *common.XMeta) corehttp.Server {
-	return &XServer{
-		meta: meta,
-	}
+func NewServer() corehttp.Server {
+	return &XServer{}
 }
 
 // XServer implements the Server interface.
 type XServer struct {
 	chains  []func(corehttp.RequestHandler) corehttp.RequestHandler
 	handler app.HandlerFunc
-	meta    *common.XMeta
 	core    *server.Hertz
 }
 
@@ -73,13 +66,15 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 
 		if err := fn(inCtx); err != nil {
 			zlog.Errorf("[httpxdmz]: internal err=%v", err)
-			_ = httpxcmn.InternalServerError(inCtx)
+			_ = inCtx.String(
+				http.StatusInternalServerError, "Internal server error")
 		}
 
 		inCtx.Release()
 	}
 
-	s.handler = WrapHandler(handler)
+	// s.handler = WrapHandler(handler)
+	s.handler = handler
 }
 
 // Shutdown implements platform.Server.
@@ -145,18 +140,14 @@ func (s *XServer) initialize(addr string, certFile, keyFile string) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.handler)
-	s.core.Name = sentinez.Name
+	// s.core.Name = sentinez.Name
 
 	return nil
 }
 
 // ListenAndServe implements platform.Server.
 func (s *XServer) ListenAndServe(addr string) error {
-	if s.meta != nil {
-		figure.INFO(s.meta.GetServiceName(),
-			s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
-	}
-
+	zlog.Infof("running on http %s", addr)
 	if err := s.initialize(addr, "", ""); err != nil {
 		return err
 	}
@@ -165,11 +156,7 @@ func (s *XServer) ListenAndServe(addr string) error {
 }
 
 func (s *XServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
-	if s.meta != nil {
-		figure.INFO(s.meta.GetServiceName(),
-			s.meta.GetServiceKey(), fmt.Sprintf("running on https %s", addr))
-	}
-
+	zlog.Infof("running on https %s", addr)
 	if err := s.initialize(addr, certFile, keyFile); err != nil {
 		return err
 	}

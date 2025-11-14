@@ -17,6 +17,7 @@ syntax = "proto3";
 package sentinez.edge.v1;
 
 import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/rule/engine/v1/ruleengine.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
@@ -53,6 +54,10 @@ message OriginRoute {
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
+  sentinez.types.rule.engine.v1.ExprLite expression = 2; // @gotags: yaml:"expression"
+
+  sentinez.types.rule.engine.v1.Rule rule = 3; // @gotags: yaml:"rule"
+  sentinez.types.rule.engine.v1.Expr expr = 4; // @gotags: yaml:"expr"
 }
 
 // TrafficControl for systems using a virtual waiting room or throttling:

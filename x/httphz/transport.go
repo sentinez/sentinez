@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,25 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package randx
+package httpxdmz
 
 import (
-	"crypto/rand"
-	"math/big"
+	"context"
+
+	"github.com/cloudwego/hertz/pkg/network"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyz" +
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+type TransporterKey string
 
-func RandomString(n int) (string, error) {
-	result := make([]byte, n)
-	charsetLen := int64(len(charset))
-	for i := 0; i < n; i++ {
-		idxBig, err := rand.Int(rand.Reader, big.NewInt(charsetLen))
-		if err != nil {
-			return "", err
-		}
-		result[i] = charset[idxBig.Int64()]
-	}
-	return string(result), nil
+const TransCtxKey TransporterKey = "trans_ctx_key"
+
+type Transporter struct {
+	network.Transporter
+}
+
+func (t *Transporter) ListenAndServe(onData network.OnData) error {
+	return t.Transporter.ListenAndServe(
+		func(ctx context.Context, conn any) error {
+			// if tlsConn, ok := conn.(*standard.TLSConn); ok {
+			// 	state := tlsConn.ConnectionState()
+			// }
+
+			return onData(ctx, conn)
+		},
+	)
 }

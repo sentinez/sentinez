@@ -23,20 +23,20 @@ import (
 	"strings"
 
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func NewReverseProxy() (*ReverseProxy, error) {
 	return &ReverseProxy{
-		pool: syncx.NewPool[httputil.ReverseProxy](),
+		pool: sync.NewPool[httputil.ReverseProxy](),
 	}, nil
 }
 
 type ReverseProxy struct {
-	pool *syncx.Pool[httputil.ReverseProxy]
+	pool *sync.Pool[httputil.ReverseProxy]
 }
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
