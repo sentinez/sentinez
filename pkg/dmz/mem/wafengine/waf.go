@@ -21,7 +21,7 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 	corers "github.com/sentinez/sentinez/core/rulesets"
-	cmnsync "github.com/sentinez/sentinez/shared/sync"
+	ssync "github.com/sentinez/sentinez/shared/sync"
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
@@ -33,7 +33,7 @@ var (
 func New() *WAFCache {
 	once.Do(func() {
 		wafInst = &WAFCache{
-			space: cmnsync.NewMap[string, coraza.WAF](),
+			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
 
@@ -49,7 +49,7 @@ type WAFCache struct {
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	space *cmnsync.Map[string, coraza.WAF]
+	space *ssync.Map[string, coraza.WAF]
 }
 
 func (w *WAFCache) Store(conf *confpb.Config, namespace string,

@@ -23,7 +23,7 @@ import (
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	cmnsync "github.com/sentinez/sentinez/shared/sync"
+	ssync "github.com/sentinez/sentinez/shared/sync"
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
@@ -35,8 +35,8 @@ var (
 func NewRouter() *Router {
 	once.Do(func() {
 		inst = &Router{
-			dynamic: cmnsync.NewMap[string, string](),
-			rewrite: cmnsync.NewMap[string, string](),
+			dynamic: ssync.NewMap[string, string](),
+			rewrite: ssync.NewMap[string, string](),
 		}
 	})
 
@@ -48,8 +48,8 @@ func GetRouter() *Router {
 }
 
 type Router struct {
-	dynamic *cmnsync.Map[string, string]
-	rewrite *cmnsync.Map[string, string]
+	dynamic *ssync.Map[string, string]
+	rewrite *ssync.Map[string, string]
 }
 
 func key(ns, prefix string) string {

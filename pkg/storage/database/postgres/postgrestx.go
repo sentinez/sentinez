@@ -21,14 +21,14 @@ import (
 	"github.com/jackc/pgx/v5"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/storage/database"
-	cmnsync "github.com/sentinez/sentinez/shared/sync"
+	ssync "github.com/sentinez/sentinez/shared/sync"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
 	_        database.TxSession = (*TxSession)(nil)
 	onceTxSS sync.Once
-	txSSPool *cmnsync.Pool[TxSession]
+	txSSPool *ssync.Pool[TxSession]
 )
 
 func NewTX(conf *confpb.Config) *Tx {
@@ -57,7 +57,7 @@ func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
 	}
 
 	onceTxSS.Do(func() {
-		txSSPool = cmnsync.NewPool[TxSession]()
+		txSSPool = ssync.NewPool[TxSession]()
 	})
 
 	txSS := txSSPool.Get()
