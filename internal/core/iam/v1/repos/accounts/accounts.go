@@ -22,10 +22,10 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
-	"github.com/sentinez/sentinez/pkg/common/uuidx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
+	sids "github.com/sentinez/sentinez/shared/ids"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -174,7 +174,7 @@ func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
 	now := timestamppb.Now()
-	account.Id = uuidx.NewID(table.NewPrimaryKey(tables.Accounts))
+	account.Id = sids.NewID(table.NewPrimaryKey(tables.Accounts))
 	account.Metadata = &modelpb.Metadata{
 		CreatedAt:       now,
 		UpdatedAt:       now,

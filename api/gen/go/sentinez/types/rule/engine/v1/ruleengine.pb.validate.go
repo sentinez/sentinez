@@ -329,9 +329,9 @@ var _ interface {
 	ErrorName() string
 } = RuleValidationError{}
 
-// Validate checks the field values on Chain with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Chain) Validate() error {
+// Validate checks the field values on Expr with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *Expr) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -349,7 +349,7 @@ func (m *Chain) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ChainValidationError{
+				return ExprValidationError{
 					field:  fmt.Sprintf("Rules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -362,9 +362,9 @@ func (m *Chain) Validate() error {
 	return nil
 }
 
-// ChainValidationError is the validation error returned by Chain.Validate if
-// the designated constraints aren't met.
-type ChainValidationError struct {
+// ExprValidationError is the validation error returned by Expr.Validate if the
+// designated constraints aren't met.
+type ExprValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -372,22 +372,22 @@ type ChainValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChainValidationError) Field() string { return e.field }
+func (e ExprValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChainValidationError) Reason() string { return e.reason }
+func (e ExprValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChainValidationError) Cause() error { return e.cause }
+func (e ExprValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChainValidationError) Key() bool { return e.key }
+func (e ExprValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChainValidationError) ErrorName() string { return "ChainValidationError" }
+func (e ExprValidationError) ErrorName() string { return "ExprValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ChainValidationError) Error() string {
+func (e ExprValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -399,14 +399,14 @@ func (e ChainValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChain.%s: %s%s",
+		"invalid %sExpr.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChainValidationError{}
+var _ error = ExprValidationError{}
 
 var _ interface {
 	Field() string
@@ -414,4 +414,261 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChainValidationError{}
+} = ExprValidationError{}
+
+// Validate checks the field values on ExprLite with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *ExprLite) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Enabled
+
+	for idx, item := range m.GetRules() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ExprLiteValidationError{
+					field:  fmt.Sprintf("Rules[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ExprLiteValidationError is the validation error returned by
+// ExprLite.Validate if the designated constraints aren't met.
+type ExprLiteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ExprLiteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ExprLiteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ExprLiteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ExprLiteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ExprLiteValidationError) ErrorName() string { return "ExprLiteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ExprLiteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sExprLite.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ExprLiteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ExprLiteValidationError{}
+
+// Validate checks the field values on RuleLite with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RuleLite) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	if v, ok := interface{}(m.GetCondition()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleLiteValidationError{
+				field:  "Condition",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Priority
+
+	// no validation rules for Enabled
+
+	return nil
+}
+
+// RuleLiteValidationError is the validation error returned by
+// RuleLite.Validate if the designated constraints aren't met.
+type RuleLiteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RuleLiteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RuleLiteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RuleLiteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RuleLiteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RuleLiteValidationError) ErrorName() string { return "RuleLiteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RuleLiteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRuleLite.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RuleLiteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RuleLiteValidationError{}
+
+// Validate checks the field values on ConditionLite with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *ConditionLite) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Source
+
+	// no validation rules for Key
+
+	// no validation rules for Operator
+
+	// no validation rules for Value
+
+	for idx, item := range m.GetChildren() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ConditionLiteValidationError{
+					field:  fmt.Sprintf("Children[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Logic
+
+	return nil
+}
+
+// ConditionLiteValidationError is the validation error returned by
+// ConditionLite.Validate if the designated constraints aren't met.
+type ConditionLiteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConditionLiteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConditionLiteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConditionLiteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConditionLiteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConditionLiteValidationError) ErrorName() string { return "ConditionLiteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ConditionLiteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConditionLite.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConditionLiteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConditionLiteValidationError{}

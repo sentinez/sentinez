@@ -26,11 +26,11 @@ var _ Rules = (*ingress)(nil)
 
 type Rules interface {
 	Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool
-	EvalExpr(ctx corehttp.RequestContext, rule *rulepb.Chain) bool
+	EvalExpr(ctx corehttp.RequestContext, rule *rulepb.Expr) bool
 }
 
 type exprs struct {
-	chain *rulepb.Chain
+	chain *rulepb.Expr
 }
 
 // Example context:
@@ -144,14 +144,14 @@ func (in *ingress) Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
 
 // EvalExpr a list of rule
 func (in *ingress) EvalExpr(
-	ctx corehttp.RequestContext, chain *rulepb.Chain) bool {
+	ctx corehttp.RequestContext, chain *rulepb.Expr) bool {
 
 	if !chain.GetEnabled() {
 		return false
 	}
 
 	rules := chain.GetRules()
-	if len(rules) == 0 {
+	if len(rules) == 1 {
 		return in.Eval(ctx, chain.GetRules()[0])
 	}
 

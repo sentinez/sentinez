@@ -28,7 +28,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func NewWAF(logLevel zlog.Level) *WAF {

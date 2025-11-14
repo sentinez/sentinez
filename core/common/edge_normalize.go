@@ -12,26 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxdmz
+package corecmn
 
 import (
-	"context"
-
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/sentinez/sentinez"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/uuidx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 )
 
-func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
-	return func(ctx context.Context, c *app.RequestContext) {
+func NormalizeEdgeSetting(edge *edgepb.Setting) {
+	normalizeEdgeSecurity(edge.GetSecurity())
+}
 
-		requestId := uuidx.NewNanoID(sentinez.PrefixRequestID)
-		c.Request.Header.Set(corehttp.HeaderXRequest, requestId)
-
-		ctx = httpxcmn.SetRequestTime(ctx)
-
-		next(ctx, c)
+func normalizeEdgeSecurity(edgesec *edgepb.Security) {
+	expr := edgesec.GetExpression()
+	if expr == nil {
+		return
 	}
+
+	edgesec.Expr = &ruleenginepb.Expr{}
 }

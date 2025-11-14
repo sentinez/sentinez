@@ -1,11 +1,12 @@
 package proxydmz
 
 import (
+	"net/http"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/reverseproxy"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func NewWSReverseProxy() (*WSReverseProxy, error) {
@@ -26,8 +27,11 @@ func (p *WSReverseProxy) Serve(ctx corehttp.Context, target string) {
 
 	rctx, ok := ctx.Unwrap().(*app.RequestContext)
 	if !ok {
-		_ = httpxcmn.InternalServerError(ctx)
+		_ = ctx.String(
+			http.StatusInternalServerError, "Internal server error")
+
 		zlog.Fatal("request context not supported")
+
 		return
 	}
 

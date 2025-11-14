@@ -24,6 +24,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/runner"
+	"github.com/sentinez/sentinez/shared/zlog"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -58,6 +59,8 @@ func main() {
 			httpSrv    = stdhttpx.NewServer(conf.GetMeta())
 			edgeServer = edge.New(httpSrv, setting)
 		)
+
+		zlog.Debugf("setting: %v", setting)
 
 		app.OnStart(edgeServer.Start)
 		app.OnStop(edgeServer.Shutdown)

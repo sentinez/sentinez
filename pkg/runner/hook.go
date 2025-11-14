@@ -18,18 +18,20 @@ package runner
 import (
 	"context"
 
+	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/runner/internal"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 	"go.uber.org/fx"
 	"google.golang.org/grpc/grpclog"
 )
 
 func NewApp(appConf *confpb.Config) *App {
-	logging := zlog.NewDefaultConsole(zlog.LevelError)
+	logging := zlog.NewConsole(sentinez.Code, zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
-	zlog.SetLogLevel(appConf.GetFlag().GetLogLevel())
+
+	zlog.SetScopeLogLevel(sentinez.Code, appConf.GetFlag().GetLogLevel())
 
 	if appConf.GetFlag().GetEnvMode() != "dev" {
 		internal.AppendOption(fx.NopLogger)

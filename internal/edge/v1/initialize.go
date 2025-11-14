@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 	"github.com/sentinez/sentinez/pkg/dmz/mem"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {

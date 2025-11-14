@@ -21,7 +21,7 @@ import (
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Domain)(nil)
@@ -46,14 +46,14 @@ func (d *Domain) Handle(ctx corehttp.Context) error {
 		return httpxcmn.Forbidden(ctx)
 	}
 
-	ctxValue, ok := httpxcmn.GetRequestContext(ctx)
+	ctxValue, ok := corehttp.GetRequestContext(ctx)
 	if !ok {
 		ctxValue = &edgepb.Context{}
 	}
 
 	ctxValue.TenantNs = ns
 
-	ctx = httpxcmn.SetRequestContext(ctx, ctxValue)
+	ctx = corehttp.SetRequestContext(ctx, ctxValue)
 
 	return d.HandleNext(ctx)
 }

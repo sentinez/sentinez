@@ -20,8 +20,9 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	corecmn "github.com/sentinez/sentinez/core/common"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 //
@@ -49,6 +50,9 @@ import (
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
 func New(server corehttp.Server, setting *edgepb.Setting) *Server {
+
+	corecmn.NormalizeEdgeSetting(setting)
+
 	return &Server{
 		core:    server,
 		setting: setting,

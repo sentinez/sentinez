@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/pkg/common/flagx"
 
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"

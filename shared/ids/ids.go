@@ -12,38 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package syncx
+package sids
 
-import "sync"
+import (
+	"fmt"
 
-func NewPool[T any]() *Pool[T] {
-	return &Pool[T]{
-		pool: &sync.Pool{
-			New: func() any {
-				return new(T)
-			},
-		},
-	}
+	"github.com/google/uuid"
+	gonanoid "github.com/matoous/go-nanoid/v2"
+)
+
+// NewID generates a new UUID and returns it as a string.
+func NewID(prefix string) string {
+	id := uuid.New()
+	return fmt.Sprintf("%s%s", prefix, id.String())
 }
 
-func NewPoolCtr[T any](fn func() *T) *Pool[T] {
-	return &Pool[T]{
-		pool: &sync.Pool{
-			New: func() any {
-				return fn()
-			},
-		},
-	}
-}
-
-type Pool[T any] struct {
-	pool *sync.Pool
-}
-
-func (p *Pool[T]) Get() *T {
-	return p.pool.Get().(*T)
-}
-
-func (p *Pool[T]) Put(t *T) {
-	p.pool.Put(t)
+func NewNanoID(prefix string) string {
+	id, _ := gonanoid.New()
+	return fmt.Sprintf("%s%s", prefix, id)
 }

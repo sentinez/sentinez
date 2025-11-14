@@ -44,3 +44,5 @@ protoc \
   --go-vtproto_opt=features=marshal+unmarshal+size \
   --go-senz-msg_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto || exit 1
+
+protoc-go-inject-tag -input="$SENTINEZ_GEN_OUT"/github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1/*.pb.go

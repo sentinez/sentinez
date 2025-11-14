@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func Initialized(st *edgepb.Setting, appConf *confpb.Config) {

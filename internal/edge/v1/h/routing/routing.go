@@ -20,45 +20,42 @@ import (
 
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
-	proxydmz "github.com/sentinez/sentinez/pkg/network/httpx/dmz/proxy"
-	"github.com/sentinez/sentinez/pkg/zlog"
 )
 
-var _ chains.Handler = (*Router)(nil)
+// var _ chains.Handler = (*Router)(nil)
 
-func NewRouter() *Router {
-	reverseProxy, err := proxydmz.NewReverseProxy()
-	if err != nil {
-		zlog.Errorf("failed to create proxy instance: %v", err)
-	}
+// func NewRouter() *Router {
+// 	reverseProxy, err := proxydmz.NewReverseProxy()
+// 	if err != nil {
+// 		zlog.Errorf("failed to create proxy instance: %v", err)
+// 	}
 
-	wsReverseProxy, _ := proxydmz.NewWSReverseProxy()
+// 	wsReverseProxy, _ := proxydmz.NewWSReverseProxy()
 
-	return &Router{
-		BaseHandler: chains.New(),
-		httpHandler: routes.GetRouter().SetReverseProxy(reverseProxy),
-		wsHandler:   routes.GetRouter().SetReverseProxy(wsReverseProxy),
-	}
-}
+// 	return &Router{
+// 		BaseHandler: chains.New(),
+// 		httpHandler: routes.GetRouter().SetReverseProxy(reverseProxy),
+// 		wsHandler:   routes.GetRouter().SetReverseProxy(wsReverseProxy),
+// 	}
+// }
 
-type Router struct {
-	*chains.BaseHandler
-	httpHandler func(ctx corehttp.Context) error
-	wsHandler   func(ctx corehttp.Context) error
-}
+// type Router struct {
+// 	*chains.BaseHandler
+// 	httpHandler func(ctx corehttp.Context) error
+// 	wsHandler   func(ctx corehttp.Context) error
+// }
 
-func (r *Router) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit router", ctx.RequestId())
+// func (r *Router) Handle(ctx corehttp.Context) error {
+// 	zlog.Debugf("[edge][%s] >>> visit router", ctx.RequestId())
 
-	upgrade := ctx.Header(corehttp.HeaderUpgrade)
-	if upgrade == "websocket" || upgrade == "WebSocket" {
-		zlog.Debugf("[edge][websocket] upgrade connection !!!")
-		return r.wsHandler(ctx)
-	}
+// 	upgrade := ctx.Header(corehttp.HeaderUpgrade)
+// 	if upgrade == "websocket" || upgrade == "WebSocket" {
+// 		zlog.Debugf("[edge][websocket] upgrade connection !!!")
+// 		return r.wsHandler(ctx)
+// 	}
 
-	return r.httpHandler(ctx)
-}
+// 	return r.httpHandler(ctx)
+// }
 
 func NewMockRouter() *Mock {
 	return &Mock{

@@ -19,7 +19,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
+	cmnsync "github.com/sentinez/sentinez/shared/sync"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 func New() *Setting {
 	once.Do(func() {
 		inst = &Setting{
-			setting: syncx.NewMap[string, *edgepb.Setting](),
+			setting: cmnsync.NewMap[string, *edgepb.Setting](),
 		}
 	})
 
@@ -42,7 +42,7 @@ func Get() *Setting {
 }
 
 type Setting struct {
-	setting *syncx.Map[string, *edgepb.Setting]
+	setting *cmnsync.Map[string, *edgepb.Setting]
 }
 
 func (s *Setting) Store(st *edgepb.Setting) error {

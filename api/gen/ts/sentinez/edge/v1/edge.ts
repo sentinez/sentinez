@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Expr, ExprLite, Rule } from "../../types/rule/engine/v1/ruleengine";
 
 export const protobufPackage = "sentinez.edge.v1";
 
@@ -56,6 +57,16 @@ export interface OriginRoute {
 export interface Security {
   /** @gotags: yaml:"isWafEngineOn" */
   isWafEngineOn: boolean;
+  /** @gotags: yaml:"expression" */
+  expression?:
+    | ExprLite
+    | undefined;
+  /** @gotags: yaml:"rule" */
+  rule?:
+    | Rule
+    | undefined;
+  /** @gotags: yaml:"expr" */
+  expr?: Expr | undefined;
 }
 
 /** TrafficControl for systems using a virtual waiting room or throttling: */
@@ -429,13 +440,22 @@ export const OriginRoute: MessageFns<OriginRoute> = {
 };
 
 function createBaseSecurity(): Security {
-  return { isWafEngineOn: false };
+  return { isWafEngineOn: false, expression: undefined, rule: undefined, expr: undefined };
 }
 
 export const Security: MessageFns<Security> = {
   encode(message: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.isWafEngineOn !== false) {
       writer.uint32(8).bool(message.isWafEngineOn);
+    }
+    if (message.expression !== undefined) {
+      ExprLite.encode(message.expression, writer.uint32(18).fork()).join();
+    }
+    if (message.rule !== undefined) {
+      Rule.encode(message.rule, writer.uint32(26).fork()).join();
+    }
+    if (message.expr !== undefined) {
+      Expr.encode(message.expr, writer.uint32(34).fork()).join();
     }
     return writer;
   },
@@ -455,6 +475,30 @@ export const Security: MessageFns<Security> = {
           message.isWafEngineOn = reader.bool();
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.expression = ExprLite.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.rule = Rule.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.expr = Expr.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -465,13 +509,27 @@ export const Security: MessageFns<Security> = {
   },
 
   fromJSON(object: any): Security {
-    return { isWafEngineOn: isSet(object.isWafEngineOn) ? globalThis.Boolean(object.isWafEngineOn) : false };
+    return {
+      isWafEngineOn: isSet(object.isWafEngineOn) ? globalThis.Boolean(object.isWafEngineOn) : false,
+      expression: isSet(object.expression) ? ExprLite.fromJSON(object.expression) : undefined,
+      rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined,
+      expr: isSet(object.expr) ? Expr.fromJSON(object.expr) : undefined,
+    };
   },
 
   toJSON(message: Security): unknown {
     const obj: any = {};
     if (message.isWafEngineOn !== false) {
       obj.isWafEngineOn = message.isWafEngineOn;
+    }
+    if (message.expression !== undefined) {
+      obj.expression = ExprLite.toJSON(message.expression);
+    }
+    if (message.rule !== undefined) {
+      obj.rule = Rule.toJSON(message.rule);
+    }
+    if (message.expr !== undefined) {
+      obj.expr = Expr.toJSON(message.expr);
     }
     return obj;
   },
@@ -482,6 +540,11 @@ export const Security: MessageFns<Security> = {
   fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
     message.isWafEngineOn = object.isWafEngineOn ?? false;
+    message.expression = (object.expression !== undefined && object.expression !== null)
+      ? ExprLite.fromPartial(object.expression)
+      : undefined;
+    message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
+    message.expr = (object.expr !== undefined && object.expr !== null) ? Expr.fromPartial(object.expr) : undefined;
     return message;
   },
 };

@@ -15,11 +15,11 @@
 package proxydmz
 
 import (
+	"fmt"
 	"strings"
 
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
+	"github.com/sentinez/sentinez/shared/sync"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
@@ -50,7 +50,7 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		client.WithDialTimeout(option.timeout),
 	)
 	if err != nil {
-		return nil, errorx.F("httpxdmz: new reverse proxy failed: %v", err)
+		return nil, fmt.Errorf("httpxdmz: new reverse proxy failed: %v", err)
 	}
 
 	plainClient, err := client.NewClient(
@@ -59,14 +59,14 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		client.WithDialTimeout(option.timeout),
 	)
 	if err != nil {
-		return nil, errorx.F("httpxdmz: new reverse proxy failed: %v", err)
+		return nil, fmt.Errorf("httpxdmz: new reverse proxy failed: %v", err)
 	}
 
 	proxy := &ReverseProxy{
 		tlsClient:   tlsClient,
 		plainClient: plainClient,
 
-		rPrxPool: syncx.NewPool[reverseproxy.ReverseProxy](),
+		rPrxPool: sync.NewPool[reverseproxy.ReverseProxy](),
 	}
 
 	return proxy, nil
@@ -76,7 +76,7 @@ type ReverseProxy struct {
 	tlsClient   *client.Client
 	plainClient *client.Client
 
-	rPrxPool *syncx.Pool[reverseproxy.ReverseProxy]
+	rPrxPool *sync.Pool[reverseproxy.ReverseProxy]
 }
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {

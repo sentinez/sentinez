@@ -26,7 +26,7 @@ import (
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
-	"github.com/sentinez/sentinez/pkg/common/cryptox"
+	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +40,7 @@ func TestLogin(t *testing.T) {
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
 
-	pw, _ := cryptox.HashPassword("secret123")
+	pw, _ := crypto.HashPassword("secret123")
 	acc := &accrepos.AccountX{
 		Account: &iam.Account{
 			Id:       "acc-123",
@@ -86,7 +86,7 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, resp.AccessToken)
 
 	// check permission chứa ROOT
-	tokenCtx, ok := cryptox.BearerTokenVerifier(
+	tokenCtx, ok := crypto.BearerTokenVerifier(
 		conf.Env, resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))

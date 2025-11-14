@@ -20,19 +20,19 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/sentinez/shared/sync"
 )
 
 func NewServer(meta *common.XMeta) *WebSocket {
 	return &WebSocket{
-		routers: syncx.Map[string, func(corehttp.Context) error]{},
+		routers: sync.Map[string, func(corehttp.Context) error]{},
 		meta:    meta,
 	}
 }
 
 type WebSocket struct {
-	routers syncx.Map[string, func(corehttp.Context) error]
+	routers sync.Map[string, func(corehttp.Context) error]
 	meta    *common.XMeta
 }
 

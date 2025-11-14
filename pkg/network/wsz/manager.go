@@ -16,18 +16,18 @@ package wsz
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func NewManager() *Manager {
 	return &Manager{
-		clients: syncx.NewMap[string, *websocket.Conn](),
+		clients: sync.NewMap[string, *websocket.Conn](),
 	}
 }
 
 type Manager struct {
-	clients *syncx.Map[string, *websocket.Conn]
+	clients *sync.Map[string, *websocket.Conn]
 }
 
 func (m *Manager) AddClient(id string, conn *websocket.Conn) {

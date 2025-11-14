@@ -22,9 +22,9 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	cmnsync "github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -35,8 +35,8 @@ var (
 func NewRouter() *Router {
 	once.Do(func() {
 		inst = &Router{
-			dynamic: syncx.NewMap[string, string](),
-			rewrite: syncx.NewMap[string, string](),
+			dynamic: cmnsync.NewMap[string, string](),
+			rewrite: cmnsync.NewMap[string, string](),
 		}
 	})
 
@@ -48,8 +48,8 @@ func GetRouter() *Router {
 }
 
 type Router struct {
-	dynamic *syncx.Map[string, string]
-	rewrite *syncx.Map[string, string]
+	dynamic *cmnsync.Map[string, string]
+	rewrite *cmnsync.Map[string, string]
 }
 
 func key(ns, prefix string) string {
@@ -110,7 +110,7 @@ func (r *Router) SetReverseProxy(
 }
 
 func (r *Router) match(ctx corehttp.Context) (string, error) {
-	hCtx, ok := httpxcmn.GetRequestContext(ctx)
+	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
 		return "", errorx.F("unknown namespace of request")
 	}

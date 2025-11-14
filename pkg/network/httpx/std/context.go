@@ -32,8 +32,8 @@ import (
 	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/common/syncx"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	cmnsync "github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -42,7 +42,7 @@ var (
 
 var (
 	oncePool sync.Once
-	ctxPool  *syncx.Pool[Context]
+	ctxPool  *cmnsync.Pool[Context]
 )
 
 var upgrade = websocket.Upgrader{
@@ -54,7 +54,7 @@ var upgrade = websocket.Upgrader{
 
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	oncePool.Do(func() {
-		ctxPool = syncx.NewPool[Context]()
+		ctxPool = cmnsync.NewPool[Context]()
 	})
 
 	httpCtx := ctxPool.Get()
@@ -333,7 +333,7 @@ func (c *Context) Context() context.Context {
 }
 
 func (c *Context) RequestTime() time.Time {
-	return time.Now().UTC()
+	return corehttp.GetRequestTime(c.ctx)
 }
 
 func (c *Context) Method() string {

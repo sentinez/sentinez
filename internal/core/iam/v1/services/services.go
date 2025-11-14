@@ -30,14 +30,14 @@ import (
 	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	"github.com/sentinez/sentinez/pkg/common/cryptox"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
-	"github.com/sentinez/sentinez/pkg/common/randx"
+	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/rand"
+	"github.com/sentinez/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -129,7 +129,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	if acc.GetUsername() == "admin" {
 		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnv(),
+	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
@@ -279,7 +279,7 @@ func (srv *IAMService) getOrCreateAccount(
 			createReq.Email = usernameOrEmail
 		}
 
-		createReq.Password, _ = randx.RandomString(5)
+		createReq.Password, _ = rand.RandomString(5)
 
 		createResp, err := srv.CreateAccount(ctx, createReq)
 		if err != nil {
@@ -369,7 +369,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 
 func (srv *IAMService) createAccount(ctx context.Context,
 	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
-	pw, err := cryptox.HashPassword(req.GetPassword())
+	pw, err := crypto.HashPassword(req.GetPassword())
 	if err != nil {
 		return "", err
 	}
@@ -429,7 +429,7 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	if !cryptox.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
+	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
 		return nil,
 			errorx.StatusUnauthorizedF("username, email or password is wrong!")
 	}
@@ -443,7 +443,7 @@ func (srv *IAMService) Login(ctx context.Context,
 	if acc.GetUsername() == "admin" {
 		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := cryptox.TokenGenerator(srv.config.GetEnv(),
+	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
 		&common.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),

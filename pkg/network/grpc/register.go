@@ -23,8 +23,8 @@ import (
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/pkg/common/cron"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/cron"
+	"github.com/sentinez/sentinez/shared/zlog"
 	"github.com/sony/gobreaker"
 )
 

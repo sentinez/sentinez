@@ -21,7 +21,7 @@ import (
 	corehttp "github.com/sentinez/sentinez/core/http"
 	realtimemnt "github.com/sentinez/sentinez/internal/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/zlog"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func Handler(ctx corehttp.Context) error {
