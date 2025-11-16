@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
-func NewRule(ll zlog.Level) *Rule {
+func NewRule(ll zlog.Level) chains.Handler {
 	return &Rule{
 		BaseHandler: chains.New(),
 		ingress:     corerules.NewIngress(),

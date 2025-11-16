@@ -31,7 +31,7 @@ import (
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
-func NewWAF(logLevel zlog.Level) *WAF {
+func NewWAF(logLevel zlog.Level) chains.Handler {
 	return &WAF{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),

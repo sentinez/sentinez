@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
-func NewStandardRouter() *StandardRouter {
+func NewStandardRouter() chains.Handler {
 	reverseProxy, err := stdproxy.NewReverseProxy()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)

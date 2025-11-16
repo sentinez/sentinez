@@ -21,29 +21,41 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem"
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {
-	// init cache repository
-	mem.Initialized(s.setting, appConf)
-
 	var (
 		hostname = appConf.GetEnv().GetHostname()
 		ll       = zlog.LevelInfo
-		begin    = waitingroom.New()
+		curr     chains.Handler
+		income   chains.Handler
 	)
 
-	begin.
-		SetNext(static.NewStatic()).
-		SetNext(logging.NewLogger(ll)).
-		SetNext(secure.NewDomain(hostname)).
-		SetNext(secure.NewRule(ll)).
-		SetNext(secure.NewWAF(ll)).
-		SetNext(routing.NewStandardRouter())
+	// init cache repository
+	mem.Initialized(s.setting, appConf)
 
-	s.core.Handle(begin.Handle)
+	// begin first middleware when request income
+	income = waitingroom.New()
+
+	// current middleware
+	curr = income
+
+	curr = curr.SetNext(static.NewStatic())
+
+	curr = curr.SetNext(logging.NewLogger(ll))
+
+	curr = curr.SetNext(secure.NewDomain(hostname))
+
+	curr = curr.SetNext(secure.NewRule(ll))
+
+	curr = curr.SetNext(secure.NewWAF(ll))
+
+	_ = curr.SetNext(routing.NewStandardRouter())
+
+	s.core.Handle(income.Handle)
 
 	return nil
 }

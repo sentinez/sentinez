@@ -38,7 +38,8 @@ func BenchmarkHandler(b *testing.B) {
 
 	zlog.SetLogLevel(zlog.LevelFatal.String())
 
-	begin.SetNext(static.NewStatic()).
+	begin.
+		SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewWAF(zlog.LevelError)).
@@ -58,7 +59,8 @@ func TestHandleChain(t *testing.T) {
 	ctx := stdhttpx.NewContext(req, w)
 
 	begin := waitingroom.New()
-	begin.SetNext(static.NewStatic()).
+	begin.
+		SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelInfo)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewWAF(zlog.LevelInfo)).

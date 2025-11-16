@@ -26,7 +26,7 @@ import (
 
 var _ chains.Handler = (*Domain)(nil)
 
-func NewDomain(hostname string) *Domain {
+func NewDomain(hostname string) chains.Handler {
 	return &Domain{
 		BaseHandler: chains.New(),
 		hostname:    hostname,

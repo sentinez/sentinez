@@ -25,7 +25,7 @@ import (
 
 var _ chains.Handler = (*Static)(nil)
 
-func NewStatic() *Static {
+func NewStatic() chains.Handler {
 	return &Static{
 		BaseHandler: chains.New(),
 		staticExits: map[string]struct{}{

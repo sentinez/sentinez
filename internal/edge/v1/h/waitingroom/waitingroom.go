@@ -8,7 +8,7 @@ import (
 
 var _ chains.Handler = (*WaitingRoom)(nil)
 
-func New() *WaitingRoom {
+func New() chains.Handler {
 	return &WaitingRoom{
 		BaseHandler: chains.New(),
 	}

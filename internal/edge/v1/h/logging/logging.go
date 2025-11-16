@@ -25,7 +25,7 @@ import (
 
 var _ chains.Handler = (*Logger)(nil)
 
-func NewLogger(logLevel zlog.Level) *Logger {
+func NewLogger(logLevel zlog.Level) chains.Handler {
 	return &Logger{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
