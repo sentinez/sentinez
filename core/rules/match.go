@@ -19,6 +19,7 @@ import (
 
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	chttp "github.com/sentinez/sentinez/core/http"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 const (
@@ -31,7 +32,7 @@ func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := ctx.Path()
 
-	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
+	zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
 	switch cond.GetOperator() {
 	case rulepb.Operator_OPERATOR_EQ:

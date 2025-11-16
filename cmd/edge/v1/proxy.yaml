@@ -77,14 +77,14 @@ setting:
       enabled: true
       logics:
       rules:
-        - name: "block login"
+        - name: "block path"
           enabled: true
           priority: 1
           condition:
             source: FIELD_SOURCE_PATH
-            key: "/v1/login"
+            key: "/block"
             operator: OPERATOR_EQ
-            value: "/v1/login"
+            value: "/block"
             logic: LOGIC_AND
 
   # ----------------------------------------------------------

@@ -136,7 +136,7 @@ message ConditionLite {
   // The value to compare against
   string value = 5; // @gotags: yaml:"value"
   // Nested conditions are supported
-  repeated Condition children = 6; // @gotags: yaml:"children"
+  repeated ConditionLite children = 6; // @gotags: yaml:"children"
   // Logical operator between children: "AND" or "OR"
   string logic = 7; // @gotags: yaml:"logic"
 }

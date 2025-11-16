@@ -2440,7 +2440,7 @@ func (m *ConditionLite) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Children = append(m.Children, &Condition{})
+			m.Children = append(m.Children, &ConditionLite{})
 			if err := m.Children[len(m.Children)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

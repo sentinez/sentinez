@@ -136,7 +136,7 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		Path:          ctx.URI(),
 		Score:         int32(score),
 		Ip:            ctx.ClientIP(),
-		RequestDomain: string(ctx.Host()),
+		RequestDomain: ctx.Host(),
 		TransactionId: ruleset.GetTxId(),
 		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
 		Action:        rulecmn.Action_ACTION_DENY,

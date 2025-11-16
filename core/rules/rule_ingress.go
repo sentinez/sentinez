@@ -20,6 +20,7 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/core/internal/logic"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
@@ -130,6 +131,7 @@ type ingress struct {
 }
 
 func (in *ingress) Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
+	zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
 
 	if !rule.GetEnabled() {
 		return false
@@ -145,6 +147,8 @@ func (in *ingress) Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
 // EvalExpr a list of rule
 func (in *ingress) EvalExpr(
 	ctx corehttp.RequestContext, chain *rulepb.Expr) bool {
+
+	zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
 
 	if !chain.GetEnabled() {
 		return false

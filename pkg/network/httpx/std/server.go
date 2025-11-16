@@ -17,6 +17,7 @@ package stdhttpx
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
@@ -57,11 +58,13 @@ func (s *Server) ListenAndServe(addr string) error {
 		return err
 	}
 
-	figure.INFO(s.meta.GetServiceName(),
-		s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
+	host, port, _ := net.SplitHostPort(addr)
+	figure.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+		fmt.Sprintf("running on http %s:%s", host, port))
 
 	s.core.Addr = addr
 	s.core.Handler = s.mux
+
 	return s.core.ListenAndServe()
 }
 
@@ -70,8 +73,9 @@ func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
 		return err
 	}
 
-	figure.INFO(s.meta.GetServiceName(),
-		s.meta.GetServiceKey(), fmt.Sprintf("running on https %s", addr))
+	host, port, _ := net.SplitHostPort(addr)
+	figure.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+		fmt.Sprintf("running on https %s:%s", host, port))
 
 	s.core.Addr = addr
 	s.core.Handler = s.mux

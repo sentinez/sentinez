@@ -29,14 +29,18 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 	// init cache repository
 	mem.Initialized(s.setting, appConf)
 
-	hostname := appConf.GetEnv().GetHostname()
+	var (
+		hostname = appConf.GetEnv().GetHostname()
+		ll       = zlog.LevelInfo
+		begin    = waitingroom.New()
+	)
 
-	begin := waitingroom.New()
-
-	begin.SetNext(static.NewStatic()).
-		SetNext(logging.NewLogger(zlog.LevelInfo)).
+	begin.
+		SetNext(static.NewStatic()).
+		SetNext(logging.NewLogger(ll)).
 		SetNext(secure.NewDomain(hostname)).
-		SetNext(secure.NewWAF(zlog.LevelInfo)).
+		SetNext(secure.NewRule(ll)).
+		SetNext(secure.NewWAF(ll)).
 		SetNext(routing.NewStandardRouter())
 
 	s.core.Handle(begin.Handle)

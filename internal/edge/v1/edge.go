@@ -39,7 +39,7 @@ import (
 // New initializes and returns a new Edge Server instance.
 //
 // The Edge Server is responsible for handling all external HTTP traffic,
-// using the provided `httpxdmz.Server` as its underlying HTTP layer,
+// using the provided `stdhttp.Server` as its underlying HTTP layer,
 // and a given proxy `setting` configuration to determine routing,
 // security, and behavior policies.
 //
@@ -60,7 +60,7 @@ func New(server corehttp.Server, setting *edgepb.Setting) *Server {
 }
 
 // Server represents the core Edge Server.
-// It wraps an `httpxdmz.Server` for network operations
+// It wraps an `stdhttp.Server` for network operations
 // and holds the runtime proxy configuration.
 //
 // The Server is the main handler of the edge service —
@@ -86,7 +86,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // The method initializes runtime configuration from the application context,
 // prepares TLS if certificates are provided, and delegates
-// the serving process to the underlying `httpxdmz.Server`.
+// the serving process to the underlying `stdhttp.Server`.
 //
 // This method should always be invoked through the `runner` lifecycle manager.
 //

@@ -21,4 +21,5 @@ enum LogKind {
   LOG_KIND_UNSPECIFIED = 0;
   LOG_KIND_HTTP = 1;
   LOG_KIND_WAF = 2;
+  LOG_KIND_RULE = 3;
 }

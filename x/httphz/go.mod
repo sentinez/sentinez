@@ -16,7 +16,7 @@ require (
 	github.com/hertz-contrib/reverseproxy v1.0.6
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/sentinez/core v0.0.0-00010101000000-000000000000
-	github.com/sentinez/sentinez/shared v0.0.0-00010101000000-000000000000
+	github.com/sentinez/sentinez/shared v0.0.0
 )
 
 require (

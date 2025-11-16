@@ -19,6 +19,7 @@ import (
 
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -59,7 +60,7 @@ func (ev *evaluator) Release() {
 }
 
 func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
-	// zlog.Debug("ev: visit binary")
+	zlog.Debugf("ev: visit binary with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {
 

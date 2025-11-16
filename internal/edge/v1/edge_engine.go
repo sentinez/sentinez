@@ -31,9 +31,9 @@ import (
 // allowing other services to connect to edge layer, execute remote functions
 // and interact with its internal processing pipelines.
 //
-// Togeter with the Edge Server (HTTP entrypoint), these components form
+// Together with the Edge Server (HTTP entrypoint), these components form
 // the foundation of the edge platform - responsible for traffic handling,
-// routing, proxing, policy enforcement.
+// routing, proxying, policy enforcement.
 //
 // This package integrates tightly with the `runner` package to ensure
 // controlled startup, graceful shutdown, and consistent lifecycle management

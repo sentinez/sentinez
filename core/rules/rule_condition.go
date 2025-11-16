@@ -18,6 +18,7 @@ import (
 	"sync"
 
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var (
@@ -56,6 +57,7 @@ func (c *conditionX) Release() {
 }
 
 func (c *conditionX) Accept(v Evaluator) bool {
+	zlog.Debugf("[edge] >>> accept: %s", c.GetLogic().String())
 	switch c.GetLogic() {
 	case ruleengpb.Logic_LOGIC_OR:
 		return v.visitLogical(c.Condition)

@@ -411,7 +411,7 @@ export interface ConditionLite {
   /** The value to compare against */
   value: string;
   /** Nested conditions are supported */
-  children: Condition[];
+  children: ConditionLite[];
   /** Logical operator between children: "AND" or "OR" */
   logic: string;
 }
@@ -1303,7 +1303,7 @@ export const ConditionLite: MessageFns<ConditionLite> = {
       writer.uint32(42).string(message.value);
     }
     for (const v of message.children) {
-      Condition.encode(v!, writer.uint32(50).fork()).join();
+      ConditionLite.encode(v!, writer.uint32(50).fork()).join();
     }
     if (message.logic !== "") {
       writer.uint32(58).string(message.logic);
@@ -1355,7 +1355,7 @@ export const ConditionLite: MessageFns<ConditionLite> = {
             break;
           }
 
-          message.children.push(Condition.decode(reader, reader.uint32()));
+          message.children.push(ConditionLite.decode(reader, reader.uint32()));
           continue;
         }
         case 7: {
@@ -1382,7 +1382,7 @@ export const ConditionLite: MessageFns<ConditionLite> = {
       operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
       value: isSet(object.value) ? globalThis.String(object.value) : "",
       children: globalThis.Array.isArray(object?.children)
-        ? object.children.map((e: any) => Condition.fromJSON(e))
+        ? object.children.map((e: any) => ConditionLite.fromJSON(e))
         : [],
       logic: isSet(object.logic) ? globalThis.String(object.logic) : "",
     };
@@ -1403,7 +1403,7 @@ export const ConditionLite: MessageFns<ConditionLite> = {
       obj.value = message.value;
     }
     if (message.children?.length) {
-      obj.children = message.children.map((e) => Condition.toJSON(e));
+      obj.children = message.children.map((e) => ConditionLite.toJSON(e));
     }
     if (message.logic !== "") {
       obj.logic = message.logic;
@@ -1420,7 +1420,7 @@ export const ConditionLite: MessageFns<ConditionLite> = {
     message.key = object.key ?? "";
     message.operator = object.operator ?? "";
     message.value = object.value ?? "";
-    message.children = object.children?.map((e) => Condition.fromPartial(e)) || [];
+    message.children = object.children?.map((e) => ConditionLite.fromPartial(e)) || [];
     message.logic = object.logic ?? "";
     return message;
   },
