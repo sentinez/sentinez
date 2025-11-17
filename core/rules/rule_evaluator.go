@@ -33,8 +33,7 @@ var (
 )
 
 type Evaluator interface {
-	visitBinary(cond *ruleengpb.Condition) bool
-	visitLogical(cond *ruleengpb.Condition) bool
+	visit(cond *ruleengpb.Condition) bool
 
 	Release()
 }
@@ -59,8 +58,8 @@ func (ev *evaluator) Release() {
 	evPool.Put(ev)
 }
 
-func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
-	zlog.Debugf("ev: visit binary with source: %s", cond.GetSource())
+func (ev *evaluator) visit(cond *ruleengpb.Condition) bool {
+	zlog.Debugf("ev: visit with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {
 
@@ -93,42 +92,5 @@ func (ev *evaluator) visitBinary(cond *ruleengpb.Condition) bool {
 
 	default:
 		return bypass
-	}
-}
-
-func (ev *evaluator) visitLogical(cond *ruleengpb.Condition) bool {
-	switch cond.GetLogic() {
-	case ruleengpb.Logic_LOGIC_AND:
-		for _, child := range cond.GetChildren() {
-			childX := newCondition(child)
-
-			if !childX.Accept(ev) {
-				childX.Release()
-
-				return false
-			}
-
-			childX.Release()
-		}
-
-		return true
-
-	case ruleengpb.Logic_LOGIC_OR:
-		for _, child := range cond.Children {
-			childX := newCondition(child)
-
-			if childX.Accept(ev) {
-				childX.Release()
-
-				return true
-			}
-
-			childX.Release()
-		}
-
-		return false
-
-	default:
-		return false
 	}
 }

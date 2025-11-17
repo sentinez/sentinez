@@ -27,8 +27,8 @@ require (
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/core v0.0.0
-	github.com/sentinez/sentinez/shared v0.0.0
+	github.com/sentinez/sentinez/core v0.0.0-00010101000000-000000000000
+	github.com/sentinez/sentinez/shared v0.0.0-00010101000000-000000000000
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1

@@ -43,6 +43,7 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	expr.Id = sids.NewNanoID("senz.expr.")
 	expr.Name = expression.GetName()
 	expr.Enabled = expression.GetEnabled()
+	expr.Threshold = expression.GetThreshold()
 
 	for _, logic := range expression.GetLogics() {
 		expr.Logics = append(expr.Logics, toLogic(logic))
@@ -85,24 +86,13 @@ func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
 		return nil
 	}
 
-	var children []*ruleenginepb.Condition
-	for _, child := range cond.GetChildren() {
-		c := toCondition(child)
-		if c == nil {
-			break
-		}
-
-		children = append(children, c)
-	}
-
 	return &ruleenginepb.Condition{
 		Id:       sids.NewNanoID("senz.cond."),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
-		Logic:    toLogic(cond.GetLogic()),
-		Children: children,
 		Source:   toSource(cond.GetSource()),
+		Score:    cond.GetScore(),
 	}
 }
 

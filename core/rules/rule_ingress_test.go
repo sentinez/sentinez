@@ -69,7 +69,6 @@ func TestRulePath(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("/v1/login"),
 			Key:      "path",
 		},
@@ -95,7 +94,6 @@ func TestRuleQuery(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
 			Operator: ruleenginepb.Operator_OPERATOR_IN,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value: structpb.NewListValue(&structpb.ListValue{
 				Values: []*structpb.Value{
 					structpb.NewStringValue("lang"),
@@ -127,7 +125,6 @@ func TestRuleClientIP(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("203.0.113.42"),
 			Key:      "ip",
 		},
@@ -154,7 +151,6 @@ func TestRuleClientIPRange(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("203.0.113.0/24"),
 			Key:      "ip",
 		},
@@ -181,7 +177,6 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_NE,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("203.1.113.0/24"),
 			Key:      "ip",
 		},
@@ -207,7 +202,6 @@ func TestChain(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("/v1/login"),
 			Key:      "path",
 		},
@@ -218,7 +212,6 @@ func TestChain(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
 			Operator: ruleenginepb.Operator_OPERATOR_IN,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value: structpb.NewListValue(&structpb.ListValue{
 				Values: []*structpb.Value{
 					structpb.NewStringValue("lang"),
@@ -234,7 +227,6 @@ func TestChain(t *testing.T) {
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    structpb.NewStringValue("203.0.113.42"),
 			Key:      "ip",
 		},
@@ -248,7 +240,7 @@ func TestChain(t *testing.T) {
 
 	ig := NewIngress()
 
-	if ok := ig.EvalExpr(newContext(), ruleChain); ok {
+	if _, ok := ig.EvalExpr(newContext(), ruleChain); ok {
 		t.Logf("rule engine matched !!!")
 		return
 	}
@@ -390,7 +382,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 				Rules:   tt.rules,
 				Logics:  tt.logics,
 			}
-			ok := ig.EvalExpr(ctx, chain)
+			_, ok := ig.EvalExpr(ctx, chain)
 			if ok != tt.expect {
 				val, _ := json.Marshal(tt.rules)
 				t.Logf("[request][rule] %v", string(val))
@@ -410,7 +402,6 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
-			Logic:    ruleenginepb.Logic_LOGIC_AND,
 			Value:    v,
 			Key:      fmt.Sprintf("%v", val),
 		},

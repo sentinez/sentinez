@@ -20,21 +20,21 @@ import (
 	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
-//nolint:funlen
+// nolint
 func TestAST(t *testing.T) {
-	cmd1 := NewNode(func(_ corehttp.RequestContext) bool {
+	cmd1 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 		t.Log("cmd1 is running")
-		return false
+		return "", "", 0, false
 	})
 
-	cmd2 := NewNode(func(_ corehttp.RequestContext) bool {
+	cmd2 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 		t.Log("cmd2 is running")
-		return false
+		return "", "", 0, false
 	})
 
-	cmd3 := NewNode(func(_ corehttp.RequestContext) bool {
+	cmd3 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 		t.Log("cmd3 is running")
-		return true
+		return "", "", 0, true
 	})
 
 	ans := cmd1.Eval(nil) || cmd2.Eval(nil) && cmd3.Eval(nil)
@@ -72,17 +72,17 @@ func TestAST2(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// mock node functions
-			cmd1 := NewNode(func(_ corehttp.RequestContext) bool {
+			cmd1 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 				t.Log("cmd1 running:", tt.f1)
-				return tt.f1
+				return "", "", 0, tt.f1
 			})
-			cmd2 := NewNode(func(_ corehttp.RequestContext) bool {
+			cmd2 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 				t.Log("cmd2 running:", tt.f2)
-				return tt.f2
+				return "", "", 0, tt.f2
 			})
-			cmd3 := NewNode(func(_ corehttp.RequestContext) bool {
+			cmd3 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) {
 				t.Log("cmd3 running:", tt.f3)
-				return tt.f3
+				return "", "", 0, tt.f3
 			})
 
 			// Tính kết quả logic thật (tuần tự)
@@ -115,10 +115,11 @@ func TestAST2(t *testing.T) {
 	}
 }
 
+// nolint
 func BenchmarkAST(b *testing.B) {
-	cmd1 := NewNode(func(_ corehttp.RequestContext) bool { return false })
-	cmd2 := NewNode(func(_ corehttp.RequestContext) bool { return false })
-	cmd3 := NewNode(func(_ corehttp.RequestContext) bool { return true })
+	cmd1 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, false })
+	cmd2 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, false })
+	cmd3 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, false })
 	tree := NewLogic(cmd1, LogicOr, NewLogic(cmd2, LogicAnd, cmd3))
 
 	for b.Loop() {
@@ -150,9 +151,9 @@ func BenchmarkAST_TableDriven(b *testing.B) {
 
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
-			cmd1 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f1 })
-			cmd2 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f2 })
-			cmd3 := NewNode(func(_ corehttp.RequestContext) bool { return tt.f3 })
+			cmd1 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, tt.f1 })
+			cmd2 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, tt.f2 })
+			cmd3 := NewNode(func(_ corehttp.RequestContext) (string, string, int32, bool) { return "", "", 0, tt.f3 })
 			tree := NewLogic(cmd1, tt.op1, NewLogic(cmd2, tt.op2, cmd3))
 
 			b.ResetTimer()

@@ -5,6 +5,7 @@ go 1.25.0
 replace (
 	github.com/sentinez/sentinez/api => ../api
 	github.com/sentinez/sentinez/core => ../core
+	github.com/sentinez/sentinez/shared => ../shared
 )
 
 require (
@@ -13,7 +14,7 @@ require (
 	github.com/favadi/protoc-go-inject-tag v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/sentinez/core v0.0.0
+	github.com/sentinez/sentinez/core v0.0.0-00010101000000-000000000000
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/text v0.28.0
 	google.golang.org/grpc v1.70.0

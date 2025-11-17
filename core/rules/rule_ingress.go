@@ -18,16 +18,20 @@ import (
 	"sync"
 
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
+	chttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/core/internal/logic"
 	"github.com/sentinez/sentinez/shared/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
 
+type MatchedFunc func(ctx chttp.RequestContext,
+	rule *rulepb.Rule) (id string, name string, score int32, ok bool)
+
 type Rules interface {
-	Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool
-	EvalExpr(ctx corehttp.RequestContext, rule *rulepb.Expr) bool
+	Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool
+	EvalExpr(ctx chttp.RequestContext,
+		rule *rulepb.Expr) (*rulepb.MatchedRules, bool)
 }
 
 type exprs struct {
@@ -55,8 +59,7 @@ type exprs struct {
 //	a || (b && c && d)
 //
 //nolint:funlen
-func (ex *exprs) build(
-	exec func(corehttp.RequestContext, *rulepb.Rule) bool) *logic.Node {
+func (ex *exprs) build(exec MatchedFunc) *logic.Node {
 
 	// Get the list of rules and logical operators (AND / OR)
 	rules := ex.chain.GetRules()
@@ -73,8 +76,9 @@ func (ex *exprs) build(
 	nodes := make([]*logic.Node, len(rules))
 	for i, r := range rules {
 		// idx := i // capture index for logging
-		nodes[i] = logic.NewNode(func(ctx corehttp.RequestContext) bool {
-			// zlog.Debugf("execute node %v", idx)
+		nodes[i] = logic.NewNode(func(ctx chttp.RequestContext) (id string,
+			name string, score int32, ok bool) {
+
 			return exec(ctx, r)
 		})
 	}
@@ -99,7 +103,7 @@ func (ex *exprs) build(
 
 			// After finishing a block of ANDs, check the previous operator type
 			// to decide whether to attach this AND group to the current tree
-			// with OR or AND.
+			// with OR AND.
 
 			// Potentially incorrect index; ensure this logic is valid.
 			prevOp := logics[i-len(nodes)]
@@ -130,7 +134,7 @@ type ingress struct {
 	expr sync.Map
 }
 
-func (in *ingress) Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
+func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 	zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
 
 	if !rule.GetEnabled() {
@@ -144,19 +148,38 @@ func (in *ingress) Eval(ctx corehttp.RequestContext, rule *rulepb.Rule) bool {
 	return cond.Accept(ruleCtx)
 }
 
+func (in *ingress) matched(ctx chttp.RequestContext,
+	rule *rulepb.Rule) (id string, name string, score int32, ok bool) {
+
+	ok = in.Eval(ctx, rule)
+	if !ok {
+		return "", "", 0, false
+	}
+
+	return rule.GetId(), rule.GetName(), rule.GetCondition().GetScore(), true
+}
+
 // EvalExpr a list of rule
 func (in *ingress) EvalExpr(
-	ctx corehttp.RequestContext, chain *rulepb.Expr) bool {
-
+	ctx chttp.RequestContext, chain *rulepb.Expr) (*rulepb.MatchedRules, bool) {
 	zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
 
 	if !chain.GetEnabled() {
-		return false
+		return nil, false
 	}
 
 	rules := chain.GetRules()
 	if len(rules) == 1 {
-		return in.Eval(ctx, chain.GetRules()[0])
+		id, name, score, ok := in.matched(ctx, chain.GetRules()[0])
+		if ok {
+			return &rulepb.MatchedRules{
+				Ids:    []string{id},
+				Names:  []string{name},
+				Scores: []int32{score},
+			}, ok
+		}
+
+		return nil, ok
 	}
 
 	val, ok := in.expr.Load(chain.GetId())
@@ -167,5 +190,10 @@ func (in *ingress) EvalExpr(
 
 	expr, _ := val.(*exprs)
 
-	return expr.build(in.Eval).Eval(ctx)
+	logic := expr.build(in.matched)
+	if ok = logic.Eval(ctx); ok {
+		return logic.Matched(), ok
+	}
+
+	return nil, false
 }
