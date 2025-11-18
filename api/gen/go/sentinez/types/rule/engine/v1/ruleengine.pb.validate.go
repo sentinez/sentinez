@@ -655,8 +655,6 @@ func (m *MatchedRules) Validate() error {
 		return nil
 	}
 
-	// no validation rules for TotalScore
-
 	return nil
 }
 

@@ -33,7 +33,6 @@ message Condition {
   Operator operator = 4; // @gotags: yaml:"operator"
   // The value to compare against
   google.protobuf.Value value = 5; // @gotags: yaml:"value"
-  int32 score = 6;  // @gotags: yaml:"score"
 }
 
 enum Operator {
@@ -101,7 +100,6 @@ message Expr {
   bool enabled = 4; // @gotags: yaml:"enabled"
   repeated Rule rules = 5; // @gotags: yaml:"rules"
   repeated Logic logics = 6; // @gotags: yaml:"logics"
-  int32 threshold = 7; // @gotags: yaml:"threshold"
 }
 
 message ExprLite {
@@ -110,7 +108,6 @@ message ExprLite {
   bool enabled = 4; // @gotags: yaml:"enabled"
   repeated RuleLite rules = 5; // @gotags: yaml:"rules"
   repeated string logics = 6; // @gotags: yaml:"logics"
-  int32 threshold = 7; // @gotags: yaml:"threshold"
 }
 
 // A complete rule definition
@@ -134,12 +131,9 @@ message ConditionLite {
   string operator = 4; // @gotags: yaml:"operator"
   // The value to compare against
   string value = 5; // @gotags: yaml:"value"
-  int32 score = 6;  // @gotags: yaml:"score"
 }
 
 message MatchedRules {
   repeated string ids = 1;
   repeated string names = 2;
-  repeated int32 scores = 3;
-  int32 total_score = 4;
 }
