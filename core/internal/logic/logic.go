@@ -17,7 +17,6 @@ package logic
 import (
 	"sync"
 
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	corehttp "github.com/sentinez/sentinez/core/http"
 )
 
@@ -30,8 +29,7 @@ var (
 )
 
 type (
-	NodeFunc func(ctx corehttp.RequestContext,
-	) (id string, name string, score int32, ok bool)
+	NodeFunc func(ctx corehttp.RequestContext) bool
 
 	NodeType  int
 	LogicType int
@@ -63,7 +61,6 @@ func NewNode(fn NodeFunc) *Node {
 
 	node.types = NodeBase
 	node.fn = fn
-	node.matched = &rulepb.MatchedRules{}
 
 	return node
 }
@@ -78,18 +75,16 @@ func Free(node *Node) {
 	node.left = nil
 	node.right = nil
 	node.op = 0
-	node.matched = nil
 
 	pool.Put(node)
 }
 
 type Node struct {
-	types   NodeType
-	left    *Node
-	right   *Node
-	op      LogicType
-	fn      NodeFunc
-	matched *rulepb.MatchedRules
+	types NodeType
+	left  *Node
+	right *Node
+	op    LogicType
+	fn    NodeFunc
 }
 
 func (n *Node) Eval(ctx corehttp.RequestContext) bool {
@@ -99,13 +94,7 @@ func (n *Node) Eval(ctx corehttp.RequestContext) bool {
 
 	switch n.types {
 	case NodeBase:
-		id, name, score, ok := n.fn(ctx)
-		if ok {
-			n.matched.Ids = append(n.matched.Ids, id)
-			n.matched.Names = append(n.matched.Names, name)
-			n.matched.Scores = append(n.matched.Scores, score)
-		}
-		return ok
+		return n.fn(ctx)
 	case NodeLogic:
 		switch n.op {
 		case LogicAnd:
@@ -132,10 +121,6 @@ func (n *Node) Eval(ctx corehttp.RequestContext) bool {
 	default:
 		return false
 	}
-}
-
-func (n *Node) Matched() *rulepb.MatchedRules {
-	return n.matched
 }
 
 func TraversePostfix(node *Node, traveler func(*Node) bool) {

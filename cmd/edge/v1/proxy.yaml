@@ -76,6 +76,7 @@ setting:
       name: "AND: path, method, ip all match"
       enabled: true
       logics:
+      threshold: 5
       rules:
         - name: "block path"
           enabled: true
@@ -86,6 +87,7 @@ setting:
             operator: OPERATOR_EQ
             value: "/block"
             logic: LOGIC_AND
+            score: 5
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

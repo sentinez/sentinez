@@ -34,8 +34,15 @@ type Rules interface {
 		rule *rulepb.Expr) (*rulepb.MatchedRules, bool)
 }
 
+type tx struct {
+	matched    *rulepb.MatchedRules
+	threshold  int32
+	totalScore int32
+}
+
 type exprs struct {
 	chain *rulepb.Expr
+	tx    *tx
 }
 
 // Example context:
@@ -76,10 +83,21 @@ func (ex *exprs) build(exec MatchedFunc) *logic.Node {
 	nodes := make([]*logic.Node, len(rules))
 	for i, r := range rules {
 		// idx := i // capture index for logging
-		nodes[i] = logic.NewNode(func(ctx chttp.RequestContext) (id string,
-			name string, score int32, ok bool) {
+		nodes[i] = logic.NewNode(func(ctx chttp.RequestContext) bool {
 
-			return exec(ctx, r)
+			id, name, score, ok := exec(ctx, r)
+			if ok {
+				ex.tx.matched.Ids = append(ex.tx.matched.Ids, id)
+				ex.tx.matched.Names = append(ex.tx.matched.Names, name)
+				ex.tx.matched.Scores = append(ex.tx.matched.Scores, score)
+				ex.tx.totalScore += score
+			}
+
+			if ex.tx.threshold != 0 && ex.tx.totalScore >= ex.tx.threshold {
+				return true
+			}
+
+			return ok
 		})
 	}
 
@@ -126,6 +144,16 @@ func (ex *exprs) build(exec MatchedFunc) *logic.Node {
 	return current
 }
 
+func newExpr(chain *rulepb.Expr) *exprs {
+	return &exprs{
+		chain: chain,
+		tx: &tx{
+			matched:   &rulepb.MatchedRules{},
+			threshold: chain.Threshold,
+		},
+	}
+}
+
 func NewIngress() Rules {
 	return &ingress{}
 }
@@ -151,8 +179,7 @@ func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 func (in *ingress) matched(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, score int32, ok bool) {
 
-	ok = in.Eval(ctx, rule)
-	if !ok {
+	if ok = in.Eval(ctx, rule); !ok {
 		return "", "", 0, false
 	}
 
@@ -184,15 +211,15 @@ func (in *ingress) EvalExpr(
 
 	val, ok := in.expr.Load(chain.GetId())
 	if !ok {
-		val = &exprs{chain: chain}
+		val = newExpr(chain)
 		in.expr.Store(chain.GetId(), val)
 	}
 
 	expr, _ := val.(*exprs)
 
-	logic := expr.build(in.matched)
-	if ok = logic.Eval(ctx); ok {
-		return logic.Matched(), ok
+	logicExpr := expr.build(in.matched)
+	if ok = logicExpr.Eval(ctx); ok {
+		return expr.tx.matched, ok
 	}
 
 	return nil, false
