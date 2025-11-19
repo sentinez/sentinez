@@ -19,12 +19,12 @@ import (
 	"strings"
 	"sync"
 
+	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	ssync "github.com/sentinez/sentinez/shared/sync"
-	"github.com/sentinez/sentinez/shared/zlog"
+	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (

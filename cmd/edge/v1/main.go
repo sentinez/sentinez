@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/runner"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 
 	"net/http"
 	_ "net/http/pprof"

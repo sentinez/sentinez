@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/headers"
 	"github.com/sentinez/sentinez/pkg/security/perms"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ iampb.

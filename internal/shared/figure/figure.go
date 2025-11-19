@@ -21,7 +21,7 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/shared/color"
+	"github.com/sentinez/shared/color"
 )
 
 var (

@@ -18,9 +18,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Static)(nil)

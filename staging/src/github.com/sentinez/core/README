@@ -11,23 +11,3 @@ Git repository:
 
 Additionally, the ruleparser package uses the ModSecurity (SecLang) grammar to 
 parse .conf rule files into Go code, compiling all of them into a single binary.
-
-```
-  goos: linux
-  goarch: amd64
-  pkg: github.com/sentinez/sentinez/core/internal/ast
-  cpu: 13th Gen Intel(R) Core(TM) i7-1355U
-  BenchmarkAST-12                	                      157636374	         8.177 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T1_all_false_AND-12         	329622469	         3.506 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T2_all_false_OR-12          	100000000	         10.13 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T3_true_OR_false_AND_false-12         	349550679	         3.335 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T4_false_OR_true_AND_true-12          	117964424	        10.05 ns/op	         0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T5_false_AND_true_OR_true-12          	334966656	         3.326 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T6_true_AND_false_OR_true-12          	123778423	        10.63 ns/op	         0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T7_true_AND_true_OR_false-12          	163488141	         7.336 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T8_false_OR_false_AND_true-12         	143713186	         8.532 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T9_true_OR_false_OR_false-12          	372937111	         3.347 ns/op	       0 B/op	       0 allocs/op
-  BenchmarkAST_TableDriven/T10_false_AND_false_OR_true-12        	352991456	         3.291 ns/op	       0 B/op	       0 allocs/op
-  PASS
-  ok  	github.com/sentinez/sentinez/core/internal/ast	18.816s
-```

@@ -15,14 +15,14 @@
 package secure
 
 import (
+	corehttp "github.com/sentinez/core/http"
+	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	corerules "github.com/sentinez/sentinez/core/rules"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/ruleengine"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func NewRule(ll zlog.Level) chains.Handler {

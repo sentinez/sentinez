@@ -18,11 +18,11 @@ import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
+	corehttp "github.com/sentinez/core/http"
+	corers "github.com/sentinez/core/rulesets"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	corers "github.com/sentinez/sentinez/core/rulesets"
-	ssync "github.com/sentinez/sentinez/shared/sync"
-	"github.com/sentinez/sentinez/shared/zlog"
+	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (

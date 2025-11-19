@@ -17,11 +17,11 @@ package wsz
 import (
 	"fmt"
 
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/shared/sync"
 )
 
 func NewServer(meta *common.XMeta) *WebSocket {

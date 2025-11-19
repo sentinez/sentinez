@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/proto"
 )
 

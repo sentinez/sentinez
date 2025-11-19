@@ -19,16 +19,16 @@ import (
 	"strconv"
 	"time"
 
+	corehttp "github.com/sentinez/core/http"
+	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func NewWAF(logLevel zlog.Level) chains.Handler {

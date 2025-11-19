@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,36 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package requests
+package httpxdmz
 
 import (
 	"context"
 
-	corehttpreq "github.com/sentinez/core/http/request"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/shared/sync"
+	"github.com/cloudwego/hertz/pkg/app"
+	corehttp "github.com/sentinez/core/http"
+	sids "github.com/sentinez/shared/ids"
 )
 
-var (
-	pool = sync.NewPool[corehttpreq.RequestContext]()
-)
+func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
 
-func New(ctx context.Context,
-	req *edgepb.RequestContext) *corehttpreq.RequestContext {
+		requestId := sids.NewNanoID("REQ")
+		c.Request.Header.Set(corehttp.HeaderXRequest, requestId)
 
-	rctx := pool.Get()
+		ctx = corehttp.SetRequestTime(ctx)
 
-	rctx.Req = req
-	rctx.Ctx = ctx
-
-	return rctx
-}
-
-func Free(rctx *corehttpreq.RequestContext) {
-	if rctx == nil {
-		return
+		next(ctx, c)
 	}
-
-	rctx.Req = nil
-	pool.Put(rctx)
 }

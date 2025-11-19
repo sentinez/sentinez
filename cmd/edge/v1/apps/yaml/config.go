@@ -18,7 +18,7 @@ import (
 	"os"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 
 	"github.com/goccy/go-yaml"
 )

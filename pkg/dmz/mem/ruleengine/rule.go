@@ -17,10 +17,10 @@ package ruleengine
 import (
 	"sync"
 
+	corehttp "github.com/sentinez/core/http"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	ssync "github.com/sentinez/sentinez/shared/sync"
-	"github.com/sentinez/sentinez/shared/zlog"
+	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (

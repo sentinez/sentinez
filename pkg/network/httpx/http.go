@@ -21,9 +21,9 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/figure"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 )

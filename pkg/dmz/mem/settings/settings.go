@@ -19,7 +19,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	ssync "github.com/sentinez/sentinez/shared/sync"
+	ssync "github.com/sentinez/shared/sync"
 )
 
 var (

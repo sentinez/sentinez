@@ -15,8 +15,8 @@
 package chains
 
 import (
-	corehttp "github.com/sentinez/sentinez/core/http"
-	"github.com/sentinez/sentinez/shared/zlog"
+	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/shared/zlog"
 )
 
 type Handler interface {

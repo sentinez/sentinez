@@ -27,7 +27,7 @@ import (
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 // nolint:funlen

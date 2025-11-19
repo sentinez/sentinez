@@ -17,9 +17,9 @@ package engine
 import (
 	"context"
 
+	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	corerules "github.com/sentinez/sentinez/core/rules"
 	"github.com/sentinez/sentinez/internal/edge/v1/engine/requests"
 )
 

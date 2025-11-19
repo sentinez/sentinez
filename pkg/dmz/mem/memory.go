@@ -16,14 +16,14 @@
 package mem
 
 import (
+	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/ruleengine"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
