@@ -45,8 +45,19 @@ jobs:
 
           git config --unset-all http.https://github.com/.extraheader
 
-          git pull "$REMOTE" "$BRANCH" --rebase
-          git rebase --skip
+          if ! git pull "$REMOTE" "$BRANCH" --rebase; then
+              echo "Conflict detected during rebase. Auto skipping conflicting commits..."
+              # vòng lặp rebase đến khi hết
+              while true; do
+                  if git rebase --continue 2>/dev/null; then
+                      continue
+                  elif git rebase --skip 2>/dev/null; then
+                      continue
+                  else
+                      break
+                  fi
+              done
+          fi
           
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
