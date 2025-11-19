@@ -45,7 +45,7 @@ jobs:
 
           git config --unset-all http.https://github.com/.extraheader
 
-          git fetch "$REMOTE" "$BRANCH"
+          git pull "$REMOTE" "$BRANCH"
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
           echo "Done."
