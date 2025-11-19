@@ -20,6 +20,7 @@ jobs:
 
       - name: Set Git identity
         run: |
+          git config --unset-all http.https://github.com/.extraheader
           git config user.name "Duc-Hung Ho"
           git config user.email "iduchungho@gmail.com"
       

@@ -20,6 +20,7 @@ jobs:
 
       - name: Set Git identity
         run: |
+          git config --unset-all http.https://github.com/.extraheader
           git config user.name "Duc-Hung Ho"
           git config user.email "iduchungho@gmail.com"
       
@@ -41,8 +42,6 @@ jobs:
           echo
 
           echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
-
-          git config --unset-all http.https://github.com/.extraheader
 
           git fetch origin
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
