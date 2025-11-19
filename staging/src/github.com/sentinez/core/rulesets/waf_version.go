@@ -12,22 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package corers
 
-import (
-	"github.com/sentinez/tools/internal/senz-meta"
-	"google.golang.org/protobuf/compiler/protogen"
+type Version string
+
+const (
+	WAF4160 Version = "v4.16.0"
+	WAF4170 Version = "v4.17.0"
 )
-
-func main() {
-	protogen.Options{}.Run(func(gen *protogen.Plugin) error {
-		for _, f := range gen.Files {
-			if !f.Generate {
-				continue
-			}
-
-			senzmeta.GenerateSentinezOptionFile(gen, f)
-		}
-		return nil
-	})
-}

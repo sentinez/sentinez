@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package corers
 
 import (
-	"github.com/sentinez/tools/internal/senz-meta"
-	"google.golang.org/protobuf/compiler/protogen"
+	"os"
+
+	"github.com/corazawaf/coraza/v3"
 )
 
-func main() {
-	protogen.Options{}.Run(func(gen *protogen.Plugin) error {
-		for _, f := range gen.Files {
-			if !f.Generate {
-				continue
-			}
+func NewWAF(version Version,
+	srcDataset string, flag Flag) (coraza.WAF, error) {
 
-			senzmeta.GenerateSentinezOptionFile(gen, f)
-		}
-		return nil
-	})
+	rule := getRulesets(version, flag)
+
+	rootFS := os.DirFS(srcDataset)
+	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
+
+	return coraza.NewWAF(conf)
 }

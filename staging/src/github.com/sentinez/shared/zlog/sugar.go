@@ -17,7 +17,7 @@ package zlog
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/shared/color"
+	"github.com/sentinez/shared/color"
 
 	"go.uber.org/zap"
 )

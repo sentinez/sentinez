@@ -1,0 +1,68 @@
+version: "2"
+run:
+  modules-download-mode: readonly
+linters:
+  default: none
+  enable:
+    - errcheck
+    - funlen
+    - govet
+    - lll
+    - misspell
+    - revive
+    - staticcheck
+  settings:
+    lll:
+      line-length: 80
+      tab-width: 4
+    misspell:
+      ignore-rules:
+        - sentinez
+    funlen:
+      lines: 35
+      statements: 0
+    revive:
+      rules:
+        # - name: var-naming
+        - name: blank-imports
+        - name: context-as-argument
+        - name: dot-imports
+        - name: error-return
+        - name: error-naming
+        - name: error-strings
+        - name: increment-decrement
+        - name: var-declaration
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+  exclusions:
+    generated: lax
+    paths:
+      - apps/
+      - packages/
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - apps/
+      - packages/
+      - third_party$
+      - builtin$
+      - examples$

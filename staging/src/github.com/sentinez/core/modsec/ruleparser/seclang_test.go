@@ -12,22 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package ruleparser
 
 import (
-	"github.com/sentinez/tools/internal/senz-meta"
-	"google.golang.org/protobuf/compiler/protogen"
+	"os"
+	"testing"
 )
 
-func main() {
-	protogen.Options{}.Run(func(gen *protogen.Plugin) error {
-		for _, f := range gen.Files {
-			if !f.Generate {
-				continue
-			}
+func TestGenerate(t *testing.T) {
+	t.Parallel()
 
-			senzmeta.GenerateSentinezOptionFile(gen, f)
-		}
-		return nil
-	})
+	inputPath := "testdata/test_41_negated_operator_n.conf"
+	outputPath := "testdata/test_41_negated_operator_n.json"
+
+	result, err := Parse(inputPath)
+	if err != nil {
+		t.Fatalf("Parse failed: %v", err)
+	}
+
+	_ = WriteJSONToFile(outputPath, result)
+
+	// Check if the output file was created
+	if _, err := os.Stat(outputPath); os.IsNotExist(err) {
+		t.Fatalf("Output file %s does not exist", outputPath)
+	}
 }

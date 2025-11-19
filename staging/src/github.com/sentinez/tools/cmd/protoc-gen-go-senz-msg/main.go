@@ -15,7 +15,7 @@
 package main
 
 import (
-	senzmsg "github.com/sentinez/sentinez/tools/internal/senz-msg"
+	senzmsg "github.com/sentinez/tools/internal/senz-msg"
 	"google.golang.org/protobuf/compiler/protogen"
 )
 

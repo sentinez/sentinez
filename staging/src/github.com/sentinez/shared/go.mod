@@ -1,8 +1,8 @@
-module github.com/sentinez/sentinez/shared
+module github.com/sentinez/shared
 
 go 1.25.0
 
-replace github.com/sentinez/sentinez/api => ../api
+replace github.com/sentinez/sentinez/api => ../../../../../api
 
 require (
 	github.com/exaring/ja4plus v0.0.2
