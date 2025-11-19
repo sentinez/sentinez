@@ -45,7 +45,10 @@ jobs:
 
           git config --unset-all http.https://github.com/.extraheader
 
-          git pull "$REMOTE" "$BRANCH" --rebase
+          git pull --rebase "$REMOTE" "$BRANCH" || {
+            while git rebase --continue 2>/dev/null || git rebase --skip 2>/dev/null; do :; done
+          }
+
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
           echo "Done."
