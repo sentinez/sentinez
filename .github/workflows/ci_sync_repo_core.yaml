@@ -42,10 +42,10 @@ jobs:
 
           echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
 
-          git fetch "$REMOTE" "$BRANCH"
 
           git config --unset-all http.https://github.com/.extraheader
 
+          git fetch "$REMOTE" "$BRANCH"
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH" --squash
 
           echo "Done."
