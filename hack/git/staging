@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+
+# Check argument
+if [ -z "$1" ]; then
+    echo "Error: Missing module name."
+    echo "Usage: ./push_subtree.sh <module>"
+    exit 1
+fi
+
+NAME="$1"
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+REPO_URL="https://github.com/sentinez/${NAME}.git"
+PREFIX="staging/src/github.com/sentinez/${NAME}"
+BRANCH="$CURRENT_BRANCH"
+
+echo "MODULE:   $NAME"
+echo "REPO_URL: $REPO_URL"
+echo "PREFIX:   $PREFIX"
+echo "BRANCH:   $BRANCH"
+echo
+
+echo "Fetching updates..."
+git fetch origin
+
+echo "Pushing subtree '$PREFIX' to repo on branch '$BRANCH'..."
+git subtree push --prefix="$PREFIX" "$REPO_URL" "$BRANCH"
+
+echo "Done"

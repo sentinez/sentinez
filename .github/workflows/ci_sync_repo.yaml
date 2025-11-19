@@ -1,0 +1,30 @@
+name: CI / Sync Git Repo
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+jobs:
+  golangci-lint:
+    name: Run golangci-lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Git identity
+        run: |
+          git config user.name "Duc-Hung Ho"
+          git config user.email "iduchungho@gmail.com"
+
+      - name: Add permission to script
+        run: |
+          chmod +x ./hack/git/staging-ci
+      
+      - name: Sync git repo - Core
+        run: |
+          REMOTE=https://${{ secrets.SENZ_GITHUB_TOKEN }}@github.com/sentinez/core.git
+          ./hack/git/staging-ci core ${REMOTE}
