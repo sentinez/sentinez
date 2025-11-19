@@ -2,7 +2,7 @@ name: CI / Sync Git Repo
 
 permissions:
   contents: write
-  
+
 on:
   push:
     branches:
@@ -29,5 +29,6 @@ jobs:
       
       - name: Sync git repo - Core
         run: |
-          REMOTE=https://${{ secrets.SENZ_GITHUB_TOKEN }}@github.com/sentinez/core.git
+          TOKEN=${{ secrets.SENZ_GITHUB_TOKEN }}
+          REMOTE=https://sentinez:${TOKEN}@github.com/sentinez/core.git
           ./hack/git/staging-ci core ${REMOTE}
