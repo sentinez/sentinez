@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  golangci-lint:
-    name: Run golangci-lint
+  sync:
+    name: Run sync repository
     runs-on: ubuntu-latest
 
     steps:
