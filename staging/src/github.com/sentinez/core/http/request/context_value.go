@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	corehttp "github.com/sentinez/core/http"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 )
 
 func NewRequestContext(

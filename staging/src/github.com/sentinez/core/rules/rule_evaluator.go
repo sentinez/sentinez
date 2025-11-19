@@ -17,8 +17,8 @@ package corerule
 import (
 	"sync"
 
-	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	corehttp "github.com/sentinez/core/http"
+	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
