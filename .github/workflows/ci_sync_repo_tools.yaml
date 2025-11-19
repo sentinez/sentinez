@@ -23,9 +23,9 @@ jobs:
           git config user.name "Duc-Hung Ho"
           git config user.email "iduchungho@gmail.com"
       
-      - name: Sync git repo - Core
+      - name: Sync sentinez/tools
         run: |
-          NAME="core"
+          NAME="tools"
           USERNAME="kyerans"
           TOKEN=${{ secrets.SENZ_GITHUB_TOKEN }}
           REMOTE=https://${USERNAME}:${TOKEN}@github.com/sentinez/${NAME}.git

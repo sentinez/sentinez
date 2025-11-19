@@ -1,0 +1,50 @@
+name: CI / Sync Git Repo
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+jobs:
+  sync:
+    name: Run sync repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Git identity
+        run: |
+          git config user.name "Duc-Hung Ho"
+          git config user.email "iduchungho@gmail.com"
+      
+      - name: Sync sentinez/core
+        run: |
+          NAME="core"
+          USERNAME="kyerans"
+          TOKEN=${{ secrets.SENZ_GITHUB_TOKEN }}
+          REMOTE=https://${USERNAME}:${TOKEN}@github.com/sentinez/${NAME}.git
+
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          PREFIX="staging/src/github.com/sentinez/${NAME}"
+          BRANCH="$CURRENT_BRANCH"
+
+          echo "MODULE:   $NAME"
+          echo "REMOTE:   $REMOTE"
+          echo "PREFIX:   $PREFIX"
+          echo "BRANCH:   $BRANCH"
+          echo
+
+          echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
+
+          git fetch origin
+
+          git config --unset-all http.https://github.com/.extraheader
+          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
+
+          echo "Done."
