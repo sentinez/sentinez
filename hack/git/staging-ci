@@ -21,9 +21,6 @@ echo "PREFIX:   $PREFIX"
 echo "BRANCH:   $BRANCH"
 echo
 
-echo "Fetching updates..."
-git fetch origin
-
 echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
 git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
