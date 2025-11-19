@@ -31,4 +31,21 @@ jobs:
         run: |
           TOKEN=${{ secrets.SENZ_GITHUB_TOKEN }}
           REMOTE=https://kyerans:${TOKEN}@github.com/sentinez/core.git
-          ./hack/git/staging-ci core ${REMOTE}
+          NAME="core"
+
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          PREFIX="staging/src/github.com/sentinez/${NAME}"
+          BRANCH="$CURRENT_BRANCH"
+
+          echo "MODULE:   $NAME"
+          echo "REMOTE:   $REMOTE"
+          echo "PREFIX:   $PREFIX"
+          echo "BRANCH:   $BRANCH"
+          echo
+
+          echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
+
+          git config --unset-all http.https://github.com/.extraheader
+          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
+
+          echo "Done."
