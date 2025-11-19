@@ -1,5 +1,8 @@
 name: CI / Sync Git Repo
 
+permissions:
+  contents: write
+  
 on:
   push:
     branches:
