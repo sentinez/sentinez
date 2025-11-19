@@ -1,4 +1,4 @@
-name: CI / Sync Git Repo
+name: CI / sync sentinez/core
 
 permissions:
   contents: write
@@ -42,7 +42,7 @@ jobs:
 
           echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
 
-          git fetch origin
+          git fetch "$REMOTE" "$BRANCH"
 
           git config --unset-all http.https://github.com/.extraheader
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
