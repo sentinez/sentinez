@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package example;
+
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "/example";
+
+
+extend google.protobuf.MethodOptions {
+  SentinezMethodOptions options = 50001;
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_CUSTOMER = 1;
+  ROLE_SELLER = 2;
+  ROLE_ADMIN = 3;
+}
+
+message SentinezMethodOptions {
+  bool ignore = 1;
+  repeated Require require = 2;
+}
+
+message Require {
+  Role role = 1;
+  Permission permission = 2;
+}
+
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  PERMISSION_CREATE = 1;
+  PERMISSION_VIEW_OWN = 2;
+  PERMISSION_VIEW_ANY = 3;
+  PERMISSION_UPDATE_OWN = 4;
+  PERMISSION_UPDATE_ANY = 5;
+  PERMISSION_DELETE_OWN = 6;
+  PERMISSION_DELETE_ANY = 7;
+}
+
+message Hello {
+
+}
+
+service ExampleService {
+  rpc Create(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (options) = {
+      require: { role: ROLE_ADMIN, permission: PERMISSION_CREATE }
+    };
+  }
+
+  rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (options) = {
+      require: [
+        { role: ROLE_ADMIN, permission: PERMISSION_UPDATE_ANY },
+        { role: ROLE_SELLER, permission: PERMISSION_UPDATE_OWN }
+      ]
+    };
+  }
+}
