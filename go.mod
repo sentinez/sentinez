@@ -6,6 +6,7 @@ replace (
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/sentinez/api => ./api
 	github.com/sentinez/shared => ./staging/src/github.com/sentinez/shared
+	github.com/sentinez/x/httphz => ./staging/src/github.com/sentinez/x/httphz
 )
 
 require (
