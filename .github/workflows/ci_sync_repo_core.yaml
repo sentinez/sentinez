@@ -50,6 +50,6 @@ jobs:
 
           git pull "$REMOTE" "$BRANCH" --rebase
           
-          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
+          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH" --force
 
           echo "Done."
