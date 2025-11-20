@@ -36,7 +36,7 @@ jobs:
           USERNAME="kyerans"
           TOKEN="${SENZ_GITHUB_TOKEN}"
           REMOTE="https://${USERNAME}:${TOKEN}@github.com/sentinez/${NAME}.git"
-          REMOTE_SAFE="https://github.com/sentinez/${NAME}.git"  # chỉ để echo an toàn
+          REMOTE_SAFE="https://github.com/sentinez/${NAME}.git"
 
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           PREFIX="staging/src/github.com/sentinez/${NAME}"
@@ -52,6 +52,7 @@ jobs:
           SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
           echo "Subtree SHA: $SUBTREE_SHA"
 
+          git config --unset-all http.https://github.com/.extraheader
           git fetch "$REMOTE" "$BRANCH":"tmp_remote" || true
 
           if git rev-parse --verify tmp_remote >/dev/null 2>&1; then
