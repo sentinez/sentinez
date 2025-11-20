@@ -20,6 +20,9 @@ jobs:
 
       - name: Set Git identity
         run: |
+          git config --global pull.rebase false
+          git config --global rebase.autoStash false
+          git config --global merge.strategy ours
           git config user.name "Duc-Hung Ho"
           git config user.email "iduchungho@gmail.com"
       
@@ -45,19 +48,7 @@ jobs:
 
           git config --unset-all http.https://github.com/.extraheader
 
-          if ! git pull "$REMOTE" "$BRANCH" --rebase; then
-              echo "Conflict detected during rebase. Auto skipping conflicting commits..."
-              # vòng lặp rebase đến khi hết
-              while true; do
-                  if git rebase --continue 2>/dev/null; then
-                      continue
-                  elif git rebase --skip 2>/dev/null; then
-                      continue
-                  else
-                      break
-                  fi
-              done
-          fi
+          git pull "$REMOTE" "$BRANCH" --rebase
           
           git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
