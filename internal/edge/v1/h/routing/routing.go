@@ -35,36 +35,3 @@ type Mock struct {
 func (r *Mock) Handle(ctx corehttp.Context) error {
 	return ctx.String(http.StatusOK, "OK")
 }
-
-// func NewRouter() chains.Handler {
-// 	reverseProxy, err := proxydmz.NewReverseProxy()
-// 	if err != nil {
-// 		zlog.Errorf("failed to create proxy instance: %v", err)
-// 	}
-
-// 	wsReverseProxy, _ := proxydmz.NewWSReverseProxy()
-
-// 	return &Router{
-// 		BaseHandler: chains.New(),
-// 		httpHandler: routes.GetRouter().SetReverseProxy(reverseProxy),
-// 		wsHandler:   routes.GetRouter().SetReverseProxy(wsReverseProxy),
-// 	}
-// }
-
-// type Router struct {
-// 	*chains.BaseHandler
-// 	httpHandler func(ctx corehttp.Context) error
-// 	wsHandler   func(ctx corehttp.Context) error
-// }
-
-// func (r *Router) Handle(ctx corehttp.Context) error {
-// 	zlog.Debugf("[edge][%s] >>> visit router", ctx.RequestId())
-
-// 	upgrade := ctx.Header(corehttp.HeaderUpgrade)
-// 	if upgrade == "websocket" || upgrade == "WebSocket" {
-// 		zlog.Debugf("[edge][websocket] upgrade connection !!!")
-// 		return r.wsHandler(ctx)
-// 	}
-
-// 	return r.httpHandler(ctx)
-// }

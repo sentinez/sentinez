@@ -1,4 +1,4 @@
-package proxydmz
+package proxyhz
 
 import (
 	"net/http"

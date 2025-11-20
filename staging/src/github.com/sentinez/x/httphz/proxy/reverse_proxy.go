@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package proxydmz
+package proxyhz
 
 import (
 	"fmt"
@@ -62,11 +62,15 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		return nil, fmt.Errorf("httpxdmz: new reverse proxy failed: %v", err)
 	}
 
+	ws, _ := NewWSReverseProxy()
+
 	proxy := &ReverseProxy{
 		tlsClient:   tlsClient,
 		plainClient: plainClient,
 
 		rPrxPool: sync.NewPool[reverseproxy.ReverseProxy](),
+
+		ws: ws,
 	}
 
 	return proxy, nil
@@ -77,9 +81,18 @@ type ReverseProxy struct {
 	plainClient *client.Client
 
 	rPrxPool *sync.Pool[reverseproxy.ReverseProxy]
+
+	ws *WSReverseProxy
 }
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
+
+	upgrade := ctx.Header(corehttp.HeaderUpgrade)
+	if upgrade == "websocket" || upgrade == "WebSocket" {
+		p.ws.Serve(ctx, target)
+		return
+	}
+
 	r := p.rPrxPool.Get()
 	defer p.rPrxPool.Put(r)
 

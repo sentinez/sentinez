@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httpxdmz
+package httphz
 
 import (
 	"context"
@@ -73,8 +73,8 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 		inCtx.Release()
 	}
 
-	// s.handler = WrapHandler(handler)
-	s.handler = handler
+	s.handler = WrapHandler(handler)
+	// s.handler = handler
 }
 
 // Shutdown implements platform.Server.
