@@ -49,20 +49,23 @@ jobs:
           echo "Splitting subtree: $PREFIX"
 
           SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
+          echo "Subtree SHA: $SUBTREE_SHA"
 
           git config --unset-all http.https://github.com/.extraheader
-          REMOTE_SHA=$(git ls-remote "$REMOTE" "$BRANCH" | awk '{print $1}')
 
-          echo "Subtree SHA: $SUBTREE_SHA"
-          echo "Remote SHA: $REMOTE_SHA"
+          git fetch "$REMOTE" "$BRANCH":"tmp_remote_branch"
 
-          if [[ "$SUBTREE_SHA" == "$REMOTE_SHA" ]]; then
+          if git diff --quiet "$BRANCH" "tmp_remote_branch" -- "$PREFIX"; then
               echo "No changes in subtree. Skip pushing."
-              exit 0
+          else
+              echo "Changes detected. Push subtree..."
+              SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
+              git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
           fi
 
-          echo "Force pushing to $REMOTE (branch: $BRANCH)"
+          git branch -D tmp_remote_branch
 
+          echo "Force pushing to $REMOTE (branch: $BRANCH)"
           git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
 
           echo "Done."
