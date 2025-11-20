@@ -56,7 +56,7 @@ jobs:
 
           git config --unset-all http.https://github.com/.extraheader
           
-          git push "$REPO_URL" "$SUBTREE_SHA:$BRANCH" --force
+          git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
 
           # git fetch "$REMOTE" "$BRANCH"
           
