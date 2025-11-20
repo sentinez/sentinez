@@ -10,8 +10,8 @@ on:
       - main
 
 jobs:
-  sync:
-    name: Run sync repository
+  core:
+    name: sync sentinez/core
     runs-on: ubuntu-latest
 
     steps:
@@ -23,19 +23,49 @@ jobs:
       - name: Sync sentinez/core
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash scripts/sync_subtree.sh core
+        run: bash shack/ci/action_sync.sh core
+
+  shared:
+    name: sync sentinez/shared
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Sync sentinez/shared
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash scripts/sync_subtree.sh shared
+        run: bash hack/ci/action_sync.sh shared
+
+  tools:
+    name: sync sentinez/tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Sync sentinez/tools
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash scripts/sync_subtree.sh tools
+        run: bash hack/ci/action_sync.sh tools
+
+  x:
+    name: sync sentinez/x
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Sync sentinez/x
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash scripts/sync_subtree.sh x
+        run: bash hack/ci/action_sync.sh x
