@@ -57,7 +57,7 @@ jobs:
 
           if git rev-parse --verify tmp_remote >/dev/null 2>&1; then
             echo "Merging remote history (ours strategy)..."
-            git merge -s ours tmp_remote -m "Merge remote branch $BRANCH (history only, keep subtree)"
+            git merge -s ours tmp_remote -m "Merge remote branch $BRANCH (history only, keep subtree)" --allow-unrelated-histories
           fi
 
           echo "Force pushing subtree to $REMOTE_SAFE (branch: $BRANCH)..."
