@@ -50,6 +50,6 @@ jobs:
 
           git fetch "$REMOTE" "$BRANCH"
           
-          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH" --force
+          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
           echo "Done."
