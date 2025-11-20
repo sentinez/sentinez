@@ -48,7 +48,6 @@ jobs:
           echo "Current branch: $BRANCH"
           echo "Splitting subtree: $PREFIX"
 
-          # Tách commit của subtree
           SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
 
           echo "Subtree SHA: $SUBTREE_SHA"
@@ -57,9 +56,5 @@ jobs:
           git config --unset-all http.https://github.com/.extraheader
           
           git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
-
-          # git fetch "$REMOTE" "$BRANCH"
-          
-          # git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
 
           echo "Done."

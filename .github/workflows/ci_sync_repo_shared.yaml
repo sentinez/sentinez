@@ -42,10 +42,16 @@ jobs:
 
           echo "Pushing subtree '$PREFIX' to remote '$REMOTE' on branch '$BRANCH'..."
 
-          git fetch origin
+          echo "Current branch: $BRANCH"
+          echo "Splitting subtree: $PREFIX"
+
+          SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
+
+          echo "Subtree SHA: $SUBTREE_SHA"
+          echo "Force pushing to $REMOTE (branch: $BRANCH)"
 
           git config --unset-all http.https://github.com/.extraheader
-
-          git subtree push --prefix="$PREFIX" "$REMOTE" "$BRANCH"
+          
+          git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
 
           echo "Done."
