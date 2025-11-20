@@ -107,12 +107,11 @@ If you set your `user.name` and `user.email` git configs, you can sign your comm
 **Where to Put Packages**
 - `/api`: define proto files for all service mesh.
 - `/cmd`: main application apis, edge app endpoints.
-- `/core`: core utils library in the project (rules/rulesets...)
 - `/data`: all coreruleset data, run with edge proxy
 - `/deploy`: contains scripts and config for deployment.
 - `/docs`: documentation.
 - `/hack`: scripts used by developers.
 - `/internal`: internal packages, main business logic, not exported.
 - `/pkg`: common packages, shared with external modules.
-- `/tools`: A set of toolkits used in Sentinez.
+- `/staging`: external repository staging area
 - `/ui`: main application web ui based on monorepo
