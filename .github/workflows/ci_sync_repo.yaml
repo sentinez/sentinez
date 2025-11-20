@@ -1,0 +1,41 @@
+name: CI / sync sentinez
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+
+jobs:
+  sync:
+    name: Run sync repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Sync sentinez/core
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash scripts/sync_subtree.sh core
+
+      - name: Sync sentinez/shared
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash scripts/sync_subtree.sh shared
+
+      - name: Sync sentinez/tools
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash scripts/sync_subtree.sh tools
+
+      - name: Sync sentinez/x
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash scripts/sync_subtree.sh x
