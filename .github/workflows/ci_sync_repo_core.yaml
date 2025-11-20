@@ -52,12 +52,13 @@ jobs:
           SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
 
           echo "Subtree SHA: $SUBTREE_SHA"
+          echo "Remote SHA: $REMOTE_SHA"
 
           if [[ "$SUBTREE_SHA" == "$REMOTE_SHA" ]]; then
               echo "No changes in subtree. Skip pushing."
               exit 0
           fi
-          
+
           echo "Force pushing to $REMOTE (branch: $BRANCH)"
 
           git config --unset-all http.https://github.com/.extraheader
