@@ -17,16 +17,16 @@ package secure
 import (
 	"strings"
 
+	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Domain)(nil)
 
-func NewDomain(hostname string) *Domain {
+func NewDomain(hostname string) chains.Handler {
 	return &Domain{
 		BaseHandler: chains.New(),
 		hostname:    hostname,

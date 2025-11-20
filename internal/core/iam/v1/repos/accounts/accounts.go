@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
-	sids "github.com/sentinez/sentinez/shared/ids"
+	sids "github.com/sentinez/shared/ids"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

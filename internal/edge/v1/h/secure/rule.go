@@ -15,20 +15,40 @@
 package secure
 
 import (
-	corehttp "github.com/sentinez/sentinez/core/http"
-	corerules "github.com/sentinez/sentinez/core/rules"
+	corehttp "github.com/sentinez/core/http"
+	corerules "github.com/sentinez/core/rules"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/ruleengine"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
+	"github.com/sentinez/shared/zlog"
 )
 
-type Rule struct {
-	chains.BaseHandler
-	ingress corerules.Rules
+func NewRule(ll zlog.Level) chains.Handler {
+	return &Rule{
+		BaseHandler: chains.New(),
+		ingress:     corerules.NewIngress(),
+		logger: zlog.NewJSONLogger(
+			edgepb.GetMetaEdgeServiceKey(),
+			common.LogKind_LOG_KIND_RULE, ll,
+		),
+	}
 }
 
-func (r *Rule) Handler(ctx corehttp.Context) error {
+type Rule struct {
+	*chains.BaseHandler
+	ingress corerules.Rules
+	logger  zlog.Logger
+}
 
-	if ok := r.ingress.Eval(ctx, nil); ok {
+func (r *Rule) Handle(ctx corehttp.Context) error {
+	zlog.Debugf("[edge][%s] >>> visit rule", ctx.RequestId())
+
+	rule := ruleengine.GetEngine().LoadContext(ctx)
+	matched, ok := r.ingress.EvalExpr(ctx, rule)
+	if ok {
+		zlog.Debugf("[edge] matched rule %v", matched)
 		return httpxcmn.Forbidden(ctx)
 	}
 

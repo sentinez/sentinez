@@ -17,9 +17,9 @@ package stdhttpx
 import (
 	"net/http"
 
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	sids "github.com/sentinez/sentinez/shared/ids"
+	sids "github.com/sentinez/shared/ids"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {

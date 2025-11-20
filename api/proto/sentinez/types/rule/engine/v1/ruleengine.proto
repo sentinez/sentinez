@@ -33,10 +33,6 @@ message Condition {
   Operator operator = 4; // @gotags: yaml:"operator"
   // The value to compare against
   google.protobuf.Value value = 5; // @gotags: yaml:"value"
-  // Nested conditions are supported
-  repeated Condition children = 6; // @gotags: yaml:"children"
-  // Logical operator between children: "AND" or "OR"
-  Logic logic = 7; // @gotags: yaml:"logic"
 }
 
 enum Operator {
@@ -135,8 +131,9 @@ message ConditionLite {
   string operator = 4; // @gotags: yaml:"operator"
   // The value to compare against
   string value = 5; // @gotags: yaml:"value"
-  // Nested conditions are supported
-  repeated Condition children = 6; // @gotags: yaml:"children"
-  // Logical operator between children: "AND" or "OR"
-  string logic = 7; // @gotags: yaml:"logic"
+}
+
+message MatchedRules {
+  repeated string ids = 1;
+  repeated string names = 2;
 }

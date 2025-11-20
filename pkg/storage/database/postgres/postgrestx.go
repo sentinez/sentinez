@@ -21,7 +21,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/storage/database"
-	ssync "github.com/sentinez/sentinez/shared/sync"
+	ssync "github.com/sentinez/shared/sync"
 	"google.golang.org/protobuf/proto"
 )
 

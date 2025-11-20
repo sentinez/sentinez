@@ -15,17 +15,17 @@
 package logging
 
 import (
+	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Logger)(nil)
 
-func NewLogger(logLevel zlog.Level) *Logger {
+func NewLogger(logLevel zlog.Level) chains.Handler {
 	return &Logger{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),

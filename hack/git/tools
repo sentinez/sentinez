@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+REPO_URL="https://github.com/sentinez/tools.git"
+
+PREFIX="staging/src/github.com/sentinez/tools"
+
+BRANCH="main"
+
+echo "Fetching updates..."
+git fetch origin
+
+echo "Pushing subtree '$PREFIX' to repo..."
+git subtree push --prefix="$PREFIX" "$REPO_URL" "$BRANCH"
+
+echo "Done!"

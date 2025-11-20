@@ -1,14 +1,14 @@
 package waitingroom
 
 import (
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/queue"
 )
 
 var _ chains.Handler = (*WaitingRoom)(nil)
 
-func New() *WaitingRoom {
+func New() chains.Handler {
 	return &WaitingRoom{
 		BaseHandler: chains.New(),
 	}

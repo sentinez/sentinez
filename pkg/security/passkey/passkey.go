@@ -18,7 +18,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 type Store interface {

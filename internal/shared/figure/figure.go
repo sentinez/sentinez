@@ -21,6 +21,7 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/shared/color"
 )
 
 var (
@@ -29,9 +30,11 @@ var (
 
 func INFO(serviceName string, key string, msgs ...string) {
 	msgs = append([]string{sentinez.Code + " " + sentinez.Version}, msgs...)
-	msg := strings.Join(msgs, "\n> ")
+	gts := color.Green.Add(">")
+	msg := strings.Join(msgs, "\n"+gts+" ")
+
 	once.Do(func() {
-		fmt.Print(Gen(serviceName, key) + "> " + msg + "\n\n")
+		fmt.Print(Gen(serviceName, key) + gts + " " + msg + "\n\n")
 	})
 }
 

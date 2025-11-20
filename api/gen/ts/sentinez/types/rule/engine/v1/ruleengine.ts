@@ -310,13 +310,7 @@ export interface Condition {
    */
   operator: Operator;
   /** The value to compare against */
-  value?:
-    | any
-    | undefined;
-  /** Nested conditions are supported */
-  children: Condition[];
-  /** Logical operator between children: "AND" or "OR" */
-  logic: Logic;
+  value?: any | undefined;
 }
 
 /** An action to execute when a rule matches */
@@ -410,14 +404,15 @@ export interface ConditionLite {
   operator: string;
   /** The value to compare against */
   value: string;
-  /** Nested conditions are supported */
-  children: Condition[];
-  /** Logical operator between children: "AND" or "OR" */
-  logic: string;
+}
+
+export interface MatchedRules {
+  ids: string[];
+  names: string[];
 }
 
 function createBaseCondition(): Condition {
-  return { id: "", source: 0, key: "", operator: 0, value: undefined, children: [], logic: 0 };
+  return { id: "", source: 0, key: "", operator: 0, value: undefined };
 }
 
 export const Condition: MessageFns<Condition> = {
@@ -436,12 +431,6 @@ export const Condition: MessageFns<Condition> = {
     }
     if (message.value !== undefined) {
       Value.encode(Value.wrap(message.value), writer.uint32(42).fork()).join();
-    }
-    for (const v of message.children) {
-      Condition.encode(v!, writer.uint32(50).fork()).join();
-    }
-    if (message.logic !== 0) {
-      writer.uint32(56).int32(message.logic);
     }
     return writer;
   },
@@ -493,22 +482,6 @@ export const Condition: MessageFns<Condition> = {
           message.value = Value.unwrap(Value.decode(reader, reader.uint32()));
           continue;
         }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.children.push(Condition.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.logic = reader.int32() as any;
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -525,10 +498,6 @@ export const Condition: MessageFns<Condition> = {
       key: isSet(object.key) ? globalThis.String(object.key) : "",
       operator: isSet(object.operator) ? operatorFromJSON(object.operator) : 0,
       value: isSet(object?.value) ? object.value : undefined,
-      children: globalThis.Array.isArray(object?.children)
-        ? object.children.map((e: any) => Condition.fromJSON(e))
-        : [],
-      logic: isSet(object.logic) ? logicFromJSON(object.logic) : 0,
     };
   },
 
@@ -549,12 +518,6 @@ export const Condition: MessageFns<Condition> = {
     if (message.value !== undefined) {
       obj.value = message.value;
     }
-    if (message.children?.length) {
-      obj.children = message.children.map((e) => Condition.toJSON(e));
-    }
-    if (message.logic !== 0) {
-      obj.logic = logicToJSON(message.logic);
-    }
     return obj;
   },
 
@@ -568,8 +531,6 @@ export const Condition: MessageFns<Condition> = {
     message.key = object.key ?? "";
     message.operator = object.operator ?? 0;
     message.value = object.value ?? undefined;
-    message.children = object.children?.map((e) => Condition.fromPartial(e)) || [];
-    message.logic = object.logic ?? 0;
     return message;
   },
 };
@@ -1285,7 +1246,7 @@ export const RuleLite: MessageFns<RuleLite> = {
 };
 
 function createBaseConditionLite(): ConditionLite {
-  return { source: "", key: "", operator: "", value: "", children: [], logic: "" };
+  return { source: "", key: "", operator: "", value: "" };
 }
 
 export const ConditionLite: MessageFns<ConditionLite> = {
@@ -1301,12 +1262,6 @@ export const ConditionLite: MessageFns<ConditionLite> = {
     }
     if (message.value !== "") {
       writer.uint32(42).string(message.value);
-    }
-    for (const v of message.children) {
-      Condition.encode(v!, writer.uint32(50).fork()).join();
-    }
-    if (message.logic !== "") {
-      writer.uint32(58).string(message.logic);
     }
     return writer;
   },
@@ -1350,22 +1305,6 @@ export const ConditionLite: MessageFns<ConditionLite> = {
           message.value = reader.string();
           continue;
         }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.children.push(Condition.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 7: {
-          if (tag !== 58) {
-            break;
-          }
-
-          message.logic = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1381,10 +1320,6 @@ export const ConditionLite: MessageFns<ConditionLite> = {
       key: isSet(object.key) ? globalThis.String(object.key) : "",
       operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
       value: isSet(object.value) ? globalThis.String(object.value) : "",
-      children: globalThis.Array.isArray(object?.children)
-        ? object.children.map((e: any) => Condition.fromJSON(e))
-        : [],
-      logic: isSet(object.logic) ? globalThis.String(object.logic) : "",
     };
   },
 
@@ -1402,12 +1337,6 @@ export const ConditionLite: MessageFns<ConditionLite> = {
     if (message.value !== "") {
       obj.value = message.value;
     }
-    if (message.children?.length) {
-      obj.children = message.children.map((e) => Condition.toJSON(e));
-    }
-    if (message.logic !== "") {
-      obj.logic = message.logic;
-    }
     return obj;
   },
 
@@ -1420,8 +1349,82 @@ export const ConditionLite: MessageFns<ConditionLite> = {
     message.key = object.key ?? "";
     message.operator = object.operator ?? "";
     message.value = object.value ?? "";
-    message.children = object.children?.map((e) => Condition.fromPartial(e)) || [];
-    message.logic = object.logic ?? "";
+    return message;
+  },
+};
+
+function createBaseMatchedRules(): MatchedRules {
+  return { ids: [], names: [] };
+}
+
+export const MatchedRules: MessageFns<MatchedRules> = {
+  encode(message: MatchedRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.ids) {
+      writer.uint32(10).string(v!);
+    }
+    for (const v of message.names) {
+      writer.uint32(18).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MatchedRules {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMatchedRules();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ids.push(reader.string());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.names.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MatchedRules {
+    return {
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+      names: globalThis.Array.isArray(object?.names) ? object.names.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: MatchedRules): unknown {
+    const obj: any = {};
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
+    if (message.names?.length) {
+      obj.names = message.names;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MatchedRules>, I>>(base?: I): MatchedRules {
+    return MatchedRules.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MatchedRules>, I>>(object: I): MatchedRules {
+    const message = createBaseMatchedRules();
+    message.ids = object.ids?.map((e) => e) || [];
+    message.names = object.names?.map((e) => e) || [];
     return message;
   },
 };

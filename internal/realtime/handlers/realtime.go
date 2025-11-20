@@ -18,10 +18,10 @@ package realtimehdl
 import (
 	"fmt"
 
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	realtimemnt "github.com/sentinez/sentinez/internal/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func Handler(ctx corehttp.Context) error {

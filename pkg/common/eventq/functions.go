@@ -17,7 +17,7 @@ package eventq
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 // QueueSpace is the size of the queue

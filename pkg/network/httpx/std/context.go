@@ -29,11 +29,11 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	corehttp "github.com/sentinez/sentinez/core/http"
-	ssync "github.com/sentinez/sentinez/shared/sync"
-	"github.com/sentinez/sentinez/shared/zlog"
+	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (

@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func BenchmarkHandler(b *testing.B) {
@@ -38,7 +38,8 @@ func BenchmarkHandler(b *testing.B) {
 
 	zlog.SetLogLevel(zlog.LevelFatal.String())
 
-	begin.SetNext(static.NewStatic()).
+	begin.
+		SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewWAF(zlog.LevelError)).
@@ -58,7 +59,8 @@ func TestHandleChain(t *testing.T) {
 	ctx := stdhttpx.NewContext(req, w)
 
 	begin := waitingroom.New()
-	begin.SetNext(static.NewStatic()).
+	begin.
+		SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelInfo)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewWAF(zlog.LevelInfo)).

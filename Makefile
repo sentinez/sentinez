@@ -41,19 +41,19 @@ lint.proto:
 	@cd ./api && golangci-lint run
 
 lint.tools:
-	@cd ./tools && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/tools && golangci-lint run
 
 lint.core:
 	@echo "[LINT] core is linting ..."
-	@cd ./core && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/core && golangci-lint run
 
 lint.shared:
 	@echo "[LINT] shared is linting ..."
-	@cd ./shared && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/shared && golangci-lint run
 
 lint.x.httphz:
 	@echo "[LINT] httphz is linting ..."
-	@cd ./x/httphz && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/x/httphz && golangci-lint run
 
 #####################################################################
 #####################################################################

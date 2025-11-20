@@ -22,11 +22,11 @@ import (
 	"net/url"
 	"strings"
 
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/shared/sync"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 func NewReverseProxy() (*ReverseProxy, error) {

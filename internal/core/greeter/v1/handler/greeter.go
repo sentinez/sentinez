@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 )

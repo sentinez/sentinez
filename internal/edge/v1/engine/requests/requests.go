@@ -17,9 +17,9 @@ package requests
 import (
 	"context"
 
+	corehttpreq "github.com/sentinez/core/http/request"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	corehttpreq "github.com/sentinez/sentinez/core/http/request"
-	"github.com/sentinez/sentinez/shared/sync"
+	"github.com/sentinez/shared/sync"
 )
 
 var (

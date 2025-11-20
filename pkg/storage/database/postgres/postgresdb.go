@@ -32,7 +32,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
 	storageutils "github.com/sentinez/sentinez/pkg/storage/utils"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/proto"
 )
 

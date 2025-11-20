@@ -36,8 +36,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"github.com/sentinez/sentinez/shared/rand"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/rand"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

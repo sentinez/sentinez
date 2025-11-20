@@ -12,6 +12,7 @@ export enum LogKind {
   LOG_KIND_UNSPECIFIED = 0,
   LOG_KIND_HTTP = 1,
   LOG_KIND_WAF = 2,
+  LOG_KIND_RULE = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -26,6 +27,9 @@ export function logKindFromJSON(object: any): LogKind {
     case 2:
     case "LOG_KIND_WAF":
       return LogKind.LOG_KIND_WAF;
+    case 3:
+    case "LOG_KIND_RULE":
+      return LogKind.LOG_KIND_RULE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -41,6 +45,8 @@ export function logKindToJSON(object: LogKind): string {
       return "LOG_KIND_HTTP";
     case LogKind.LOG_KIND_WAF:
       return "LOG_KIND_WAF";
+    case LogKind.LOG_KIND_RULE:
+      return "LOG_KIND_RULE";
     case LogKind.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

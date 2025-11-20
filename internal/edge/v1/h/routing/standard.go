@@ -15,14 +15,14 @@
 package routing
 
 import (
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
-func NewStandardRouter() *StandardRouter {
+func NewStandardRouter() chains.Handler {
 	reverseProxy, err := stdproxy.NewReverseProxy()
 	if err != nil {
 		zlog.Errorf("failed to create proxy instance: %v", err)

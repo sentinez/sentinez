@@ -16,13 +16,14 @@
 package mem
 
 import (
+	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	corers "github.com/sentinez/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/ruleengine"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/settings"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/wafengine"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 )
 
 func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
@@ -31,6 +32,9 @@ func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
 
 	// routing for each tenant
 	loadRouting()
+
+	// Rule config
+	loadRule()
 
 	// WAF rulesets config
 	loadWAF(appConf)
@@ -70,6 +74,18 @@ func loadWAF(appConf *confpb.Config) {
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}
+		return true
+	})
+}
+
+func loadRule() {
+	settings.Get().Visit(func(s *edgepb.Setting) bool {
+		var (
+			engine = ruleengine.New()
+			ns     = s.GetOrigin().GetNamespace()
+		)
+
+		engine.Store(ns, s.GetSecurity().GetExpr())
 		return true
 	})
 }

@@ -18,13 +18,25 @@ package routing
 import (
 	"net/http"
 
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 )
 
-// var _ chains.Handler = (*Router)(nil)
+func NewMockRouter() chains.Handler {
+	return &Mock{
+		BaseHandler: chains.New(),
+	}
+}
 
-// func NewRouter() *Router {
+type Mock struct {
+	*chains.BaseHandler
+}
+
+func (r *Mock) Handle(ctx corehttp.Context) error {
+	return ctx.String(http.StatusOK, "OK")
+}
+
+// func NewRouter() chains.Handler {
 // 	reverseProxy, err := proxydmz.NewReverseProxy()
 // 	if err != nil {
 // 		zlog.Errorf("failed to create proxy instance: %v", err)
@@ -56,17 +68,3 @@ import (
 
 // 	return r.httpHandler(ctx)
 // }
-
-func NewMockRouter() *Mock {
-	return &Mock{
-		BaseHandler: chains.New(),
-	}
-}
-
-type Mock struct {
-	*chains.BaseHandler
-}
-
-func (r *Mock) Handle(ctx corehttp.Context) error {
-	return ctx.String(http.StatusOK, "OK")
-}

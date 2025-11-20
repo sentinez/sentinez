@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"sort"
 
-	corehttp "github.com/sentinez/sentinez/core/http"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/render"
 )
 

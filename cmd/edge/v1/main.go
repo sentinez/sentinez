@@ -22,9 +22,10 @@ import (
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/sentinez/pkg/runner"
-	"github.com/sentinez/sentinez/shared/zlog"
+	"github.com/sentinez/shared/zlog"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -60,7 +61,8 @@ func main() {
 			edgeServer = edge.New(httpSrv, setting)
 		)
 
-		zlog.Debugf("setting: %v", setting)
+		s, _ := jsonx.Marshal(setting)
+		zlog.Debugf("setting: %s", s)
 
 		app.OnStart(edgeServer.Start)
 		app.OnStop(edgeServer.Shutdown)
