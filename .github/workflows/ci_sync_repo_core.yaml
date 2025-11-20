@@ -36,7 +36,6 @@ jobs:
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           PREFIX="staging/src/github.com/sentinez/${NAME}"
           BRANCH="$CURRENT_BRANCH"
-          REMOTE_SHA=$(git ls-remote "$REMOTE" "$BRANCH" | awk '{print $1}')
 
           echo "MODULE:   $NAME"
           echo "REMOTE:   $REMOTE"
@@ -51,6 +50,9 @@ jobs:
 
           SUBTREE_SHA=$(git subtree split --prefix="$PREFIX" "$BRANCH")
 
+          git config --unset-all http.https://github.com/.extraheader
+          REMOTE_SHA=$(git ls-remote "$REMOTE" "$BRANCH" | awk '{print $1}')
+
           echo "Subtree SHA: $SUBTREE_SHA"
           echo "Remote SHA: $REMOTE_SHA"
 
@@ -61,8 +63,6 @@ jobs:
 
           echo "Force pushing to $REMOTE (branch: $BRANCH)"
 
-          git config --unset-all http.https://github.com/.extraheader
-          
           git push "$REMOTE" "$SUBTREE_SHA:$BRANCH" --force
 
           echo "Done."
