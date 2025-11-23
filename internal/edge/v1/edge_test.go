@@ -30,15 +30,13 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-// Pool cho *http.Request
 var reqPool = sync.Pool{
 	New: func() any {
-		// Tạo request mới mặc định
-		return httptest.NewRequest(http.MethodGet, "https://badcheese.is.s6z.io.vn:7443/", nil)
+		return httptest.NewRequest(
+			http.MethodGet, "https://badcheese.is.s6z.io.vn:7443/", nil)
 	},
 }
 
-// Pool cho *httptest.ResponseRecorder
 var respPool = sync.Pool{
 	New: func() any {
 		return httptest.NewRecorder()
