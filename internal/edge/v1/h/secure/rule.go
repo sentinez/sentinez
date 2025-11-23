@@ -43,7 +43,7 @@ type Rule struct {
 }
 
 func (r *Rule) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit rule", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit rule")
 
 	rule := ruleengine.GetEngine().LoadContext(ctx)
 	matched, ok := r.ingress.EvalExpr(ctx, rule)

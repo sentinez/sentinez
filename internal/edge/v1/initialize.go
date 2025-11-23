@@ -20,6 +20,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/trace"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem"
@@ -38,10 +39,12 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 	mem.Initialized(s.setting, appConf)
 
 	// begin first middleware when request income
-	income = waitingroom.New()
+	income = trace.NewTracer()
 
 	// current middleware
 	curr = income
+
+	curr = curr.SetNext(waitingroom.New())
 
 	curr = curr.SetNext(static.NewStatic())
 

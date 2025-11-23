@@ -29,10 +29,8 @@ require (
 	github.com/exaring/ja4plus v0.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hertz-contrib/websocket v0.0.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
-	github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect

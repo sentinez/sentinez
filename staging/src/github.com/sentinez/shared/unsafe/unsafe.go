@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,28 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httphz
+package sunsafe
 
-import (
-	"context"
-	"unsafe"
+import "unsafe"
 
-	"github.com/cloudwego/hertz/pkg/app"
-	corehttp "github.com/sentinez/core/http"
-)
-
-func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
-	return func(ctx context.Context, c *app.RequestContext) {
-
-		ctx = corehttp.SetRequestTime(ctx)
-
-		next(ctx, c)
-	}
+// B2S bytes to string, not mutate bytes
+func B2S(b []byte) string {
+	return unsafe.String(unsafe.SliceData(b), len(b))
 }
 
-func bytesToString(b []byte) string {
-	if len(b) == 0 {
-		return ""
-	}
-	return unsafe.String(&b[0], len(b))
+// S2B string to bytes, not mutate string
+func S2B(s string) []byte {
+	return unsafe.Slice(unsafe.StringData(s), len(s))
 }

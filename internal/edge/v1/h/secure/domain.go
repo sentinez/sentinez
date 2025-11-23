@@ -21,7 +21,6 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Domain)(nil)
@@ -39,7 +38,7 @@ type Domain struct {
 }
 
 func (d *Domain) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit domain", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit domain")
 
 	ns, ok := d.isValidSingleLevelSubdomain(ctx.Host(), d.hostname)
 	if !ok {

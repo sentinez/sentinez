@@ -32,8 +32,8 @@ const (
 	// Code is the code of the project.
 	Code = "SENZ"
 
-	// PrefixRequestID is prefix of request id
-	PrefixRequestID = "SENZREQ"
+	// PrefixXRequestId is prefix of request id
+	PrefixXRequestId = "SENZ:REQ:"
 
 	BaseName = "sentinez"
 
@@ -43,4 +43,6 @@ const (
 var (
 	// GoVersion is Go tree's version.
 	GoVersion = runtime.Version()
+
+	PrefixXRequestIdBytes = []byte("senz:req:")
 )

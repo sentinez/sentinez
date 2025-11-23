@@ -45,9 +45,15 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 }
 
 type Context struct {
+	id  string
 	req *app.RequestContext
 	ctx context.Context
 	x   *edgepb.Context
+}
+
+// SetRequestId implements corehttp.Context.
+func (c *Context) SetRequestId(id string) {
+	c.id = id
 }
 
 // Extra implements corehttp.Context.
@@ -69,7 +75,7 @@ func (c *Context) Flush() error {
 }
 
 func (c *Context) Header(k string) string {
-	return string(c.req.GetHeader(k))
+	return bytesToString(c.req.GetHeader(k))
 }
 
 func (c *Context) Query(k string) string {
@@ -81,7 +87,7 @@ func (c *Context) RemoteAddr() string {
 }
 
 func (c *Context) RequestId() string {
-	return c.Header(corehttp.HeaderXRequest)
+	return c.Header(corehttp.HeaderXRequestId)
 }
 
 func (c *Context) ResponseBody() []byte {
@@ -91,7 +97,7 @@ func (c *Context) ResponseBody() []byte {
 func (c *Context) ResponseHeader() map[string]string {
 	headers := make(map[string]string)
 	c.req.Response.Header.VisitAll(func(key, value []byte) {
-		headers[(string(key))] = string(value)
+		headers[(bytesToString(key))] = bytesToString(value)
 	})
 
 	return headers
@@ -102,10 +108,10 @@ func (c *Context) ResponseStatus() int {
 }
 
 func (c *Context) Scheme() string {
-	return string(c.req.Request.Scheme())
+	return bytesToString(c.req.Request.Scheme())
 }
 
-func (c *Context) SetClientIP(_ string) {
+func (c *Context) SetRequestIP(_ string) {
 	zlog.Fatal("[httpxdmz] unimplemented")
 }
 
@@ -218,17 +224,17 @@ func (c *Context) GetContext() context.Context {
 func (c *Context) Headers() map[string]string {
 	headers := make(map[string]string)
 	c.req.VisitAllHeaders(func(key, value []byte) {
-		headers[(string(key))] = string(value)
+		headers[(bytesToString(key))] = bytesToString(value)
 	})
 
 	return headers
 }
 
 func (c *Context) Host() string {
-	return string(c.req.Request.Host())
+	return bytesToString(c.req.Request.Host())
 }
 
-func (c *Context) ClientIP() string {
+func (c *Context) RequestIP() string {
 	return c.req.ClientIP()
 }
 
@@ -237,15 +243,15 @@ func (c *Context) JA4() string {
 }
 
 func (c *Context) Method() string {
-	return string(c.req.Request.Method())
+	return bytesToString(c.req.Request.Method())
 }
 
 func (c *Context) Queries() map[string][]string {
 	params := make(map[string][]string)
 
 	c.req.VisitAllQueryArgs(func(key, value []byte) {
-		k := string(key)
-		v := string(value)
+		k := bytesToString(key)
+		v := bytesToString(value)
 		params[k] = append(params[k], v)
 	})
 
@@ -253,7 +259,7 @@ func (c *Context) Queries() map[string][]string {
 }
 
 func (c *Context) TLS() bool {
-	return true
+	return c.Scheme() == corehttp.SchemeSecure
 }
 
 func (c *Context) RequestTime() time.Time {
@@ -280,7 +286,7 @@ func (c *Context) File(path string) error {
 }
 
 func (c *Context) Path() string {
-	return string(c.req.Request.URI().PathOriginal())
+	return bytesToString(c.req.Request.URI().PathOriginal())
 }
 
 func (c *Context) String(statusCode int, body string) error {

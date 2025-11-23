@@ -34,15 +34,15 @@ type RequestContext interface {
 	Path() string
 	URI() string
 	Body() []byte
-	ClientIP() string
 	JA4() string
 	TLS() bool
 	Method() string
 	Host() string
 	StatusCode() int
 	Protocol() string
-	RemoteAddr() string
 	Scheme() string
+	RemoteAddr() string
+	RequestIP() string
 	RequestId() string
 	RequestTime() time.Time
 
@@ -51,7 +51,8 @@ type RequestContext interface {
 	SetPath(p string)
 	SetURI(u string)
 	SetBody(b []byte)
-	SetClientIP(ip string)
+	SetRequestId(id string)
+	SetRequestIP(ip string)
 	SetJA4(fingerprint string)
 	SetMethod(m string)
 	SetHost(h string)

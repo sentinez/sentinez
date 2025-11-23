@@ -31,7 +31,8 @@ func NewApp(appConf *confpb.Config) *App {
 	logging := zlog.NewConsole(sentinez.Code, zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 
-	zlog.SetScopeLogLevel(sentinez.Code, appConf.GetFlag().GetLogLevel())
+	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
+	zlog.SetScopeLogLevel(sentinez.Code, level)
 
 	if appConf.GetFlag().GetEnvMode() != "dev" {
 		internal.AppendOption(fx.NopLogger)

@@ -40,7 +40,7 @@ type StandardRouter struct {
 }
 
 func (r *StandardRouter) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit standard router", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit standard router")
 
 	return r.handler(ctx)
 }

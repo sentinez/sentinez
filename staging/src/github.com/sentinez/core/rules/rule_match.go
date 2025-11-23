@@ -86,7 +86,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 }
 
 func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
-	src := ctx.ClientIP()
+	src := ctx.RequestIP()
 	des := cond.GetValue().GetStringValue()
 
 	// zlog.Debugf("src: %v", src)

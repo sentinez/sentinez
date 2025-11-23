@@ -17,39 +17,75 @@ package edge
 import (
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/trace"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
 
-func BenchmarkHandler(b *testing.B) {
-	req := httptest.NewRequest(http.MethodGet,
-		"https://badcheese.is.s6z.io.vn:7443/", nil)
-	w := httptest.NewRecorder()
-	ctx := stdhttpx.NewContext(req, w)
+var reqPool = sync.Pool{
+	New: func() any {
+		return httptest.NewRequest(
+			http.MethodGet, "https://badcheese.is.s6z.io.vn:7443/", nil)
+	},
+}
 
-	begin := waitingroom.New()
+var respPool = sync.Pool{
+	New: func() any {
+		return httptest.NewRecorder()
+	},
+}
 
-	zlog.SetLogLevel(zlog.LevelFatal.String())
+func getRequest() *http.Request {
+	req := reqPool.Get().(*http.Request)
+	return req
+}
 
+func putRequest(req *http.Request) {
+	reqPool.Put(req)
+}
+
+func getRecorder() *httptest.ResponseRecorder {
+	return respPool.Get().(*httptest.ResponseRecorder)
+}
+
+func putRecorder(w *httptest.ResponseRecorder) {
+	respPool.Put(w)
+}
+
+func BenchmarkStandardConverter(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelInfo)
+
+	begin := trace.NewTracer()
 	begin.
+		SetNext(waitingroom.New()).
 		SetNext(static.NewStatic()).
 		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
+		SetNext(secure.NewRule(zlog.LevelError)).
 		SetNext(secure.NewWAF(zlog.LevelError)).
 		SetNext(routing.NewMockRouter())
 
 	b.ReportAllocs()
 
-	for b.Loop() {
-		_ = begin.Handle(ctx)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			req := getRequest()
+			resp := getRecorder()
+
+			stdhttpx.StandardConverter(begin.Handle, resp, req)
+
+			putRequest(req)
+			putRecorder(resp)
+		}
+	})
 }
 
 func TestHandleChain(t *testing.T) {
@@ -58,12 +94,16 @@ func TestHandleChain(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx := stdhttpx.NewContext(req, w)
 
-	begin := waitingroom.New()
+	zlog.SetLogLevel(zlog.LevelInfo)
+
+	begin := trace.NewTracer()
 	begin.
+		SetNext(waitingroom.New()).
 		SetNext(static.NewStatic()).
-		SetNext(logging.NewLogger(zlog.LevelInfo)).
+		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
-		SetNext(secure.NewWAF(zlog.LevelInfo)).
+		SetNext(secure.NewRule(zlog.LevelError)).
+		SetNext(secure.NewWAF(zlog.LevelError)).
 		SetNext(routing.NewMockRouter())
 
 	if err := begin.Handle(ctx); err != nil {

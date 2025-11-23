@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/a-h/templ"
@@ -33,6 +32,7 @@ import (
 	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ssync "github.com/sentinez/shared/sync"
+	sunsafe "github.com/sentinez/shared/unsafe"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -41,8 +41,8 @@ var (
 )
 
 var (
-	oncePool sync.Once
-	ctxPool  *ssync.Pool[Context]
+	ctxPool = ssync.NewPool[Context]()
+	xPool   = ssync.NewPool[edgepb.Context]()
 )
 
 var upgrade = websocket.Upgrader{
@@ -52,28 +52,36 @@ var upgrade = websocket.Upgrader{
 	},
 }
 
-func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
-	oncePool.Do(func() {
-		ctxPool = ssync.NewPool[Context]()
-	})
+func GetContext() *Context {
+	return ctxPool.Get()
+}
 
+func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	httpCtx := ctxPool.Get()
 
 	httpCtx.req = req
 	httpCtx.resp = resp
-	httpCtx.ctx = req.Context()
-	httpCtx.status = 200
+	httpCtx.respStatus = 200
+
+	httpCtx.x = xPool.Get()
 
 	return httpCtx
 }
 
 type Context struct {
-	x      *edgepb.Context
-	req    *http.Request
-	resp   http.ResponseWriter
-	ctx    context.Context
-	buf    bytes.Buffer
-	status int
+	id          string
+	req         *http.Request
+	reqTime     time.Time
+	resp        http.ResponseWriter
+	respStatus  int
+	respBodyBuf bytes.Buffer
+
+	x *edgepb.Context
+}
+
+// SetRequestId implements corehttp.Context.
+func (c *Context) SetRequestId(id string) {
+	c.id = id
 }
 
 // Extra implements corehttp.Context.
@@ -117,7 +125,12 @@ func (c *Context) VisitResponseHeaders(visitor func(k []byte, v []byte)) {
 
 // Header implements corehttp.Context.
 func (c *Context) Header(k string) string {
-	return c.req.Header.Get(k)
+	values, ok := c.req.Header[k]
+	if !ok || len(values) == 0 {
+		return ""
+	}
+
+	return values[0]
 }
 
 // Headers implements corehttp.Context.
@@ -147,8 +160,8 @@ func (c *Context) Body() []byte {
 	return body
 }
 
-// ClientIP implements corehttp.Context.
-func (c *Context) ClientIP() string {
+// RequestIP implements corehttp.Context.
+func (c *Context) RequestIP() string {
 	// 1. X-Forwarded-For
 	if xff := c.Header(corehttp.HeaderXForwardedFor); xff != "" {
 		ips := strings.Split(xff, ",")
@@ -217,19 +230,19 @@ func (c *Context) RemoteAddr() string {
 
 // ResetResponse implements corehttp.Context.
 func (c *Context) ResetResponse() {
-	c.buf.Reset()
+	c.respBodyBuf.Reset()
 }
 
 // ResponseBody implements corehttp.Context.
 func (c *Context) ResponseBody() []byte {
-	return c.buf.Bytes()
+	return c.respBodyBuf.Bytes()
 }
 
 // ResponseHeader implements corehttp.Context.
 func (c *Context) ResponseHeader() map[string]string {
 	headers := make(map[string]string)
 	c.VisitResponseHeaders(func(key, value []byte) {
-		headers[(string(key))] = string(value)
+		headers[string(key)] = string(value)
 	})
 
 	return headers
@@ -237,12 +250,12 @@ func (c *Context) ResponseHeader() map[string]string {
 
 // SetBody implements corehttp.Context.
 func (c *Context) SetBody(b []byte) {
-	_, _ = c.buf.Write(b)
+	_, _ = c.respBodyBuf.Write(b)
 	_, _ = c.resp.Write(b)
 }
 
-// SetClientIP implements corehttp.Context.
-func (c *Context) SetClientIP(_ string) {
+// SetRequestIP implements corehttp.Context.
+func (c *Context) SetRequestIP(_ string) {
 	zlog.Fatal("[stdhttp] unimplemented")
 }
 
@@ -288,7 +301,7 @@ func (c *Context) SetResponseHeader(key string, value string) {
 
 // SetStatusCode implements corehttp.Context.
 func (c *Context) SetStatusCode(code int) {
-	c.status = code
+	c.respStatus = code
 	c.resp.WriteHeader(code)
 }
 
@@ -302,12 +315,12 @@ func (c *Context) SetURI(u string) {
 
 // StatusCode implements corehttp.Context.
 func (c *Context) StatusCode() int {
-	return c.status
+	return c.respStatus
 }
 
 // TLS implements corehttp.Context.
 func (c *Context) TLS() bool {
-	return false
+	return c.Scheme() == corehttp.SchemeSecure
 }
 
 // URI implements corehttp.Context.
@@ -325,7 +338,7 @@ func (c *Context) QueryStr() string {
 }
 
 func (c *Context) SetHeader(k, v string) {
-	c.resp.Header().Set(k, v)
+	c.req.Header.Set(k, v)
 }
 
 func (c *Context) Context() context.Context {
@@ -333,7 +346,7 @@ func (c *Context) Context() context.Context {
 }
 
 func (c *Context) RequestTime() time.Time {
-	return corehttp.GetRequestTime(c.ctx)
+	return c.reqTime
 }
 
 func (c *Context) Method() string {
@@ -345,18 +358,13 @@ func (c *Context) Path() string {
 }
 
 func (c *Context) RequestId() string {
-	values, ok := c.req.Header[corehttp.HeaderXRequest]
-	if !ok || len(values) == 0 {
-		return ""
-	}
-
-	return values[0]
+	return c.id
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.resp.Header().Set(
-		corehttp.HeaderContentType, corehttp.ValueApplicationJSON)
-	c.resp.Header().Set(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueAppJSON)
+	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -365,18 +373,20 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 }
 
 func (c *Context) String(statusCode int, msg string) error {
-	c.resp.Header().Set(corehttp.HeaderContentType, corehttp.ValueTextPlain)
-	c.resp.Header().Set(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextPlain)
+	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
-	_, err := c.resp.Write([]byte(msg))
+	_, err := c.resp.Write(sunsafe.S2B(msg))
 
 	return err
 }
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
-	c.resp.Header().Set(corehttp.HeaderContentType, corehttp.ValueTextHTML)
-	c.resp.Header().Set(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextHTML)
+	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
 	return component.Render(c.Context(), c.resp)
@@ -407,12 +417,15 @@ func (c *Context) Response() http.ResponseWriter {
 	return c.resp
 }
 
-func (c *Context) Release() {
+func Release(c *Context) {
 	c.req = nil
+
 	c.resp = nil
-	c.ctx = nil
-	c.buf.Reset()
-	c.x = nil
+	c.respStatus = http.StatusOK
+	c.respBodyBuf.Reset()
+
+	c.x.Reset()
+	xPool.Put(c.x)
 
 	ctxPool.Put(c)
 }

@@ -16,10 +16,9 @@ package stdhttpx
 
 import (
 	"net/http"
+	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez"
-	sids "github.com/sentinez/shared/ids"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
@@ -28,7 +27,7 @@ func HandlerFunc(path string, handler corehttp.RequestHandler) {
 
 		_ = handler(ctx)
 
-		ctx.Release()
+		Release(ctx)
 	})
 }
 
@@ -44,17 +43,20 @@ func Shutdown() error {
 
 func Convert(handler corehttp.RequestHandler) http.HandlerFunc {
 	return func(resp http.ResponseWriter, req *http.Request) {
-		rctx := NewContext(req, resp)
-
-		requestId := sids.NewNanoID(sentinez.PrefixRequestID)
-		rctx.req.Header.Set(corehttp.HeaderXRequest, requestId)
-
-		rctx.ctx = corehttp.SetRequestTime(rctx.ctx)
-
-		if err := handler(rctx); err != nil {
-			http.Error(resp, err.Error(), http.StatusInternalServerError)
-		}
-
-		rctx.Release()
+		StandardConverter(handler, resp, req)
 	}
+}
+
+func StandardConverter(handler corehttp.RequestHandler,
+	resp http.ResponseWriter, req *http.Request) {
+
+	ctx := NewContext(req, resp)
+
+	ctx.reqTime = time.Now().UTC()
+
+	if err := handler(ctx); err != nil {
+		http.Error(resp, err.Error(), ctx.StatusCode())
+	}
+
+	Release(ctx)
 }

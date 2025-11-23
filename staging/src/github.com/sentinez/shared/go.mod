@@ -5,9 +5,11 @@ go 1.25.0
 replace github.com/sentinez/sentinez/api => ../../../../../api
 
 require (
+	github.com/cloudresty/ulid v1.2.1
 	github.com/exaring/ja4plus v0.0.2
 	github.com/google/uuid v1.6.0
 	github.com/matoous/go-nanoid/v2 v2.1.0
+	github.com/rs/xid v1.6.0
 	github.com/sentinez/sentinez/api v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.36.10

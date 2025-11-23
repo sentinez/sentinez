@@ -20,7 +20,6 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Static)(nil)
@@ -42,7 +41,7 @@ type Static struct {
 }
 
 func (s *Static) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit static", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit static")
 
 	err := s.HandleNext(ctx)
 

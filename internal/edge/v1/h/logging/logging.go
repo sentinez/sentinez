@@ -40,7 +40,7 @@ type Logger struct {
 }
 
 func (l *Logger) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit logger", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit logger")
 
 	requestResourceHost := string(ctx.Host())
 
