@@ -23,6 +23,16 @@ type tx struct {
 	matched *rulepb.MatchedRules
 }
 
+func (t *tx) reset() {
+	if t.matched == nil {
+		return
+	}
+
+	t.matched.Ids = t.matched.Ids[:0]
+
+	t.matched.Names = t.matched.Names[:0]
+}
+
 type exprs struct {
 	chain *rulepb.Expr
 	tx    *tx

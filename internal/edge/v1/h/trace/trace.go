@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,28 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httphz
+package trace
 
 import (
-	"context"
-	"unsafe"
-
-	"github.com/cloudwego/hertz/pkg/app"
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	sids "github.com/sentinez/shared/ids"
 )
 
-func WrapHandler(next app.HandlerFunc) app.HandlerFunc {
-	return func(ctx context.Context, c *app.RequestContext) {
-
-		ctx = corehttp.SetRequestTime(ctx)
-
-		next(ctx, c)
-	}
+func NewTracer() chains.Handler {
+	return &Trace{BaseHandler: chains.New()}
 }
 
-func bytesToString(b []byte) string {
-	if len(b) == 0 {
-		return ""
-	}
-	return unsafe.String(&b[0], len(b))
+type Trace struct {
+	*chains.BaseHandler
+}
+
+func (t *Trace) Handle(ctx corehttp.Context) error {
+	requestId := sids.NewXID(sentinez.PrefixXRequestIdBytes)
+	ctx.SetRequestId(requestId)
+
+	return t.HandleNext(ctx)
 }

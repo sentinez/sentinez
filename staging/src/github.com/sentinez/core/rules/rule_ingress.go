@@ -18,7 +18,6 @@ import (
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
 	"github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
@@ -41,7 +40,7 @@ type ingress struct {
 }
 
 func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
-	zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
+	// zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
 
 	if !rule.GetEnabled() {
 		return false
@@ -67,7 +66,7 @@ func (in *ingress) matched(ctx chttp.RequestContext,
 // EvalExpr a list of rule
 func (in *ingress) EvalExpr(
 	ctx chttp.RequestContext, chain *rulepb.Expr) (*rulepb.MatchedRules, bool) {
-	zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
+	// zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
 
 	if !chain.GetEnabled() {
 		return nil, false
@@ -78,6 +77,8 @@ func (in *ingress) EvalExpr(
 		expr = newExpr(chain)
 		in.expr.Store(chain.GetId(), expr)
 	}
+
+	expr.tx.reset()
 
 	if ok = expr.build(in.matched).eval(ctx); ok {
 		return expr.tx.matched, ok

@@ -15,55 +15,80 @@
 package zlog
 
 var (
-	console = NewDefaultConsole(LevelDebug)
+	consoleLevel = LevelDebug
+	console      = NewDefaultConsole(LevelDebug)
 )
 
 // Info logs an info message.
 func Info(message ...any) {
-	console.Info(message...)
+	if v(LevelInfo) {
+		console.Info(message...)
+	}
 }
 
 // Infof logs an info message with a format.
 func Infof(template string, message ...any) {
-	console.Infof(template, message...)
+	if v(LevelInfo) {
+		console.Infof(template, message...)
+	}
 }
 
 // Debug logs a debug message.
 func Debug(message ...any) {
-	console.Debug(message...)
+	if v(LevelDebug) {
+		console.Debug(message...)
+	}
 }
 
 // Debugf logs a debug message.
 func Debugf(template string, message ...any) {
-	console.Debugf(template, message...)
+	if v(LevelDebug) {
+		console.Debugf(template, message...)
+	}
 }
 
 // Error logs an error message.
 func Error(message ...any) {
-	console.Error(message...)
+	if v(LevelError) {
+		console.Error(message...)
+	}
 }
 
 // Errorf logs an error message with a format.
 func Errorf(template string, message ...any) {
-	console.Errorf(template, message...)
+	if v(LevelError) {
+		console.Errorf(template, message...)
+	}
 }
 
 // Warn logs an warn message.
 func Warn(message ...any) {
-	console.Warning(message...)
+	if v(LevelWarning) {
+		console.Warning(message...)
+	}
 }
 
 // Warnf logs an error message with a format.
 func Warnf(template string, message ...any) {
-	console.Warningf(template, message...)
+	if v(LevelWarning) {
+		console.Warningf(template, message...)
+	}
 }
 
 // Fatal logs a fatal message.
 func Fatal(message ...any) {
-	console.Fatal(message...)
+	if v(LevelFatal) {
+		console.Fatal(message...)
+	}
 }
 
 // Fatalf logs a fatal message.
 func Fatalf(template string, message ...any) {
-	console.Fatalf(template, message...)
+	if v(LevelFatal) {
+		console.Fatalf(template, message...)
+	}
+}
+
+func v(ll Level) bool {
+	return ll >= consoleLevel
 }

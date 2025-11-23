@@ -38,6 +38,11 @@ type RequestContext struct {
 	Ctx context.Context
 }
 
+// SetRequestId implements corehttp.RequestContext.
+func (c *RequestContext) SetRequestId(id string) {
+	c.Req.Id = id
+}
+
 func (c *RequestContext) RequestTime() time.Time {
 	return time.Now().UTC()
 }
@@ -84,7 +89,7 @@ func (c *RequestContext) SetBody(b []byte) {
 	c.Req.Body = b
 }
 
-func (c *RequestContext) SetClientIP(ip string) {
+func (c *RequestContext) SetRequestIP(ip string) {
 	c.Req.Ip = ip
 }
 
@@ -185,7 +190,7 @@ func (c *RequestContext) Context() context.Context {
 	return c.Ctx
 }
 
-func (c *RequestContext) ClientIP() string {
+func (c *RequestContext) RequestIP() string {
 	return c.Req.GetIp()
 }
 

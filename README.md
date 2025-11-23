@@ -35,7 +35,7 @@ How to build and run:
 
 Clone source code with command:
 ```sh
-git clone --recurse-submodules https://github.com/sentinez/sentinez.git $GOPATH/src/github.com/sentinez/sentinez
+git clone https://github.com/sentinez/sentinez.git $GOPATH/src/github.com/sentinez/sentinez
 ``` 
 
 If you have already cloned the repo, you can initialize the submodule with:
@@ -51,6 +51,22 @@ git submodule update --init --recursive
 **Run** the project with `apiserver`
 ```sh
 make apiserver.run
+```
+
+**Run** edge proxy
+```sh
+make edge.run
+```
+
+Some benchmark of `edge` engine
+```
+goos: linux
+goarch: amd64
+pkg: github.com/sentinez/sentinez/internal/edge/v1
+cpu: 13th Gen Intel(R) Core(TM) i7-1355U
+BenchmarkStandardConverter-12           13299890                83.27 ns/op           48 B/op          3 allocs/op
+PASS
+ok      github.com/sentinez/sentinez/internal/edge/v1   1.383s
 ```
 
 ### License

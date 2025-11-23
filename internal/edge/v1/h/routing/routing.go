@@ -33,5 +33,5 @@ type Mock struct {
 }
 
 func (r *Mock) Handle(ctx corehttp.Context) error {
-	return ctx.String(http.StatusOK, "OK")
+	return ctx.String(http.StatusOK, "")
 }

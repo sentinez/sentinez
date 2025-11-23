@@ -30,7 +30,7 @@ type ReverseProxy interface {
 
 const (
 	HeaderServer        = "Server"
-	HeaderXRequest      = "X-Request-Id"
+	HeaderXRequestId    = "X-Request-Id"
 	HeaderContentType   = "Content-Type"
 	HeaderUpgrade       = "Upgrade"
 	HeaderUserAgent     = "User-Agent"
@@ -43,7 +43,7 @@ const (
 	ValueAccessDenied        = "Access denied"
 	ValueTextPlain           = "text/plain; charset=utf-8"
 	ValueTextHTML            = "text/html; charset=utf-8"
-	ValueApplicationJSON     = "application/json; charset=utf-8"
+	ValueAppJSON             = "application/json; charset=utf-8"
 
 	SchemeSecure   = "https"
 	SchemeInsecure = "http"

@@ -49,7 +49,7 @@ type WAF struct {
 
 // nolint:funlen
 func (w *WAF) Handle(ctx corehttp.Context) error {
-	zlog.Debugf("[edge][%s] >>> visit WAF", ctx.RequestId())
+	// zlog.Debug("[edge] >>> visit WAF")
 
 	waf := wafengine.GetEngine().LoadContext(ctx)
 	if waf == nil {
@@ -135,7 +135,7 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		Messages:      msgs,
 		Path:          ctx.URI(),
 		Score:         int32(score),
-		Ip:            ctx.ClientIP(),
+		Ip:            ctx.RequestIP(),
 		RequestDomain: ctx.Host(),
 		TransactionId: ruleset.GetTxId(),
 		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
