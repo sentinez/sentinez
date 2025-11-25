@@ -122,7 +122,7 @@ func configJSONLogger(scope string) *zap.Logger {
 func SetLogLevel(ll Level) {
 	onceSetLevel.Do(func() {
 		consoleLevel = ll
-		console = NewConsole("", consoleLevel)
+		console = NewDefaultConsole(consoleLevel)
 	})
 }
 
