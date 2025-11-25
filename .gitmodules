@@ -10,3 +10,6 @@
 [submodule "_patches/googleapis"]
 	path = _patches/googleapis
 	url = https://github.com/googleapis/googleapis.git
+[submodule "staging/src/github.com/sentinez/quadrum"]
+	path = staging/src/github.com/sentinez/quadrum
+	url = https://github.com/sentinez/quadrum.git
