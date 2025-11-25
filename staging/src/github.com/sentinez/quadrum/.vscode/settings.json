@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "bpf_helpers.h": "c",
+        "typeinfo": "c",
+        "bpf.h": "c"
+    }
+}
