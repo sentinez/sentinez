@@ -18,6 +18,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
+	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 	"github.com/sentinez/shared/zlog"
 )
@@ -29,18 +30,31 @@ func NewStandardRouter() chains.Handler {
 	}
 
 	return &StandardRouter{
-		BaseHandler: chains.New(),
-		handler:     routes.GetRouter().SetReverseProxy(reverseProxy),
+		BaseHandler:  chains.New(),
+		router:       routes.GetRouter(),
+		reverseProxy: reverseProxy,
 	}
 }
 
 type StandardRouter struct {
 	*chains.BaseHandler
-	handler func(ctx corehttp.Context) error
+	reverseProxy corehttp.ReverseProxy
+	router       *routes.Router
 }
 
 func (r *StandardRouter) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit standard router")
+	if r.reverseProxy == nil {
+		zlog.Error("[edge][routing]: proxy not initialized")
+		return httpxcmn.InternalServerError(ctx)
+	}
 
-	return r.handler(ctx)
+	target, err := r.router.Match(ctx)
+	if err != nil {
+		zlog.Error("[edge] routing match error: ", err)
+		return httpxcmn.NotFound(ctx)
+	}
+
+	r.reverseProxy.Serve(ctx, target)
+
+	return nil
 }

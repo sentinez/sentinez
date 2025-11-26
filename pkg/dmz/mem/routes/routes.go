@@ -86,7 +86,7 @@ func (r *Router) Store(origin *edgepb.Origin) {
 	}
 }
 
-func (r *Router) SetReverseProxy(
+func (r *Router) NewHandler(
 	proxy corehttp.ReverseProxy) func(ctx corehttp.Context) error {
 
 	return func(ctx corehttp.Context) error {
@@ -97,7 +97,7 @@ func (r *Router) SetReverseProxy(
 			return httpxcmn.InternalServerError(ctx)
 		}
 
-		target, err := r.match(ctx)
+		target, err := r.Match(ctx)
 		if err != nil {
 			zlog.Error("[edge] routing match error: ", err)
 			return httpxcmn.NotFound(ctx)
@@ -109,7 +109,7 @@ func (r *Router) SetReverseProxy(
 	}
 }
 
-func (r *Router) match(ctx corehttp.Context) (string, error) {
+func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
 		return "", errorx.F("unknown namespace of request")
@@ -117,7 +117,7 @@ func (r *Router) match(ctx corehttp.Context) (string, error) {
 
 	origin := ""
 	path := ctx.Path()
-	matchPrefix := prefixPath(path)
+	matchPrefix := r.prefixPath(path)
 	k := key(hCtx.GetTenantNs(), matchPrefix)
 	defaultKey := key(hCtx.TenantNs, "/")
 
@@ -147,7 +147,7 @@ func (r *Router) match(ctx corehttp.Context) (string, error) {
 	return "", errorx.F("not found: %s", path)
 }
 
-func prefixPath(path string) string {
+func (r *Router) prefixPath(path string) string {
 	path = strings.TrimPrefix(path, "/")
 	parts := strings.SplitN(path, "/", 2)
 
