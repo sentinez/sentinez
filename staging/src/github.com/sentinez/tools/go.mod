@@ -3,20 +3,21 @@ module github.com/sentinez/tools
 go 1.25.0
 
 replace (
-	github.com/sentinez/sentinez/api => ../../../../../api
 	github.com/sentinez/core => ../core
+	github.com/sentinez/sentinez/api => ../../../../../api
 	github.com/sentinez/shared => ../shared
 )
 
 require (
 	github.com/bufbuild/buf v1.50.1
+	github.com/cilium/ebpf v0.20.0
 	github.com/codesenberg/bombardier v1.2.6
 	github.com/favadi/protoc-go-inject-tag v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
-	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/core v0.0.0-00010101000000-000000000000
+	github.com/sentinez/sentinez/api v0.0.0
 	github.com/vektra/mockery/v2 v2.53.2
-	golang.org/x/text v0.28.0
+	golang.org/x/text v0.30.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.10
@@ -145,15 +146,15 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.uber.org/zap/exp v0.3.0 // indirect
-	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
 	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/term v0.36.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
