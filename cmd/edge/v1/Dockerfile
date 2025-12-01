@@ -35,7 +35,8 @@ RUN go build -ldflags="-s -w" -o /bin/main ./cmd/edge/v1
 # Clean up
 RUN go clean -modcache
 
-COPY data/crs/ /sentinez/data/crs
+COPY deploy/ruleroot/ /sentinez/ruleroot/
+
 COPY cmd/edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
 COPY cmd/edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
 
@@ -52,7 +53,7 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 
 COPY --from=builder /bin/main ./senz
-COPY --from=builder /sentinez/data/crs/ ./crs/
+COPY --from=builder /sentinez/ruleroot/ ./ruleroot/
 COPY --from=builder /sentinez/edge/v1/proxy.yaml ./proxy.yaml
 COPY --from=builder /sentinez/edge/v1/docker-entrypoint.sh ./docker-entrypoint.sh
 

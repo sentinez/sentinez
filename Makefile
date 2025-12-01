@@ -102,7 +102,7 @@ edge.run:
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
 		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
-		--rule_path=./data/crs/v4-16-0 \
+		--rule_path=./deploy/ruleroot/v4-16-0 \
 		--proxy_config=./cmd/edge/v1/proxy.yaml \
 		--env_file=./cmd/edge/v1/.env
 

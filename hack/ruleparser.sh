@@ -15,47 +15,47 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-16-0 \
-    -file deploy/rules/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
+    -file deploy/ruleroot/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-16-0 \
-    -file deploy/rules/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
+    -file deploy/ruleroot/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen \
-    -file deploy/rules/setup.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen \
+    -file deploy/ruleroot/setup.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen \
-    -file deploy/rules/default.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen \
+    -file deploy/ruleroot/default.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-16-0 \
-    -file deploy/rules/v4-16-0/REQUEST-901-INITIALIZATION.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
+    -file deploy/ruleroot/v4-16-0/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen \
-    -file deploy/rules/REQUEST-901-INITIALIZATION.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen \
+    -file deploy/ruleroot/REQUEST-901-INITIALIZATION.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-16-0 \
-    -file deploy/rules/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
+    -file deploy/ruleroot/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen \
-    -file deploy/rules/REQUEST-949-BLOCKING-EVALUATION.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen \
+    -file deploy/ruleroot/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen \
-    -file deploy/rules/audit.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen \
+    -file deploy/ruleroot/audit.conf
 
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-17-0 \
-    -file deploy/rules/v4-17-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-17-0 \
+    -file deploy/ruleroot/v4-17-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 
 ruleparser-sentinez \
-    -out core/modsec/gen/v4-17-0 \
-    -file deploy/rules/v4-17-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-17-0 \
+    -file deploy/ruleroot/v4-17-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
 

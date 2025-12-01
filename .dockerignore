@@ -2,14 +2,30 @@
 .idea/
 .vscode/
 
+_patches/
+_logo/
+_audit
+
 _volume/
 volume/
-deploy/
 
+deploy/docker/
+docker/
+deploy/ruleroot/*.conf
+deploy/ruleroot/*/*.conf
+
+hack/
 bin/
 build/
+dist/
 docs/
 third_party/
 tests/
+ui/
+
+gen/ts/
 
 node_modules
+
+
+*.example
