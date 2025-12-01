@@ -18,7 +18,7 @@
 ./senz \
     --log_level info  \
     --mode prod \
-    --rule_path ./crs/v4-16-0 \
+    --rule_path ./ruleroot/v4-16-0 \
     --proxy_config ./proxy.yaml \
     --env_file "" \
 	--certificate_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
