@@ -1,6 +1,6 @@
 
 
-# Sentinez Guide
+# Sentinéz /sen-ti-nɛz/
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](http://www.apache.org/licenses/LICENSE-2.0)
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by/4.0/)
@@ -9,11 +9,12 @@
 <img src="https://i.imgur.com/5Z8Qm77.png" alt="sentinez" width="300px">
 
 ---
+**Sentinez** *stylized as* **Sentinéz**
 
 ### 🛡️ Sentinel of the Seventh Layer
 
 > [!WARNING]
-> Please keep in mind that ***Sentinez*** is still under active development
+> Please keep in mind that ***Sentinéz*** is still under active development
 > and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 
 #### Overview
@@ -21,7 +22,7 @@
 
 ----
 
-**Main features** of *Sentinez* WAF as a service:
+**Main features** of *Sentinéz* WAF as a service:
 - Rule-based request filtering (based on OWASP CRS basics)
 - Whitelist/blacklist configuration
 - Provides a console interface for data visualization
@@ -71,7 +72,7 @@ ok      github.com/sentinez/sentinez/internal/edge/v1   1.383s
 
 ### License
 
-Copyright (c) Sentinez Labs. All rights reserved.
+Copyright (c) Sentinéz Labs. All rights reserved.
 
 Licensed under the [Apache 2.0](LICENSE) license.
 
@@ -85,7 +86,7 @@ Licensed under the [Apache 2.0](LICENSE) license.
 </p>
 
 ![Creative Commons License](https://i.creativecommons.org/l/by/4.0/88x31.png)  
-**Sentinez** – photo by **Duc-Hung Ho**  
+**Sentinéz** – photo by **Duc-Hung Ho**  
 Licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
