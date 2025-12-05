@@ -24,7 +24,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/shared/figure"
+	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 )
 
@@ -107,7 +107,7 @@ func (h *XServer) ListenAndServe(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	figure.INFO(h.meta.GetServiceName(),
+	console.INFO(h.meta.GetServiceName(),
 		h.meta.GetServiceKey(), fmt.Sprintf("running on http %s", address))
 
 	return h.server.ListenAndServe()

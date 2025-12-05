@@ -22,7 +22,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/shared/figure"
+	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 )
 
@@ -59,7 +59,7 @@ func (s *Server) ListenAndServe(addr string) error {
 	}
 
 	host, port, _ := net.SplitHostPort(addr)
-	figure.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
 		fmt.Sprintf("running on http %s:%s", host, port))
 
 	s.core.Addr = addr
@@ -74,7 +74,7 @@ func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
 	}
 
 	host, port, _ := net.SplitHostPort(addr)
-	figure.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
 		fmt.Sprintf("running on https %s:%s", host, port))
 
 	s.core.Addr = addr

@@ -19,7 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/internal/shared/figure"
+	"github.com/sentinez/sentinez/internal/shared/console"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"
 )
@@ -56,7 +56,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	figure.INFO(ws.meta.GetServiceName(),
+	console.INFO(ws.meta.GetServiceName(),
 		ws.meta.GetServiceKey(), fmt.Sprintf("running on ws %s", addr))
 
 	return stdhttpx.ListenAndServe(addr)
