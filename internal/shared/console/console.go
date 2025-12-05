@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package figure
+package console
 
 import (
 	"fmt"
@@ -34,12 +34,12 @@ func INFO(serviceName string, key string, msgs ...string) {
 	msg := strings.Join(msgs, "\n"+gts+" ")
 
 	once.Do(func() {
-		fmt.Print(Gen(serviceName, key) + gts + " " + msg + "\n\n")
+		fmt.Print(GenFigure(serviceName, key) + gts + " " + msg + "\n\n")
 	})
 }
 
-// Gen generates the ASCII art of the project.
-func Gen(header string, footer string) string {
+// GenFigure generates the ASCII art of the project.
+func GenFigure(header string, footer string) string {
 	fig := figure.NewFigure(strings.ToLower(sentinez.Code), "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
