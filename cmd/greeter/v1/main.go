@@ -18,14 +18,15 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func main() {
-	app := runner.NewApp(config.Config())
+	app := runner.NewApp(config.Config(), sentinez.Code)
 	app.Handle(func(conf *confpb.Config) error {
 		grpc := greeter.NewService(conf.GetMeta())
 

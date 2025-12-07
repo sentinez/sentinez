@@ -33,7 +33,6 @@ require (
 	github.com/sony/gobreaker v1.0.0
 	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.11.1
-	go.uber.org/fx v1.24.0
 	golang.org/x/crypto v0.42.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.10
@@ -93,6 +92,7 @@ require (
 	github.com/valllabh/ocsf-schema-golang v1.0.3 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/dig v1.19.0 // indirect
+	go.uber.org/fx v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect

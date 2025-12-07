@@ -18,11 +18,12 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 // This is the sentinez apiserver application, it will automatically
@@ -38,7 +39,7 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	app := runner.NewApp(config.Config())
+	app := runner.NewApp(config.Config(), sentinez.Code)
 
 	app.Handle(func(conf *confpb.Config) error {
 		var (
