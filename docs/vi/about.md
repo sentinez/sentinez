@@ -35,6 +35,15 @@ mô hình OSI
 
 ## Tính năng
 
+Sentinez cung cấp cho người dùng các chứng năng bảo mật website tiêu biểu
+- Rule-based do người dùng tạo, dùng để cảnh báo, chặn các request trực tiếp
+- WAF cung cấp bởi OWASP corerulesets, 1 tập hợp rules dùng để lọc request một
+cách hiệu quả
+- Các rule limit để chống lại các cuộc tấn công DDOS
+- Lọc các package và chặn các IP độc hại ngay ở L3/L4
+- Cung cấp các monitor rule giúp cảnh báo sớm các mối nguy hiểm
+- Bảo mật website và routing địa chỉ website bằng TLS/SSL
+
 ## Cloud Native
 
 Tất cả các ứng dụng được biên dịch và ảo hóa bằng Docker, với kích thước của mỗi
