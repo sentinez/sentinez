@@ -18,13 +18,14 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/sentinez/pkg/runner"
 	"github.com/sentinez/shared/zlog"
 
 	"net/http"
@@ -53,7 +54,7 @@ func init() {
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	app := runner.NewApp(config.Config())
+	app := runner.NewApp(config.Config(), sentinez.Code)
 	app.Handle(func(conf *confpb.Config) error {
 		var (
 			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())

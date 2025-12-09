@@ -44,15 +44,20 @@ export default defineConfig({
         // https://vitepress.dev/reference/default-theme-config
         nav: [
           { text: 'Home', link: '/vi/' },
-          { text: 'Examples', link: '/markdown-examples' }
+          { text: 'Guide', link: '/vi/guide/uber-guide' }
         ],
 
         sidebar: [
           {
-            text: 'Examples',
+            text: 'Edge',
             items: [
-              { text: 'Kỹ thuật', link: '/markdown-examples' },
-              { text: 'Runtime API Examples', link: '/api-examples' }
+              { text: 'Sentinez Edge là gì?', link: '/vi/edge/edge.md' },
+            ]
+          },
+          {
+            text: 'API Server',
+            items: [
+              { text: 'Đặc tả API', link: '/vi/apiserver/api-server.md' },
             ]
           }
         ],

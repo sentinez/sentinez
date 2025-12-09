@@ -17,15 +17,16 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
 	"github.com/sentinez/sentinez/internal/realtime"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
-	"github.com/sentinez/sentinez/pkg/runner"
 )
 
 func main() {
-	app := runner.NewApp(config.Config())
+	app := runner.NewApp(config.Config(), sentinez.Code)
 	app.Handle(func(conf *confpb.Config) error {
 		var (
 			wsSrv = wscore.NewServer(conf.GetMeta())

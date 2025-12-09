@@ -17,22 +17,22 @@ package runner
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
-	"github.com/sentinez/sentinez"
+	"github.com/sentinez/core/runner/internal"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/runner/internal"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
 	"google.golang.org/grpc/grpclog"
 )
 
-func NewApp(appConf *confpb.Config) *App {
-	logging := zlog.NewConsole(sentinez.Code, zlog.LevelError)
+func NewApp(appConf *confpb.Config, scopeName string) *App {
+	logging := zlog.NewConsole(scopeName, zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 
 	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
-	zlog.SetScopeLogLevel(sentinez.Code, level)
+	zlog.SetScopeLogLevel(scopeName, level)
 
 	if appConf.GetFlag().GetEnvMode() != "dev" {
 		internal.AppendOption(fx.NopLogger)
@@ -59,7 +59,7 @@ func (a *App) OnStart(start any) {
 
 					go func() {
 						if err := fn(ctx); err != nil {
-							if errorx.Is(err, errorx.ErrServerClosed) {
+							if errors.Is(err, http.ErrServerClosed) {
 								zlog.Infof("[runner] %+v", err)
 							}
 							//else {

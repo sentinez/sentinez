@@ -15,7 +15,7 @@ hero:
       link: /markdown-examples
     - theme: alt
       text: Style Guide
-      link: /uber-guide
+      link: /guide/uber-guide
 
 features:
   - title: Feature A

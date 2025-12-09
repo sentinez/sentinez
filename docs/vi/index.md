@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Sentinéz Engineering"
-  text: "tài liệu kỹ thuật"
+  text: "Tài liệu kỹ thuật"
   tagline: Like A Sentinel
   image:
     src: /logo.png
@@ -12,17 +12,17 @@ hero:
   actions:
     - theme: brand
       text: Engineering
-      link: /vi/api-server
+      link: /vi/about
     - theme: alt
       text: Style Guide
-      link: /uber-guide
+      link: /vi/guide/uber-guide
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Edge
+    details: Lớp lá chắn đầu tiên, kiểm soát các yêu cầu ra vào của hệ thống
+  - title: API Server
+    details: Hệ thống các API để tương tác với hệ thống backend
+  - title: Realtime
+    details: Cung cấp cơ thế streaming data realtime qua websocket
 ---
 

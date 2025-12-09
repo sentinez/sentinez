@@ -20,7 +20,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/sentinez/sentinez/pkg/runner/internal"
+	"github.com/sentinez/core/runner/internal"
 	"go.uber.org/fx"
 )
 

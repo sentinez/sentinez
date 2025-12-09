@@ -161,7 +161,7 @@ func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 
 	resp, err := iam.service.UpdateUser(ctx, request)
 	if err != nil {
-		zlog.Errorf("[IdentityAccessManagement.UpdateUser] update err=", err)
+		zlog.Errorf("[IdentityAccessManagement.UpdateUser] update err: %v", err)
 		return nil, err
 	}
 
