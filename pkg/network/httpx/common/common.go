@@ -57,6 +57,17 @@ func NotFound(ctx corehttp.Context) error {
 	return nil
 }
 
+func TooManyRequests(ctx corehttp.Context) error {
+	err := ctx.Render(http.StatusTooManyRequests,
+		render.TooManyRequests(ctx.RequestId()))
+	if err != nil {
+		ctx.ResetResponse()
+		return ctx.String(http.StatusTooManyRequests, "Too many requests")
+	}
+
+	return nil
+}
+
 // GenContextKey .
 // nolint:funlen
 func GenContextKey(ctx corehttp.Context) string {
