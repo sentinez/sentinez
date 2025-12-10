@@ -6,7 +6,7 @@
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by/4.0/)
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
-<img src="https://i.imgur.com/5Z8Qm77.png" alt="sentinez" width="300px">
+![img](./_logo/senzz.png)
 
 ---
 **Sentinez** *stylized as* **Sentinéz**
