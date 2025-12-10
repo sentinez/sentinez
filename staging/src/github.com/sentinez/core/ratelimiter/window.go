@@ -36,29 +36,34 @@ type Window interface {
 
 var _ Window = (*LocalWindow)(nil)
 
-type LocalWindow struct{}
+func NewLocalWindow() *LocalWindow {
+	return &LocalWindow{}
+}
+
+type LocalWindow struct {
+	// The start boundary (timestamp in nanoseconds) of the window
+	// [start, start + size (time)]
+	start int64
+
+	// total count
+	count int64
+}
 
 func (lw *LocalWindow) Start() time.Time {
-	//TODO implement me
-	panic("implement me")
+	return time.Unix(0, lw.start)
 }
 
 func (lw *LocalWindow) Count() int64 {
-	//TODO implement me
-	panic("implement me")
+	return lw.count
 }
 
 func (lw *LocalWindow) AddCount(n int64) {
-	//TODO implement me
-	panic("implement me")
+	lw.count += n
 }
 
 func (lw *LocalWindow) Reset(s time.Time, c int64) {
-	//TODO implement me
-	panic("implement me")
+	lw.start = s.UnixNano()
+	lw.count = c
 }
 
-func (lw *LocalWindow) Sync(now time.Time) {
-	//TODO implement me
-	panic("implement me")
-}
+func (lw *LocalWindow) Sync(_ time.Time) {}

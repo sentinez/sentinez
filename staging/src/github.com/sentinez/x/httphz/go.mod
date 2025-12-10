@@ -1,6 +1,6 @@
 module github.com/sentinez/x/httphz
 
-go 1.25.0
+go 1.25.3
 
 replace (
 	github.com/sentinez/core => ../../core
@@ -20,31 +20,32 @@ require (
 )
 
 require (
-	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.14.0 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/cloudwego/gopkg v0.1.4 // indirect
-	github.com/cloudwego/netpoll v0.7.0 // indirect
-	github.com/exaring/ja4plus v0.0.2 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic v1.14.2 // indirect
+	github.com/bytedance/sonic/loader v0.4.0 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/cloudwego/gopkg v0.1.7 // indirect
+	github.com/cloudwego/netpoll v0.7.2 // indirect
+	github.com/exaring/ja4plus v0.0.3 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/hertz-contrib/websocket v0.0.1 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
-	github.com/nyaruka/phonenumbers v1.0.55 // indirect
+	github.com/hertz-contrib/websocket v0.2.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
+	github.com/nyaruka/phonenumbers v1.6.7 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
-	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
+	github.com/savsgio/gotils v0.0.0-20250924091648-bce9a52d7761 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
-	google.golang.org/grpc v1.70.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.1 // indirect
+	golang.org/x/arch v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
+	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/grpc v1.77.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )

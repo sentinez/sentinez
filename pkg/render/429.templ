@@ -1,0 +1,16 @@
+package render
+
+templ tooManyRequestsError(requestId string) {
+	<div style="display: flex; align-items: center; padding: 2rem;">
+		<img src="https://i.imgur.com/GXItvHZ.png" alt="Logo" style="max-width: 120px; margin-right: 2rem;" />
+		<div>
+			<h1>429 Too Many Requests</h1>
+			<p>You're doing that too often! Try again later.</p>
+			<pre>X-Request-ID { requestId } </pre>
+		</div>
+	</div>
+}
+
+templ TooManyRequests(requestId string) {
+	@View("429 | sentinez", tooManyRequestsError(requestId))
+}

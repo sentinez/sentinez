@@ -17,9 +17,6 @@
 > Please keep in mind that ***Sentinéz*** is still under active development
 > and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 
-#### Overview
-**[SYSTEM ARCHITECTURE](./docs/i18n/en/system-architecture.md)**
-
 ----
 
 **Main features** of *Sentinéz* WAF as a service:
@@ -30,7 +27,7 @@
 How to build and run:  
 **Requirements** before build and run:
 - NodeJS 20.9.0
-- Go 1.25.0
+- Go 1.25.3
 - Protocol Buffer
 - Make (for running commands efficiently)
 

@@ -17,6 +17,7 @@ package edge
 import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/h/ratelimiter"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
@@ -43,6 +44,8 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 
 	// current middleware
 	curr = income
+
+	curr = curr.SetNext(ratelimiter.New())
 
 	curr = curr.SetNext(waitingroom.New())
 
