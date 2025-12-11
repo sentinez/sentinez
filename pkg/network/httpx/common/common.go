@@ -20,12 +20,18 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"sync"
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/render"
 )
 
+var mu sync.Mutex
+
 func Forbidden(ctx corehttp.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
@@ -36,6 +42,9 @@ func Forbidden(ctx corehttp.Context) error {
 }
 
 func InternalServerError(ctx corehttp.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := ctx.Render(
 		http.StatusInternalServerError, render.InternalError(ctx.RequestId()))
 	if err != nil {
@@ -48,6 +57,9 @@ func InternalServerError(ctx corehttp.Context) error {
 }
 
 func NotFound(ctx corehttp.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
@@ -58,6 +70,9 @@ func NotFound(ctx corehttp.Context) error {
 }
 
 func TooManyRequests(ctx corehttp.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	err := ctx.Render(http.StatusTooManyRequests,
 		render.TooManyRequests(ctx.RequestId()))
 	if err != nil {

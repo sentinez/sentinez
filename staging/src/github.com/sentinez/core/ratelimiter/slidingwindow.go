@@ -103,6 +103,10 @@ func (sw *SlidingWindow) Allow() bool {
 }
 
 func (sw *SlidingWindow) AllowN(now time.Time, n int64) bool {
+	if sw == nil {
+		return true
+	}
+
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
 

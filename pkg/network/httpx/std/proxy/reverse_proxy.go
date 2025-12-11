@@ -16,49 +16,41 @@
 package stdproxy
 
 import (
-	"crypto/tls"
-	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/sentinez/pkg/network"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewReverseProxy() (*ReverseProxy, error) {
+func NewReverseProxy(target string) (*ReverseProxy, error) {
+	urlParsed, err := url.Parse(target)
+	if err != nil {
+		return nil, err
+	}
+
+	client := httputil.NewSingleHostReverseProxy(urlParsed)
+	client.Transport = network.StandardTransporter()
+
 	return &ReverseProxy{
-		pool: sync.NewPool[httputil.ReverseProxy](),
+		client: client,
+		host:   urlParsed.Host,
 	}, nil
 }
 
 type ReverseProxy struct {
-	pool *sync.Pool[httputil.ReverseProxy]
+	client *httputil.ReverseProxy
+	host   string
 }
 
-func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
-	url, err := url.Parse(target)
-	if err != nil {
-		_ = httpxcmn.InternalServerError(ctx)
+func (p *ReverseProxy) Serve(ctx corehttp.Context) {
+	if p == nil {
+		_ = httpxcmn.NotFound(ctx)
+		zlog.Errorf("target not found in reverse proxy memory")
 		return
-	}
-
-	rproxy := p.pool.Get()
-
-	rproxy.Director = func(req *http.Request) {
-		rewriteRequestURL(req, url)
-		req.Host = url.Host
-	}
-
-	if url.Scheme == corehttp.SchemeInsecure {
-		rproxy.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-		}
 	}
 
 	nctx, ok := ctx.Unwrap().(*stdhttpx.Context)
@@ -68,50 +60,7 @@ func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
 		return
 	}
 
-	rproxy.ServeHTTP(nctx.Response(), nctx.Request())
-}
+	nctx.SetHost(p.host)
 
-func rewriteRequestURL(req *http.Request, target *url.URL) {
-	targetQuery := target.RawQuery
-	req.URL.Scheme = target.Scheme
-	req.URL.Host = target.Host
-	req.URL.Path, req.URL.RawPath = joinURLPath(target, req.URL)
-	if targetQuery == "" || req.URL.RawQuery == "" {
-		req.URL.RawQuery = targetQuery + req.URL.RawQuery
-	} else {
-		req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
-	}
-}
-
-func joinURLPath(a, b *url.URL) (path, rawpath string) {
-	if a.RawPath == "" && b.RawPath == "" {
-		return singleJoiningSlash(a.Path, b.Path), ""
-	}
-	// Same as singleJoiningSlash, but uses EscapedPath to determine
-	// whether a slash should be added
-	apath := a.EscapedPath()
-	bpath := b.EscapedPath()
-
-	aslash := strings.HasSuffix(apath, "/")
-	bslash := strings.HasPrefix(bpath, "/")
-
-	switch {
-	case aslash && bslash:
-		return a.Path + b.Path[1:], apath + bpath[1:]
-	case !aslash && !bslash:
-		return a.Path + "/" + b.Path, apath + "/" + bpath
-	}
-	return a.Path + b.Path, apath + bpath
-}
-
-func singleJoiningSlash(a, b string) string {
-	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasPrefix(b, "/")
-	switch {
-	case aslash && bslash:
-		return a + b[1:]
-	case !aslash && !bslash:
-		return a + "/" + b
-	}
-	return a + b
+	p.client.ServeHTTP(nctx.Response(), nctx.Request())
 }

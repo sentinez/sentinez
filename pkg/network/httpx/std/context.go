@@ -364,7 +364,6 @@ func (c *Context) RequestId() string {
 func (c *Context) JSON(statusCode int, body []byte) error {
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueAppJSON)
 	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
-	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -375,7 +374,6 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 func (c *Context) String(statusCode int, msg string) error {
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextPlain)
 	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
-	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(sunsafe.S2B(msg))
@@ -384,12 +382,18 @@ func (c *Context) String(statusCode int, msg string) error {
 }
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
+	var buf bytes.Buffer
+	if err := component.Render(c.Context(), &buf); err != nil {
+		return err
+	}
+
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextHTML)
 	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
-	c.SetResponseHeader(corehttp.HeaderXRequestId, c.RequestId())
 	c.SetStatusCode(statusCode)
 
-	return component.Render(c.Context(), c.resp)
+	_, err := c.resp.Write(buf.Bytes())
+	return err
+	//return component.Render(c.Context(), c.resp)
 }
 
 func (c *Context) Upgrade() (*websocket.Conn, error) {

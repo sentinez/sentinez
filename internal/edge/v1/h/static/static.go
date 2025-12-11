@@ -46,8 +46,8 @@ func (s *Static) Handle(ctx corehttp.Context) error {
 	err := s.HandleNext(ctx)
 
 	if s.isStaticAsset(ctx.Path()) {
-		ctx.SetResponseHeader(corehttp.HeaderCacheControl,
-			"public, max-age=3600, immutable",
+		ctx.SetResponseHeader(
+			corehttp.HeaderCacheControl, "public, max-age=3600, immutable",
 		)
 	}
 

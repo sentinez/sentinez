@@ -34,7 +34,7 @@ const (
 	hzHostClientName = "sentinez-edge-reverse-proxy"
 )
 
-func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
+func NewReverseProxy(target string, options ...Option) (*ReverseProxy, error) {
 	option := defaultBuildOption()
 	for _, opt := range options {
 		opt.apply(option)
@@ -62,15 +62,14 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 		return nil, fmt.Errorf("httpxdmz: new reverse proxy failed: %v", err)
 	}
 
-	ws, _ := NewWSReverseProxy()
+	ws, _ := NewWSReverseProxy(target)
 
 	proxy := &ReverseProxy{
 		tlsClient:   tlsClient,
 		plainClient: plainClient,
-
-		rPrxPool: sync.NewPool[reverseproxy.ReverseProxy](),
-
-		ws: ws,
+		rPrxPool:    sync.NewPool[reverseproxy.ReverseProxy](),
+		ws:          ws,
+		target:      target,
 	}
 
 	return proxy, nil
@@ -79,28 +78,27 @@ func NewReverseProxy(options ...Option) (*ReverseProxy, error) {
 type ReverseProxy struct {
 	tlsClient   *client.Client
 	plainClient *client.Client
-
-	rPrxPool *sync.Pool[reverseproxy.ReverseProxy]
-
-	ws *WSReverseProxy
+	rPrxPool    *sync.Pool[reverseproxy.ReverseProxy]
+	ws          *WSReverseProxy
+	target      string
 }
 
-func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
+func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 
 	upgrade := ctx.Header(corehttp.HeaderUpgrade)
 	if upgrade == "websocket" || upgrade == "WebSocket" {
-		p.ws.Serve(ctx, target)
+		p.ws.Serve(ctx)
 		return
 	}
 
 	r := p.rPrxPool.Get()
 	defer p.rPrxPool.Put(r)
 
-	r.Target = target
+	r.Target = p.target
 
-	if strings.HasPrefix(target, "https://") {
+	if strings.HasPrefix(p.target, "https://") {
 		r.SetDirector(func(req *protocol.Request) {
-			req.SetRequestURI(b2s(JoinURLPath(req, target)))
+			req.SetRequestURI(b2s(JoinURLPath(req, p.target)))
 			req.Header.SetHostBytes(req.URI().Host())
 		})
 		r.SetClient(p.tlsClient)
@@ -108,7 +106,7 @@ func (p *ReverseProxy) Serve(ctx corehttp.Context, target string) {
 	} else {
 		r.SetDirector(func(req *protocol.Request) {
 			req.SetIsTLS(false)
-			req.SetRequestURI(b2s(JoinURLPath(req, target)))
+			req.SetRequestURI(b2s(JoinURLPath(req, p.target)))
 			req.Header.SetHostBytes(req.URI().Host())
 		})
 		r.SetClient(p.plainClient)

@@ -25,7 +25,7 @@ type Server interface {
 }
 
 type ReverseProxy interface {
-	Serve(ctx Context, target string)
+	Serve(ctx Context)
 }
 
 const (

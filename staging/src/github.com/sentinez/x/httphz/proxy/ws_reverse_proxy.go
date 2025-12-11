@@ -23,18 +23,20 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewWSReverseProxy() (*WSReverseProxy, error) {
+func NewWSReverseProxy(target string) (*WSReverseProxy, error) {
 	proxy := &WSReverseProxy{}
 	return proxy, nil
 }
 
-type WSReverseProxy struct{}
+type WSReverseProxy struct{
+	target string
+}
 
-func (p *WSReverseProxy) Serve(ctx corehttp.Context, target string) {
+func (p *WSReverseProxy) Serve(ctx corehttp.Context) {
 
 	uri := ctx.URI()
 	if len(uri) != 0 {
-		target += string(uri)
+		p.target += string(uri)
 	}
 
 	// TODO: forward custom header of sentine-edge
@@ -49,6 +51,6 @@ func (p *WSReverseProxy) Serve(ctx corehttp.Context, target string) {
 		return
 	}
 
-	wsReverseProxy := reverseproxy.NewWSReverseProxy(target)
+	wsReverseProxy := reverseproxy.NewWSReverseProxy(p.target)
 	wsReverseProxy.ServeHTTP(ctx.Context(), rctx)
 }
