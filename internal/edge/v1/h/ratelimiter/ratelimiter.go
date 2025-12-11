@@ -15,11 +15,9 @@
 package ratelimiter
 
 import (
-	"time"
-
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/core/ratelimiter"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/ratelimiter"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"
 )
@@ -27,18 +25,19 @@ import (
 func New() chains.Handler {
 	return &Limiter{
 		BaseHandler: chains.New(),
-		limiter:     ratelimiter.NewSlidingWindow(time.Minute, 10),
 	}
 }
 
 type Limiter struct {
 	*chains.BaseHandler
-	limiter ratelimiter.Limiter
 }
 
 func (l *Limiter) Handle(ctx corehttp.Context) error {
-	if !l.limiter.Allow() {
-		zlog.Debugf("limit exceeded %d - %s", l.limiter.Count(), ctx.URI())
+	limiter := ratelimiter.GetEngine().LoadContext(ctx)
+
+	if !limiter.Allow() {
+		totalCount := limiter.Count() + limiter.Limit()
+		zlog.Debugf("limit exceeded %d - %s", totalCount, ctx.URI())
 		return httpxcmn.TooManyRequests(ctx)
 	}
 

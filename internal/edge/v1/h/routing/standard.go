@@ -17,28 +17,23 @@ package routing
 import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/pkg/dmz/mem/reverseproxy"
 	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
-	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 	"github.com/sentinez/shared/zlog"
 )
 
 func NewStandardRouter() chains.Handler {
-	reverseProxy, err := stdproxy.NewReverseProxy()
-	if err != nil {
-		zlog.Errorf("failed to create proxy instance: %v", err)
-	}
-
 	return &StandardRouter{
 		BaseHandler:  chains.New(),
 		router:       routes.GetRouter(),
-		reverseProxy: reverseProxy,
+		reverseProxy: reverseproxy.GetEngine(),
 	}
 }
 
 type StandardRouter struct {
 	*chains.BaseHandler
-	reverseProxy corehttp.ReverseProxy
+	reverseProxy *reverseproxy.ReverseProxy
 	router       *routes.Router
 }
 
@@ -54,7 +49,7 @@ func (r *StandardRouter) Handle(ctx corehttp.Context) error {
 		return httpxcmn.NotFound(ctx)
 	}
 
-	r.reverseProxy.Serve(ctx, target)
+	r.reverseProxy.Load(target).Serve(ctx)
 
 	return nil
 }

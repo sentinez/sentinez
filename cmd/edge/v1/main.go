@@ -25,6 +25,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
+	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 
@@ -68,7 +69,7 @@ func main() {
 		app.OnStart(edgeServer.Start)
 		app.OnStop(edgeServer.Shutdown)
 
-		return nil
+		return protobuf.Validate(setting)
 	})
 
 	runner.Serve(context.Background(), app)

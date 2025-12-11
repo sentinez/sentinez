@@ -22,7 +22,6 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -57,7 +56,6 @@ func key(ns, prefix string) string {
 }
 
 func (r *Router) Store(origin *edgepb.Origin) {
-
 	for _, routeConfig := range origin.Routes {
 		zlog.Debugf(
 			"[edge] ns=%s %s -> %s (rewrite: %s)",
@@ -83,29 +81,6 @@ func (r *Router) Store(origin *edgepb.Origin) {
 
 		r.dynamic.Store(k, routeConfig.Target)
 		r.rewrite.Store(k, routeConfig.Rewrite)
-	}
-}
-
-func (r *Router) NewHandler(
-	proxy corehttp.ReverseProxy) func(ctx corehttp.Context) error {
-
-	return func(ctx corehttp.Context) error {
-		zlog.Debugf("[edge][request] host: %s", ctx.Host())
-
-		if proxy == nil {
-			zlog.Error("[edge][routing]: proxy not initialized")
-			return httpxcmn.InternalServerError(ctx)
-		}
-
-		target, err := r.Match(ctx)
-		if err != nil {
-			zlog.Error("[edge] routing match error: ", err)
-			return httpxcmn.NotFound(ctx)
-		}
-
-		proxy.Serve(ctx, target)
-
-		return nil
 	}
 }
 

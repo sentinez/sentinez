@@ -86,6 +86,9 @@ setting:
             operator: OPERATOR_EQ
             value: "/block"
             logic: LOGIC_AND
+    isRateLimitOn: true
+    timeWindow: 5s
+    limit: 50
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

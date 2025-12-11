@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
@@ -79,6 +80,9 @@ func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
 
 	s.core.Addr = addr
 	s.core.Handler = s.mux
+	s.core.IdleTimeout = 120 * time.Second
+	s.core.ReadTimeout = 15 * time.Second
+	s.core.WriteTimeout = 15 * time.Second
 
 	return s.core.ListenAndServeTLS(certFile, keyFile)
 }

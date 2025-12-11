@@ -402,6 +402,12 @@ func (m *Security) Validate() error {
 		}
 	}
 
+	// no validation rules for IsRateLimitOn
+
+	// no validation rules for TimeWindow
+
+	// no validation rules for Limit
+
 	return nil
 }
 
