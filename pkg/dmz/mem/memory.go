@@ -124,7 +124,9 @@ func LoadWAF(appConf *confpb.Config) {
 func LoadRuleBased() {
 	settings.Visit(func(s *edgepb.Setting) bool {
 
-		ruleengine.Store(s.GetOrigin().GetNamespace(), s.GetSecurity().GetExpr())
+		ruleengine.Store(
+			s.GetOrigin().GetNamespace(),
+			s.GetSecurity().GetExpr())
 		return true
 	})
 }
