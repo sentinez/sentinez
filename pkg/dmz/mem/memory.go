@@ -18,7 +18,7 @@ package mem
 import (
 	"time"
 
-	corelimiter "github.com/sentinez/core/ratelimiter"
+	"github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
@@ -32,7 +32,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
+func LoadConfiguration(st *edgepb.Setting, appConf *confpb.Config) {
 	// save all setting for each tenant
 	LoadSetting(st)
 
@@ -53,32 +53,27 @@ func Initialized(st *edgepb.Setting, appConf *confpb.Config) {
 }
 
 func LoadSetting(st *edgepb.Setting) {
-	sts := settings.New()
-
-	if err := sts.Store(st); err != nil {
+	if err := settings.Store(st); err != nil {
 		zlog.Errorf("[edge]%v", err)
 	}
 }
 
 func LoadRouter() {
-	router := routes.NewRouter()
-
-	settings.Get().Visit(func(s *edgepb.Setting) bool {
-		router.Store(s.GetOrigin())
+	settings.Visit(func(s *edgepb.Setting) bool {
+		routes.Store(s.GetOrigin())
 		return true
 	})
 }
 
 func LoadReverseProxy() {
-	reverseProxy := reverseproxy.New()
-	settings.Get().Visit(func(s *edgepb.Setting) bool {
+	settings.Visit(func(s *edgepb.Setting) bool {
 		for _, routeConfig := range s.GetOrigin().GetRoutes() {
 			rproxy, err := stdproxy.NewReverseProxy(routeConfig.Target)
 			if err != nil {
 				continue
 			}
 
-			reverseProxy.Store(routeConfig.Target, rproxy)
+			reverseproxy.Store(routeConfig.Target, rproxy)
 		}
 
 		return true
@@ -86,40 +81,39 @@ func LoadReverseProxy() {
 }
 
 func LoadRateLimiter() {
-	lim := ratelimiter.New()
-
-	settings.Get().Visit(func(s *edgepb.Setting) bool {
+	settings.Visit(func(s *edgepb.Setting) bool {
 		if !s.GetSecurity().GetIsRateLimitOn() {
-			zlog.Infof(
-				"[edge][limiter] ignore '%s'", s.GetOrigin().GetNamespace())
+			zlog.Infof("[edge][limiter] ignore '%s'",
+				s.GetOrigin().GetNamespace())
 			return true
 		}
 
 		d, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
 		if err != nil {
 			zlog.Fatalf("[edge] load rate limiter to mem err: %v", err)
+			return true
 		}
 
-		limiter := corelimiter.NewSlidingWindow(d, s.GetSecurity().GetLimit())
-		lim.Store(s.GetOrigin().GetNamespace(), limiter)
+		lim := limiter.NewRateLimiter(d, s.GetSecurity().GetLimit())
+		ratelimiter.Store(s.GetOrigin().GetNamespace(), lim)
 		return true
 	})
 }
 
 func LoadWAF(appConf *confpb.Config) {
-	settings.Get().Visit(func(s *edgepb.Setting) bool {
+	var (
+		flag = corers.ReqAppAttackRCE
+	)
+
+	settings.Visit(func(s *edgepb.Setting) bool {
 		if !s.GetSecurity().GetIsWafEngineOn() {
 			zlog.Infof("[edge][waf] ignore '%s'", s.GetOrigin().GetNamespace())
 			return true
 		}
 
-		var (
-			ns     = s.GetOrigin().GetNamespace()
-			engine = wafengine.New()
-			flag   = corers.ReqAppAttackRCE
-		)
+		ns := s.GetOrigin().GetNamespace()
 
-		err := engine.Store(appConf, ns, corers.WAF4160, flag)
+		err := wafengine.Store(appConf, ns, corers.WAF4160, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}
@@ -128,13 +122,11 @@ func LoadWAF(appConf *confpb.Config) {
 }
 
 func LoadRuleBased() {
-	settings.Get().Visit(func(s *edgepb.Setting) bool {
-		var (
-			engine = ruleengine.New()
-			ns     = s.GetOrigin().GetNamespace()
-		)
+	settings.Visit(func(s *edgepb.Setting) bool {
 
-		engine.Store(ns, s.GetSecurity().GetExpr())
+		ruleengine.Store(
+			s.GetOrigin().GetNamespace(),
+			s.GetSecurity().GetExpr())
 		return true
 	})
 }

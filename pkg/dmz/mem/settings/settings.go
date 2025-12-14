@@ -25,6 +25,7 @@ import (
 var (
 	once sync.Once
 	inst *Setting
+	mu   sync.Mutex
 )
 
 func New() *Setting {
@@ -68,4 +69,23 @@ func (s *Setting) Visit(fn func(*edgepb.Setting) bool) {
 	s.setting.Range(func(_ string, value *edgepb.Setting) bool {
 		return fn(value)
 	})
+}
+
+func Visit(fn func(*edgepb.Setting) bool) {
+	if inst == nil {
+		inst = New()
+	}
+
+	inst.Visit(fn)
+}
+
+func Store(st *edgepb.Setting) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if inst == nil {
+		inst = New()
+	}
+
+	return inst.Store(st)
 }

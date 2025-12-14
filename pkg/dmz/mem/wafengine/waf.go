@@ -28,6 +28,7 @@ import (
 var (
 	once    sync.Once
 	wafInst *WAFCache
+	mu      sync.Mutex
 )
 
 func New() *WAFCache {
@@ -97,4 +98,16 @@ func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
 
 	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetTenantNs())
 	return w.Load(hCtx.GetTenantNs())
+}
+
+func Store(conf *confpb.Config,
+	namespace string, version corers.Version, flag corers.Flag) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if wafInst == nil {
+		wafInst = New()
+	}
+
+	return wafInst.Store(conf, namespace, version, flag)
 }
