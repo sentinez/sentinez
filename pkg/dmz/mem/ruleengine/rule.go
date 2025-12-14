@@ -26,6 +26,7 @@ import (
 var (
 	once     sync.Once
 	ruleInst *RuleCache
+	mu       sync.Mutex
 )
 
 func New() *RuleCache {
@@ -71,4 +72,15 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
 
 	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetTenantNs())
 	return rc.Load(hCtx.GetTenantNs())
+}
+
+func Store(namespace string, expr *ruleenginepb.Expr) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if ruleInst == nil {
+		ruleInst = New()
+	}
+
+	ruleInst.Store(namespace, expr)
 }

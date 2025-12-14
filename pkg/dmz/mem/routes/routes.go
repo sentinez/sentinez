@@ -29,6 +29,7 @@ import (
 var (
 	inst *Router
 	once sync.Once
+	mu   sync.Mutex
 )
 
 func NewRouter() *Router {
@@ -130,4 +131,15 @@ func (r *Router) prefixPath(path string) string {
 		return "/" + parts[0]
 	}
 	return "/"
+}
+
+func Store(origin *edgepb.Origin) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if inst == nil {
+		inst = NewRouter()
+	}
+
+	inst.Store(origin)
 }

@@ -40,7 +40,7 @@
 // ref:
 // https://bytebytego.com/courses/system-design-interview/design-a-rate-limiter
 
-package ratelimiter
+package limiter
 
 import (
 	"sync"

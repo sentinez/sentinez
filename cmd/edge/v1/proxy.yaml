@@ -88,7 +88,7 @@ setting:
             logic: LOGIC_AND
     isRateLimitOn: true
     timeWindow: 5s
-    limit: 50
+    limit: 10
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

@@ -23,7 +23,7 @@ import (
 func (s *Server) initialize(appConf *confpb.Config) error {
 
 	// init cache repository
-	mem.Initialized(s.setting, appConf)
+	mem.LoadConfiguration(s.setting, appConf)
 
 	income := h.Init(appConf)
 	s.core.Handle(income.Handle)

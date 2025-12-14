@@ -24,6 +24,7 @@ import (
 var (
 	once             sync.Once
 	reverseProxyInst *ReverseProxy
+	mu               sync.Mutex
 )
 
 func New() *ReverseProxy {
@@ -55,4 +56,15 @@ func (rp *ReverseProxy) Load(target string) corehttp.ReverseProxy {
 	}
 
 	return expr
+}
+
+func Store(target string, rproxy corehttp.ReverseProxy) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if reverseProxyInst == nil {
+		reverseProxyInst = New()
+	}
+
+	reverseProxyInst.Store(target, rproxy)
 }
