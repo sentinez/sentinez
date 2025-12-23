@@ -89,6 +89,7 @@ setting:
     isRateLimitOn: true
     timeWindow: 5s
     limit: 50
+    timeout: 5s
 
   # ----------------------------------------------------------
   # TRAFFIC CONTROL — THROTTLING, WAITING ROOM

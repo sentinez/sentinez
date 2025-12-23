@@ -54,7 +54,7 @@ func LoadConfiguration(st *edgepb.Setting, appConf *confpb.Config) {
 
 func LoadSetting(st *edgepb.Setting) {
 	if err := settings.Store(st); err != nil {
-		zlog.Errorf("[edge]%v", err)
+		zlog.Errorf("[edge] %v", err)
 	}
 }
 
@@ -88,14 +88,21 @@ func LoadRateLimiter() {
 			return true
 		}
 
-		d, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
+		size, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
 		if err != nil {
-			zlog.Fatalf("[edge] load rate limiter to mem err: %v", err)
+			zlog.Fatalf("[edge] rate limiter, parse err: %v", err)
 			return true
 		}
 
-		lim := limiter.NewRateLimiter(d, s.GetSecurity().GetLimit())
+		timeout, err := time.ParseDuration(s.GetSecurity().GetTimeout())
+		if err != nil {
+			zlog.Fatalf("[edge] rate limiter, parse err: %v", err)
+			return true
+		}
+
+		lim := limiter.NewRateLimiter(timeout, size, s.GetSecurity().GetLimit())
 		ratelimiter.Store(s.GetOrigin().GetNamespace(), lim)
+
 		return true
 	})
 }
