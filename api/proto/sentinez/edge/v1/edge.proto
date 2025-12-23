@@ -61,13 +61,22 @@ message Security {
   sentinez.types.rule.engine.v1.Expr expr = 4; // @gotags: yaml:"expr"
 
   bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"
+
   string time_window = 11 [(buf.validate.field) = {
     required: false,
     string: {
       pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"
-    }}] ; //@gotags: yaml:"timeWindow"
+    }
+  }] ; //@gotags: yaml:"timeWindow"
+
   int64 limit = 12; //@gotags: yaml:"limit"
 
+  string timeout = 13 [(buf.validate.field) = {
+    required: false,
+    string: {
+      pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"
+    }
+  }] ; //@gotags: yaml:"timeout"
 }
 
 // TrafficControl for systems using a virtual waiting room or throttling:

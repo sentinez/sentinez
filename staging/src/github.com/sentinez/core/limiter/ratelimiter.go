@@ -21,19 +21,23 @@ import (
 	ssync "github.com/sentinez/shared/sync"
 )
 
-func NewRateLimiter(size time.Duration, limit int64) *RateLimiter {
+func NewRateLimiter(timeout time.Duration,
+	windowSize time.Duration, limit int64) *RateLimiter {
 	return &RateLimiter{
-		records: ssync.NewMap[string, *SlidingWindow](),
-		size:    size,
-		limit:   limit,
+		records:    ssync.NewMap[string, *SlidingWindow](),
+		windowSize: windowSize,
+		limit:      limit,
+		timeout:    timeout.Milliseconds(),
 	}
 }
 
 type RateLimiter struct {
-	records *ssync.Map[string, *SlidingWindow]
-	mu      sync.Mutex
-	size    time.Duration
-	limit   int64
+	records      *ssync.Map[string, *SlidingWindow]
+	mu           sync.Mutex
+	windowSize   time.Duration
+	limit        int64
+	timeout      int64
+	lastBlocking int64
 }
 
 func (r *RateLimiter) Allow(key string) bool {
@@ -54,11 +58,21 @@ func (r *RateLimiter) AllowN(key string, now time.Time, n int64) bool {
 
 	limiter, ok := r.records.Load(key)
 	if !ok {
-		limiter = NewSlidingWindow(r.size, r.limit)
+		limiter = NewSlidingWindow(r.windowSize, r.limit)
 		r.records.Store(key, limiter)
 	}
 
-	return limiter.AllowN(now, n)
+	if r.lastBlocking != 0 && r.lastBlocking+r.timeout > now.UnixMilli() {
+		r.lastBlocking = now.UnixMilli()
+		return false
+	}
+
+	if !limiter.AllowN(now, n) {
+		r.lastBlocking = now.UnixMilli()
+		return false
+	}
+
+	return r.lastBlocking+r.timeout <= now.UnixMilli()
 }
 
 func (r *RateLimiter) Count(key string) int64 {
@@ -79,7 +93,7 @@ func (r *RateLimiter) Size() time.Duration {
 		return 0
 	}
 
-	return r.size
+	return r.windowSize
 }
 
 func (r *RateLimiter) Limit() int64 {

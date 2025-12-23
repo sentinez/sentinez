@@ -42,7 +42,7 @@ func NewLocalWindow() *LocalWindow {
 
 type LocalWindow struct {
 	// The start boundary (timestamp in nanoseconds) of the window
-	// [start, start + size (time)]
+	// [start, start + windowSize (time)]
 	start int64
 
 	// total count

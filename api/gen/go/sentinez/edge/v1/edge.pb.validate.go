@@ -408,6 +408,8 @@ func (m *Security) Validate() error {
 
 	// no validation rules for Limit
 
+	// no validation rules for Timeout
+
 	return nil
 }
 

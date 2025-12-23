@@ -135,7 +135,7 @@ func (sw *SlidingWindow) advance(now time.Time) {
 
 	diffSize := newCurrStart.Sub(sw.curr.Start()) / sw.size
 	if diffSize >= 1 {
-		// The current-window is at least one-window-size
+		// The current-window is at least one-window-windowSize
 		// behind the expected one.
 
 		newPrevCount := int64(0)
