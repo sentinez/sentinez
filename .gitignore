@@ -80,3 +80,6 @@ next-env.d.ts
 # local volume
 volume/
 _volume/
+
+.vscode
+.idea
