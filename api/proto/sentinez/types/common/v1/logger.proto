@@ -19,7 +19,7 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/comm
 
 enum LogKind {
   LOG_KIND_UNSPECIFIED = 0;
-  LOG_KIND_HTTP = 1;
-  LOG_KIND_WAF = 2;
-  LOG_KIND_RULE = 3;
+  LOG_KIND_HTTP        = 1;
+  LOG_KIND_WAF         = 2;
+  LOG_KIND_RULE        = 3;
 }

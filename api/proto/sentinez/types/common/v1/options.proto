@@ -31,21 +31,21 @@ extend google.protobuf.FileOptions { XMeta x_meta = 52001; }
 
 message XMeta {
   string service_name = 1;
-  Kind service_kind = 2;
-  string service_key = 3;
+  Kind   service_kind = 2;
+  string service_key  = 3;
 }
 
 message XMessage {
   bool database_model = 1;
-  bool export_field = 2;
+  bool export_field   = 2;
 }
 
 message XMethod {
-  bool ignore = 1;
+  bool              ignore  = 1;
   repeated XRequire require = 2;
 }
 
 message XRequire {
-  Role role = 1;
+  Role       role       = 1;
   Permission permission = 2;
 }

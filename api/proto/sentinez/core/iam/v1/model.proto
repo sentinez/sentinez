@@ -22,7 +22,6 @@ import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/model/v1/metadata.proto";
 import "google/protobuf/struct.proto";
 
-
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
 
 message Account {
@@ -40,7 +39,7 @@ message Account {
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string password = 11 [(buf.validate.field).string.min_len = 8];
-  string email = 12 [(buf.validate.field).string.email = true];
+  string email    = 12 [(buf.validate.field).string.email = true];
 
   repeated google.protobuf.Struct credentials = 20;
 }
@@ -57,7 +56,7 @@ message AccountResponse {
   }}];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string email = 11 [(buf.validate.field).string.email = true];
+  string email    = 11 [(buf.validate.field).string.email = true];
 }
 
 message User {
@@ -69,7 +68,7 @@ message User {
     prefix: "senz.users."
   }}];
 
-  string full_name = 10 [(buf.validate.field).required = true];
-  string email = 11 [(buf.validate.field).string.email = true];
+  string full_name    = 10 [(buf.validate.field).required = true];
+  string email        = 11 [(buf.validate.field).string.email = true];
   string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }

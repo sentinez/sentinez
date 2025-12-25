@@ -21,7 +21,7 @@ import "google/protobuf/descriptor.proto";
 
 enum Role {
   ROLE_UNSPECIFIED = 0;
-  ROLE_CUSTOMER = 1;
-  ROLE_SELLER = 2;
-  ROLE_ADMIN = 3;
+  ROLE_CUSTOMER    = 1;
+  ROLE_SELLER      = 2;
+  ROLE_ADMIN       = 3;
 }

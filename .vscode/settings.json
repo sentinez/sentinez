@@ -13,5 +13,8 @@
         "${workspaceFolder}/api/third_party/protovalidate/proto/protovalidate"
     ],
     "protobuf.completion.autoImport": true,
-    "protobuf.hover.showDocumentation": true
+    "protobuf.hover.showDocumentation": true,
+    "protobuf.externalLinter.enabled": true,
+    "protobuf.externalLinter.linter": "buf",
+    "protobuf.externalLinter.runOnSave": true,
 }

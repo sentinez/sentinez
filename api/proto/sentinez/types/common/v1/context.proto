@@ -20,8 +20,8 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/comm
 import "google/protobuf/timestamp.proto";
 
 message Context {
-  string name = 1;
-  google.protobuf.Timestamp expire_at = 2;
-  string user_id = 3;
-  int32 permission_bitwise = 4;
+  string                    name               = 1;
+  google.protobuf.Timestamp expire_at          = 2;
+  string                    user_id            = 3;
+  int32                     permission_bitwise = 4;
 }
