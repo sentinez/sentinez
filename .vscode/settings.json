@@ -1,3 +1,17 @@
 {
-    "editor.rulers": [80]
+    "editor.rulers": [
+        80
+    ],
+    "protobuf.formatOnSave": true,
+    "protobuf.formatter.alignFields": true,
+    "protobuf.protoc.path": "protoc",
+    "protobuf.clangFormat.enabled": true,
+    "protobuf.includes": [
+        "${workspaceFolder}/api/proto",
+        "${workspaceFolder}/api/third_party/googleapis",
+        "${workspaceFolder}/api/third_party/grpc-gateway",
+        "${workspaceFolder}/api/third_party/protovalidate/proto/protovalidate"
+    ],
+    "protobuf.completion.autoImport": true,
+    "protobuf.hover.showDocumentation": true
 }

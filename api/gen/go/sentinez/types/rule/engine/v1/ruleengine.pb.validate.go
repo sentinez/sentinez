@@ -58,8 +58,6 @@ func (m *Condition) Validate() error {
 		}
 	}
 
-	// no validation rules for Score
-
 	return nil
 }
 
@@ -344,8 +342,6 @@ func (m *Expr) Validate() error {
 
 	}
 
-	// no validation rules for Threshold
-
 	return nil
 }
 
@@ -430,8 +426,6 @@ func (m *ExprLite) Validate() error {
 		}
 
 	}
-
-	// no validation rules for Threshold
 
 	return nil
 }
@@ -587,8 +581,6 @@ func (m *ConditionLite) Validate() error {
 	// no validation rules for Operator
 
 	// no validation rules for Value
-
-	// no validation rules for Score
 
 	return nil
 }

@@ -44,6 +44,14 @@ func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 }
 
+func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+	return bypass
+}
+
+func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+	return bypass
+}
+
 func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	// debug, _ := protojson.Marshal(cond)
 	// zlog.Debug(string(debug))
