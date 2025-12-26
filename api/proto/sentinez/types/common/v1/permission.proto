@@ -19,17 +19,16 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/comm
 
 import "google/protobuf/descriptor.proto";
 
-
 enum Permission {
   PERMISSION_UNSPECIFIED = 0;
 
-  PERMISSION_ROOT        = 1;      // 1 << 0
-  PERMISSION_CREATE_OWN  = 2;      // 1 << 1
-  PERMISSION_CREATE_ANY  = 4;      // 1 << 2
-  PERMISSION_VIEW_OWN    = 8;      // 1 << 3
-  PERMISSION_VIEW_ANY    = 16;     // 1 << 4
-  PERMISSION_UPDATE_OWN  = 32;     // 1 << 5
-  PERMISSION_UPDATE_ANY  = 64;     // 1 << 6
-  PERMISSION_DELETE_OWN  = 128;    // 1 << 7
-  PERMISSION_DELETE_ANY  = 256;    // 1 << 8
+  PERMISSION_ROOT       = 1; // 1 << 0
+  PERMISSION_CREATE_OWN = 2; // 1 << 1
+  PERMISSION_CREATE_ANY = 4; // 1 << 2
+  PERMISSION_VIEW_OWN   = 8; // 1 << 3
+  PERMISSION_VIEW_ANY   = 16; // 1 << 4
+  PERMISSION_UPDATE_OWN = 32; // 1 << 5
+  PERMISSION_UPDATE_ANY = 64; // 1 << 6
+  PERMISSION_DELETE_OWN = 128; // 1 << 7
+  PERMISSION_DELETE_ANY = 256; // 1 << 8
 }

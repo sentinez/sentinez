@@ -27,61 +27,61 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greet
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Greeter Service";
+    title  : "Greeter Service";
     version: "1.0";
   };
-  schemes: HTTP;
-  schemes: HTTPS;
-  consumes: "application/json";
+  schemes             : HTTP;
+  schemes             : HTTPS;
+  consumes            : "application/json";
   security_definitions: {
     security: {
-      key: "ApiKeyAuth";
+      key  : "ApiKeyAuth";
       value: {
         type: TYPE_API_KEY;
-        in: IN_HEADER;
+        in  : IN_HEADER;
         name: "Authorization";
       }
     }
   }
   security: {
     security_requirement: {
-      key: "ApiKeyAuth";
+      key  : "ApiKeyAuth";
       value: {}
     }
   }
 };
 
 option (sentinez.types.common.v1.x_meta) = {
-  service_name : "SENTINEZ // GREETER",
-  service_kind : KIND_CORE,
+  service_name: "SENTINEZ // GREETER",
+  service_kind: KIND_CORE,
   service_key : "sentinez.core.greeter.v1",
 };
 
 service GreeterService {
   rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
     option (google.api.http) = {
-      get : "/greeter/say"
+      get: "/greeter/say"
     };
 
     option (sentinez.types.common.v1.x_method) = {
-      ignore : true
+      ignore: true
     };
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
-      get : "/greeter/status"
+      get: "/greeter/status"
     };
 
     option (sentinez.types.common.v1.x_method) = {
-      ignore : true
+      ignore: true
     };
   }
 }
 
 message SayHelloRequest {
   sentinez.types.common.v1.Pages page = 1;
-  string name = 2 [ (buf.validate.field).string.min_len = 1 ];
+  string                         name = 2 [ (buf.validate.field).string.min_len = 1 ];
 }
 
 message SayHelloResponse { string message = 1; }

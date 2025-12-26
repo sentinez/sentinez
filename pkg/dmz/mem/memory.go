@@ -120,7 +120,8 @@ func LoadWAF(appConf *confpb.Config) {
 
 		ns := s.GetOrigin().GetNamespace()
 
-		err := wafengine.Store(appConf, ns, corers.WAF4160, flag)
+		rulePath := appConf.GetFlag().GetRulePath()
+		err := wafengine.Store(rulePath, ns, corers.WAF4160, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}

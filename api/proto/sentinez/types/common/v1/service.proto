@@ -18,9 +18,9 @@ package sentinez.types.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;common";
 
 enum Kind {
-  KIND_UNSPECIFIED = 0;
-  KIND_GATEWAY_API = 1;
-  KIND_GATEWAY_EDGE = 2;
+  KIND_UNSPECIFIED       = 0;
+  KIND_GATEWAY_API       = 1;
+  KIND_GATEWAY_EDGE      = 2;
   KIND_GATEWAY_WEBSOCKET = 3;
-  KIND_CORE = 4;
+  KIND_CORE              = 4;
 }

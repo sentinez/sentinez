@@ -15,6 +15,7 @@
 package corerule
 
 import (
+	"maps"
 	"net"
 
 	chttp "github.com/sentinez/core/http"
@@ -40,21 +41,72 @@ func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	case rulepb.Operator_OPERATOR_NE:
 		return src != des
 	default:
-		return bypass
+		return unmatched
 	}
+}
+
+func matchSourceBody(_ chttp.RequestContext, _ *rulepb.Condition) bool {
+	return bypass
+}
+
+func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+	src := maps.Clone(ctx.Headers())
+	des := cond.GetValue().GetListValue().GetValues()
+
+	zlog.Debugf("destination condition: %v", des)
+
+	switch cond.GetOperator() {
+	case rulepb.Operator_OPERATOR_IN:
+		for _, v := range des {
+			s := v.GetStringValue()
+
+			if _, ok := src[s]; !ok {
+				return unmatched
+			}
+		}
+
+		return matched
+
+	case rulepb.Operator_OPERATOR_NOT_IN:
+		for _, v := range des {
+			s := v.GetStringValue()
+
+			if _, ok := src[s]; ok {
+				return unmatched
+			}
+		}
+
+		return matched
+	}
+
+	return unmatched
+}
+
+func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+	src := ctx.Host()
+	des := cond.GetValue().GetStringValue()
+
+	switch cond.GetOperator() {
+	case rulepb.Operator_OPERATOR_EQ:
+		return src == des
+	case rulepb.Operator_OPERATOR_NE:
+		return src != des
+	}
+
+	return unmatched
 }
 
 func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	// debug, _ := protojson.Marshal(cond)
 	// zlog.Debug(string(debug))
 
-	des := cond.Value.GetListValue().AsSlice()
+	des := cond.GetValue().GetListValue().AsSlice()
 	src := ctx.Queries()
 
 	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
 
 	if len(src) == 0 {
-		return bypass
+		return unmatched
 	}
 
 	switch cond.GetOperator() {
@@ -81,7 +133,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		return matched
 
 	default:
-		return bypass
+		return unmatched
 	}
 }
 
@@ -111,12 +163,11 @@ func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 		return !ipnet.Contains(net.ParseIP(src))
 	default:
-		return bypass
+		return unmatched
 	}
 }
 
-func matchSourceMethod(
-	ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 	switch cond.GetOperator() {
 	case rulepb.Operator_OPERATOR_EQ:
@@ -124,6 +175,6 @@ func matchSourceMethod(
 	case rulepb.Operator_OPERATOR_NE:
 		return ctx.Method() != cond.GetValue().GetStringValue()
 	default:
-		return bypass
+		return unmatched
 	}
 }

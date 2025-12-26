@@ -66,7 +66,17 @@ export interface Security {
     | Rule
     | undefined;
   /** @gotags: yaml:"expr" */
-  expr?: Expr | undefined;
+  expr?:
+    | Expr
+    | undefined;
+  /** @gotags: yaml:"isRateLimitOn" */
+  isRateLimitOn: boolean;
+  /** @gotags: yaml:"timeWindow" */
+  timeWindow: string;
+  /** @gotags: yaml:"limit" */
+  limit: number;
+  /** @gotags: yaml:"timeout" */
+  timeout: string;
 }
 
 /** TrafficControl for systems using a virtual waiting room or throttling: */
@@ -440,7 +450,16 @@ export const OriginRoute: MessageFns<OriginRoute> = {
 };
 
 function createBaseSecurity(): Security {
-  return { isWafEngineOn: false, expression: undefined, rule: undefined, expr: undefined };
+  return {
+    isWafEngineOn: false,
+    expression: undefined,
+    rule: undefined,
+    expr: undefined,
+    isRateLimitOn: false,
+    timeWindow: "",
+    limit: 0,
+    timeout: "",
+  };
 }
 
 export const Security: MessageFns<Security> = {
@@ -456,6 +475,18 @@ export const Security: MessageFns<Security> = {
     }
     if (message.expr !== undefined) {
       Expr.encode(message.expr, writer.uint32(34).fork()).join();
+    }
+    if (message.isRateLimitOn !== false) {
+      writer.uint32(80).bool(message.isRateLimitOn);
+    }
+    if (message.timeWindow !== "") {
+      writer.uint32(90).string(message.timeWindow);
+    }
+    if (message.limit !== 0) {
+      writer.uint32(96).int64(message.limit);
+    }
+    if (message.timeout !== "") {
+      writer.uint32(106).string(message.timeout);
     }
     return writer;
   },
@@ -499,6 +530,38 @@ export const Security: MessageFns<Security> = {
           message.expr = Expr.decode(reader, reader.uint32());
           continue;
         }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.isRateLimitOn = reader.bool();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.timeWindow = reader.string();
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.limit = longToNumber(reader.int64());
+          continue;
+        }
+        case 13: {
+          if (tag !== 106) {
+            break;
+          }
+
+          message.timeout = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -514,6 +577,10 @@ export const Security: MessageFns<Security> = {
       expression: isSet(object.expression) ? ExprLite.fromJSON(object.expression) : undefined,
       rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined,
       expr: isSet(object.expr) ? Expr.fromJSON(object.expr) : undefined,
+      isRateLimitOn: isSet(object.isRateLimitOn) ? globalThis.Boolean(object.isRateLimitOn) : false,
+      timeWindow: isSet(object.timeWindow) ? globalThis.String(object.timeWindow) : "",
+      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      timeout: isSet(object.timeout) ? globalThis.String(object.timeout) : "",
     };
   },
 
@@ -531,6 +598,18 @@ export const Security: MessageFns<Security> = {
     if (message.expr !== undefined) {
       obj.expr = Expr.toJSON(message.expr);
     }
+    if (message.isRateLimitOn !== false) {
+      obj.isRateLimitOn = message.isRateLimitOn;
+    }
+    if (message.timeWindow !== "") {
+      obj.timeWindow = message.timeWindow;
+    }
+    if (message.limit !== 0) {
+      obj.limit = Math.round(message.limit);
+    }
+    if (message.timeout !== "") {
+      obj.timeout = message.timeout;
+    }
     return obj;
   },
 
@@ -545,6 +624,10 @@ export const Security: MessageFns<Security> = {
       : undefined;
     message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
     message.expr = (object.expr !== undefined && object.expr !== null) ? Expr.fromPartial(object.expr) : undefined;
+    message.isRateLimitOn = object.isRateLimitOn ?? false;
+    message.timeWindow = object.timeWindow ?? "";
+    message.limit = object.limit ?? 0;
+    message.timeout = object.timeout ?? "";
     return message;
   },
 };
@@ -704,6 +787,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

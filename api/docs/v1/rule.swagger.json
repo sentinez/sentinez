@@ -98,12 +98,11 @@
         },
         "type": {
           "$ref": "#/definitions/v1ActionType",
-          "title": "Example types: \"block\", \"log\", \"modify_header\","
+          "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
         },
         "params": {
           "type": "object",
-          "description": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }",
-          "title": "\"redirect\", \"set_tag\", \"route_to\""
+          "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
         }
       },
       "title": "An action to execute when a rule matches"
@@ -129,31 +128,21 @@
         },
         "source": {
           "$ref": "#/definitions/v1FieldSource",
-          "title": "The source of the field"
+          "description": "@gotags: yaml:\"source\"",
+          "title": "The source of the field\nExample: \"User-Agent\" or \"country\""
         },
         "key": {
           "type": "string",
-          "title": "Example: \"User-Agent\" or \"country\""
+          "title": "@gotags: yaml:\"key\""
         },
         "operator": {
           "$ref": "#/definitions/v1Operator",
-          "title": "Supported operators: \"eq\", \"ne\", \"contains\","
+          "description": "@gotags: yaml:\"operator\"",
+          "title": "Supported operators: \"eq\", \"ne\", \"contains\",\n\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
         },
         "value": {
-          "description": "The value to compare against",
-          "title": "\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Condition"
-          },
-          "title": "Nested conditions are supported"
-        },
-        "logic": {
-          "$ref": "#/definitions/v1Logic",
-          "title": "Logical operator between children: \"AND\" or \"OR\""
+          "description": "@gotags: yaml:\"value\"",
+          "title": "The value to compare against"
         }
       },
       "title": "A logical condition expression"
@@ -180,20 +169,10 @@
         "FIELD_SOURCE_IP",
         "FIELD_SOURCE_JA4",
         "FIELD_SOURCE_TLS",
-        "FIELD_SOURCE_METHOD",
-        "FIELD_SOURCE_HOST"
+        "FIELD_SOURCE_METHOD"
       ],
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
-    },
-    "v1Logic": {
-      "type": "string",
-      "enum": [
-        "LOGIC_UNSPECIFIED",
-        "LOGIC_AND",
-        "LOGIC_OR"
-      ],
-      "default": "LOGIC_UNSPECIFIED"
     },
     "v1Operator": {
       "type": "string",
@@ -221,27 +200,32 @@
           "type": "string"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "@gotags: yaml:\"name\""
         },
         "description": {
           "type": "string"
         },
         "condition": {
-          "$ref": "#/definitions/v1Condition"
+          "$ref": "#/definitions/v1Condition",
+          "title": "@gotags: yaml:\"condition\""
         },
         "actions": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1Action"
-          }
+          },
+          "title": "@gotags: yaml:\"actions\""
         },
         "priority": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "@gotags: yaml:\"priority\""
         },
         "enabled": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "@gotags: yaml:\"enabled\""
         },
         "createdAt": {
           "type": "string",

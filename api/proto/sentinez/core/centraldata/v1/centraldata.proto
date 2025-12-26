@@ -22,7 +22,7 @@ import "sentinez/types/common/v1/options.proto";
 option (sentinez.types.common.v1.x_meta) = {
   service_name: "SENTINEZ // CENTRALDATA",
   service_kind: KIND_CORE,
-  service_key: "sentinez.core.centraldata.v1",
+  service_key : "sentinez.core.centraldata.v1",
 };
 
 service CentralDataService {

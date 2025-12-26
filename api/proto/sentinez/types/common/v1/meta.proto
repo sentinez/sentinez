@@ -19,6 +19,6 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/comm
 
 message Pages {
   int32 index = 1;
-  int32 size = 2;
-  bool total = 3;
+  int32 size  = 2;
+  bool  total = 3;
 }

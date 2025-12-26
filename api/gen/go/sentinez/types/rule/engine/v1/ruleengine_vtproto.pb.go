@@ -52,11 +52,6 @@ func (m *Condition) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Score != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Score))
-		i--
-		dAtA[i] = 0x30
-	}
 	if m.Value != nil {
 		size, err := (*structpb.Value)(m.Value).MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
@@ -290,11 +285,6 @@ func (m *Expr) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Threshold != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Threshold))
-		i--
-		dAtA[i] = 0x38
-	}
 	if len(m.Logics) > 0 {
 		var pksize2 int
 		for _, num := range m.Logics {
@@ -391,11 +381,6 @@ func (m *ExprLite) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
-	}
-	if m.Threshold != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Threshold))
-		i--
-		dAtA[i] = 0x38
 	}
 	if len(m.Logics) > 0 {
 		for iNdEx := len(m.Logics) - 1; iNdEx >= 0; iNdEx-- {
@@ -556,11 +541,6 @@ func (m *ConditionLite) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Score != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Score))
-		i--
-		dAtA[i] = 0x30
-	}
 	if len(m.Value) > 0 {
 		i -= len(m.Value)
 		copy(dAtA[i:], m.Value)
@@ -667,9 +647,6 @@ func (m *Condition) SizeVT() (n int) {
 		l = (*structpb.Value)(m.Value).SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.Score != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.Score))
-	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -775,9 +752,6 @@ func (m *Expr) SizeVT() (n int) {
 		}
 		n += 1 + protohelpers.SizeOfVarint(uint64(l)) + l
 	}
-	if m.Threshold != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.Threshold))
-	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -810,9 +784,6 @@ func (m *ExprLite) SizeVT() (n int) {
 			l = len(s)
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
-	}
-	if m.Threshold != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.Threshold))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -873,9 +844,6 @@ func (m *ConditionLite) SizeVT() (n int) {
 	l = len(m.Value)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	if m.Score != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.Score))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -1070,25 +1038,6 @@ func (m *Condition) UnmarshalVT(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Score", wireType)
-			}
-			m.Score = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Score |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -1825,25 +1774,6 @@ func (m *Expr) UnmarshalVT(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Logics", wireType)
 			}
-		case 7:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Threshold", wireType)
-			}
-			m.Threshold = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Threshold |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -2045,25 +1975,6 @@ func (m *ExprLite) UnmarshalVT(dAtA []byte) error {
 			}
 			m.Logics = append(m.Logics, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
-		case 7:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Threshold", wireType)
-			}
-			m.Threshold = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Threshold |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -2465,25 +2376,6 @@ func (m *ConditionLite) UnmarshalVT(dAtA []byte) error {
 			}
 			m.Value = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Score", wireType)
-			}
-			m.Score = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Score |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])

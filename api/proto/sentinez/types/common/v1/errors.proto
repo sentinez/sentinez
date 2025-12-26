@@ -18,11 +18,11 @@ package sentinez.types.common.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;common";
 
 enum Errors {
-  ERRORS_UNSPECIFIED = 0;
+  ERRORS_UNSPECIFIED    = 0;
   ERRORS_INTERNAL_ERROR = 1;
-  ERRORS_NOT_FOUND = 2;
-  ERRORS_UNAUTHORIZED = 3;
-  ERRORS_FORBIDDEN = 4;
-  ERRORS_INVALID_DATA = 5;
-  ERRORS_UNIMPLEMENTED = 6;
+  ERRORS_NOT_FOUND      = 2;
+  ERRORS_UNAUTHORIZED   = 3;
+  ERRORS_FORBIDDEN      = 4;
+  ERRORS_INVALID_DATA   = 5;
+  ERRORS_UNIMPLEMENTED  = 6;
 }
