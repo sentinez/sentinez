@@ -25,6 +25,7 @@ import (
 	corehttpreq "github.com/sentinez/core/http/request"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -271,28 +272,34 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 			},
 			expect: true,
 		},
-		// {
-		// 	name: "AND: header mismatch should fail",
-		// 	rules: []*ruleenginepb.Rule{
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_EQ, "wrong-header"),
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-		// 	},
-		// 	logics: []ruleenginepb.Logic{
-		// 		ruleenginepb.Logic_LOGIC_AND,
-		// 	},
-		// 	expect: false,
-		// },
-		// {
-		// 	name: "OR: header match or path mismatch",
-		// 	rules: []*ruleenginepb.Rule{
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_IN, "User-Agent"),
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/wrong"),
-		// 	},
-		// 	logics: []ruleenginepb.Logic{
-		// 		ruleenginepb.Logic_LOGIC_OR,
-		// 	},
-		// 	expect: true,
-		// },
+		{
+			name: "AND: header mismatch should fail",
+			rules: []*ruleenginepb.Rule{
+				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_IN,
+					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
+						structpb.NewStringValue("wrong-header"),
+					}})),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_AND,
+			},
+			expect: false,
+		},
+		{
+			name: "OR: header match or path mismatch",
+			rules: []*ruleenginepb.Rule{
+				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_IN,
+					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
+						structpb.NewStringValue("User-Agent"),
+					}})),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/wrong"),
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_OR,
+			},
+			expect: true,
+		},
 		{
 			name: "AND: query parameter exists",
 			rules: []*ruleenginepb.Rule{
@@ -362,7 +369,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "AND: wrong IP should fail",
 			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, structpb.NewStringValue("198.51.100.10")),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "198.51.100.10"),
 				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
 			},
 			logics: []ruleenginepb.Logic{
@@ -396,13 +403,29 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 // nolint
 func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *ruleenginepb.Rule {
-	v, _ := structpb.NewValue(val)
+	v, err := structpb.NewValue(val)
+	if err != nil {
+		zlog.Warnf("rule: new value error: %v", err)
+	}
 	return &ruleenginepb.Rule{
 		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
 			Value:    v,
+			Key:      fmt.Sprintf("%v", val),
+		},
+	}
+}
+
+// nolint
+func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *structpb.Value) *ruleenginepb.Rule {
+	return &ruleenginepb.Rule{
+		Enabled: true,
+		Condition: &ruleenginepb.Condition{
+			Source:   src,
+			Operator: op,
+			Value:    val,
 			Key:      fmt.Sprintf("%v", val),
 		},
 	}

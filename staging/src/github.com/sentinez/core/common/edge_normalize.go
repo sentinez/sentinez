@@ -22,6 +22,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+const (
+	exprPrefix = "senz.expr."
+	condPrefix = "senz.cond."
+	rulePrefix = "senz.rule."
+)
+
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
 	normalizeEdgeSecurity(edge.GetSecurity())
 }
@@ -40,10 +46,9 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 		expr = edgeSec.Expr
 	}
 
-	expr.Id = sids.NewNanoID("senz.expr.")
+	expr.Id = sids.NewNanoID(exprPrefix)
 	expr.Name = expression.GetName()
 	expr.Enabled = expression.GetEnabled()
-	expr.Threshold = expression.GetThreshold()
 
 	for _, logic := range expression.GetLogics() {
 		expr.Logics = append(expr.Logics, toLogic(logic))
@@ -87,12 +92,11 @@ func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
 	}
 
 	return &ruleenginepb.Condition{
-		Id:       sids.NewNanoID("senz.cond."),
+		Id:       sids.NewNanoID(condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
 		Source:   toSource(cond.GetSource()),
-		Score:    cond.GetScore(),
 	}
 }
 
@@ -102,7 +106,7 @@ func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
 	}
 
 	return &ruleenginepb.Rule{
-		Id:        sids.NewNanoID("senz.rule."),
+		Id:        sids.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
 		Priority:  rule.GetPriority(),
 		Enabled:   rule.GetEnabled(),

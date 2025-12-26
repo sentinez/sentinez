@@ -18,6 +18,7 @@ enum FieldSource {
   FIELD_SOURCE_JA4         = 6;
   FIELD_SOURCE_TLS         = 7;
   FIELD_SOURCE_METHOD      = 8;
+  FIELD_SOURCE_HOST        = 9;
 }
 
 // A logical condition expression

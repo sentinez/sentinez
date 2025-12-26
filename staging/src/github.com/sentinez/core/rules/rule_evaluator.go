@@ -78,13 +78,16 @@ func (ev *evaluator) visit(cond *ruleengpb.Condition) bool {
 	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
 		return matchSourceMethod(ev.ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
-		return bypass
+	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
+		return matchSourceHost(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
 		return matchSourceIP(ev.ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
+		return bypass
+
+	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
 		return bypass
 
 	default:
