@@ -21,7 +21,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
@@ -34,8 +34,8 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.46.0
-	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/grpc v1.78.0
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -101,8 +101,8 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )
