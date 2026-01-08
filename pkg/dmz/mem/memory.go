@@ -32,26 +32,6 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func LoadConfiguration(st *edgepb.Setting, appConf *confpb.Config) {
-	// save all setting for each tenant
-	LoadSetting(st)
-
-	// routing for each tenant
-	LoadRouter()
-
-	// load all reverse proxy for target origin
-	LoadReverseProxy()
-
-	// rule config
-	LoadRuleBased()
-
-	// rate limiter rule config
-	LoadRateLimiter()
-
-	// waf rulesets config
-	LoadWAF(appConf)
-}
-
 func LoadSetting(st *edgepb.Setting) {
 	if err := settings.Store(st); err != nil {
 		zlog.Errorf("[edge] %v", err)
@@ -125,16 +105,17 @@ func LoadWAF(appConf *confpb.Config) {
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}
+
 		return true
 	})
 }
 
 func LoadRuleBased() {
 	settings.Visit(func(s *edgepb.Setting) bool {
-
 		ruleengine.Store(
 			s.GetOrigin().GetNamespace(),
 			s.GetSecurity().GetExpr())
+
 		return true
 	})
 }
