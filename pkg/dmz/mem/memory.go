@@ -32,7 +32,6 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-
 func LoadSetting(st *edgepb.Setting) {
 	if err := settings.Store(st); err != nil {
 		zlog.Errorf("[edge] %v", err)
