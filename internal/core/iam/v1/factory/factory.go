@@ -24,7 +24,7 @@ import (
 	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/shared/zlog"

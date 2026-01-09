@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/headers"
 	"github.com/sentinez/sentinez/pkg/security/perms"
@@ -28,7 +28,7 @@ import (
 )
 
 var _ iampb.
-	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
+IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
 func New(
 	service *iamsvc.IAMService,

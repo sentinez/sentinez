@@ -15,6 +15,7 @@
 package tables
 
 const (
-	Users    = "users"
-	Accounts = "accounts"
+	Users     = "users"
+	Accounts  = "accounts"
+	Resources = "resources"
 )

@@ -58,14 +58,6 @@ option (sentinez.types.common.v1.x_meta) = {
 };
 
 service TenantService {
-  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
-    option (google.api.http) = {
-      get: "/tenant/say"
-    };
-
-    option (sentinez.types.common.v1.x_method) = {ignore: true};
-  }
-
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
       get: "/tenant/status"
@@ -73,14 +65,21 @@ service TenantService {
 
     option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
+
+  rpc ListResource(ListResourceRequest) returns (ListResourceResponse) {
+    option (google.api.http) = {
+      get: "/tenant/resources"
+    };
+
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
+  }
 }
 
-message SayHelloRequest {
-  sentinez.types.common.v1.Pages page = 1;
-  string                         name = 2 [(buf.validate.field).string.min_len = 1];
+message ListResourceRequest {
+
 }
 
-message SayHelloResponse {
+message ListResourceResponse {
 
 }
 

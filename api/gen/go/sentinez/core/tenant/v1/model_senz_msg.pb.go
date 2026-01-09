@@ -13,3 +13,12 @@ var (
 	_ common.Empty
 	_ fmt.Stringer
 )
+
+const (
+	Resource_Metadata        = "metadata"
+	Resource_Id              = "id"
+	Resource_ResourceSetting = "resourceSetting"
+	Resource_ResourceDomain  = "resourceDomain"
+	Resource_ResourceName    = "resourceName"
+	Resource_Status          = "status"
+)

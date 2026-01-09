@@ -176,11 +176,10 @@ func (acc *Accounts) Create(ctx context.Context,
 	now := timestamppb.Now()
 	account.Id = sids.NewID(table.NewPrimaryKey(tables.Accounts))
 	account.Metadata = &modelpb.Metadata{
-		CreatedAt:       now,
-		UpdatedAt:       now,
-		CreatedBy:       account.GetUsername(),
-		UpdatedBy:       account.GetUsername(),
-		ResourceOwnerId: account.GetUserId(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		CreatedBy: account.GetUsername(),
+		UpdatedBy: account.GetUsername(),
 	}
 
 	if err := acc.storage.Set(ctx, account.GetId(), account); err != nil {

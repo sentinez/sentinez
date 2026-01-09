@@ -165,11 +165,10 @@ func (u *Users) Create(ctx context.Context,
 	now := timestamppb.Now()
 	user.Id = sids.NewID(table.NewPrimaryKey(tables.Users))
 	user.Metadata = &modelpb.Metadata{
-		CreatedAt:       now,
-		UpdatedAt:       now,
-		CreatedBy:       user.GetMetadata().GetCreatedBy(),
-		UpdatedBy:       user.GetMetadata().GetUpdatedBy(),
-		ResourceOwnerId: user.GetId(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		CreatedBy: user.GetMetadata().GetCreatedBy(),
+		UpdatedBy: user.GetMetadata().GetUpdatedBy(),
 	}
 
 	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {

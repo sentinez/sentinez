@@ -33,32 +33,20 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on SayHelloRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *SayHelloRequest) Validate() error {
+// Validate checks the field values on ListResourceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListResourceRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SayHelloRequestValidationError{
-				field:  "Page",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	// no validation rules for Name
-
 	return nil
 }
 
-// SayHelloRequestValidationError is the validation error returned by
-// SayHelloRequest.Validate if the designated constraints aren't met.
-type SayHelloRequestValidationError struct {
+// ListResourceRequestValidationError is the validation error returned by
+// ListResourceRequest.Validate if the designated constraints aren't met.
+type ListResourceRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -66,22 +54,24 @@ type SayHelloRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e SayHelloRequestValidationError) Field() string { return e.field }
+func (e ListResourceRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SayHelloRequestValidationError) Reason() string { return e.reason }
+func (e ListResourceRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SayHelloRequestValidationError) Cause() error { return e.cause }
+func (e ListResourceRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SayHelloRequestValidationError) Key() bool { return e.key }
+func (e ListResourceRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SayHelloRequestValidationError) ErrorName() string { return "SayHelloRequestValidationError" }
+func (e ListResourceRequestValidationError) ErrorName() string {
+	return "ListResourceRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SayHelloRequestValidationError) Error() string {
+func (e ListResourceRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -93,14 +83,14 @@ func (e SayHelloRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSayHelloRequest.%s: %s%s",
+		"invalid %sListResourceRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SayHelloRequestValidationError{}
+var _ error = ListResourceRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -108,12 +98,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SayHelloRequestValidationError{}
+} = ListResourceRequestValidationError{}
 
-// Validate checks the field values on SayHelloResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *SayHelloResponse) Validate() error {
+// Validate checks the field values on ListResourceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListResourceResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -121,9 +111,9 @@ func (m *SayHelloResponse) Validate() error {
 	return nil
 }
 
-// SayHelloResponseValidationError is the validation error returned by
-// SayHelloResponse.Validate if the designated constraints aren't met.
-type SayHelloResponseValidationError struct {
+// ListResourceResponseValidationError is the validation error returned by
+// ListResourceResponse.Validate if the designated constraints aren't met.
+type ListResourceResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -131,22 +121,24 @@ type SayHelloResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e SayHelloResponseValidationError) Field() string { return e.field }
+func (e ListResourceResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SayHelloResponseValidationError) Reason() string { return e.reason }
+func (e ListResourceResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SayHelloResponseValidationError) Cause() error { return e.cause }
+func (e ListResourceResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SayHelloResponseValidationError) Key() bool { return e.key }
+func (e ListResourceResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SayHelloResponseValidationError) ErrorName() string { return "SayHelloResponseValidationError" }
+func (e ListResourceResponseValidationError) ErrorName() string {
+	return "ListResourceResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SayHelloResponseValidationError) Error() string {
+func (e ListResourceResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -158,14 +150,14 @@ func (e SayHelloResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSayHelloResponse.%s: %s%s",
+		"invalid %sListResourceResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SayHelloResponseValidationError{}
+var _ error = ListResourceResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -173,7 +165,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SayHelloResponseValidationError{}
+} = ListResourceResponseValidationError{}
 
 // Validate checks the field values on StatusResponse with the rules defined in
 // the proto definition for this message. If any rules are violated, an error

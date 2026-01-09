@@ -20,14 +20,14 @@
     "application/json"
   ],
   "paths": {
-    "/tenant/say": {
+    "/tenant/resources": {
       "get": {
-        "operationId": "TenantService_SayHello",
+        "operationId": "TenantService_ListResource",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1SayHelloResponse"
+              "$ref": "#/definitions/v1ListResourceResponse"
             }
           },
           "default": {
@@ -37,34 +37,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "page.index",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.total",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "tags": [
           "TenantService"
         ]
@@ -122,23 +94,7 @@
       },
       "additionalProperties": {}
     },
-    "v1Pages": {
-      "type": "object",
-      "properties": {
-        "index": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "size": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "total": {
-          "type": "boolean"
-        }
-      }
-    },
-    "v1SayHelloResponse": {
+    "v1ListResourceResponse": {
       "type": "object"
     },
     "v1StatusResponse": {

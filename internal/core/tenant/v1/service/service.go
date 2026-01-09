@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2025 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,35 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tenanthandler provides the Tenant service handler.
-package tenanthandler
+package tenantsvc
 
 import (
 	"context"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resource"
 )
 
-var _ tenantpb.TenantServiceServer = (*Tenant)(nil)
+var _ tenantpb.TenantServiceServer = (*Service)(nil)
 
-func New() tenantpb.TenantServiceServer {
-	return &Tenant{}
+func New(resource resourcerepo.IResource) *Service {
+	return &Service{
+		resource: resource,
+	}
 }
 
-// Tenant implement tenant.TenantServiceServer
-type Tenant struct{}
+type Service struct {
+	resource resourcerepo.IResource
+}
 
-func (t *Tenant) ListResource(ctx context.Context,
+func (svc *Service) Status(_ context.Context,
+	_ *tenantpb.StatusRequest) (*tenantpb.StatusResponse, error) {
+	return &tenantpb.StatusResponse{}, nil
+}
+
+func (svc *Service) ListResource(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-// Status implement function of tenant.TenantServiceServer
-func (t *Tenant) Status(ctx context.Context,
-	req *tenantpb.StatusRequest) (*tenantpb.StatusResponse, error) {
-
-	_, _ = ctx, req
-
-	return &tenantpb.StatusResponse{Message: "OK"}, nil
 }

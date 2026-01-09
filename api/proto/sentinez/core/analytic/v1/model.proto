@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-package sentinez.core.tenant.v1;
+package sentinez.core.analytic.v1;
 import "buf/validate/validate.proto";
 
 import "sentinez/types/common/v1/options.proto";
@@ -22,21 +22,18 @@ import "sentinez/types/model/v1/metadata.proto";
 import "google/protobuf/struct.proto";
 import "sentinez/edge/v1/edge.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1;tenant";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1;analyticpb";
 
-message Tenant {
-
-}
-
-message Resource {
+message Activity {
   option (sentinez.types.common.v1.x_message).database_model = true;
 
   sentinez.types.model.v1.Metadata metadata = 1;
   string id = 2 [(buf.validate.field) = { required: true, string: {
+    prefix: "senz.activity."
+  }}];
+  string resource_id = 3 [(buf.validate.field) = { required: true, string: {
     prefix: "senz.resources."
   }}];
-  sentinez.edge.v1.Setting resource_setting = 3;
-  string resource_domain = 4;
-  string resource_name = 5;
-  sentinez.types.model.v1.Status status = 6;
+
+  repeated uint32 unique_visitor = 7;
 }
