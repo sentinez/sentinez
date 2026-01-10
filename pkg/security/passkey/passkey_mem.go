@@ -20,7 +20,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
-	sids "github.com/sentinez/shared/ids"
+	"github.com/sentinez/shared/ids"
 )
 
 func NewMemoryStorage(ttl time.Duration) Store {
@@ -39,7 +39,7 @@ type MemoryStorage struct {
 
 // GenSessionID implements Store.
 func (s *MemoryStorage) GenSessionID() (string, error) {
-	return sids.NewNanoID(sentinez.Code + "-SS-"), nil
+	return ids.NewNanoID(sentinez.Code + "-SS-"), nil
 }
 
 // DeleteSession implements Store.

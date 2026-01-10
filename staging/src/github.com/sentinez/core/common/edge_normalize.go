@@ -17,7 +17,7 @@ package corecmn
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
-	sids "github.com/sentinez/shared/ids"
+	"github.com/sentinez/shared/ids"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -46,7 +46,7 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 		expr = edgeSec.Expr
 	}
 
-	expr.Id = sids.NewNanoID(exprPrefix)
+	expr.Id = ids.NewNanoID(exprPrefix)
 	expr.Name = expression.GetName()
 	expr.Enabled = expression.GetEnabled()
 
@@ -92,7 +92,7 @@ func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
 	}
 
 	return &ruleenginepb.Condition{
-		Id:       sids.NewNanoID(condPrefix),
+		Id:       ids.NewNanoID(condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -106,7 +106,7 @@ func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
 	}
 
 	return &ruleenginepb.Rule{
-		Id:        sids.NewNanoID(rulePrefix),
+		Id:        ids.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
 		Priority:  rule.GetPriority(),
 		Enabled:   rule.GetEnabled(),

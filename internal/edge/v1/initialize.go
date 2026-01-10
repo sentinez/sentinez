@@ -17,7 +17,7 @@ package edge
 import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h"
-	"github.com/sentinez/sentinez/pkg/dmz/mem"
+	"github.com/sentinez/sentinez/internal/shared/mem"
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {

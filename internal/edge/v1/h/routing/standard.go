@@ -16,9 +16,9 @@ package routing
 
 import (
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/sentinez/internal/shared/mem/reverseproxy"
+	"github.com/sentinez/sentinez/internal/shared/mem/routes"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
-	"github.com/sentinez/sentinez/pkg/dmz/mem/reverseproxy"
-	"github.com/sentinez/sentinez/pkg/dmz/mem/routes"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"
 )

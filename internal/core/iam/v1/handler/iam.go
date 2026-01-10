@@ -28,7 +28,7 @@ import (
 )
 
 var _ iampb.
-IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
+	IdentityAccessManagementServiceServer = (*IdentityAccessManagement)(nil)
 
 func New(
 	service *iamsvc.IAMService,
