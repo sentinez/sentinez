@@ -648,10 +648,6 @@
         },
         "updatedBy": {
           "type": "string"
-        },
-        "resourceOwnerId": {
-          "type": "string",
-          "title": "ref: user_id"
         }
       }
     },

@@ -21,7 +21,6 @@
 package tenant
 
 import (
-	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -195,7 +194,7 @@ var File_sentinez_core_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a#sentinez/types/common/v1/meta.proto\x1a&sentinez/types/common/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x15\n" +
+	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a&sentinez/types/common/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x15\n" +
 	"\x13ListResourceRequest\"\x16\n" +
 	"\x14ListResourceResponse\"*\n" +
 	"\x0eStatusResponse\x12\x18\n" +

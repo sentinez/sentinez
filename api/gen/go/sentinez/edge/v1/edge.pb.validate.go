@@ -33,69 +33,63 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on Setting with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Setting) Validate() error {
+// Validate checks the field values on RequestContext with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RequestContext) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Metadata",
-				reason: "embedded message failed validation",
-				cause:  err,
+	// no validation rules for Id
+
+	// no validation rules for Body
+
+	// no validation rules for Header
+
+	// no validation rules for Host
+
+	// no validation rules for Ip
+
+	// no validation rules for Ja4
+
+	// no validation rules for Method
+
+	// no validation rules for Path
+
+	for key, val := range m.GetQueries() {
+		_ = val
+
+		// no validation rules for Queries[key]
+
+		if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RequestContextValidationError{
+					field:  fmt.Sprintf("Queries[%v]", key),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
 
-	if v, ok := interface{}(m.GetOrigin()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Origin",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Tls
 
-	if v, ok := interface{}(m.GetSecurity()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Security",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Protocol
 
-	if v, ok := interface{}(m.GetTrafficControl()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "TrafficControl",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for RemoteAddress
 
-	if v, ok := interface{}(m.GetPersonal()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Personal",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for StatusCode
+
+	// no validation rules for Uri
 
 	return nil
 }
 
-// SettingValidationError is the validation error returned by Setting.Validate
-// if the designated constraints aren't met.
-type SettingValidationError struct {
+// RequestContextValidationError is the validation error returned by
+// RequestContext.Validate if the designated constraints aren't met.
+type RequestContextValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -103,22 +97,22 @@ type SettingValidationError struct {
 }
 
 // Field function returns field value.
-func (e SettingValidationError) Field() string { return e.field }
+func (e RequestContextValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SettingValidationError) Reason() string { return e.reason }
+func (e RequestContextValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SettingValidationError) Cause() error { return e.cause }
+func (e RequestContextValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SettingValidationError) Key() bool { return e.key }
+func (e RequestContextValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SettingValidationError) ErrorName() string { return "SettingValidationError" }
+func (e RequestContextValidationError) ErrorName() string { return "RequestContextValidationError" }
 
 // Error satisfies the builtin error interface
-func (e SettingValidationError) Error() string {
+func (e RequestContextValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -130,14 +124,14 @@ func (e SettingValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSetting.%s: %s%s",
+		"invalid %sRequestContext.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SettingValidationError{}
+var _ error = RequestContextValidationError{}
 
 var _ interface {
 	Field() string
@@ -145,11 +139,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SettingValidationError{}
+} = RequestContextValidationError{}
 
-// Validate checks the field values on Metadata with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Metadata) Validate() error {
+// Validate checks the field values on RequestQuery with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RequestQuery) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -157,9 +152,9 @@ func (m *Metadata) Validate() error {
 	return nil
 }
 
-// MetadataValidationError is the validation error returned by
-// Metadata.Validate if the designated constraints aren't met.
-type MetadataValidationError struct {
+// RequestQueryValidationError is the validation error returned by
+// RequestQuery.Validate if the designated constraints aren't met.
+type RequestQueryValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -167,22 +162,22 @@ type MetadataValidationError struct {
 }
 
 // Field function returns field value.
-func (e MetadataValidationError) Field() string { return e.field }
+func (e RequestQueryValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e MetadataValidationError) Reason() string { return e.reason }
+func (e RequestQueryValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e MetadataValidationError) Cause() error { return e.cause }
+func (e RequestQueryValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e MetadataValidationError) Key() bool { return e.key }
+func (e RequestQueryValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e MetadataValidationError) ErrorName() string { return "MetadataValidationError" }
+func (e RequestQueryValidationError) ErrorName() string { return "RequestQueryValidationError" }
 
 // Error satisfies the builtin error interface
-func (e MetadataValidationError) Error() string {
+func (e RequestQueryValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -194,14 +189,14 @@ func (e MetadataValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sMetadata.%s: %s%s",
+		"invalid %sRequestQuery.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = MetadataValidationError{}
+var _ error = RequestQueryValidationError{}
 
 var _ interface {
 	Field() string
@@ -209,24 +204,106 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = MetadataValidationError{}
+} = RequestQueryValidationError{}
 
-// Validate checks the field values on Origin with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Origin) Validate() error {
+// Validate checks the field values on EvaluateIngressRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *EvaluateIngressRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for Namespace
+	// no validation rules for RulesetId
 
-	for idx, item := range m.GetRoutes() {
+	if v, ok := interface{}(m.GetRequestContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EvaluateIngressRequestValidationError{
+				field:  "RequestContext",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// EvaluateIngressRequestValidationError is the validation error returned by
+// EvaluateIngressRequest.Validate if the designated constraints aren't met.
+type EvaluateIngressRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EvaluateIngressRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EvaluateIngressRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EvaluateIngressRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EvaluateIngressRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EvaluateIngressRequestValidationError) ErrorName() string {
+	return "EvaluateIngressRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EvaluateIngressRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEvaluateIngressRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EvaluateIngressRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EvaluateIngressRequestValidationError{}
+
+// Validate checks the field values on EvaluationResult with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *EvaluationResult) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for RuleId
+
+	// no validation rules for Matched
+
+	for idx, item := range m.GetActions() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return OriginValidationError{
-					field:  fmt.Sprintf("Routes[%v]", idx),
+				return EvaluationResultValidationError{
+					field:  fmt.Sprintf("Actions[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -238,9 +315,9 @@ func (m *Origin) Validate() error {
 	return nil
 }
 
-// OriginValidationError is the validation error returned by Origin.Validate if
-// the designated constraints aren't met.
-type OriginValidationError struct {
+// EvaluationResultValidationError is the validation error returned by
+// EvaluationResult.Validate if the designated constraints aren't met.
+type EvaluationResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -248,22 +325,22 @@ type OriginValidationError struct {
 }
 
 // Field function returns field value.
-func (e OriginValidationError) Field() string { return e.field }
+func (e EvaluationResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e OriginValidationError) Reason() string { return e.reason }
+func (e EvaluationResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e OriginValidationError) Cause() error { return e.cause }
+func (e EvaluationResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e OriginValidationError) Key() bool { return e.key }
+func (e EvaluationResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e OriginValidationError) ErrorName() string { return "OriginValidationError" }
+func (e EvaluationResultValidationError) ErrorName() string { return "EvaluationResultValidationError" }
 
 // Error satisfies the builtin error interface
-func (e OriginValidationError) Error() string {
+func (e EvaluationResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -275,14 +352,14 @@ func (e OriginValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sOrigin.%s: %s%s",
+		"invalid %sEvaluationResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = OriginValidationError{}
+var _ error = EvaluationResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -290,132 +367,37 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = OriginValidationError{}
+} = EvaluationResultValidationError{}
 
-// Validate checks the field values on OriginRoute with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *OriginRoute) Validate() error {
+// Validate checks the field values on EvaluateIngressResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *EvaluateIngressResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for MatchPrefix
+	for idx, item := range m.GetResults() {
+		_, _ = idx, item
 
-	// no validation rules for Target
-
-	// no validation rules for Rewrite
-
-	return nil
-}
-
-// OriginRouteValidationError is the validation error returned by
-// OriginRoute.Validate if the designated constraints aren't met.
-type OriginRouteValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e OriginRouteValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e OriginRouteValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e OriginRouteValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e OriginRouteValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e OriginRouteValidationError) ErrorName() string { return "OriginRouteValidationError" }
-
-// Error satisfies the builtin error interface
-func (e OriginRouteValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sOriginRoute.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = OriginRouteValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = OriginRouteValidationError{}
-
-// Validate checks the field values on Security with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Security) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	// no validation rules for IsWafEngineOn
-
-	if v, ok := interface{}(m.GetExpression()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "Expression",
-				reason: "embedded message failed validation",
-				cause:  err,
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EvaluateIngressResponseValidationError{
+					field:  fmt.Sprintf("Results[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
-
-	if v, ok := interface{}(m.GetRule()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "Rule",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "Expr",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	// no validation rules for IsRateLimitOn
-
-	// no validation rules for TimeWindow
-
-	// no validation rules for Limit
-
-	// no validation rules for Timeout
 
 	return nil
 }
 
-// SecurityValidationError is the validation error returned by
-// Security.Validate if the designated constraints aren't met.
-type SecurityValidationError struct {
+// EvaluateIngressResponseValidationError is the validation error returned by
+// EvaluateIngressResponse.Validate if the designated constraints aren't met.
+type EvaluateIngressResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -423,22 +405,24 @@ type SecurityValidationError struct {
 }
 
 // Field function returns field value.
-func (e SecurityValidationError) Field() string { return e.field }
+func (e EvaluateIngressResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SecurityValidationError) Reason() string { return e.reason }
+func (e EvaluateIngressResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SecurityValidationError) Cause() error { return e.cause }
+func (e EvaluateIngressResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SecurityValidationError) Key() bool { return e.key }
+func (e EvaluateIngressResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SecurityValidationError) ErrorName() string { return "SecurityValidationError" }
+func (e EvaluateIngressResponseValidationError) ErrorName() string {
+	return "EvaluateIngressResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SecurityValidationError) Error() string {
+func (e EvaluateIngressResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -450,14 +434,14 @@ func (e SecurityValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSecurity.%s: %s%s",
+		"invalid %sEvaluateIngressResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SecurityValidationError{}
+var _ error = EvaluateIngressResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -465,200 +449,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SecurityValidationError{}
-
-// Validate checks the field values on TrafficControl with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *TrafficControl) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	return nil
-}
-
-// TrafficControlValidationError is the validation error returned by
-// TrafficControl.Validate if the designated constraints aren't met.
-type TrafficControlValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e TrafficControlValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e TrafficControlValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e TrafficControlValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e TrafficControlValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e TrafficControlValidationError) ErrorName() string { return "TrafficControlValidationError" }
-
-// Error satisfies the builtin error interface
-func (e TrafficControlValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sTrafficControl.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = TrafficControlValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = TrafficControlValidationError{}
-
-// Validate checks the field values on Personalization with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *Personalization) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	return nil
-}
-
-// PersonalizationValidationError is the validation error returned by
-// Personalization.Validate if the designated constraints aren't met.
-type PersonalizationValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e PersonalizationValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e PersonalizationValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e PersonalizationValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e PersonalizationValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e PersonalizationValidationError) ErrorName() string { return "PersonalizationValidationError" }
-
-// Error satisfies the builtin error interface
-func (e PersonalizationValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sPersonalization.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = PersonalizationValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = PersonalizationValidationError{}
-
-// Validate checks the field values on Context with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Context) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	// no validation rules for TenantNs
-
-	return nil
-}
-
-// ContextValidationError is the validation error returned by Context.Validate
-// if the designated constraints aren't met.
-type ContextValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ContextValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ContextValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ContextValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ContextValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ContextValidationError) ErrorName() string { return "ContextValidationError" }
-
-// Error satisfies the builtin error interface
-func (e ContextValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sContext.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ContextValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ContextValidationError{}
+} = EvaluateIngressResponseValidationError{}

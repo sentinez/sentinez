@@ -16,9 +16,8 @@ syntax = "proto3";
 
 package sentinez.edge.v1;
 
-import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/rule/engine/v1/ruleengine.proto";
-import "buf/validate/validate.proto";
+import "sentinez/types/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
@@ -28,68 +27,42 @@ option (sentinez.types.common.v1.x_meta) = {
   service_key : "sentinez.edge.v1",
 };
 
-// Setting edge setting per user
-message Setting {
-  Metadata        metadata        = 1; // @gotags: yaml:"metadata"
-  Origin          origin          = 2; // @gotags: yaml:"origin"
-  Security        security        = 3; // @gotags: yaml:"security"
-  TrafficControl  traffic_control = 4; // @gotags: yaml:"trafficControl"
-  Personalization personal        = 5; // @gotags: yaml:"personal"
+// Context represents the essential information extracted from an HTTP request.
+message RequestContext {
+  string                    id             = 1;
+  bytes                     body           = 2; // Raw request body
+  map<string, string>       header         = 3; // HTTP headers
+  string                    host           = 4; // Hostname or domain
+  string                    ip             = 5; // Client IP address
+  string                    ja4            = 6; // JA4 fingerprint
+  string                    method         = 7; // HTTP method (GET, POST, etc.)
+  string                    path           = 8; // Request path
+  map<string, RequestQuery> queries        = 9; // Query parameters
+  bool                      tls            = 10; // Whether the connection used TLS
+  string                    protocol       = 11;
+  string                    remote_address = 12;
+  int32                     status_code    = 13;
+  string                    uri            = 14;
 }
 
-// Metadata used for observability and debugging:
-message Metadata {}
-
-// Origin defines where the request goes and how the edge processes it:
-message Origin {
-  string               namespace = 1; // @gotags: yaml:"namespace"
-  repeated OriginRoute routes    = 2; // @gotags: yaml:"routes"
+message RequestQuery {
+  repeated string value = 1;
 }
 
-message OriginRoute {
-  string match_prefix = 1; // @gotags: yaml:"matchPrefix"
-  string target       = 2; // @gotags: yaml:"target"
-  string rewrite      = 3; // @gotags: yaml:"rewrite"
+service EdgeEngineService {
+
+  rpc EvaluateIngress(EvaluateIngressRequest) returns (EvaluateIngressResponse);
 }
 
-// Security user-specific WAF, rate limiting, or bot protection rules
-message Security {
-  bool                                   is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
-  sentinez.types.rule.engine.v1.ExprLite expression       = 2; // @gotags: yaml:"expression"
-
-  sentinez.types.rule.engine.v1.Rule rule = 3; // @gotags: yaml:"rule"
-  sentinez.types.rule.engine.v1.Expr expr = 4; // @gotags: yaml:"expr"
-
-  bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"
-
-  string time_window = 11 [(buf.validate.field) = {
-    required: false,
-    string: {
-      pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"
-    }
-  }] ; //@gotags: yaml:"timeWindow"
-
-  int64 limit = 12; //@gotags: yaml:"limit"
-
-  string timeout = 13 [(buf.validate.field) = {
-    required: false,
-    string: {
-      pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"
-    }
-  }] ; //@gotags: yaml:"timeout"
+message EvaluateIngressRequest {
+  string         ruleset_id      = 1;
+  RequestContext request_context = 2;
 }
 
-// TrafficControl for systems using a virtual waiting room or throttling:
-message TrafficControl {}
-
-// Personalization defines where the request goes and how the edge processes it
-message Personalization {}
-
-// Context helps the edge identify which user is connected
-message Context {
-  // tenant_ns namespace of tenant
-  // example: dev.sentinez.test
-  //  - namespace: dev
-  //  - root: sentinez.test
-  string tenant_ns = 1;
+message EvaluationResult {
+  string                                        rule_id = 1;
+  bool                                          matched = 2;
+  repeated sentinez.types.rule.engine.v1.Action actions = 3;
 }
+
+message EvaluateIngressResponse { repeated EvaluationResult results = 1; }

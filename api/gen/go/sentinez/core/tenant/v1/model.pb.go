@@ -27,7 +27,6 @@ import (
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -39,42 +38,6 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
-
-type Tenant struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Tenant) Reset() {
-	*x = Tenant{}
-	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Tenant) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Tenant) ProtoMessage() {}
-
-func (x *Tenant) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Tenant.ProtoReflect.Descriptor instead.
-func (*Tenant) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_model_proto_rawDescGZIP(), []int{0}
-}
 
 type Resource struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -90,7 +53,7 @@ type Resource struct {
 
 func (x *Resource) Reset() {
 	*x = Resource{}
-	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[1]
+	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -102,7 +65,7 @@ func (x *Resource) String() string {
 func (*Resource) ProtoMessage() {}
 
 func (x *Resource) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[1]
+	mi := &file_sentinez_core_tenant_v1_model_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -115,7 +78,7 @@ func (x *Resource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Resource.ProtoReflect.Descriptor instead.
 func (*Resource) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_model_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_core_tenant_v1_model_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Resource) GetMetadata() *v1.Metadata {
@@ -164,11 +127,10 @@ var File_sentinez_core_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1bsentinez/edge/v1/edge.proto\"\b\n" +
-	"\x06Tenant\"\xc9\x02\n" +
+	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\"sentinez/edge/v1/edge_engine.proto\"\xd0\x02\n" +
 	"\bResource\x12=\n" +
-	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12)\n" +
-	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.resources.R\x02id\x12D\n" +
+	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x120\n" +
+	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12D\n" +
 	"\x10resource_setting\x18\x03 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12'\n" +
 	"\x0fresource_domain\x18\x04 \x01(\tR\x0eresourceDomain\x12#\n" +
 	"\rresource_name\x18\x05 \x01(\tR\fresourceName\x127\n" +
@@ -186,18 +148,17 @@ func file_sentinez_core_tenant_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_core_tenant_v1_model_proto_rawDescData
 }
 
-var file_sentinez_core_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_core_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_core_tenant_v1_model_proto_goTypes = []any{
-	(*Tenant)(nil),      // 0: sentinez.core.tenant.v1.Tenant
-	(*Resource)(nil),    // 1: sentinez.core.tenant.v1.Resource
-	(*v1.Metadata)(nil), // 2: sentinez.types.model.v1.Metadata
-	(*v11.Setting)(nil), // 3: sentinez.edge.v1.Setting
-	(v1.Status)(0),      // 4: sentinez.types.model.v1.Status
+	(*Resource)(nil),    // 0: sentinez.core.tenant.v1.Resource
+	(*v1.Metadata)(nil), // 1: sentinez.types.model.v1.Metadata
+	(*v11.Setting)(nil), // 2: sentinez.edge.v1.Setting
+	(v1.Status)(0),      // 3: sentinez.types.model.v1.Status
 }
 var file_sentinez_core_tenant_v1_model_proto_depIdxs = []int32{
-	2, // 0: sentinez.core.tenant.v1.Resource.metadata:type_name -> sentinez.types.model.v1.Metadata
-	3, // 1: sentinez.core.tenant.v1.Resource.resource_setting:type_name -> sentinez.edge.v1.Setting
-	4, // 2: sentinez.core.tenant.v1.Resource.status:type_name -> sentinez.types.model.v1.Status
+	1, // 0: sentinez.core.tenant.v1.Resource.metadata:type_name -> sentinez.types.model.v1.Metadata
+	2, // 1: sentinez.core.tenant.v1.Resource.resource_setting:type_name -> sentinez.edge.v1.Setting
+	3, // 2: sentinez.core.tenant.v1.Resource.status:type_name -> sentinez.types.model.v1.Status
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -216,7 +177,7 @@ func file_sentinez_core_tenant_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_core_tenant_v1_model_proto_rawDesc), len(file_sentinez_core_tenant_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

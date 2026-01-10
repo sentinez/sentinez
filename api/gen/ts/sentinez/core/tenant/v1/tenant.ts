@@ -6,16 +6,13 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Pages } from "../../../types/common/v1/meta";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
-export interface SayHelloRequest {
-  page?: Pages | undefined;
-  name: string;
+export interface ListResourceRequest {
 }
 
-export interface SayHelloResponse {
+export interface ListResourceResponse {
 }
 
 export interface StatusResponse {
@@ -25,44 +22,22 @@ export interface StatusResponse {
 export interface StatusRequest {
 }
 
-function createBaseSayHelloRequest(): SayHelloRequest {
-  return { page: undefined, name: "" };
+function createBaseListResourceRequest(): ListResourceRequest {
+  return {};
 }
 
-export const SayHelloRequest: MessageFns<SayHelloRequest> = {
-  encode(message: SayHelloRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.page !== undefined) {
-      Pages.encode(message.page, writer.uint32(10).fork()).join();
-    }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
+export const ListResourceRequest: MessageFns<ListResourceRequest> = {
+  encode(_: ListResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SayHelloRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListResourceRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSayHelloRequest();
+    const message = createBaseListResourceRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.page = Pages.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -72,48 +47,37 @@ export const SayHelloRequest: MessageFns<SayHelloRequest> = {
     return message;
   },
 
-  fromJSON(object: any): SayHelloRequest {
-    return {
-      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-    };
+  fromJSON(_: any): ListResourceRequest {
+    return {};
   },
 
-  toJSON(message: SayHelloRequest): unknown {
+  toJSON(_: ListResourceRequest): unknown {
     const obj: any = {};
-    if (message.page !== undefined) {
-      obj.page = Pages.toJSON(message.page);
-    }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SayHelloRequest>, I>>(base?: I): SayHelloRequest {
-    return SayHelloRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListResourceRequest>, I>>(base?: I): ListResourceRequest {
+    return ListResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SayHelloRequest>, I>>(object: I): SayHelloRequest {
-    const message = createBaseSayHelloRequest();
-    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
-    message.name = object.name ?? "";
+  fromPartial<I extends Exact<DeepPartial<ListResourceRequest>, I>>(_: I): ListResourceRequest {
+    const message = createBaseListResourceRequest();
     return message;
   },
 };
 
-function createBaseSayHelloResponse(): SayHelloResponse {
+function createBaseListResourceResponse(): ListResourceResponse {
   return {};
 }
 
-export const SayHelloResponse: MessageFns<SayHelloResponse> = {
-  encode(_: SayHelloResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListResourceResponse: MessageFns<ListResourceResponse> = {
+  encode(_: ListResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SayHelloResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListResourceResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSayHelloResponse();
+    const message = createBaseListResourceResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -126,20 +90,20 @@ export const SayHelloResponse: MessageFns<SayHelloResponse> = {
     return message;
   },
 
-  fromJSON(_: any): SayHelloResponse {
+  fromJSON(_: any): ListResourceResponse {
     return {};
   },
 
-  toJSON(_: SayHelloResponse): unknown {
+  toJSON(_: ListResourceResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SayHelloResponse>, I>>(base?: I): SayHelloResponse {
-    return SayHelloResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListResourceResponse>, I>>(base?: I): ListResourceResponse {
+    return ListResourceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SayHelloResponse>, I>>(_: I): SayHelloResponse {
-    const message = createBaseSayHelloResponse();
+  fromPartial<I extends Exact<DeepPartial<ListResourceResponse>, I>>(_: I): ListResourceResponse {
+    const message = createBaseListResourceResponse();
     return message;
   },
 };
