@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Setting } from "../../../edge/v1/edge_engine";
+import { Setting } from "../../../edge/v1/setting";
 import { Metadata, Status, statusFromJSON, statusToJSON } from "../../../types/model/v1/metadata";
 
 export const protobufPackage = "sentinez.core.tenant.v1";

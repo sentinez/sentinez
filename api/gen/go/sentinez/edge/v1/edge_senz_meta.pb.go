@@ -17,7 +17,7 @@ var (
 )
 
 var metadata_edge = &common.XMeta{
-	ServiceName: "SENTINEZ // EDGE ENGINE",
+	ServiceName: "SENTINEZ // EDGE",
 	ServiceKind: common.Kind_KIND_GATEWAY_EDGE,
 	ServiceKey:  "sentinez.edge.v1",
 }

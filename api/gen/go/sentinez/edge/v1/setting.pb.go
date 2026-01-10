@@ -16,7 +16,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.2
-// source: sentinez/edge/v1/edge_engine.proto
+// source: sentinez/edge/v1/setting.proto
 
 package edgepb
 
@@ -51,7 +51,7 @@ type Setting struct {
 
 func (x *Setting) Reset() {
 	*x = Setting{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[0]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -63,7 +63,7 @@ func (x *Setting) String() string {
 func (*Setting) ProtoMessage() {}
 
 func (x *Setting) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[0]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -76,7 +76,7 @@ func (x *Setting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Setting.ProtoReflect.Descriptor instead.
 func (*Setting) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{0}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Setting) GetMetadata() *Metadata {
@@ -123,7 +123,7 @@ type Metadata struct {
 
 func (x *Metadata) Reset() {
 	*x = Metadata{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[1]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -135,7 +135,7 @@ func (x *Metadata) String() string {
 func (*Metadata) ProtoMessage() {}
 
 func (x *Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[1]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -148,7 +148,7 @@ func (x *Metadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Metadata.ProtoReflect.Descriptor instead.
 func (*Metadata) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{1}
 }
 
 // Origin defines where the request goes and how the edge processes it:
@@ -162,7 +162,7 @@ type Origin struct {
 
 func (x *Origin) Reset() {
 	*x = Origin{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[2]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +174,7 @@ func (x *Origin) String() string {
 func (*Origin) ProtoMessage() {}
 
 func (x *Origin) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[2]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +187,7 @@ func (x *Origin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Origin.ProtoReflect.Descriptor instead.
 func (*Origin) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Origin) GetNamespace() string {
@@ -215,7 +215,7 @@ type OriginRoute struct {
 
 func (x *OriginRoute) Reset() {
 	*x = OriginRoute{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[3]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -227,7 +227,7 @@ func (x *OriginRoute) String() string {
 func (*OriginRoute) ProtoMessage() {}
 
 func (x *OriginRoute) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[3]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +240,7 @@ func (x *OriginRoute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OriginRoute.ProtoReflect.Descriptor instead.
 func (*OriginRoute) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *OriginRoute) GetMatchPrefix() string {
@@ -281,7 +281,7 @@ type Security struct {
 
 func (x *Security) Reset() {
 	*x = Security{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[4]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -293,7 +293,7 @@ func (x *Security) String() string {
 func (*Security) ProtoMessage() {}
 
 func (x *Security) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[4]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -306,7 +306,7 @@ func (x *Security) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Security.ProtoReflect.Descriptor instead.
 func (*Security) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Security) GetIsWafEngineOn() bool {
@@ -374,7 +374,7 @@ type TrafficControl struct {
 
 func (x *TrafficControl) Reset() {
 	*x = TrafficControl{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[5]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -386,7 +386,7 @@ func (x *TrafficControl) String() string {
 func (*TrafficControl) ProtoMessage() {}
 
 func (x *TrafficControl) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[5]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -399,7 +399,7 @@ func (x *TrafficControl) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TrafficControl.ProtoReflect.Descriptor instead.
 func (*TrafficControl) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{5}
 }
 
 // Personalization defines where the request goes and how the edge processes it
@@ -411,7 +411,7 @@ type Personalization struct {
 
 func (x *Personalization) Reset() {
 	*x = Personalization{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[6]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +423,7 @@ func (x *Personalization) String() string {
 func (*Personalization) ProtoMessage() {}
 
 func (x *Personalization) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[6]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +436,7 @@ func (x *Personalization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Personalization.ProtoReflect.Descriptor instead.
 func (*Personalization) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{6}
 }
 
 // Context helps the edge identify which user is connected
@@ -453,7 +453,7 @@ type Context struct {
 
 func (x *Context) Reset() {
 	*x = Context{}
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[7]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -465,7 +465,7 @@ func (x *Context) String() string {
 func (*Context) ProtoMessage() {}
 
 func (x *Context) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_edge_v1_edge_engine_proto_msgTypes[7]
+	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +478,7 @@ func (x *Context) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Context.ProtoReflect.Descriptor instead.
 func (*Context) Descriptor() ([]byte, []int) {
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP(), []int{7}
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Context) GetTenantNs() string {
@@ -488,11 +488,11 @@ func (x *Context) GetTenantNs() string {
 	return ""
 }
 
-var File_sentinez_edge_v1_edge_engine_proto protoreflect.FileDescriptor
+var File_sentinez_edge_v1_setting_proto protoreflect.FileDescriptor
 
-const file_sentinez_edge_v1_edge_engine_proto_rawDesc = "" +
+const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/edge/v1/edge_engine.proto\x12\x10sentinez.edge.v1\x1a.sentinez/types/rule/engine/v1/ruleengine.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
+	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a.sentinez/types/rule/engine/v1/ruleengine.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
 	"\aSetting\x126\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1a.sentinez.edge.v1.MetadataR\bmetadata\x120\n" +
 	"\x06origin\x18\x02 \x01(\v2\x18.sentinez.edge.v1.OriginR\x06origin\x126\n" +
@@ -527,19 +527,19 @@ const file_sentinez_edge_v1_edge_engine_proto_rawDesc = "" +
 	"\ttenant_ns\x18\x01 \x01(\tR\btenantNsBAZ?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
 
 var (
-	file_sentinez_edge_v1_edge_engine_proto_rawDescOnce sync.Once
-	file_sentinez_edge_v1_edge_engine_proto_rawDescData []byte
+	file_sentinez_edge_v1_setting_proto_rawDescOnce sync.Once
+	file_sentinez_edge_v1_setting_proto_rawDescData []byte
 )
 
-func file_sentinez_edge_v1_edge_engine_proto_rawDescGZIP() []byte {
-	file_sentinez_edge_v1_edge_engine_proto_rawDescOnce.Do(func() {
-		file_sentinez_edge_v1_edge_engine_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_edge_engine_proto_rawDesc), len(file_sentinez_edge_v1_edge_engine_proto_rawDesc)))
+func file_sentinez_edge_v1_setting_proto_rawDescGZIP() []byte {
+	file_sentinez_edge_v1_setting_proto_rawDescOnce.Do(func() {
+		file_sentinez_edge_v1_setting_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_setting_proto_rawDesc), len(file_sentinez_edge_v1_setting_proto_rawDesc)))
 	})
-	return file_sentinez_edge_v1_edge_engine_proto_rawDescData
+	return file_sentinez_edge_v1_setting_proto_rawDescData
 }
 
-var file_sentinez_edge_v1_edge_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_sentinez_edge_v1_edge_engine_proto_goTypes = []any{
+var file_sentinez_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_sentinez_edge_v1_setting_proto_goTypes = []any{
 	(*Setting)(nil),         // 0: sentinez.edge.v1.Setting
 	(*Metadata)(nil),        // 1: sentinez.edge.v1.Metadata
 	(*Origin)(nil),          // 2: sentinez.edge.v1.Origin
@@ -552,7 +552,7 @@ var file_sentinez_edge_v1_edge_engine_proto_goTypes = []any{
 	(*v1.Rule)(nil),         // 9: sentinez.types.rule.engine.v1.Rule
 	(*v1.Expr)(nil),         // 10: sentinez.types.rule.engine.v1.Expr
 }
-var file_sentinez_edge_v1_edge_engine_proto_depIdxs = []int32{
+var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
 	1,  // 0: sentinez.edge.v1.Setting.metadata:type_name -> sentinez.edge.v1.Metadata
 	2,  // 1: sentinez.edge.v1.Setting.origin:type_name -> sentinez.edge.v1.Origin
 	4,  // 2: sentinez.edge.v1.Setting.security:type_name -> sentinez.edge.v1.Security
@@ -569,26 +569,26 @@ var file_sentinez_edge_v1_edge_engine_proto_depIdxs = []int32{
 	0,  // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_sentinez_edge_v1_edge_engine_proto_init() }
-func file_sentinez_edge_v1_edge_engine_proto_init() {
-	if File_sentinez_edge_v1_edge_engine_proto != nil {
+func init() { file_sentinez_edge_v1_setting_proto_init() }
+func file_sentinez_edge_v1_setting_proto_init() {
+	if File_sentinez_edge_v1_setting_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_edge_engine_proto_rawDesc), len(file_sentinez_edge_v1_edge_engine_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_setting_proto_rawDesc), len(file_sentinez_edge_v1_setting_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_sentinez_edge_v1_edge_engine_proto_goTypes,
-		DependencyIndexes: file_sentinez_edge_v1_edge_engine_proto_depIdxs,
-		MessageInfos:      file_sentinez_edge_v1_edge_engine_proto_msgTypes,
+		GoTypes:           file_sentinez_edge_v1_setting_proto_goTypes,
+		DependencyIndexes: file_sentinez_edge_v1_setting_proto_depIdxs,
+		MessageInfos:      file_sentinez_edge_v1_setting_proto_msgTypes,
 	}.Build()
-	File_sentinez_edge_v1_edge_engine_proto = out.File
-	file_sentinez_edge_v1_edge_engine_proto_goTypes = nil
-	file_sentinez_edge_v1_edge_engine_proto_depIdxs = nil
+	File_sentinez_edge_v1_setting_proto = out.File
+	file_sentinez_edge_v1_setting_proto_goTypes = nil
+	file_sentinez_edge_v1_setting_proto_depIdxs = nil
 }

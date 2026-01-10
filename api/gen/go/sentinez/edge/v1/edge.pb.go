@@ -427,8 +427,8 @@ const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
 	"\x17EvaluateIngressResponse\x12<\n" +
 	"\aresults\x18\x01 \x03(\v2\".sentinez.edge.v1.EvaluationResultR\aresults2{\n" +
 	"\x11EdgeEngineService\x12f\n" +
-	"\x0fEvaluateIngress\x12(.sentinez.edge.v1.EvaluateIngressRequest\x1a).sentinez.edge.v1.EvaluateIngressResponseBr\x8a\xb2\x19-\n" +
-	"\x17SENTINEZ // EDGE ENGINE\x10\x02\x1a\x10sentinez.edge.v1Z?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
+	"\x0fEvaluateIngress\x12(.sentinez.edge.v1.EvaluateIngressRequest\x1a).sentinez.edge.v1.EvaluateIngressResponseBk\x8a\xb2\x19&\n" +
+	"\x10SENTINEZ // EDGE\x10\x02\x1a\x10sentinez.edge.v1Z?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
 
 var (
 	file_sentinez_edge_v1_edge_proto_rawDescOnce sync.Once
