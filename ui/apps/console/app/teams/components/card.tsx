@@ -31,7 +31,7 @@ export function Tenant() {
   );
 }
 
-export function TenantJoin() {
+export function TeamJoin() {
   return (
     <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
       <CardHeader>

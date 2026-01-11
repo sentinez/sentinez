@@ -25,42 +25,42 @@ export const dashboard = {
   ],
   navMain: [
     {
-      title: 'Management',
-      url: '/console/management',
+      title: 'Tenants',
+      url: '/console/tenant',
       icon: User,
       isActive: true,
       items: [
         {
           title: 'organization',
-          url: '/console/management/organization',
+          url: '/console/tenant/organization',
           icon: Building2,
         },
         {
           title: 'resource',
-          url: '/console/management/resource',
+          url: '/console/tenant/resource',
           icon: Server,
         },
         {
           title: 'origin',
-          url: '/console/management/origin',
+          url: '/console/tenant/origin',
           icon: Cloud,
         },
       ],
     },
     {
-      title: 'Activity',
-      url: '/console/activity',
+      title: 'Analytics',
+      url: '/console/analytic',
       icon: Activity,
       isActive: false,
       items: [
         {
           title: 'access log',
-          url: '/console/activity/access-log',
+          url: '/console/analytic/access-log',
           icon: SquareActivity,
         },
         {
           title: 'alert',
-          url: '/console/activity/alert',
+          url: '/console/analytic/alert',
           icon: ShieldAlert,
         },
       ],

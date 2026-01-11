@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default async function Page() {
-  redirect('/console/activity/access-log');
+  redirect('/console/analytic/access-log');
 }
