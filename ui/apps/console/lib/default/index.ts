@@ -2,7 +2,7 @@ import {
   User,
   Server,
   Building2,
-  Cloud,
+  Shield,
   Activity,
   ShieldAlert,
   SquareActivity,
@@ -16,7 +16,7 @@ export const dashboard = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
+  tenant: [
     {
       name: 'sentinez',
       logo: Users,
@@ -31,19 +31,37 @@ export const dashboard = {
       isActive: true,
       items: [
         {
-          title: 'organization',
-          url: '/console/tenant/organization',
-          icon: Building2,
-        },
-        {
           title: 'resource',
           url: '/console/tenant/resource',
           icon: Server,
         },
         {
-          title: 'origin',
-          url: '/console/tenant/origin',
-          icon: Cloud,
+          title: 'member',
+          url: '/console/tenant/member',
+          icon: Building2,
+        },
+        // {
+        //   title: 'origin',
+        //   url: '/console/tenant/origin',
+        //   icon: Cloud,
+        // },
+      ],
+    },
+    {
+      title: 'Securities',
+      url: '/console/security',
+      icon: Shield,
+      isActive: false,
+      items: [
+        {
+          title: 'logs',
+          url: '/console/security/logs',
+          icon: SquareActivity,
+        },
+        {
+          title: 'activity',
+          url: '/console/security/activity',
+          icon: ShieldAlert,
         },
       ],
     },
@@ -54,13 +72,13 @@ export const dashboard = {
       isActive: false,
       items: [
         {
-          title: 'access log',
-          url: '/console/analytic/access-log',
+          title: 'logs',
+          url: '/console/analytic/logs',
           icon: SquareActivity,
         },
         {
-          title: 'alert',
-          url: '/console/analytic/alert',
+          title: 'activity',
+          url: '/console/analytic/activity',
           icon: ShieldAlert,
         },
       ],

@@ -175,7 +175,7 @@ export function ResourceTable() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md">
         <Table className=" table-fixed w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
