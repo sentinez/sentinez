@@ -35,6 +35,8 @@ var (
 	_ = anypb.Any{}
 
 	_ = modelpb.Status(0)
+
+	_ = modelpb.Plan(0)
 )
 
 // Validate checks the field values on Resource with the rules defined in the
@@ -71,6 +73,8 @@ func (m *Resource) Validate() error {
 	// no validation rules for ResourceName
 
 	// no validation rules for Status
+
+	// no validation rules for Plan
 
 	return nil
 }

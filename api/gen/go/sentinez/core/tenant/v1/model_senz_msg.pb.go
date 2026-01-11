@@ -21,4 +21,5 @@ const (
 	Resource_ResourceDomain  = "resourceDomain"
 	Resource_ResourceName    = "resourceName"
 	Resource_Status          = "status"
+	Resource_Plan            = "plan"
 )

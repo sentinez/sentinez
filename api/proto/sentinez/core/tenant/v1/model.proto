@@ -32,4 +32,5 @@ message Resource {
   string                           resource_domain  = 4;
   string                           resource_name    = 5;
   sentinez.types.model.v1.Status   status           = 6;
+  sentinez.types.model.v1.Plan plan = 7;
 }

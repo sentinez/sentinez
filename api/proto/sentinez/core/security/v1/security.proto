@@ -14,8 +14,8 @@
 
 syntax = "proto3";
 
-package sentinez.core.rule.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/rule/v1;rulepb";
+package sentinez.core.security.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypb";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 // import "buf/validate/validate.proto";
@@ -50,14 +50,14 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 option (sentinez.types.common.v1.x_meta) = {
-  service_name: "SENTINEZ // RULE",
+  service_name: "SENTINEZ // SECURITY",
   service_kind: KIND_CORE,
-  service_key : "sentinez.core.rule.v1",
+  service_key : "sentinez.core.security.v1",
 };
 
-service RuleService {
+service SecurityService {
 
-  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
+  rpc CreateRuleBased(CreateRuleBasedRequest) returns (CreateRuleBasedResponse) {
     option (google.api.http) = {
       post: "/rule",
       body: "*"
@@ -67,11 +67,11 @@ service RuleService {
   rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
-message CreateRuleRequest {
+message CreateRuleBasedRequest {
   sentinez.types.rule.engine.v1.Rule rule = 1;
 }
 
-message CreateRuleResponse {
+message CreateRuleBasedResponse {
 
 }
 

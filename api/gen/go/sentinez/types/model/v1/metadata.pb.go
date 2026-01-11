@@ -86,6 +86,58 @@ func (Status) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_model_v1_metadata_proto_rawDescGZIP(), []int{0}
 }
 
+type Plan int32
+
+const (
+	Plan_PLAN_UNSPECIFIED Plan = 0
+	Plan_PLAN_FREE        Plan = 1
+	Plan_PLAN_STANDARD    Plan = 2
+	Plan_PLAN_PRO         Plan = 3
+)
+
+// Enum value maps for Plan.
+var (
+	Plan_name = map[int32]string{
+		0: "PLAN_UNSPECIFIED",
+		1: "PLAN_FREE",
+		2: "PLAN_STANDARD",
+		3: "PLAN_PRO",
+	}
+	Plan_value = map[string]int32{
+		"PLAN_UNSPECIFIED": 0,
+		"PLAN_FREE":        1,
+		"PLAN_STANDARD":    2,
+		"PLAN_PRO":         3,
+	}
+)
+
+func (x Plan) Enum() *Plan {
+	p := new(Plan)
+	*p = x
+	return p
+}
+
+func (x Plan) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Plan) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_model_v1_metadata_proto_enumTypes[1].Descriptor()
+}
+
+func (Plan) Type() protoreflect.EnumType {
+	return &file_sentinez_types_model_v1_metadata_proto_enumTypes[1]
+}
+
+func (x Plan) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Plan.Descriptor instead.
+func (Plan) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_model_v1_metadata_proto_rawDescGZIP(), []int{1}
+}
+
 type Metadata struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -171,7 +223,12 @@ const file_sentinez_types_model_v1_metadata_proto_rawDesc = "" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +
-	"\x0eSTATUS_DISABLE\x10\x02BIZGgithub.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1;modelpbb\x06proto3"
+	"\x0eSTATUS_DISABLE\x10\x02*L\n" +
+	"\x04Plan\x12\x14\n" +
+	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
+	"\tPLAN_FREE\x10\x01\x12\x11\n" +
+	"\rPLAN_STANDARD\x10\x02\x12\f\n" +
+	"\bPLAN_PRO\x10\x03BIZGgithub.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1;modelpbb\x06proto3"
 
 var (
 	file_sentinez_types_model_v1_metadata_proto_rawDescOnce sync.Once
@@ -185,16 +242,17 @@ func file_sentinez_types_model_v1_metadata_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_model_v1_metadata_proto_rawDescData
 }
 
-var file_sentinez_types_model_v1_metadata_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_sentinez_types_model_v1_metadata_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_sentinez_types_model_v1_metadata_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_model_v1_metadata_proto_goTypes = []any{
 	(Status)(0),                   // 0: sentinez.types.model.v1.Status
-	(*Metadata)(nil),              // 1: sentinez.types.model.v1.Metadata
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(Plan)(0),                     // 1: sentinez.types.model.v1.Plan
+	(*Metadata)(nil),              // 2: sentinez.types.model.v1.Metadata
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_sentinez_types_model_v1_metadata_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.model.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
-	2, // 1: sentinez.types.model.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
+	3, // 0: sentinez.types.model.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
+	3, // 1: sentinez.types.model.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -212,7 +270,7 @@ func file_sentinez_types_model_v1_metadata_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_model_v1_metadata_proto_rawDesc), len(file_sentinez_types_model_v1_metadata_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,

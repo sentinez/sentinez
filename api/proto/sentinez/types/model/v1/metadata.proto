@@ -35,3 +35,10 @@ enum Status {
   STATUS_ACTIVE = 1;
   STATUS_DISABLE = 2;
 }
+
+enum Plan {
+  PLAN_UNSPECIFIED = 0;
+  PLAN_FREE = 1;
+  PLAN_STANDARD = 2;
+  PLAN_PRO = 3;
+}

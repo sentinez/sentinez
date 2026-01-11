@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "RuleService"
+      "name": "SecurityService"
     }
   ],
   "schemes": [
@@ -22,12 +22,12 @@
   "paths": {
     "/rule": {
       "post": {
-        "operationId": "RuleService_CreateRule",
+        "operationId": "SecurityService_CreateRuleBased",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleResponse"
+              "$ref": "#/definitions/v1CreateRuleBasedResponse"
             }
           },
           "default": {
@@ -43,12 +43,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleRequest"
+              "$ref": "#/definitions/v1CreateRuleBasedRequest"
             }
           }
         ],
         "tags": [
-          "RuleService"
+          "SecurityService"
         ]
       }
     }
@@ -147,7 +147,7 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CreateRuleRequest": {
+    "v1CreateRuleBasedRequest": {
       "type": "object",
       "properties": {
         "rule": {
@@ -155,7 +155,7 @@
         }
       }
     },
-    "v1CreateRuleResponse": {
+    "v1CreateRuleBasedResponse": {
       "type": "object"
     },
     "v1FieldSource": {
@@ -169,7 +169,8 @@
         "FIELD_SOURCE_IP",
         "FIELD_SOURCE_JA4",
         "FIELD_SOURCE_TLS",
-        "FIELD_SOURCE_METHOD"
+        "FIELD_SOURCE_METHOD",
+        "FIELD_SOURCE_HOST"
       ],
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
