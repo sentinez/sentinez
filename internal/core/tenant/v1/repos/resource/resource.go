@@ -17,16 +17,17 @@ package resourcerepo
 import (
 	"context"
 
-	tnpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func New(appConf *confpb.Config) (*Resource, error) {
-	storage, err := postgres.New[*tnpb.Resource](appConf, tables.Resources)
+func New(ctx context.Context, appConf *confpb.Config) (*Resource, error) {
+	storage, err := postgres.New[*tenantpb.Resource](ctx, appConf,
+		database.WithTable(tables.Resources),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -38,45 +39,37 @@ func New(appConf *confpb.Config) (*Resource, error) {
 
 var _ IResource = (*Resource)(nil)
 
+// nolint
 type IResource interface {
-	Create(ctx context.Context, rs *tnpb.Resource) (*tnpb.Resource, error)
-	Update(ctx context.Context, rs *tnpb.Resource) (*tnpb.Resource, error)
-	Get(ctx context.Context, id string) (*tnpb.Resource, error)
+	Create(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
+	Update(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
+	Get(ctx context.Context, id string) (*tenantpb.Resource, error)
 	Delete(ctx context.Context, id string) error
 }
 
 type Resource struct {
-	storage database.Database[*tnpb.Resource]
+	storage database.Database[*tenantpb.Resource]
 }
 
 func (rsc *Resource) Create(
-	ctx context.Context, rs *tnpb.Resource) (*tnpb.Resource, error) {
+	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
 func (rsc *Resource) Update(
-	ctx context.Context, rs *tnpb.Resource) (*tnpb.Resource, error) {
-	rs.Metadata.UpdatedAt = timestamppb.Now()
-
-	err := rsc.storage.Set(ctx, rs.GetId(), rs)
-	if err != nil {
-		return nil, err
-	}
-
-	return rs, nil
+	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (rsc *Resource) Get(
-	ctx context.Context, id string) (*tnpb.Resource, error) {
-	return rsc.storage.Get(ctx, id)
+	ctx context.Context, id string) (*tenantpb.Resource, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (rsc *Resource) Delete(ctx context.Context, id string) error {
-	_, err := rsc.Get(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	return rsc.storage.Delete(ctx, id)
+	//TODO implement me
+	panic("implement me")
 }

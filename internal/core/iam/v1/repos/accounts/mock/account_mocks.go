@@ -438,31 +438,20 @@ func (_c *MockIAccount_Total_Call) RunAndReturn(run func(ctx context.Context, re
 }
 
 // Update provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) Update(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error) {
+func (_mock *MockIAccount) Update(ctx context.Context, account *accrepos.AccountX) error {
 	ret := _mock.Called(ctx, account)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *accrepos.AccountX
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) (*accrepos.AccountX, error)); ok {
-		return returnFunc(ctx, account)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) *accrepos.AccountX); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *accrepos.AccountX) error); ok {
 		r0 = returnFunc(ctx, account)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*accrepos.AccountX)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *accrepos.AccountX) error); ok {
-		r1 = returnFunc(ctx, account)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockIAccount_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
@@ -495,12 +484,12 @@ func (_c *MockIAccount_Update_Call) Run(run func(ctx context.Context, account *a
 	return _c
 }
 
-func (_c *MockIAccount_Update_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_Update_Call {
-	_c.Call.Return(accountX, err)
+func (_c *MockIAccount_Update_Call) Return(err error) *MockIAccount_Update_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockIAccount_Update_Call) RunAndReturn(run func(ctx context.Context, account *accrepos.AccountX) (*accrepos.AccountX, error)) *MockIAccount_Update_Call {
+func (_c *MockIAccount_Update_Call) RunAndReturn(run func(ctx context.Context, account *accrepos.AccountX) error) *MockIAccount_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

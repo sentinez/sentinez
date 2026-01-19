@@ -26,7 +26,7 @@ import (
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	structpb "google.golang.org/protobuf/types/known/structpb"
+	_ "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -47,7 +47,7 @@ type Account struct {
 	Username      string                 `protobuf:"bytes,10,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,11,opt,name=password,proto3" json:"password,omitempty"`
 	Email         string                 `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
-	Credentials   []*structpb.Struct     `protobuf:"bytes,20,rep,name=credentials,proto3" json:"credentials,omitempty"`
+	Credentials   []string               `protobuf:"bytes,20,rep,name=credentials,proto3" json:"credentials,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -124,7 +124,7 @@ func (x *Account) GetEmail() string {
 	return ""
 }
 
-func (x *Account) GetCredentials() []*structpb.Struct {
+func (x *Account) GetCredentials() []string {
 	if x != nil {
 		return x.Credentials
 	}
@@ -287,7 +287,7 @@ var File_sentinez_core_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xf3\x02\n" +
+	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xda\x02\n" +
 	"\aAccount\x12=\n" +
 	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
@@ -295,8 +295,8 @@ const file_sentinez_core_iam_v1_model_proto_rawDesc = "" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\bpassword\x18\v \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\x12\x1d\n" +
-	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x129\n" +
-	"\vcredentials\x18\x14 \x03(\v2\x17.google.protobuf.StructR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x93\x02\n" +
+	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12 \n" +
+	"\vcredentials\x18\x14 \x03(\tR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x93\x02\n" +
 	"\x0fAccountResponse\x12=\n" +
 	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
@@ -330,18 +330,16 @@ var file_sentinez_core_iam_v1_model_proto_goTypes = []any{
 	(*AccountResponse)(nil), // 1: sentinez.core.iam.v1.AccountResponse
 	(*User)(nil),            // 2: sentinez.core.iam.v1.User
 	(*v1.Metadata)(nil),     // 3: sentinez.types.model.v1.Metadata
-	(*structpb.Struct)(nil), // 4: google.protobuf.Struct
 }
 var file_sentinez_core_iam_v1_model_proto_depIdxs = []int32{
 	3, // 0: sentinez.core.iam.v1.Account.metadata:type_name -> sentinez.types.model.v1.Metadata
-	4, // 1: sentinez.core.iam.v1.Account.credentials:type_name -> google.protobuf.Struct
-	3, // 2: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.model.v1.Metadata
-	3, // 3: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.model.v1.Metadata
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 1: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.model.v1.Metadata
+	3, // 2: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.model.v1.Metadata
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_core_iam_v1_model_proto_init() }

@@ -7,7 +7,15 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Setting } from "../../../edge/v1/setting";
-import { Metadata, Status, statusFromJSON, statusToJSON } from "../../../types/model/v1/metadata";
+import {
+  Metadata,
+  Plan,
+  planFromJSON,
+  planToJSON,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+} from "../../../types/model/v1/metadata";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
@@ -18,10 +26,19 @@ export interface Resource {
   resourceDomain: string;
   resourceName: string;
   status: Status;
+  plan: Plan;
 }
 
 function createBaseResource(): Resource {
-  return { metadata: undefined, id: "", resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0 };
+  return {
+    metadata: undefined,
+    id: "",
+    resourceSetting: undefined,
+    resourceDomain: "",
+    resourceName: "",
+    status: 0,
+    plan: 0,
+  };
 }
 
 export const Resource: MessageFns<Resource> = {
@@ -43,6 +60,9 @@ export const Resource: MessageFns<Resource> = {
     }
     if (message.status !== 0) {
       writer.uint32(48).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(56).int32(message.plan);
     }
     return writer;
   },
@@ -102,6 +122,14 @@ export const Resource: MessageFns<Resource> = {
           message.status = reader.int32() as any;
           continue;
         }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -119,6 +147,7 @@ export const Resource: MessageFns<Resource> = {
       resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
       resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
     };
   },
 
@@ -142,6 +171,9 @@ export const Resource: MessageFns<Resource> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
     return obj;
   },
 
@@ -160,6 +192,7 @@ export const Resource: MessageFns<Resource> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
     return message;
   },
 };

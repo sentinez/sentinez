@@ -32,10 +32,10 @@ func GetListener() *bufconn.Listener {
 	return bufLis
 }
 
-func NewService(appConf *confpb.Config) *IAM {
+func NewService(ctx context.Context, appConf *confpb.Config) *IAM {
 	return &IAM{
 		Server: netgrpc.NewDefault(appConf.GetMeta()),
-		hdl:    iamfac.NewDefaultHandler(appConf),
+		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }
 

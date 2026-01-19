@@ -436,31 +436,20 @@ func (_c *MockIUser_Total_Call) RunAndReturn(run func(ctx context.Context, req *
 }
 
 // Update provides a mock function for the type MockIUser
-func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) (*iam.User, error) {
+func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) error {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *iam.User
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) (*iam.User, error)); ok {
-		return returnFunc(ctx, user)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) *iam.User); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) error); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.User)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.User) error); ok {
-		r1 = returnFunc(ctx, user)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockIUser_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
@@ -493,12 +482,12 @@ func (_c *MockIUser_Update_Call) Run(run func(ctx context.Context, user *iam.Use
 	return _c
 }
 
-func (_c *MockIUser_Update_Call) Return(user1 *iam.User, err error) *MockIUser_Update_Call {
-	_c.Call.Return(user1, err)
+func (_c *MockIUser_Update_Call) Return(err error) *MockIUser_Update_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) (*iam.User, error)) *MockIUser_Update_Call {
+func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) error) *MockIUser_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

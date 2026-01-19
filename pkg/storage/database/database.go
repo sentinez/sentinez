@@ -19,37 +19,30 @@ import (
 	"context"
 
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"google.golang.org/protobuf/proto"
 )
 
 const (
-	SchemalessFieldData      = "data"
-	SchemalessFieldID        = "id"
-	SchemalessFieldCreatedAt = "created_at"
-	SchemalessFieldUpdatedAt = "updated_at"
-	SchemalessF              = `
-	CREATE TABLE IF NOT EXISTS %s (
-		id TEXT PRIMARY KEY,
-		data JSONB NOT NULL,
-		created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-		updated_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
-	);
-`
+	FieldID        = "id"
+	FieldCreatedAt = "created_at"
+	FieldUpdatedAt = "updated_at"
 )
 
-type Executor[T proto.Message] interface {
+type ScanOneFn[T any] func(Row) (*T, error)
+type ScanFn[T any] func(Rows) ([]*T, error)
+
+// nolint:lll
+type Executor[T any] interface {
 	Exec(ctx context.Context, builder query.Query) (ExecResult, error)
 	Query(ctx context.Context, builder query.Query, dest ...any) error
-	CollectRows(ctx context.Context, builder query.Query,
-		scan func(Rows) ([]T, error)) ([]T, error)
-	CollectOneRow(ctx context.Context, builder query.Query,
-		scan func(Row) (T, error)) (T, error)
+	CollectRows(ctx context.Context, builder query.Query, scan ScanFn[T]) ([]*T, error)
+	CollectOneRow(ctx context.Context, builder query.Query, scan ScanOneFn[T]) (*T, error)
 }
 
-type Database[T proto.Message] interface {
+// nolint:lll
+type Database[T any] interface {
 	Executor[T]
-	Set(ctx context.Context, id string, entity T) error
-	Get(ctx context.Context, id string) (T, error)
+	Insert(ctx context.Context, builder query.Query) (string, error)
+	Select(ctx context.Context, builder query.Query, scan ScanOneFn[T]) (*T, error)
 	Delete(ctx context.Context, id string) error
 
 	Table() string
@@ -68,7 +61,6 @@ type Rows interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-	// Close() error
 }
 
 type ExecResult interface {
@@ -76,6 +68,10 @@ type ExecResult interface {
 }
 
 type Table struct {
+	Column map[string]ColumnType
+	Table  string
 }
 
 type Option func(*Table)
+
+type ColumnType string

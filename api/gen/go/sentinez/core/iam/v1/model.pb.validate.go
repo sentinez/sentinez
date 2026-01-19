@@ -60,21 +60,6 @@ func (m *Account) Validate() error {
 
 	// no validation rules for Email
 
-	for idx, item := range m.GetCredentials() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return AccountValidationError{
-					field:  fmt.Sprintf("Credentials[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
 	return nil
 }
 

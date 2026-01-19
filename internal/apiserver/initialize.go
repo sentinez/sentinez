@@ -40,7 +40,7 @@ func (srv *Server) Initialize(
 
 	return srv.Visit(ctx,
 		services.NewGreeter(greeterfac.NewDefaultHandler(conf)),
-		services.NewIAM(iamfac.NewDefaultHandler(conf)),
+		services.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
 		services.NewTenant(tenantfac.NewDefaultHandlerTenant(conf)),
 	)
 }

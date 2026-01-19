@@ -2,19 +2,19 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/rule/v1/rule.proto
+// source: sentinez/core/security/v1/security.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Rule } from "../../../types/rule/engine/v1/ruleengine";
 
-export const protobufPackage = "sentinez.core.rule.v1";
+export const protobufPackage = "sentinez.core.security.v1";
 
-export interface CreateRuleRequest {
+export interface CreateRuleBasedRequest {
   rule?: Rule | undefined;
 }
 
-export interface CreateRuleResponse {
+export interface CreateRuleBasedResponse {
 }
 
 export interface StatusRequest {
@@ -24,22 +24,22 @@ export interface StatusResponse {
   msg: string;
 }
 
-function createBaseCreateRuleRequest(): CreateRuleRequest {
+function createBaseCreateRuleBasedRequest(): CreateRuleBasedRequest {
   return { rule: undefined };
 }
 
-export const CreateRuleRequest: MessageFns<CreateRuleRequest> = {
-  encode(message: CreateRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
+  encode(message: CreateRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.rule !== undefined) {
       Rule.encode(message.rule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleBasedRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCreateRuleRequest();
+    const message = createBaseCreateRuleBasedRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -60,11 +60,11 @@ export const CreateRuleRequest: MessageFns<CreateRuleRequest> = {
     return message;
   },
 
-  fromJSON(object: any): CreateRuleRequest {
+  fromJSON(object: any): CreateRuleBasedRequest {
     return { rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined };
   },
 
-  toJSON(message: CreateRuleRequest): unknown {
+  toJSON(message: CreateRuleBasedRequest): unknown {
     const obj: any = {};
     if (message.rule !== undefined) {
       obj.rule = Rule.toJSON(message.rule);
@@ -72,29 +72,29 @@ export const CreateRuleRequest: MessageFns<CreateRuleRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(base?: I): CreateRuleRequest {
-    return CreateRuleRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateRuleBasedRequest>, I>>(base?: I): CreateRuleBasedRequest {
+    return CreateRuleBasedRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(object: I): CreateRuleRequest {
-    const message = createBaseCreateRuleRequest();
+  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedRequest>, I>>(object: I): CreateRuleBasedRequest {
+    const message = createBaseCreateRuleBasedRequest();
     message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
     return message;
   },
 };
 
-function createBaseCreateRuleResponse(): CreateRuleResponse {
+function createBaseCreateRuleBasedResponse(): CreateRuleBasedResponse {
   return {};
 }
 
-export const CreateRuleResponse: MessageFns<CreateRuleResponse> = {
-  encode(_: CreateRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
+  encode(_: CreateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleBasedResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCreateRuleResponse();
+    const message = createBaseCreateRuleBasedResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -107,20 +107,20 @@ export const CreateRuleResponse: MessageFns<CreateRuleResponse> = {
     return message;
   },
 
-  fromJSON(_: any): CreateRuleResponse {
+  fromJSON(_: any): CreateRuleBasedResponse {
     return {};
   },
 
-  toJSON(_: CreateRuleResponse): unknown {
+  toJSON(_: CreateRuleBasedResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(base?: I): CreateRuleResponse {
-    return CreateRuleResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(base?: I): CreateRuleBasedResponse {
+    return CreateRuleBasedResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(_: I): CreateRuleResponse {
-    const message = createBaseCreateRuleResponse();
+  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(_: I): CreateRuleBasedResponse {
+    const message = createBaseCreateRuleBasedResponse();
     return message;
   },
 };

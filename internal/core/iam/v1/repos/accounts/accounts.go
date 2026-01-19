@@ -19,8 +19,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
@@ -35,7 +35,7 @@ var (
 
 type IAccount interface {
 	Create(ctx context.Context, account *AccountX) (*AccountX, error)
-	Update(ctx context.Context, account *AccountX) (*AccountX, error)
+	Update(ctx context.Context, account *AccountX) error
 	Get(ctx context.Context, id string) (*AccountX, error)
 	Delete(ctx context.Context, id string) error
 
@@ -52,9 +52,17 @@ type IAccount interface {
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
-func New(appConf *confpb.Config) (IAccount, error) {
+func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 
-	storage, err := postgres.New[*AccountX](appConf, tables.Accounts)
+	storage, err := postgres.New[AccountX](ctx, appConf,
+		database.WithTable(tables.Accounts),
+		database.WithColumn(iam.Account_Id, postgres.String),
+		database.WithColumn(iam.Account_Email, postgres.String),
+		database.WithColumn(iam.Account_Username, postgres.String),
+		database.WithColumn(iam.Account_Password, postgres.String),
+		database.WithColumn(iam.Account_Credentials, postgres.StringArr),
+		database.WithColumn(iam.Account_UserId, postgres.String),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +73,7 @@ func New(appConf *confpb.Config) (IAccount, error) {
 }
 
 type Accounts struct {
-	storage database.Database[*AccountX]
+	storage database.Database[AccountX]
 }
 
 // nolint:funlen
@@ -73,26 +81,19 @@ func buildListQuery(builder sq.SelectBuilder,
 	req *iam.ListAccountsRequest) sq.SelectBuilder {
 
 	if len(req.GetIds()) > 0 {
-		builder = builder.Where(
-			sq.Eq{postgres.Primary(iam.Account_Id): req.GetIds()})
+		builder = builder.Where(sq.Eq{iam.Account_Id: req.GetIds()})
 	}
 
 	if len(req.GetEmails()) > 0 {
-		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.Account_Email): req.GetEmails(),
-		})
+		builder = builder.Where(sq.Eq{iam.Account_Email: req.GetEmails()})
 	}
 
 	if len(req.GetUserIds()) > 0 {
-		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.Account_UserId): req.GetUserIds(),
-		})
+		builder = builder.Where(sq.Eq{iam.Account_UserId: req.GetUserIds()})
 	}
 
 	if len(req.GetUsernames()) > 0 {
-		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.Account_Username): req.GetUsernames(),
-		})
+		builder = builder.Where(sq.Eq{iam.Account_Username: req.GetUsernames()})
 	}
 
 	return builder
@@ -104,15 +105,25 @@ func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 	}
 }
 
+func (acc *Accounts) selectQuery(page *common.Pages) sq.SelectBuilder {
+	return postgres.SelectBuilder(acc.storage, page,
+		iam.Account_Id,
+		iam.Account_Credentials,
+		iam.Account_Username,
+		iam.Account_Email,
+		iam.Account_UserId,
+		iam.Account_Password,
+	)
+}
+
 // nolint:funlen
 func (acc *Accounts) List(ctx context.Context,
 	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
 
-	builder := postgres.SelectBuilder(acc.storage, req.GetPage())
+	builder := acc.selectQuery(req.GetPage())
 	builder = buildListQuery(builder, req)
 
-	accounts, err := acc.storage.CollectRows(
-		ctx, builder, postgres.Scans[*AccountX])
+	accounts, err := acc.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
 		return nil, err
 	}
@@ -154,14 +165,12 @@ func (acc *Accounts) Total(ctx context.Context,
 func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*AccountX, error) {
 
-	builder := postgres.SelectBuilder(acc.storage, nil).
-		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.Account_Username): input},
-			sq.Eq{postgres.Field(iam.Account_Email): input},
-		})
+	builder := acc.selectQuery(nil).Where(sq.Or{
+		sq.Eq{iam.Account_Username: input},
+		sq.Eq{iam.Account_Email: input},
+	})
 
-	resp, err := acc.storage.
-		CollectOneRow(ctx, builder, postgres.Scan[*AccountX])
+	resp, err := acc.storage.CollectOneRow(ctx, builder, scanOne)
 	if err != nil {
 		return &AccountX{}, err
 	}
@@ -173,16 +182,27 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	now := timestamppb.Now()
 	account.Id = ids.NewID(table.NewPrimaryKey(tables.Accounts))
-	account.Metadata = &modelpb.Metadata{
-		CreatedAt: now,
-		UpdatedAt: now,
-		CreatedBy: account.GetUsername(),
-		UpdatedBy: account.GetUsername(),
-	}
+	query := postgres.InsertBuilder(acc.storage,
+		[]string{iam.Account_Id,
+			iam.Account_Credentials,
+			iam.Account_Username,
+			iam.Account_Email,
+			iam.Account_UserId,
+			iam.Account_Password,
+		},
+		[]any{
+			account.GetId(),
+			account.GetCredentials(),
+			account.GetUsername(),
+			account.GetEmail(),
+			account.GetUserId(),
+			account.GetPassword(),
+		},
+	)
 
-	if err := acc.storage.Set(ctx, account.GetId(), account); err != nil {
+	_, err := acc.storage.Insert(ctx, query)
+	if err != nil {
 		return nil, err
 	}
 
@@ -195,20 +215,82 @@ func (acc *Accounts) Delete(ctx context.Context, id string) error {
 }
 
 // Get implements IAccount.
-func (acc *Accounts) Get(ctx context.Context,
-	id string) (*AccountX, error) {
-
-	return acc.storage.Get(ctx, id)
+func (acc *Accounts) Get(ctx context.Context, id string) (*AccountX, error) {
+	builder := acc.selectQuery(nil).Where(sq.Eq{iam.Account_Id: id})
+	return acc.storage.Select(ctx, builder, scanOne)
 }
 
 // Update implements IAccount.
-func (acc *Accounts) Update(
-	ctx context.Context, account *AccountX) (*AccountX, error) {
+func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 
 	account.Metadata.UpdatedAt = timestamppb.Now()
-	if err := acc.storage.Set(ctx, account.GetId(), account); err != nil {
+
+	query := postgres.UpdateBuilder(acc.storage, account.GetId())
+
+	if account.GetEmail() != "" {
+		query = query.Set(iam.Account_Email, account.GetEmail())
+	}
+
+	if account.GetUsername() != "" {
+		query = query.Set(iam.Account_Username, account.GetUsername())
+	}
+
+	if account.GetPassword() != "" {
+		query = query.Set(iam.Account_Password, account.GetPassword())
+	}
+
+	if account.GetUserId() != "" {
+		query = query.Set(iam.Account_UserId, account.GetUserId())
+	}
+
+	if len(account.GetCredentials()) != 0 {
+		query = query.Set(iam.Account_Credentials, account.GetCredentials())
+	}
+
+	_, err := acc.storage.Exec(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func scan(rows database.Rows) ([]*AccountX, error) {
+	var results []*AccountX
+
+	for rows.Next() {
+		var account AccountX
+		err := rows.Scan(
+			&account.Id,
+			&account.Email,
+			&account.Username,
+			&account.Password,
+			&account.UserId,
+			&account.Credentials,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, &account)
+	}
+
+	return results, rows.Err()
+}
+
+func scanOne(row database.Row) (*AccountX, error) {
+	var account AccountX
+	err := row.Scan(
+		&account.Id,
+		&account.Email,
+		&account.Username,
+		&account.Password,
+		&account.UserId,
+		&account.Credentials,
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	return account, nil
+	return &account, nil
 }

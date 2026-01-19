@@ -109,7 +109,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	}
 
 	acc.UpdateCredential(credential)
-	if _, err := srv.accounts.Update(ctx, acc); err != nil {
+	if err = srv.accounts.Update(ctx, acc); err != nil {
 		return nil, err
 	}
 
@@ -218,7 +218,7 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 	}
 
 	acc.AddCredential(credential)
-	if _, err = srv.accounts.Update(ctx, acc); err != nil {
+	if err = srv.accounts.Update(ctx, acc); err != nil {
 		return nil, err
 	}
 
@@ -548,7 +548,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 
 	copyUserUpdateParams(user, request)
 
-	_, err = srv.users.Update(ctx, user)
+	err = srv.users.Update(ctx, user)
 	if err != nil {
 		return nil, err
 	}

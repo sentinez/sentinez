@@ -16,19 +16,15 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"reflect"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/query"
-	"github.com/sentinez/shared/zlog"
-	"google.golang.org/protobuf/proto"
 )
 
 type Client interface {
@@ -37,14 +33,6 @@ type Client interface {
 
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
-}
-
-func Field(field string) string {
-	return fmt.Sprintf("%s->>'%s'", database.SchemalessFieldData, field)
-}
-
-func Primary(field string) string {
-	return field
 }
 
 func Paging(builder squirrel.SelectBuilder,
@@ -62,13 +50,13 @@ func Paging(builder squirrel.SelectBuilder,
 	return builder.
 		Limit(uint64(page.GetSize())).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf("%s DESC", database.SchemalessFieldCreatedAt))
+		OrderBy(fmt.Sprintf("%s DESC", database.FieldCreatedAt))
 }
 
-func SelectBuilder[T proto.Message](
-	db database.Database[T], page *common.Pages) squirrel.SelectBuilder {
+func SelectBuilder[T any](db database.Database[T],
+	page *common.Pages, columns ...string) squirrel.SelectBuilder {
 
-	builder := squirrel.Select(database.SchemalessFieldData).From(db.Table())
+	builder := squirrel.Select(columns...).From(db.Table())
 	if page == nil {
 		return builder
 	}
@@ -76,58 +64,20 @@ func SelectBuilder[T proto.Message](
 	return Paging(builder, page)
 }
 
-func Scans[T proto.Message](r database.Rows) ([]T, error) {
-	var list []T
+func InsertBuilder[T any](db database.Database[T],
+	columns []string, values []any) squirrel.InsertBuilder {
 
-	for r.Next() {
-		var (
-			data []byte
-		)
-
-		if err := r.Scan(&data); err != nil {
-			return nil, err
-		}
-
-		obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
-			Interface().(proto.Message)
-
-		if err := jsonx.Unmarshal(data, obj); err != nil {
-			return nil, err
-		}
-
-		list = append(list, obj.(T))
-	}
-
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-
-	return list, nil
+	return squirrel.Insert(db.Table()).
+		Columns(columns...).
+		Values(values...).
+		Suffix("RETURNING id").
+		PlaceholderFormat(squirrel.Dollar)
 }
 
-func Scan[T proto.Message](r database.Row) (T, error) {
+func UpdateBuilder[T any](
+	db database.Database[T], id string) squirrel.UpdateBuilder {
 
-	var (
-		empty T
-		data  []byte
-	)
-
-	if r == nil {
-		zlog.Debug("Row is nil")
-		return empty, errors.New("row is nil")
-	}
-
-	if err := r.Scan(&data); err != nil {
-		zlog.Debugf("scan: error= %v", err)
-		return empty, err
-	}
-
-	obj := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).
-		Interface().(proto.Message)
-
-	if err := jsonx.Unmarshal(data, obj); err != nil {
-		return empty, err
-	}
-
-	return obj.(T), nil
+	return squirrel.Update(db.Table()).
+		Set(database.FieldUpdatedAt, time.Now().UTC()).
+		Where(squirrel.Eq{"id": id})
 }

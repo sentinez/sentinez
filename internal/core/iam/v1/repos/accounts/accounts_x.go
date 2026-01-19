@@ -17,8 +17,8 @@ package accrepos
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/pkg/common/copier"
-	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -35,20 +35,32 @@ type AccountX struct {
 }
 
 func (ax *AccountX) AddCredential(credential *webauthn.Credential) {
-	cred := protox.Struct(credential)
-	ax.Credentials = append(ax.Credentials, cred)
+	data, err := jsonx.Marshal(credential)
+	if err != nil {
+		zlog.Errorf("failed to marshal credential: %v", err)
+	}
+	ax.Credentials = append(ax.Credentials, string(data))
 }
 
 func (ax *AccountX) UpdateCredential(credential *webauthn.Credential) {
-	var creds []webauthn.Credential
-	_ = copier.CopyJSON(ax.Credentials, &creds)
-	for i, c := range creds {
-		if string(c.ID) == string(credential.ID) {
-			creds[i] = *credential
+	for i, c := range ax.Credentials {
+		var cred webauthn.Credential
+
+		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
+			zlog.Errorf("failed to unmarshal credential: %v", err)
+			return
+		}
+
+		if string(cred.ID) == string(credential.ID) {
+			data, err := jsonx.Marshal(credential)
+			if err != nil {
+				zlog.Errorf("failed to marshal credential: %v", err)
+				return
+			}
+
+			ax.Credentials[i] = string(data)
 		}
 	}
-
-	_ = copier.CopyJSON(&creds, ax.Credentials)
 }
 
 func (ax *AccountX) WebAuthnID() []byte {
@@ -65,6 +77,15 @@ func (ax *AccountX) WebAuthnDisplayName() string {
 
 func (ax *AccountX) WebAuthnCredentials() []webauthn.Credential {
 	var resp []webauthn.Credential
-	_ = copier.CopyJSON(ax.Credentials, &resp)
+	for _, c := range ax.Credentials {
+		var cred webauthn.Credential
+		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
+			zlog.Errorf("failed to unmarshal credential: %v", err)
+			continue
+		}
+
+		resp = append(resp, cred)
+	}
+
 	return resp
 }

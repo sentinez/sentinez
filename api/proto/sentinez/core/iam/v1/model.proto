@@ -37,7 +37,7 @@ message Account {
   string password = 11 [(buf.validate.field).string.min_len = 8];
   string email    = 12 [(buf.validate.field).string.email = true];
 
-  repeated google.protobuf.Struct credentials = 20;
+  repeated string credentials = 20;
 }
 
 message AccountResponse {
@@ -45,14 +45,14 @@ message AccountResponse {
 
   string id = 2 [(buf.validate.field) = { required: true; string: {
     prefix: "senz.iam.accounts.",
-}}];
+  }}];
 
-string user_id = 3 [(buf.validate.field) = { required: true; string: {
-  prefix: "senz.iam.users.",
-}}];
+  string user_id = 3 [(buf.validate.field) = { required: true; string: {
+    prefix: "senz.iam.users.",
+  }}];
 
-string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-string email    = 11 [(buf.validate.field).string.email = true];
+  string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string email    = 11 [(buf.validate.field).string.email = true];
 }
 
 message User {
@@ -62,9 +62,9 @@ message User {
 
   string id = 2 [(buf.validate.field) = { required: true, string: {
     prefix: "senz.iam.users."
-}}];
+  }}];
 
-string full_name    = 10 [(buf.validate.field).required = true];
-string email        = 11 [(buf.validate.field).string.email = true];
-string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
+  string full_name    = 10 [(buf.validate.field).required = true];
+  string email        = 11 [(buf.validate.field).string.email = true];
+  string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }

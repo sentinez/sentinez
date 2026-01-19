@@ -22,7 +22,6 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	ssync "github.com/sentinez/shared/sync"
-	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -35,7 +34,7 @@ func NewTX(conf *confpb.Config) *Tx {
 	return &Tx{conf: conf.GetEnv()}
 }
 
-func WithTx[T proto.Message](
+func WithTx[T any](
 	ss *TxSession, db database.Database[T]) database.Database[T] {
 	return &postgres[T]{client: ss.tx, tableName: db.Table()}
 }

@@ -19,15 +19,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/database"
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/ids"
 	"github.com/sentinez/shared/zlog"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -36,7 +35,7 @@ var (
 
 type IUser interface {
 	Create(ctx context.Context, user *iam.User) (*iam.User, error)
-	Update(ctx context.Context, user *iam.User) (*iam.User, error)
+	Update(ctx context.Context, user *iam.User) error
 	Get(ctx context.Context, id string) (*iam.User, error)
 	Delete(ctx context.Context, id string) error
 
@@ -52,8 +51,10 @@ type IUser interface {
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
-func New(appConf *confpb.Config) (IUser, error) {
-	storage, err := postgres.New[*iam.User](appConf, tables.Users)
+func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
+	storage, err := postgres.New[iam.User](ctx, appConf,
+		database.WithTable(tables.Users),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func New(appConf *confpb.Config) (IUser, error) {
 }
 
 type Users struct {
-	storage database.Database[*iam.User]
+	storage database.Database[iam.User]
 }
 
 func (u *Users) WithTX(tx *postgres.TxSession) IUser {
@@ -73,39 +74,42 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	}
 }
 
+func (u *Users) selectQuery(page *common.Pages) sq.SelectBuilder {
+	return postgres.SelectBuilder(u.storage, page,
+		iam.User_Id,
+		iam.User_Email,
+		iam.User_FullName,
+		iam.User_PhoneNumber,
+	)
+}
+
 // GetByFullnameOrEmail implements IUser.
 func (u *Users) GetByFullnameOrEmail(ctx context.Context,
 	input string) (*iam.User, error) {
 
-	builder := postgres.SelectBuilder(u.storage, nil)
+	builder := u.selectQuery(nil)
 	builder = builder.From(u.storage.Table()).
 		Where(sq.Or{
-			sq.Eq{postgres.Field(iam.User_FullName): input},
-			sq.Eq{postgres.Field(iam.User_Email): input},
+			sq.Eq{iam.User_FullName: input},
+			sq.Eq{iam.User_Email: input},
 		})
 
-	return u.storage.CollectOneRow(ctx, builder, postgres.Scan[*iam.User])
+	return u.storage.CollectOneRow(ctx, builder, scanOne)
 }
 
 // nolint:funlen
 func buildListQuery(builder sq.SelectBuilder,
 	req *iam.ListUsersRequest) sq.SelectBuilder {
 	for _, id := range req.GetIds() {
-		builder = builder.Where(sq.Eq{
-			postgres.Primary(iam.User_Id): id,
-		})
+		builder = builder.Where(sq.Eq{iam.User_Id: id})
 	}
 
 	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.User_Email): email,
-		})
+		builder = builder.Where(sq.Eq{iam.User_Email: email})
 	}
 
 	for _, phone := range req.GetPhoneNumbers() {
-		builder = builder.Where(sq.Eq{
-			postgres.Field(iam.User_PhoneNumber): phone,
-		})
+		builder = builder.Where(sq.Eq{iam.User_PhoneNumber: phone})
 	}
 
 	return builder
@@ -127,8 +131,7 @@ func (u *Users) List(ctx context.Context,
 	}
 	zlog.Debug("[users] query: ", query, " args: ", args)
 
-	users, err := u.storage.CollectRows(
-		ctx, builder, postgres.Scans[*iam.User])
+	users, err := u.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
 		return nil, err
 	}
@@ -159,19 +162,24 @@ func (u *Users) Total(ctx context.Context,
 }
 
 // Create implements IUser.
-func (u *Users) Create(ctx context.Context,
-	user *iam.User) (*iam.User, error) {
-
-	now := timestamppb.Now()
+func (u *Users) Create(ctx context.Context, user *iam.User) (*iam.User, error) {
 	user.Id = ids.NewID(table.NewPrimaryKey(tables.Users))
-	user.Metadata = &modelpb.Metadata{
-		CreatedAt: now,
-		UpdatedAt: now,
-		CreatedBy: user.GetMetadata().GetCreatedBy(),
-		UpdatedBy: user.GetMetadata().GetUpdatedBy(),
-	}
+	query := postgres.InsertBuilder(u.storage,
+		[]string{
+			iam.User_Id,
+			iam.User_Email,
+			iam.User_FullName,
+			iam.User_PhoneNumber},
+		[]any{
+			postgres.String,
+			postgres.String,
+			postgres.String,
+			postgres.String,
+			postgres.String,
+		},
+	)
 
-	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
+	if _, err := u.storage.Insert(ctx, query); err != nil {
 		return nil, err
 	}
 
@@ -185,17 +193,67 @@ func (u *Users) Delete(ctx context.Context, id string) error {
 
 // Get implements IUser.
 func (u *Users) Get(ctx context.Context, id string) (*iam.User, error) {
-	return u.storage.Get(ctx, id)
+	builder := u.selectQuery(nil).Where(sq.Eq{iam.User_Id: id})
+	return u.storage.Select(ctx, builder, scanOne)
 }
 
 // Update implements IUser.
-func (u *Users) Update(
-	ctx context.Context, user *iam.User) (*iam.User, error) {
+func (u *Users) Update(ctx context.Context, user *iam.User) error {
 
-	user.Metadata.UpdatedAt = timestamppb.Now()
-	if err := u.storage.Set(ctx, user.GetId(), user); err != nil {
+	query := postgres.UpdateBuilder(u.storage, user.GetId())
+
+	if user.GetEmail() != "" {
+		query = query.Set(iam.User_Email, user.GetEmail())
+	}
+
+	if user.GetFullName() != "" {
+		query = query.Set(iam.User_FullName, user.GetFullName())
+	}
+
+	if user.GetPhoneNumber() != "" {
+		query = query.Set(iam.Account_Password, user.GetPhoneNumber())
+	}
+
+	_, err := u.storage.Exec(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func scan(rows database.Rows) ([]*iam.User, error) {
+	var results []*iam.User
+
+	for rows.Next() {
+		var user iam.User
+		err := rows.Scan(
+			&user.Id,
+			&user.Email,
+			&user.FullName,
+			&user.PhoneNumber,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, &user)
+	}
+
+	return results, rows.Err()
+}
+
+func scanOne(row database.Row) (*iam.User, error) {
+	var user iam.User
+	err := row.Scan(
+		&user.Id,
+		&user.Email,
+		&user.FullName,
+		&user.PhoneNumber,
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }

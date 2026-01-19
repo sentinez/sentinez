@@ -12,31 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package stmt
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/stmt"
 )
 
-func syncOption(ctx context.Context,
-	pool *pgxpool.Pool, option *database.Table) error {
+const (
+	createSchemaStmt = `
+		CREATE TABLE IF NOT EXISTS %s (
+		    id TEXT PRIMARY KEY,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
+		)
+	`
 
-	createTableStmt := stmt.CreateTable(option.Table)
-	if _, err := pool.Exec(ctx, createTableStmt); err != nil {
-		return fmt.Errorf("create table err: %w", err)
-	}
+	addColumnStmt = `
+		ALTER TABLE %s
+		ADD COLUMN IF NOT EXISTS %s %s
+	`
+)
 
-	for column, columnType := range option.Column {
-		addColumnStmt := stmt.AddColumn(option.Table, column, columnType)
-		if _, err := pool.Exec(ctx, addColumnStmt); err != nil {
-			return fmt.Errorf("add column err: %w", err)
-		}
-	}
+func CreateTable(tableName string) string {
+	return fmt.Sprintf(createSchemaStmt, tableName)
+}
 
-	return nil
+func AddColumn(tableName string,
+	columnName string, columnType database.ColumnType) string {
+	return fmt.Sprintf(addColumnStmt, tableName, columnName, columnType)
 }
