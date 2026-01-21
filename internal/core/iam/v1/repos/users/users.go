@@ -54,6 +54,10 @@ type IUser interface {
 func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
 	storage, err := postgres.New[iam.User](ctx, appConf,
 		database.WithTable(tables.Users),
+		database.WithColumn(iam.User_Id, postgres.String),
+		database.WithColumn(iam.User_Email, postgres.String),
+		database.WithColumn(iam.User_PhoneNumber, postgres.String),
+		database.WithColumn(iam.User_FullName, postgres.String),
 	)
 	if err != nil {
 		return nil, err
@@ -171,11 +175,10 @@ func (u *Users) Create(ctx context.Context, user *iam.User) (*iam.User, error) {
 			iam.User_FullName,
 			iam.User_PhoneNumber},
 		[]any{
-			postgres.String,
-			postgres.String,
-			postgres.String,
-			postgres.String,
-			postgres.String,
+			user.GetId(),
+			user.GetEmail(),
+			user.GetFullName(),
+			user.GetPhoneNumber(),
 		},
 	)
 

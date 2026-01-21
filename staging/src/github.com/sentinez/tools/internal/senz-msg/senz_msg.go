@@ -86,7 +86,7 @@ func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
 			for _, field := range message.Fields {
 				fieldName := string(field.Desc.Name())
 				constName := fmt.Sprintf("%s_%s", message.GoIdent.GoName, utils.SnakeToPascal(fieldName))
-				g.P(fmt.Sprintf("    %s = \"%s\"", constName, utils.SnakeToCamel(fieldName)))
+				g.P(fmt.Sprintf("    %s = \"%s\"", constName, fieldName))
 			}
 			g.P(")")
 			g.P("\n")

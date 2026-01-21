@@ -99,6 +99,7 @@ func (p *postgres[T]) Insert(
 	}
 
 	var id string
+	zlog.Infof("postgres: insert: %s", sql)
 	if err := p.client.QueryRow(ctx, sql, args...).Scan(&id); err != nil {
 		return "", err
 	}

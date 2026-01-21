@@ -26,7 +26,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/ids"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -135,7 +134,6 @@ func (acc *Accounts) List(ctx context.Context,
 			Username: account.GetUsername(),
 			Email:    account.GetEmail(),
 			UserId:   account.GetUserId(),
-			Metadata: account.GetMetadata(),
 		})
 	}
 
@@ -184,7 +182,8 @@ func (acc *Accounts) Create(ctx context.Context,
 
 	account.Id = ids.NewID(table.NewPrimaryKey(tables.Accounts))
 	query := postgres.InsertBuilder(acc.storage,
-		[]string{iam.Account_Id,
+		[]string{
+			iam.Account_Id,
 			iam.Account_Credentials,
 			iam.Account_Username,
 			iam.Account_Email,
@@ -223,8 +222,6 @@ func (acc *Accounts) Get(ctx context.Context, id string) (*AccountX, error) {
 // Update implements IAccount.
 func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 
-	account.Metadata.UpdatedAt = timestamppb.Now()
-
 	query := postgres.UpdateBuilder(acc.storage, account.GetId())
 
 	if account.GetEmail() != "" {
@@ -262,11 +259,11 @@ func scan(rows database.Rows) ([]*AccountX, error) {
 		var account AccountX
 		err := rows.Scan(
 			&account.Id,
-			&account.Email,
-			&account.Username,
-			&account.Password,
-			&account.UserId,
 			&account.Credentials,
+			&account.Username,
+			&account.Email,
+			&account.UserId,
+			&account.Password,
 		)
 		if err != nil {
 			return nil, err
@@ -279,14 +276,17 @@ func scan(rows database.Rows) ([]*AccountX, error) {
 }
 
 func scanOne(row database.Row) (*AccountX, error) {
-	var account AccountX
+
+	account := AccountX{
+		Account: &iam.Account{},
+	}
 	err := row.Scan(
 		&account.Id,
-		&account.Email,
-		&account.Username,
-		&account.Password,
-		&account.UserId,
 		&account.Credentials,
+		&account.Username,
+		&account.Email,
+		&account.UserId,
+		&account.Password,
 	)
 	if err != nil {
 		return nil, err

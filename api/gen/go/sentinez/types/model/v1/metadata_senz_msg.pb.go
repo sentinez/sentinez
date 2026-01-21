@@ -15,8 +15,8 @@ var (
 )
 
 const (
-	Metadata_CreatedAt = "createdAt"
-	Metadata_UpdatedAt = "updatedAt"
-	Metadata_CreatedBy = "createdBy"
-	Metadata_UpdatedBy = "updatedBy"
+	Metadata_CreatedAt = "created_at"
+	Metadata_UpdatedAt = "updated_at"
+	Metadata_CreatedBy = "created_by"
+	Metadata_UpdatedBy = "updated_by"
 )
