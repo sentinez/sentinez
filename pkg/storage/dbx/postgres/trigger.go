@@ -19,12 +19,12 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/stmt"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/stmt"
 )
 
 func syncOption(ctx context.Context,
-	pool *pgxpool.Pool, option *database.Table) error {
+	pool *pgxpool.Pool, option *dbx.Table) error {
 
 	createTableStmt := stmt.CreateTable(option.Table)
 	if _, err := pool.Exec(ctx, createTableStmt); err != nil {

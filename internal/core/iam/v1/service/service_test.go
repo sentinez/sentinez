@@ -28,7 +28,7 @@ import (
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/perms"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -17,6 +17,4 @@ var (
 const (
 	Metadata_CreatedAt = "created_at"
 	Metadata_UpdatedAt = "updated_at"
-	Metadata_CreatedBy = "created_by"
-	Metadata_UpdatedBy = "updated_by"
 )

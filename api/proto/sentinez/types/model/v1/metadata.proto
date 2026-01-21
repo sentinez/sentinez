@@ -26,8 +26,6 @@ message Metadata {
 
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;
-  string                    created_by = 3;
-  string                    updated_by = 4;
 }
 
 enum Status {

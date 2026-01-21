@@ -16,22 +16,26 @@ package accrepos
 
 import (
 	"context"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/ids"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
 	_ IAccount = (*Accounts)(nil)
 )
 
+// nolint
 type IAccount interface {
 	Create(ctx context.Context, account *AccountX) (*AccountX, error)
 	Update(ctx context.Context, account *AccountX) error
@@ -42,25 +46,21 @@ type IAccount interface {
 
 	// extra methods
 
-	GetByUsernameOrEmail(ctx context.Context,
-		input string) (*AccountX, error)
-
-	List(ctx context.Context,
-		req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
-
+	GetByUsernameOrEmail(ctx context.Context, input string) (*AccountX, error)
+	List(ctx context.Context, req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
 	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
 func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 
 	storage, err := postgres.New[AccountX](ctx, appConf,
-		database.WithTable(tables.Accounts),
-		database.WithColumn(iam.Account_Id, postgres.String),
-		database.WithColumn(iam.Account_Email, postgres.String),
-		database.WithColumn(iam.Account_Username, postgres.String),
-		database.WithColumn(iam.Account_Password, postgres.String),
-		database.WithColumn(iam.Account_Credentials, postgres.StringArr),
-		database.WithColumn(iam.Account_UserId, postgres.String),
+		dbx.WithTable(tables.Accounts),
+		dbx.WithColumn(iam.Account_Id, postgres.String),
+		dbx.WithColumn(iam.Account_Email, postgres.String),
+		dbx.WithColumn(iam.Account_Username, postgres.String),
+		dbx.WithColumn(iam.Account_Password, postgres.String),
+		dbx.WithColumn(iam.Account_Credentials, postgres.StringArr),
+		dbx.WithColumn(iam.Account_UserId, postgres.String),
 	)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 }
 
 type Accounts struct {
-	storage database.Database[AccountX]
+	storage dbx.Database[AccountX]
 }
 
 // nolint:funlen
@@ -102,17 +102,6 @@ func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 	return &Accounts{
 		storage: postgres.WithTx(tx, acc.storage),
 	}
-}
-
-func (acc *Accounts) selectQuery(page *common.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(acc.storage, page,
-		iam.Account_Id,
-		iam.Account_Credentials,
-		iam.Account_Username,
-		iam.Account_Email,
-		iam.Account_UserId,
-		iam.Account_Password,
-	)
 }
 
 // nolint:funlen
@@ -181,6 +170,11 @@ func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
 	account.Id = ids.NewID(table.NewPrimaryKey(tables.Accounts))
+
+	if account.GetUsername() == "" {
+		account.Username = account.GetEmail()
+	}
+
 	query := postgres.InsertBuilder(acc.storage,
 		[]string{
 			iam.Account_Id,
@@ -252,11 +246,25 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 	return nil
 }
 
-func scan(rows database.Rows) ([]*AccountX, error) {
+func (acc *Accounts) selectQuery(page *common.Pages) sq.SelectBuilder {
+	return postgres.SelectBuilder(acc.storage, page,
+		iam.Account_Id,
+		iam.Account_Credentials,
+		iam.Account_Username,
+		iam.Account_Email,
+		iam.Account_UserId,
+		iam.Account_Password,
+		dbx.FieldCreatedAt,
+		dbx.FieldUpdatedAt,
+	)
+}
+
+func scan(rows dbx.Rows) ([]*AccountX, error) {
 	var results []*AccountX
 
 	for rows.Next() {
-		var account AccountX
+		var createdAt, updatedAt time.Time
+		account := AccountX{Account: &iam.Account{}}
 		err := rows.Scan(
 			&account.Id,
 			&account.Credentials,
@@ -264,9 +272,16 @@ func scan(rows database.Rows) ([]*AccountX, error) {
 			&account.Email,
 			&account.UserId,
 			&account.Password,
+			&createdAt,
+			&updatedAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		account.Metadata = &modelpb.Metadata{
+			CreatedAt: timestamppb.New(createdAt),
+			UpdatedAt: timestamppb.New(updatedAt),
 		}
 
 		results = append(results, &account)
@@ -275,11 +290,10 @@ func scan(rows database.Rows) ([]*AccountX, error) {
 	return results, rows.Err()
 }
 
-func scanOne(row database.Row) (*AccountX, error) {
+func scanOne(row dbx.Row) (*AccountX, error) {
 
-	account := AccountX{
-		Account: &iam.Account{},
-	}
+	var createdAt, updatedAt time.Time
+	account := AccountX{Account: &iam.Account{}}
 	err := row.Scan(
 		&account.Id,
 		&account.Credentials,
@@ -287,9 +301,16 @@ func scanOne(row database.Row) (*AccountX, error) {
 		&account.Email,
 		&account.UserId,
 		&account.Password,
+		&createdAt,
+		&updatedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	account.Metadata = &modelpb.Metadata{
+		CreatedAt: timestamppb.New(createdAt),
+		UpdatedAt: timestamppb.New(updatedAt),
 	}
 
 	return &account, nil

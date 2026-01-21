@@ -20,12 +20,12 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	ssync "github.com/sentinez/shared/sync"
 )
 
 var (
-	_        database.TxSession = (*TxSession)(nil)
+	_        dbx.TxSession = (*TxSession)(nil)
 	onceTxSS sync.Once
 	txSSPool *ssync.Pool[TxSession]
 )
@@ -34,9 +34,8 @@ func NewTX(conf *confpb.Config) *Tx {
 	return &Tx{conf: conf.GetEnv()}
 }
 
-func WithTx[T any](
-	ss *TxSession, db database.Database[T]) database.Database[T] {
-	return &postgres[T]{client: ss.tx, tableName: db.Table()}
+func WithTx[T any](ss *TxSession, db dbx.Database[T]) dbx.Database[T] {
+	return &postgres[T]{client: ss.tx, tableName: db.Table(), tx: true}
 }
 
 type Tx struct {

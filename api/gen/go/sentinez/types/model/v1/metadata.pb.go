@@ -142,8 +142,6 @@ type Metadata struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,3,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	UpdatedBy     string                 `protobuf:"bytes,4,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -192,34 +190,16 @@ func (x *Metadata) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Metadata) GetCreatedBy() string {
-	if x != nil {
-		return x.CreatedBy
-	}
-	return ""
-}
-
-func (x *Metadata) GetUpdatedBy() string {
-	if x != nil {
-		return x.UpdatedBy
-	}
-	return ""
-}
-
 var File_sentinez_types_model_v1_metadata_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_model_v1_metadata_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/model/v1/metadata.proto\x12\x17sentinez.types.model.v1\x1a&sentinez/types/common/v1/options.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc6\x01\n" +
+	"&sentinez/types/model/v1/metadata.proto\x12\x17sentinez.types.model.v1\x1a&sentinez/types/common/v1/options.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x01\n" +
 	"\bMetadata\x129\n" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
-	"\n" +
-	"created_by\x18\x03 \x01(\tR\tcreatedBy\x12\x1d\n" +
-	"\n" +
-	"updated_by\x18\x04 \x01(\tR\tupdatedBy:\x06\xca\xf3\x18\x02\b\x01*G\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01*G\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +

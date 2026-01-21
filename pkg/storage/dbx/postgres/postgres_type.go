@@ -14,14 +14,14 @@
 
 package postgres
 
-import "github.com/sentinez/sentinez/pkg/storage/database"
+import "github.com/sentinez/sentinez/pkg/storage/dbx"
 
 const (
-	Timestamp database.ColumnType = "TIMESTAMPTZ"
-	String    database.ColumnType = "TEXT"
-	StringArr database.ColumnType = "TEXT[]"
-	Int4      database.ColumnType = "INTEGER"
-	Int8      database.ColumnType = "BIGINT"
-	Float4    database.ColumnType = "REAL"
-	Float8    database.ColumnType = "DOUBLE PRECISION"
+	Timestamp dbx.ColumnType = "TIMESTAMPTZ"
+	String    dbx.ColumnType = "TEXT"
+	StringArr dbx.ColumnType = "TEXT[]"
+	Int4      dbx.ColumnType = "INTEGER"
+	Int8      dbx.ColumnType = "BIGINT"
+	Float4    dbx.ColumnType = "REAL"
+	Float8    dbx.ColumnType = "DOUBLE PRECISION"
 )

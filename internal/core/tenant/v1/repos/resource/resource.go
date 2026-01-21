@@ -20,13 +20,13 @@ import (
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 )
 
 func New(ctx context.Context, appConf *confpb.Config) (*Resource, error) {
 	storage, err := postgres.New[*tenantpb.Resource](ctx, appConf,
-		database.WithTable(tables.Resources),
+		dbx.WithTable(tables.Resources),
 	)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ type IResource interface {
 }
 
 type Resource struct {
-	storage database.Database[*tenantpb.Resource]
+	storage dbx.Database[*tenantpb.Resource]
 }
 
 func (rsc *Resource) Create(

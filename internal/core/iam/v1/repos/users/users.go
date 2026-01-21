@@ -16,23 +16,27 @@ package usersrepo
 
 import (
 	"context"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/ids"
 	"github.com/sentinez/shared/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
 	_ IUser = (*Users)(nil)
 )
 
+// nolint
 type IUser interface {
 	Create(ctx context.Context, user *iam.User) (*iam.User, error)
 	Update(ctx context.Context, user *iam.User) error
@@ -44,20 +48,17 @@ type IUser interface {
 	// extra methods
 
 	GetByFullnameOrEmail(ctx context.Context, input string) (*iam.User, error)
-
-	List(ctx context.Context,
-		req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
-
+	List(ctx context.Context, req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
 	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
 func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
 	storage, err := postgres.New[iam.User](ctx, appConf,
-		database.WithTable(tables.Users),
-		database.WithColumn(iam.User_Id, postgres.String),
-		database.WithColumn(iam.User_Email, postgres.String),
-		database.WithColumn(iam.User_PhoneNumber, postgres.String),
-		database.WithColumn(iam.User_FullName, postgres.String),
+		dbx.WithTable(tables.Users),
+		dbx.WithColumn(iam.User_Id, postgres.String),
+		dbx.WithColumn(iam.User_Email, postgres.String),
+		dbx.WithColumn(iam.User_PhoneNumber, postgres.String),
+		dbx.WithColumn(iam.User_FullName, postgres.String),
 	)
 	if err != nil {
 		return nil, err
@@ -69,22 +70,13 @@ func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
 }
 
 type Users struct {
-	storage database.Database[iam.User]
+	storage dbx.Database[iam.User]
 }
 
 func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	return &Users{
 		storage: postgres.WithTx(tx, u.storage),
 	}
-}
-
-func (u *Users) selectQuery(page *common.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(u.storage, page,
-		iam.User_Id,
-		iam.User_Email,
-		iam.User_FullName,
-		iam.User_PhoneNumber,
-	)
 }
 
 // GetByFullnameOrEmail implements IUser.
@@ -225,19 +217,40 @@ func (u *Users) Update(ctx context.Context, user *iam.User) error {
 	return nil
 }
 
-func scan(rows database.Rows) ([]*iam.User, error) {
+func (u *Users) selectQuery(page *common.Pages) sq.SelectBuilder {
+	return postgres.SelectBuilder(u.storage, page,
+		iam.User_Id,
+		iam.User_Email,
+		iam.User_FullName,
+		iam.User_PhoneNumber,
+		dbx.FieldCreatedAt,
+		dbx.FieldUpdatedAt,
+	)
+}
+
+func scan(rows dbx.Rows) ([]*iam.User, error) {
 	var results []*iam.User
 
 	for rows.Next() {
-		var user iam.User
+		var (
+			createdAt, updatedAt time.Time
+			user                 iam.User
+		)
 		err := rows.Scan(
 			&user.Id,
 			&user.Email,
 			&user.FullName,
 			&user.PhoneNumber,
+			&createdAt,
+			&updatedAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		user.Metadata = &modelpb.Metadata{
+			CreatedAt: timestamppb.New(createdAt),
+			UpdatedAt: timestamppb.New(updatedAt),
 		}
 
 		results = append(results, &user)
@@ -246,16 +259,26 @@ func scan(rows database.Rows) ([]*iam.User, error) {
 	return results, rows.Err()
 }
 
-func scanOne(row database.Row) (*iam.User, error) {
-	var user iam.User
+func scanOne(row dbx.Row) (*iam.User, error) {
+	var (
+		createdAt, updatedAt time.Time
+		user                 iam.User
+	)
 	err := row.Scan(
 		&user.Id,
 		&user.Email,
 		&user.FullName,
 		&user.PhoneNumber,
+		&createdAt,
+		&updatedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	user.Metadata = &modelpb.Metadata{
+		CreatedAt: timestamppb.New(createdAt),
+		UpdatedAt: timestamppb.New(updatedAt),
 	}
 
 	return &user, nil

@@ -27,7 +27,7 @@ import (
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -60,7 +60,7 @@ func NewDefaultService(
 	}
 
 	tx := postgres.NewTX(appConf)
-	dataStore := passkey.NewMemoryStorage(time.Hour * 2)
+	dataStore := passkey.NewMemoryStorage(time.Hour)
 
 	return iamsvc.New(appConf, tx, dataStore, userrepos, accountrepos)
 }

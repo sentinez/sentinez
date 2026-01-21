@@ -13,12 +13,12 @@
 // limitations under the License.
 
 // Package database provides the database interface.
-package database
+package dbx
 
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
 )
 
 const (

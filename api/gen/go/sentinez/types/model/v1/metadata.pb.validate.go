@@ -60,10 +60,6 @@ func (m *Metadata) Validate() error {
 		}
 	}
 
-	// no validation rules for CreatedBy
-
-	// no validation rules for UpdatedBy
-
 	return nil
 }
 

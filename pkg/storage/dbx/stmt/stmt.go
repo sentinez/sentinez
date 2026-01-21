@@ -17,7 +17,7 @@ package stmt
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/pkg/storage/database"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
 )
 
 const (
@@ -40,6 +40,6 @@ func CreateTable(tableName string) string {
 }
 
 func AddColumn(tableName string,
-	columnName string, columnType database.ColumnType) string {
+	columnName string, columnType dbx.ColumnType) string {
 	return fmt.Sprintf(addColumnStmt, tableName, columnName, columnType)
 }

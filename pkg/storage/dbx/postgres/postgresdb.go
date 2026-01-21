@@ -26,14 +26,14 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
 	storageutils "github.com/sentinez/sentinez/pkg/storage/utils"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ database.Database[common.Empty] = (*postgres[common.Empty])(nil)
+var _ dbx.Database[common.Empty] = (*postgres[common.Empty])(nil)
 
 var (
 	pool *pgxpool.Pool
@@ -57,8 +57,8 @@ func getConnPool(conf *confpb.EnvConfig) (*pgxpool.Pool, error) {
 
 //nolint:funlen
 func New[T any](ctx context.Context, conf *confpb.Config,
-	opts ...database.Option) (database.Database[T], error) {
-	tb := database.Table{}
+	opts ...dbx.Option) (dbx.Database[T], error) {
+	tb := dbx.Table{}
 	for _, opt := range opts {
 		opt(&tb)
 	}
@@ -84,6 +84,7 @@ func New[T any](ctx context.Context, conf *confpb.Config,
 type postgres[T any] struct {
 	client    Client
 	tableName string
+	tx        bool
 }
 
 func (p *postgres[T]) Table() string {
@@ -98,8 +99,9 @@ func (p *postgres[T]) Insert(
 		return "", err
 	}
 
+	zlog.Debugf("postgres: in tx=%t exec insert: %s", p.tx, sql)
+
 	var id string
-	zlog.Infof("postgres: insert: %s", sql)
 	if err := p.client.QueryRow(ctx, sql, args...).Scan(&id); err != nil {
 		return "", err
 	}
@@ -108,13 +110,13 @@ func (p *postgres[T]) Insert(
 }
 
 func (p *postgres[T]) Select(ctx context.Context,
-	builder query.Query, scan database.ScanOneFn[T]) (*T, error) {
+	builder query.Query, scan dbx.ScanOneFn[T]) (*T, error) {
 	return p.CollectOneRow(ctx, builder, scan)
 }
 
 func (p *postgres[T]) Delete(ctx context.Context, id string) error {
 	builder := sq.Delete(p.tableName).Where(sq.Eq{
-		database.FieldID: id,
+		dbx.FieldID: id,
 	})
 
 	_, err := p.Exec(ctx, builder)
@@ -124,7 +126,7 @@ func (p *postgres[T]) Delete(ctx context.Context, id string) error {
 // CollectRows implements database.Database.
 func (p *postgres[T]) CollectRows(ctx context.Context,
 	builder query.Query,
-	fn database.ScanFn[T]) ([]*T, error) {
+	fn dbx.ScanFn[T]) ([]*T, error) {
 
 	stmt, args, err := builder.ToSql()
 	if err != nil {
@@ -132,7 +134,7 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 	}
 
 	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
-	zlog.Debugf("[QUERY] %s", stmt)
+	zlog.Debugf("postgres: in tx=%t query: %s", p.tx, stmt)
 
 	rows, err := p.client.Query(ctx, stmt, args...)
 	if err != nil {
@@ -149,7 +151,7 @@ func (p *postgres[T]) CollectRows(ctx context.Context,
 
 // CollectOneRow implements database.Database.
 func (p *postgres[T]) CollectOneRow(ctx context.Context,
-	builder query.Query, scan database.ScanOneFn[T]) (*T, error) {
+	builder query.Query, scan dbx.ScanOneFn[T]) (*T, error) {
 
 	stmt, args, err := builder.ToSql()
 	if err != nil {
@@ -157,6 +159,7 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 	}
 
 	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
+	zlog.Debugf("postgres: in tx=%t query: %s", p.tx, stmt)
 
 	row := p.client.QueryRow(ctx, stmt, args...)
 
@@ -169,7 +172,7 @@ func (p *postgres[T]) CollectOneRow(ctx context.Context,
 
 // Exec implements database.Database.
 func (p *postgres[T]) Exec(ctx context.Context,
-	builder query.Query) (database.ExecResult, error) {
+	builder query.Query) (dbx.ExecResult, error) {
 
 	stmt, args, err := builder.ToSql()
 	if err != nil {
@@ -177,6 +180,8 @@ func (p *postgres[T]) Exec(ctx context.Context,
 	}
 
 	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
+
+	zlog.Debugf("postgres: in tx=%t exec: %s", p.tx, stmt)
 
 	result, err := p.client.Exec(ctx, stmt, args...)
 	if err != nil {
@@ -194,6 +199,8 @@ func (p *postgres[T]) Query(ctx context.Context,
 	}
 
 	stmt = sqlx.Rebind(sqlx.DOLLAR, stmt)
+
+	zlog.Debugf("postgres: in tx=%t exec query: %s", p.tx, stmt)
 
 	result, err := p.client.Query(ctx, stmt, args...)
 	if err != nil {

@@ -17,15 +17,19 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
+// nolint
 type Store interface {
 	GetSession(token string) (*webauthn.SessionData, bool)
 	SaveSession(token string, data *webauthn.SessionData)
 	DeleteSession(token string)
 	GenSessionID() (string, error)
+	GetOrCreateAccount(email string) (*iam.Account, error)
+	GetAndDeleteAccount(email string) (*iam.Account, error)
 }
 
 func NewWebAuthn(config *confpb.Config) *webauthn.WebAuthn {

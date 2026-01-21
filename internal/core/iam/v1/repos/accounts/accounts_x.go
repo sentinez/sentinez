@@ -43,7 +43,7 @@ func (ax *AccountX) AddCredential(credential *webauthn.Credential) {
 }
 
 func (ax *AccountX) UpdateCredential(credential *webauthn.Credential) {
-	for i, c := range ax.Credentials {
+	for i, c := range ax.GetCredentials() {
 		var cred webauthn.Credential
 
 		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
@@ -64,20 +64,20 @@ func (ax *AccountX) UpdateCredential(credential *webauthn.Credential) {
 }
 
 func (ax *AccountX) WebAuthnID() []byte {
-	return []byte(ax.Id)
+	return []byte(ax.GetEmail())
 }
 
 func (ax *AccountX) WebAuthnName() string {
-	return ax.GetUserId()
+	return ax.GetEmail()
 }
 
 func (ax *AccountX) WebAuthnDisplayName() string {
-	return ax.Username
+	return ax.GetEmail()
 }
 
 func (ax *AccountX) WebAuthnCredentials() []webauthn.Credential {
 	var resp []webauthn.Credential
-	for _, c := range ax.Credentials {
+	for _, c := range ax.GetCredentials() {
 		var cred webauthn.Credential
 		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
 			zlog.Errorf("failed to unmarshal credential: %v", err)

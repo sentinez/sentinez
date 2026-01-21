@@ -17,7 +17,6 @@ package iamsvc
 import (
 	"context"
 	"encoding/json"
-	"net/mail"
 	"time"
 
 	"github.com/go-webauthn/webauthn/protocol"
@@ -27,7 +26,6 @@ import (
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
@@ -35,7 +33,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/security/perms"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -83,7 +81,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 		return nil, errorx.StatusNotFoundF("session not found id=%s", sid)
 	}
 
-	acc, err := srv.accounts.Get(ctx, string(ss.UserID))
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, string(ss.UserID))
 	if err != nil {
 		return nil, err
 	}
@@ -192,11 +190,20 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 	zlog.Debugf("[iam][service][PasskeyRegisterVerify] get session=%s", ssId)
 	ss, ok := srv.store.GetSession(ssId)
 	if !ok {
+		zlog.Debug("iam: session not found")
 		return nil, errorx.StatusNotFoundF("session not found=%s", ssId)
 	}
 
-	acc, err := srv.accounts.Get(ctx, string(ss.UserID))
+	// ss.UserId is email, return by AccountX.WebAuthnID(), account_x.go
+	acc, err := srv.store.GetAndDeleteAccount(string(ss.UserID))
 	if err != nil {
+		zlog.Debugf("iam: get %s account err: %v", string(ss.UserID), err)
+		return nil, err
+	}
+
+	accX, err := srv.createAccountExtend(ctx, acc)
+	if err != nil {
+		zlog.Debugf("iam: create account extend: %v", err)
 		return nil, err
 	}
 
@@ -211,14 +218,14 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 		return nil, err
 	}
 
-	credential, err := srv.auth.CreateCredential(acc, *ss, parsedCCR)
+	credential, err := srv.auth.CreateCredential(accX, *ss, parsedCCR)
 	if err != nil {
 		return nil,
 			errorx.StatusInternalErrorF("can't finish registration: %v", err)
 	}
 
-	acc.AddCredential(credential)
-	if err = srv.accounts.Update(ctx, acc); err != nil {
+	accX.AddCredential(credential)
+	if err = srv.accounts.Update(ctx, accX); err != nil {
 		return nil, err
 	}
 
@@ -232,12 +239,12 @@ func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
 	req *iam.PasskeyRegisterChallengeRequest,
 ) (*iam.PasskeyRegisterChallengeResponse, error) {
 
-	acc, err := srv.getOrCreateAccount(ctx, req.GetEmailOrUsername())
+	acc, err := srv.store.GetOrCreateAccount(req.GetEmailOrUsername())
 	if err != nil {
 		return nil, err
 	}
 
-	opt, ss, err := srv.auth.BeginRegistration(acc)
+	opt, ss, err := srv.auth.BeginRegistration(&accrepos.AccountX{Account: acc})
 	if err != nil {
 		return nil,
 			errorx.StatusInternalErrorF("can't begin registration: %v", err)
@@ -260,23 +267,18 @@ func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
 	}, nil
 }
 
-func (srv *IAMService) getOrCreateAccount(
-	ctx context.Context, usernameOrEmail string) (*accrepos.AccountX, error) {
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
+func (srv *IAMService) createAccountExtend(
+	ctx context.Context, account *iam.Account) (*accrepos.AccountX, error) {
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
 	if err != nil && errorx.NotRowsNotFound(err) {
 		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
 		return nil, err
 	}
 
 	if acc.GetId() == "" {
-		createReq := &iam.CreateAccountRequest{}
-		_, err = mail.ParseAddress(usernameOrEmail)
-		if err != nil {
-			createReq.Username = usernameOrEmail
-		}
-
-		if err == nil {
-			createReq.Email = usernameOrEmail
+		createReq := &iam.CreateAccountRequest{
+			Email:    account.GetEmail(),
+			Username: account.GetUsername(),
 		}
 
 		createReq.Password, _ = rand.RandomString(5)
@@ -359,7 +361,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
-	accID, err := srv.createAccount(ctx, txss, request)
+	accID, err := srv.createAccountWithTX(ctx, txss, request)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +369,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 	return &iam.CreateAccountResponse{AccountId: accID}, nil
 }
 
-func (srv *IAMService) createAccount(ctx context.Context,
+func (srv *IAMService) createAccountWithTX(ctx context.Context,
 	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
 	pw, err := crypto.HashPassword(req.GetPassword())
 	if err != nil {
@@ -375,10 +377,6 @@ func (srv *IAMService) createAccount(ctx context.Context,
 	}
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iam.User{
-		Metadata: &modelpb.Metadata{
-			CreatedBy: req.GetUsername(),
-			UpdatedBy: req.GetUsername(),
-		},
 		FullName:    req.GetFullName(),
 		Email:       req.GetEmail(),
 		PhoneNumber: req.GetPhoneNumber(),

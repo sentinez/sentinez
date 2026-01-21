@@ -23,8 +23,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	"github.com/sentinez/sentinez/pkg/storage/database"
-	"github.com/sentinez/sentinez/pkg/storage/database/query"
+	"github.com/sentinez/sentinez/pkg/storage/dbx"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
 )
 
 type Client interface {
@@ -50,10 +50,10 @@ func Paging(builder squirrel.SelectBuilder,
 	return builder.
 		Limit(uint64(page.GetSize())).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf("%s DESC", database.FieldCreatedAt))
+		OrderBy(fmt.Sprintf("%s DESC", dbx.FieldCreatedAt))
 }
 
-func SelectBuilder[T any](db database.Database[T],
+func SelectBuilder[T any](db dbx.Database[T],
 	page *common.Pages, columns ...string) squirrel.SelectBuilder {
 
 	builder := squirrel.Select(columns...).From(db.Table())
@@ -64,7 +64,7 @@ func SelectBuilder[T any](db database.Database[T],
 	return Paging(builder, page)
 }
 
-func InsertBuilder[T any](db database.Database[T],
+func InsertBuilder[T any](db dbx.Database[T],
 	columns []string, values []any) squirrel.InsertBuilder {
 
 	return squirrel.Insert(db.Table()).
@@ -75,9 +75,9 @@ func InsertBuilder[T any](db database.Database[T],
 }
 
 func UpdateBuilder[T any](
-	db database.Database[T], id string) squirrel.UpdateBuilder {
+	db dbx.Database[T], id string) squirrel.UpdateBuilder {
 
 	return squirrel.Update(db.Table()).
-		Set(database.FieldUpdatedAt, time.Now().UTC()).
+		Set(dbx.FieldUpdatedAt, time.Now().UTC()).
 		Where(squirrel.Eq{"id": id})
 }

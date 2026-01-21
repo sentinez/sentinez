@@ -46,10 +46,10 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
               <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
                 <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
               </div>
-              SENTINEZ
+              Sentinéz
             </a>
           </CardTitle>
-          <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
+          <CardDescription className=" text-left">Login with your Sentinéz account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLoginPasskey}>
