@@ -55,10 +55,12 @@ type IUser interface {
 func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
 	storage, err := postgres.New[iam.User](ctx, appConf,
 		dbx.WithTable(tables.Users),
-		dbx.WithColumn(iam.User_Id, postgres.String),
-		dbx.WithColumn(iam.User_Email, postgres.String),
-		dbx.WithColumn(iam.User_PhoneNumber, postgres.String),
-		dbx.WithColumn(iam.User_FullName, postgres.String),
+		dbx.WithColumns(dbx.ColumnM{
+			iam.User_Id:          postgres.String,
+			iam.User_Email:       postgres.String,
+			iam.User_PhoneNumber: postgres.String,
+			iam.User_FullName:    postgres.String,
+		}),
 	)
 	if err != nil {
 		return nil, err
@@ -160,19 +162,12 @@ func (u *Users) Total(ctx context.Context,
 // Create implements IUser.
 func (u *Users) Create(ctx context.Context, user *iam.User) (*iam.User, error) {
 	user.Id = ids.NewID(table.NewPrimaryKey(tables.Users))
-	query := postgres.InsertBuilder(u.storage,
-		[]string{
-			iam.User_Id,
-			iam.User_Email,
-			iam.User_FullName,
-			iam.User_PhoneNumber},
-		[]any{
-			user.GetId(),
-			user.GetEmail(),
-			user.GetFullName(),
-			user.GetPhoneNumber(),
-		},
-	)
+	query := postgres.InsertBuilder(u.storage, postgres.M{
+		iam.User_Id:          user.GetId(),
+		iam.User_Email:       user.GetEmail(),
+		iam.User_FullName:    user.GetFullName(),
+		iam.User_PhoneNumber: user.GetPhoneNumber(),
+	})
 
 	if _, err := u.storage.Insert(ctx, query); err != nil {
 		return nil, err
@@ -229,34 +224,18 @@ func (u *Users) selectQuery(page *common.Pages) sq.SelectBuilder {
 }
 
 func scan(rows dbx.Rows) ([]*iam.User, error) {
-	var results []*iam.User
+	var users []*iam.User
 
 	for rows.Next() {
-		var (
-			createdAt, updatedAt time.Time
-			user                 iam.User
-		)
-		err := rows.Scan(
-			&user.Id,
-			&user.Email,
-			&user.FullName,
-			&user.PhoneNumber,
-			&createdAt,
-			&updatedAt,
-		)
+		user, err := scanOne(rows)
 		if err != nil {
 			return nil, err
 		}
 
-		user.Metadata = &modelpb.Metadata{
-			CreatedAt: timestamppb.New(createdAt),
-			UpdatedAt: timestamppb.New(updatedAt),
-		}
-
-		results = append(results, &user)
+		users = append(users, user)
 	}
 
-	return results, rows.Err()
+	return users, rows.Err()
 }
 
 func scanOne(row dbx.Row) (*iam.User, error) {
@@ -264,6 +243,7 @@ func scanOne(row dbx.Row) (*iam.User, error) {
 		createdAt, updatedAt time.Time
 		user                 iam.User
 	)
+
 	err := row.Scan(
 		&user.Id,
 		&user.Email,

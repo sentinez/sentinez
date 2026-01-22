@@ -14,17 +14,13 @@
 
 package dbx
 
-func WithColumn(name string, fieldType ColumnType) Option {
+func WithColumns(m ColumnM) Option {
 	return func(o *Table) {
 		if o == nil {
 			return
 		}
 
-		if o.Column == nil {
-			o.Column = make(map[string]ColumnType)
-		}
-
-		o.Column[name] = fieldType
+		o.Column = m
 	}
 }
 

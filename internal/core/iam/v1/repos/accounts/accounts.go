@@ -55,12 +55,14 @@ func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 
 	storage, err := postgres.New[AccountX](ctx, appConf,
 		dbx.WithTable(tables.Accounts),
-		dbx.WithColumn(iam.Account_Id, postgres.String),
-		dbx.WithColumn(iam.Account_Email, postgres.String),
-		dbx.WithColumn(iam.Account_Username, postgres.String),
-		dbx.WithColumn(iam.Account_Password, postgres.String),
-		dbx.WithColumn(iam.Account_Credentials, postgres.StringArr),
-		dbx.WithColumn(iam.Account_UserId, postgres.String),
+		dbx.WithColumns(dbx.ColumnM{
+			iam.Account_Id:          postgres.String,
+			iam.Account_Email:       postgres.String,
+			iam.Account_Username:    postgres.String,
+			iam.Account_Password:    postgres.String,
+			iam.Account_Credentials: postgres.StringArr,
+			iam.Account_UserId:      postgres.String,
+		}),
 	)
 	if err != nil {
 		return nil, err
@@ -175,24 +177,14 @@ func (acc *Accounts) Create(ctx context.Context,
 		account.Username = account.GetEmail()
 	}
 
-	query := postgres.InsertBuilder(acc.storage,
-		[]string{
-			iam.Account_Id,
-			iam.Account_Credentials,
-			iam.Account_Username,
-			iam.Account_Email,
-			iam.Account_UserId,
-			iam.Account_Password,
-		},
-		[]any{
-			account.GetId(),
-			account.GetCredentials(),
-			account.GetUsername(),
-			account.GetEmail(),
-			account.GetUserId(),
-			account.GetPassword(),
-		},
-	)
+	query := postgres.InsertBuilder(acc.storage, postgres.M{
+		iam.Account_Id:          account.GetId(),
+		iam.Account_Credentials: account.GetCredentials(),
+		iam.Account_Username:    account.GetUsername(),
+		iam.Account_Email:       account.GetEmail(),
+		iam.Account_UserId:      account.GetUserId(),
+		iam.Account_Password:    account.GetPassword(),
+	})
 
 	_, err := acc.storage.Insert(ctx, query)
 	if err != nil {
@@ -260,40 +252,24 @@ func (acc *Accounts) selectQuery(page *common.Pages) sq.SelectBuilder {
 }
 
 func scan(rows dbx.Rows) ([]*AccountX, error) {
-	var results []*AccountX
+	var accounts []*AccountX
 
 	for rows.Next() {
-		var createdAt, updatedAt time.Time
-		account := AccountX{Account: &iam.Account{}}
-		err := rows.Scan(
-			&account.Id,
-			&account.Credentials,
-			&account.Username,
-			&account.Email,
-			&account.UserId,
-			&account.Password,
-			&createdAt,
-			&updatedAt,
-		)
+		account, err := scanOne(rows)
 		if err != nil {
 			return nil, err
 		}
 
-		account.Metadata = &modelpb.Metadata{
-			CreatedAt: timestamppb.New(createdAt),
-			UpdatedAt: timestamppb.New(updatedAt),
-		}
-
-		results = append(results, &account)
+		accounts = append(accounts, account)
 	}
 
-	return results, rows.Err()
+	return accounts, rows.Err()
 }
 
 func scanOne(row dbx.Row) (*AccountX, error) {
-
 	var createdAt, updatedAt time.Time
 	account := AccountX{Account: &iam.Account{}}
+
 	err := row.Scan(
 		&account.Id,
 		&account.Credentials,

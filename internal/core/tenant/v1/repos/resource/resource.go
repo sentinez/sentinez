@@ -20,13 +20,24 @@ import (
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
+	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/utils/table"
+	"github.com/sentinez/shared/ids"
 )
 
 func New(ctx context.Context, appConf *confpb.Config) (*Resource, error) {
-	storage, err := postgres.New[*tenantpb.Resource](ctx, appConf,
+	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
 		dbx.WithTable(tables.Resources),
+		dbx.WithColumns(dbx.ColumnM{
+			tenantpb.Resource_Id:              postgres.String,
+			tenantpb.Resource_ResourceSetting: postgres.ByteA,
+			tenantpb.Resource_ResourceName:    postgres.String,
+			tenantpb.Resource_ResourceDomain:  postgres.String,
+			tenantpb.Resource_Plan:            postgres.Int4,
+			tenantpb.Resource_Status:          postgres.Int4,
+		}),
 	)
 	if err != nil {
 		return nil, err
@@ -48,13 +59,28 @@ type IResource interface {
 }
 
 type Resource struct {
-	storage dbx.Database[*tenantpb.Resource]
+	storage dbx.Database[tenantpb.Resource]
 }
 
 func (rsc *Resource) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
-	//TODO implement me
-	panic("implement me")
+
+	rs.Id = ids.NewID(table.NewPrimaryKey(tables.Resources))
+
+	st, _ := protox.Marshal(rs.GetResourceSetting())
+
+	query := postgres.InsertBuilder(rsc.storage, postgres.M{
+		tenantpb.Resource_Id:              rs.GetId(),
+		tenantpb.Resource_Plan:            rs.GetPlan(),
+		tenantpb.Resource_Status:          rs.GetStatus(),
+		tenantpb.Resource_ResourceDomain:  rs.GetResourceDomain(),
+		tenantpb.Resource_ResourceName:    rs.GetResourceName(),
+		tenantpb.Resource_ResourceSetting: st,
+	})
+
+	rsc.storage.Insert(ctx, query)
+
+	return rs, nil
 }
 
 func (rsc *Resource) Update(

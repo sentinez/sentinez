@@ -68,10 +68,12 @@ type ExecResult interface {
 }
 
 type Table struct {
-	Column map[string]ColumnType
+	Column ColumnM
 	Table  string
 }
 
 type Option func(*Table)
 
 type ColumnType string
+
+type ColumnM map[string]ColumnType

@@ -27,6 +27,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
 )
 
+type M map[string]any
+
 type Client interface {
 	Exec(ctx context.Context, sql string,
 		args ...any) (pgconn.CommandTag, error)
@@ -64,8 +66,15 @@ func SelectBuilder[T any](db dbx.Database[T],
 	return Paging(builder, page)
 }
 
-func InsertBuilder[T any](db dbx.Database[T],
-	columns []string, values []any) squirrel.InsertBuilder {
+func InsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
+	var (
+		columns []string
+		values  []any
+	)
+	for column, value := range mapp {
+		columns = append(columns, column)
+		values = append(values, value)
+	}
 
 	return squirrel.Insert(db.Table()).
 		Columns(columns...).

@@ -20,6 +20,7 @@ const (
 	Timestamp dbx.ColumnType = "TIMESTAMPTZ"
 	String    dbx.ColumnType = "TEXT"
 	StringArr dbx.ColumnType = "TEXT[]"
+	ByteA     dbx.ColumnType = "BYTEA"
 	Int4      dbx.ColumnType = "INTEGER"
 	Int8      dbx.ColumnType = "BIGINT"
 	Float4    dbx.ColumnType = "REAL"
