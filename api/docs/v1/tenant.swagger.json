@@ -57,6 +57,43 @@
             "in": "query",
             "required": false,
             "type": "boolean"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "STATUS_UNSPECIFIED",
+              "STATUS_ACTIVE",
+              "STATUS_DISABLE"
+            ],
+            "default": "STATUS_UNSPECIFIED"
+          },
+          {
+            "name": "plan",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PLAN_UNSPECIFIED",
+              "PLAN_FREE",
+              "PLAN_STANDARD",
+              "PLAN_PRO"
+            ],
+            "default": "PLAN_UNSPECIFIED"
+          },
+          {
+            "name": "resourceName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "resourceDomain",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -364,8 +401,8 @@
       "type": "object",
       "properties": {
         "total": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string",
+          "format": "int64"
         },
         "resources": {
           "type": "array",

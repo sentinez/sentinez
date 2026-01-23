@@ -300,31 +300,20 @@ func (_c *MockIResource_List_Call) RunAndReturn(run func(ctx context.Context, re
 }
 
 // Update provides a mock function for the type MockIResource
-func (_mock *MockIResource) Update(ctx context.Context, rs *tenant.Resource) (*tenant.Resource, error) {
+func (_mock *MockIResource) Update(ctx context.Context, rs *tenant.Resource) error {
 	ret := _mock.Called(ctx, rs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *tenant.Resource
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *tenant.Resource) (*tenant.Resource, error)); ok {
-		return returnFunc(ctx, rs)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *tenant.Resource) *tenant.Resource); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *tenant.Resource) error); ok {
 		r0 = returnFunc(ctx, rs)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*tenant.Resource)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *tenant.Resource) error); ok {
-		r1 = returnFunc(ctx, rs)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockIResource_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
@@ -357,12 +346,12 @@ func (_c *MockIResource_Update_Call) Run(run func(ctx context.Context, rs *tenan
 	return _c
 }
 
-func (_c *MockIResource_Update_Call) Return(resource *tenant.Resource, err error) *MockIResource_Update_Call {
-	_c.Call.Return(resource, err)
+func (_c *MockIResource_Update_Call) Return(err error) *MockIResource_Update_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockIResource_Update_Call) RunAndReturn(run func(ctx context.Context, rs *tenant.Resource) (*tenant.Resource, error)) *MockIResource_Update_Call {
+func (_c *MockIResource_Update_Call) RunAndReturn(run func(ctx context.Context, rs *tenant.Resource) error) *MockIResource_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

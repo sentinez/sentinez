@@ -19,6 +19,7 @@ import (
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resources"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
@@ -40,6 +41,7 @@ func (svc *Service) Status(_ context.Context,
 
 func (svc *Service) ListResource(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	zlog.Infof("tenant svc: req = %v", req)
+
+	return svc.resource.List(ctx, req)
 }

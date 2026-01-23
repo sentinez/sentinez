@@ -19,21 +19,26 @@ import (
 	"context"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	tenantsvc "github.com/sentinez/sentinez/internal/core/tenant/v1/service"
 )
 
 var _ tenantpb.TenantServiceServer = (*Tenant)(nil)
 
-func New() tenantpb.TenantServiceServer {
-	return &Tenant{}
+func New(svc *tenantsvc.Service) tenantpb.TenantServiceServer {
+	return &Tenant{
+		svc: svc,
+	}
 }
 
 // Tenant implement tenant.TenantServiceServer
-type Tenant struct{}
+type Tenant struct {
+	svc *tenantsvc.Service
+}
 
 func (t *Tenant) ListResource(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
-	//TODO implement me
-	panic("implement me")
+
+	return t.svc.ListResource(ctx, req)
 }
 
 // Status implement function of tenant.TenantServiceServer

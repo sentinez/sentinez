@@ -135,13 +135,13 @@ var File_sentinez_core_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1esentinez/edge/v1/setting.proto\"\x83\x03\n" +
+	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1esentinez/edge/v1/setting.proto\"\xcf\x03\n" +
 	"\bResource\x12=\n" +
 	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x120\n" +
 	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12D\n" +
-	"\x10resource_setting\x18\x03 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12'\n" +
-	"\x0fresource_domain\x18\x04 \x01(\tR\x0eresourceDomain\x12#\n" +
-	"\rresource_name\x18\x05 \x01(\tR\fresourceName\x127\n" +
+	"\x10resource_setting\x18\x03 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
+	"\x0fresource_domain\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
+	"\rresource_name\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x127\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x1f.sentinez.types.model.v1.StatusR\x06status\x121\n" +
 	"\x04plan\x18\a \x01(\x0e2\x1d.sentinez.types.model.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01BHZFgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1;tenantb\x06proto3"
 

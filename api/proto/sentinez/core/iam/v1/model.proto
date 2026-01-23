@@ -20,7 +20,6 @@ import "buf/validate/validate.proto";
 
 import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/model/v1/metadata.proto";
-import "google/protobuf/struct.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
 

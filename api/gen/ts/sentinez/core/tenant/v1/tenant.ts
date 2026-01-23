@@ -7,14 +7,22 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Pages } from "../../../types/common/v1/meta";
+import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/model/v1/metadata";
+import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
 export interface ListResourceRequest {
   page?: Pages | undefined;
+  status: Status;
+  plan: Plan;
+  resourceName: string;
+  resourceDomain: string;
 }
 
 export interface ListResourceResponse {
+  total: number;
+  resources: Resource[];
 }
 
 export interface StatusResponse {
@@ -25,13 +33,25 @@ export interface StatusRequest {
 }
 
 function createBaseListResourceRequest(): ListResourceRequest {
-  return { page: undefined };
+  return { page: undefined, status: 0, plan: 0, resourceName: "", resourceDomain: "" };
 }
 
 export const ListResourceRequest: MessageFns<ListResourceRequest> = {
   encode(message: ListResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(24).int32(message.plan);
+    }
+    if (message.resourceName !== "") {
+      writer.uint32(34).string(message.resourceName);
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(42).string(message.resourceDomain);
     }
     return writer;
   },
@@ -51,6 +71,38 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
           message.page = Pages.decode(reader, reader.uint32());
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.resourceName = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -61,13 +113,31 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
   },
 
   fromJSON(object: any): ListResourceRequest {
-    return { page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined };
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
+      resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
+    };
   },
 
   toJSON(message: ListResourceRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.resourceName !== "") {
+      obj.resourceName = message.resourceName;
+    }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
     }
     return obj;
   },
@@ -78,16 +148,26 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
   fromPartial<I extends Exact<DeepPartial<ListResourceRequest>, I>>(object: I): ListResourceRequest {
     const message = createBaseListResourceRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
+    message.resourceName = object.resourceName ?? "";
+    message.resourceDomain = object.resourceDomain ?? "";
     return message;
   },
 };
 
 function createBaseListResourceResponse(): ListResourceResponse {
-  return {};
+  return { total: 0, resources: [] };
 }
 
 export const ListResourceResponse: MessageFns<ListResourceResponse> = {
-  encode(_: ListResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: ListResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.resources) {
+      Resource.encode(v!, writer.uint32(18).fork()).join();
+    }
     return writer;
   },
 
@@ -98,6 +178,22 @@ export const ListResourceResponse: MessageFns<ListResourceResponse> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.total = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.resources.push(Resource.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -107,20 +203,33 @@ export const ListResourceResponse: MessageFns<ListResourceResponse> = {
     return message;
   },
 
-  fromJSON(_: any): ListResourceResponse {
-    return {};
+  fromJSON(object: any): ListResourceResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      resources: globalThis.Array.isArray(object?.resources)
+        ? object.resources.map((e: any) => Resource.fromJSON(e))
+        : [],
+    };
   },
 
-  toJSON(_: ListResourceResponse): unknown {
+  toJSON(message: ListResourceResponse): unknown {
     const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.resources?.length) {
+      obj.resources = message.resources.map((e) => Resource.toJSON(e));
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<ListResourceResponse>, I>>(base?: I): ListResourceResponse {
     return ListResourceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListResourceResponse>, I>>(_: I): ListResourceResponse {
+  fromPartial<I extends Exact<DeepPartial<ListResourceResponse>, I>>(object: I): ListResourceResponse {
     const message = createBaseListResourceResponse();
+    message.total = object.total ?? 0;
+    message.resources = object.resources?.map((e) => Resource.fromPartial(e)) || [];
     return message;
   },
 };
@@ -237,6 +346,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

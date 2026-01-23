@@ -22,6 +22,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
@@ -55,11 +56,11 @@ var _ IResource = (*Resources)(nil)
 
 // nolint
 type IResource interface {
+	List(ctx context.Context, req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error)
 	Create(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
-	Update(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
+	Update(ctx context.Context, rs *tenantpb.Resource) error
 	Get(ctx context.Context, id string) (*tenantpb.Resource, error)
 	Delete(ctx context.Context, id string) error
-	List(ctx context.Context, req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error)
 }
 
 type Resources struct {
@@ -71,6 +72,23 @@ func (rsc *Resources) List(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
 
 	q := rsc.selectQ(req.GetPage())
+	if req.GetPlan() != modelpb.Plan_PLAN_UNSPECIFIED {
+		q = q.Where(sq.Eq{tenantpb.Resource_Plan: req.GetPlan()})
+	}
+
+	if req.GetStatus() != modelpb.Status_STATUS_UNSPECIFIED {
+		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})
+	}
+
+	if len(req.GetResourceDomain()) != 0 {
+		q = q.Where(
+			sq.Eq{tenantpb.Resource_ResourceDomain: req.GetResourceDomain()})
+	}
+
+	if len(req.GetResourceName()) != 0 {
+		q = q.Where(
+			sq.Eq{tenantpb.Resource_ResourceName: req.GetResourceName()})
+	}
 
 	resources, err := rsc.storage.CollectRows(ctx, q, scan)
 	if err != nil {
@@ -79,12 +97,10 @@ func (rsc *Resources) List(ctx context.Context,
 
 	resp := &tenantpb.ListResourceResponse{Resources: resources}
 	if req.GetPage().GetTotal() {
-		total, err := rsc.storage.Total(ctx)
+		resp.Total, err = rsc.storage.Total(ctx)
 		if err != nil {
 			return nil, err
 		}
-
-		resp.Total = int32(total)
 	}
 
 	return resp, nil
@@ -106,15 +122,40 @@ func (rsc *Resources) Create(
 		tenantpb.Resource_ResourceSetting: st,
 	})
 
-	rsc.storage.Insert(ctx, query)
+	_, err := rsc.storage.Insert(ctx, query)
+	if err != nil {
+		return nil, err
+	}
 
 	return rs, nil
 }
 
 func (rsc *Resources) Update(
-	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
-	//TODO implement me
-	panic("implement me")
+	ctx context.Context, req *tenantpb.Resource) error {
+
+	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
+	if req.GetPlan() != modelpb.Plan_PLAN_UNSPECIFIED {
+		q = q.Set(tenantpb.Resource_Plan, req.GetPlan())
+	}
+
+	if req.GetStatus() != modelpb.Status_STATUS_UNSPECIFIED {
+		q = q.Set(tenantpb.Resource_Status, req.GetStatus())
+	}
+
+	if len(req.GetResourceDomain()) != 0 {
+		q = q.Set(tenantpb.Resource_ResourceDomain, req.GetResourceDomain())
+	}
+
+	if len(req.GetResourceName()) != 0 {
+		q = q.Set(tenantpb.Resource_ResourceName, req.GetResourceName())
+	}
+
+	_, err := rsc.storage.Exec(ctx, q)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (rsc *Resources) Get(

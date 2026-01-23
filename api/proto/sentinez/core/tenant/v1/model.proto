@@ -29,8 +29,8 @@ message Resource {
   sentinez.types.model.v1.Metadata metadata         = 1;
   string                           id               = 2 [(buf.validate.field) = { required: true, string: {prefix: "senz.tenant.resources."}}];
   sentinez.edge.v1.Setting         resource_setting = 3;
-  string                           resource_domain  = 4;
-  string                           resource_name    = 5;
+  string                           resource_domain  = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string                           resource_name    = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   sentinez.types.model.v1.Status   status           = 6;
   sentinez.types.model.v1.Plan plan = 7;
 }

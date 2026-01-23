@@ -16,6 +16,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 )
 
 // ensure the imports are used
@@ -31,6 +33,10 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+
+	_ = modelpb.Status(0)
+
+	_ = modelpb.Plan(0)
 )
 
 // Validate checks the field values on ListResourceRequest with the rules
@@ -50,6 +56,14 @@ func (m *ListResourceRequest) Validate() error {
 			}
 		}
 	}
+
+	// no validation rules for Status
+
+	// no validation rules for Plan
+
+	// no validation rules for ResourceName
+
+	// no validation rules for ResourceDomain
 
 	return nil
 }
