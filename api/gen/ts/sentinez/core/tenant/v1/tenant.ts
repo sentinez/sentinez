@@ -7,15 +7,22 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Pages } from "../../../types/common/v1/meta";
+import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/model/v1/metadata";
+import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
-export interface SayHelloRequest {
+export interface ListResourceRequest {
   page?: Pages | undefined;
-  name: string;
+  status: Status;
+  plan: Plan;
+  resourceName: string;
+  resourceDomain: string;
 }
 
-export interface SayHelloResponse {
+export interface ListResourceResponse {
+  total: number;
+  resources: Resource[];
 }
 
 export interface StatusResponse {
@@ -25,25 +32,34 @@ export interface StatusResponse {
 export interface StatusRequest {
 }
 
-function createBaseSayHelloRequest(): SayHelloRequest {
-  return { page: undefined, name: "" };
+function createBaseListResourceRequest(): ListResourceRequest {
+  return { page: undefined, status: 0, plan: 0, resourceName: "", resourceDomain: "" };
 }
 
-export const SayHelloRequest: MessageFns<SayHelloRequest> = {
-  encode(message: SayHelloRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListResourceRequest: MessageFns<ListResourceRequest> = {
+  encode(message: ListResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(24).int32(message.plan);
+    }
+    if (message.resourceName !== "") {
+      writer.uint32(34).string(message.resourceName);
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(42).string(message.resourceDomain);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SayHelloRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListResourceRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSayHelloRequest();
+    const message = createBaseListResourceRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -56,11 +72,35 @@ export const SayHelloRequest: MessageFns<SayHelloRequest> = {
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag !== 16) {
             break;
           }
 
-          message.name = reader.string();
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.resourceName = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
           continue;
         }
       }
@@ -72,51 +112,88 @@ export const SayHelloRequest: MessageFns<SayHelloRequest> = {
     return message;
   },
 
-  fromJSON(object: any): SayHelloRequest {
+  fromJSON(object: any): ListResourceRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
+      resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
     };
   },
 
-  toJSON(message: SayHelloRequest): unknown {
+  toJSON(message: ListResourceRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
     }
-    if (message.name !== "") {
-      obj.name = message.name;
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.resourceName !== "") {
+      obj.resourceName = message.resourceName;
+    }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SayHelloRequest>, I>>(base?: I): SayHelloRequest {
-    return SayHelloRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListResourceRequest>, I>>(base?: I): ListResourceRequest {
+    return ListResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SayHelloRequest>, I>>(object: I): SayHelloRequest {
-    const message = createBaseSayHelloRequest();
+  fromPartial<I extends Exact<DeepPartial<ListResourceRequest>, I>>(object: I): ListResourceRequest {
+    const message = createBaseListResourceRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
-    message.name = object.name ?? "";
+    message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
+    message.resourceName = object.resourceName ?? "";
+    message.resourceDomain = object.resourceDomain ?? "";
     return message;
   },
 };
 
-function createBaseSayHelloResponse(): SayHelloResponse {
-  return {};
+function createBaseListResourceResponse(): ListResourceResponse {
+  return { total: 0, resources: [] };
 }
 
-export const SayHelloResponse: MessageFns<SayHelloResponse> = {
-  encode(_: SayHelloResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListResourceResponse: MessageFns<ListResourceResponse> = {
+  encode(message: ListResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.resources) {
+      Resource.encode(v!, writer.uint32(18).fork()).join();
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SayHelloResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListResourceResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSayHelloResponse();
+    const message = createBaseListResourceResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.total = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.resources.push(Resource.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -126,20 +203,33 @@ export const SayHelloResponse: MessageFns<SayHelloResponse> = {
     return message;
   },
 
-  fromJSON(_: any): SayHelloResponse {
-    return {};
+  fromJSON(object: any): ListResourceResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      resources: globalThis.Array.isArray(object?.resources)
+        ? object.resources.map((e: any) => Resource.fromJSON(e))
+        : [],
+    };
   },
 
-  toJSON(_: SayHelloResponse): unknown {
+  toJSON(message: ListResourceResponse): unknown {
     const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.resources?.length) {
+      obj.resources = message.resources.map((e) => Resource.toJSON(e));
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SayHelloResponse>, I>>(base?: I): SayHelloResponse {
-    return SayHelloResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListResourceResponse>, I>>(base?: I): ListResourceResponse {
+    return ListResourceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SayHelloResponse>, I>>(_: I): SayHelloResponse {
-    const message = createBaseSayHelloResponse();
+  fromPartial<I extends Exact<DeepPartial<ListResourceResponse>, I>>(object: I): ListResourceResponse {
+    const message = createBaseListResourceResponse();
+    message.total = object.total ?? 0;
+    message.resources = object.resources?.map((e) => Resource.fromPartial(e)) || [];
     return message;
   },
 };
@@ -256,6 +346,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

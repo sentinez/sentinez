@@ -32,7 +32,7 @@ import (
 	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ssync "github.com/sentinez/shared/sync"
-	sunsafe "github.com/sentinez/shared/unsafe"
+	"github.com/sentinez/shared/unsafe"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -376,7 +376,7 @@ func (c *Context) String(statusCode int, msg string) error {
 	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
 	c.SetStatusCode(statusCode)
 
-	_, err := c.resp.Write(sunsafe.S2B(msg))
+	_, err := c.resp.Write(unsafe.S2B(msg))
 
 	return err
 }

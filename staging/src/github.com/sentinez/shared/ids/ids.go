@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sids
+package ids
 
 import (
 	"bytes"
@@ -23,7 +23,7 @@ import (
 	"github.com/google/uuid"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/rs/xid"
-	sunsafe "github.com/sentinez/shared/unsafe"
+	"github.com/sentinez/shared/unsafe"
 )
 
 var bufPool = sync.Pool{
@@ -53,9 +53,9 @@ func NewXID(prefix []byte) string {
 	buf.Reset()
 
 	buf.Write(prefix)
-	buf.Write(sunsafe.S2B(guid.String()))
+	buf.Write(unsafe.S2B(guid.String()))
 
-	res := sunsafe.B2S(buf.Bytes())
+	res := unsafe.B2S(buf.Bytes())
 	bufPool.Put(buf)
 
 	return res
@@ -70,7 +70,7 @@ func NewTimeID(prefix []byte, unixtime uint64) string {
 	buf.Write(prefix)
 	buf.WriteString(ulidStr)
 
-	res := sunsafe.B2S(buf.Bytes())
+	res := unsafe.B2S(buf.Bytes())
 	bufPool.Put(buf)
 
 	return res

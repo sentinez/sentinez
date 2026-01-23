@@ -10,17 +10,97 @@ import { Timestamp } from "../../../../google/protobuf/timestamp";
 
 export const protobufPackage = "sentinez.types.model.v1";
 
+export enum Status {
+  STATUS_UNSPECIFIED = 0,
+  STATUS_ACTIVE = 1,
+  STATUS_DISABLE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function statusFromJSON(object: any): Status {
+  switch (object) {
+    case 0:
+    case "STATUS_UNSPECIFIED":
+      return Status.STATUS_UNSPECIFIED;
+    case 1:
+    case "STATUS_ACTIVE":
+      return Status.STATUS_ACTIVE;
+    case 2:
+    case "STATUS_DISABLE":
+      return Status.STATUS_DISABLE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Status.UNRECOGNIZED;
+  }
+}
+
+export function statusToJSON(object: Status): string {
+  switch (object) {
+    case Status.STATUS_UNSPECIFIED:
+      return "STATUS_UNSPECIFIED";
+    case Status.STATUS_ACTIVE:
+      return "STATUS_ACTIVE";
+    case Status.STATUS_DISABLE:
+      return "STATUS_DISABLE";
+    case Status.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum Plan {
+  PLAN_UNSPECIFIED = 0,
+  PLAN_FREE = 1,
+  PLAN_STANDARD = 2,
+  PLAN_PRO = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function planFromJSON(object: any): Plan {
+  switch (object) {
+    case 0:
+    case "PLAN_UNSPECIFIED":
+      return Plan.PLAN_UNSPECIFIED;
+    case 1:
+    case "PLAN_FREE":
+      return Plan.PLAN_FREE;
+    case 2:
+    case "PLAN_STANDARD":
+      return Plan.PLAN_STANDARD;
+    case 3:
+    case "PLAN_PRO":
+      return Plan.PLAN_PRO;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Plan.UNRECOGNIZED;
+  }
+}
+
+export function planToJSON(object: Plan): string {
+  switch (object) {
+    case Plan.PLAN_UNSPECIFIED:
+      return "PLAN_UNSPECIFIED";
+    case Plan.PLAN_FREE:
+      return "PLAN_FREE";
+    case Plan.PLAN_STANDARD:
+      return "PLAN_STANDARD";
+    case Plan.PLAN_PRO:
+      return "PLAN_PRO";
+    case Plan.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Metadata {
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
-  createdBy: string;
-  updatedBy: string;
-  /** ref: user_id */
-  resourceOwnerId: string;
 }
 
 function createBaseMetadata(): Metadata {
-  return { createdAt: undefined, updatedAt: undefined, createdBy: "", updatedBy: "", resourceOwnerId: "" };
+  return { createdAt: undefined, updatedAt: undefined };
 }
 
 export const Metadata: MessageFns<Metadata> = {
@@ -30,15 +110,6 @@ export const Metadata: MessageFns<Metadata> = {
     }
     if (message.updatedAt !== undefined) {
       Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(18).fork()).join();
-    }
-    if (message.createdBy !== "") {
-      writer.uint32(26).string(message.createdBy);
-    }
-    if (message.updatedBy !== "") {
-      writer.uint32(34).string(message.updatedBy);
-    }
-    if (message.resourceOwnerId !== "") {
-      writer.uint32(42).string(message.resourceOwnerId);
     }
     return writer;
   },
@@ -66,30 +137,6 @@ export const Metadata: MessageFns<Metadata> = {
           message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.createdBy = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.updatedBy = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.resourceOwnerId = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -103,9 +150,6 @@ export const Metadata: MessageFns<Metadata> = {
     return {
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
       updatedAt: isSet(object.updatedAt) ? fromJsonTimestamp(object.updatedAt) : undefined,
-      createdBy: isSet(object.createdBy) ? globalThis.String(object.createdBy) : "",
-      updatedBy: isSet(object.updatedBy) ? globalThis.String(object.updatedBy) : "",
-      resourceOwnerId: isSet(object.resourceOwnerId) ? globalThis.String(object.resourceOwnerId) : "",
     };
   },
 
@@ -117,15 +161,6 @@ export const Metadata: MessageFns<Metadata> = {
     if (message.updatedAt !== undefined) {
       obj.updatedAt = message.updatedAt.toISOString();
     }
-    if (message.createdBy !== "") {
-      obj.createdBy = message.createdBy;
-    }
-    if (message.updatedBy !== "") {
-      obj.updatedBy = message.updatedBy;
-    }
-    if (message.resourceOwnerId !== "") {
-      obj.resourceOwnerId = message.resourceOwnerId;
-    }
     return obj;
   },
 
@@ -136,9 +171,6 @@ export const Metadata: MessageFns<Metadata> = {
     const message = createBaseMetadata();
     message.createdAt = object.createdAt ?? undefined;
     message.updatedAt = object.updatedAt ?? undefined;
-    message.createdBy = object.createdBy ?? "";
-    message.updatedBy = object.updatedBy ?? "";
-    message.resourceOwnerId = object.resourceOwnerId ?? "";
     return message;
   },
 };

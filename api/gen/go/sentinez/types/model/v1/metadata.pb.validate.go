@@ -60,12 +60,6 @@ func (m *Metadata) Validate() error {
 		}
 	}
 
-	// no validation rules for CreatedBy
-
-	// no validation rules for UpdatedBy
-
-	// no validation rules for ResourceOwnerId
-
 	return nil
 }
 

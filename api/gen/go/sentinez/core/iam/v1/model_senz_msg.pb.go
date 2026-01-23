@@ -17,7 +17,7 @@ var (
 const (
 	Account_Metadata    = "metadata"
 	Account_Id          = "id"
-	Account_UserId      = "userId"
+	Account_UserId      = "user_id"
 	Account_Username    = "username"
 	Account_Password    = "password"
 	Account_Email       = "email"
@@ -27,7 +27,7 @@ const (
 const (
 	User_Metadata    = "metadata"
 	User_Id          = "id"
-	User_FullName    = "fullName"
+	User_FullName    = "full_name"
 	User_Email       = "email"
-	User_PhoneNumber = "phoneNumber"
+	User_PhoneNumber = "phone_number"
 )

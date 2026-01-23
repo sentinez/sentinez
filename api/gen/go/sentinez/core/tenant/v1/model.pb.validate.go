@@ -16,6 +16,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
 )
 
 // ensure the imports are used
@@ -31,21 +33,55 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+
+	_ = modelpb.Status(0)
+
+	_ = modelpb.Plan(0)
 )
 
-// Validate checks the field values on Tenants with the rules defined in the
+// Validate checks the field values on Resource with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Tenants) Validate() error {
+func (m *Resource) Validate() error {
 	if m == nil {
 		return nil
 	}
 
+	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ResourceValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Id
+
+	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ResourceValidationError{
+				field:  "ResourceSetting",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ResourceDomain
+
+	// no validation rules for ResourceName
+
+	// no validation rules for Status
+
+	// no validation rules for Plan
+
 	return nil
 }
 
-// TenantsValidationError is the validation error returned by Tenants.Validate
-// if the designated constraints aren't met.
-type TenantsValidationError struct {
+// ResourceValidationError is the validation error returned by
+// Resource.Validate if the designated constraints aren't met.
+type ResourceValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -53,22 +89,22 @@ type TenantsValidationError struct {
 }
 
 // Field function returns field value.
-func (e TenantsValidationError) Field() string { return e.field }
+func (e ResourceValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TenantsValidationError) Reason() string { return e.reason }
+func (e ResourceValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TenantsValidationError) Cause() error { return e.cause }
+func (e ResourceValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TenantsValidationError) Key() bool { return e.key }
+func (e ResourceValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TenantsValidationError) ErrorName() string { return "TenantsValidationError" }
+func (e ResourceValidationError) ErrorName() string { return "ResourceValidationError" }
 
 // Error satisfies the builtin error interface
-func (e TenantsValidationError) Error() string {
+func (e ResourceValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -80,14 +116,14 @@ func (e TenantsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTenants.%s: %s%s",
+		"invalid %sResource.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TenantsValidationError{}
+var _ error = ResourceValidationError{}
 
 var _ interface {
 	Field() string
@@ -95,4 +131,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TenantsValidationError{}
+} = ResourceValidationError{}

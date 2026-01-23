@@ -6,28 +6,130 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Setting } from "../../../edge/v1/setting";
+import {
+  Metadata,
+  Plan,
+  planFromJSON,
+  planToJSON,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+} from "../../../types/model/v1/metadata";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
-export interface Tenants {
+export interface Resource {
+  metadata?: Metadata | undefined;
+  id: string;
+  resourceSetting?: Setting | undefined;
+  resourceDomain: string;
+  resourceName: string;
+  status: Status;
+  plan: Plan;
 }
 
-function createBaseTenants(): Tenants {
-  return {};
+function createBaseResource(): Resource {
+  return {
+    metadata: undefined,
+    id: "",
+    resourceSetting: undefined,
+    resourceDomain: "",
+    resourceName: "",
+    status: 0,
+    plan: 0,
+  };
 }
 
-export const Tenants: MessageFns<Tenants> = {
-  encode(_: Tenants, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Resource: MessageFns<Resource> = {
+  encode(message: Resource, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.resourceSetting !== undefined) {
+      Setting.encode(message.resourceSetting, writer.uint32(26).fork()).join();
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(34).string(message.resourceDomain);
+    }
+    if (message.resourceName !== "") {
+      writer.uint32(42).string(message.resourceName);
+    }
+    if (message.status !== 0) {
+      writer.uint32(48).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(56).int32(message.plan);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Tenants {
+  decode(input: BinaryReader | Uint8Array, length?: number): Resource {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTenants();
+    const message = createBaseResource();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.metadata = Metadata.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.resourceSetting = Setting.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.resourceName = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -37,20 +139,60 @@ export const Tenants: MessageFns<Tenants> = {
     return message;
   },
 
-  fromJSON(_: any): Tenants {
-    return {};
+  fromJSON(object: any): Resource {
+    return {
+      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      resourceSetting: isSet(object.resourceSetting) ? Setting.fromJSON(object.resourceSetting) : undefined,
+      resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
+      resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+    };
   },
 
-  toJSON(_: Tenants): unknown {
+  toJSON(message: Resource): unknown {
     const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = Metadata.toJSON(message.metadata);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.resourceSetting !== undefined) {
+      obj.resourceSetting = Setting.toJSON(message.resourceSetting);
+    }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
+    }
+    if (message.resourceName !== "") {
+      obj.resourceName = message.resourceName;
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Tenants>, I>>(base?: I): Tenants {
-    return Tenants.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Resource>, I>>(base?: I): Resource {
+    return Resource.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Tenants>, I>>(_: I): Tenants {
-    const message = createBaseTenants();
+  fromPartial<I extends Exact<DeepPartial<Resource>, I>>(object: I): Resource {
+    const message = createBaseResource();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.id = object.id ?? "";
+    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
+      ? Setting.fromPartial(object.resourceSetting)
+      : undefined;
+    message.resourceDomain = object.resourceDomain ?? "";
+    message.resourceName = object.resourceName ?? "";
+    message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
     return message;
   },
 };
@@ -66,6 +208,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
+}
 
 export interface MessageFns<T> {
   encode(message: T, writer?: BinaryWriter): BinaryWriter;

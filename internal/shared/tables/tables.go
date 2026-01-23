@@ -15,6 +15,10 @@
 package tables
 
 const (
-	Users    = "users"
-	Accounts = "accounts"
+	Users    = "iam.users"
+	Accounts = "iam.accounts"
+)
+
+const (
+	Resources = "tenant.resources"
 )

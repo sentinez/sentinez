@@ -2,7 +2,7 @@ import {
   User,
   Server,
   Building2,
-  Cloud,
+  Shield,
   Activity,
   ShieldAlert,
   SquareActivity,
@@ -16,7 +16,7 @@ export const dashboard = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
+  tenant: [
     {
       name: 'sentinez',
       logo: Users,
@@ -25,42 +25,60 @@ export const dashboard = {
   ],
   navMain: [
     {
-      title: 'Management',
-      url: '/console/management',
+      title: 'Tenants',
+      url: '/console/tenant',
       icon: User,
       isActive: true,
       items: [
         {
-          title: 'organization',
-          url: '/console/management/organization',
-          icon: Building2,
-        },
-        {
           title: 'resource',
-          url: '/console/management/resource',
+          url: '/console/tenant/resource',
           icon: Server,
         },
         {
-          title: 'origin',
-          url: '/console/management/origin',
-          icon: Cloud,
+          title: 'member',
+          url: '/console/tenant/member',
+          icon: Building2,
+        },
+        // {
+        //   title: 'origin',
+        //   url: '/console/tenant/origin',
+        //   icon: Cloud,
+        // },
+      ],
+    },
+    {
+      title: 'Securities',
+      url: '/console/security',
+      icon: Shield,
+      isActive: false,
+      items: [
+        {
+          title: 'logs',
+          url: '/console/security/logs',
+          icon: SquareActivity,
+        },
+        {
+          title: 'activity',
+          url: '/console/security/activity',
+          icon: ShieldAlert,
         },
       ],
     },
     {
-      title: 'Activity',
-      url: '/console/activity',
+      title: 'Analytics',
+      url: '/console/analytic',
       icon: Activity,
       isActive: false,
       items: [
         {
-          title: 'access log',
-          url: '/console/activity/access-log',
+          title: 'logs',
+          url: '/console/analytic/logs',
           icon: SquareActivity,
         },
         {
-          title: 'alert',
-          url: '/console/activity/alert',
+          title: 'activity',
+          url: '/console/analytic/activity',
           icon: ShieldAlert,
         },
       ],

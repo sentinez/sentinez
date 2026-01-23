@@ -20,7 +20,6 @@ import "buf/validate/validate.proto";
 
 import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/model/v1/metadata.proto";
-import "google/protobuf/struct.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
 
@@ -29,30 +28,26 @@ message Account {
 
   sentinez.types.model.v1.Metadata metadata = 1;
 
-  string id = 2 [(buf.validate.field) = { required: true; string: {
-    prefix: "senz.accounts.",
-  }}];
+  string id = 2 [(buf.validate.field) = { required: true; string: {prefix: "senz.iam.accounts."}}];
 
-  string user_id = 3 [(buf.validate.field) = { required: true; string: {
-    prefix: "senz.users.",
-  }}];
+  string user_id = 3 [(buf.validate.field) = { required: true; string: {prefix: "senz.iam.users."}}];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string password = 11 [(buf.validate.field).string.min_len = 8];
   string email    = 12 [(buf.validate.field).string.email = true];
 
-  repeated google.protobuf.Struct credentials = 20;
+  repeated string credentials = 20;
 }
 
 message AccountResponse {
   sentinez.types.model.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = { required: true; string: {
-    prefix: "senz.accounts.",
+    prefix: "senz.iam.accounts.",
   }}];
 
   string user_id = 3 [(buf.validate.field) = { required: true; string: {
-    prefix: "senz.users.",
+    prefix: "senz.iam.users.",
   }}];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
@@ -65,7 +60,7 @@ message User {
   sentinez.types.model.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = { required: true, string: {
-    prefix: "senz.users."
+    prefix: "senz.iam.users."
   }}];
 
   string full_name    = 10 [(buf.validate.field).required = true];

@@ -15,9 +15,6 @@ var (
 )
 
 const (
-	Metadata_CreatedAt       = "createdAt"
-	Metadata_UpdatedAt       = "updatedAt"
-	Metadata_CreatedBy       = "createdBy"
-	Metadata_UpdatedBy       = "updatedBy"
-	Metadata_ResourceOwnerId = "resourceOwnerId"
+	Metadata_CreatedAt = "created_at"
+	Metadata_UpdatedAt = "updated_at"
 )

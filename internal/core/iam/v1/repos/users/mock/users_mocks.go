@@ -9,7 +9,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -369,98 +369,21 @@ func (_c *MockIUser_List_Call) RunAndReturn(run func(ctx context.Context, req *i
 	return _c
 }
 
-// Total provides a mock function for the type MockIUser
-func (_mock *MockIUser) Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error) {
-	ret := _mock.Called(ctx, req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Total")
-	}
-
-	var r0 int64
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListUsersRequest) (int64, error)); ok {
-		return returnFunc(ctx, req)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListUsersRequest) int64); ok {
-		r0 = returnFunc(ctx, req)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.ListUsersRequest) error); ok {
-		r1 = returnFunc(ctx, req)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockIUser_Total_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Total'
-type MockIUser_Total_Call struct {
-	*mock.Call
-}
-
-// Total is a helper method to define mock.On call
-//   - ctx context.Context
-//   - req *iam.ListUsersRequest
-func (_e *MockIUser_Expecter) Total(ctx interface{}, req interface{}) *MockIUser_Total_Call {
-	return &MockIUser_Total_Call{Call: _e.mock.On("Total", ctx, req)}
-}
-
-func (_c *MockIUser_Total_Call) Run(run func(ctx context.Context, req *iam.ListUsersRequest)) *MockIUser_Total_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 *iam.ListUsersRequest
-		if args[1] != nil {
-			arg1 = args[1].(*iam.ListUsersRequest)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockIUser_Total_Call) Return(n int64, err error) *MockIUser_Total_Call {
-	_c.Call.Return(n, err)
-	return _c
-}
-
-func (_c *MockIUser_Total_Call) RunAndReturn(run func(ctx context.Context, req *iam.ListUsersRequest) (int64, error)) *MockIUser_Total_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Update provides a mock function for the type MockIUser
-func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) (*iam.User, error) {
+func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) error {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *iam.User
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) (*iam.User, error)); ok {
-		return returnFunc(ctx, user)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) *iam.User); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) error); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.User)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.User) error); ok {
-		r1 = returnFunc(ctx, user)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockIUser_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
@@ -493,12 +416,12 @@ func (_c *MockIUser_Update_Call) Run(run func(ctx context.Context, user *iam.Use
 	return _c
 }
 
-func (_c *MockIUser_Update_Call) Return(user1 *iam.User, err error) *MockIUser_Update_Call {
-	_c.Call.Return(user1, err)
+func (_c *MockIUser_Update_Call) Return(err error) *MockIUser_Update_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) (*iam.User, error)) *MockIUser_Update_Call {
+func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) error) *MockIUser_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

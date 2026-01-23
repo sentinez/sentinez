@@ -17,7 +17,7 @@ export function Tenant() {
     <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
       <CardHeader>
         <CardTitle>Sentinez</CardTitle>
-        <CardDescription>Teams member</CardDescription>
+        <CardDescription>Tenant member</CardDescription>
       </CardHeader>
       <CardContent></CardContent>
       <CardFooter className="flex justify-between">
@@ -31,7 +31,7 @@ export function Tenant() {
   );
 }
 
-export function TenantJoin() {
+export function TeamJoin() {
   return (
     <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
       <CardHeader>

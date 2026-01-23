@@ -37,7 +37,7 @@ const (
 
 	BaseName = "sentinez"
 
-	EnvPattern = `^(dev|sandbox|prod)\_sentinez\_[a-z]+$`
+	EnvPattern = `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`
 )
 
 var (

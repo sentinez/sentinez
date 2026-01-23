@@ -15,6 +15,7 @@
 package iamfac
 
 import (
+	"context"
 	"time"
 
 	"github.com/sentinez/sentinez/api/client"
@@ -24,17 +25,17 @@ import (
 	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
-	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/services"
+	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
-	"github.com/sentinez/sentinez/pkg/storage/database/postgres"
+	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/shared/zlog"
 )
 
 // nolint:funlen
-func NewDefaultHandler(appConf *confpb.Config,
+func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
 ) iam.IdentityAccessManagementServiceServer {
 
-	service := NewDefaultService(appConf)
+	service := NewDefaultService(ctx, appConf)
 
 	geeterCli, err := client.NewLocalGreeter(
 		greeterfac.NewDefaultHandler(appConf),
@@ -46,19 +47,20 @@ func NewDefaultHandler(appConf *confpb.Config,
 	return iamhdl.New(service, geeterCli)
 }
 
-func NewDefaultService(appConf *confpb.Config) *iamsvc.IAMService {
-	userrepos, err := usersrepo.New(appConf)
+func NewDefaultService(
+	ctx context.Context, appConf *confpb.Config) *iamsvc.IAMService {
+	userrepos, err := usersrepo.New(ctx, appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)
 	}
 
-	accountrepos, err := accountrepo.New(appConf)
+	accountrepos, err := accountrepo.New(ctx, appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init account repo err=%v", err)
 	}
 
 	tx := postgres.NewTX(appConf)
-	dataStore := passkey.NewMemoryStorage(time.Hour * 2)
+	dataStore := passkey.NewMemoryStorage(time.Hour)
 
 	return iamsvc.New(appConf, tx, dataStore, userrepos, accountrepos)
 }

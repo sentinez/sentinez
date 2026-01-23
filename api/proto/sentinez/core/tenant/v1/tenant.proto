@@ -16,12 +16,13 @@ syntax = "proto3";
 
 package sentinez.core.tenant.v1;
 
-import "sentinez/types/common/v1/meta.proto";
 import "sentinez/types/common/v1/options.proto";
-
+import "sentinez/types/common/v1/meta.proto";
+import "sentinez/types/model/v1/metadata.proto";
+import "sentinez/core/tenant/v1/model.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1;tenant";
 
@@ -58,14 +59,6 @@ option (sentinez.types.common.v1.x_meta) = {
 };
 
 service TenantService {
-  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
-    option (google.api.http) = {
-      get: "/tenant/say"
-    };
-
-    option (sentinez.types.common.v1.x_method) = {ignore: true};
-  }
-
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
       get: "/tenant/status"
@@ -73,15 +66,27 @@ service TenantService {
 
     option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
+
+  rpc ListResource(ListResourceRequest) returns (ListResourceResponse) {
+    option (google.api.http) = {
+      get: "/tenant/resources"
+    };
+
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
+  }
 }
 
-message SayHelloRequest {
+message ListResourceRequest {
   sentinez.types.common.v1.Pages page = 1;
-  string                         name = 2 [(buf.validate.field).string.min_len = 1];
+  sentinez.types.model.v1.Status status = 2;
+  sentinez.types.model.v1.Plan plan = 3;
+  string resource_name = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
 }
 
-message SayHelloResponse {
-
+message ListResourceResponse {
+  int64 total = 1;
+  repeated sentinez.core.tenant.v1.Resource resources = 2;
 }
 
 message StatusResponse {

@@ -156,7 +156,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* We disable collapsible and let it fill remaining space */}
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
-          <TeamSwitcher teams={dashboard.teams} />
+          <TeamSwitcher teams={dashboard.tenant} />
           <div className="flex w-full items-center justify-between">
             <div className="text-foreground text-base font-medium">{activeItem?.title}</div>
           </div>
