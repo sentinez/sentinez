@@ -18,7 +18,7 @@ import (
 	"context"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
-	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resource"
+	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resources"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)

@@ -91,6 +91,17 @@ func (p *postgres[T]) Table() string {
 	return p.tableName
 }
 
+func (p *postgres[T]) Total(ctx context.Context) (total int64, err error) {
+	q := sq.Select("COUNT(*) AS count").From(p.tableName)
+
+	err = p.Query(ctx, q, &total)
+	if err != nil {
+		return -1, err
+	}
+
+	return total, nil
+}
+
 func (p *postgres[T]) Insert(
 	ctx context.Context, builder query.Query) (string, error) {
 

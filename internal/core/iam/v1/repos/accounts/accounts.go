@@ -48,7 +48,6 @@ type IAccount interface {
 
 	GetByUsernameOrEmail(ctx context.Context, input string) (*AccountX, error)
 	List(ctx context.Context, req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
-	Total(ctx context.Context, req *iam.ListAccountsRequest) (int64, error)
 }
 
 func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
@@ -129,25 +128,13 @@ func (acc *Accounts) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		resp.Total, err = acc.Total(ctx, req)
+		resp.Total, err = acc.storage.Total(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &resp, nil
-}
-
-func (acc *Accounts) Total(ctx context.Context,
-	req *iam.ListAccountsRequest) (int64, error) {
-
-	builder := sq.Select("COUNT(*) AS count").From(acc.storage.Table())
-	builder = buildListQuery(builder, req)
-
-	var count int64
-	err := acc.storage.Query(ctx, builder, &count)
-
-	return count, err
 }
 
 // GetByUsernameOrEmail implements IAccount.

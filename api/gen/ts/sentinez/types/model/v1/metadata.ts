@@ -97,12 +97,10 @@ export function planToJSON(object: Plan): string {
 export interface Metadata {
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
-  createdBy: string;
-  updatedBy: string;
 }
 
 function createBaseMetadata(): Metadata {
-  return { createdAt: undefined, updatedAt: undefined, createdBy: "", updatedBy: "" };
+  return { createdAt: undefined, updatedAt: undefined };
 }
 
 export const Metadata: MessageFns<Metadata> = {
@@ -112,12 +110,6 @@ export const Metadata: MessageFns<Metadata> = {
     }
     if (message.updatedAt !== undefined) {
       Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(18).fork()).join();
-    }
-    if (message.createdBy !== "") {
-      writer.uint32(26).string(message.createdBy);
-    }
-    if (message.updatedBy !== "") {
-      writer.uint32(34).string(message.updatedBy);
     }
     return writer;
   },
@@ -145,22 +137,6 @@ export const Metadata: MessageFns<Metadata> = {
           message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.createdBy = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.updatedBy = reader.string();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -174,8 +150,6 @@ export const Metadata: MessageFns<Metadata> = {
     return {
       createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
       updatedAt: isSet(object.updatedAt) ? fromJsonTimestamp(object.updatedAt) : undefined,
-      createdBy: isSet(object.createdBy) ? globalThis.String(object.createdBy) : "",
-      updatedBy: isSet(object.updatedBy) ? globalThis.String(object.updatedBy) : "",
     };
   },
 
@@ -187,12 +161,6 @@ export const Metadata: MessageFns<Metadata> = {
     if (message.updatedAt !== undefined) {
       obj.updatedAt = message.updatedAt.toISOString();
     }
-    if (message.createdBy !== "") {
-      obj.createdBy = message.createdBy;
-    }
-    if (message.updatedBy !== "") {
-      obj.updatedBy = message.updatedBy;
-    }
     return obj;
   },
 
@@ -203,8 +171,6 @@ export const Metadata: MessageFns<Metadata> = {
     const message = createBaseMetadata();
     message.createdAt = object.createdAt ?? undefined;
     message.updatedAt = object.updatedAt ?? undefined;
-    message.createdBy = object.createdBy ?? "";
-    message.updatedBy = object.updatedBy ?? "";
     return message;
   },
 };

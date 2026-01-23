@@ -22,7 +22,7 @@ package tenant
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -40,6 +40,7 @@ const (
 
 type ListResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,8 +75,17 @@ func (*ListResourceRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *ListResourceRequest) GetPage() *v1.Pages {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
 type ListResourceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Resources     []*Resource            `protobuf:"bytes,2,rep,name=resources,proto3" json:"resources,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,6 +118,20 @@ func (x *ListResourceResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListResourceResponse.ProtoReflect.Descriptor instead.
 func (*ListResourceResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListResourceResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ListResourceResponse) GetResources() []*Resource {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
 }
 
 type StatusResponse struct {
@@ -194,9 +218,12 @@ var File_sentinez_core_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a&sentinez/types/common/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x15\n" +
-	"\x13ListResourceRequest\"\x16\n" +
-	"\x14ListResourceResponse\"*\n" +
+	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\x1a#sentinez/core/tenant/v1/model.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"J\n" +
+	"\x13ListResourceRequest\x123\n" +
+	"\x04page\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.PagesR\x04page\"m\n" +
+	"\x14ListResourceResponse\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x05R\x05total\x12?\n" +
+	"\tresources\x18\x02 \x03(\v2!.sentinez.core.tenant.v1.ResourceR\tresources\"*\n" +
 	"\x0eStatusResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x0f\n" +
 	"\rStatusRequest2\x97\x02\n" +
@@ -230,17 +257,21 @@ var file_sentinez_core_tenant_v1_tenant_proto_goTypes = []any{
 	(*ListResourceResponse)(nil), // 1: sentinez.core.tenant.v1.ListResourceResponse
 	(*StatusResponse)(nil),       // 2: sentinez.core.tenant.v1.StatusResponse
 	(*StatusRequest)(nil),        // 3: sentinez.core.tenant.v1.StatusRequest
+	(*v1.Pages)(nil),             // 4: sentinez.types.common.v1.Pages
+	(*Resource)(nil),             // 5: sentinez.core.tenant.v1.Resource
 }
 var file_sentinez_core_tenant_v1_tenant_proto_depIdxs = []int32{
-	3, // 0: sentinez.core.tenant.v1.TenantService.Status:input_type -> sentinez.core.tenant.v1.StatusRequest
-	0, // 1: sentinez.core.tenant.v1.TenantService.ListResource:input_type -> sentinez.core.tenant.v1.ListResourceRequest
-	2, // 2: sentinez.core.tenant.v1.TenantService.Status:output_type -> sentinez.core.tenant.v1.StatusResponse
-	1, // 3: sentinez.core.tenant.v1.TenantService.ListResource:output_type -> sentinez.core.tenant.v1.ListResourceResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4, // 0: sentinez.core.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.common.v1.Pages
+	5, // 1: sentinez.core.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.core.tenant.v1.Resource
+	3, // 2: sentinez.core.tenant.v1.TenantService.Status:input_type -> sentinez.core.tenant.v1.StatusRequest
+	0, // 3: sentinez.core.tenant.v1.TenantService.ListResource:input_type -> sentinez.core.tenant.v1.ListResourceRequest
+	2, // 4: sentinez.core.tenant.v1.TenantService.Status:output_type -> sentinez.core.tenant.v1.StatusResponse
+	1, // 5: sentinez.core.tenant.v1.TenantService.ListResource:output_type -> sentinez.core.tenant.v1.ListResourceResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_core_tenant_v1_tenant_proto_init() }
@@ -248,6 +279,7 @@ func file_sentinez_core_tenant_v1_tenant_proto_init() {
 	if File_sentinez_core_tenant_v1_tenant_proto != nil {
 		return
 	}
+	file_sentinez_core_tenant_v1_model_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -6,7 +6,6 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Struct } from "../../../../google/protobuf/struct";
 import { Metadata } from "../../../types/model/v1/metadata";
 
 export const protobufPackage = "sentinez.core.iam.v1";
@@ -18,7 +17,7 @@ export interface Account {
   username: string;
   password: string;
   email: string;
-  credentials: { [key: string]: any }[];
+  credentials: string[];
 }
 
 export interface AccountResponse {
@@ -62,7 +61,7 @@ export const Account: MessageFns<Account> = {
       writer.uint32(98).string(message.email);
     }
     for (const v of message.credentials) {
-      Struct.encode(Struct.wrap(v!), writer.uint32(162).fork()).join();
+      writer.uint32(162).string(v!);
     }
     return writer;
   },
@@ -127,7 +126,7 @@ export const Account: MessageFns<Account> = {
             break;
           }
 
-          message.credentials.push(Struct.unwrap(Struct.decode(reader, reader.uint32())));
+          message.credentials.push(reader.string());
           continue;
         }
       }
@@ -147,7 +146,9 @@ export const Account: MessageFns<Account> = {
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      credentials: globalThis.Array.isArray(object?.credentials) ? [...object.credentials] : [],
+      credentials: globalThis.Array.isArray(object?.credentials)
+        ? object.credentials.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 

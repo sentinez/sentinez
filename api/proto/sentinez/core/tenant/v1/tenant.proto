@@ -17,6 +17,7 @@ syntax = "proto3";
 package sentinez.core.tenant.v1;
 
 import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/common/v1/meta.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
@@ -74,7 +75,7 @@ service TenantService {
 }
 
 message ListResourceRequest {
-
+  sentinez.types.common.v1.Pages page = 1;
 }
 
 message ListResourceResponse {

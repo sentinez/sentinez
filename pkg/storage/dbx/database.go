@@ -45,6 +45,8 @@ type Database[T any] interface {
 	Select(ctx context.Context, builder query.Query, scan ScanOneFn[T]) (*T, error)
 	Delete(ctx context.Context, id string) error
 
+	Total(ctx context.Context) (int64, error)
+
 	Table() string
 }
 

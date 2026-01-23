@@ -6,10 +6,12 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Pages } from "../../../types/common/v1/meta";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
 export interface ListResourceRequest {
+  page?: Pages | undefined;
 }
 
 export interface ListResourceResponse {
@@ -23,11 +25,14 @@ export interface StatusRequest {
 }
 
 function createBaseListResourceRequest(): ListResourceRequest {
-  return {};
+  return { page: undefined };
 }
 
 export const ListResourceRequest: MessageFns<ListResourceRequest> = {
-  encode(_: ListResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: ListResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
     return writer;
   },
 
@@ -38,6 +43,14 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.page = Pages.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -47,20 +60,24 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     return message;
   },
 
-  fromJSON(_: any): ListResourceRequest {
-    return {};
+  fromJSON(object: any): ListResourceRequest {
+    return { page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined };
   },
 
-  toJSON(_: ListResourceRequest): unknown {
+  toJSON(message: ListResourceRequest): unknown {
     const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<ListResourceRequest>, I>>(base?: I): ListResourceRequest {
     return ListResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListResourceRequest>, I>>(_: I): ListResourceRequest {
+  fromPartial<I extends Exact<DeepPartial<ListResourceRequest>, I>>(object: I): ListResourceRequest {
     const message = createBaseListResourceRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     return message;
   },
 };

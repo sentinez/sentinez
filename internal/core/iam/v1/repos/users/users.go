@@ -49,7 +49,6 @@ type IUser interface {
 
 	GetByFullnameOrEmail(ctx context.Context, input string) (*iam.User, error)
 	List(ctx context.Context, req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)
-	Total(ctx context.Context, req *iam.ListUsersRequest) (int64, error)
 }
 
 func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
@@ -135,28 +134,13 @@ func (u *Users) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = u.Total(ctx, req)
+		total, err = u.storage.Total(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &iam.ListUsersResponse{Users: users, Total: total}, nil
-}
-
-func (u *Users) Total(ctx context.Context,
-	req *iam.ListUsersRequest) (int64, error) {
-
-	builder := sq.
-		Select("COUNT(*) AS count").
-		From(u.storage.Table())
-
-	builder = buildListQuery(builder, req)
-
-	var count int64
-	err := u.storage.Query(ctx, builder, &count)
-
-	return count, err
 }
 
 // Create implements IUser.
