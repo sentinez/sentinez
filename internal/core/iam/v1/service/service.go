@@ -234,7 +234,6 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 	return &iampb.PasskeyRegisterVerifyResponse{}, nil
 }
 
-// PasskeyRegisterChallenge implements iampb.IdentityAccessManagementServiceServer
 func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 	req *iampb.PasskeyRegisterChallengeRequest,
 ) (*iampb.PasskeyRegisterChallengeResponse, error) {

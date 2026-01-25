@@ -58,7 +58,9 @@ func (s *MemoryStorage) GetAndDeleteAccount(
 }
 
 // GetOrCreateAccount implements Store.
-func (s *MemoryStorage) GetOrCreateAccount(email string) (*iampb.Account, error) {
+func (s *MemoryStorage) GetOrCreateAccount(
+	email string) (*iampb.Account, error) {
+
 	acc, ok := s.accounts.Get(email)
 	if ok {
 		return acc, nil

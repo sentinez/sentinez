@@ -92,7 +92,8 @@ func buildListQuery(builder sq.SelectBuilder,
 	}
 
 	if len(req.GetUsernames()) > 0 {
-		builder = builder.Where(sq.Eq{iampb.Account_Username: req.GetUsernames()})
+		builder = builder.Where(
+			sq.Eq{iampb.Account_Username: req.GetUsernames()})
 	}
 
 	return builder

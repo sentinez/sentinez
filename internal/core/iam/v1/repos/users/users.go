@@ -143,7 +143,9 @@ func (u *Users) List(ctx context.Context,
 }
 
 // Create implements IUser.
-func (u *Users) Create(ctx context.Context, user *iampb.User) (*iampb.User, error) {
+func (u *Users) Create(ctx context.Context,
+	user *iampb.User) (*iampb.User, error) {
+
 	user.Id = ids.NewID(table.NewPrimaryKey(tables.Users))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:          user.GetId(),

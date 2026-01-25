@@ -15,7 +15,7 @@
 package greeterfac
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 )
