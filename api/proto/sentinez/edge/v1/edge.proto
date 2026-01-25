@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package sentinez.edge.v1;
 
-import "sentinez/types/rule/engine/v1/ruleengine.proto";
+import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
 import "sentinez/types/common/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
@@ -62,7 +62,7 @@ message EvaluateIngressRequest {
 message EvaluationResult {
   string                                        rule_id = 1;
   bool                                          matched = 2;
-  repeated sentinez.types.rule.engine.v1.Action actions = 3;
+  repeated sentinez.types.secure.ruleengine.v1.Action actions = 3;
 }
 
 message EvaluateIngressResponse { repeated EvaluationResult results = 1; }

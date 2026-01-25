@@ -22,7 +22,7 @@ package edgepb
 
 import (
 	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -390,7 +390,7 @@ var File_sentinez_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1bsentinez/edge/v1/edge.proto\x12\x10sentinez.edge.v1\x1a.sentinez/types/rule/engine/v1/ruleengine.proto\x1a&sentinez/types/common/v1/options.proto\"\xc4\x04\n" +
+	"\x1bsentinez/edge/v1/edge.proto\x12\x10sentinez.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a&sentinez/types/common/v1/options.proto\"\xc4\x04\n" +
 	"\x0eRequestContext\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04body\x18\x02 \x01(\fR\x04body\x12D\n" +
@@ -419,11 +419,11 @@ const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
 	"\x16EvaluateIngressRequest\x12\x1d\n" +
 	"\n" +
 	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12I\n" +
-	"\x0frequest_context\x18\x02 \x01(\v2 .sentinez.edge.v1.RequestContextR\x0erequestContext\"\x86\x01\n" +
+	"\x0frequest_context\x18\x02 \x01(\v2 .sentinez.edge.v1.RequestContextR\x0erequestContext\"\x8c\x01\n" +
 	"\x10EvaluationResult\x12\x17\n" +
 	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x18\n" +
-	"\amatched\x18\x02 \x01(\bR\amatched\x12?\n" +
-	"\aactions\x18\x03 \x03(\v2%.sentinez.types.rule.engine.v1.ActionR\aactions\"W\n" +
+	"\amatched\x18\x02 \x01(\bR\amatched\x12E\n" +
+	"\aactions\x18\x03 \x03(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\aactions\"W\n" +
 	"\x17EvaluateIngressResponse\x12<\n" +
 	"\aresults\x18\x01 \x03(\v2\".sentinez.edge.v1.EvaluationResultR\aresults2{\n" +
 	"\x11EdgeEngineService\x12f\n" +
@@ -451,13 +451,13 @@ var file_sentinez_edge_v1_edge_proto_goTypes = []any{
 	(*EvaluateIngressResponse)(nil), // 4: sentinez.edge.v1.EvaluateIngressResponse
 	nil,                             // 5: sentinez.edge.v1.RequestContext.HeaderEntry
 	nil,                             // 6: sentinez.edge.v1.RequestContext.QueriesEntry
-	(*v1.Action)(nil),               // 7: sentinez.types.rule.engine.v1.Action
+	(*v1.Action)(nil),               // 7: sentinez.types.secure.ruleengine.v1.Action
 }
 var file_sentinez_edge_v1_edge_proto_depIdxs = []int32{
 	5, // 0: sentinez.edge.v1.RequestContext.header:type_name -> sentinez.edge.v1.RequestContext.HeaderEntry
 	6, // 1: sentinez.edge.v1.RequestContext.queries:type_name -> sentinez.edge.v1.RequestContext.QueriesEntry
 	0, // 2: sentinez.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.edge.v1.RequestContext
-	7, // 3: sentinez.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.rule.engine.v1.Action
+	7, // 3: sentinez.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
 	3, // 4: sentinez.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.edge.v1.EvaluationResult
 	1, // 5: sentinez.edge.v1.RequestContext.QueriesEntry.value:type_name -> sentinez.edge.v1.RequestQuery
 	2, // 6: sentinez.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.edge.v1.EvaluateIngressRequest

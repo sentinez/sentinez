@@ -17,8 +17,8 @@ package tenantfac
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	tenanthandler "github.com/sentinez/sentinez/internal/core/tenant/v1/handler"
 	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resources"
 	tenantsvc "github.com/sentinez/sentinez/internal/core/tenant/v1/service"
@@ -26,11 +26,11 @@ import (
 )
 
 func NewDefaultHandlerTenant(ctx context.Context,
-	conf *confpb.Config) tenant.TenantServiceServer {
+	conf *confpb.Config) tenantpb.TenantServiceServer {
 
 	rscrepo, err := resourcerepo.New(ctx, conf)
 	if err != nil {
-		zlog.Fatalf("tenant factory: new resource err: %v", err)
+		zlog.Fatalf("tenantpb factory: new resource err: %v", err)
 	}
 
 	tenantsvcer := tenantsvc.New(rscrepo)

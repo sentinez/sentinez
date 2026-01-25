@@ -21,7 +21,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 // import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "sentinez/types/common/v1/options.proto";
-import "sentinez/types/rule/engine/v1/ruleengine.proto";
+import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
@@ -68,7 +68,7 @@ service SecurityService {
 }
 
 message CreateRuleBasedRequest {
-  sentinez.types.rule.engine.v1.Rule rule = 1;
+  sentinez.types.secure.ruleengine.v1.Rule rule = 1;
 }
 
 message CreateRuleBasedResponse {

@@ -20,8 +20,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/spf13/pflag"
@@ -33,18 +33,18 @@ var (
 )
 
 // flags global variable
-var flags = &flagspb.Flag{
+var flags = &flagpb.Flag{
 	EnvMode:  "dev",
 	LogLevel: "debug",
 }
 
-func info(meta *common.XMeta) string {
+func info(meta *commonpb.XMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
 	return console.GenFigure(service, meta.GetServiceKey())
 }
 
 // Parse flag args
-func Parse(meta *common.XMeta) {
+func Parse(meta *commonpb.XMeta) {
 	once.Do(func() {
 
 		pflag.StringVarP(&flags.EnvMode, "mode", "m",
@@ -64,7 +64,7 @@ func Parse(meta *common.XMeta) {
 	})
 }
 
-func Get() *flagspb.Flag {
+func Get() *flagpb.Flag {
 	return flags
 }
 

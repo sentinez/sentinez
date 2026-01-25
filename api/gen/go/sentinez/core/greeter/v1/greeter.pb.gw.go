@@ -2,11 +2,11 @@
 // source: sentinez/core/greeter/v1/greeter.proto
 
 /*
-Package greeter is a reverse proxy.
+Package greeterpb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package greeter
+package greeterpb
 
 import (
 	"context"

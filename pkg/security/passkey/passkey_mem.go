@@ -20,7 +20,7 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/shared/ids"
@@ -34,19 +34,19 @@ func NewMemoryStorage(ttl time.Duration) Store {
 		sessions: mem.NewDefault[*webauthn.SessionData](),
 
 		// key: email
-		accounts: mem.NewDefault[*iam.Account](),
+		accounts: mem.NewDefault[*iampb.Account](),
 	}
 }
 
 type MemoryStorage struct {
 	ttl      time.Duration
 	sessions *mem.Cache[*webauthn.SessionData]
-	accounts *mem.Cache[*iam.Account]
+	accounts *mem.Cache[*iampb.Account]
 }
 
 // GetAndDeleteAccount implements Store.
 func (s *MemoryStorage) GetAndDeleteAccount(
-	email string) (*iam.Account, error) {
+	email string) (*iampb.Account, error) {
 
 	acc, ok := s.accounts.Get(email)
 	if ok {
@@ -58,13 +58,15 @@ func (s *MemoryStorage) GetAndDeleteAccount(
 }
 
 // GetOrCreateAccount implements Store.
-func (s *MemoryStorage) GetOrCreateAccount(email string) (*iam.Account, error) {
+func (s *MemoryStorage) GetOrCreateAccount(
+	email string) (*iampb.Account, error) {
+
 	acc, ok := s.accounts.Get(email)
 	if ok {
 		return acc, nil
 	}
 
-	acc = &iam.Account{Email: email, Username: email}
+	acc = &iampb.Account{Email: email, Username: email}
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return nil, err

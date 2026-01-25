@@ -6,10 +6,10 @@ package apiserver
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 var (
-	_ common.Empty
+	_ commonpb.Empty
 	_ fmt.Stringer
 )

@@ -18,7 +18,7 @@ package apiserver
 import (
 	"context"
 
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/shared/zlog"
 )

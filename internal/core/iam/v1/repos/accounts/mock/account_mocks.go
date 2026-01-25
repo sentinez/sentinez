@@ -304,26 +304,26 @@ func (_c *MockIAccount_GetByUsernameOrEmail_Call) RunAndReturn(run func(ctx cont
 }
 
 // List provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) List(ctx context.Context, req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+func (_mock *MockIAccount) List(ctx context.Context, req *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	ret := _mock.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *iam.ListAccountsResponse
+	var r0 *iampb.ListAccountsResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error)); ok {
 		return returnFunc(ctx, req)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListAccountsRequest) *iam.ListAccountsResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.ListAccountsRequest) *iampb.ListAccountsResponse); ok {
 		r0 = returnFunc(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.ListAccountsResponse)
+			r0 = ret.Get(0).(*iampb.ListAccountsResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.ListAccountsRequest) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *iampb.ListAccountsRequest) error); ok {
 		r1 = returnFunc(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -338,20 +338,20 @@ type MockIAccount_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req *iam.ListAccountsRequest
+//   - req *iampb.ListAccountsRequest
 func (_e *MockIAccount_Expecter) List(ctx interface{}, req interface{}) *MockIAccount_List_Call {
 	return &MockIAccount_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
-func (_c *MockIAccount_List_Call) Run(run func(ctx context.Context, req *iam.ListAccountsRequest)) *MockIAccount_List_Call {
+func (_c *MockIAccount_List_Call) Run(run func(ctx context.Context, req *iampb.ListAccountsRequest)) *MockIAccount_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.ListAccountsRequest
+		var arg1 *iampb.ListAccountsRequest
 		if args[1] != nil {
-			arg1 = args[1].(*iam.ListAccountsRequest)
+			arg1 = args[1].(*iampb.ListAccountsRequest)
 		}
 		run(
 			arg0,
@@ -361,12 +361,12 @@ func (_c *MockIAccount_List_Call) Run(run func(ctx context.Context, req *iam.Lis
 	return _c
 }
 
-func (_c *MockIAccount_List_Call) Return(listAccountsResponse *iam.ListAccountsResponse, err error) *MockIAccount_List_Call {
+func (_c *MockIAccount_List_Call) Return(listAccountsResponse *iampb.ListAccountsResponse, err error) *MockIAccount_List_Call {
 	_c.Call.Return(listAccountsResponse, err)
 	return _c
 }
 
-func (_c *MockIAccount_List_Call) RunAndReturn(run func(ctx context.Context, req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)) *MockIAccount_List_Call {
+func (_c *MockIAccount_List_Call) RunAndReturn(run func(ctx context.Context, req *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error)) *MockIAccount_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

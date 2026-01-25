@@ -22,7 +22,7 @@ package edgepb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -492,7 +492,7 @@ var File_sentinez_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a.sentinez/types/rule/engine/v1/ruleengine.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
+	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
 	"\aSetting\x126\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1a.sentinez.edge.v1.MetadataR\bmetadata\x120\n" +
 	"\x06origin\x18\x02 \x01(\v2\x18.sentinez.edge.v1.OriginR\x06origin\x126\n" +
@@ -507,14 +507,14 @@ const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\vOriginRoute\x12!\n" +
 	"\fmatch_prefix\x18\x01 \x01(\tR\vmatchPrefix\x12\x16\n" +
 	"\x06target\x18\x02 \x01(\tR\x06target\x12\x18\n" +
-	"\arewrite\x18\x03 \x01(\tR\arewrite\"\xd8\x03\n" +
+	"\arewrite\x18\x03 \x01(\tR\arewrite\"\xea\x03\n" +
 	"\bSecurity\x12'\n" +
-	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12G\n" +
+	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12M\n" +
 	"\n" +
-	"expression\x18\x02 \x01(\v2'.sentinez.types.rule.engine.v1.ExprLiteR\n" +
-	"expression\x127\n" +
-	"\x04rule\x18\x03 \x01(\v2#.sentinez.types.rule.engine.v1.RuleR\x04rule\x127\n" +
-	"\x04expr\x18\x04 \x01(\v2#.sentinez.types.rule.engine.v1.ExprR\x04expr\x12'\n" +
+	"expression\x18\x02 \x01(\v2-.sentinez.types.secure.ruleengine.v1.ExprLiteR\n" +
+	"expression\x12=\n" +
+	"\x04rule\x18\x03 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\x12=\n" +
+	"\x04expr\x18\x04 \x01(\v2).sentinez.types.secure.ruleengine.v1.ExprR\x04expr\x12'\n" +
 	"\x10is_rate_limit_on\x18\n" +
 	" \x01(\bR\risRateLimitOn\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
@@ -548,9 +548,9 @@ var file_sentinez_edge_v1_setting_proto_goTypes = []any{
 	(*TrafficControl)(nil),  // 5: sentinez.edge.v1.TrafficControl
 	(*Personalization)(nil), // 6: sentinez.edge.v1.Personalization
 	(*Context)(nil),         // 7: sentinez.edge.v1.Context
-	(*v1.ExprLite)(nil),     // 8: sentinez.types.rule.engine.v1.ExprLite
-	(*v1.Rule)(nil),         // 9: sentinez.types.rule.engine.v1.Rule
-	(*v1.Expr)(nil),         // 10: sentinez.types.rule.engine.v1.Expr
+	(*v1.ExprLite)(nil),     // 8: sentinez.types.secure.ruleengine.v1.ExprLite
+	(*v1.Rule)(nil),         // 9: sentinez.types.secure.ruleengine.v1.Rule
+	(*v1.Expr)(nil),         // 10: sentinez.types.secure.ruleengine.v1.Expr
 }
 var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
 	1,  // 0: sentinez.edge.v1.Setting.metadata:type_name -> sentinez.edge.v1.Metadata
@@ -559,9 +559,9 @@ var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
 	5,  // 3: sentinez.edge.v1.Setting.traffic_control:type_name -> sentinez.edge.v1.TrafficControl
 	6,  // 4: sentinez.edge.v1.Setting.personal:type_name -> sentinez.edge.v1.Personalization
 	3,  // 5: sentinez.edge.v1.Origin.routes:type_name -> sentinez.edge.v1.OriginRoute
-	8,  // 6: sentinez.edge.v1.Security.expression:type_name -> sentinez.types.rule.engine.v1.ExprLite
-	9,  // 7: sentinez.edge.v1.Security.rule:type_name -> sentinez.types.rule.engine.v1.Rule
-	10, // 8: sentinez.edge.v1.Security.expr:type_name -> sentinez.types.rule.engine.v1.Expr
+	8,  // 6: sentinez.edge.v1.Security.expression:type_name -> sentinez.types.secure.ruleengine.v1.ExprLite
+	9,  // 7: sentinez.edge.v1.Security.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	10, // 8: sentinez.edge.v1.Security.expr:type_name -> sentinez.types.secure.ruleengine.v1.Expr
 	9,  // [9:9] is the sub-list for method output_type
 	9,  // [9:9] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name

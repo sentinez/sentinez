@@ -23,7 +23,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1;greeter";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1;greeterpb";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {

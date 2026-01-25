@@ -19,14 +19,14 @@ import (
 	"encoding/base64"
 	"os"
 
-	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
+	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 )
 
 type RulesetsLoader struct {
 	buf bytes.Buffer
 }
 
-func (rl *RulesetsLoader) Load(rulesetsFn []func() *rulecmn.Rule) {
+func (rl *RulesetsLoader) Load(rulesetsFn []func() *ruleeventpb.Rule) {
 	for _, rule := range rulesetsFn {
 
 		conf, err := base64.StdEncoding.DecodeString(rule().Configuration)

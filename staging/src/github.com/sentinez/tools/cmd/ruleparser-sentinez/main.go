@@ -26,8 +26,8 @@ import (
 	"strings"
 	"text/template"
 
-	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
 	"github.com/sentinez/core/modsec/ruleparser"
+	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	templatez "github.com/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -56,7 +56,7 @@ func normalizeVersion(input string) string {
 	return input
 }
 
-func generateRulesGoFile(outputPath string, data *rulecmn.CoreRulesets) error {
+func generateRulesGoFile(outputPath string, data *ruleeventpb.CoreRulesets) error {
 
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -103,7 +103,7 @@ func PascalCaseFileName(filePath string) string {
 	return result
 }
 
-func parse(filePath string) *rulecmn.CoreRulesets {
+func parse(filePath string) *ruleeventpb.CoreRulesets {
 
 	result, err := ruleparser.Parse(filePath)
 	if err != nil {
@@ -115,7 +115,7 @@ func parse(filePath string) *rulecmn.CoreRulesets {
 		panic(err)
 	}
 
-	rules := rulecmn.CoreRulesets{Name: PascalCaseFileName(filePath)}
+	rules := ruleeventpb.CoreRulesets{Name: PascalCaseFileName(filePath)}
 	if err = json.Unmarshal(data, &rules); err != nil {
 		panic(err)
 	}

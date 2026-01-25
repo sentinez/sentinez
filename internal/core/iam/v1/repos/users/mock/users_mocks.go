@@ -41,26 +41,26 @@ func (_m *MockIUser) EXPECT() *MockIUser_Expecter {
 }
 
 // Create provides a mock function for the type MockIUser
-func (_mock *MockIUser) Create(ctx context.Context, user *iam.User) (*iam.User, error) {
+func (_mock *MockIUser) Create(ctx context.Context, user *iampb.User) (*iampb.User, error) {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *iam.User
+	var r0 *iampb.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) (*iam.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.User) (*iampb.User, error)); ok {
 		return returnFunc(ctx, user)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) *iam.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.User) *iampb.User); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.User)
+			r0 = ret.Get(0).(*iampb.User)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.User) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *iampb.User) error); ok {
 		r1 = returnFunc(ctx, user)
 	} else {
 		r1 = ret.Error(1)
@@ -75,20 +75,20 @@ type MockIUser_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user *iam.User
+//   - user *iampb.User
 func (_e *MockIUser_Expecter) Create(ctx interface{}, user interface{}) *MockIUser_Create_Call {
 	return &MockIUser_Create_Call{Call: _e.mock.On("Create", ctx, user)}
 }
 
-func (_c *MockIUser_Create_Call) Run(run func(ctx context.Context, user *iam.User)) *MockIUser_Create_Call {
+func (_c *MockIUser_Create_Call) Run(run func(ctx context.Context, user *iampb.User)) *MockIUser_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.User
+		var arg1 *iampb.User
 		if args[1] != nil {
-			arg1 = args[1].(*iam.User)
+			arg1 = args[1].(*iampb.User)
 		}
 		run(
 			arg0,
@@ -98,12 +98,12 @@ func (_c *MockIUser_Create_Call) Run(run func(ctx context.Context, user *iam.Use
 	return _c
 }
 
-func (_c *MockIUser_Create_Call) Return(user1 *iam.User, err error) *MockIUser_Create_Call {
+func (_c *MockIUser_Create_Call) Return(user1 *iampb.User, err error) *MockIUser_Create_Call {
 	_c.Call.Return(user1, err)
 	return _c
 }
 
-func (_c *MockIUser_Create_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) (*iam.User, error)) *MockIUser_Create_Call {
+func (_c *MockIUser_Create_Call) RunAndReturn(run func(ctx context.Context, user *iampb.User) (*iampb.User, error)) *MockIUser_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -166,23 +166,23 @@ func (_c *MockIUser_Delete_Call) RunAndReturn(run func(ctx context.Context, id s
 }
 
 // Get provides a mock function for the type MockIUser
-func (_mock *MockIUser) Get(ctx context.Context, id string) (*iam.User, error) {
+func (_mock *MockIUser) Get(ctx context.Context, id string) (*iampb.User, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *iam.User
+	var r0 *iampb.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iam.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iampb.User, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iam.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iampb.User); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.User)
+			r0 = ret.Get(0).(*iampb.User)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -223,34 +223,34 @@ func (_c *MockIUser_Get_Call) Run(run func(ctx context.Context, id string)) *Moc
 	return _c
 }
 
-func (_c *MockIUser_Get_Call) Return(user *iam.User, err error) *MockIUser_Get_Call {
+func (_c *MockIUser_Get_Call) Return(user *iampb.User, err error) *MockIUser_Get_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockIUser_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*iam.User, error)) *MockIUser_Get_Call {
+func (_c *MockIUser_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*iampb.User, error)) *MockIUser_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByFullnameOrEmail provides a mock function for the type MockIUser
-func (_mock *MockIUser) GetByFullnameOrEmail(ctx context.Context, input string) (*iam.User, error) {
+func (_mock *MockIUser) GetByFullnameOrEmail(ctx context.Context, input string) (*iampb.User, error) {
 	ret := _mock.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByFullnameOrEmail")
 	}
 
-	var r0 *iam.User
+	var r0 *iampb.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iam.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iampb.User, error)); ok {
 		return returnFunc(ctx, input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iam.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iampb.User); ok {
 		r0 = returnFunc(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.User)
+			r0 = ret.Get(0).(*iampb.User)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -291,37 +291,37 @@ func (_c *MockIUser_GetByFullnameOrEmail_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockIUser_GetByFullnameOrEmail_Call) Return(user *iam.User, err error) *MockIUser_GetByFullnameOrEmail_Call {
+func (_c *MockIUser_GetByFullnameOrEmail_Call) Return(user *iampb.User, err error) *MockIUser_GetByFullnameOrEmail_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockIUser_GetByFullnameOrEmail_Call) RunAndReturn(run func(ctx context.Context, input string) (*iam.User, error)) *MockIUser_GetByFullnameOrEmail_Call {
+func (_c *MockIUser_GetByFullnameOrEmail_Call) RunAndReturn(run func(ctx context.Context, input string) (*iampb.User, error)) *MockIUser_GetByFullnameOrEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockIUser
-func (_mock *MockIUser) List(ctx context.Context, req *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
+func (_mock *MockIUser) List(ctx context.Context, req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
 	ret := _mock.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *iam.ListUsersResponse
+	var r0 *iampb.ListUsersResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListUsersRequest) (*iam.ListUsersResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error)); ok {
 		return returnFunc(ctx, req)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.ListUsersRequest) *iam.ListUsersResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.ListUsersRequest) *iampb.ListUsersResponse); ok {
 		r0 = returnFunc(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iam.ListUsersResponse)
+			r0 = ret.Get(0).(*iampb.ListUsersResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *iam.ListUsersRequest) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *iampb.ListUsersRequest) error); ok {
 		r1 = returnFunc(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -336,20 +336,20 @@ type MockIUser_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req *iam.ListUsersRequest
+//   - req *iampb.ListUsersRequest
 func (_e *MockIUser_Expecter) List(ctx interface{}, req interface{}) *MockIUser_List_Call {
 	return &MockIUser_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
-func (_c *MockIUser_List_Call) Run(run func(ctx context.Context, req *iam.ListUsersRequest)) *MockIUser_List_Call {
+func (_c *MockIUser_List_Call) Run(run func(ctx context.Context, req *iampb.ListUsersRequest)) *MockIUser_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.ListUsersRequest
+		var arg1 *iampb.ListUsersRequest
 		if args[1] != nil {
-			arg1 = args[1].(*iam.ListUsersRequest)
+			arg1 = args[1].(*iampb.ListUsersRequest)
 		}
 		run(
 			arg0,
@@ -359,18 +359,18 @@ func (_c *MockIUser_List_Call) Run(run func(ctx context.Context, req *iam.ListUs
 	return _c
 }
 
-func (_c *MockIUser_List_Call) Return(listUsersResponse *iam.ListUsersResponse, err error) *MockIUser_List_Call {
+func (_c *MockIUser_List_Call) Return(listUsersResponse *iampb.ListUsersResponse, err error) *MockIUser_List_Call {
 	_c.Call.Return(listUsersResponse, err)
 	return _c
 }
 
-func (_c *MockIUser_List_Call) RunAndReturn(run func(ctx context.Context, req *iam.ListUsersRequest) (*iam.ListUsersResponse, error)) *MockIUser_List_Call {
+func (_c *MockIUser_List_Call) RunAndReturn(run func(ctx context.Context, req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error)) *MockIUser_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockIUser
-func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) error {
+func (_mock *MockIUser) Update(ctx context.Context, user *iampb.User) error {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
@@ -378,7 +378,7 @@ func (_mock *MockIUser) Update(ctx context.Context, user *iam.User) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *iam.User) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *iampb.User) error); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
 		r0 = ret.Error(0)
@@ -393,20 +393,20 @@ type MockIUser_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user *iam.User
+//   - user *iampb.User
 func (_e *MockIUser_Expecter) Update(ctx interface{}, user interface{}) *MockIUser_Update_Call {
 	return &MockIUser_Update_Call{Call: _e.mock.On("Update", ctx, user)}
 }
 
-func (_c *MockIUser_Update_Call) Run(run func(ctx context.Context, user *iam.User)) *MockIUser_Update_Call {
+func (_c *MockIUser_Update_Call) Run(run func(ctx context.Context, user *iampb.User)) *MockIUser_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *iam.User
+		var arg1 *iampb.User
 		if args[1] != nil {
-			arg1 = args[1].(*iam.User)
+			arg1 = args[1].(*iampb.User)
 		}
 		run(
 			arg0,
@@ -421,7 +421,7 @@ func (_c *MockIUser_Update_Call) Return(err error) *MockIUser_Update_Call {
 	return _c
 }
 
-func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iam.User) error) *MockIUser_Update_Call {
+func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user *iampb.User) error) *MockIUser_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

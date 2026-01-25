@@ -15,7 +15,7 @@
 package zlog
 
 import (
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
@@ -36,18 +36,18 @@ type Logger interface {
 	Sync() error
 }
 
-func NewJSONLogger(named string, logKind common.LogKind, level Level) Logger {
+func NewJSONLogger(named string, logKind commonpb.LogKind, level Level) Logger {
 	logger := configJSONLogger(named)
 	return createLogger(logger, logKind, ToLevel(level.String()).Int())
 }
 
-func createLogger(log *zap.Logger, kind common.LogKind, verbosity int) Logger {
+func createLogger(log *zap.Logger, kind commonpb.LogKind, verbosity int) Logger {
 	return &logger{log: log, verbosity: verbosity, kind: kind}
 }
 
 type logger struct {
 	log       *zap.Logger
-	kind      common.LogKind
+	kind      commonpb.LogKind
 	verbosity int
 }
 

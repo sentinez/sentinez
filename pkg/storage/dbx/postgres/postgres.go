@@ -22,7 +22,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
 )
@@ -38,7 +38,7 @@ type Client interface {
 }
 
 func Paging(builder squirrel.SelectBuilder,
-	page *common.Pages) squirrel.SelectBuilder {
+	page *commonpb.Pages) squirrel.SelectBuilder {
 
 	if page == nil {
 		return builder
@@ -56,7 +56,7 @@ func Paging(builder squirrel.SelectBuilder,
 }
 
 func SelectBuilder[T any](db dbx.Database[T],
-	page *common.Pages, columns ...string) squirrel.SelectBuilder {
+	page *commonpb.Pages, columns ...string) squirrel.SelectBuilder {
 
 	builder := squirrel.Select(columns...).From(db.Table())
 	if page == nil {

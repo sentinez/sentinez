@@ -19,10 +19,9 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	modelpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
@@ -47,7 +46,7 @@ type IAccount interface {
 	// extra methods
 
 	GetByUsernameOrEmail(ctx context.Context, input string) (*AccountX, error)
-	List(ctx context.Context, req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error)
+	List(ctx context.Context, req *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error)
 }
 
 func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
@@ -55,12 +54,12 @@ func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 	storage, err := postgres.New[AccountX](ctx, appConf,
 		dbx.WithTable(tables.Accounts),
 		dbx.WithColumns(dbx.ColumnM{
-			iam.Account_Id:          postgres.String,
-			iam.Account_Email:       postgres.String,
-			iam.Account_Username:    postgres.String,
-			iam.Account_Password:    postgres.String,
-			iam.Account_Credentials: postgres.StringArr,
-			iam.Account_UserId:      postgres.String,
+			iampb.Account_Id:          postgres.String,
+			iampb.Account_Email:       postgres.String,
+			iampb.Account_Username:    postgres.String,
+			iampb.Account_Password:    postgres.String,
+			iampb.Account_Credentials: postgres.StringArr,
+			iampb.Account_UserId:      postgres.String,
 		}),
 	)
 	if err != nil {
@@ -78,22 +77,23 @@ type Accounts struct {
 
 // nolint:funlen
 func buildListQuery(builder sq.SelectBuilder,
-	req *iam.ListAccountsRequest) sq.SelectBuilder {
+	req *iampb.ListAccountsRequest) sq.SelectBuilder {
 
 	if len(req.GetIds()) > 0 {
-		builder = builder.Where(sq.Eq{iam.Account_Id: req.GetIds()})
+		builder = builder.Where(sq.Eq{iampb.Account_Id: req.GetIds()})
 	}
 
 	if len(req.GetEmails()) > 0 {
-		builder = builder.Where(sq.Eq{iam.Account_Email: req.GetEmails()})
+		builder = builder.Where(sq.Eq{iampb.Account_Email: req.GetEmails()})
 	}
 
 	if len(req.GetUserIds()) > 0 {
-		builder = builder.Where(sq.Eq{iam.Account_UserId: req.GetUserIds()})
+		builder = builder.Where(sq.Eq{iampb.Account_UserId: req.GetUserIds()})
 	}
 
 	if len(req.GetUsernames()) > 0 {
-		builder = builder.Where(sq.Eq{iam.Account_Username: req.GetUsernames()})
+		builder = builder.Where(
+			sq.Eq{iampb.Account_Username: req.GetUsernames()})
 	}
 
 	return builder
@@ -107,7 +107,7 @@ func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 
 // nolint:funlen
 func (acc *Accounts) List(ctx context.Context,
-	req *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+	req *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 
 	builder := acc.selectQuery(req.GetPage())
 	builder = buildListQuery(builder, req)
@@ -117,9 +117,9 @@ func (acc *Accounts) List(ctx context.Context,
 		return nil, err
 	}
 
-	var resp iam.ListAccountsResponse
+	var resp iampb.ListAccountsResponse
 	for _, account := range accounts {
-		resp.Accounts = append(resp.Accounts, &iam.AccountResponse{
+		resp.Accounts = append(resp.Accounts, &iampb.AccountResponse{
 			Id:       account.GetId(),
 			Username: account.GetUsername(),
 			Email:    account.GetEmail(),
@@ -142,8 +142,8 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*AccountX, error) {
 
 	builder := acc.selectQuery(nil).Where(sq.Or{
-		sq.Eq{iam.Account_Username: input},
-		sq.Eq{iam.Account_Email: input},
+		sq.Eq{iampb.Account_Username: input},
+		sq.Eq{iampb.Account_Email: input},
 	})
 
 	resp, err := acc.storage.CollectOneRow(ctx, builder, scanOne)
@@ -165,12 +165,12 @@ func (acc *Accounts) Create(ctx context.Context,
 	}
 
 	query := postgres.InsertBuilder(acc.storage, postgres.M{
-		iam.Account_Id:          account.GetId(),
-		iam.Account_Credentials: account.GetCredentials(),
-		iam.Account_Username:    account.GetUsername(),
-		iam.Account_Email:       account.GetEmail(),
-		iam.Account_UserId:      account.GetUserId(),
-		iam.Account_Password:    account.GetPassword(),
+		iampb.Account_Id:          account.GetId(),
+		iampb.Account_Credentials: account.GetCredentials(),
+		iampb.Account_Username:    account.GetUsername(),
+		iampb.Account_Email:       account.GetEmail(),
+		iampb.Account_UserId:      account.GetUserId(),
+		iampb.Account_Password:    account.GetPassword(),
 	})
 
 	_, err := acc.storage.Insert(ctx, query)
@@ -188,7 +188,7 @@ func (acc *Accounts) Delete(ctx context.Context, id string) error {
 
 // Get implements IAccount.
 func (acc *Accounts) Get(ctx context.Context, id string) (*AccountX, error) {
-	builder := acc.selectQuery(nil).Where(sq.Eq{iam.Account_Id: id})
+	builder := acc.selectQuery(nil).Where(sq.Eq{iampb.Account_Id: id})
 	return acc.storage.Select(ctx, builder, scanOne)
 }
 
@@ -198,23 +198,23 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 	query := postgres.UpdateBuilder(acc.storage, account.GetId())
 
 	if account.GetEmail() != "" {
-		query = query.Set(iam.Account_Email, account.GetEmail())
+		query = query.Set(iampb.Account_Email, account.GetEmail())
 	}
 
 	if account.GetUsername() != "" {
-		query = query.Set(iam.Account_Username, account.GetUsername())
+		query = query.Set(iampb.Account_Username, account.GetUsername())
 	}
 
 	if account.GetPassword() != "" {
-		query = query.Set(iam.Account_Password, account.GetPassword())
+		query = query.Set(iampb.Account_Password, account.GetPassword())
 	}
 
 	if account.GetUserId() != "" {
-		query = query.Set(iam.Account_UserId, account.GetUserId())
+		query = query.Set(iampb.Account_UserId, account.GetUserId())
 	}
 
 	if len(account.GetCredentials()) != 0 {
-		query = query.Set(iam.Account_Credentials, account.GetCredentials())
+		query = query.Set(iampb.Account_Credentials, account.GetCredentials())
 	}
 
 	_, err := acc.storage.Exec(ctx, query)
@@ -225,14 +225,14 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 	return nil
 }
 
-func (acc *Accounts) selectQuery(page *common.Pages) sq.SelectBuilder {
+func (acc *Accounts) selectQuery(page *commonpb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(acc.storage, page,
-		iam.Account_Id,
-		iam.Account_Credentials,
-		iam.Account_Username,
-		iam.Account_Email,
-		iam.Account_UserId,
-		iam.Account_Password,
+		iampb.Account_Id,
+		iampb.Account_Credentials,
+		iampb.Account_Username,
+		iampb.Account_Email,
+		iampb.Account_UserId,
+		iampb.Account_Password,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -255,7 +255,7 @@ func scan(rows dbx.Rows) ([]*AccountX, error) {
 
 func scanOne(row dbx.Row) (*AccountX, error) {
 	var createdAt, updatedAt time.Time
-	account := AccountX{Account: &iam.Account{}}
+	account := AccountX{Account: &iampb.Account{}}
 
 	err := row.Scan(
 		&account.Id,
@@ -271,7 +271,7 @@ func scanOne(row dbx.Row) (*AccountX, error) {
 		return nil, err
 	}
 
-	account.Metadata = &modelpb.Metadata{
+	account.Metadata = &commonpb.Metadata{
 		CreatedAt: timestamppb.New(createdAt),
 		UpdatedAt: timestamppb.New(updatedAt),
 	}

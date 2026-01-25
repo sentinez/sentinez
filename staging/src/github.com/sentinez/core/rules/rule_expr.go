@@ -16,7 +16,7 @@ package corerule
 
 import (
 	chttp "github.com/sentinez/core/http"
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
 type tx struct {

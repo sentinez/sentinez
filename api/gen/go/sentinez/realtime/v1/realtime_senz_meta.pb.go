@@ -6,31 +6,31 @@ package realtimepb
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ common.Empty
+	_ commonpb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_realtime = &common.XMeta{
+var metadata_realtime = &commonpb.XMeta{
 	ServiceName: "SENTINEZ // REALTIME",
-	ServiceKind: common.Kind_KIND_GATEWAY_WEBSOCKET,
+	ServiceKind: commonpb.Kind_KIND_GATEWAY_WEBSOCKET,
 	ServiceKey:  "sentinez.realtime.v1",
 }
 
-func GetMetaRealtime() *common.XMeta {
-	return proto.Clone(metadata_realtime).(*common.XMeta)
+func GetMetaRealtime() *commonpb.XMeta {
+	return proto.Clone(metadata_realtime).(*commonpb.XMeta)
 }
 
 func GetMetaRealtimeServiceName() string {
 	return metadata_realtime.GetServiceName()
 }
 
-func GetMetaRealtimeServiceKind() common.Kind {
+func GetMetaRealtimeServiceKind() commonpb.Kind {
 	return metadata_realtime.GetServiceKind()
 }
 

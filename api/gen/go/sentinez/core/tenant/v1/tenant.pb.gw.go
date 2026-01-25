@@ -2,11 +2,11 @@
 // source: sentinez/core/tenant/v1/tenant.proto
 
 /*
-Package tenant is a reverse proxy.
+Package tenantpb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package tenant
+package tenantpb
 
 import (
 	"context"

@@ -18,13 +18,13 @@ import (
 	"fmt"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"
 )
 
-func NewServer(meta *common.XMeta) *WebSocket {
+func NewServer(meta *commonpb.XMeta) *WebSocket {
 	return &WebSocket{
 		routers: sync.Map[string, func(corehttp.Context) error]{},
 		meta:    meta,
@@ -33,7 +33,7 @@ func NewServer(meta *common.XMeta) *WebSocket {
 
 type WebSocket struct {
 	routers sync.Map[string, func(corehttp.Context) error]
-	meta    *common.XMeta
+	meta    *commonpb.XMeta
 }
 
 func (ws *WebSocket) HandlerFunc(

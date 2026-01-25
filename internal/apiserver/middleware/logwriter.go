@@ -18,7 +18,7 @@ import (
 	"net/http"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -42,7 +42,7 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
 	logger := zlog.NewJSONLogger(
 		apiserver.GetMetaApiserverServiceKey(),
-		common.LogKind_LOG_KIND_HTTP,
+		commonpb.LogKind_LOG_KIND_HTTP,
 		zlog.LevelInfo,
 	)
 	return &logResponseWriter{w, http.StatusOK, logger}

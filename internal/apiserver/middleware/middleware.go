@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strings"
 
-	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/http/v1"
+	requestpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/request/v1"
 	"github.com/sentinez/shared/color"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/grpc/grpclog"
@@ -61,7 +61,7 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		lw.Logger.Info("allow http request", &httppb.RequestEvent{
+		lw.Logger.Info("allow http request", &requestpb.RequestEvent{
 			Scheme:        r.URL.Scheme,
 			Host:          r.Host,
 			Path:          r.URL.Path,

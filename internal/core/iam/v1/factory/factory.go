@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/api/client"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamhdl "github.com/sentinez/sentinez/internal/core/iam/v1/handler"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
@@ -33,7 +33,7 @@ import (
 
 // nolint:funlen
 func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
-) iam.IdentityAccessManagementServiceServer {
+) iampb.IdentityAccessManagementServiceServer {
 
 	service := NewDefaultService(ctx, appConf)
 

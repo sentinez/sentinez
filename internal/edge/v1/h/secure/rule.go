@@ -18,7 +18,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/internal/shared/mem/ruleengine"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
@@ -31,7 +31,7 @@ func NewRule(ll zlog.Level) chains.Handler {
 		ingress:     corerules.NewIngress(),
 		logger: zlog.NewJSONLogger(
 			edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_RULE, ll,
+			commonpb.LogKind_LOG_KIND_RULE, ll,
 		),
 	}
 }

@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 )

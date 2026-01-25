@@ -22,22 +22,22 @@ import (
 
 	"github.com/sentinez/shared/zlog"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 )
 
 // New creates a new Greeter module.
-func New() greeter.GreeterServiceServer {
+func New() greeterpb.GreeterServiceServer {
 	return &Greeter{}
 }
 
 // Greeter is the module for Greeter.
 type Greeter struct {
-	greeter.UnimplementedGreeterServiceServer
+	greeterpb.UnimplementedGreeterServiceServer
 }
 
 // SayHello implements GreeterServer.
 func (g *Greeter) SayHello(_ context.Context,
-	msg *greeter.SayHelloRequest) (*greeter.SayHelloResponse, error) {
+	msg *greeterpb.SayHelloRequest) (*greeterpb.SayHelloResponse, error) {
 
 	zlog.Debugf("greeter.SayHello: req = %v", msg)
 
@@ -45,21 +45,21 @@ func (g *Greeter) SayHello(_ context.Context,
 		msg.Name, time.Now().Format(time.DateTime),
 	)
 
-	return &greeter.SayHelloResponse{
+	return &greeterpb.SayHelloResponse{
 		Message: resp,
 	}, nil
 }
 
 // Status healthcheck for consul
 func (g *Greeter) Status(ctx context.Context,
-	msg *greeter.StatusRequest) (*greeter.StatusResponse, error) {
+	msg *greeterpb.StatusRequest) (*greeterpb.StatusResponse, error) {
 
 	zlog.Debugf("greeter.Status: req = %v", msg)
 
 	_ = ctx
 	_ = msg
 
-	return &greeter.StatusResponse{
+	return &greeterpb.StatusResponse{
 		Message: "ok",
 	}, nil
 }

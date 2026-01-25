@@ -15,7 +15,7 @@
 package h
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/ratelimiter"
 	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"

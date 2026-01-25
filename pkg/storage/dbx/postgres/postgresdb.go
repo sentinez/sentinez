@@ -23,8 +23,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/query"
@@ -33,7 +33,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ dbx.Database[common.Empty] = (*postgres[common.Empty])(nil)
+var _ dbx.Database[commonpb.Empty] = (*postgres[commonpb.Empty])(nil)
 
 var (
 	pool *pgxpool.Pool

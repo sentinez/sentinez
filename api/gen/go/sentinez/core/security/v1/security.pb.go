@@ -23,7 +23,7 @@ package securitypb
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -203,9 +203,9 @@ var File_sentinez_core_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a&sentinez/types/common/v1/options.proto\x1a.sentinez/types/rule/engine/v1/ruleengine.proto\"Q\n" +
-	"\x16CreateRuleBasedRequest\x127\n" +
-	"\x04rule\x18\x01 \x01(\v2#.sentinez.types.rule.engine.v1.RuleR\x04rule\"\x19\n" +
+	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a&sentinez/types/common/v1/options.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"W\n" +
+	"\x16CreateRuleBasedRequest\x12=\n" +
+	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\"\x19\n" +
 	"\x17CreateRuleBasedResponse\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
@@ -241,10 +241,10 @@ var file_sentinez_core_security_v1_security_proto_goTypes = []any{
 	(*CreateRuleBasedResponse)(nil), // 1: sentinez.core.security.v1.CreateRuleBasedResponse
 	(*StatusRequest)(nil),           // 2: sentinez.core.security.v1.StatusRequest
 	(*StatusResponse)(nil),          // 3: sentinez.core.security.v1.StatusResponse
-	(*v1.Rule)(nil),                 // 4: sentinez.types.rule.engine.v1.Rule
+	(*v1.Rule)(nil),                 // 4: sentinez.types.secure.ruleengine.v1.Rule
 }
 var file_sentinez_core_security_v1_security_proto_depIdxs = []int32{
-	4, // 0: sentinez.core.security.v1.CreateRuleBasedRequest.rule:type_name -> sentinez.types.rule.engine.v1.Rule
+	4, // 0: sentinez.core.security.v1.CreateRuleBasedRequest.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
 	0, // 1: sentinez.core.security.v1.SecurityService.CreateRuleBased:input_type -> sentinez.core.security.v1.CreateRuleBasedRequest
 	2, // 2: sentinez.core.security.v1.SecurityService.Status:input_type -> sentinez.core.security.v1.StatusRequest
 	1, // 3: sentinez.core.security.v1.SecurityService.CreateRuleBased:output_type -> sentinez.core.security.v1.CreateRuleBasedResponse

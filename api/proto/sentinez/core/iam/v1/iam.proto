@@ -26,7 +26,7 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iam";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iampb";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {

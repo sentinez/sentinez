@@ -2,7 +2,7 @@
 // protoc-gen-go-vtproto version: v0.6.0
 // source: sentinez/types/common/v1/options.proto
 
-package common
+package commonpb
 
 import (
 	fmt "fmt"

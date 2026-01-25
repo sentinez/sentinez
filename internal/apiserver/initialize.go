@@ -17,7 +17,7 @@ package apiserver
 import (
 	"context"
 
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apiserver/middleware"
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"

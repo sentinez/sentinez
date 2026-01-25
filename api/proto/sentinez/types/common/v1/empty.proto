@@ -15,6 +15,6 @@
 syntax = "proto3";
 
 package sentinez.types.common.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;common";
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1;commonpb";
 
 message Empty {}

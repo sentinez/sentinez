@@ -18,7 +18,7 @@
 // - protoc             v6.33.2
 // source: sentinez/core/iam/v1/iam.proto
 
-package iam
+package iampb
 
 import (
 	context "context"

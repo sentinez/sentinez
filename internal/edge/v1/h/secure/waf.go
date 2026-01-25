@@ -22,8 +22,8 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	"github.com/sentinez/sentinez/internal/shared/mem/wafengine"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
@@ -35,7 +35,7 @@ func NewWAF(logLevel zlog.Level) chains.Handler {
 	return &WAF{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_WAF, logLevel,
+			commonpb.LogKind_LOG_KIND_WAF, logLevel,
 		),
 		cached: mem.New[[]byte](time.Second*30, time.Second*31),
 	}
@@ -97,7 +97,7 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 	}
 
 	if data, ok := w.cached.Get(httpxcmn.GenContextKey(ctx)); ok {
-		var event rulecmn.Event
+		var event ruleeventpb.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
 		}
@@ -129,7 +129,7 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		}
 	}
 
-	event := &rulecmn.Event{
+	event := &ruleeventpb.Event{
 		RuleIds:       ruleIDs,
 		Severities:    severities,
 		Messages:      msgs,
@@ -138,8 +138,8 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		Ip:            ctx.RequestIP(),
 		RequestDomain: ctx.Host(),
 		TransactionId: ruleset.GetTxId(),
-		Service:       rulecmn.Service_SERVICE_RULE_CORE_RULESETS,
-		Action:        rulecmn.Action_ACTION_DENY,
+		Service:       ruleeventpb.Service_SERVICE_RULE_CORE_RULESETS,
+		Action:        ruleeventpb.Action_ACTION_DENY,
 		RequestTime:   ctx.RequestTime().UnixMilli(),
 		HttpReqId:     ctx.RequestId(),
 		ContentType:   ctx.Header(corehttp.HeaderContentType),

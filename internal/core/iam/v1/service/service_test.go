@@ -20,9 +20,9 @@ import (
 	"testing"
 
 	"github.com/pashagolub/pgxmock/v2"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
@@ -42,7 +42,7 @@ func TestLogin(t *testing.T) {
 
 	pw, _ := crypto.HashPassword("secret123")
 	acc := &accrepos.AccountX{
-		Account: &iam.Account{
+		Account: &iampb.Account{
 			Id:       "acc-123",
 			UserId:   "user-123",
 			Username: "admin",
@@ -52,7 +52,7 @@ func TestLogin(t *testing.T) {
 	accountRepo.On("GetByUsernameOrEmail", mock.Anything, "admin").
 		Return(acc, nil)
 
-	user := &iam.User{
+	user := &iampb.User{
 		Id:       "user-123",
 		FullName: "Test Admin",
 	}
@@ -75,7 +75,7 @@ func TestLogin(t *testing.T) {
 
 	svc := New(conf, txss, nil, userRepo, accountRepo)
 
-	req := &iam.LoginRequest{
+	req := &iampb.LoginRequest{
 		EmailOrUsername: "admin",
 		Password:        "secret123",
 	}
@@ -93,5 +93,5 @@ func TestLogin(t *testing.T) {
 	}
 
 	assert.True(t, perms.Has(
-		tokenCtx.PermissionBitwise, common.Permission_PERMISSION_ROOT))
+		tokenCtx.PermissionBitwise, commonpb.Permission_PERMISSION_ROOT))
 }

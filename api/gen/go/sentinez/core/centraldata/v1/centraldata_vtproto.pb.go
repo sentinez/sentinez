@@ -2,7 +2,7 @@
 // protoc-gen-go-vtproto version: v0.6.0
 // source: sentinez/core/centraldata/v1/centraldata.proto
 
-package centraldata
+package centraldatapb
 
 import (
 	fmt "fmt"

@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/config"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	edgeflags "github.com/sentinez/sentinez/cmd/edge/v1/apps/flags"
 )
 

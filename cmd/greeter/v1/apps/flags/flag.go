@@ -18,8 +18,8 @@ package flags
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
 	"github.com/sentinez/sentinez/pkg/common/flagx"
 	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
@@ -35,7 +35,7 @@ func Parse() *flagspb.Flag {
 		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
-		flagx.Parse(greeter.GetMetaGreeter())
+		flagx.Parse(greeterpb.GetMetaGreeter())
 
 	})
 

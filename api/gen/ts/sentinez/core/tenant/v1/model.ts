@@ -15,7 +15,7 @@ import {
   Status,
   statusFromJSON,
   statusToJSON,
-} from "../../../types/model/v1/metadata";
+} from "../../../types/common/v1/meta";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 

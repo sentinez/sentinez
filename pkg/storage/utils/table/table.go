@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/sentinez/sentinez"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 )
 
 func NewTable(appConf *confpb.Config, tableName string) string {
