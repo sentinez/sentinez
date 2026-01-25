@@ -123,7 +123,7 @@ var File_sentinez_types_secure_ruleevent_v1_types_proto protoreflect.FileDescrip
 
 const file_sentinez_types_secure_ruleevent_v1_types_proto_rawDesc = "" +
 	"\n" +
-	".sentinez/types/secure/ruleevent/v1/types.proto\x12\x1csentinez.secure.ruleevent.v1*~\n" +
+	".sentinez/types/secure/ruleevent/v1/types.proto\x12\"sentinez.types.secure.ruleevent.v1*~\n" +
 	"\aService\x12\x17\n" +
 	"\x13SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aSERVICE_RULE_CORE_RULESETS\x10\x01\x12\x1d\n" +
@@ -147,8 +147,8 @@ func file_sentinez_types_secure_ruleevent_v1_types_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secure_ruleevent_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_sentinez_types_secure_ruleevent_v1_types_proto_goTypes = []any{
-	(Service)(0), // 0: sentinez.secure.ruleevent.v1.Service
-	(Action)(0),  // 1: sentinez.secure.ruleevent.v1.Action
+	(Service)(0), // 0: sentinez.types.secure.ruleevent.v1.Service
+	(Action)(0),  // 1: sentinez.types.secure.ruleevent.v1.Action
 }
 var file_sentinez_types_secure_ruleevent_v1_types_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

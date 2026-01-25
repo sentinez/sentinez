@@ -33,8 +33,8 @@ type Event struct {
 	RequestDomain string                 `protobuf:"bytes,7,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
 	TransactionId string                 `protobuf:"bytes,8,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	RequestTime   int64                  `protobuf:"varint,9,opt,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"` // milisec
-	Service       Service                `protobuf:"varint,10,opt,name=service,proto3,enum=sentinez.secure.ruleevent.v1.Service" json:"service,omitempty"`
-	Action        Action                 `protobuf:"varint,11,opt,name=action,proto3,enum=sentinez.secure.ruleevent.v1.Action" json:"action,omitempty"`
+	Service       Service                `protobuf:"varint,10,opt,name=service,proto3,enum=sentinez.types.secure.ruleevent.v1.Service" json:"service,omitempty"`
+	Action        Action                 `protobuf:"varint,11,opt,name=action,proto3,enum=sentinez.types.secure.ruleevent.v1.Action" json:"action,omitempty"`
 	HttpReqId     string                 `protobuf:"bytes,12,opt,name=http_req_id,json=httpReqId,proto3" json:"http_req_id,omitempty"`
 	ContentType   string                 `protobuf:"bytes,13,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -166,7 +166,7 @@ var File_sentinez_types_secure_ruleevent_v1_event_proto protoreflect.FileDescrip
 
 const file_sentinez_types_secure_ruleevent_v1_event_proto_rawDesc = "" +
 	"\n" +
-	".sentinez/types/secure/ruleevent/v1/event.proto\x12\x1csentinez.secure.ruleevent.v1\x1a&sentinez/types/common/v1/options.proto\x1a.sentinez/types/secure/ruleevent/v1/types.proto\"\xd3\x03\n" +
+	".sentinez/types/secure/ruleevent/v1/event.proto\x12\"sentinez.types.secure.ruleevent.v1\x1a&sentinez/types/common/v1/options.proto\x1a.sentinez/types/secure/ruleevent/v1/types.proto\"\xdf\x03\n" +
 	"\x05Event\x12\x19\n" +
 	"\brule_ids\x18\x01 \x03(\x05R\aruleIds\x12\x1e\n" +
 	"\n" +
@@ -178,10 +178,10 @@ const file_sentinez_types_secure_ruleevent_v1_event_proto_rawDesc = "" +
 	"\x02ip\x18\x06 \x01(\tR\x02ip\x12%\n" +
 	"\x0erequest_domain\x18\a \x01(\tR\rrequestDomain\x12%\n" +
 	"\x0etransaction_id\x18\b \x01(\tR\rtransactionId\x12!\n" +
-	"\frequest_time\x18\t \x01(\x03R\vrequestTime\x12?\n" +
+	"\frequest_time\x18\t \x01(\x03R\vrequestTime\x12E\n" +
 	"\aservice\x18\n" +
-	" \x01(\x0e2%.sentinez.secure.ruleevent.v1.ServiceR\aservice\x12<\n" +
-	"\x06action\x18\v \x01(\x0e2$.sentinez.secure.ruleevent.v1.ActionR\x06action\x12\x1e\n" +
+	" \x01(\x0e2+.sentinez.types.secure.ruleevent.v1.ServiceR\aservice\x12B\n" +
+	"\x06action\x18\v \x01(\x0e2*.sentinez.types.secure.ruleevent.v1.ActionR\x06action\x12\x1e\n" +
 	"\vhttp_req_id\x18\f \x01(\tR\thttpReqId\x12!\n" +
 	"\fcontent_type\x18\r \x01(\tR\vcontentType:\x06\xca\xf3\x18\x02\b\x01BXZVgithub.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1;ruleeventpbb\x06proto3"
 
@@ -199,13 +199,13 @@ func file_sentinez_types_secure_ruleevent_v1_event_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secure_ruleevent_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_secure_ruleevent_v1_event_proto_goTypes = []any{
-	(*Event)(nil), // 0: sentinez.secure.ruleevent.v1.Event
-	(Service)(0),  // 1: sentinez.secure.ruleevent.v1.Service
-	(Action)(0),   // 2: sentinez.secure.ruleevent.v1.Action
+	(*Event)(nil), // 0: sentinez.types.secure.ruleevent.v1.Event
+	(Service)(0),  // 1: sentinez.types.secure.ruleevent.v1.Service
+	(Action)(0),   // 2: sentinez.types.secure.ruleevent.v1.Action
 }
 var file_sentinez_types_secure_ruleevent_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.secure.ruleevent.v1.Event.service:type_name -> sentinez.secure.ruleevent.v1.Service
-	2, // 1: sentinez.secure.ruleevent.v1.Event.action:type_name -> sentinez.secure.ruleevent.v1.Action
+	1, // 0: sentinez.types.secure.ruleevent.v1.Event.service:type_name -> sentinez.types.secure.ruleevent.v1.Service
+	2, // 1: sentinez.types.secure.ruleevent.v1.Event.action:type_name -> sentinez.types.secure.ruleevent.v1.Action
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package sentinez.secure.ruleevent.v1;
+package sentinez.types.secure.ruleevent.v1;
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1;ruleeventpb";
 

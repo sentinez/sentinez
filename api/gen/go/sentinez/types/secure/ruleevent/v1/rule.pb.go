@@ -349,20 +349,20 @@ var File_sentinez_types_secure_ruleevent_v1_rule_proto protoreflect.FileDescript
 
 const file_sentinez_types_secure_ruleevent_v1_rule_proto_rawDesc = "" +
 	"\n" +
-	"-sentinez/types/secure/ruleevent/v1/rule.proto\x12\x1csentinez.secure.ruleevent.v1\"v\n" +
+	"-sentinez/types/secure/ruleevent/v1/rule.proto\x12\"sentinez.types.secure.ruleevent.v1\"|\n" +
 	"\fCoreRulesets\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x128\n" +
-	"\x05rules\x18\x02 \x03(\v2\".sentinez.secure.ruleevent.v1.RuleR\x05rules\x12\x18\n" +
-	"\aversion\x18\x03 \x01(\tR\aversion\"\x86\x01\n" +
-	"\x04Rule\x12B\n" +
-	"\aactions\x18\x01 \x01(\v2(.sentinez.secure.ruleevent.v1.RuleActionR\aactions\x12$\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12>\n" +
+	"\x05rules\x18\x02 \x03(\v2(.sentinez.types.secure.ruleevent.v1.RuleR\x05rules\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\tR\aversion\"\x8c\x01\n" +
+	"\x04Rule\x12H\n" +
+	"\aactions\x18\x01 \x01(\v2..sentinez.types.secure.ruleevent.v1.RuleActionR\aactions\x12$\n" +
 	"\rconfiguration\x18\x02 \x01(\tR\rconfiguration\x12\x14\n" +
-	"\x05level\x18\x03 \x01(\tR\x05level\"\xb7\x01\n" +
+	"\x05level\x18\x03 \x01(\tR\x05level\"\xc3\x01\n" +
 	"\n" +
 	"RuleAction\x12\x1c\n" +
-	"\tstatement\x18\x01 \x01(\tR\tstatement\x12D\n" +
-	"\bchildren\x18\x02 \x01(\v2(.sentinez.secure.ruleevent.v1.RuleActionR\bchildren\x12E\n" +
-	"\x06fields\x18\x03 \x01(\v2-.sentinez.secure.ruleevent.v1.RuleActionFieldR\x06fields\"\xc9\x01\n" +
+	"\tstatement\x18\x01 \x01(\tR\tstatement\x12J\n" +
+	"\bchildren\x18\x02 \x01(\v2..sentinez.types.secure.ruleevent.v1.RuleActionR\bchildren\x12K\n" +
+	"\x06fields\x18\x03 \x01(\v23.sentinez.types.secure.ruleevent.v1.RuleActionFieldR\x06fields\"\xc9\x01\n" +
 	"\x0fRuleActionField\x12\x0e\n" +
 	"\x02id\x18\x01 \x03(\tR\x02id\x12\x18\n" +
 	"\alogdata\x18\x02 \x03(\tR\alogdata\x12\x10\n" +
@@ -389,17 +389,17 @@ func file_sentinez_types_secure_ruleevent_v1_rule_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secure_ruleevent_v1_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_sentinez_types_secure_ruleevent_v1_rule_proto_goTypes = []any{
-	(*CoreRulesets)(nil),    // 0: sentinez.secure.ruleevent.v1.CoreRulesets
-	(*Rule)(nil),            // 1: sentinez.secure.ruleevent.v1.Rule
-	(*RuleAction)(nil),      // 2: sentinez.secure.ruleevent.v1.RuleAction
-	(*RuleActionField)(nil), // 3: sentinez.secure.ruleevent.v1.RuleActionField
-	(*RuleSettings)(nil),    // 4: sentinez.secure.ruleevent.v1.RuleSettings
+	(*CoreRulesets)(nil),    // 0: sentinez.types.secure.ruleevent.v1.CoreRulesets
+	(*Rule)(nil),            // 1: sentinez.types.secure.ruleevent.v1.Rule
+	(*RuleAction)(nil),      // 2: sentinez.types.secure.ruleevent.v1.RuleAction
+	(*RuleActionField)(nil), // 3: sentinez.types.secure.ruleevent.v1.RuleActionField
+	(*RuleSettings)(nil),    // 4: sentinez.types.secure.ruleevent.v1.RuleSettings
 }
 var file_sentinez_types_secure_ruleevent_v1_rule_proto_depIdxs = []int32{
-	1, // 0: sentinez.secure.ruleevent.v1.CoreRulesets.rules:type_name -> sentinez.secure.ruleevent.v1.Rule
-	2, // 1: sentinez.secure.ruleevent.v1.Rule.actions:type_name -> sentinez.secure.ruleevent.v1.RuleAction
-	2, // 2: sentinez.secure.ruleevent.v1.RuleAction.children:type_name -> sentinez.secure.ruleevent.v1.RuleAction
-	3, // 3: sentinez.secure.ruleevent.v1.RuleAction.fields:type_name -> sentinez.secure.ruleevent.v1.RuleActionField
+	1, // 0: sentinez.types.secure.ruleevent.v1.CoreRulesets.rules:type_name -> sentinez.types.secure.ruleevent.v1.Rule
+	2, // 1: sentinez.types.secure.ruleevent.v1.Rule.actions:type_name -> sentinez.types.secure.ruleevent.v1.RuleAction
+	2, // 2: sentinez.types.secure.ruleevent.v1.RuleAction.children:type_name -> sentinez.types.secure.ruleevent.v1.RuleAction
+	3, // 3: sentinez.types.secure.ruleevent.v1.RuleAction.fields:type_name -> sentinez.types.secure.ruleevent.v1.RuleActionField
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

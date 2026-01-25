@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package sentinez.secure.ruleevent.v1;
+package sentinez.types.secure.ruleevent.v1;
 
 import "sentinez/types/common/v1/options.proto";
 import "sentinez/types/secure/ruleevent/v1/types.proto";
