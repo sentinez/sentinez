@@ -2,14 +2,14 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/rule/engine/v1/ruleengine.proto
+// source: sentinez/types/secure/ruleengine/v1/ruleengine.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Struct, Value } from "../../../../../google/protobuf/struct";
 import { Timestamp } from "../../../../../google/protobuf/timestamp";
 
-export const protobufPackage = "sentinez.types.rule.engine.v1";
+export const protobufPackage = "sentinez.types.secure.ruleengine.v1";
 
 /** The possible sources from which a field can be extracted in a request */
 export enum FieldSource {

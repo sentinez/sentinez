@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Metadata } from "../../../types/model/v1/metadata";
+import { Metadata } from "../../../types/common/v1/meta";
 
 export const protobufPackage = "sentinez.core.analytic.v1";
 

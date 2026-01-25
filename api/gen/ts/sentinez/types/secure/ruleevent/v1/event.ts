@@ -2,13 +2,13 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/rule/common/v1/event.proto
+// source: sentinez/types/secure/ruleevent/v1/event.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Action, actionFromJSON, actionToJSON, Service, serviceFromJSON, serviceToJSON } from "./types";
 
-export const protobufPackage = "sentinez.types.rule.common.v1";
+export const protobufPackage = "sentinez.types.secure.ruleevent.v1";
 
 export interface Event {
   ruleIds: number[];

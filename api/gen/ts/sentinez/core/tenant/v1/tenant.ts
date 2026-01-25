@@ -6,8 +6,15 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Pages } from "../../../types/common/v1/meta";
-import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/model/v1/metadata";
+import {
+  Pages,
+  Plan,
+  planFromJSON,
+  planToJSON,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+} from "../../../types/common/v1/meta";
 import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";

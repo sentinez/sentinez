@@ -2,14 +2,14 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/conf/v1/config.proto
+// source: sentinez/types/setting/conf/v1/config.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { XMeta } from "../../common/v1/options";
-import { Flag } from "../../flags/v1/flags";
+import { XMeta } from "../../../common/v1/options";
+import { Flag } from "../../flag/v1/flags";
 
-export const protobufPackage = "sentinez.types.conf.v1";
+export const protobufPackage = "sentinez.types.setting.conf.v1";
 
 export interface EnvConfig {
   /**

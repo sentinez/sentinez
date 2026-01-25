@@ -6,13 +6,103 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Timestamp } from "../../../../google/protobuf/timestamp";
 
 export const protobufPackage = "sentinez.types.common.v1";
+
+export enum Status {
+  STATUS_UNSPECIFIED = 0,
+  STATUS_ACTIVE = 1,
+  STATUS_DISABLE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function statusFromJSON(object: any): Status {
+  switch (object) {
+    case 0:
+    case "STATUS_UNSPECIFIED":
+      return Status.STATUS_UNSPECIFIED;
+    case 1:
+    case "STATUS_ACTIVE":
+      return Status.STATUS_ACTIVE;
+    case 2:
+    case "STATUS_DISABLE":
+      return Status.STATUS_DISABLE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Status.UNRECOGNIZED;
+  }
+}
+
+export function statusToJSON(object: Status): string {
+  switch (object) {
+    case Status.STATUS_UNSPECIFIED:
+      return "STATUS_UNSPECIFIED";
+    case Status.STATUS_ACTIVE:
+      return "STATUS_ACTIVE";
+    case Status.STATUS_DISABLE:
+      return "STATUS_DISABLE";
+    case Status.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum Plan {
+  PLAN_UNSPECIFIED = 0,
+  PLAN_FREE = 1,
+  PLAN_STANDARD = 2,
+  PLAN_PRO = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function planFromJSON(object: any): Plan {
+  switch (object) {
+    case 0:
+    case "PLAN_UNSPECIFIED":
+      return Plan.PLAN_UNSPECIFIED;
+    case 1:
+    case "PLAN_FREE":
+      return Plan.PLAN_FREE;
+    case 2:
+    case "PLAN_STANDARD":
+      return Plan.PLAN_STANDARD;
+    case 3:
+    case "PLAN_PRO":
+      return Plan.PLAN_PRO;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Plan.UNRECOGNIZED;
+  }
+}
+
+export function planToJSON(object: Plan): string {
+  switch (object) {
+    case Plan.PLAN_UNSPECIFIED:
+      return "PLAN_UNSPECIFIED";
+    case Plan.PLAN_FREE:
+      return "PLAN_FREE";
+    case Plan.PLAN_STANDARD:
+      return "PLAN_STANDARD";
+    case Plan.PLAN_PRO:
+      return "PLAN_PRO";
+    case Plan.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
 
 export interface Pages {
   index: number;
   size: number;
   total: boolean;
+}
+
+export interface Metadata {
+  createdAt?: Date | undefined;
+  updatedAt?: Date | undefined;
 }
 
 function createBasePages(): Pages {
@@ -107,6 +197,82 @@ export const Pages: MessageFns<Pages> = {
   },
 };
 
+function createBaseMetadata(): Metadata {
+  return { createdAt: undefined, updatedAt: undefined };
+}
+
+export const Metadata: MessageFns<Metadata> = {
+  encode(message: Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.createdAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(10).fork()).join();
+    }
+    if (message.updatedAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Metadata {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMetadata();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.createdAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Metadata {
+    return {
+      createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
+      updatedAt: isSet(object.updatedAt) ? fromJsonTimestamp(object.updatedAt) : undefined,
+    };
+  },
+
+  toJSON(message: Metadata): unknown {
+    const obj: any = {};
+    if (message.createdAt !== undefined) {
+      obj.createdAt = message.createdAt.toISOString();
+    }
+    if (message.updatedAt !== undefined) {
+      obj.updatedAt = message.updatedAt.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Metadata>, I>>(base?: I): Metadata {
+    return Metadata.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata {
+    const message = createBaseMetadata();
+    message.createdAt = object.createdAt ?? undefined;
+    message.updatedAt = object.updatedAt ?? undefined;
+    return message;
+  },
+};
+
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
@@ -118,6 +284,28 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function toTimestamp(date: Date): Timestamp {
+  const seconds = Math.trunc(date.getTime() / 1_000);
+  const nanos = (date.getTime() % 1_000) * 1_000_000;
+  return { seconds, nanos };
+}
+
+function fromTimestamp(t: Timestamp): Date {
+  let millis = (t.seconds || 0) * 1_000;
+  millis += (t.nanos || 0) / 1_000_000;
+  return new globalThis.Date(millis);
+}
+
+function fromJsonTimestamp(o: any): Date {
+  if (o instanceof globalThis.Date) {
+    return o;
+  } else if (typeof o === "string") {
+    return new globalThis.Date(o);
+  } else {
+    return fromTimestamp(Timestamp.fromJSON(o));
+  }
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

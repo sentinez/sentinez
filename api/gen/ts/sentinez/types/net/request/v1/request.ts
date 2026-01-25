@@ -2,12 +2,12 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/net/http/v1/http.proto
+// source: sentinez/types/net/request/v1/request.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-export const protobufPackage = "sentinez.types.net.http.v1";
+export const protobufPackage = "sentinez.types.net.request.v1";
 
 export interface RequestHeader {
   key: string;
