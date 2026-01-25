@@ -19,15 +19,15 @@ import (
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/client/options"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 )
 
 func NewIAM(opt *options.Options,
-) (iam.IdentityAccessManagementServiceClient, error) {
+) (iampb.IdentityAccessManagementServiceClient, error) {
 
-	srv, err := discovery.GetDiscovery(opt).Discover(iam.GetMetaIamServiceKey())
+	srv, err := discovery.GetDiscovery(opt).Discover(iampb.GetMetaIamServiceKey())
 	if err != nil {
 		return nil, err
 	}
@@ -37,22 +37,22 @@ func NewIAM(opt *options.Options,
 		return nil, err
 	}
 
-	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+	return iampb.NewIdentityAccessManagementServiceClient(conn), nil
 }
 
-func NewLocalIAM(hdl iam.IdentityAccessManagementServiceServer,
-) (iam.IdentityAccessManagementServiceClient, error) {
+func NewLocalIAM(hdl iampb.IdentityAccessManagementServiceServer,
+) (iampb.IdentityAccessManagementServiceClient, error) {
 
 	bufLis := local.RegisterServiceServer(
-		iam.GetMetaIamServiceKey(), hdl,
-		iam.RegisterIdentityAccessManagementServiceServer)
+		iampb.GetMetaIamServiceKey(), hdl,
+		iampb.RegisterIdentityAccessManagementServiceServer)
 
 	conn, err := connection.BufConn(bufLis)
 	if err != nil {
 		return nil, err
 	}
 
-	return iam.NewIdentityAccessManagementServiceClient(conn), nil
+	return iampb.NewIdentityAccessManagementServiceClient(conn), nil
 }
 
 func NewLocalEdgeEngine(hdl edgepb.EdgeEngineServiceServer,
@@ -69,17 +69,17 @@ func NewLocalEdgeEngine(hdl edgepb.EdgeEngineServiceServer,
 	return edgepb.NewEdgeEngineServiceClient(conn), nil
 }
 
-func NewLocalGreeter(hdl greeter.GreeterServiceServer,
-) (greeter.GreeterServiceClient, error) {
+func NewLocalGreeter(hdl greeterpb.GreeterServiceServer,
+) (greeterpb.GreeterServiceClient, error) {
 
 	bufLis := local.RegisterServiceServer(
-		greeter.GetMetaGreeterServiceKey(), hdl,
-		greeter.RegisterGreeterServiceServer)
+		greeterpb.GetMetaGreeterServiceKey(), hdl,
+		greeterpb.RegisterGreeterServiceServer)
 
 	conn, err := connection.BufConn(bufLis)
 	if err != nil {
 		return nil, err
 	}
 
-	return greeter.NewGreeterServiceClient(conn), nil
+	return greeterpb.NewGreeterServiceClient(conn), nil
 }

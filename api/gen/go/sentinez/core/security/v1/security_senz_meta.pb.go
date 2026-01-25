@@ -6,31 +6,31 @@ package securitypb
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ common.Empty
+	_ commonpb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_security = &common.XMeta{
+var metadata_security = &commonpb.XMeta{
 	ServiceName: "SENTINEZ // SECURITY",
-	ServiceKind: common.Kind_KIND_CORE,
+	ServiceKind: commonpb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.security.v1",
 }
 
-func GetMetaSecurity() *common.XMeta {
-	return proto.Clone(metadata_security).(*common.XMeta)
+func GetMetaSecurity() *commonpb.XMeta {
+	return proto.Clone(metadata_security).(*commonpb.XMeta)
 }
 
 func GetMetaSecurityServiceName() string {
 	return metadata_security.GetServiceName()
 }
 
-func GetMetaSecurityServiceKind() common.Kind {
+func GetMetaSecurityServiceKind() commonpb.Kind {
 	return metadata_security.GetServiceKind()
 }
 

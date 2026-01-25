@@ -6,14 +6,14 @@ var SentinezRuleFunc = `
 package rules
 
 import (
-	rulecmn "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/common/v1"
+	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 )
 
 {{ $outer := . }}
 
 const {{ .Name }}Version = {{ .Version | printf "%q" }}
 
-var {{ .Name }}Order = []func() *rulecmn.Rule{
+var {{ .Name }}Order = []func() *ruleeventpb.Rule{
 	{{- range $i, $rule := .Rules }}
 	{{- $ids := $rule.Actions.Fields.Id }}
 	{{- if $ids }}
@@ -24,7 +24,7 @@ var {{ .Name }}Order = []func() *rulecmn.Rule{
 	{{- end }}
 }
 
-var {{ .Name }} = map[string]*rulecmn.Rule{
+var {{ .Name }} = map[string]*ruleeventpb.Rule{
 	{{- range $i, $rule := .Rules }}
 	{{- $ids := $rule.Actions.Fields.Id }}
 	{{- if $ids }}
@@ -39,16 +39,16 @@ var {{ .Name }} = map[string]*rulecmn.Rule{
 {{- $ids := $rule.Actions.Fields.Id }}
 {{- if $ids }}
 // R{{ index $ids 0 }} returns rule with ID {{ index $ids 0 }}
-func R{{ index $ids 0 }}() *rulecmn.Rule {
+func R{{ index $ids 0 }}() *ruleeventpb.Rule {
 {{- else }}
 // {{ $.Name }}Maker_{{ $i }} returns rule without ID
-func {{ $.Name }}Maker_{{ $i }}() *rulecmn.Rule {
+func {{ $.Name }}Maker_{{ $i }}() *ruleeventpb.Rule {
 {{- end }}
-	return &rulecmn.Rule{
-		Actions: &rulecmn.RuleAction{
+	return &ruleeventpb.Rule{
+		Actions: &ruleeventpb.RuleAction{
 			Statement: {{ $rule.Actions.Statement | base64Encode | printf "%q" }},
 			{{- if $rule.Actions.Fields }}
-			Fields: &rulecmn.RuleActionField{
+			Fields: &ruleeventpb.RuleActionField{
 				{{- if $rule.Actions.Fields.Id }}Id: []string{ {{ range $rule.Actions.Fields.Id }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Msg }}Msg: []string{ {{ range $rule.Actions.Fields.Msg }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Phase }}Phase: []string{ {{ range $rule.Actions.Fields.Phase }}{{ printf "%q" . }},{{ end }} },{{ end }}

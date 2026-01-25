@@ -23,9 +23,9 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
@@ -39,7 +39,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var _ iam.IdentityAccessManagementServiceServer = (*IAMService)(nil)
+var _ iampb.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
 func New(config *confpb.Config,
 	tx *postgres.Tx,
@@ -69,11 +69,11 @@ type IAMService struct {
 	auth     *webauthn.WebAuthn
 }
 
-// PasskeyLoginVerify implements iam.IdentityAccessManagementServiceServer.
+// PasskeyLoginVerify implements iampb.IdentityAccessManagementServiceServer.
 // nolint:funlen
 func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
-	req *iam.PasskeyLoginVerifyRequest,
-) (*iam.PasskeyLoginVerifyResponse, error) {
+	req *iampb.PasskeyLoginVerifyRequest,
+) (*iampb.PasskeyLoginVerifyResponse, error) {
 
 	sid := req.GetSessionId()
 	ss, ok := srv.store.GetSession(sid)
@@ -125,10 +125,10 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
+		perm = perms.Add(perm, commonpb.Permission_PERMISSION_ROOT)
 	}
 	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&common.Context{
+		&commonpb.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),
@@ -139,17 +139,17 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 		return nil, err
 	}
 
-	return &iam.PasskeyLoginVerifyResponse{
+	return &iampb.PasskeyLoginVerifyResponse{
 		AccessToken: accessToken,
 		User:        user,
 	}, nil
 }
 
-// PasskeyLoginChallenge implements iam.IdentityAccessManagementServiceServer.
+// PasskeyLoginChallenge implements iampb.IdentityAccessManagementServiceServer.
 func (srv *IAMService) PasskeyLoginChallenge(
 	ctx context.Context,
-	req *iam.PasskeyLoginChallengeRequest,
-) (*iam.PasskeyLoginChallengeResponse, error) {
+	req *iampb.PasskeyLoginChallengeRequest,
+) (*iampb.PasskeyLoginChallengeResponse, error) {
 
 	zlog.Infof("PasskeyLoginChallenge req = %v", req)
 
@@ -173,37 +173,37 @@ func (srv *IAMService) PasskeyLoginChallenge(
 
 	opts := protox.Struct(options)
 
-	return &iam.PasskeyLoginChallengeResponse{
+	return &iampb.PasskeyLoginChallengeResponse{
 		SessionId: sid,
 		Options:   opts,
 	}, nil
 }
 
-// PasskeyRegisterVerify implements iam.IdentityAccessManagementServiceServer.
+// PasskeyRegisterVerify implements iampb.IdentityAccessManagementServiceServer.
 // nolint:funlen
 func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
-	req *iam.PasskeyRegisterVerifyRequest,
-) (*iam.PasskeyRegisterVerifyResponse, error) {
+	req *iampb.PasskeyRegisterVerifyRequest,
+) (*iampb.PasskeyRegisterVerifyResponse, error) {
 
 	ssId := req.GetSessionId()
 
-	zlog.Debugf("[iam][service][PasskeyRegisterVerify] get session=%s", ssId)
+	zlog.Debugf("[iampb][service][PasskeyRegisterVerify] get session=%s", ssId)
 	ss, ok := srv.store.GetSession(ssId)
 	if !ok {
-		zlog.Debug("iam: session not found")
+		zlog.Debug("iampb: session not found")
 		return nil, errorx.StatusNotFoundF("session not found=%s", ssId)
 	}
 
 	// ss.UserId is email, return by AccountX.WebAuthnID(), account_x.go
 	acc, err := srv.store.GetAndDeleteAccount(string(ss.UserID))
 	if err != nil {
-		zlog.Debugf("iam: get %s account err: %v", string(ss.UserID), err)
+		zlog.Debugf("iampb: get %s account err: %v", string(ss.UserID), err)
 		return nil, err
 	}
 
 	accX, err := srv.createAccountExtend(ctx, acc)
 	if err != nil {
-		zlog.Debugf("iam: create account extend: %v", err)
+		zlog.Debugf("iampb: create account extend: %v", err)
 		return nil, err
 	}
 
@@ -231,13 +231,13 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 
 	srv.store.DeleteSession(ssId)
 
-	return &iam.PasskeyRegisterVerifyResponse{}, nil
+	return &iampb.PasskeyRegisterVerifyResponse{}, nil
 }
 
-// PasskeyRegisterChallenge implements iam.IdentityAccessManagementServiceServer
+// PasskeyRegisterChallenge implements iampb.IdentityAccessManagementServiceServer
 func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
-	req *iam.PasskeyRegisterChallengeRequest,
-) (*iam.PasskeyRegisterChallengeResponse, error) {
+	req *iampb.PasskeyRegisterChallengeRequest,
+) (*iampb.PasskeyRegisterChallengeResponse, error) {
 
 	acc, err := srv.store.GetOrCreateAccount(req.GetEmailOrUsername())
 	if err != nil {
@@ -256,19 +256,19 @@ func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 			errorx.StatusInternalErrorF("can't generate session id: %v", err)
 	}
 
-	zlog.Debugf("[iam][service][PasskeyRegisterChallenge] save session=%s", t)
+	zlog.Debugf("[iampb][service][PasskeyRegisterChallenge] save session=%s", t)
 	srv.store.SaveSession(t, ss)
 
 	options := protox.Struct(opt)
 
-	return &iam.PasskeyRegisterChallengeResponse{
+	return &iampb.PasskeyRegisterChallengeResponse{
 		Options:   options,
 		SessionId: t,
 	}, nil
 }
 
 func (srv *IAMService) createAccountExtend(
-	ctx context.Context, account *iam.Account) (*accrepos.AccountX, error) {
+	ctx context.Context, account *iampb.Account) (*accrepos.AccountX, error) {
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
 	if err != nil && errorx.NotRowsNotFound(err) {
 		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
@@ -276,7 +276,7 @@ func (srv *IAMService) createAccountExtend(
 	}
 
 	if acc.GetId() == "" {
-		createReq := &iam.CreateAccountRequest{
+		createReq := &iampb.CreateAccountRequest{
 			Email:    account.GetEmail(),
 			Username: account.GetUsername(),
 		}
@@ -304,7 +304,7 @@ func (srv *IAMService) Config() *confpb.EnvConfig {
 }
 
 func (srv *IAMService) ListAccounts(ctx context.Context,
-	request *iam.ListAccountsRequest) (*iam.ListAccountsResponse, error) {
+	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 
 	resp, err := srv.accounts.List(ctx, request)
 	if err != nil {
@@ -315,12 +315,12 @@ func (srv *IAMService) ListAccounts(ctx context.Context,
 }
 
 func (srv *IAMService) Status(ctx context.Context,
-	request *iam.StatusRequest) (*iam.StatusResponse, error) {
+	request *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 
 	_ = ctx
 	_ = request
 
-	return &iam.StatusResponse{Msg: "OK"}, nil
+	return &iampb.StatusResponse{Msg: "OK"}, nil
 }
 
 func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
@@ -349,7 +349,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 }
 
 func (srv *IAMService) CreateAccount(ctx context.Context,
-	request *iam.CreateAccountRequest) (*iam.CreateAccountResponse, error) {
+	request *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
 
 	if err := srv.UsernameOrEmailMustUnique(
 		ctx, request.GetUsername(), request.GetEmail()); err != nil {
@@ -366,17 +366,17 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
-	return &iam.CreateAccountResponse{AccountId: accID}, nil
+	return &iampb.CreateAccountResponse{AccountId: accID}, nil
 }
 
 func (srv *IAMService) createAccountWithTX(ctx context.Context,
-	txss *postgres.TxSession, req *iam.CreateAccountRequest) (string, error) {
+	txss *postgres.TxSession, req *iampb.CreateAccountRequest) (string, error) {
 	pw, err := crypto.HashPassword(req.GetPassword())
 	if err != nil {
 		return "", err
 	}
 
-	user, err := srv.users.WithTX(txss).Create(ctx, &iam.User{
+	user, err := srv.users.WithTX(txss).Create(ctx, &iampb.User{
 		FullName:    req.GetFullName(),
 		Email:       req.GetEmail(),
 		PhoneNumber: req.GetPhoneNumber(),
@@ -387,7 +387,7 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 	}
 
 	acc, err := srv.accounts.WithTX(txss).Create(ctx, &accrepos.AccountX{
-		Account: &iam.Account{
+		Account: &iampb.Account{
 			UserId:   user.GetId(),
 			Email:    req.GetEmail(),
 			Username: req.GetUsername(),
@@ -419,7 +419,7 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 }
 
 func (srv *IAMService) Login(ctx context.Context,
-	req *iam.LoginRequest) (*iam.LoginResponse, error) {
+	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, req.GetEmailOrUsername())
 	if err != nil {
@@ -439,10 +439,10 @@ func (srv *IAMService) Login(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, common.Permission_PERMISSION_ROOT)
+		perm = perms.Add(perm, commonpb.Permission_PERMISSION_ROOT)
 	}
 	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&common.Context{
+		&commonpb.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),
@@ -453,11 +453,11 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	return &iam.LoginResponse{User: user, AccessToken: accessToken}, nil
+	return &iampb.LoginResponse{User: user, AccessToken: accessToken}, nil
 }
 
 func (srv *IAMService) CreateUser(ctx context.Context,
-	request *iam.CreateUserRequest) (*iam.CreateUserResponse, error) {
+	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
 	if errorx.NotRowsNotFound(err) {
@@ -470,7 +470,7 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 				"email %s already exists", request.GetEmail())
 	}
 
-	user, err = srv.users.Create(ctx, &iam.User{
+	user, err = srv.users.Create(ctx, &iampb.User{
 		FullName:    request.GetFullName(),
 		Email:       request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
@@ -479,17 +479,17 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 		return nil, err
 	}
 
-	return &iam.CreateUserResponse{UserId: user.Id}, nil
+	return &iampb.CreateUserResponse{UserId: user.Id}, nil
 }
 
 func (srv *IAMService) GetUser(ctx context.Context,
-	request *iam.GetUserRequest) (*iam.GetUserResponse, error) {
+	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
 	if request.GetId() != "" {
 		user, err := srv.users.Get(ctx, request.GetId())
 		if err != nil {
 			return nil, err
 		}
-		return &iam.GetUserResponse{User: user}, nil
+		return &iampb.GetUserResponse{User: user}, nil
 	}
 
 	if request.GetEmail() != "" {
@@ -498,7 +498,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 			return nil, err
 		}
 
-		return &iam.GetUserResponse{User: user}, nil
+		return &iampb.GetUserResponse{User: user}, nil
 	}
 
 	return nil, errorx.StatusInvalidDataF(
@@ -506,7 +506,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 }
 
 func (srv *IAMService) ListUsers(ctx context.Context,
-	request *iam.ListUsersRequest) (*iam.ListUsersResponse, error) {
+	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
 
 	users, err := srv.users.List(ctx, request)
 	if err != nil {
@@ -517,17 +517,17 @@ func (srv *IAMService) ListUsers(ctx context.Context,
 }
 
 func (srv *IAMService) DeleteUser(ctx context.Context,
-	request *iam.DeleteUserRequest) (*iam.DeleteUserResponse, error) {
+	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
 
 	if err := srv.users.Delete(ctx, request.GetId()); err != nil {
 		return nil, err
 	}
 
-	return &iam.DeleteUserResponse{}, nil
+	return &iampb.DeleteUserResponse{}, nil
 }
 
 func (srv *IAMService) UpdateUser(ctx context.Context,
-	request *iam.UpdateUserRequest) (*iam.UpdateUserResponse, error) {
+	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
 	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
 	if errorx.NotRowsNotFound(err) {
@@ -551,10 +551,10 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 		return nil, err
 	}
 
-	return &iam.UpdateUserResponse{}, nil
+	return &iampb.UpdateUserResponse{}, nil
 }
 
-func copyUserUpdateParams(dest *iam.User, req *iam.UpdateUserRequest) {
+func copyUserUpdateParams(dest *iampb.User, req *iampb.UpdateUserRequest) {
 
 	if req.GetEmail() != "" {
 		dest.Email = req.GetEmail()

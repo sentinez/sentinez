@@ -2,11 +2,11 @@
 // source: sentinez/core/iam/v1/iam.proto
 
 /*
-Package iam is a reverse proxy.
+Package iampb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package iam
+package iampb
 
 import (
 	"context"

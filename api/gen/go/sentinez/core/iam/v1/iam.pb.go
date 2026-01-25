@@ -18,7 +18,7 @@
 // 	protoc        v6.33.2
 // source: sentinez/core/iam/v1/iam.proto
 
-package iam
+package iampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -1483,7 +1483,7 @@ const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\x18PasskeyRegisterChallenge\x125.sentinez.core.iam.v1.PasskeyRegisterChallengeRequest\x1a6.sentinez.core.iam.v1.PasskeyRegisterChallengeResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/passkey/register/challenge\x12\xaf\x01\n" +
 	"\x15PasskeyRegisterVerify\x122.sentinez.core.iam.v1.PasskeyRegisterVerifyRequest\x1a3.sentinez.core.iam.v1.PasskeyRegisterVerifyResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/iam/passkey/register/verify\x12\xac\x01\n" +
 	"\x15PasskeyLoginChallenge\x122.sentinez.core.iam.v1.PasskeyLoginChallengeRequest\x1a3.sentinez.core.iam.v1.PasskeyLoginChallengeResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/passkey/login/challenge\x12\xa3\x01\n" +
-	"\x12PasskeyLoginVerify\x12/.sentinez.core.iam.v1.PasskeyLoginVerifyRequest\x1a0.sentinez.core.iam.v1.PasskeyLoginVerifyResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/iam/passkey/login/verifyB\xd3\x01\x92Aa\x12\x12\n" +
+	"\x12PasskeyLoginVerify\x12/.sentinez.core.iam.v1.PasskeyLoginVerifyRequest\x1a0.sentinez.core.iam.v1.PasskeyLoginVerifyResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/iam/passkey/login/verifyB\xd5\x01\x92Aa\x12\x12\n" +
 	"\vIAM Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +
@@ -1491,7 +1491,7 @@ const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\x0e\n" +
 	"\n" +
 	"ApiKeyAuth\x12\x00\x8a\xb2\x19)\n" +
-	"\x0fSENTINEZ // IAM\x10\x04\x1a\x14sentinez.core.iam.v1Z@github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iamb\x06proto3"
+	"\x0fSENTINEZ // IAM\x10\x04\x1a\x14sentinez.core.iam.v1ZBgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iampbb\x06proto3"
 
 var (
 	file_sentinez_core_iam_v1_iam_proto_rawDescOnce sync.Once

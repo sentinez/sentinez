@@ -18,15 +18,13 @@
 // 	protoc        v6.33.2
 // source: sentinez/core/iam/v1/model.proto
 
-package iam
+package iampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/model/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -287,30 +285,30 @@ var File_sentinez_core_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a&sentinez/types/model/v1/metadata.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xda\x02\n" +
-	"\aAccount\x12=\n" +
-	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12,\n" +
+	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\"\xdb\x02\n" +
+	"\aAccount\x12>\n" +
+	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
 	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\bpassword\x18\v \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\x12\x1d\n" +
 	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12 \n" +
-	"\vcredentials\x18\x14 \x03(\tR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x93\x02\n" +
-	"\x0fAccountResponse\x12=\n" +
-	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12,\n" +
+	"\vcredentials\x18\x14 \x03(\tR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x94\x02\n" +
+	"\x0fAccountResponse\x12>\n" +
+	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
 	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"\xfa\x01\n" +
-	"\x04User\x12=\n" +
-	"\bmetadata\x18\x01 \x01(\v2!.sentinez.types.model.v1.MetadataR\bmetadata\x12)\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"\xfb\x01\n" +
+	"\x04User\x12>\n" +
+	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12)\n" +
 	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12<\n" +
-	"\fphone_number\x18\f \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber:\x06\xca\xf3\x18\x02\b\x01BBZ@github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iamb\x06proto3"
+	"\fphone_number\x18\f \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber:\x06\xca\xf3\x18\x02\b\x01BDZBgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iampbb\x06proto3"
 
 var (
 	file_sentinez_core_iam_v1_model_proto_rawDescOnce sync.Once
@@ -329,12 +327,12 @@ var file_sentinez_core_iam_v1_model_proto_goTypes = []any{
 	(*Account)(nil),         // 0: sentinez.core.iam.v1.Account
 	(*AccountResponse)(nil), // 1: sentinez.core.iam.v1.AccountResponse
 	(*User)(nil),            // 2: sentinez.core.iam.v1.User
-	(*v1.Metadata)(nil),     // 3: sentinez.types.model.v1.Metadata
+	(*v1.Metadata)(nil),     // 3: sentinez.types.common.v1.Metadata
 }
 var file_sentinez_core_iam_v1_model_proto_depIdxs = []int32{
-	3, // 0: sentinez.core.iam.v1.Account.metadata:type_name -> sentinez.types.model.v1.Metadata
-	3, // 1: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.model.v1.Metadata
-	3, // 2: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.model.v1.Metadata
+	3, // 0: sentinez.core.iam.v1.Account.metadata:type_name -> sentinez.types.common.v1.Metadata
+	3, // 1: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.common.v1.Metadata
+	3, // 2: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.common.v1.Metadata
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

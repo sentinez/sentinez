@@ -16,7 +16,7 @@ package accrepos
 
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/proto"
@@ -31,7 +31,7 @@ type IAccountX interface {
 }
 
 type AccountX struct {
-	*iam.Account
+	*iampb.Account
 }
 
 func (ax *AccountX) AddCredential(credential *webauthn.Credential) {

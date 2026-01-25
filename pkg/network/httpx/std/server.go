@@ -22,14 +22,14 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 )
 
 var _ corehttp.Server = (*Server)(nil)
 
-func NewServer(meta *common.XMeta) corehttp.Server {
+func NewServer(meta *commonpb.XMeta) corehttp.Server {
 	return &Server{
 		meta: meta,
 		core: &http.Server{},
@@ -39,7 +39,7 @@ func NewServer(meta *common.XMeta) corehttp.Server {
 
 type Server struct {
 	mdw  []func(corehttp.RequestHandler) corehttp.RequestHandler
-	meta *common.XMeta
+	meta *commonpb.XMeta
 	core *http.Server
 	mux  *http.ServeMux
 }

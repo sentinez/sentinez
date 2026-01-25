@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strings"
 
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
 )
 
 // RegisterSwaggerRoutes return api json and swagger ui

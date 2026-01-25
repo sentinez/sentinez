@@ -17,8 +17,8 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -28,8 +28,8 @@ type Store interface {
 	SaveSession(token string, data *webauthn.SessionData)
 	DeleteSession(token string)
 	GenSessionID() (string, error)
-	GetOrCreateAccount(email string) (*iam.Account, error)
-	GetAndDeleteAccount(email string) (*iam.Account, error)
+	GetOrCreateAccount(email string) (*iampb.Account, error)
+	GetAndDeleteAccount(email string) (*iampb.Account, error)
 }
 
 func NewWebAuthn(config *confpb.Config) *webauthn.WebAuthn {

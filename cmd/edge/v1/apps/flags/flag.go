@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flags/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
 	"github.com/spf13/pflag"
 )
 

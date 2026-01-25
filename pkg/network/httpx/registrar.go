@@ -22,7 +22,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/shared/cron"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/grpc"

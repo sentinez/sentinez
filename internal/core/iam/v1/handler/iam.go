@@ -18,7 +18,7 @@ package iamhdl
 import (
 	"context"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
@@ -32,7 +32,7 @@ var _ iampb.
 
 func New(
 	service *iamsvc.IAMService,
-	greeterCli greeter.GreeterServiceClient,
+	greeterCli greeterpb.GreeterServiceClient,
 ) iampb.IdentityAccessManagementServiceServer {
 	return &IdentityAccessManagement{
 		service:    service,
@@ -41,7 +41,7 @@ func New(
 }
 
 type IdentityAccessManagement struct {
-	greeterCli greeter.GreeterServiceClient
+	greeterCli greeterpb.GreeterServiceClient
 	service    *iamsvc.IAMService
 }
 
@@ -224,7 +224,7 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
 
-	_, err := iam.greeterCli.Status(ctx, &greeter.StatusRequest{})
+	_, err := iam.greeterCli.Status(ctx, &greeterpb.StatusRequest{})
 	if err != nil {
 		zlog.Errorf("IAM.Status call greeter err=%v", err)
 		return nil, err

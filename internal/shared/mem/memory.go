@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/shared/mem/ratelimiter"
 	"github.com/sentinez/sentinez/internal/shared/mem/reverseproxy"
 	"github.com/sentinez/sentinez/internal/shared/mem/routes"

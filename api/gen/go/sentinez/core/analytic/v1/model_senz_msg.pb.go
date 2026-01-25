@@ -6,17 +6,17 @@ package analyticpb
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 )
 
 var (
-	_ common.Empty
+	_ commonpb.Empty
 	_ fmt.Stringer
 )
 
 const (
 	Activity_Metadata      = "metadata"
 	Activity_Id            = "id"
-	Activity_ResourceId    = "resourceId"
-	Activity_UniqueVisitor = "uniqueVisitor"
+	Activity_ResourceId    = "resource_id"
+	Activity_UniqueVisitor = "unique_visitor"
 )

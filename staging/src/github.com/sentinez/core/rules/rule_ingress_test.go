@@ -24,7 +24,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )

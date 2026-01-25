@@ -19,7 +19,7 @@ import (
 
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/rule/engine/v1"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/engine/requests"
 )
 

@@ -18,7 +18,7 @@
 // - protoc             v6.33.2
 // source: sentinez/core/tenant/v1/tenant.proto
 
-package tenant
+package tenantpb
 
 import (
 	context "context"

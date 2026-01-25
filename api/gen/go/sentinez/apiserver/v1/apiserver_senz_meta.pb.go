@@ -6,31 +6,31 @@ package apiserver
 import (
 	"fmt"
 
-	"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ common.Empty
+	_ commonpb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_apiserver = &common.XMeta{
+var metadata_apiserver = &commonpb.XMeta{
 	ServiceName: "SENTINEZ // APISERVER",
-	ServiceKind: common.Kind_KIND_GATEWAY_API,
+	ServiceKind: commonpb.Kind_KIND_GATEWAY_API,
 	ServiceKey:  "sentinez.apiserver.v1",
 }
 
-func GetMetaApiserver() *common.XMeta {
-	return proto.Clone(metadata_apiserver).(*common.XMeta)
+func GetMetaApiserver() *commonpb.XMeta {
+	return proto.Clone(metadata_apiserver).(*commonpb.XMeta)
 }
 
 func GetMetaApiserverServiceName() string {
 	return metadata_apiserver.GetServiceName()
 }
 
-func GetMetaApiserverServiceKind() common.Kind {
+func GetMetaApiserverServiceKind() commonpb.Kind {
 	return metadata_apiserver.GetServiceKind()
 }
 

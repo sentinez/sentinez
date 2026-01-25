@@ -15,7 +15,7 @@
 package edge
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/h"
 	"github.com/sentinez/sentinez/internal/shared/mem"
 )

@@ -12,6 +12,9 @@
       <excludeFolder url="file://$MODULE_DIR$/ui/packages/api/.turbo" />
       <excludeFolder url="file://$MODULE_DIR$/ui/packages/api/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/ui/packages/ui/.turbo" />
+      <excludeFolder url="file://$MODULE_DIR$/api/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/docs/node_modules" />
+      <excludeFolder url="file://$MODULE_DIR$/ui" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
