@@ -27,7 +27,8 @@ import (
 func NewIAM(opt *options.Options,
 ) (iampb.IdentityAccessManagementServiceClient, error) {
 
-	srv, err := discovery.GetDiscovery(opt).Discover(iampb.GetMetaIamServiceKey())
+	srv, err := discovery.GetDiscovery(opt).
+		Discover(iampb.GetMetaIamServiceKey())
 	if err != nil {
 		return nil, err
 	}
