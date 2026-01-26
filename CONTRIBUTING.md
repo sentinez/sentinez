@@ -37,7 +37,7 @@ All pull requests to the main branch must adhere to Conventional Commits. Otherw
 Ensure that you have added the license header to each file you create, including `.go`, `makefile`, `.sh`, `Dockerfile`, etc.
 
 ```
-Copyright 2025 Duc-Hung Ho.
+Copyright 2025-2026 Duc-Hung Ho.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -41,7 +41,9 @@ func NewJSONLogger(named string, logKind commonpb.LogKind, level Level) Logger {
 	return createLogger(logger, logKind, ToLevel(level.String()).Int())
 }
 
-func createLogger(log *zap.Logger, kind commonpb.LogKind, verbosity int) Logger {
+func createLogger(log *zap.Logger,
+	kind commonpb.LogKind, verbosity int) Logger {
+
 	return &logger{log: log, verbosity: verbosity, kind: kind}
 }
 
