@@ -55,8 +55,10 @@ option (sentinez.types.common.v1.x_meta) = {
   service_key : "sentinez.core.security.v1",
 };
 
+// SecurityService handles security rule resource management
 service SecurityService {
 
+  // Create custom rule based for resource
   rpc CreateRuleBased(CreateRuleBasedRequest) returns (CreateRuleBasedResponse) {
     option (google.api.http) = {
       post: "/rule",

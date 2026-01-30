@@ -57,7 +57,9 @@ option (sentinez.types.common.v1.x_meta) = {
   service_key : "sentinez.core.greeter.v1",
 };
 
+// GreeterService is a example service
 service GreeterService {
+  // Example method
   rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
     option (google.api.http) = {
       get: "/greeter/say"
@@ -68,6 +70,7 @@ service GreeterService {
     };
   }
 
+  // Health check api
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
       get: "/greeter/status"

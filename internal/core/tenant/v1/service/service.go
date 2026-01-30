@@ -34,13 +34,35 @@ type Service struct {
 	resource resourcerepo.IResource
 }
 
+// CreateResource implements tenantpb.TenantServiceServer.
+func (svc *Service) CreateResource(context.Context,
+	*tenantpb.CreateResourceRequest,
+) (*tenantpb.CreateResourceResponse, error) {
+	panic("unimplemented")
+}
+
+// DeleteResource implements tenantpb.TenantServiceServer.
+func (svc *Service) DeleteResource(context.Context,
+	*tenantpb.DeleteResourceRequest,
+) (*tenantpb.DeleteResourceResponse, error) {
+	panic("unimplemented")
+}
+
+// UpdateResource implements tenantpb.TenantServiceServer.
+func (svc *Service) UpdateResource(context.Context,
+	*tenantpb.UpdateResourceRequest,
+) (*tenantpb.UpdateResourceResponse, error) {
+	panic("unimplemented")
+}
+
 func (svc *Service) Status(_ context.Context,
 	_ *tenantpb.StatusRequest) (*tenantpb.StatusResponse, error) {
 	return &tenantpb.StatusResponse{}, nil
 }
 
 func (svc *Service) ListResource(ctx context.Context,
-	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
+	req *tenantpb.ListResourceRequest,
+) (*tenantpb.ListResourceResponse, error) {
 	zlog.Infof("tenant svc: req = %v", req)
 
 	return svc.resource.List(ctx, req)

@@ -19,6 +19,24 @@ import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
+export interface DeleteResourceRequest {
+}
+
+export interface DeleteResourceResponse {
+}
+
+export interface UpdateResourceRequest {
+}
+
+export interface UpdateResourceResponse {
+}
+
+export interface CreateResourceRequest {
+}
+
+export interface CreateResourceResponse {
+}
+
 export interface ListResourceRequest {
   page?: Pages | undefined;
   status: Status;
@@ -38,6 +56,264 @@ export interface StatusResponse {
 
 export interface StatusRequest {
 }
+
+function createBaseDeleteResourceRequest(): DeleteResourceRequest {
+  return {};
+}
+
+export const DeleteResourceRequest: MessageFns<DeleteResourceRequest> = {
+  encode(_: DeleteResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteResourceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteResourceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): DeleteResourceRequest {
+    return {};
+  },
+
+  toJSON(_: DeleteResourceRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteResourceRequest>, I>>(base?: I): DeleteResourceRequest {
+    return DeleteResourceRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteResourceRequest>, I>>(_: I): DeleteResourceRequest {
+    const message = createBaseDeleteResourceRequest();
+    return message;
+  },
+};
+
+function createBaseDeleteResourceResponse(): DeleteResourceResponse {
+  return {};
+}
+
+export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
+  encode(_: DeleteResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteResourceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteResourceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): DeleteResourceResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteResourceResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteResourceResponse>, I>>(base?: I): DeleteResourceResponse {
+    return DeleteResourceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteResourceResponse>, I>>(_: I): DeleteResourceResponse {
+    const message = createBaseDeleteResourceResponse();
+    return message;
+  },
+};
+
+function createBaseUpdateResourceRequest(): UpdateResourceRequest {
+  return {};
+}
+
+export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
+  encode(_: UpdateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateResourceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateResourceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): UpdateResourceRequest {
+    return {};
+  },
+
+  toJSON(_: UpdateResourceRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(base?: I): UpdateResourceRequest {
+    return UpdateResourceRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(_: I): UpdateResourceRequest {
+    const message = createBaseUpdateResourceRequest();
+    return message;
+  },
+};
+
+function createBaseUpdateResourceResponse(): UpdateResourceResponse {
+  return {};
+}
+
+export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
+  encode(_: UpdateResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateResourceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateResourceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): UpdateResourceResponse {
+    return {};
+  },
+
+  toJSON(_: UpdateResourceResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateResourceResponse>, I>>(base?: I): UpdateResourceResponse {
+    return UpdateResourceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateResourceResponse>, I>>(_: I): UpdateResourceResponse {
+    const message = createBaseUpdateResourceResponse();
+    return message;
+  },
+};
+
+function createBaseCreateResourceRequest(): CreateResourceRequest {
+  return {};
+}
+
+export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
+  encode(_: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateResourceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateResourceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): CreateResourceRequest {
+    return {};
+  },
+
+  toJSON(_: CreateResourceRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(base?: I): CreateResourceRequest {
+    return CreateResourceRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(_: I): CreateResourceRequest {
+    const message = createBaseCreateResourceRequest();
+    return message;
+  },
+};
+
+function createBaseCreateResourceResponse(): CreateResourceResponse {
+  return {};
+}
+
+export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
+  encode(_: CreateResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateResourceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateResourceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): CreateResourceResponse {
+    return {};
+  },
+
+  toJSON(_: CreateResourceResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateResourceResponse>, I>>(base?: I): CreateResourceResponse {
+    return CreateResourceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateResourceResponse>, I>>(_: I): CreateResourceResponse {
+    const message = createBaseCreateResourceResponse();
+    return message;
+  },
+};
 
 function createBaseListResourceRequest(): ListResourceRequest {
   return { page: undefined, status: 0, plan: 0, resourceName: "", resourceDomain: "" };

@@ -22,6 +22,7 @@
   "paths": {
     "/rule": {
       "post": {
+        "summary": "Create custom rule based for resource",
         "operationId": "SecurityService_CreateRuleBased",
         "responses": {
           "200": {

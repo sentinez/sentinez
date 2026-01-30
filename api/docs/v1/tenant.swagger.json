@@ -20,8 +20,94 @@
     "application/json"
   ],
   "paths": {
+    "/tenant/resource": {
+      "delete": {
+        "summary": "Deletes a tenant resource.",
+        "operationId": "TenantService_DeleteResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "post": {
+        "summary": "Creates a new tenant resource.",
+        "operationId": "TenantService_CreateResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateResourceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "put": {
+        "summary": "Updates an existing tenant resource.",
+        "operationId": "TenantService_UpdateResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateResourceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
     "/tenant/resources": {
       "get": {
+        "summary": "Lists tenant resources.",
         "operationId": "TenantService_ListResource",
         "responses": {
           "200": {
@@ -103,6 +189,7 @@
     },
     "/tenant/status": {
       "get": {
+        "summary": "Returns service health check status.",
         "operationId": "TenantService_Status",
         "responses": {
           "200": {
@@ -313,6 +400,15 @@
         }
       },
       "title": "A logical condition expression"
+    },
+    "v1CreateResourceRequest": {
+      "type": "object"
+    },
+    "v1CreateResourceResponse": {
+      "type": "object"
+    },
+    "v1DeleteResourceResponse": {
+      "type": "object"
     },
     "v1Expr": {
       "type": "object",
@@ -641,6 +737,12 @@
     "v1TrafficControl": {
       "type": "object",
       "title": "TrafficControl for systems using a virtual waiting room or throttling:"
+    },
+    "v1UpdateResourceRequest": {
+      "type": "object"
+    },
+    "v1UpdateResourceResponse": {
+      "type": "object"
     }
   },
   "securityDefinitions": {

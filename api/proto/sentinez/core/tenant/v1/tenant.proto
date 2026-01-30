@@ -57,34 +57,85 @@ option (sentinez.types.common.v1.x_meta) = {
   service_key : "sentinez.core.tenant.v1",
 };
 
+// TenantService handles tenant resource management.
 service TenantService {
+
+  // Returns service health check status.
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {
       get: "/tenant/status"
     };
-
     option (sentinez.types.common.v1.x_method) = {ignore: true};
   }
 
+  // Lists tenant resources.
   rpc ListResource(ListResourceRequest) returns (ListResourceResponse) {
     option (google.api.http) = {
       get: "/tenant/resources"
     };
-
     option (sentinez.types.common.v1.x_method) = {ignore: true};
+  }
+
+  // Creates a new tenant resource.
+  rpc CreateResource(CreateResourceRequest) returns (CreateResourceResponse){
+    option (google.api.http) = {
+      post: "/tenant/resource",
+      body: "*",
+    };
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
+  }
+
+  // Updates an existing tenant resource.
+  rpc UpdateResource(UpdateResourceRequest) returns (UpdateResourceResponse) {
+    option (google.api.http) = {
+      put : "/tenant/resource",
+      body: "*",
+    };
+    option (sentinez.types.common.v1.x_method) = {ignore: true};
+  }
+
+  // Deletes a tenant resource.
+  rpc DeleteResource(DeleteResourceRequest) returns (DeleteResourceResponse) {
+    option (google.api.http) = {
+      delete: "/tenant/resource"
+    };
   }
 }
 
+message DeleteResourceRequest {
+
+}
+
+message DeleteResourceResponse {
+
+}
+
+message UpdateResourceRequest {
+
+}
+
+message UpdateResourceResponse {
+
+}
+
+message CreateResourceRequest {
+
+}
+
+message CreateResourceResponse {
+
+}
+
 message ListResourceRequest {
-  sentinez.types.common.v1.Pages page = 1;
-  sentinez.types.common.v1.Status status = 2;
-  sentinez.types.common.v1.Plan plan = 3;
-  string resource_name = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  sentinez.types.common.v1.Pages  page            = 1;
+  sentinez.types.common.v1.Status status          = 2;
+  sentinez.types.common.v1.Plan   plan            = 3;
+  string                          resource_name   = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string                          resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
 }
 
 message ListResourceResponse {
-  int64 total = 1;
+  int64                                     total     = 1;
   repeated sentinez.core.tenant.v1.Resource resources = 2;
 }
 

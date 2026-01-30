@@ -15,19 +15,26 @@
 syntax = "proto3";
 
 package sentinez.core.analytic.v1;
-import "buf/validate/validate.proto";
-
-import "sentinez/types/common/v1/options.proto";
-import "sentinez/types/common/v1/meta.proto";
-
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1;analyticpb";
 
-message Activity {
-  option (sentinez.types.common.v1.x_message).database_model = true;
+import "sentinez/types/common/v1/options.proto";
 
-  sentinez.types.common.v1.Metadata metadata    = 1;
-  string                            id          = 2 [(buf.validate.field) = { required: true, string: {prefix: "senz.analytic.activity."}}];
-  string                            resource_id = 3 [(buf.validate.field) = { required: true, string: {prefix: "senz.analytic.resources."}}];
+option (sentinez.types.common.v1.x_meta) = {
+  service_name: "SENTINEZ // ANALYTICS",
+  service_kind: KIND_CORE,
+  service_key : "sentinez.core.analytic.v1",
+};
 
-  repeated uint32 unique_visitor = 7;
+// AnalyticService handles data visualization
+service AnalyticService {
+  // Health check Service
+  rpc Status(StatusRequest) returns (StatusResponse) {}
+}
+
+message StatusRequest {
+
+}
+
+message StatusResponse {
+  string msg = 1;
 }
