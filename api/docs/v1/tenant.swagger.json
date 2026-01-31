@@ -212,15 +212,6 @@
     }
   },
   "definitions": {
-    "commonv1Status": {
-      "type": "string",
-      "enum": [
-        "STATUS_UNSPECIFIED",
-        "STATUS_ACTIVE",
-        "STATUS_DISABLE"
-      ],
-      "default": "STATUS_UNSPECIFIED"
-    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -306,7 +297,7 @@
       "type": "object",
       "title": "Metadata used for observability and debugging:"
     },
-    "typescommonv1Metadata": {
+    "sentineztypesv1Metadata": {
       "type": "object",
       "properties": {
         "createdAt": {
@@ -318,6 +309,15 @@
           "format": "date-time"
         }
       }
+    },
+    "typesv1Status": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_ACTIVE",
+        "STATUS_DISABLE"
+      ],
+      "default": "STATUS_UNSPECIFIED"
     },
     "v1Action": {
       "type": "object",
@@ -606,7 +606,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/typescommonv1Metadata"
+          "$ref": "#/definitions/sentineztypesv1Metadata"
         },
         "id": {
           "type": "string"
@@ -621,7 +621,7 @@
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/commonv1Status"
+          "$ref": "#/definitions/typesv1Status"
         },
         "plan": {
           "$ref": "#/definitions/v1Plan"

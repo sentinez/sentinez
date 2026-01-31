@@ -6,31 +6,31 @@ package analyticpb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_analytic = &commonpb.XMeta{
+var metadata_analytic = &typepb.XMeta{
 	ServiceName: "SENTINEZ // ANALYTICS",
-	ServiceKind: commonpb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.analytic.v1",
 }
 
-func GetMetaAnalytic() *commonpb.XMeta {
-	return proto.Clone(metadata_analytic).(*commonpb.XMeta)
+func GetMetaAnalytic() *typepb.XMeta {
+	return proto.Clone(metadata_analytic).(*typepb.XMeta)
 }
 
 func GetMetaAnalyticServiceName() string {
 	return metadata_analytic.GetServiceName()
 }
 
-func GetMetaAnalyticServiceKind() commonpb.Kind {
+func GetMetaAnalyticServiceKind() typepb.Kind {
 	return metadata_analytic.GetServiceKind()
 }
 

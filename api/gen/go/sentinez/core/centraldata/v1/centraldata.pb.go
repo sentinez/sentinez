@@ -21,7 +21,7 @@
 package centraldatapb
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -120,7 +120,7 @@ var File_sentinez_core_centraldata_v1_centraldata_proto protoreflect.FileDescrip
 
 const file_sentinez_core_centraldata_v1_centraldata_proto_rawDesc = "" +
 	"\n" +
-	".sentinez/core/centraldata/v1/centraldata.proto\x12\x1csentinez.core.centraldata.v1\x1a&sentinez/types/common/v1/options.proto\"\x0f\n" +
+	".sentinez/core/centraldata/v1/centraldata.proto\x12\x1csentinez.core.centraldata.v1\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
 	"\x03msg\x18\x01 \x01(\tR\x03msg2{\n" +

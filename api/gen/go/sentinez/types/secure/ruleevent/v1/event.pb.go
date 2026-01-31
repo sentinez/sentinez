@@ -7,7 +7,7 @@
 package ruleeventpb
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -166,7 +166,7 @@ var File_sentinez_types_secure_ruleevent_v1_event_proto protoreflect.FileDescrip
 
 const file_sentinez_types_secure_ruleevent_v1_event_proto_rawDesc = "" +
 	"\n" +
-	".sentinez/types/secure/ruleevent/v1/event.proto\x12\"sentinez.types.secure.ruleevent.v1\x1a&sentinez/types/common/v1/options.proto\x1a.sentinez/types/secure/ruleevent/v1/types.proto\"\xdf\x03\n" +
+	".sentinez/types/secure/ruleevent/v1/event.proto\x12\"sentinez.types.secure.ruleevent.v1\x1a\x1fsentinez/types/v1/options.proto\x1a.sentinez/types/secure/ruleevent/v1/types.proto\"\xdf\x03\n" +
 	"\x05Event\x12\x19\n" +
 	"\brule_ids\x18\x01 \x03(\x05R\aruleIds\x12\x1e\n" +
 	"\n" +

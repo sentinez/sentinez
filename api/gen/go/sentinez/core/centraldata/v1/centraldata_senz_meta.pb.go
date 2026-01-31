@@ -6,31 +6,31 @@ package centraldatapb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_centraldata = &commonpb.XMeta{
+var metadata_centraldata = &typepb.XMeta{
 	ServiceName: "SENTINEZ // CENTRALDATA",
-	ServiceKind: commonpb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.centraldata.v1",
 }
 
-func GetMetaCentraldata() *commonpb.XMeta {
-	return proto.Clone(metadata_centraldata).(*commonpb.XMeta)
+func GetMetaCentraldata() *typepb.XMeta {
+	return proto.Clone(metadata_centraldata).(*typepb.XMeta)
 }
 
 func GetMetaCentraldataServiceName() string {
 	return metadata_centraldata.GetServiceName()
 }
 
-func GetMetaCentraldataServiceKind() commonpb.Kind {
+func GetMetaCentraldataServiceKind() typepb.Kind {
 	return metadata_centraldata.GetServiceKind()
 }
 

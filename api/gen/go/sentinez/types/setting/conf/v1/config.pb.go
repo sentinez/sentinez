@@ -21,8 +21,8 @@
 package confpb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -224,7 +224,7 @@ var File_sentinez_types_setting_conf_v1_config_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_setting_conf_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"+sentinez/types/setting/conf/v1/config.proto\x12\x1esentinez.types.setting.conf.v1\x1a&sentinez/types/common/v1/options.proto\x1a*sentinez/types/setting/flag/v1/flags.proto\"\xe8\x02\n" +
+	"+sentinez/types/setting/conf/v1/config.proto\x12\x1esentinez.types.setting.conf.v1\x1a\x1fsentinez/types/v1/options.proto\x1a*sentinez/types/setting/flag/v1/flags.proto\"\xe8\x02\n" +
 	"\tEnvConfig\x12\x1a\n" +
 	"\bhostname\x18\x01 \x01(\tR\bhostname\x12!\n" +
 	"\fhttp_address\x18\x02 \x01(\tR\vhttpAddress\x12\x1d\n" +
@@ -238,9 +238,9 @@ const file_sentinez_types_setting_conf_v1_config_proto_rawDesc = "" +
 	"\x0eclickhouse_uri\x18\f \x01(\tR\rclickhouseUri\x12\x1d\n" +
 	"\n" +
 	"consul_uri\x18\r \x01(\tR\tconsulUri\x12!\n" +
-	"\fgrpc_address\x18\x14 \x01(\tR\vgrpcAddress\"\xb4\x01\n" +
-	"\x06Config\x123\n" +
-	"\x04meta\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.XMetaR\x04meta\x12;\n" +
+	"\fgrpc_address\x18\x14 \x01(\tR\vgrpcAddress\"\xad\x01\n" +
+	"\x06Config\x12,\n" +
+	"\x04meta\x18\x01 \x01(\v2\x18.sentinez.types.v1.XMetaR\x04meta\x12;\n" +
 	"\x03env\x18\x02 \x01(\v2).sentinez.types.setting.conf.v1.EnvConfigR\x03env\x128\n" +
 	"\x04flag\x18\x03 \x01(\v2$.sentinez.types.setting.flag.v1.FlagR\x04flagBOZMgithub.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1;confpbb\x06proto3"
 
@@ -260,11 +260,11 @@ var file_sentinez_types_setting_conf_v1_config_proto_msgTypes = make([]protoimpl
 var file_sentinez_types_setting_conf_v1_config_proto_goTypes = []any{
 	(*EnvConfig)(nil), // 0: sentinez.types.setting.conf.v1.EnvConfig
 	(*Config)(nil),    // 1: sentinez.types.setting.conf.v1.Config
-	(*v1.XMeta)(nil),  // 2: sentinez.types.common.v1.XMeta
+	(*v1.XMeta)(nil),  // 2: sentinez.types.v1.XMeta
 	(*v11.Flag)(nil),  // 3: sentinez.types.setting.flag.v1.Flag
 }
 var file_sentinez_types_setting_conf_v1_config_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.setting.conf.v1.Config.meta:type_name -> sentinez.types.common.v1.XMeta
+	2, // 0: sentinez.types.setting.conf.v1.Config.meta:type_name -> sentinez.types.v1.XMeta
 	0, // 1: sentinez.types.setting.conf.v1.Config.env:type_name -> sentinez.types.setting.conf.v1.EnvConfig
 	3, // 2: sentinez.types.setting.conf.v1.Config.flag:type_name -> sentinez.types.setting.flag.v1.Flag
 	3, // [3:3] is the sub-list for method output_type

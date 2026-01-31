@@ -6,12 +6,12 @@ package tenantpb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )

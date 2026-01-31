@@ -6,31 +6,31 @@ package edgepb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_edge = &commonpb.XMeta{
+var metadata_edge = &typepb.XMeta{
 	ServiceName: "SENTINEZ // EDGE",
-	ServiceKind: commonpb.Kind_KIND_GATEWAY_EDGE,
+	ServiceKind: typepb.Kind_KIND_GATEWAY_EDGE,
 	ServiceKey:  "sentinez.edge.v1",
 }
 
-func GetMetaEdge() *commonpb.XMeta {
-	return proto.Clone(metadata_edge).(*commonpb.XMeta)
+func GetMetaEdge() *typepb.XMeta {
+	return proto.Clone(metadata_edge).(*typepb.XMeta)
 }
 
 func GetMetaEdgeServiceName() string {
 	return metadata_edge.GetServiceName()
 }
 
-func GetMetaEdgeServiceKind() commonpb.Kind {
+func GetMetaEdgeServiceKind() typepb.Kind {
 	return metadata_edge.GetServiceKind()
 }
 

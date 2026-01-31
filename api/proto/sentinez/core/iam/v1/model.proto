@@ -18,15 +18,15 @@ package sentinez.core.iam.v1;
 
 import "buf/validate/validate.proto";
 
-import "sentinez/types/common/v1/options.proto";
-import "sentinez/types/common/v1/meta.proto";
+import "sentinez/types/v1/options.proto";
+import "sentinez/types/v1/meta.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iampb";
 
 message Account {
-  option (sentinez.types.common.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message).database_model = true;
 
-  sentinez.types.common.v1.Metadata metadata = 1;
+  sentinez.types.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = { required: true; string: {prefix: "senz.iam.accounts."}}];
 
@@ -40,7 +40,7 @@ message Account {
 }
 
 message AccountResponse {
-  sentinez.types.common.v1.Metadata metadata = 1;
+  sentinez.types.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = { required: true; string: {
     prefix: "senz.iam.accounts.",
@@ -55,9 +55,9 @@ message AccountResponse {
 }
 
 message User {
-  option (sentinez.types.common.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message).database_model = true;
 
-  sentinez.types.common.v1.Metadata metadata = 1;
+  sentinez.types.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = { required: true, string: {
     prefix: "senz.iam.users."

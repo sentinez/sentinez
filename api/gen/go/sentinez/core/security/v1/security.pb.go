@@ -22,8 +22,8 @@ package securitypb
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -203,7 +203,7 @@ var File_sentinez_core_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a&sentinez/types/common/v1/options.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"W\n" +
+	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fsentinez/types/v1/options.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"W\n" +
 	"\x16CreateRuleBasedRequest\x12=\n" +
 	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\"\x19\n" +
 	"\x17CreateRuleBasedResponse\"\x0f\n" +

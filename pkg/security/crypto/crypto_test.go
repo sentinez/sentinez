@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -29,7 +29,7 @@ func TestGenAndVerifyToken(t *testing.T) {
 
 	conf := &confpb.EnvConfig{SecretKey: secBase64}
 
-	token, err := TokenGenerator(conf, &commonpb.Context{
+	token, err := TokenGenerator(conf, &typepb.Context{
 		Name:     "test gen & verify",
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 	})

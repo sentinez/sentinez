@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Pages } from "../../../types/common/v1/meta";
+import { Pages } from "../../../types/v1/meta";
 
 export const protobufPackage = "sentinez.core.greeter.v1";
 

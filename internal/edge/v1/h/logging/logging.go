@@ -17,8 +17,7 @@ package logging
 import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	common "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
-	requestpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/net/request/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/shared/zlog"
 )
@@ -29,7 +28,7 @@ func NewLogger(logLevel zlog.Level) chains.Handler {
 	return &Logger{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
-			common.LogKind_LOG_KIND_HTTP, logLevel,
+			typepb.LogKind_LOG_KIND_HTTP, logLevel,
 		),
 	}
 }
@@ -47,7 +46,7 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	err := l.HandleNext(ctx)
 
 	if l.logger.V(zlog.LevelInfo.Int()) {
-		l.logger.Info("[http][request]", &requestpb.RequestEvent{
+		l.logger.Info("[http][request]", &typepb.RequestEvent{
 			ReqId:         ctx.RequestId(),
 			Scheme:        ctx.Scheme(),
 			Host:          requestResourceHost,

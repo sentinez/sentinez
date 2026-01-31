@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -27,24 +27,24 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 	g.P("import (")
 	g.P("\t\"fmt\"\n")
 	g.P()
-	g.P("\tcommonpb \"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1\"")
+	g.P("\ttypepb \"github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1\"")
 	g.P("\t\"google.golang.org/protobuf/proto\"")
 	g.P()
 	g.P(")")
 	g.P("\n")
 	g.P("var (")
-	g.P("\t_ commonpb.Empty")
+	g.P("\t_ typepb.Empty")
 	g.P("\t_ fmt.Stringer")
 	g.P("\t_ proto.Message")
 	g.P(")")
 	g.P("\n")
 
 	opts := file.Proto.GetOptions()
-	if !proto.HasExtension(opts, commonpb.E_XMeta) {
+	if !proto.HasExtension(opts, typepb.E_XMeta) {
 		return nil
 	}
 
-	ext, ok := proto.GetExtension(opts, commonpb.E_XMeta).(*commonpb.XMeta)
+	ext, ok := proto.GetExtension(opts, typepb.E_XMeta).(*typepb.XMeta)
 	if !ok || ext == nil {
 		return nil
 	}
@@ -53,21 +53,21 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 
 	g.P()
 
-	g.P("var metadata_", name, " = &commonpb.XMeta{")
+	g.P("var metadata_", name, " = &typepb.XMeta{")
 	g.P("\tServiceName: ", strconv.Quote(ext.GetServiceName()), ",")
-	g.P("\tServiceKind: commonpb.Kind_", ext.GetServiceKind(), ",")
+	g.P("\tServiceKind: typepb.Kind_", ext.GetServiceKind(), ",")
 	g.P("\tServiceKey:  ", strconv.Quote(ext.GetServiceKey()), ",")
 	g.P("}")
 	g.P()
-	g.P("func GetMeta", caser.String(name), "() *commonpb.XMeta {")
-	g.P("\treturn proto.Clone(metadata_", name, ").(*commonpb.XMeta)")
+	g.P("func GetMeta", caser.String(name), "() *typepb.XMeta {")
+	g.P("\treturn proto.Clone(metadata_", name, ").(*typepb.XMeta)")
 	g.P("}")
 	g.P()
 	g.P("func GetMeta", caser.String(name), "ServiceName() string {")
 	g.P("\treturn metadata_", name, ".GetServiceName()")
 	g.P("}")
 	g.P()
-	g.P("func GetMeta", caser.String(name), "ServiceKind() commonpb.Kind {")
+	g.P("func GetMeta", caser.String(name), "ServiceKind() typepb.Kind {")
 	g.P("\treturn metadata_", name, ".GetServiceKind()")
 	g.P("}")
 	g.P()

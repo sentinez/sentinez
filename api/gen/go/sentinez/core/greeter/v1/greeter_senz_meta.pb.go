@@ -6,31 +6,31 @@ package greeterpb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_greeter = &commonpb.XMeta{
+var metadata_greeter = &typepb.XMeta{
 	ServiceName: "SENTINEZ // GREETER",
-	ServiceKind: commonpb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.greeter.v1",
 }
 
-func GetMetaGreeter() *commonpb.XMeta {
-	return proto.Clone(metadata_greeter).(*commonpb.XMeta)
+func GetMetaGreeter() *typepb.XMeta {
+	return proto.Clone(metadata_greeter).(*typepb.XMeta)
 }
 
 func GetMetaGreeterServiceName() string {
 	return metadata_greeter.GetServiceName()
 }
 
-func GetMetaGreeterServiceKind() commonpb.Kind {
+func GetMetaGreeterServiceKind() typepb.Kind {
 	return metadata_greeter.GetServiceKind()
 }
 

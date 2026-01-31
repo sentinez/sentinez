@@ -23,7 +23,7 @@ package greeterpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -219,9 +219,9 @@ var File_sentinez_core_greeter_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_greeter_v1_greeter_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/core/greeter/v1/greeter.proto\x12\x18sentinez.core.greeter.v1\x1a#sentinez/types/common/v1/meta.proto\x1a&sentinez/types/common/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"c\n" +
-	"\x0fSayHelloRequest\x123\n" +
-	"\x04page\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.PagesR\x04page\x12\x1b\n" +
+	"&sentinez/core/greeter/v1/greeter.proto\x12\x18sentinez.core.greeter.v1\x1a\x1csentinez/types/v1/meta.proto\x1a\x1fsentinez/types/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\\\n" +
+	"\x0fSayHelloRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\",\n" +
 	"\x10SayHelloResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"*\n" +
@@ -258,10 +258,10 @@ var file_sentinez_core_greeter_v1_greeter_proto_goTypes = []any{
 	(*SayHelloResponse)(nil), // 1: sentinez.core.greeter.v1.SayHelloResponse
 	(*StatusResponse)(nil),   // 2: sentinez.core.greeter.v1.StatusResponse
 	(*StatusRequest)(nil),    // 3: sentinez.core.greeter.v1.StatusRequest
-	(*v1.Pages)(nil),         // 4: sentinez.types.common.v1.Pages
+	(*v1.Pages)(nil),         // 4: sentinez.types.v1.Pages
 }
 var file_sentinez_core_greeter_v1_greeter_proto_depIdxs = []int32{
-	4, // 0: sentinez.core.greeter.v1.SayHelloRequest.page:type_name -> sentinez.types.common.v1.Pages
+	4, // 0: sentinez.core.greeter.v1.SayHelloRequest.page:type_name -> sentinez.types.v1.Pages
 	0, // 1: sentinez.core.greeter.v1.GreeterService.SayHello:input_type -> sentinez.core.greeter.v1.SayHelloRequest
 	3, // 2: sentinez.core.greeter.v1.GreeterService.Status:input_type -> sentinez.core.greeter.v1.StatusRequest
 	1, // 3: sentinez.core.greeter.v1.GreeterService.SayHello:output_type -> sentinez.core.greeter.v1.SayHelloResponse

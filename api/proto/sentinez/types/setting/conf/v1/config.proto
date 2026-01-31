@@ -17,7 +17,7 @@ syntax = "proto3";
 package sentinez.types.setting.conf.v1;
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1;confpb";
 
-import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/v1/options.proto";
 import "sentinez/types/setting/flag/v1/flags.proto";
 
 message EnvConfig {
@@ -47,7 +47,7 @@ message EnvConfig {
 }
 
 message Config {
-  sentinez.types.common.v1.XMeta meta = 1;
-  EnvConfig                      env  = 2;
-  sentinez.types.setting.flag.v1.Flag   flag = 3;
+  sentinez.types.v1.XMeta             meta = 1;
+  EnvConfig                           env  = 2;
+  sentinez.types.setting.flag.v1.Flag flag = 3;
 }

@@ -23,7 +23,7 @@ package tenantpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -45,8 +45,8 @@ type Resource struct {
 	ResourceSetting *v11.Setting           `protobuf:"bytes,3,opt,name=resource_setting,json=resourceSetting,proto3" json:"resource_setting,omitempty"`
 	ResourceDomain  string                 `protobuf:"bytes,4,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	ResourceName    string                 `protobuf:"bytes,5,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
-	Status          v1.Status              `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.common.v1.Status" json:"status,omitempty"`
-	Plan            v1.Plan                `protobuf:"varint,7,opt,name=plan,proto3,enum=sentinez.types.common.v1.Plan" json:"plan,omitempty"`
+	Status          v1.Status              `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Plan            v1.Plan                `protobuf:"varint,7,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -134,15 +134,15 @@ var File_sentinez_core_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\x1a\x1esentinez/edge/v1/setting.proto\"\xd2\x03\n" +
-	"\bResource\x12>\n" +
-	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x120\n" +
+	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\x1a\x1esentinez/edge/v1/setting.proto\"\xbd\x03\n" +
+	"\bResource\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x120\n" +
 	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12D\n" +
 	"\x10resource_setting\x18\x03 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
-	"\rresource_name\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x128\n" +
-	"\x06status\x18\x06 \x01(\x0e2 .sentinez.types.common.v1.StatusR\x06status\x122\n" +
-	"\x04plan\x18\a \x01(\x0e2\x1e.sentinez.types.common.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01BJZHgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1;tenantpbb\x06proto3"
+	"\rresource_name\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
+	"\x04plan\x18\a \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01BJZHgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1;tenantpbb\x06proto3"
 
 var (
 	file_sentinez_core_tenant_v1_model_proto_rawDescOnce sync.Once
@@ -159,16 +159,16 @@ func file_sentinez_core_tenant_v1_model_proto_rawDescGZIP() []byte {
 var file_sentinez_core_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_core_tenant_v1_model_proto_goTypes = []any{
 	(*Resource)(nil),    // 0: sentinez.core.tenant.v1.Resource
-	(*v1.Metadata)(nil), // 1: sentinez.types.common.v1.Metadata
+	(*v1.Metadata)(nil), // 1: sentinez.types.v1.Metadata
 	(*v11.Setting)(nil), // 2: sentinez.edge.v1.Setting
-	(v1.Status)(0),      // 3: sentinez.types.common.v1.Status
-	(v1.Plan)(0),        // 4: sentinez.types.common.v1.Plan
+	(v1.Status)(0),      // 3: sentinez.types.v1.Status
+	(v1.Plan)(0),        // 4: sentinez.types.v1.Plan
 }
 var file_sentinez_core_tenant_v1_model_proto_depIdxs = []int32{
-	1, // 0: sentinez.core.tenant.v1.Resource.metadata:type_name -> sentinez.types.common.v1.Metadata
+	1, // 0: sentinez.core.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
 	2, // 1: sentinez.core.tenant.v1.Resource.resource_setting:type_name -> sentinez.edge.v1.Setting
-	3, // 2: sentinez.core.tenant.v1.Resource.status:type_name -> sentinez.types.common.v1.Status
-	4, // 3: sentinez.core.tenant.v1.Resource.plan:type_name -> sentinez.types.common.v1.Plan
+	3, // 2: sentinez.core.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
+	4, // 3: sentinez.core.tenant.v1.Resource.plan:type_name -> sentinez.types.v1.Plan
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

@@ -16,8 +16,8 @@ syntax = "proto3";
 
 package sentinez.core.greeter.v1;
 
-import "sentinez/types/common/v1/meta.proto";
-import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/v1/meta.proto";
+import "sentinez/types/v1/options.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
@@ -51,7 +51,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-option (sentinez.types.common.v1.x_meta) = {
+option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // GREETER",
   service_kind: KIND_CORE,
   service_key : "sentinez.core.greeter.v1",
@@ -65,7 +65,7 @@ service GreeterService {
       get: "/greeter/say"
     };
 
-    option (sentinez.types.common.v1.x_method) = {
+    option (sentinez.types.v1.x_method) = {
       ignore: true
     };
   }
@@ -76,14 +76,14 @@ service GreeterService {
       get: "/greeter/status"
     };
 
-    option (sentinez.types.common.v1.x_method) = {
+    option (sentinez.types.v1.x_method) = {
       ignore: true
     };
   }
 }
 
 message SayHelloRequest {
-  sentinez.types.common.v1.Pages page = 1;
+  sentinez.types.v1.Pages page = 1;
   string                         name = 2 [ (buf.validate.field).string.min_len = 1 ];
 }
 

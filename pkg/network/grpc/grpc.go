@@ -19,8 +19,8 @@ import (
 	"context"
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"google.golang.org/grpc"
@@ -42,7 +42,7 @@ type ServiceServer interface {
 // Server is a gRPC server that registers services.
 type Server struct {
 	server *grpc.Server
-	meta   *commonpb.XMeta
+	meta   *typepb.XMeta
 }
 
 // Shutdown implements ServiceServer.
@@ -80,7 +80,7 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(meta *commonpb.XMeta, opts ...grpc.ServerOption) *Server {
+func New(meta *typepb.XMeta, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
 		meta:   meta,
@@ -88,7 +88,7 @@ func New(meta *commonpb.XMeta, opts ...grpc.ServerOption) *Server {
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(meta *commonpb.XMeta) *Server {
+func NewDefault(meta *typepb.XMeta) *Server {
 	return New(meta)
 }
 

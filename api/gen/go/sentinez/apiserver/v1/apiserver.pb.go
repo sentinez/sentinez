@@ -21,7 +21,7 @@
 package apiserver
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -39,7 +39,7 @@ var File_sentinez_apiserver_v1_apiserver_proto protoreflect.FileDescriptor
 
 const file_sentinez_apiserver_v1_apiserver_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apiserver/v1/apiserver.proto\x12\x15sentinez.apiserver.v1\x1a&sentinez/types/common/v1/options.protoB}\x8a\xb2\x190\n" +
+	"%sentinez/apiserver/v1/apiserver.proto\x12\x15sentinez.apiserver.v1\x1a\x1fsentinez/types/v1/options.protoB}\x8a\xb2\x190\n" +
 	"\x15SENTINEZ // APISERVER\x10\x01\x1a\x15sentinez.apiserver.v1ZGgithub.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1;apiserverb\x06proto3"
 
 var file_sentinez_apiserver_v1_apiserver_proto_goTypes = []any{}

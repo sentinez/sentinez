@@ -23,7 +23,7 @@ package tenantpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -258,8 +258,8 @@ func (*CreateResourceResponse) Descriptor() ([]byte, []int) {
 type ListResourceRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Page           *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	Status         v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.common.v1.Status" json:"status,omitempty"`
-	Plan           v1.Plan                `protobuf:"varint,3,opt,name=plan,proto3,enum=sentinez.types.common.v1.Plan" json:"plan,omitempty"`
+	Status         v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Plan           v1.Plan                `protobuf:"varint,3,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
 	ResourceName   string                 `protobuf:"bytes,4,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
 	ResourceDomain string                 `protobuf:"bytes,5,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	unknownFields  protoimpl.UnknownFields
@@ -467,17 +467,17 @@ var File_sentinez_core_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\x1a#sentinez/core/tenant/v1/model.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
+	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\x1a#sentinez/core/tenant/v1/model.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
 	"\x15DeleteResourceRequest\"\x18\n" +
 	"\x16DeleteResourceResponse\"\x17\n" +
 	"\x15UpdateResourceRequest\"\x18\n" +
 	"\x16UpdateResourceResponse\"\x17\n" +
 	"\x15CreateResourceRequest\"\x18\n" +
-	"\x16CreateResourceResponse\"\xd2\x02\n" +
-	"\x13ListResourceRequest\x123\n" +
-	"\x04page\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.PagesR\x04page\x128\n" +
-	"\x06status\x18\x02 \x01(\x0e2 .sentinez.types.common.v1.StatusR\x06status\x122\n" +
-	"\x04plan\x18\x03 \x01(\x0e2\x1e.sentinez.types.common.v1.PlanR\x04plan\x12I\n" +
+	"\x16CreateResourceResponse\"\xbd\x02\n" +
+	"\x13ListResourceRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x121\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
+	"\x04plan\x18\x03 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan\x12I\n" +
 	"\rresource_name\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x12M\n" +
 	"\x0fresource_domain\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\"m\n" +
 	"\x14ListResourceResponse\x12\x14\n" +
@@ -525,15 +525,15 @@ var file_sentinez_core_tenant_v1_tenant_proto_goTypes = []any{
 	(*ListResourceResponse)(nil),   // 7: sentinez.core.tenant.v1.ListResourceResponse
 	(*StatusResponse)(nil),         // 8: sentinez.core.tenant.v1.StatusResponse
 	(*StatusRequest)(nil),          // 9: sentinez.core.tenant.v1.StatusRequest
-	(*v1.Pages)(nil),               // 10: sentinez.types.common.v1.Pages
-	(v1.Status)(0),                 // 11: sentinez.types.common.v1.Status
-	(v1.Plan)(0),                   // 12: sentinez.types.common.v1.Plan
+	(*v1.Pages)(nil),               // 10: sentinez.types.v1.Pages
+	(v1.Status)(0),                 // 11: sentinez.types.v1.Status
+	(v1.Plan)(0),                   // 12: sentinez.types.v1.Plan
 	(*Resource)(nil),               // 13: sentinez.core.tenant.v1.Resource
 }
 var file_sentinez_core_tenant_v1_tenant_proto_depIdxs = []int32{
-	10, // 0: sentinez.core.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.common.v1.Pages
-	11, // 1: sentinez.core.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.common.v1.Status
-	12, // 2: sentinez.core.tenant.v1.ListResourceRequest.plan:type_name -> sentinez.types.common.v1.Plan
+	10, // 0: sentinez.core.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
+	11, // 1: sentinez.core.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
+	12, // 2: sentinez.core.tenant.v1.ListResourceRequest.plan:type_name -> sentinez.types.v1.Plan
 	13, // 3: sentinez.core.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.core.tenant.v1.Resource
 	9,  // 4: sentinez.core.tenant.v1.TenantService.Status:input_type -> sentinez.core.tenant.v1.StatusRequest
 	6,  // 5: sentinez.core.tenant.v1.TenantService.ListResource:input_type -> sentinez.core.tenant.v1.ListResourceRequest

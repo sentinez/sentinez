@@ -6,31 +6,31 @@ package tenantpb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_tenant = &commonpb.XMeta{
+var metadata_tenant = &typepb.XMeta{
 	ServiceName: "SENTINEZ // TENANT",
-	ServiceKind: commonpb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.tenant.v1",
 }
 
-func GetMetaTenant() *commonpb.XMeta {
-	return proto.Clone(metadata_tenant).(*commonpb.XMeta)
+func GetMetaTenant() *typepb.XMeta {
+	return proto.Clone(metadata_tenant).(*typepb.XMeta)
 }
 
 func GetMetaTenantServiceName() string {
 	return metadata_tenant.GetServiceName()
 }
 
-func GetMetaTenantServiceKind() commonpb.Kind {
+func GetMetaTenantServiceKind() typepb.Kind {
 	return metadata_tenant.GetServiceKind()
 }
 

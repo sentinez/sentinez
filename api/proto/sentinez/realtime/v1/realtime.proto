@@ -16,11 +16,11 @@ syntax = "proto3";
 
 package sentinez.realtime.v1;
 
-import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1;realtimepb";
 
-option (sentinez.types.common.v1.x_meta) = {
+option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // REALTIME",
   service_kind: KIND_GATEWAY_WEBSOCKET,
   service_key : "sentinez.realtime.v1",

@@ -6,31 +6,31 @@ package iampb
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var (
-	_ commonpb.Empty
+	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )
 
-var metadata_iam = &commonpb.XMeta{
+var metadata_iam = &typepb.XMeta{
 	ServiceName: "SENTINEZ // IAM",
-	ServiceKind: commonpb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_CORE,
 	ServiceKey:  "sentinez.core.iam.v1",
 }
 
-func GetMetaIam() *commonpb.XMeta {
-	return proto.Clone(metadata_iam).(*commonpb.XMeta)
+func GetMetaIam() *typepb.XMeta {
+	return proto.Clone(metadata_iam).(*typepb.XMeta)
 }
 
 func GetMetaIamServiceName() string {
 	return metadata_iam.GetServiceName()
 }
 
-func GetMetaIamServiceKind() commonpb.Kind {
+func GetMetaIamServiceKind() typepb.Kind {
 	return metadata_iam.GetServiceKind()
 }
 

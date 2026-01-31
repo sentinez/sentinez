@@ -17,11 +17,11 @@ syntax = "proto3";
 package sentinez.edge.v1;
 
 import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
-import "sentinez/types/common/v1/options.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepb";
 
-option (sentinez.types.common.v1.x_meta) = {
+option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // EDGE",
   service_kind: KIND_GATEWAY_EDGE,
   service_key : "sentinez.edge.v1",

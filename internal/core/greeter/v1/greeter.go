@@ -17,13 +17,13 @@ package greeter
 
 import (
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
 )
 
-func NewService(meta *commonpb.XMeta) *Greeter {
+func NewService(meta *typepb.XMeta) *Greeter {
 	return &Greeter{
 		Server:  netgrpc.NewDefault(meta),
 		handler: greeterhdl.New(),

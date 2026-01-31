@@ -21,8 +21,8 @@ import (
 
 	"github.com/pashagolub/pgxmock/v2"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
@@ -93,5 +93,5 @@ func TestLogin(t *testing.T) {
 	}
 
 	assert.True(t, perms.Has(
-		tokenCtx.PermissionBitwise, commonpb.Permission_PERMISSION_ROOT))
+		tokenCtx.PermissionBitwise, typepb.Permission_PERMISSION_ROOT))
 }
