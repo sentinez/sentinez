@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewDefaultHandlerTenant(ctx context.Context,
+func NewDefaultHandler(ctx context.Context,
 	conf *confpb.Config) tenantpb.TenantServiceServer {
 
 	rscrepo, err := resourcerepo.New(ctx, conf)
