@@ -134,7 +134,7 @@ var File_sentinez_core_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\x1a\x1esentinez/edge/v1/setting.proto\"\xbd\x03\n" +
+	"#sentinez/core/tenant/v1/model.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1esentinez/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xbd\x03\n" +
 	"\bResource\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x120\n" +
 	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12D\n" +

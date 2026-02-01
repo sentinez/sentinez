@@ -10,9 +10,8 @@ export const protobufPackage = "sentinez.types.v1";
 
 export enum Role {
   ROLE_UNSPECIFIED = 0,
-  ROLE_CUSTOMER = 1,
-  ROLE_SELLER = 2,
-  ROLE_ADMIN = 3,
+  ROLE_MEMBER = 1,
+  ROLE_LEADER = 2,
   UNRECOGNIZED = -1,
 }
 
@@ -22,14 +21,11 @@ export function roleFromJSON(object: any): Role {
     case "ROLE_UNSPECIFIED":
       return Role.ROLE_UNSPECIFIED;
     case 1:
-    case "ROLE_CUSTOMER":
-      return Role.ROLE_CUSTOMER;
+    case "ROLE_MEMBER":
+      return Role.ROLE_MEMBER;
     case 2:
-    case "ROLE_SELLER":
-      return Role.ROLE_SELLER;
-    case 3:
-    case "ROLE_ADMIN":
-      return Role.ROLE_ADMIN;
+    case "ROLE_LEADER":
+      return Role.ROLE_LEADER;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -41,12 +37,10 @@ export function roleToJSON(object: Role): string {
   switch (object) {
     case Role.ROLE_UNSPECIFIED:
       return "ROLE_UNSPECIFIED";
-    case Role.ROLE_CUSTOMER:
-      return "ROLE_CUSTOMER";
-    case Role.ROLE_SELLER:
-      return "ROLE_SELLER";
-    case Role.ROLE_ADMIN:
-      return "ROLE_ADMIN";
+    case Role.ROLE_MEMBER:
+      return "ROLE_MEMBER";
+    case Role.ROLE_LEADER:
+      return "ROLE_LEADER";
     case Role.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

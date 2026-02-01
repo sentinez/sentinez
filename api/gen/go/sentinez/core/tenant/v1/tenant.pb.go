@@ -23,6 +23,7 @@ package tenantpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -39,15 +40,112 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GetResourceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Default       bool                   `protobuf:"varint,2,opt,name=default,proto3" json:"default,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetResourceRequest) Reset() {
+	*x = GetResourceRequest{}
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetResourceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResourceRequest) ProtoMessage() {}
+
+func (x *GetResourceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResourceRequest.ProtoReflect.Descriptor instead.
+func (*GetResourceRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetResourceRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetResourceRequest) GetDefault() bool {
+	if x != nil {
+		return x.Default
+	}
+	return false
+}
+
+type GetResourceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetResourceResponse) Reset() {
+	*x = GetResourceResponse{}
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetResourceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResourceResponse) ProtoMessage() {}
+
+func (x *GetResourceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResourceResponse.ProtoReflect.Descriptor instead.
+func (*GetResourceResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetResourceResponse) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
 type DeleteResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteResourceRequest) Reset() {
 	*x = DeleteResourceRequest{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[0]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -59,7 +157,7 @@ func (x *DeleteResourceRequest) String() string {
 func (*DeleteResourceRequest) ProtoMessage() {}
 
 func (x *DeleteResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[0]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -72,7 +170,14 @@ func (x *DeleteResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteResourceRequest.ProtoReflect.Descriptor instead.
 func (*DeleteResourceRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{0}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteResourceRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 type DeleteResourceResponse struct {
@@ -83,7 +188,7 @@ type DeleteResourceResponse struct {
 
 func (x *DeleteResourceResponse) Reset() {
 	*x = DeleteResourceResponse{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[1]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +200,7 @@ func (x *DeleteResourceResponse) String() string {
 func (*DeleteResourceResponse) ProtoMessage() {}
 
 func (x *DeleteResourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[1]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,18 +213,23 @@ func (x *DeleteResourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteResourceResponse.ProtoReflect.Descriptor instead.
 func (*DeleteResourceResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{3}
 }
 
 type UpdateResourceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ResourceDomain string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
+	ResourceName   string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
+	Status         v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Plan           v1.Plan                `protobuf:"varint,5,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateResourceRequest) Reset() {
 	*x = UpdateResourceRequest{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[2]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -131,7 +241,7 @@ func (x *UpdateResourceRequest) String() string {
 func (*UpdateResourceRequest) ProtoMessage() {}
 
 func (x *UpdateResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[2]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -144,7 +254,42 @@ func (x *UpdateResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateResourceRequest.ProtoReflect.Descriptor instead.
 func (*UpdateResourceRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateResourceRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateResourceRequest) GetResourceDomain() string {
+	if x != nil {
+		return x.ResourceDomain
+	}
+	return ""
+}
+
+func (x *UpdateResourceRequest) GetResourceName() string {
+	if x != nil {
+		return x.ResourceName
+	}
+	return ""
+}
+
+func (x *UpdateResourceRequest) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *UpdateResourceRequest) GetPlan() v1.Plan {
+	if x != nil {
+		return x.Plan
+	}
+	return v1.Plan(0)
 }
 
 type UpdateResourceResponse struct {
@@ -155,7 +300,7 @@ type UpdateResourceResponse struct {
 
 func (x *UpdateResourceResponse) Reset() {
 	*x = UpdateResourceResponse{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[3]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -167,7 +312,7 @@ func (x *UpdateResourceResponse) String() string {
 func (*UpdateResourceResponse) ProtoMessage() {}
 
 func (x *UpdateResourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[3]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,18 +325,23 @@ func (x *UpdateResourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateResourceResponse.ProtoReflect.Descriptor instead.
 func (*UpdateResourceResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{5}
 }
 
 type CreateResourceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ResourceSetting *v11.Setting           `protobuf:"bytes,1,opt,name=resource_setting,json=resourceSetting,proto3" json:"resource_setting,omitempty"`
+	ResourceDomain  string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
+	ResourceName    string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
+	Status          v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Plan            v1.Plan                `protobuf:"varint,5,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CreateResourceRequest) Reset() {
 	*x = CreateResourceRequest{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[4]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -203,7 +353,7 @@ func (x *CreateResourceRequest) String() string {
 func (*CreateResourceRequest) ProtoMessage() {}
 
 func (x *CreateResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[4]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -216,18 +366,54 @@ func (x *CreateResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateResourceRequest.ProtoReflect.Descriptor instead.
 func (*CreateResourceRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateResourceRequest) GetResourceSetting() *v11.Setting {
+	if x != nil {
+		return x.ResourceSetting
+	}
+	return nil
+}
+
+func (x *CreateResourceRequest) GetResourceDomain() string {
+	if x != nil {
+		return x.ResourceDomain
+	}
+	return ""
+}
+
+func (x *CreateResourceRequest) GetResourceName() string {
+	if x != nil {
+		return x.ResourceName
+	}
+	return ""
+}
+
+func (x *CreateResourceRequest) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *CreateResourceRequest) GetPlan() v1.Plan {
+	if x != nil {
+		return x.Plan
+	}
+	return v1.Plan(0)
 }
 
 type CreateResourceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateResourceResponse) Reset() {
 	*x = CreateResourceResponse{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[5]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -239,7 +425,7 @@ func (x *CreateResourceResponse) String() string {
 func (*CreateResourceResponse) ProtoMessage() {}
 
 func (x *CreateResourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[5]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -252,7 +438,14 @@ func (x *CreateResourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateResourceResponse.ProtoReflect.Descriptor instead.
 func (*CreateResourceResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateResourceResponse) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
 }
 
 type ListResourceRequest struct {
@@ -268,7 +461,7 @@ type ListResourceRequest struct {
 
 func (x *ListResourceRequest) Reset() {
 	*x = ListResourceRequest{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[6]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -280,7 +473,7 @@ func (x *ListResourceRequest) String() string {
 func (*ListResourceRequest) ProtoMessage() {}
 
 func (x *ListResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[6]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -293,7 +486,7 @@ func (x *ListResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResourceRequest.ProtoReflect.Descriptor instead.
 func (*ListResourceRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListResourceRequest) GetPage() *v1.Pages {
@@ -341,7 +534,7 @@ type ListResourceResponse struct {
 
 func (x *ListResourceResponse) Reset() {
 	*x = ListResourceResponse{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[7]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +546,7 @@ func (x *ListResourceResponse) String() string {
 func (*ListResourceResponse) ProtoMessage() {}
 
 func (x *ListResourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[7]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +559,7 @@ func (x *ListResourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResourceResponse.ProtoReflect.Descriptor instead.
 func (*ListResourceResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{7}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListResourceResponse) GetTotal() int64 {
@@ -392,7 +585,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[8]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +597,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[8]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,7 +610,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{8}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *StatusResponse) GetMessage() string {
@@ -435,7 +628,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[9]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +640,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[9]
+	mi := &file_sentinez_core_tenant_v1_tenant_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,20 +653,37 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{9}
+	return file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP(), []int{11}
 }
 
 var File_sentinez_core_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\x1a#sentinez/core/tenant/v1/model.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
-	"\x15DeleteResourceRequest\"\x18\n" +
-	"\x16DeleteResourceResponse\"\x17\n" +
-	"\x15UpdateResourceRequest\"\x18\n" +
-	"\x16UpdateResourceResponse\"\x17\n" +
-	"\x15CreateResourceRequest\"\x18\n" +
-	"\x16CreateResourceResponse\"\xbd\x02\n" +
+	"$sentinez/core/tenant/v1/tenant.proto\x12\x17sentinez.core.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/core/tenant/v1/model.proto\x1a\x1esentinez/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
+	"\x12GetResourceRequest\x120\n" +
+	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x00r\x18:\x16senz.tenant.resources.R\x02id\x12\x18\n" +
+	"\adefault\x18\x02 \x01(\bR\adefault\"T\n" +
+	"\x13GetResourceResponse\x12=\n" +
+	"\bresource\x18\x01 \x01(\v2!.sentinez.core.tenant.v1.ResourceR\bresource\"I\n" +
+	"\x15DeleteResourceRequest\x120\n" +
+	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\"\x18\n" +
+	"\x16DeleteResourceResponse\"\xc3\x02\n" +
+	"\x15UpdateResourceRequest\x120\n" +
+	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12M\n" +
+	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
+	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
+	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan\"\x18\n" +
+	"\x16UpdateResourceResponse\"\xd7\x02\n" +
+	"\x15CreateResourceRequest\x12D\n" +
+	"\x10resource_setting\x18\x01 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
+	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
+	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
+	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan\"W\n" +
+	"\x16CreateResourceResponse\x12=\n" +
+	"\bresource\x18\x01 \x01(\v2!.sentinez.core.tenant.v1.ResourceR\bresource\"\xbd\x02\n" +
 	"\x13ListResourceRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x121\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
@@ -485,13 +695,14 @@ const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\tresources\x18\x02 \x03(\v2!.sentinez.core.tenant.v1.ResourceR\tresources\"*\n" +
 	"\x0eStatusResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x0f\n" +
-	"\rStatusRequest2\xd3\x05\n" +
+	"\rStatusRequest2\x98\a\n" +
 	"\rTenantService\x12w\n" +
-	"\x06Status\x12&.sentinez.core.tenant.v1.StatusRequest\x1a'.sentinez.core.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8c\x01\n" +
-	"\fListResource\x12,.sentinez.core.tenant.v1.ListResourceRequest\x1a-.sentinez.core.tenant.v1.ListResourceResponse\"\x1f\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x94\x01\n" +
-	"\x0eCreateResource\x12..sentinez.core.tenant.v1.CreateResourceRequest\x1a/.sentinez.core.tenant.v1.CreateResourceResponse\"!\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x94\x01\n" +
-	"\x0eUpdateResource\x12..sentinez.core.tenant.v1.UpdateResourceRequest\x1a/.sentinez.core.tenant.v1.UpdateResourceResponse\"!\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x8b\x01\n" +
-	"\x0eDeleteResource\x12..sentinez.core.tenant.v1.DeleteResourceRequest\x1a/.sentinez.core.tenant.v1.DeleteResourceResponse\"\x18\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resourceB\xe4\x01\x92Ad\x12\x15\n" +
+	"\x06Status\x12&.sentinez.core.tenant.v1.StatusRequest\x1a'.sentinez.core.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x96\x01\n" +
+	"\fListResource\x12,.sentinez.core.tenant.v1.ListResourceRequest\x1a-.sentinez.core.tenant.v1.ListResourceResponse\")\x8a\xb5\x18\f\x12\x04\b\x01\x10\b\x12\x04\b\x02\x10\x10\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x9e\x01\n" +
+	"\x0eCreateResource\x12..sentinez.core.tenant.v1.CreateResourceRequest\x1a/.sentinez.core.tenant.v1.CreateResourceResponse\"+\x8a\xb5\x18\f\x12\x04\b\x01\x10\x02\x12\x04\b\x02\x10\x04\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x9e\x01\n" +
+	"\x0eUpdateResource\x12..sentinez.core.tenant.v1.UpdateResourceRequest\x1a/.sentinez.core.tenant.v1.UpdateResourceResponse\"+\x8a\xb5\x18\f\x12\x04\b\x01\x10 \x12\x04\b\x02\x10@\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x9d\x01\n" +
+	"\x0eDeleteResource\x12..sentinez.core.tenant.v1.DeleteResourceRequest\x1a/.sentinez.core.tenant.v1.DeleteResourceResponse\"*\x8a\xb5\x18\x0e\x12\x05\b\x01\x10\x80\x01\x12\x05\b\x02\x10\x80\x02\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resource\x12\x92\x01\n" +
+	"\vGetResource\x12+.sentinez.core.tenant.v1.GetResourceRequest\x1a,.sentinez.core.tenant.v1.GetResourceResponse\"(\x8a\xb5\x18\f\x12\x04\b\x01\x10\b\x12\x04\b\x02\x10\x10\x82\xd3\xe4\x93\x02\x12\x12\x10/tenant/resourceB\xe4\x01\x92Ad\x12\x15\n" +
 	"\x0eTenant Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +
@@ -513,43 +724,55 @@ func file_sentinez_core_tenant_v1_tenant_proto_rawDescGZIP() []byte {
 	return file_sentinez_core_tenant_v1_tenant_proto_rawDescData
 }
 
-var file_sentinez_core_tenant_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_sentinez_core_tenant_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_core_tenant_v1_tenant_proto_goTypes = []any{
-	(*DeleteResourceRequest)(nil),  // 0: sentinez.core.tenant.v1.DeleteResourceRequest
-	(*DeleteResourceResponse)(nil), // 1: sentinez.core.tenant.v1.DeleteResourceResponse
-	(*UpdateResourceRequest)(nil),  // 2: sentinez.core.tenant.v1.UpdateResourceRequest
-	(*UpdateResourceResponse)(nil), // 3: sentinez.core.tenant.v1.UpdateResourceResponse
-	(*CreateResourceRequest)(nil),  // 4: sentinez.core.tenant.v1.CreateResourceRequest
-	(*CreateResourceResponse)(nil), // 5: sentinez.core.tenant.v1.CreateResourceResponse
-	(*ListResourceRequest)(nil),    // 6: sentinez.core.tenant.v1.ListResourceRequest
-	(*ListResourceResponse)(nil),   // 7: sentinez.core.tenant.v1.ListResourceResponse
-	(*StatusResponse)(nil),         // 8: sentinez.core.tenant.v1.StatusResponse
-	(*StatusRequest)(nil),          // 9: sentinez.core.tenant.v1.StatusRequest
-	(*v1.Pages)(nil),               // 10: sentinez.types.v1.Pages
-	(v1.Status)(0),                 // 11: sentinez.types.v1.Status
-	(v1.Plan)(0),                   // 12: sentinez.types.v1.Plan
-	(*Resource)(nil),               // 13: sentinez.core.tenant.v1.Resource
+	(*GetResourceRequest)(nil),     // 0: sentinez.core.tenant.v1.GetResourceRequest
+	(*GetResourceResponse)(nil),    // 1: sentinez.core.tenant.v1.GetResourceResponse
+	(*DeleteResourceRequest)(nil),  // 2: sentinez.core.tenant.v1.DeleteResourceRequest
+	(*DeleteResourceResponse)(nil), // 3: sentinez.core.tenant.v1.DeleteResourceResponse
+	(*UpdateResourceRequest)(nil),  // 4: sentinez.core.tenant.v1.UpdateResourceRequest
+	(*UpdateResourceResponse)(nil), // 5: sentinez.core.tenant.v1.UpdateResourceResponse
+	(*CreateResourceRequest)(nil),  // 6: sentinez.core.tenant.v1.CreateResourceRequest
+	(*CreateResourceResponse)(nil), // 7: sentinez.core.tenant.v1.CreateResourceResponse
+	(*ListResourceRequest)(nil),    // 8: sentinez.core.tenant.v1.ListResourceRequest
+	(*ListResourceResponse)(nil),   // 9: sentinez.core.tenant.v1.ListResourceResponse
+	(*StatusResponse)(nil),         // 10: sentinez.core.tenant.v1.StatusResponse
+	(*StatusRequest)(nil),          // 11: sentinez.core.tenant.v1.StatusRequest
+	(*Resource)(nil),               // 12: sentinez.core.tenant.v1.Resource
+	(v1.Status)(0),                 // 13: sentinez.types.v1.Status
+	(v1.Plan)(0),                   // 14: sentinez.types.v1.Plan
+	(*v11.Setting)(nil),            // 15: sentinez.edge.v1.Setting
+	(*v1.Pages)(nil),               // 16: sentinez.types.v1.Pages
 }
 var file_sentinez_core_tenant_v1_tenant_proto_depIdxs = []int32{
-	10, // 0: sentinez.core.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
-	11, // 1: sentinez.core.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
-	12, // 2: sentinez.core.tenant.v1.ListResourceRequest.plan:type_name -> sentinez.types.v1.Plan
-	13, // 3: sentinez.core.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.core.tenant.v1.Resource
-	9,  // 4: sentinez.core.tenant.v1.TenantService.Status:input_type -> sentinez.core.tenant.v1.StatusRequest
-	6,  // 5: sentinez.core.tenant.v1.TenantService.ListResource:input_type -> sentinez.core.tenant.v1.ListResourceRequest
-	4,  // 6: sentinez.core.tenant.v1.TenantService.CreateResource:input_type -> sentinez.core.tenant.v1.CreateResourceRequest
-	2,  // 7: sentinez.core.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.core.tenant.v1.UpdateResourceRequest
-	0,  // 8: sentinez.core.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.core.tenant.v1.DeleteResourceRequest
-	8,  // 9: sentinez.core.tenant.v1.TenantService.Status:output_type -> sentinez.core.tenant.v1.StatusResponse
-	7,  // 10: sentinez.core.tenant.v1.TenantService.ListResource:output_type -> sentinez.core.tenant.v1.ListResourceResponse
-	5,  // 11: sentinez.core.tenant.v1.TenantService.CreateResource:output_type -> sentinez.core.tenant.v1.CreateResourceResponse
-	3,  // 12: sentinez.core.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.core.tenant.v1.UpdateResourceResponse
-	1,  // 13: sentinez.core.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.core.tenant.v1.DeleteResourceResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	12, // 0: sentinez.core.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.core.tenant.v1.Resource
+	13, // 1: sentinez.core.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	14, // 2: sentinez.core.tenant.v1.UpdateResourceRequest.plan:type_name -> sentinez.types.v1.Plan
+	15, // 3: sentinez.core.tenant.v1.CreateResourceRequest.resource_setting:type_name -> sentinez.edge.v1.Setting
+	13, // 4: sentinez.core.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	14, // 5: sentinez.core.tenant.v1.CreateResourceRequest.plan:type_name -> sentinez.types.v1.Plan
+	12, // 6: sentinez.core.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.core.tenant.v1.Resource
+	16, // 7: sentinez.core.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
+	13, // 8: sentinez.core.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
+	14, // 9: sentinez.core.tenant.v1.ListResourceRequest.plan:type_name -> sentinez.types.v1.Plan
+	12, // 10: sentinez.core.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.core.tenant.v1.Resource
+	11, // 11: sentinez.core.tenant.v1.TenantService.Status:input_type -> sentinez.core.tenant.v1.StatusRequest
+	8,  // 12: sentinez.core.tenant.v1.TenantService.ListResource:input_type -> sentinez.core.tenant.v1.ListResourceRequest
+	6,  // 13: sentinez.core.tenant.v1.TenantService.CreateResource:input_type -> sentinez.core.tenant.v1.CreateResourceRequest
+	4,  // 14: sentinez.core.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.core.tenant.v1.UpdateResourceRequest
+	2,  // 15: sentinez.core.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.core.tenant.v1.DeleteResourceRequest
+	0,  // 16: sentinez.core.tenant.v1.TenantService.GetResource:input_type -> sentinez.core.tenant.v1.GetResourceRequest
+	10, // 17: sentinez.core.tenant.v1.TenantService.Status:output_type -> sentinez.core.tenant.v1.StatusResponse
+	9,  // 18: sentinez.core.tenant.v1.TenantService.ListResource:output_type -> sentinez.core.tenant.v1.ListResourceResponse
+	7,  // 19: sentinez.core.tenant.v1.TenantService.CreateResource:output_type -> sentinez.core.tenant.v1.CreateResourceResponse
+	5,  // 20: sentinez.core.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.core.tenant.v1.UpdateResourceResponse
+	3,  // 21: sentinez.core.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.core.tenant.v1.DeleteResourceResponse
+	1,  // 22: sentinez.core.tenant.v1.TenantService.GetResource:output_type -> sentinez.core.tenant.v1.GetResourceResponse
+	17, // [17:23] is the sub-list for method output_type
+	11, // [11:17] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_core_tenant_v1_tenant_proto_init() }
@@ -564,7 +787,7 @@ func file_sentinez_core_tenant_v1_tenant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_core_tenant_v1_tenant_proto_rawDesc), len(file_sentinez_core_tenant_v1_tenant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

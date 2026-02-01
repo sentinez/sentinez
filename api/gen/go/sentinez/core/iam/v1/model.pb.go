@@ -285,7 +285,7 @@ var File_sentinez_core_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\"\xd4\x02\n" +
+	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd4\x02\n" +
 	"\aAccount\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +

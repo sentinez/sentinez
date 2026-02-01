@@ -6,27 +6,49 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Setting } from "../../../edge/v1/setting";
 import { Pages, Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/meta";
 import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";
 
+export interface GetResourceRequest {
+  id: string;
+  default: boolean;
+}
+
+export interface GetResourceResponse {
+  resource?: Resource | undefined;
+}
+
 export interface DeleteResourceRequest {
+  id: string;
 }
 
 export interface DeleteResourceResponse {
 }
 
 export interface UpdateResourceRequest {
+  id: string;
+  resourceDomain: string;
+  resourceName: string;
+  status: Status;
+  plan: Plan;
 }
 
 export interface UpdateResourceResponse {
 }
 
 export interface CreateResourceRequest {
+  resourceSetting?: Setting | undefined;
+  resourceDomain: string;
+  resourceName: string;
+  status: Status;
+  plan: Plan;
 }
 
 export interface CreateResourceResponse {
+  resource?: Resource | undefined;
 }
 
 export interface ListResourceRequest {
@@ -49,12 +71,151 @@ export interface StatusResponse {
 export interface StatusRequest {
 }
 
+function createBaseGetResourceRequest(): GetResourceRequest {
+  return { id: "", default: false };
+}
+
+export const GetResourceRequest: MessageFns<GetResourceRequest> = {
+  encode(message: GetResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.default !== false) {
+      writer.uint32(16).bool(message.default);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetResourceRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetResourceRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.default = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetResourceRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      default: isSet(object.default) ? globalThis.Boolean(object.default) : false,
+    };
+  },
+
+  toJSON(message: GetResourceRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.default !== false) {
+      obj.default = message.default;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetResourceRequest>, I>>(base?: I): GetResourceRequest {
+    return GetResourceRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetResourceRequest>, I>>(object: I): GetResourceRequest {
+    const message = createBaseGetResourceRequest();
+    message.id = object.id ?? "";
+    message.default = object.default ?? false;
+    return message;
+  },
+};
+
+function createBaseGetResourceResponse(): GetResourceResponse {
+  return { resource: undefined };
+}
+
+export const GetResourceResponse: MessageFns<GetResourceResponse> = {
+  encode(message: GetResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resource !== undefined) {
+      Resource.encode(message.resource, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetResourceResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetResourceResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.resource = Resource.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetResourceResponse {
+    return { resource: isSet(object.resource) ? Resource.fromJSON(object.resource) : undefined };
+  },
+
+  toJSON(message: GetResourceResponse): unknown {
+    const obj: any = {};
+    if (message.resource !== undefined) {
+      obj.resource = Resource.toJSON(message.resource);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetResourceResponse>, I>>(base?: I): GetResourceResponse {
+    return GetResourceResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetResourceResponse>, I>>(object: I): GetResourceResponse {
+    const message = createBaseGetResourceResponse();
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource.fromPartial(object.resource)
+      : undefined;
+    return message;
+  },
+};
+
 function createBaseDeleteResourceRequest(): DeleteResourceRequest {
-  return {};
+  return { id: "" };
 }
 
 export const DeleteResourceRequest: MessageFns<DeleteResourceRequest> = {
-  encode(_: DeleteResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: DeleteResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
     return writer;
   },
 
@@ -65,6 +226,14 @@ export const DeleteResourceRequest: MessageFns<DeleteResourceRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -74,20 +243,24 @@ export const DeleteResourceRequest: MessageFns<DeleteResourceRequest> = {
     return message;
   },
 
-  fromJSON(_: any): DeleteResourceRequest {
-    return {};
+  fromJSON(object: any): DeleteResourceRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(_: DeleteResourceRequest): unknown {
+  toJSON(message: DeleteResourceRequest): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<DeleteResourceRequest>, I>>(base?: I): DeleteResourceRequest {
     return DeleteResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteResourceRequest>, I>>(_: I): DeleteResourceRequest {
+  fromPartial<I extends Exact<DeepPartial<DeleteResourceRequest>, I>>(object: I): DeleteResourceRequest {
     const message = createBaseDeleteResourceRequest();
+    message.id = object.id ?? "";
     return message;
   },
 };
@@ -136,11 +309,26 @@ export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
 };
 
 function createBaseUpdateResourceRequest(): UpdateResourceRequest {
-  return {};
+  return { id: "", resourceDomain: "", resourceName: "", status: 0, plan: 0 };
 }
 
 export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
-  encode(_: UpdateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: UpdateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(18).string(message.resourceDomain);
+    }
+    if (message.resourceName !== "") {
+      writer.uint32(26).string(message.resourceName);
+    }
+    if (message.status !== 0) {
+      writer.uint32(32).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(40).int32(message.plan);
+    }
     return writer;
   },
 
@@ -151,6 +339,46 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.resourceName = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -160,20 +388,46 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     return message;
   },
 
-  fromJSON(_: any): UpdateResourceRequest {
-    return {};
+  fromJSON(object: any): UpdateResourceRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
+      resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+    };
   },
 
-  toJSON(_: UpdateResourceRequest): unknown {
+  toJSON(message: UpdateResourceRequest): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
+    }
+    if (message.resourceName !== "") {
+      obj.resourceName = message.resourceName;
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(base?: I): UpdateResourceRequest {
     return UpdateResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(_: I): UpdateResourceRequest {
+  fromPartial<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(object: I): UpdateResourceRequest {
     const message = createBaseUpdateResourceRequest();
+    message.id = object.id ?? "";
+    message.resourceDomain = object.resourceDomain ?? "";
+    message.resourceName = object.resourceName ?? "";
+    message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
     return message;
   },
 };
@@ -222,11 +476,26 @@ export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
 };
 
 function createBaseCreateResourceRequest(): CreateResourceRequest {
-  return {};
+  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0, plan: 0 };
 }
 
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
-  encode(_: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resourceSetting !== undefined) {
+      Setting.encode(message.resourceSetting, writer.uint32(10).fork()).join();
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(18).string(message.resourceDomain);
+    }
+    if (message.resourceName !== "") {
+      writer.uint32(26).string(message.resourceName);
+    }
+    if (message.status !== 0) {
+      writer.uint32(32).int32(message.status);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(40).int32(message.plan);
+    }
     return writer;
   },
 
@@ -237,6 +506,46 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.resourceSetting = Setting.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.resourceName = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.plan = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -246,30 +555,61 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     return message;
   },
 
-  fromJSON(_: any): CreateResourceRequest {
-    return {};
+  fromJSON(object: any): CreateResourceRequest {
+    return {
+      resourceSetting: isSet(object.resourceSetting) ? Setting.fromJSON(object.resourceSetting) : undefined,
+      resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "",
+      resourceName: isSet(object.resourceName) ? globalThis.String(object.resourceName) : "",
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+    };
   },
 
-  toJSON(_: CreateResourceRequest): unknown {
+  toJSON(message: CreateResourceRequest): unknown {
     const obj: any = {};
+    if (message.resourceSetting !== undefined) {
+      obj.resourceSetting = Setting.toJSON(message.resourceSetting);
+    }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
+    }
+    if (message.resourceName !== "") {
+      obj.resourceName = message.resourceName;
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(base?: I): CreateResourceRequest {
     return CreateResourceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(_: I): CreateResourceRequest {
+  fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(object: I): CreateResourceRequest {
     const message = createBaseCreateResourceRequest();
+    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
+      ? Setting.fromPartial(object.resourceSetting)
+      : undefined;
+    message.resourceDomain = object.resourceDomain ?? "";
+    message.resourceName = object.resourceName ?? "";
+    message.status = object.status ?? 0;
+    message.plan = object.plan ?? 0;
     return message;
   },
 };
 
 function createBaseCreateResourceResponse(): CreateResourceResponse {
-  return {};
+  return { resource: undefined };
 }
 
 export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
-  encode(_: CreateResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: CreateResourceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resource !== undefined) {
+      Resource.encode(message.resource, writer.uint32(10).fork()).join();
+    }
     return writer;
   },
 
@@ -280,6 +620,14 @@ export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.resource = Resource.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -289,20 +637,26 @@ export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
     return message;
   },
 
-  fromJSON(_: any): CreateResourceResponse {
-    return {};
+  fromJSON(object: any): CreateResourceResponse {
+    return { resource: isSet(object.resource) ? Resource.fromJSON(object.resource) : undefined };
   },
 
-  toJSON(_: CreateResourceResponse): unknown {
+  toJSON(message: CreateResourceResponse): unknown {
     const obj: any = {};
+    if (message.resource !== undefined) {
+      obj.resource = Resource.toJSON(message.resource);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<CreateResourceResponse>, I>>(base?: I): CreateResourceResponse {
     return CreateResourceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateResourceResponse>, I>>(_: I): CreateResourceResponse {
+  fromPartial<I extends Exact<DeepPartial<CreateResourceResponse>, I>>(object: I): CreateResourceResponse {
     const message = createBaseCreateResourceResponse();
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource.fromPartial(object.resource)
+      : undefined;
     return message;
   },
 };

@@ -16,8 +16,10 @@ package tenantsvc
 
 import (
 	"context"
+	"fmt"
 
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resources"
 	"github.com/sentinez/shared/zlog"
 )
@@ -34,25 +36,82 @@ type Service struct {
 	resource resourcerepo.IResource
 }
 
+func (svc *Service) defaultSetting() *edgepb.Setting {
+	st := &edgepb.Setting{}
+	return st
+}
+
+func (svc *Service) GetResource(ctx context.Context,
+	req *tenantpb.GetResourceRequest) (*tenantpb.GetResourceResponse, error) {
+
+	rsc, err := svc.resource.Get(ctx, req.GetId())
+	if err != nil {
+		return nil, fmt.Errorf("resource.Get: %w", err)
+	}
+
+	if req.GetDefault() {
+		rsc.ResourceSetting = svc.defaultSetting()
+	}
+
+	return &tenantpb.GetResourceResponse{Resource: rsc}, nil
+}
+
 // CreateResource implements tenantpb.TenantServiceServer.
-func (svc *Service) CreateResource(context.Context,
-	*tenantpb.CreateResourceRequest,
+func (svc *Service) CreateResource(ctx context.Context,
+	req *tenantpb.CreateResourceRequest,
 ) (*tenantpb.CreateResourceResponse, error) {
-	panic("unimplemented")
+	resource := &tenantpb.Resource{
+		ResourceSetting: req.GetResourceSetting(),
+		ResourceDomain:  req.GetResourceDomain(),
+		ResourceName:    req.GetResourceName(),
+		Status:          req.GetStatus(),
+		Plan:            req.GetPlan(),
+	}
+
+	if resource.GetResourceSetting() == nil {
+		resource.ResourceSetting = svc.defaultSetting()
+	}
+
+	resp, err := svc.resource.Create(ctx, resource)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tenantpb.CreateResourceResponse{Resource: resp}, nil
 }
 
 // DeleteResource implements tenantpb.TenantServiceServer.
-func (svc *Service) DeleteResource(context.Context,
-	*tenantpb.DeleteResourceRequest,
+func (svc *Service) DeleteResource(ctx context.Context,
+	req *tenantpb.DeleteResourceRequest,
 ) (*tenantpb.DeleteResourceResponse, error) {
-	panic("unimplemented")
+	if err := svc.resource.Delete(ctx, req.GetId()); err != nil {
+		return nil, fmt.Errorf("resource.Delete: %w", err)
+	}
+
+	return &tenantpb.DeleteResourceResponse{}, nil
 }
 
 // UpdateResource implements tenantpb.TenantServiceServer.
-func (svc *Service) UpdateResource(context.Context,
-	*tenantpb.UpdateResourceRequest,
+func (svc *Service) UpdateResource(ctx context.Context,
+	req *tenantpb.UpdateResourceRequest,
 ) (*tenantpb.UpdateResourceResponse, error) {
-	panic("unimplemented")
+	_, err := svc.resource.Get(ctx, req.GetId())
+	if err != nil {
+		return nil, fmt.Errorf("resource.Get: %w", err)
+	}
+
+	err = svc.resource.Update(ctx, &tenantpb.Resource{
+		Id:             req.GetId(),
+		ResourceDomain: req.GetResourceDomain(),
+		ResourceName:   req.GetResourceName(),
+		Status:         req.GetStatus(),
+		Plan:           req.GetPlan(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("resource.Update: %w", err)
+	}
+
+	return &tenantpb.UpdateResourceResponse{}, nil
 }
 
 func (svc *Service) Status(_ context.Context,

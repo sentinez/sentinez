@@ -4,20 +4,16 @@ package example;
 
 import "google/protobuf/descriptor.proto";
 import "google/protobuf/empty.proto";
+import "sentinez/types/v1/options.proto";
+import "sentinez/types/v1/known.proto";
 
-option go_package = "/example";
+option go_package = "github.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/example";
+option (sentinez.types.v1.x_meta) = {
+  service_name: "SENTINEZ // EDGE"
+  service_kind: KIND_GATEWAY_EDGE
+  service_key: "sentinez.edge.v1"
+};
 
-
-extend google.protobuf.MethodOptions {
-  SentinezMethodOptions options = 50001;
-}
-
-enum Role {
-  ROLE_UNSPECIFIED = 0;
-  ROLE_CUSTOMER = 1;
-  ROLE_SELLER = 2;
-  ROLE_ADMIN = 3;
-}
 
 message SentinezMethodOptions {
   bool ignore = 1;
@@ -25,8 +21,8 @@ message SentinezMethodOptions {
 }
 
 message Require {
-  Role role = 1;
-  Permission permission = 2;
+  sentinez.types.v1.Role role = 1;
+  sentinez.types.v1.Permission permission = 2;
 }
 
 enum Permission {
@@ -41,21 +37,23 @@ enum Permission {
 }
 
 message Hello {
-
+  option (sentinez.types.v1.x_message).database_model = true;
+  string f_1 = 1;
+  string f_2 = 2;
 }
 
 service ExampleService {
   rpc Create(google.protobuf.Empty) returns (google.protobuf.Empty) {
-    option (options) = {
-      require: { role: ROLE_ADMIN, permission: PERMISSION_CREATE }
+    option (sentinez.types.v1.x_method) = {
+      require: { role: ROLE_MEMBER, permission: PERMISSION_CREATE_OWN }
     };
   }
 
   rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {
-    option (options) = {
+    option (sentinez.types.v1.x_method) = {
       require: [
-        { role: ROLE_ADMIN, permission: PERMISSION_UPDATE_ANY },
-        { role: ROLE_SELLER, permission: PERMISSION_UPDATE_OWN }
+        { role: ROLE_LEADER, permission: PERMISSION_UPDATE_ANY },
+        { role: ROLE_MEMBER, permission: PERMISSION_UPDATE_OWN }
       ]
     };
   }

@@ -21,6 +21,40 @@
   ],
   "paths": {
     "/tenant/resource": {
+      "get": {
+        "operationId": "TenantService_GetResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "default",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
       "delete": {
         "summary": "Deletes a tenant resource.",
         "operationId": "TenantService_DeleteResource",
@@ -38,6 +72,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "TenantService"
         ]
@@ -402,10 +444,32 @@
       "title": "A logical condition expression"
     },
     "v1CreateResourceRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "resourceSetting": {
+          "$ref": "#/definitions/v1Setting"
+        },
+        "resourceDomain": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        }
+      }
     },
     "v1CreateResourceResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        }
+      }
     },
     "v1DeleteResourceResponse": {
       "type": "object"
@@ -492,6 +556,14 @@
       ],
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
+    },
+    "v1GetResourceResponse": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        }
+      }
     },
     "v1ListResourceResponse": {
       "type": "object",
@@ -739,7 +811,24 @@
       "title": "TrafficControl for systems using a virtual waiting room or throttling:"
     },
     "v1UpdateResourceRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "resourceDomain": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        }
+      }
     },
     "v1UpdateResourceResponse": {
       "type": "object"

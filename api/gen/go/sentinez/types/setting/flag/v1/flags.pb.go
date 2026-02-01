@@ -151,7 +151,7 @@ var File_sentinez_types_setting_flag_v1_flags_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_setting_flag_v1_flags_proto_rawDesc = "" +
 	"\n" +
-	"*sentinez/types/setting/flag/v1/flags.proto\x12\x1esentinez.types.setting.flag.v1\x1a\x1fsentinez/types/v1/options.proto\x1a\x1bbuf/validate/validate.proto\"\xf8\x02\n" +
+	"*sentinez/types/setting/flag/v1/flags.proto\x12\x1esentinez.types.setting.flag.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf8\x02\n" +
 	"\x04Flag\x126\n" +
 	"\benv_mode\x18\x01 \x01(\tB\x1b\xbaH\x18r\x162\x14^(dev|prod|sandbox)$R\aenvMode\x12=\n" +
 	"\tlog_level\x18\x02 \x01(\tB \xbaH\x1dr\x1b2\x19^(debug|info|warn|error)$R\blogLevel\x12\x19\n" +

@@ -103,8 +103,7 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 		return nil, err
 	}
 
-	if !perms.HasLeastOne(
-		ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
+	if !perms.HasLeastOne(ss.GetPermissionBitwise(), perms.DefaultViewAny()) {
 		request.UserIds = []string{ss.GetUserId()}
 	}
 

@@ -203,7 +203,7 @@ var File_sentinez_core_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fsentinez/types/v1/options.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"W\n" +
+	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1fsentinez/types/v1/options.proto\"W\n" +
 	"\x16CreateRuleBasedRequest\x12=\n" +
 	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\"\x19\n" +
 	"\x17CreateRuleBasedResponse\"\x0f\n" +

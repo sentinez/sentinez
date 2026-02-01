@@ -219,7 +219,7 @@ var File_sentinez_core_greeter_v1_greeter_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_greeter_v1_greeter_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/core/greeter/v1/greeter.proto\x12\x18sentinez.core.greeter.v1\x1a\x1csentinez/types/v1/meta.proto\x1a\x1fsentinez/types/v1/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\\\n" +
+	"&sentinez/core/greeter/v1/greeter.proto\x12\x18sentinez.core.greeter.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\\\n" +
 	"\x0fSayHelloRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\",\n" +

@@ -37,7 +37,163 @@ var (
 	_ = typepb.Status(0)
 
 	_ = typepb.Plan(0)
+
+	_ = typepb.Status(0)
+
+	_ = typepb.Plan(0)
+
+	_ = typepb.Status(0)
+
+	_ = typepb.Plan(0)
 )
+
+// Validate checks the field values on GetResourceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetResourceRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Default
+
+	return nil
+}
+
+// GetResourceRequestValidationError is the validation error returned by
+// GetResourceRequest.Validate if the designated constraints aren't met.
+type GetResourceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetResourceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetResourceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetResourceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetResourceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetResourceRequestValidationError) ErrorName() string {
+	return "GetResourceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetResourceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetResourceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetResourceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetResourceRequestValidationError{}
+
+// Validate checks the field values on GetResourceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetResourceResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetResourceResponseValidationError{
+				field:  "Resource",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetResourceResponseValidationError is the validation error returned by
+// GetResourceResponse.Validate if the designated constraints aren't met.
+type GetResourceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetResourceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetResourceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetResourceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetResourceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetResourceResponseValidationError) ErrorName() string {
+	return "GetResourceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetResourceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetResourceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetResourceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetResourceResponseValidationError{}
 
 // Validate checks the field values on DeleteResourceRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -46,6 +202,8 @@ func (m *DeleteResourceRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
+
+	// no validation rules for Id
 
 	return nil
 }
@@ -181,6 +339,16 @@ func (m *UpdateResourceRequest) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
+	// no validation rules for ResourceDomain
+
+	// no validation rules for ResourceName
+
+	// no validation rules for Status
+
+	// no validation rules for Plan
+
 	return nil
 }
 
@@ -315,6 +483,24 @@ func (m *CreateResourceRequest) Validate() error {
 		return nil
 	}
 
+	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateResourceRequestValidationError{
+				field:  "ResourceSetting",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ResourceDomain
+
+	// no validation rules for ResourceName
+
+	// no validation rules for Status
+
+	// no validation rules for Plan
+
 	return nil
 }
 
@@ -380,6 +566,16 @@ var _ interface {
 func (m *CreateResourceResponse) Validate() error {
 	if m == nil {
 		return nil
+	}
+
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateResourceResponseValidationError{
+				field:  "Resource",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
 
 	return nil

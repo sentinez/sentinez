@@ -170,12 +170,12 @@ func (rsc *Resources) Delete(ctx context.Context, id string) error {
 
 func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(rsc.storage, page,
-		string(tenantpb.Resource_Id),
-		string(tenantpb.Resource_Plan),
-		string(tenantpb.Resource_Status),
-		string(tenantpb.Resource_ResourceName),
-		string(tenantpb.Resource_ResourceDomain),
-		string(tenantpb.Resource_ResourceSetting),
+		tenantpb.Resource_Id,
+		tenantpb.Resource_Plan,
+		tenantpb.Resource_Status,
+		tenantpb.Resource_ResourceName,
+		tenantpb.Resource_ResourceDomain,
+		tenantpb.Resource_ResourceSetting,
 	)
 }
 

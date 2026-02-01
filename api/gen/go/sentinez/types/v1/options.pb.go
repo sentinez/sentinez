@@ -301,7 +301,7 @@ var File_sentinez_types_v1_options_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/types/v1/options.proto\x12\x11sentinez.types.v1\x1a\x1csentinez/types/v1/role.proto\x1a\"sentinez/types/v1/permission.proto\x1a\x1fsentinez/types/v1/service.proto\x1a google/protobuf/descriptor.proto\"\x87\x01\n" +
+	"\x1fsentinez/types/v1/options.proto\x12\x11sentinez.types.v1\x1a google/protobuf/descriptor.proto\x1a\x1dsentinez/types/v1/known.proto\"\x87\x01\n" +
 	"\x05XMeta\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12:\n" +
 	"\fservice_kind\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.KindR\vserviceKind\x12\x1f\n" +
@@ -370,9 +370,7 @@ func file_sentinez_types_v1_options_proto_init() {
 	if File_sentinez_types_v1_options_proto != nil {
 		return
 	}
-	file_sentinez_types_v1_role_proto_init()
-	file_sentinez_types_v1_permission_proto_init()
-	file_sentinez_types_v1_service_proto_init()
+	file_sentinez_types_v1_known_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -15,26 +15,25 @@
 syntax = "proto3";
 
 package sentinez.types.setting.flag.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1;flagpb";
 
-import "sentinez/types/v1/options.proto";
 import "buf/validate/validate.proto";
+import "sentinez/types/v1/options.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1;flagpb";
 
 message Flag {
   option (sentinez.types.v1.x_message).export_field = true;
 
   // base
-  string env_mode = 1
-  [ (buf.validate.field).string.pattern = "^(dev|prod|sandbox)$" ];
-  string log_level = 2
-  [ (buf.validate.field).string.pattern = "^(debug|info|warn|error)$" ];
+  string env_mode = 1 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
+  string log_level = 2 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
 
   // extra
-  string env_file         = 3;
-  string swagger_path     = 4;
-  string api_specs_path   = 5;
-  string rule_path        = 6;
-  string proxy_config     = 7;
+  string env_file = 3;
+  string swagger_path = 4;
+  string api_specs_path = 5;
+  string rule_path = 6;
+  string proxy_config = 7;
   string certificate_file = 8;
-  string cert_key_file    = 9;
+  string cert_key_file = 9;
 }

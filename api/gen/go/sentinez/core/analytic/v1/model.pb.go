@@ -109,7 +109,7 @@ var File_sentinez_core_analytic_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_analytic_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/core/analytic/v1/model.proto\x12\x19sentinez.core.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/meta.proto\"\xea\x01\n" +
+	"%sentinez/core/analytic/v1/model.proto\x12\x19sentinez.core.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xea\x01\n" +
 	"\bActivity\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x121\n" +
 	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.analytic.activity.R\x02id\x12C\n" +

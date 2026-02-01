@@ -16,110 +16,98 @@ syntax = "proto3";
 
 package sentinez.core.iam.v1;
 
-import "sentinez/types/v1/options.proto";
-import "sentinez/core/iam/v1/model.proto";
-import "sentinez/types/v1/meta.proto";
-import "sentinez/types/v1/context.proto";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "sentinez/core/iam/v1/model.proto";
+import "sentinez/types/v1/known.proto";
+import "sentinez/types/v1/model.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1;iampb";
-
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title  : "IAM Service";
-    version: "1.0";
-  };
-  schemes             : HTTP;
-  schemes             : HTTPS;
-  consumes            : "application/json";
+    title: "IAM Service"
+    version: "1.0"
+  }
+  schemes: HTTP
+  schemes: HTTPS
+  consumes: "application/json"
   security_definitions: {
     security: {
-      key  : "ApiKeyAuth";
+      key: "ApiKeyAuth"
       value: {
-        type: TYPE_API_KEY;
-        in  : IN_HEADER;
-        name: "Authorization";
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization"
       }
     }
   }
   security: {
     security_requirement: {
-      key  : "ApiKeyAuth";
+      key: "ApiKeyAuth"
       value: {}
     }
   }
 };
 
 option (sentinez.types.v1.x_meta) = {
-  service_name: "SENTINEZ // IAM",
-  service_kind: KIND_CORE,
-  service_key : "sentinez.core.iam.v1",
+  service_name: "SENTINEZ // IAM"
+  service_kind: KIND_CORE
+  service_key: "sentinez.core.iam.v1"
 };
 
 service IdentityAccessManagementService {
   // private method bellow
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 
   // public method bellow
 
   rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
-    option (google.api.http) = {
-      get: "/iam/accounts"
-    };
+    option (google.api.http) = {get: "/iam/accounts"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse){
-    option (google.api.http) = {
-      get: "/iam/users"
-    };
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/iam/users"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
-    option (google.api.http) = {
-      get: "/iam/status"
-    };
+    option (google.api.http) = {get: "/iam/status"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
     option (google.api.http) = {
-      post: "/iam/account",
+      post: "/iam/account"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
-  rpc GetUser(GetUserRequest) returns (GetUserResponse){
-    option (google.api.http) = {
-      get: "/iam/user"
-    };
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {get: "/iam/user"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
-    option (google.api.http) = {
-      delete: "/iam/user/{id}"
-    };
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {delete: "/iam/user/{id}"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      put : "/iam/login",
+      put: "/iam/login"
       body: "*"
     };
 
@@ -127,16 +115,14 @@ service IdentityAccessManagementService {
   }
 
   rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
-    option (google.api.http) = {
-      get: "/iam/passkey/register/challenge",
-    };
+    option (google.api.http) = {get: "/iam/passkey/register/challenge"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyRegisterVerify(PasskeyRegisterVerifyRequest) returns (PasskeyRegisterVerifyResponse) {
     option (google.api.http) = {
-      post: "/iam/passkey/register/verify",
+      post: "/iam/passkey/register/verify"
       body: "*"
     };
 
@@ -144,16 +130,14 @@ service IdentityAccessManagementService {
   }
 
   rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
-    option (google.api.http) = {
-      get: "/iam/passkey/login/challenge",
-    };
+    option (google.api.http) = {get: "/iam/passkey/login/challenge"};
 
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   rpc PasskeyLoginVerify(PasskeyLoginVerifyRequest) returns (PasskeyLoginVerifyResponse) {
     option (google.api.http) = {
-      put : "/iam/passkey/login/verify",
+      put: "/iam/passkey/login/verify"
       body: "*"
     };
 
@@ -162,64 +146,65 @@ service IdentityAccessManagementService {
 }
 
 message PasskeyLoginVerifyRequest {
-  string session_id                = 1;
-  bytes  credential_assertion_data = 2;
+  string session_id = 1;
+  bytes credential_assertion_data = 2;
 }
 
 message PasskeyLoginVerifyResponse {
-  sentinez.core.iam.v1.User user         = 1;
-  string                    access_token = 2;
+  sentinez.core.iam.v1.User user = 1;
+  string access_token = 2;
 }
 
 message PasskeyLoginChallengeRequest {
-  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
-    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
-  }}];
+  string email_or_username = 1 [(buf.validate.field) = {
+    required: true
+    string: {pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"}
+  }];
 }
 
 message PasskeyLoginChallengeResponse {
-  google.protobuf.Struct options    = 1;
-  string                 session_id = 2;
+  google.protobuf.Struct options = 1;
+  string session_id = 2;
 }
 
 message PasskeyRegisterVerifyRequest {
-  string session_id                   = 1;
-  bytes  credential_creation_response = 2;
+  string session_id = 1;
+  bytes credential_creation_response = 2;
 }
 
-message PasskeyRegisterVerifyResponse {
-
-}
+message PasskeyRegisterVerifyResponse {}
 
 message PasskeyRegisterChallengeRequest {
-  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
-    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
-  }}];
+  string email_or_username = 1 [(buf.validate.field) = {
+    required: true
+    string: {pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"}
+  }];
 }
 
 message PasskeyRegisterChallengeResponse {
-  google.protobuf.Struct options    = 1;
-  string                 session_id = 2;
+  google.protobuf.Struct options = 1;
+  string session_id = 2;
 }
 
 message LoginRequest {
-  string email_or_username = 1 [(buf.validate.field) = { required: true, string: {
-    pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$",
-  }}];
+  string email_or_username = 1 [(buf.validate.field) = {
+    required: true
+    string: {pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"}
+  }];
 
   string password = 2 [(buf.validate.field).string.min_len = 8];
 }
 
 message LoginResponse {
-  sentinez.core.iam.v1.User user         = 1;
-  string                    access_token = 2;
+  sentinez.core.iam.v1.User user = 1;
+  string access_token = 2;
 }
 
 message CreateAccountRequest {
-  string username     = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string full_name    = 2 [(buf.validate.field).required = true];
-  string password     = 3 [(buf.validate.field).string.min_len = 8];
-  string email        = 4 [(buf.validate.field).string.email = true];
+  string username = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string full_name = 2 [(buf.validate.field).required = true];
+  string password = 3 [(buf.validate.field).string.min_len = 8];
+  string email = 4 [(buf.validate.field).string.email = true];
   string phone_number = 5 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
@@ -228,8 +213,8 @@ message CreateAccountResponse {
 }
 
 message CreateUserRequest {
-  string full_name    = 1 [(buf.validate.field).required = true];
-  string email        = 2 [(buf.validate.field).string.email = true];
+  string full_name = 1 [(buf.validate.field).required = true];
+  string email = 2 [(buf.validate.field).string.email = true];
   string phone_number = 3 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
@@ -237,22 +222,21 @@ message CreateUserResponse {
   string user_id = 1;
 }
 
-message StatusRequest {
-
-}
+message StatusRequest {}
 
 message StatusResponse {
-  string                           msg     = 1;
+  string msg = 1;
   sentinez.types.v1.Context context = 2;
 }
 
 message UpdateUserRequest {
-  string id = 1 [(buf.validate.field) = { required: false, string: {
-    prefix: "senz.users.",
-  }}];
+  string id = 1 [(buf.validate.field) = {
+    required: false
+    string: {prefix: "senz.users."}
+  }];
 
-  string full_name    = 10 [(buf.validate.field).required = true];
-  string email        = 11 [(buf.validate.field).string.email = true];
+  string full_name = 10 [(buf.validate.field).required = true];
+  string email = 11 [(buf.validate.field).string.email = true];
   string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
@@ -261,9 +245,10 @@ message UpdateUserResponse {
 }
 
 message GetUserRequest {
-  string id = 1 [(buf.validate.field) = { required: false, string: {
-    prefix: "senz.users.",
-  }}];
+  string id = 1 [(buf.validate.field) = {
+    required: false
+    string: {prefix: "senz.users."}
+  }];
 
   string email = 2 [(buf.validate.field).string.email = true];
 }
@@ -273,28 +258,28 @@ message GetUserResponse {
 }
 
 message ListUsersRequest {
-  sentinez.types.v1.Pages page          = 1;
-  repeated string                ids           = 10;
-  repeated string                phone_numbers = 11;
-  repeated string                emails        = 12;
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+  repeated string phone_numbers = 11;
+  repeated string emails = 12;
 }
 
 message ListUsersResponse {
   repeated sentinez.core.iam.v1.User users = 1;
-  int64                              total = 2;
+  int64 total = 2;
 }
 
 message ListAccountsRequest {
-  sentinez.types.v1.Pages page      = 1;
-  repeated string                ids       = 10;
-  repeated string                user_ids  = 11;
-  repeated string                usernames = 12;
-  repeated string                emails    = 13;
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+  repeated string user_ids = 11;
+  repeated string usernames = 12;
+  repeated string emails = 13;
 }
 
 message ListAccountsResponse {
   repeated sentinez.core.iam.v1.AccountResponse accounts = 1;
-  int64                                         total    = 2;
+  int64 total = 2;
 }
 
 message DeleteUserRequest {

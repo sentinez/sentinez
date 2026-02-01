@@ -224,7 +224,7 @@ var File_sentinez_types_setting_conf_v1_config_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_setting_conf_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"+sentinez/types/setting/conf/v1/config.proto\x12\x1esentinez.types.setting.conf.v1\x1a\x1fsentinez/types/v1/options.proto\x1a*sentinez/types/setting/flag/v1/flags.proto\"\xe8\x02\n" +
+	"+sentinez/types/setting/conf/v1/config.proto\x12\x1esentinez.types.setting.conf.v1\x1a*sentinez/types/setting/flag/v1/flags.proto\x1a\x1fsentinez/types/v1/options.proto\"\xe8\x02\n" +
 	"\tEnvConfig\x12\x1a\n" +
 	"\bhostname\x18\x01 \x01(\tR\bhostname\x12!\n" +
 	"\fhttp_address\x18\x02 \x01(\tR\vhttpAddress\x12\x1d\n" +

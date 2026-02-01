@@ -15,14 +15,14 @@
 syntax = "proto3";
 
 package sentinez.core.analytic.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1;analyticpb";
 
 import "sentinez/types/v1/options.proto";
 
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1;analyticpb";
 option (sentinez.types.v1.x_meta) = {
-  service_name: "SENTINEZ // ANALYTICS",
-  service_kind: KIND_CORE,
-  service_key : "sentinez.core.analytic.v1",
+  service_name: "SENTINEZ // ANALYTICS"
+  service_kind: KIND_CORE
+  service_key: "sentinez.core.analytic.v1"
 };
 
 // AnalyticService handles data visualization
@@ -31,9 +31,7 @@ service AnalyticService {
   rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
-message StatusRequest {
-
-}
+message StatusRequest {}
 
 message StatusResponse {
   string msg = 1;

@@ -35,6 +35,11 @@ type Tenant struct {
 	svc *tenantsvc.Service
 }
 
+func (t *Tenant) GetResource(ctx context.Context,
+	req *tenantpb.GetResourceRequest) (*tenantpb.GetResourceResponse, error) {
+	return t.svc.GetResource(ctx, req)
+}
+
 // CreateResource implements tenantpb.TenantServiceServer.
 func (t *Tenant) CreateResource(ctx context.Context,
 	req *tenantpb.CreateResourceRequest,

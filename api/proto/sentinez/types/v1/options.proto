@@ -15,37 +15,41 @@
 syntax = "proto3";
 
 package sentinez.types.v1;
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1;typepb";
-
-import "sentinez/types/v1/role.proto";
-import "sentinez/types/v1/permission.proto";
-import "sentinez/types/v1/service.proto";
 
 import "google/protobuf/descriptor.proto";
+import "sentinez/types/v1/known.proto";
 
-extend google.protobuf.MethodOptions { XMethod x_method = 50001; }
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1;typepb";
 
-extend google.protobuf.MessageOptions { XMessage x_message = 51001; }
+extend google.protobuf.MethodOptions {
+  XMethod x_method = 50001;
+}
 
-extend google.protobuf.FileOptions { XMeta x_meta = 52001; }
+extend google.protobuf.MessageOptions {
+  XMessage x_message = 51001;
+}
+
+extend google.protobuf.FileOptions {
+  XMeta x_meta = 52001;
+}
 
 message XMeta {
   string service_name = 1;
-  Kind   service_kind = 2;
-  string service_key  = 3;
+  Kind service_kind = 2;
+  string service_key = 3;
 }
 
 message XMessage {
   bool database_model = 1;
-  bool export_field   = 2;
+  bool export_field = 2;
 }
 
 message XMethod {
-  bool              ignore  = 1;
+  bool ignore = 1;
   repeated XRequire require = 2;
 }
 
 message XRequire {
-  Role       role       = 1;
+  Role role = 1;
   Permission permission = 2;
 }
