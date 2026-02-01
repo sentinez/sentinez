@@ -7,8 +7,8 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Struct } from "../../../../google/protobuf/struct";
-import { Context } from "../../../types/v1/context";
-import { Pages } from "../../../types/v1/meta";
+import { Context } from "../../../types/v1/known";
+import { Pages } from "../../../types/v1/model";
 import { AccountResponse, User } from "./model";
 
 export const protobufPackage = "sentinez.core.iam.v1";

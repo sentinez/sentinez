@@ -7,7 +7,8 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Setting } from "../../../edge/v1/setting";
-import { Pages, Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/meta";
+import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
+import { Pages } from "../../../types/v1/model";
 import { Resource } from "./model";
 
 export const protobufPackage = "sentinez.core.tenant.v1";

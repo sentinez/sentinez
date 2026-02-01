@@ -6,9 +6,17 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Permission, permissionFromJSON, permissionToJSON } from "./permission";
-import { Role, roleFromJSON, roleToJSON } from "./role";
-import { Kind, kindFromJSON, kindToJSON } from "./service";
+import {
+  Kind,
+  kindFromJSON,
+  kindToJSON,
+  Permission,
+  permissionFromJSON,
+  permissionToJSON,
+  Role,
+  roleFromJSON,
+  roleToJSON,
+} from "./known";
 
 export const protobufPackage = "sentinez.types.v1";
 

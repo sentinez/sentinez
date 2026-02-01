@@ -2,97 +2,13 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/v1/meta.proto
+// source: sentinez/types/v1/model.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../google/protobuf/timestamp";
 
 export const protobufPackage = "sentinez.types.v1";
-
-export enum Status {
-  STATUS_UNSPECIFIED = 0,
-  STATUS_ACTIVE = 1,
-  STATUS_DISABLE = 2,
-  UNRECOGNIZED = -1,
-}
-
-export function statusFromJSON(object: any): Status {
-  switch (object) {
-    case 0:
-    case "STATUS_UNSPECIFIED":
-      return Status.STATUS_UNSPECIFIED;
-    case 1:
-    case "STATUS_ACTIVE":
-      return Status.STATUS_ACTIVE;
-    case 2:
-    case "STATUS_DISABLE":
-      return Status.STATUS_DISABLE;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return Status.UNRECOGNIZED;
-  }
-}
-
-export function statusToJSON(object: Status): string {
-  switch (object) {
-    case Status.STATUS_UNSPECIFIED:
-      return "STATUS_UNSPECIFIED";
-    case Status.STATUS_ACTIVE:
-      return "STATUS_ACTIVE";
-    case Status.STATUS_DISABLE:
-      return "STATUS_DISABLE";
-    case Status.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
-export enum Plan {
-  PLAN_UNSPECIFIED = 0,
-  PLAN_FREE = 1,
-  PLAN_STANDARD = 2,
-  PLAN_PRO = 3,
-  UNRECOGNIZED = -1,
-}
-
-export function planFromJSON(object: any): Plan {
-  switch (object) {
-    case 0:
-    case "PLAN_UNSPECIFIED":
-      return Plan.PLAN_UNSPECIFIED;
-    case 1:
-    case "PLAN_FREE":
-      return Plan.PLAN_FREE;
-    case 2:
-    case "PLAN_STANDARD":
-      return Plan.PLAN_STANDARD;
-    case 3:
-    case "PLAN_PRO":
-      return Plan.PLAN_PRO;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return Plan.UNRECOGNIZED;
-  }
-}
-
-export function planToJSON(object: Plan): string {
-  switch (object) {
-    case Plan.PLAN_UNSPECIFIED:
-      return "PLAN_UNSPECIFIED";
-    case Plan.PLAN_FREE:
-      return "PLAN_FREE";
-    case Plan.PLAN_STANDARD:
-      return "PLAN_STANDARD";
-    case Plan.PLAN_PRO:
-      return "PLAN_PRO";
-    case Plan.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
 
 export interface Pages {
   index: number;
