@@ -22,8 +22,8 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/mem/wafengine"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
@@ -35,7 +35,7 @@ func NewWAF(logLevel zlog.Level) chains.Handler {
 	return &WAF{
 		BaseHandler: chains.New(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
-			commonpb.LogKind_LOG_KIND_WAF, logLevel,
+			typepb.LogKind_LOG_KIND_WAF, logLevel,
 		),
 		cached: mem.New[[]byte](time.Second*30, time.Second*31),
 	}

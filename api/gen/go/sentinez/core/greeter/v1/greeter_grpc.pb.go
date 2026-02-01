@@ -40,8 +40,12 @@ const (
 // GreeterServiceClient is the client API for GreeterService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// GreeterService is a example service
 type GreeterServiceClient interface {
+	// Example method
 	SayHello(ctx context.Context, in *SayHelloRequest, opts ...grpc.CallOption) (*SayHelloResponse, error)
+	// Health check api
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
@@ -76,8 +80,12 @@ func (c *greeterServiceClient) Status(ctx context.Context, in *StatusRequest, op
 // GreeterServiceServer is the server API for GreeterService service.
 // All implementations should embed UnimplementedGreeterServiceServer
 // for forward compatibility.
+//
+// GreeterService is a example service
 type GreeterServiceServer interface {
+	// Example method
 	SayHello(context.Context, *SayHelloRequest) (*SayHelloResponse, error)
+	// Health check api
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
 

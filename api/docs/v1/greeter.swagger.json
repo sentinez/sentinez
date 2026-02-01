@@ -22,6 +22,7 @@
   "paths": {
     "/greeter/say": {
       "get": {
+        "summary": "Example method",
         "operationId": "GreeterService_SayHello",
         "responses": {
           "200": {
@@ -72,6 +73,7 @@
     },
     "/greeter/status": {
       "get": {
+        "summary": "Health check api",
         "operationId": "GreeterService_Status",
         "responses": {
           "200": {

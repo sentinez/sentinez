@@ -15,18 +15,18 @@
 package perms
 
 import (
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
 
-func Add(perms int32, flag commonpb.Permission) int32 {
+func Add(perms int32, flag typepb.Permission) int32 {
 	return perms | int32(flag)
 }
 
-func Remove(perms int32, flag commonpb.Permission) int32 {
+func Remove(perms int32, flag typepb.Permission) int32 {
 	return perms &^ int32(flag)
 }
 
-func Has(perms int32, flag commonpb.Permission) bool {
+func Has(perms int32, flag typepb.Permission) bool {
 	return (perms & int32(flag)) != 0
 }
 
@@ -35,17 +35,17 @@ func HasLeastOne(perms int32, flags int32) bool {
 }
 
 func DefaultOwner() int32 {
-	return int32(commonpb.Permission_PERMISSION_CREATE_OWN |
-		commonpb.Permission_PERMISSION_VIEW_OWN |
-		commonpb.Permission_PERMISSION_DELETE_OWN |
-		commonpb.Permission_PERMISSION_UPDATE_OWN)
+	return int32(typepb.Permission_PERMISSION_CREATE_OWN |
+		typepb.Permission_PERMISSION_VIEW_OWN |
+		typepb.Permission_PERMISSION_DELETE_OWN |
+		typepb.Permission_PERMISSION_UPDATE_OWN)
 }
 
 func DefaultRoot() int32 {
-	return int32(commonpb.Permission_PERMISSION_ROOT)
+	return int32(typepb.Permission_PERMISSION_ROOT)
 }
 
 func DefaultViewAny() int32 {
-	return int32(commonpb.Permission_PERMISSION_ROOT |
-		commonpb.Permission_PERMISSION_VIEW_ANY)
+	return int32(typepb.Permission_PERMISSION_ROOT |
+		typepb.Permission_PERMISSION_VIEW_ANY)
 }

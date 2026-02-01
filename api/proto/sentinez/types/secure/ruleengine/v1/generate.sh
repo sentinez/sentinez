@@ -42,7 +42,6 @@ protoc \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_opt=features=marshal+unmarshal+size \
-  --go-senz-msg_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto || exit 1
 
 protoc-go-inject-tag -input="$SENTINEZ_GEN_OUT"/github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1/*.pb.go

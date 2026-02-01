@@ -20,8 +20,8 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
@@ -71,11 +71,11 @@ func (rsc *Resources) List(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
 
 	q := rsc.selectQ(req.GetPage())
-	if req.GetPlan() != commonpb.Plan_PLAN_UNSPECIFIED {
+	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
 		q = q.Where(sq.Eq{tenantpb.Resource_Plan: req.GetPlan()})
 	}
 
-	if req.GetStatus() != commonpb.Status_STATUS_UNSPECIFIED {
+	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})
 	}
 
@@ -133,11 +133,11 @@ func (rsc *Resources) Update(
 	ctx context.Context, req *tenantpb.Resource) error {
 
 	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
-	if req.GetPlan() != commonpb.Plan_PLAN_UNSPECIFIED {
+	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
 		q = q.Set(tenantpb.Resource_Plan, req.GetPlan())
 	}
 
-	if req.GetStatus() != commonpb.Status_STATUS_UNSPECIFIED {
+	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Set(tenantpb.Resource_Status, req.GetStatus())
 	}
 
@@ -168,14 +168,14 @@ func (rsc *Resources) Delete(ctx context.Context, id string) error {
 	return rsc.storage.Delete(ctx, id)
 }
 
-func (rsc *Resources) selectQ(page *commonpb.Pages) sq.SelectBuilder {
+func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(rsc.storage, page,
-		string(tenantpb.Resource_Id),
-		string(tenantpb.Resource_Plan),
-		string(tenantpb.Resource_Status),
-		string(tenantpb.Resource_ResourceName),
-		string(tenantpb.Resource_ResourceDomain),
-		string(tenantpb.Resource_ResourceSetting),
+		tenantpb.Resource_Id,
+		tenantpb.Resource_Plan,
+		tenantpb.Resource_Status,
+		tenantpb.Resource_ResourceName,
+		tenantpb.Resource_ResourceDomain,
+		tenantpb.Resource_ResourceSetting,
 	)
 }
 

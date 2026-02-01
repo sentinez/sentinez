@@ -492,7 +492,7 @@ var File_sentinez_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
+	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"\xb5\x02\n" +
 	"\aSetting\x126\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1a.sentinez.edge.v1.MetadataR\bmetadata\x120\n" +
 	"\x06origin\x18\x02 \x01(\v2\x18.sentinez.edge.v1.OriginR\x06origin\x126\n" +

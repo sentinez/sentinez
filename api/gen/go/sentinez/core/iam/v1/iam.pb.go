@@ -23,7 +23,7 @@ package iampb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1380,7 +1380,7 @@ var File_sentinez_core_iam_v1_iam_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\n" +
-	"\x1esentinez/core/iam/v1/iam.proto\x12\x14sentinez.core.iam.v1\x1a&sentinez/types/common/v1/options.proto\x1a sentinez/core/iam/v1/model.proto\x1a#sentinez/types/common/v1/meta.proto\x1a&sentinez/types/common/v1/context.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\"v\n" +
+	"\x1esentinez/core/iam/v1/iam.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a sentinez/core/iam/v1/model.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"v\n" +
 	"\x19PasskeyLoginVerifyRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12:\n" +
@@ -1426,10 +1426,10 @@ const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\fphone_number\x18\x03 \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber\"-\n" +
 	"\x12CreateUserResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x0f\n" +
-	"\rStatusRequest\"_\n" +
+	"\rStatusRequest\"X\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg\x12;\n" +
-	"\acontext\x18\x02 \x01(\v2!.sentinez.types.common.v1.ContextR\acontext\"\xbc\x01\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg\x124\n" +
+	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"\xbc\x01\n" +
 	"\x11UpdateUserRequest\x12%\n" +
 	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
@@ -1442,18 +1442,18 @@ const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"A\n" +
 	"\x0fGetUserResponse\x12.\n" +
-	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.core.iam.v1.UserR\x04user\"\x96\x01\n" +
-	"\x10ListUsersRequest\x123\n" +
-	"\x04page\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.PagesR\x04page\x12\x10\n" +
+	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.core.iam.v1.UserR\x04user\"\x8f\x01\n" +
+	"\x10ListUsersRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12#\n" +
 	"\rphone_numbers\x18\v \x03(\tR\fphoneNumbers\x12\x16\n" +
 	"\x06emails\x18\f \x03(\tR\x06emails\"[\n" +
 	"\x11ListUsersResponse\x120\n" +
 	"\x05users\x18\x01 \x03(\v2\x1a.sentinez.core.iam.v1.UserR\x05users\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\xad\x01\n" +
-	"\x13ListAccountsRequest\x123\n" +
-	"\x04page\x18\x01 \x01(\v2\x1f.sentinez.types.common.v1.PagesR\x04page\x12\x10\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xa6\x01\n" +
+	"\x13ListAccountsRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12\x19\n" +
 	"\buser_ids\x18\v \x03(\tR\auserIds\x12\x1c\n" +
@@ -1535,8 +1535,8 @@ var file_sentinez_core_iam_v1_iam_proto_goTypes = []any{
 	(*DeleteUserResponse)(nil),               // 25: sentinez.core.iam.v1.DeleteUserResponse
 	(*User)(nil),                             // 26: sentinez.core.iam.v1.User
 	(*structpb.Struct)(nil),                  // 27: google.protobuf.Struct
-	(*v1.Context)(nil),                       // 28: sentinez.types.common.v1.Context
-	(*v1.Pages)(nil),                         // 29: sentinez.types.common.v1.Pages
+	(*v1.Context)(nil),                       // 28: sentinez.types.v1.Context
+	(*v1.Pages)(nil),                         // 29: sentinez.types.v1.Pages
 	(*AccountResponse)(nil),                  // 30: sentinez.core.iam.v1.AccountResponse
 }
 var file_sentinez_core_iam_v1_iam_proto_depIdxs = []int32{
@@ -1544,12 +1544,12 @@ var file_sentinez_core_iam_v1_iam_proto_depIdxs = []int32{
 	27, // 1: sentinez.core.iam.v1.PasskeyLoginChallengeResponse.options:type_name -> google.protobuf.Struct
 	27, // 2: sentinez.core.iam.v1.PasskeyRegisterChallengeResponse.options:type_name -> google.protobuf.Struct
 	26, // 3: sentinez.core.iam.v1.LoginResponse.user:type_name -> sentinez.core.iam.v1.User
-	28, // 4: sentinez.core.iam.v1.StatusResponse.context:type_name -> sentinez.types.common.v1.Context
+	28, // 4: sentinez.core.iam.v1.StatusResponse.context:type_name -> sentinez.types.v1.Context
 	26, // 5: sentinez.core.iam.v1.UpdateUserResponse.user:type_name -> sentinez.core.iam.v1.User
 	26, // 6: sentinez.core.iam.v1.GetUserResponse.user:type_name -> sentinez.core.iam.v1.User
-	29, // 7: sentinez.core.iam.v1.ListUsersRequest.page:type_name -> sentinez.types.common.v1.Pages
+	29, // 7: sentinez.core.iam.v1.ListUsersRequest.page:type_name -> sentinez.types.v1.Pages
 	26, // 8: sentinez.core.iam.v1.ListUsersResponse.users:type_name -> sentinez.core.iam.v1.User
-	29, // 9: sentinez.core.iam.v1.ListAccountsRequest.page:type_name -> sentinez.types.common.v1.Pages
+	29, // 9: sentinez.core.iam.v1.ListAccountsRequest.page:type_name -> sentinez.types.v1.Pages
 	30, // 10: sentinez.core.iam.v1.ListAccountsResponse.accounts:type_name -> sentinez.core.iam.v1.AccountResponse
 	12, // 11: sentinez.core.iam.v1.IdentityAccessManagementService.CreateUser:input_type -> sentinez.core.iam.v1.CreateUserRequest
 	16, // 12: sentinez.core.iam.v1.IdentityAccessManagementService.UpdateUser:input_type -> sentinez.core.iam.v1.UpdateUserRequest

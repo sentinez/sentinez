@@ -24,8 +24,8 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
@@ -125,10 +125,10 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, commonpb.Permission_PERMISSION_ROOT)
+		perm = perms.Add(perm, typepb.Permission_PERMISSION_ROOT)
 	}
 	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&commonpb.Context{
+		&typepb.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),
@@ -438,10 +438,10 @@ func (srv *IAMService) Login(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, commonpb.Permission_PERMISSION_ROOT)
+		perm = perms.Add(perm, typepb.Permission_PERMISSION_ROOT)
 	}
 	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&commonpb.Context{
+		&typepb.Context{
 			Name:              user.GetFullName(),
 			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
 			UserId:            user.GetId(),

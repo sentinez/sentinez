@@ -39,7 +39,10 @@ const (
 // CentralDataServiceClient is the client API for CentralDataService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// CentralDataService handles data processing
 type CentralDataServiceClient interface {
+	// Health check Service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
@@ -64,7 +67,10 @@ func (c *centralDataServiceClient) Status(ctx context.Context, in *StatusRequest
 // CentralDataServiceServer is the server API for CentralDataService service.
 // All implementations must embed UnimplementedCentralDataServiceServer
 // for forward compatibility.
+//
+// CentralDataService handles data processing
 type CentralDataServiceServer interface {
+	// Health check Service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	mustEmbedUnimplementedCentralDataServiceServer()
 }

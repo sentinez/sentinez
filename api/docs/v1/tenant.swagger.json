@@ -20,8 +20,136 @@
     "application/json"
   ],
   "paths": {
+    "/tenant/resource": {
+      "get": {
+        "operationId": "TenantService_GetResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "default",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes a tenant resource.",
+        "operationId": "TenantService_DeleteResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "post": {
+        "summary": "Creates a new tenant resource.",
+        "operationId": "TenantService_CreateResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateResourceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "put": {
+        "summary": "Updates an existing tenant resource.",
+        "operationId": "TenantService_UpdateResource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateResourceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateResourceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
     "/tenant/resources": {
       "get": {
+        "summary": "Lists tenant resources.",
         "operationId": "TenantService_ListResource",
         "responses": {
           "200": {
@@ -103,6 +231,7 @@
     },
     "/tenant/status": {
       "get": {
+        "summary": "Returns service health check status.",
         "operationId": "TenantService_Status",
         "responses": {
           "200": {
@@ -125,15 +254,6 @@
     }
   },
   "definitions": {
-    "commonv1Status": {
-      "type": "string",
-      "enum": [
-        "STATUS_UNSPECIFIED",
-        "STATUS_ACTIVE",
-        "STATUS_DISABLE"
-      ],
-      "default": "STATUS_UNSPECIFIED"
-    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -219,7 +339,7 @@
       "type": "object",
       "title": "Metadata used for observability and debugging:"
     },
-    "typescommonv1Metadata": {
+    "sentineztypesv1Metadata": {
       "type": "object",
       "properties": {
         "createdAt": {
@@ -231,6 +351,15 @@
           "format": "date-time"
         }
       }
+    },
+    "typesv1Status": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_ACTIVE",
+        "STATUS_DISABLE"
+      ],
+      "default": "STATUS_UNSPECIFIED"
     },
     "v1Action": {
       "type": "object",
@@ -314,6 +443,37 @@
       },
       "title": "A logical condition expression"
     },
+    "v1CreateResourceRequest": {
+      "type": "object",
+      "properties": {
+        "resourceSetting": {
+          "$ref": "#/definitions/v1Setting"
+        },
+        "resourceDomain": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        }
+      }
+    },
+    "v1CreateResourceResponse": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        }
+      }
+    },
+    "v1DeleteResourceResponse": {
+      "type": "object"
+    },
     "v1Expr": {
       "type": "object",
       "properties": {
@@ -396,6 +556,14 @@
       ],
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
+    },
+    "v1GetResourceResponse": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        }
+      }
     },
     "v1ListResourceResponse": {
       "type": "object",
@@ -510,7 +678,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/typescommonv1Metadata"
+          "$ref": "#/definitions/sentineztypesv1Metadata"
         },
         "id": {
           "type": "string"
@@ -525,7 +693,7 @@
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/commonv1Status"
+          "$ref": "#/definitions/typesv1Status"
         },
         "plan": {
           "$ref": "#/definitions/v1Plan"
@@ -641,6 +809,29 @@
     "v1TrafficControl": {
       "type": "object",
       "title": "TrafficControl for systems using a virtual waiting room or throttling:"
+    },
+    "v1UpdateResourceRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "resourceDomain": {
+          "type": "string"
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        }
+      }
+    },
+    "v1UpdateResourceResponse": {
+      "type": "object"
     }
   },
   "securityDefinitions": {

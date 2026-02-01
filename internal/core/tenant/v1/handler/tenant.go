@@ -35,15 +35,46 @@ type Tenant struct {
 	svc *tenantsvc.Service
 }
 
+func (t *Tenant) GetResource(ctx context.Context,
+	req *tenantpb.GetResourceRequest) (*tenantpb.GetResourceResponse, error) {
+	return t.svc.GetResource(ctx, req)
+}
+
+// CreateResource implements tenantpb.TenantServiceServer.
+func (t *Tenant) CreateResource(ctx context.Context,
+	req *tenantpb.CreateResourceRequest,
+) (*tenantpb.CreateResourceResponse, error) {
+
+	return t.svc.CreateResource(ctx, req)
+}
+
+// DeleteResource implements tenantpb.TenantServiceServer.
+func (t *Tenant) DeleteResource(ctx context.Context,
+	req *tenantpb.DeleteResourceRequest,
+) (*tenantpb.DeleteResourceResponse, error) {
+
+	return t.svc.DeleteResource(ctx, req)
+}
+
+// UpdateResource implements tenantpb.TenantServiceServer.
+func (t *Tenant) UpdateResource(ctx context.Context,
+	req *tenantpb.UpdateResourceRequest,
+) (*tenantpb.UpdateResourceResponse, error) {
+
+	return t.svc.UpdateResource(ctx, req)
+}
+
 func (t *Tenant) ListResource(ctx context.Context,
-	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
+	req *tenantpb.ListResourceRequest,
+) (*tenantpb.ListResourceResponse, error) {
 
 	return t.svc.ListResource(ctx, req)
 }
 
 // Status implement function of tenant.TenantServiceServer
 func (t *Tenant) Status(ctx context.Context,
-	req *tenantpb.StatusRequest) (*tenantpb.StatusResponse, error) {
+	req *tenantpb.StatusRequest,
+) (*tenantpb.StatusResponse, error) {
 
 	_, _ = ctx, req
 

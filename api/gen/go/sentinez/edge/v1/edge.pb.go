@@ -21,8 +21,8 @@
 package edgepb
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -390,7 +390,7 @@ var File_sentinez_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1bsentinez/edge/v1/edge.proto\x12\x10sentinez.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a&sentinez/types/common/v1/options.proto\"\xc4\x04\n" +
+	"\x1bsentinez/edge/v1/edge.proto\x12\x10sentinez.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc4\x04\n" +
 	"\x0eRequestContext\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04body\x18\x02 \x01(\fR\x04body\x12D\n" +

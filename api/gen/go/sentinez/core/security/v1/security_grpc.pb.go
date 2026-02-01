@@ -40,7 +40,10 @@ const (
 // SecurityServiceClient is the client API for SecurityService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// SecurityService handles security rule resource management
 type SecurityServiceClient interface {
+	// Create custom rule based for resource
 	CreateRuleBased(ctx context.Context, in *CreateRuleBasedRequest, opts ...grpc.CallOption) (*CreateRuleBasedResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -76,7 +79,10 @@ func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, o
 // SecurityServiceServer is the server API for SecurityService service.
 // All implementations should embed UnimplementedSecurityServiceServer
 // for forward compatibility.
+//
+// SecurityService handles security rule resource management
 type SecurityServiceServer interface {
+	// Create custom rule based for resource
 	CreateRuleBased(context.Context, *CreateRuleBasedRequest) (*CreateRuleBasedResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }

@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/zlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -34,7 +34,7 @@ const (
 )
 
 func TokenGenerator(conf *confpb.EnvConfig,
-	payload *commonpb.Context) (string, error) {
+	payload *typepb.Context) (string, error) {
 
 	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
 	if err != nil {
@@ -56,7 +56,7 @@ func TokenGenerator(conf *confpb.EnvConfig,
 }
 
 func BearerTokenVerifier(conf *confpb.EnvConfig,
-	bearerToken string) (*commonpb.Context, bool) {
+	bearerToken string) (*typepb.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, bearer)
 	jwtToken, err := parseJWT(token, conf.GetSecretKey())
@@ -71,7 +71,7 @@ func BearerTokenVerifier(conf *confpb.EnvConfig,
 			return nil, false
 		}
 
-		var resp commonpb.Context
+		var resp typepb.Context
 		err = prototext.Unmarshal([]byte(auth.(string)), &resp)
 		if err != nil {
 			zlog.Debugf("[crypto] error when get claims: %v", err)

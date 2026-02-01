@@ -17,8 +17,8 @@ package headers
 import (
 	"context"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"google.golang.org/grpc/metadata"
@@ -27,7 +27,7 @@ import (
 const AuthHeader string = "Authorization"
 
 func GetAuth(ctx context.Context,
-	conf *confpb.EnvConfig) (*commonpb.Context, error) {
+	conf *confpb.EnvConfig) (*typepb.Context, error) {
 
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)

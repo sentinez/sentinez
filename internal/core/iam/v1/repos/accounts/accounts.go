@@ -20,8 +20,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/tables"
 	"github.com/sentinez/sentinez/pkg/storage/dbx"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
@@ -225,7 +225,7 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 	return nil
 }
 
-func (acc *Accounts) selectQuery(page *commonpb.Pages) sq.SelectBuilder {
+func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(acc.storage, page,
 		iampb.Account_Id,
 		iampb.Account_Credentials,
@@ -271,7 +271,7 @@ func scanOne(row dbx.Row) (*AccountX, error) {
 		return nil, err
 	}
 
-	account.Metadata = &commonpb.Metadata{
+	account.Metadata = &typepb.Metadata{
 		CreatedAt: timestamppb.New(createdAt),
 		UpdatedAt: timestamppb.New(updatedAt),
 	}

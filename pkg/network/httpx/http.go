@@ -23,7 +23,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 )
@@ -44,7 +44,7 @@ type Server interface {
 }
 
 // New creates a new http server.
-func New(meta *commonpb.XMeta, opts ...runtime.ServeMuxOption) Server {
+func New(meta *typepb.XMeta, opts ...runtime.ServeMuxOption) Server {
 	return &XServer{
 		runtimeMux: runtime.NewServeMux(opts...),
 		httpMux:    http.NewServeMux(),
@@ -52,7 +52,7 @@ func New(meta *commonpb.XMeta, opts ...runtime.ServeMuxOption) Server {
 	}
 }
 
-func NewServer(meta *commonpb.XMeta) Server {
+func NewServer(meta *typepb.XMeta) Server {
 	return &XServer{
 		runtimeMux: runtime.NewServeMux(),
 		httpMux:    http.NewServeMux(),
@@ -74,7 +74,7 @@ type XServer struct {
 	// http server
 	server *http.Server
 
-	meta *commonpb.XMeta
+	meta *typepb.XMeta
 }
 
 // Start implements Server.

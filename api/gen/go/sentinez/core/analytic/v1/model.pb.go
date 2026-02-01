@@ -22,7 +22,7 @@ package analyticpb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -109,9 +109,9 @@ var File_sentinez_core_analytic_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_analytic_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/core/analytic/v1/model.proto\x12\x19sentinez.core.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\"\xf1\x01\n" +
-	"\bActivity\x12>\n" +
-	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x121\n" +
+	"%sentinez/core/analytic/v1/model.proto\x12\x19sentinez.core.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xea\x01\n" +
+	"\bActivity\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x121\n" +
 	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.analytic.activity.R\x02id\x12C\n" +
 	"\vresource_id\x18\x03 \x01(\tB\"\xbaH\x1f\xc8\x01\x01r\x1a:\x18senz.analytic.resources.R\n" +
 	"resourceId\x12%\n" +
@@ -132,10 +132,10 @@ func file_sentinez_core_analytic_v1_model_proto_rawDescGZIP() []byte {
 var file_sentinez_core_analytic_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_core_analytic_v1_model_proto_goTypes = []any{
 	(*Activity)(nil),    // 0: sentinez.core.analytic.v1.Activity
-	(*v1.Metadata)(nil), // 1: sentinez.types.common.v1.Metadata
+	(*v1.Metadata)(nil), // 1: sentinez.types.v1.Metadata
 }
 var file_sentinez_core_analytic_v1_model_proto_depIdxs = []int32{
-	1, // 0: sentinez.core.analytic.v1.Activity.metadata:type_name -> sentinez.types.common.v1.Metadata
+	1, // 0: sentinez.core.analytic.v1.Activity.metadata:type_name -> sentinez.types.v1.Metadata
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

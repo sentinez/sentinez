@@ -17,7 +17,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
 
 // ensure the imports are used
@@ -34,9 +34,9 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
-	_ = commonpb.Status(0)
+	_ = typepb.Status(0)
 
-	_ = commonpb.Plan(0)
+	_ = typepb.Plan(0)
 )
 
 // Validate checks the field values on Resource with the rules defined in the

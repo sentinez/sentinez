@@ -33,16 +33,31 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantService_Status_FullMethodName       = "/sentinez.core.tenant.v1.TenantService/Status"
-	TenantService_ListResource_FullMethodName = "/sentinez.core.tenant.v1.TenantService/ListResource"
+	TenantService_Status_FullMethodName         = "/sentinez.core.tenant.v1.TenantService/Status"
+	TenantService_ListResource_FullMethodName   = "/sentinez.core.tenant.v1.TenantService/ListResource"
+	TenantService_CreateResource_FullMethodName = "/sentinez.core.tenant.v1.TenantService/CreateResource"
+	TenantService_UpdateResource_FullMethodName = "/sentinez.core.tenant.v1.TenantService/UpdateResource"
+	TenantService_DeleteResource_FullMethodName = "/sentinez.core.tenant.v1.TenantService/DeleteResource"
+	TenantService_GetResource_FullMethodName    = "/sentinez.core.tenant.v1.TenantService/GetResource"
 )
 
 // TenantServiceClient is the client API for TenantService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// TenantService handles tenant resource management.
 type TenantServiceClient interface {
+	// Returns service health check status.
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	// Lists tenant resources.
 	ListResource(ctx context.Context, in *ListResourceRequest, opts ...grpc.CallOption) (*ListResourceResponse, error)
+	// Creates a new tenant resource.
+	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
+	// Updates an existing tenant resource.
+	UpdateResource(ctx context.Context, in *UpdateResourceRequest, opts ...grpc.CallOption) (*UpdateResourceResponse, error)
+	// Deletes a tenant resource.
+	DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceResponse, error)
+	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*GetResourceResponse, error)
 }
 
 type tenantServiceClient struct {
@@ -73,12 +88,63 @@ func (c *tenantServiceClient) ListResource(ctx context.Context, in *ListResource
 	return out, nil
 }
 
+func (c *tenantServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateResourceResponse)
+	err := c.cc.Invoke(ctx, TenantService_CreateResource_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) UpdateResource(ctx context.Context, in *UpdateResourceRequest, opts ...grpc.CallOption) (*UpdateResourceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateResourceResponse)
+	err := c.cc.Invoke(ctx, TenantService_UpdateResource_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteResourceResponse)
+	err := c.cc.Invoke(ctx, TenantService_DeleteResource_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*GetResourceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetResourceResponse)
+	err := c.cc.Invoke(ctx, TenantService_GetResource_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServiceServer is the server API for TenantService service.
 // All implementations should embed UnimplementedTenantServiceServer
 // for forward compatibility.
+//
+// TenantService handles tenant resource management.
 type TenantServiceServer interface {
+	// Returns service health check status.
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
+	// Lists tenant resources.
 	ListResource(context.Context, *ListResourceRequest) (*ListResourceResponse, error)
+	// Creates a new tenant resource.
+	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
+	// Updates an existing tenant resource.
+	UpdateResource(context.Context, *UpdateResourceRequest) (*UpdateResourceResponse, error)
+	// Deletes a tenant resource.
+	DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceResponse, error)
+	GetResource(context.Context, *GetResourceRequest) (*GetResourceResponse, error)
 }
 
 // UnimplementedTenantServiceServer should be embedded to have
@@ -93,6 +159,18 @@ func (UnimplementedTenantServiceServer) Status(context.Context, *StatusRequest) 
 }
 func (UnimplementedTenantServiceServer) ListResource(context.Context, *ListResourceRequest) (*ListResourceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListResource not implemented")
+}
+func (UnimplementedTenantServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateResource not implemented")
+}
+func (UnimplementedTenantServiceServer) UpdateResource(context.Context, *UpdateResourceRequest) (*UpdateResourceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateResource not implemented")
+}
+func (UnimplementedTenantServiceServer) DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteResource not implemented")
+}
+func (UnimplementedTenantServiceServer) GetResource(context.Context, *GetResourceRequest) (*GetResourceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetResource not implemented")
 }
 func (UnimplementedTenantServiceServer) testEmbeddedByValue() {}
 
@@ -150,6 +228,78 @@ func _TenantService_ListResource_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_CreateResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).CreateResource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_CreateResource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).CreateResource(ctx, req.(*CreateResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_UpdateResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).UpdateResource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_UpdateResource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).UpdateResource(ctx, req.(*UpdateResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_DeleteResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).DeleteResource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_DeleteResource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).DeleteResource(ctx, req.(*DeleteResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_GetResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).GetResource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_GetResource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).GetResource(ctx, req.(*GetResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantService_ServiceDesc is the grpc.ServiceDesc for TenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -164,6 +314,22 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListResource",
 			Handler:    _TenantService_ListResource_Handler,
+		},
+		{
+			MethodName: "CreateResource",
+			Handler:    _TenantService_CreateResource_Handler,
+		},
+		{
+			MethodName: "UpdateResource",
+			Handler:    _TenantService_UpdateResource_Handler,
+		},
+		{
+			MethodName: "DeleteResource",
+			Handler:    _TenantService_DeleteResource_Handler,
+		},
+		{
+			MethodName: "GetResource",
+			Handler:    _TenantService_GetResource_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

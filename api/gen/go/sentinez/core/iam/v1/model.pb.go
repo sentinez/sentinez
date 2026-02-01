@@ -22,7 +22,7 @@ package iampb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -285,25 +285,25 @@ var File_sentinez_core_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a&sentinez/types/common/v1/options.proto\x1a#sentinez/types/common/v1/meta.proto\"\xdb\x02\n" +
-	"\aAccount\x12>\n" +
-	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12,\n" +
+	" sentinez/core/iam/v1/model.proto\x12\x14sentinez.core.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd4\x02\n" +
+	"\aAccount\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
 	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\bpassword\x18\v \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\x12\x1d\n" +
 	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12 \n" +
-	"\vcredentials\x18\x14 \x03(\tR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x94\x02\n" +
-	"\x0fAccountResponse\x12>\n" +
-	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12,\n" +
+	"\vcredentials\x18\x14 \x03(\tR\vcredentials:\x06\xca\xf3\x18\x02\b\x01\"\x8d\x02\n" +
+	"\x0fAccountResponse\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
 	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"\xfb\x01\n" +
-	"\x04User\x12>\n" +
-	"\bmetadata\x18\x01 \x01(\v2\".sentinez.types.common.v1.MetadataR\bmetadata\x12)\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"\xf4\x01\n" +
+	"\x04User\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
 	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
@@ -327,12 +327,12 @@ var file_sentinez_core_iam_v1_model_proto_goTypes = []any{
 	(*Account)(nil),         // 0: sentinez.core.iam.v1.Account
 	(*AccountResponse)(nil), // 1: sentinez.core.iam.v1.AccountResponse
 	(*User)(nil),            // 2: sentinez.core.iam.v1.User
-	(*v1.Metadata)(nil),     // 3: sentinez.types.common.v1.Metadata
+	(*v1.Metadata)(nil),     // 3: sentinez.types.v1.Metadata
 }
 var file_sentinez_core_iam_v1_model_proto_depIdxs = []int32{
-	3, // 0: sentinez.core.iam.v1.Account.metadata:type_name -> sentinez.types.common.v1.Metadata
-	3, // 1: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.common.v1.Metadata
-	3, // 2: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.common.v1.Metadata
+	3, // 0: sentinez.core.iam.v1.Account.metadata:type_name -> sentinez.types.v1.Metadata
+	3, // 1: sentinez.core.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.v1.Metadata
+	3, // 2: sentinez.core.iam.v1.User.metadata:type_name -> sentinez.types.v1.Metadata
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

@@ -21,7 +21,7 @@
 package realtimepb
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -39,7 +39,7 @@ var File_sentinez_realtime_v1_realtime_proto protoreflect.FileDescriptor
 
 const file_sentinez_realtime_v1_realtime_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/realtime/v1/realtime.proto\x12\x14sentinez.realtime.v1\x1a&sentinez/types/common/v1/options.protoB{\x8a\xb2\x19.\n" +
+	"#sentinez/realtime/v1/realtime.proto\x12\x14sentinez.realtime.v1\x1a\x1fsentinez/types/v1/options.protoB{\x8a\xb2\x19.\n" +
 	"\x14SENTINEZ // REALTIME\x10\x03\x1a\x14sentinez.realtime.v1ZGgithub.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1;realtimepbb\x06proto3"
 
 var file_sentinez_realtime_v1_realtime_proto_goTypes = []any{}

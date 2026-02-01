@@ -7,8 +7,8 @@ package confpb
 import (
 	fmt "fmt"
 	protohelpers "github.com/planetscale/vtprotobuf/protohelpers"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
 	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	io "io"

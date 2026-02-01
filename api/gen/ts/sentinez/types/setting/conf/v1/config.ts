@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { XMeta } from "../../../common/v1/options";
+import { XMeta } from "../../../v1/options";
 import { Flag } from "../../flag/v1/flags";
 
 export const protobufPackage = "sentinez.types.setting.conf.v1";

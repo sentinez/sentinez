@@ -17,7 +17,7 @@ package senzmsg
 import (
 	"fmt"
 
-	commonpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/tools/internal/utils"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
@@ -36,11 +36,11 @@ func GenerateSenzMsgFile(gen *protogen.Plugin, file *protogen.File) *protogen.Ge
 	g.P("import (")
 	g.P("\t\"fmt\"\n")
 	g.P()
-	g.P("\tcommonpb \"github.com/sentinez/sentinez/api/gen/go/sentinez/types/common/v1\"\n")
+	g.P("\ttypepb \"github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1\"\n")
 	g.P(")")
 	g.P("\n")
 	g.P("var (")
-	g.P("\t_ commonpb.Empty")
+	g.P("\t_ typepb.Empty")
 	g.P("\t_ fmt.Stringer")
 	g.P(")")
 	g.P("\n")
@@ -54,7 +54,7 @@ func objectExportFieldGen(g *protogen.GeneratedFile, file *protogen.File) {
 	for _, message := range file.Messages {
 		opts := message.Desc.Options()
 
-		ext, ok := proto.GetExtension(opts, commonpb.E_XMessage).(*commonpb.XMessage)
+		ext, ok := proto.GetExtension(opts, typepb.E_XMessage).(*typepb.XMessage)
 		if !ok || ext == nil {
 			continue
 		}
@@ -76,7 +76,7 @@ func objectModelGen(g *protogen.GeneratedFile, file *protogen.File) {
 	for _, message := range file.Messages {
 		opts := message.Desc.Options()
 
-		ext, ok := proto.GetExtension(opts, commonpb.E_XMessage).(*commonpb.XMessage)
+		ext, ok := proto.GetExtension(opts, typepb.E_XMessage).(*typepb.XMessage)
 		if !ok || ext == nil {
 			continue
 		}
