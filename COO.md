@@ -13,7 +13,7 @@ BUATAN VIETNAM
 ผลิตในประเทศเวียดนาม
 
 --- 
-> **© 2025 SENTINEZ**
+> **© 2025-2026 SENTINEZ**
 <p align="left">
   <img src="./_logo/sntz.png" width="40"/>
   <img src="./_logo/sntz-black.png" width="40"/>
