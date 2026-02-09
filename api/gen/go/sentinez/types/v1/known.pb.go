@@ -461,13 +461,13 @@ func (*Empty) Descriptor() ([]byte, []int) {
 }
 
 type Context struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Name              string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	ExpireAt          *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_at,json=expireAt,proto3" json:"expire_at,omitempty"`
-	UserId            string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	PermissionBitwise int32                  `protobuf:"varint,4,opt,name=permission_bitwise,json=permissionBitwise,proto3" json:"permission_bitwise,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	ExpireAt      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_at,json=expireAt,proto3" json:"expire_at,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Perms         int32                  `protobuf:"varint,4,opt,name=perms,proto3" json:"perms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Context) Reset() {
@@ -521,9 +521,9 @@ func (x *Context) GetUserId() string {
 	return ""
 }
 
-func (x *Context) GetPermissionBitwise() int32 {
+func (x *Context) GetPerms() int32 {
 	if x != nil {
-		return x.PermissionBitwise
+		return x.Perms
 	}
 	return 0
 }
@@ -533,12 +533,12 @@ var File_sentinez_types_v1_known_proto protoreflect.FileDescriptor
 const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\n" +
 	"\x1dsentinez/types/v1/known.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\a\n" +
-	"\x05Empty\"\x9e\x01\n" +
+	"\x05Empty\"\x85\x01\n" +
 	"\aContext\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12-\n" +
-	"\x12permission_bitwise\x18\x04 \x01(\x05R\x11permissionBitwise*t\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05perms\x18\x04 \x01(\x05R\x05perms*t\n" +
 	"\x04Kind\x12\x14\n" +
 	"\x10KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10KIND_GATEWAY_API\x10\x01\x12\x15\n" +

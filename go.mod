@@ -3,10 +3,10 @@ module github.com/sentinez/sentinez
 go 1.25.3
 
 replace (
+	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/sentinez/api => ./api
 	github.com/sentinez/shared => ./staging/src/github.com/sentinez/shared
-	github.com/sentinez/x/httphz => ./staging/src/github.com/sentinez/x/httphz
 )
 
 require (

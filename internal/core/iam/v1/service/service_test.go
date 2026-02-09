@@ -16,6 +16,7 @@ package iamsvc
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"testing"
 
@@ -26,9 +27,10 @@ import (
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
+	"github.com/sentinez/sentinez/pkg/config"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
-	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
+	"github.com/sentinez/shared/perms"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -36,6 +38,8 @@ import (
 //nolint:funlen
 func TestLogin(t *testing.T) {
 	ctx := context.Background()
+
+	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
@@ -70,8 +74,10 @@ func TestLogin(t *testing.T) {
 	tx, _ := pgxMock.Begin(context.Background())
 	txss := postgres.NewTXMock(tx)
 	conf := &confpb.Config{Env: &confpb.EnvConfig{
-		SecretKey: "congchualunglinhlunglinhxinhlunglinh",
+		SecretKey: secBase64,
 	}}
+
+	config.SetEnv(conf.GetEnv())
 
 	svc := New(conf, txss, nil, userRepo, accountRepo)
 
@@ -86,12 +92,12 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, resp.AccessToken)
 
 	// check permission chứa ROOT
-	tokenCtx, ok := crypto.BearerTokenVerifier(
-		conf.Env, resp.AccessToken)
+	tokenCtx, ok := crypto.BearerTokenVerifier(resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}
 
-	assert.True(t, perms.Has(
-		tokenCtx.PermissionBitwise, typepb.Permission_PERMISSION_ROOT))
+	assert.True(t, perms.New(tokenCtx.GetPerms()).
+		Has(typepb.Permission_PERMISSION_ROOT),
+	)
 }
