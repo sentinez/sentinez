@@ -83,8 +83,8 @@ func (m *Context) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.PermissionBitwise != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.PermissionBitwise))
+	if m.Perms != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Perms))
 		i--
 		dAtA[i] = 0x20
 	}
@@ -143,8 +143,8 @@ func (m *Context) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.PermissionBitwise != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.PermissionBitwise))
+	if m.Perms != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.Perms))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -332,9 +332,9 @@ func (m *Context) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PermissionBitwise", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Perms", wireType)
 			}
-			m.PermissionBitwise = 0
+			m.Perms = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -344,7 +344,7 @@ func (m *Context) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PermissionBitwise |= int32(b&0x7F) << shift
+				m.Perms |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

@@ -32,8 +32,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/common/protobuf/protox"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
-	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
+	"github.com/sentinez/shared/perms"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -125,16 +125,14 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, typepb.Permission_PERMISSION_ROOT)
+		perm = perm.Add(typepb.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&typepb.Context{
-			Name:              user.GetFullName(),
-			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
-			UserId:            user.GetId(),
-			PermissionBitwise: perm,
-		},
-	)
+	accessToken, err := crypto.TokenGenerator(&typepb.Context{
+		Name:     user.GetFullName(),
+		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:   user.GetId(),
+		Perms:    perm.Int32(),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -438,16 +436,14 @@ func (srv *IAMService) Login(ctx context.Context,
 	}
 	perm := perms.DefaultOwner()
 	if acc.GetUsername() == "admin" {
-		perm = perms.Add(perm, typepb.Permission_PERMISSION_ROOT)
+		perm = perm.Add(typepb.Permission_PERMISSION_ROOT)
 	}
-	accessToken, err := crypto.TokenGenerator(srv.config.GetEnv(),
-		&typepb.Context{
-			Name:              user.GetFullName(),
-			ExpireAt:          timestamppb.New(time.Now().Add(time.Hour)),
-			UserId:            user.GetId(),
-			PermissionBitwise: perm,
-		},
-	)
+	accessToken, err := crypto.TokenGenerator(&typepb.Context{
+		Name:     user.GetFullName(),
+		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:   user.GetId(),
+		Perms:    perm.Int32(),
+	})
 	if err != nil {
 		return nil, err
 	}

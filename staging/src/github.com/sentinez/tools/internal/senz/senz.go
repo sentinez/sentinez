@@ -39,6 +39,7 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 
 	generateExportedFields(g, file)
 	generateDatabaseModelFields(g, file)
+	generateMethodRequirementGetters(g, file)
 
 	return g
 }
@@ -157,4 +158,47 @@ func getXMessage(msg *protogen.Message) *typepb.XMessage {
 
 func protoBaseName(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), ".proto")
+}
+
+func generateMethodRequirementGetters(g *protogen.GeneratedFile, file *protogen.File) {
+	for _, service := range file.Services {
+		for _, method := range service.Methods {
+			xmethod := getXMethod(method)
+			if xmethod == nil || len(xmethod.Require) == 0 {
+				continue
+			}
+
+			writeMethodRequirementGetter(g, service, method, xmethod.Require)
+		}
+	}
+}
+
+func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method, requires []*typepb.XRequire) {
+	serviceName := service.GoName
+	methodName := method.GoName
+	funcName := fmt.Sprintf("GetReq%s%s", serviceName, methodName)
+
+	g.P(fmt.Sprintf("func %s() []*typepb.XRequire {", funcName))
+	g.P("	return []*typepb.XRequire{")
+	for _, req := range requires {
+		g.P("		{")
+		g.P(fmt.Sprintf("			Role:       typepb.Role_%s,", req.Role.String()))
+		g.P(fmt.Sprintf("			Permission: typepb.Permission_%s,", req.Permission.String()))
+		g.P("		},")
+	}
+	g.P("	}")
+	g.P("}")
+	g.P()
+}
+
+func getXMethod(method *protogen.Method) *typepb.XMethod {
+	opts := method.Desc.Options()
+	if !proto.HasExtension(opts, typepb.E_XMethod) {
+		return nil
+	}
+	ext, ok := proto.GetExtension(opts, typepb.E_XMethod).(*typepb.XMethod)
+	if !ok {
+		return nil
+	}
+	return ext
 }

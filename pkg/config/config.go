@@ -31,6 +31,12 @@ func Env() *confpb.EnvConfig {
 	return envConf
 }
 
+func SetEnv(env *confpb.EnvConfig) {
+	once.Do(func() {
+		envConf = env
+	})
+}
+
 // LoadEnv returns the environment.
 func LoadEnv(envFile string) *confpb.EnvConfig {
 	if envFile != "" {

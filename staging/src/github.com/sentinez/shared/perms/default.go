@@ -14,38 +14,20 @@
 
 package perms
 
-import (
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-)
+import typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 
-func Add(perms int32, flag typepb.Permission) int32 {
-	return perms | int32(flag)
-}
-
-func Remove(perms int32, flag typepb.Permission) int32 {
-	return perms &^ int32(flag)
-}
-
-func Has(perms int32, flag typepb.Permission) bool {
-	return (perms & int32(flag)) != 0
-}
-
-func HasLeastOne(perms int32, flags int32) bool {
-	return perms&flags != 0
-}
-
-func DefaultOwner() int32 {
-	return int32(typepb.Permission_PERMISSION_CREATE_OWN |
+func DefaultOwner() Claim {
+	return Claim(typepb.Permission_PERMISSION_CREATE_OWN |
 		typepb.Permission_PERMISSION_VIEW_OWN |
 		typepb.Permission_PERMISSION_DELETE_OWN |
 		typepb.Permission_PERMISSION_UPDATE_OWN)
 }
 
-func DefaultRoot() int32 {
-	return int32(typepb.Permission_PERMISSION_ROOT)
+func DefaultRoot() Claim {
+	return Claim(typepb.Permission_PERMISSION_ROOT)
 }
 
-func DefaultViewAny() int32 {
-	return int32(typepb.Permission_PERMISSION_ROOT |
+func DefaultViewAny() Claim {
+	return Claim(typepb.Permission_PERMISSION_ROOT |
 		typepb.Permission_PERMISSION_VIEW_ANY)
 }

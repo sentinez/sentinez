@@ -118,7 +118,7 @@ func (m *Context) Validate() error {
 
 	// no validation rules for UserId
 
-	// no validation rules for PermissionBitwise
+	// no validation rules for Perms
 
 	return nil
 }

@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	"github.com/sentinez/sentinez/pkg/config"
 	"github.com/sentinez/shared/zlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -33,10 +33,14 @@ const (
 	expKey    = "exp"
 )
 
-func TokenGenerator(conf *confpb.EnvConfig,
-	payload *typepb.Context) (string, error) {
+func TokenGenerator(payload *typepb.Context) (string, error) {
 
-	secret, err := base64.StdEncoding.DecodeString(conf.GetSecretKey())
+	sec := config.Env().GetSecretKey()
+	if sec == "" {
+		return "", fmt.Errorf("crypto: secret key is empty")
+	}
+
+	secret, err := base64.StdEncoding.DecodeString(sec)
 	if err != nil {
 		return "", err
 	}
@@ -55,11 +59,15 @@ func TokenGenerator(conf *confpb.EnvConfig,
 	return tokenString, err
 }
 
-func BearerTokenVerifier(conf *confpb.EnvConfig,
-	bearerToken string) (*typepb.Context, bool) {
+func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
+
+	sec := config.Env().GetSecretKey()
+	if sec == "" {
+		return nil, false
+	}
 
 	token := strings.TrimPrefix(bearerToken, bearer)
-	jwtToken, err := parseJWT(token, conf.GetSecretKey())
+	jwtToken, err := parseJWT(token, sec)
 	if err != nil {
 		zlog.Debugf("[crypto] invalid token: %v", err)
 		return nil, false

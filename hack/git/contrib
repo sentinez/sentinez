@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-REPO_URL="https://github.com/sentinez/x.git"
+REPO_URL="https://github.com/sentinez/contrib.git"
 
-PREFIX="staging/src/github.com/sentinez/x"
+PREFIX="staging/src/github.com/sentinez/contrib"
 
 BRANCH="main"
 

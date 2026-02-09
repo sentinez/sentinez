@@ -1,4 +1,4 @@
-module github.com/sentinez/x/httphz
+module github.com/sentinez/contrib/httphz
 
 go 1.25.3
 

@@ -37,3 +37,68 @@ func GetMetaTenantServiceKind() typepb.Kind {
 func GetMetaTenantServiceKey() string {
 	return metadata_tenant.GetServiceKey()
 }
+
+func GetReqTenantServiceListResource() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_VIEW_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_VIEW_ANY,
+		},
+	}
+}
+
+func GetReqTenantServiceCreateResource() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_CREATE_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_CREATE_ANY,
+		},
+	}
+}
+
+func GetReqTenantServiceUpdateResource() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_UPDATE_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_UPDATE_ANY,
+		},
+	}
+}
+
+func GetReqTenantServiceDeleteResource() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_DELETE_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_DELETE_ANY,
+		},
+	}
+}
+
+func GetReqTenantServiceGetResource() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_VIEW_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_VIEW_ANY,
+		},
+	}
+}

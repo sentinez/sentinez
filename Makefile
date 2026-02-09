@@ -54,9 +54,9 @@ lint.shared:
 	@echo "[LINT] shared is linting ..."
 	@cd ./staging/src/github.com/sentinez/shared && golangci-lint run
 
-lint.x.httphz:
+lint.contrib.httphz:
 	@echo "[LINT] httphz is linting ..."
-	@cd ./staging/src/github.com/sentinez/x/httphz && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/contrib/httphz && golangci-lint run
 
 #####################################################################
 #####################################################################

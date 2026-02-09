@@ -55,8 +55,8 @@ jobs:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh tools
 
-  x:
-    name: sync sentinez/x
+  contrib:
+    name: sync sentinez/contrib
     runs-on: ubuntu-latest
 
     steps:
@@ -65,10 +65,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync sentinez/x
+      - name: Sync sentinez/contrib
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash hack/ci/action_sync.sh x
+        run: bash hack/ci/action_sync.sh contrib
 
   docs:
     name: sync sentinez/docs

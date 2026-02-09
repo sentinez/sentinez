@@ -27,8 +27,8 @@ import (
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
-	"github.com/sentinez/sentinez/pkg/security/perms"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
+	"github.com/sentinez/shared/perms"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -86,12 +86,12 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, resp.AccessToken)
 
 	// check permission chứa ROOT
-	tokenCtx, ok := crypto.BearerTokenVerifier(
-		conf.Env, resp.AccessToken)
+	tokenCtx, ok := crypto.BearerTokenVerifier(resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}
 
-	assert.True(t, perms.Has(
-		tokenCtx.PermissionBitwise, typepb.Permission_PERMISSION_ROOT))
+	assert.True(t, perms.New(tokenCtx.GetPerms()).
+		Has(typepb.Permission_PERMISSION_ROOT),
+	)
 }
