@@ -16,6 +16,7 @@ package iamsvc
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"testing"
 
@@ -26,6 +27,7 @@ import (
 	accrepos "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/sentinez/internal/core/iam/v1/repos/users/mock"
+	"github.com/sentinez/sentinez/pkg/config"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/shared/perms"
@@ -36,6 +38,8 @@ import (
 //nolint:funlen
 func TestLogin(t *testing.T) {
 	ctx := context.Background()
+
+	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
@@ -70,8 +74,10 @@ func TestLogin(t *testing.T) {
 	tx, _ := pgxMock.Begin(context.Background())
 	txss := postgres.NewTXMock(tx)
 	conf := &confpb.Config{Env: &confpb.EnvConfig{
-		SecretKey: "congchualunglinhlunglinhxinhlunglinh",
+		SecretKey: secBase64,
 	}}
+
+	config.SetEnv(conf.GetEnv())
 
 	svc := New(conf, txss, nil, userRepo, accountRepo)
 
