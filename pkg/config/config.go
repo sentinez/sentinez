@@ -27,6 +27,10 @@ import (
 var envConf *confpb.EnvConfig
 var once sync.Once
 
+func Env() *confpb.EnvConfig {
+	return envConf
+}
+
 // LoadEnv returns the environment.
 func LoadEnv(envFile string) *confpb.EnvConfig {
 	if envFile != "" {

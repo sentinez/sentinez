@@ -16,18 +16,21 @@ package headers
 
 import (
 	"context"
+	"fmt"
 
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
+	"github.com/sentinez/sentinez/pkg/config"
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"google.golang.org/grpc/metadata"
 )
 
 const AuthHeader string = "Authorization"
 
-func GetAuth(ctx context.Context,
-	conf *confpb.EnvConfig) (*typepb.Context, error) {
+func GetAuth(ctx context.Context) (*typepb.Context, error) {
+	if config.Env() == nil {
+		return nil, fmt.Errorf("header: get auth env is nil")
+	}
 
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
@@ -35,7 +38,7 @@ func GetAuth(ctx context.Context,
 		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	pl, ok := crypto.BearerTokenVerifier(conf, accessToken[0])
+	pl, ok := crypto.BearerTokenVerifier(config.Env(), accessToken[0])
 	if !ok {
 		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
 	}
