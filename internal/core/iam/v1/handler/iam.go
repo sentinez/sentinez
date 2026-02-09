@@ -98,7 +98,7 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := headers.GetAuth(ctx, iam.service.Config())
+	ss, err := headers.GetAuth(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,6 @@ func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 	return resp, nil
 }
 
-// CreateAccount implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	req *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
@@ -189,7 +188,6 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	}, nil
 }
 
-// CreateUser implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	req *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.CreateUser] request= %v", req)
@@ -203,7 +201,6 @@ func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	return resp, nil
 }
 
-// Login implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 	zlog.Debugf("[IdentityAccessManagement.Login] username = %s",
@@ -218,7 +215,6 @@ func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	return resp, nil
 }
 
-// Status implements iampb.iamsvcerver.
 func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
 	zlog.Debugf("request= %v", req)
@@ -229,7 +225,7 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 		return nil, err
 	}
 
-	ss, _ := headers.GetAuth(ctx, iam.service.Config())
+	ss, _ := headers.GetAuth(ctx)
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",
