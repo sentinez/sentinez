@@ -176,7 +176,7 @@ func generateMethodRequirementGetters(g *protogen.GeneratedFile, file *protogen.
 func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method, requires []*typepb.XRequire) {
 	serviceName := service.GoName
 	methodName := method.GoName
-	funcName := fmt.Sprintf("GetReq%s%s", serviceName, methodName)
+	funcName := fmt.Sprintf("%s%s", serviceName, methodName)
 
 	g.P(fmt.Sprintf("func %s() []*typepb.XRequire {", funcName))
 	g.P("	return []*typepb.XRequire{")

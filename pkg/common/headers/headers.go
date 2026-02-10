@@ -27,15 +27,15 @@ import (
 const AuthHeader string = "Authorization"
 
 type Auth struct {
-	ctx *typepb.Context
-}
-
-func (a *Auth) Context() *typepb.Context {
-	return a.ctx
+	*typepb.Context
 }
 
 func (a *Auth) Permission() perms.Claim {
-	return perms.New(a.ctx.GetPerms())
+	return perms.New(a.GetPerms())
+}
+
+func (a *Auth) Check(requires []*typepb.XRequire, role typepb.Role) error {
+	return a.Permission().Check(requires, role)
 }
 
 func GetAuth(ctx context.Context) (*Auth, error) {
@@ -50,5 +50,5 @@ func GetAuth(ctx context.Context) (*Auth, error) {
 		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	return &Auth{ctx: pl}, nil
+	return &Auth{Context: pl}, nil
 }

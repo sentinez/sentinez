@@ -37,3 +37,16 @@ func GetMetaIamServiceKind() typepb.Kind {
 func GetMetaIamServiceKey() string {
 	return metadata_iam.GetServiceKey()
 }
+
+func IdentityAccessManagementServiceListUsers() []*typepb.XRequire {
+	return []*typepb.XRequire{
+		{
+			Role:       typepb.Role_ROLE_MEMBER,
+			Permission: typepb.Permission_PERMISSION_VIEW_OWN,
+		},
+		{
+			Role:       typepb.Role_ROLE_LEADER,
+			Permission: typepb.Permission_PERMISSION_VIEW_ANY,
+		},
+	}
+}

@@ -525,7 +525,7 @@
         "userId": {
           "type": "string"
         },
-        "permissionBitwise": {
+        "perms": {
           "type": "integer",
           "format": "int32"
         }

@@ -55,13 +55,15 @@ func (c Claim) Check(requires []*typepb.XRequire, role typepb.Role) error {
 	return Allow(requires, role, c)
 }
 
-// Allow checks if the given role and permissions satisfy any of the requirements.
+// Allow checks if the given role and
+// permissions satisfy any of the requirements.
 // The logic follows:
 //   - If requires is empty, access is allowed.
 //   - It iterates through the list of requirements (OR logic).
 //   - For each requirement:
 //   - If Role is specified, the user's role must match (AND logic).
-//   - If Permission is specified, the user must have that permission (AND logic).
+//   - If Permission is specified,
+//     the user must have that permission (AND logic).
 //   - If any requirement is fully satisfied, returns nil.
 //   - If no requirement is satisfied, returns an error.
 func Allow(requires []*typepb.XRequire, role typepb.Role, c Claim) error {

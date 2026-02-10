@@ -51,7 +51,6 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     }
   }
 };
-
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // IAM"
   service_kind: KIND_CORE
@@ -75,7 +74,18 @@ service IdentityAccessManagementService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
     option (google.api.http) = {get: "/iam/users"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      require: [
+        {
+          role: ROLE_MEMBER
+          permission: PERMISSION_VIEW_OWN
+        },
+        {
+          role: ROLE_LEADER
+          permission: PERMISSION_VIEW_ANY
+        }
+      ]
+    };
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
