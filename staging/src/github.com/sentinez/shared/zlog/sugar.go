@@ -15,8 +15,6 @@
 package zlog
 
 import (
-	"fmt"
-
 	"github.com/sentinez/shared/color"
 
 	"go.uber.org/zap"
@@ -51,7 +49,7 @@ type Sugar interface {
 }
 
 func NewConsole(scope string, level Level) Sugar {
-	scope = color.Green.Add(fmt.Sprintf("[%s]", scope))
+	scope = color.Green.Add(scope)
 	log := configConsoleLogger(scope).Sugar()
 	return createSugard(log, ToLevel(level.String()).Int())
 }

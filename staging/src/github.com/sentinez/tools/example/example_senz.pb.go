@@ -42,3 +42,26 @@ const (
 	Hello_F1 = "f_1"
 	Hello_F2 = "f_2"
 )
+
+func GetExampleServiceCreate() *typepb.XMethod {
+	return &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+		},
+	}
+}
+
+func GetExampleServiceDelete() *typepb.XMethod {
+	return &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+			typepb.Console_CONSOLE_ADMIN,
+		},
+	}
+}
+
+func GetExampleServiceIgnored() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}

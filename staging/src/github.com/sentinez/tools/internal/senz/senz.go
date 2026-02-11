@@ -164,30 +164,38 @@ func generateMethodRequirementGetters(g *protogen.GeneratedFile, file *protogen.
 	for _, service := range file.Services {
 		for _, method := range service.Methods {
 			xmethod := getXMethod(method)
-			if xmethod == nil || len(xmethod.Require) == 0 {
+			if xmethod == nil || (!xmethod.Ignore && len(xmethod.Consoles) == 0) {
 				continue
 			}
 
-			writeMethodRequirementGetter(g, service, method, xmethod.Require)
+			writeMethodRequirementGetter(g, service, method, xmethod)
 		}
 	}
 }
 
-func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method, requires []*typepb.XRequire) {
+func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method, xmethod *typepb.XMethod) {
 	serviceName := service.GoName
 	methodName := method.GoName
-	funcName := fmt.Sprintf("GetReq%s%s", serviceName, methodName)
+	funcName := fmt.Sprintf("Get%s%s", serviceName, methodName)
 
-	g.P(fmt.Sprintf("func %s() []*typepb.XRequire {", funcName))
-	g.P("	return []*typepb.XRequire{")
-	for _, req := range requires {
-		g.P("		{")
-		g.P(fmt.Sprintf("			Role:       typepb.Role_%s,", req.Role.String()))
-		g.P(fmt.Sprintf("			Permission: typepb.Permission_%s,", req.Permission.String()))
-		g.P("		},")
+	g.P(fmt.Sprintf("func %s() *typepb.XMethod {", funcName))
+	g.P("\treturn &typepb.XMethod{")
+
+	if xmethod.Ignore {
+		g.P("\t\tIgnore: true,")
 	}
-	g.P("	}")
+
+	if len(xmethod.Consoles) > 0 {
+		g.P("\t\tConsoles: []typepb.Console{")
+		for _, c := range xmethod.Consoles {
+			g.P(fmt.Sprintf("\t\t\ttypepb.Console_%s,", c.String()))
+		}
+		g.P("\t\t},")
+	}
+
+	g.P("\t}")
 	g.P("}")
+
 	g.P()
 }
 

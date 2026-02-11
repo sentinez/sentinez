@@ -7,7 +7,7 @@
 package example
 
 import (
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/descriptorpb"
@@ -24,174 +24,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Permission int32
-
-const (
-	Permission_PERMISSION_UNSPECIFIED Permission = 0
-	Permission_PERMISSION_CREATE      Permission = 1
-	Permission_PERMISSION_VIEW_OWN    Permission = 2
-	Permission_PERMISSION_VIEW_ANY    Permission = 3
-	Permission_PERMISSION_UPDATE_OWN  Permission = 4
-	Permission_PERMISSION_UPDATE_ANY  Permission = 5
-	Permission_PERMISSION_DELETE_OWN  Permission = 6
-	Permission_PERMISSION_DELETE_ANY  Permission = 7
-)
-
-// Enum value maps for Permission.
-var (
-	Permission_name = map[int32]string{
-		0: "PERMISSION_UNSPECIFIED",
-		1: "PERMISSION_CREATE",
-		2: "PERMISSION_VIEW_OWN",
-		3: "PERMISSION_VIEW_ANY",
-		4: "PERMISSION_UPDATE_OWN",
-		5: "PERMISSION_UPDATE_ANY",
-		6: "PERMISSION_DELETE_OWN",
-		7: "PERMISSION_DELETE_ANY",
-	}
-	Permission_value = map[string]int32{
-		"PERMISSION_UNSPECIFIED": 0,
-		"PERMISSION_CREATE":      1,
-		"PERMISSION_VIEW_OWN":    2,
-		"PERMISSION_VIEW_ANY":    3,
-		"PERMISSION_UPDATE_OWN":  4,
-		"PERMISSION_UPDATE_ANY":  5,
-		"PERMISSION_DELETE_OWN":  6,
-		"PERMISSION_DELETE_ANY":  7,
-	}
-)
-
-func (x Permission) Enum() *Permission {
-	p := new(Permission)
-	*p = x
-	return p
-}
-
-func (x Permission) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Permission) Descriptor() protoreflect.EnumDescriptor {
-	return file_example_proto_enumTypes[0].Descriptor()
-}
-
-func (Permission) Type() protoreflect.EnumType {
-	return &file_example_proto_enumTypes[0]
-}
-
-func (x Permission) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Permission.Descriptor instead.
-func (Permission) EnumDescriptor() ([]byte, []int) {
-	return file_example_proto_rawDescGZIP(), []int{0}
-}
-
-type SentinezMethodOptions struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ignore        bool                   `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
-	Require       []*Require             `protobuf:"bytes,2,rep,name=require,proto3" json:"require,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SentinezMethodOptions) Reset() {
-	*x = SentinezMethodOptions{}
-	mi := &file_example_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SentinezMethodOptions) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SentinezMethodOptions) ProtoMessage() {}
-
-func (x *SentinezMethodOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_example_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SentinezMethodOptions.ProtoReflect.Descriptor instead.
-func (*SentinezMethodOptions) Descriptor() ([]byte, []int) {
-	return file_example_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *SentinezMethodOptions) GetIgnore() bool {
-	if x != nil {
-		return x.Ignore
-	}
-	return false
-}
-
-func (x *SentinezMethodOptions) GetRequire() []*Require {
-	if x != nil {
-		return x.Require
-	}
-	return nil
-}
-
-type Require struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Role          v1.Role                `protobuf:"varint,1,opt,name=role,proto3,enum=sentinez.types.v1.Role" json:"role,omitempty"`
-	Permission    v1.Permission          `protobuf:"varint,2,opt,name=permission,proto3,enum=sentinez.types.v1.Permission" json:"permission,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Require) Reset() {
-	*x = Require{}
-	mi := &file_example_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Require) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Require) ProtoMessage() {}
-
-func (x *Require) ProtoReflect() protoreflect.Message {
-	mi := &file_example_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Require.ProtoReflect.Descriptor instead.
-func (*Require) Descriptor() ([]byte, []int) {
-	return file_example_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Require) GetRole() v1.Role {
-	if x != nil {
-		return x.Role
-	}
-	return v1.Role(0)
-}
-
-func (x *Require) GetPermission() v1.Permission {
-	if x != nil {
-		return x.Permission
-	}
-	return v1.Permission(0)
-}
-
 type Hello struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	F_1           string                 `protobuf:"bytes,1,opt,name=f_1,json=f1,proto3" json:"f_1,omitempty"`
@@ -202,7 +34,7 @@ type Hello struct {
 
 func (x *Hello) Reset() {
 	*x = Hello{}
-	mi := &file_example_proto_msgTypes[2]
+	mi := &file_example_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -214,7 +46,7 @@ func (x *Hello) String() string {
 func (*Hello) ProtoMessage() {}
 
 func (x *Hello) ProtoReflect() protoreflect.Message {
-	mi := &file_example_proto_msgTypes[2]
+	mi := &file_example_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +59,7 @@ func (x *Hello) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Hello.ProtoReflect.Descriptor instead.
 func (*Hello) Descriptor() ([]byte, []int) {
-	return file_example_proto_rawDescGZIP(), []int{2}
+	return file_example_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Hello) GetF_1() string {
@@ -248,32 +80,14 @@ var File_example_proto protoreflect.FileDescriptor
 
 const file_example_proto_rawDesc = "" +
 	"\n" +
-	"\rexample.proto\x12\aexample\x1a google/protobuf/descriptor.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"[\n" +
-	"\x15SentinezMethodOptions\x12\x16\n" +
-	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x12*\n" +
-	"\arequire\x18\x02 \x03(\v2\x10.example.RequireR\arequire\"u\n" +
-	"\aRequire\x12+\n" +
-	"\x04role\x18\x01 \x01(\x0e2\x17.sentinez.types.v1.RoleR\x04role\x12=\n" +
-	"\n" +
-	"permission\x18\x02 \x01(\x0e2\x1d.sentinez.types.v1.PermissionR\n" +
-	"permission\"1\n" +
+	"\rexample.proto\x12\aexample\x1a google/protobuf/descriptor.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1fsentinez/types/v1/options.proto\"1\n" +
 	"\x05Hello\x12\x0f\n" +
 	"\x03f_1\x18\x01 \x01(\tR\x02f1\x12\x0f\n" +
-	"\x03f_2\x18\x02 \x01(\tR\x02f2:\x06\xca\xf3\x18\x02\b\x01*\xdd\x01\n" +
-	"\n" +
-	"Permission\x12\x1a\n" +
-	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x15\n" +
-	"\x11PERMISSION_CREATE\x10\x01\x12\x17\n" +
-	"\x13PERMISSION_VIEW_OWN\x10\x02\x12\x17\n" +
-	"\x13PERMISSION_VIEW_ANY\x10\x03\x12\x19\n" +
-	"\x15PERMISSION_UPDATE_OWN\x10\x04\x12\x19\n" +
-	"\x15PERMISSION_UPDATE_ANY\x10\x05\x12\x19\n" +
-	"\x15PERMISSION_DELETE_OWN\x10\x06\x12\x19\n" +
-	"\x15PERMISSION_DELETE_ANY\x10\a2\xa2\x01\n" +
-	"\x0eExampleService\x12D\n" +
-	"\x06Create\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\n" +
-	"\x8a\xb5\x18\x06\x12\x04\b\x01\x10\x02\x12J\n" +
-	"\x06Delete\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x10\x8a\xb5\x18\f\x12\x04\b\x02\x10@\x12\x04\b\x01\x10 Bv\x8a\xb2\x19&\n" +
+	"\x03f_2\x18\x02 \x01(\tR\x02f2:\x06\xca\xf3\x18\x02\b\x012\xda\x01\n" +
+	"\x0eExampleService\x12A\n" +
+	"\x06Create\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\a\x8a\xb5\x18\x03\x12\x01\x01\x12B\n" +
+	"\x06Delete\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\b\x8a\xb5\x18\x04\x12\x02\x01\x02\x12A\n" +
+	"\aIgnored\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x06\x8a\xb5\x18\x02\b\x01Bv\x8a\xb2\x19&\n" +
 	"\x10SENTINEZ // EDGE\x10\x02\x1a\x10sentinez.edge.v1ZJgithub.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/exampleb\x06proto3"
 
 var (
@@ -288,30 +102,23 @@ func file_example_proto_rawDescGZIP() []byte {
 	return file_example_proto_rawDescData
 }
 
-var file_example_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_example_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_example_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_example_proto_goTypes = []any{
-	(Permission)(0),               // 0: example.Permission
-	(*SentinezMethodOptions)(nil), // 1: example.SentinezMethodOptions
-	(*Require)(nil),               // 2: example.Require
-	(*Hello)(nil),                 // 3: example.Hello
-	(v1.Role)(0),                  // 4: sentinez.types.v1.Role
-	(v1.Permission)(0),            // 5: sentinez.types.v1.Permission
-	(*emptypb.Empty)(nil),         // 6: google.protobuf.Empty
+	(*Hello)(nil),         // 0: example.Hello
+	(*emptypb.Empty)(nil), // 1: google.protobuf.Empty
 }
 var file_example_proto_depIdxs = []int32{
-	2, // 0: example.SentinezMethodOptions.require:type_name -> example.Require
-	4, // 1: example.Require.role:type_name -> sentinez.types.v1.Role
-	5, // 2: example.Require.permission:type_name -> sentinez.types.v1.Permission
-	6, // 3: example.ExampleService.Create:input_type -> google.protobuf.Empty
-	6, // 4: example.ExampleService.Delete:input_type -> google.protobuf.Empty
-	6, // 5: example.ExampleService.Create:output_type -> google.protobuf.Empty
-	6, // 6: example.ExampleService.Delete:output_type -> google.protobuf.Empty
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 0: example.ExampleService.Create:input_type -> google.protobuf.Empty
+	1, // 1: example.ExampleService.Delete:input_type -> google.protobuf.Empty
+	1, // 2: example.ExampleService.Ignored:input_type -> google.protobuf.Empty
+	1, // 3: example.ExampleService.Create:output_type -> google.protobuf.Empty
+	1, // 4: example.ExampleService.Delete:output_type -> google.protobuf.Empty
+	1, // 5: example.ExampleService.Ignored:output_type -> google.protobuf.Empty
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_example_proto_init() }
@@ -324,14 +131,13 @@ func file_example_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_example_proto_rawDesc), len(file_example_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   3,
+			NumEnums:      0,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_example_proto_goTypes,
 		DependencyIndexes: file_example_proto_depIdxs,
-		EnumInfos:         file_example_proto_enumTypes,
 		MessageInfos:      file_example_proto_msgTypes,
 	}.Build()
 	File_example_proto = out.File

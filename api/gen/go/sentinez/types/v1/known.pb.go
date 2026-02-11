@@ -91,123 +91,53 @@ func (Kind) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{0}
 }
 
-type Role int32
+type Console int32
 
 const (
-	Role_ROLE_UNSPECIFIED Role = 0
-	Role_ROLE_MEMBER      Role = 1
-	Role_ROLE_LEADER      Role = 2
+	Console_CONSOLE_UNSPECIFIED Console = 0
+	Console_CONSOLE_PORTAL      Console = 1
+	Console_CONSOLE_ADMIN       Console = 2
 )
 
-// Enum value maps for Role.
+// Enum value maps for Console.
 var (
-	Role_name = map[int32]string{
-		0: "ROLE_UNSPECIFIED",
-		1: "ROLE_MEMBER",
-		2: "ROLE_LEADER",
+	Console_name = map[int32]string{
+		0: "CONSOLE_UNSPECIFIED",
+		1: "CONSOLE_PORTAL",
+		2: "CONSOLE_ADMIN",
 	}
-	Role_value = map[string]int32{
-		"ROLE_UNSPECIFIED": 0,
-		"ROLE_MEMBER":      1,
-		"ROLE_LEADER":      2,
+	Console_value = map[string]int32{
+		"CONSOLE_UNSPECIFIED": 0,
+		"CONSOLE_PORTAL":      1,
+		"CONSOLE_ADMIN":       2,
 	}
 )
 
-func (x Role) Enum() *Role {
-	p := new(Role)
+func (x Console) Enum() *Console {
+	p := new(Console)
 	*p = x
 	return p
 }
 
-func (x Role) String() string {
+func (x Console) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Role) Descriptor() protoreflect.EnumDescriptor {
+func (Console) Descriptor() protoreflect.EnumDescriptor {
 	return file_sentinez_types_v1_known_proto_enumTypes[1].Descriptor()
 }
 
-func (Role) Type() protoreflect.EnumType {
+func (Console) Type() protoreflect.EnumType {
 	return &file_sentinez_types_v1_known_proto_enumTypes[1]
 }
 
-func (x Role) Number() protoreflect.EnumNumber {
+func (x Console) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Role.Descriptor instead.
-func (Role) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Console.Descriptor instead.
+func (Console) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{1}
-}
-
-type Permission int32
-
-const (
-	Permission_PERMISSION_UNSPECIFIED Permission = 0
-	Permission_PERMISSION_ROOT        Permission = 1   // 1 << 0
-	Permission_PERMISSION_CREATE_OWN  Permission = 2   // 1 << 1
-	Permission_PERMISSION_CREATE_ANY  Permission = 4   // 1 << 2
-	Permission_PERMISSION_VIEW_OWN    Permission = 8   // 1 << 3
-	Permission_PERMISSION_VIEW_ANY    Permission = 16  // 1 << 4
-	Permission_PERMISSION_UPDATE_OWN  Permission = 32  // 1 << 5
-	Permission_PERMISSION_UPDATE_ANY  Permission = 64  // 1 << 6
-	Permission_PERMISSION_DELETE_OWN  Permission = 128 // 1 << 7
-	Permission_PERMISSION_DELETE_ANY  Permission = 256 // 1 << 8
-)
-
-// Enum value maps for Permission.
-var (
-	Permission_name = map[int32]string{
-		0:   "PERMISSION_UNSPECIFIED",
-		1:   "PERMISSION_ROOT",
-		2:   "PERMISSION_CREATE_OWN",
-		4:   "PERMISSION_CREATE_ANY",
-		8:   "PERMISSION_VIEW_OWN",
-		16:  "PERMISSION_VIEW_ANY",
-		32:  "PERMISSION_UPDATE_OWN",
-		64:  "PERMISSION_UPDATE_ANY",
-		128: "PERMISSION_DELETE_OWN",
-		256: "PERMISSION_DELETE_ANY",
-	}
-	Permission_value = map[string]int32{
-		"PERMISSION_UNSPECIFIED": 0,
-		"PERMISSION_ROOT":        1,
-		"PERMISSION_CREATE_OWN":  2,
-		"PERMISSION_CREATE_ANY":  4,
-		"PERMISSION_VIEW_OWN":    8,
-		"PERMISSION_VIEW_ANY":    16,
-		"PERMISSION_UPDATE_OWN":  32,
-		"PERMISSION_UPDATE_ANY":  64,
-		"PERMISSION_DELETE_OWN":  128,
-		"PERMISSION_DELETE_ANY":  256,
-	}
-)
-
-func (x Permission) Enum() *Permission {
-	p := new(Permission)
-	*p = x
-	return p
-}
-
-func (x Permission) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Permission) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[2].Descriptor()
-}
-
-func (Permission) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[2]
-}
-
-func (x Permission) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Permission.Descriptor instead.
-func (Permission) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{2}
 }
 
 type Status int32
@@ -243,11 +173,11 @@ func (x Status) String() string {
 }
 
 func (Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[3].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[2].Descriptor()
 }
 
 func (Status) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[3]
+	return &file_sentinez_types_v1_known_proto_enumTypes[2]
 }
 
 func (x Status) Number() protoreflect.EnumNumber {
@@ -256,7 +186,7 @@ func (x Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Status.Descriptor instead.
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{2}
 }
 
 type Plan int32
@@ -295,11 +225,11 @@ func (x Plan) String() string {
 }
 
 func (Plan) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[4].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[3].Descriptor()
 }
 
 func (Plan) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[4]
+	return &file_sentinez_types_v1_known_proto_enumTypes[3]
 }
 
 func (x Plan) Number() protoreflect.EnumNumber {
@@ -308,7 +238,7 @@ func (x Plan) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Plan.Descriptor instead.
 func (Plan) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{3}
 }
 
 type LogKind int32
@@ -347,11 +277,11 @@ func (x LogKind) String() string {
 }
 
 func (LogKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[5].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[4].Descriptor()
 }
 
 func (LogKind) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[5]
+	return &file_sentinez_types_v1_known_proto_enumTypes[4]
 }
 
 func (x LogKind) Number() protoreflect.EnumNumber {
@@ -360,7 +290,7 @@ func (x LogKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use LogKind.Descriptor instead.
 func (LogKind) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{4}
 }
 
 type Errors int32
@@ -408,11 +338,11 @@ func (x Errors) String() string {
 }
 
 func (Errors) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[6].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[5].Descriptor()
 }
 
 func (Errors) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[6]
+	return &file_sentinez_types_v1_known_proto_enumTypes[5]
 }
 
 func (x Errors) Number() protoreflect.EnumNumber {
@@ -421,7 +351,7 @@ func (x Errors) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Errors.Descriptor instead.
 func (Errors) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{5}
 }
 
 type Empty struct {
@@ -465,7 +395,7 @@ type Context struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ExpireAt      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_at,json=expireAt,proto3" json:"expire_at,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Perms         int32                  `protobuf:"varint,4,opt,name=perms,proto3" json:"perms,omitempty"`
+	Console       Console                `protobuf:"varint,5,opt,name=console,proto3,enum=sentinez.types.v1.Console" json:"console,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -521,11 +451,11 @@ func (x *Context) GetUserId() string {
 	return ""
 }
 
-func (x *Context) GetPerms() int32 {
+func (x *Context) GetConsole() Console {
 	if x != nil {
-		return x.Perms
+		return x.Console
 	}
-	return 0
+	return Console_CONSOLE_UNSPECIFIED
 }
 
 var File_sentinez_types_v1_known_proto protoreflect.FileDescriptor
@@ -533,34 +463,22 @@ var File_sentinez_types_v1_known_proto protoreflect.FileDescriptor
 const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\n" +
 	"\x1dsentinez/types/v1/known.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\a\n" +
-	"\x05Empty\"\x85\x01\n" +
+	"\x05Empty\"\xa5\x01\n" +
 	"\aContext\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05perms\x18\x04 \x01(\x05R\x05perms*t\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x124\n" +
+	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*t\n" +
 	"\x04Kind\x12\x14\n" +
 	"\x10KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10KIND_GATEWAY_API\x10\x01\x12\x15\n" +
 	"\x11KIND_GATEWAY_EDGE\x10\x02\x12\x1a\n" +
 	"\x16KIND_GATEWAY_WEBSOCKET\x10\x03\x12\r\n" +
-	"\tKIND_CORE\x10\x04*>\n" +
-	"\x04Role\x12\x14\n" +
-	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0f\n" +
-	"\vROLE_MEMBER\x10\x01\x12\x0f\n" +
-	"\vROLE_LEADER\x10\x02*\x93\x02\n" +
-	"\n" +
-	"Permission\x12\x1a\n" +
-	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fPERMISSION_ROOT\x10\x01\x12\x19\n" +
-	"\x15PERMISSION_CREATE_OWN\x10\x02\x12\x19\n" +
-	"\x15PERMISSION_CREATE_ANY\x10\x04\x12\x17\n" +
-	"\x13PERMISSION_VIEW_OWN\x10\b\x12\x17\n" +
-	"\x13PERMISSION_VIEW_ANY\x10\x10\x12\x19\n" +
-	"\x15PERMISSION_UPDATE_OWN\x10 \x12\x19\n" +
-	"\x15PERMISSION_UPDATE_ANY\x10@\x12\x1a\n" +
-	"\x15PERMISSION_DELETE_OWN\x10\x80\x01\x12\x1a\n" +
-	"\x15PERMISSION_DELETE_ANY\x10\x80\x02*G\n" +
+	"\tKIND_CORE\x10\x04*I\n" +
+	"\aConsole\x12\x17\n" +
+	"\x13CONSOLE_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0eCONSOLE_PORTAL\x10\x01\x12\x11\n" +
+	"\rCONSOLE_ADMIN\x10\x02*G\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +
@@ -596,27 +514,27 @@ func file_sentinez_types_v1_known_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_known_proto_rawDescData
 }
 
-var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_sentinez_types_v1_known_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_v1_known_proto_goTypes = []any{
 	(Kind)(0),                     // 0: sentinez.types.v1.Kind
-	(Role)(0),                     // 1: sentinez.types.v1.Role
-	(Permission)(0),               // 2: sentinez.types.v1.Permission
-	(Status)(0),                   // 3: sentinez.types.v1.Status
-	(Plan)(0),                     // 4: sentinez.types.v1.Plan
-	(LogKind)(0),                  // 5: sentinez.types.v1.LogKind
-	(Errors)(0),                   // 6: sentinez.types.v1.Errors
-	(*Empty)(nil),                 // 7: sentinez.types.v1.Empty
-	(*Context)(nil),               // 8: sentinez.types.v1.Context
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(Console)(0),                  // 1: sentinez.types.v1.Console
+	(Status)(0),                   // 2: sentinez.types.v1.Status
+	(Plan)(0),                     // 3: sentinez.types.v1.Plan
+	(LogKind)(0),                  // 4: sentinez.types.v1.LogKind
+	(Errors)(0),                   // 5: sentinez.types.v1.Errors
+	(*Empty)(nil),                 // 6: sentinez.types.v1.Empty
+	(*Context)(nil),               // 7: sentinez.types.v1.Context
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_sentinez_types_v1_known_proto_depIdxs = []int32{
-	9, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
+	1, // 1: sentinez.types.v1.Context.console:type_name -> sentinez.types.v1.Console
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_known_proto_init() }
@@ -629,7 +547,7 @@ func file_sentinez_types_v1_known_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_known_proto_rawDesc), len(file_sentinez_types_v1_known_proto_rawDesc)),
-			NumEnums:      7,
+			NumEnums:      6,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,

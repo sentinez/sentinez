@@ -512,6 +512,15 @@
         }
       }
     },
+    "v1Console": {
+      "type": "string",
+      "enum": [
+        "CONSOLE_UNSPECIFIED",
+        "CONSOLE_PORTAL",
+        "CONSOLE_ADMIN"
+      ],
+      "default": "CONSOLE_UNSPECIFIED"
+    },
     "v1Context": {
       "type": "object",
       "properties": {
@@ -525,9 +534,8 @@
         "userId": {
           "type": "string"
         },
-        "permissionBitwise": {
-          "type": "integer",
-          "format": "int32"
+        "console": {
+          "$ref": "#/definitions/v1Console"
         }
       }
     },

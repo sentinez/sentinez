@@ -118,7 +118,7 @@ func (m *Context) Validate() error {
 
 	// no validation rules for UserId
 
-	// no validation rules for Perms
+	// no validation rules for Console
 
 	return nil
 }

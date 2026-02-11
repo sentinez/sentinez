@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExampleService_Create_FullMethodName = "/example.ExampleService/Create"
-	ExampleService_Delete_FullMethodName = "/example.ExampleService/Delete"
+	ExampleService_Create_FullMethodName  = "/example.ExampleService/Create"
+	ExampleService_Delete_FullMethodName  = "/example.ExampleService/Delete"
+	ExampleService_Ignored_FullMethodName = "/example.ExampleService/Ignored"
 )
 
 // ExampleServiceClient is the client API for ExampleService service.
@@ -30,6 +31,7 @@ const (
 type ExampleServiceClient interface {
 	Create(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Ignored(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type exampleServiceClient struct {
@@ -60,12 +62,23 @@ func (c *exampleServiceClient) Delete(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *exampleServiceClient) Ignored(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ExampleService_Ignored_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ExampleServiceServer is the server API for ExampleService service.
 // All implementations must embed UnimplementedExampleServiceServer
 // for forward compatibility.
 type ExampleServiceServer interface {
 	Create(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	Delete(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Ignored(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedExampleServiceServer()
 }
 
@@ -81,6 +94,9 @@ func (UnimplementedExampleServiceServer) Create(context.Context, *emptypb.Empty)
 }
 func (UnimplementedExampleServiceServer) Delete(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedExampleServiceServer) Ignored(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method Ignored not implemented")
 }
 func (UnimplementedExampleServiceServer) mustEmbedUnimplementedExampleServiceServer() {}
 func (UnimplementedExampleServiceServer) testEmbeddedByValue()                        {}
@@ -139,6 +155,24 @@ func _ExampleService_Delete_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ExampleService_Ignored_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExampleServiceServer).Ignored(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExampleService_Ignored_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExampleServiceServer).Ignored(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ExampleService_ServiceDesc is the grpc.ServiceDesc for ExampleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +187,10 @@ var ExampleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _ExampleService_Delete_Handler,
+		},
+		{
+			MethodName: "Ignored",
+			Handler:    _ExampleService_Ignored_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

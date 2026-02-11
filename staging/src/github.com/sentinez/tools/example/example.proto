@@ -4,8 +4,8 @@ package example;
 
 import "google/protobuf/descriptor.proto";
 import "google/protobuf/empty.proto";
-import "sentinez/types/v1/options.proto";
 import "sentinez/types/v1/known.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/example";
 option (sentinez.types.v1.x_meta) = {
@@ -13,28 +13,6 @@ option (sentinez.types.v1.x_meta) = {
   service_kind: KIND_GATEWAY_EDGE
   service_key: "sentinez.edge.v1"
 };
-
-
-message SentinezMethodOptions {
-  bool ignore = 1;
-  repeated Require require = 2;
-}
-
-message Require {
-  sentinez.types.v1.Role role = 1;
-  sentinez.types.v1.Permission permission = 2;
-}
-
-enum Permission {
-  PERMISSION_UNSPECIFIED = 0;
-  PERMISSION_CREATE = 1;
-  PERMISSION_VIEW_OWN = 2;
-  PERMISSION_VIEW_ANY = 3;
-  PERMISSION_UPDATE_OWN = 4;
-  PERMISSION_UPDATE_ANY = 5;
-  PERMISSION_DELETE_OWN = 6;
-  PERMISSION_DELETE_ANY = 7;
-}
 
 message Hello {
   option (sentinez.types.v1.x_message).database_model = true;
@@ -45,16 +23,20 @@ message Hello {
 service ExampleService {
   rpc Create(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      require: { role: ROLE_MEMBER, permission: PERMISSION_CREATE_OWN }
+      consoles: [CONSOLE_PORTAL]
     };
   }
 
   rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      require: [
-        { role: ROLE_LEADER, permission: PERMISSION_UPDATE_ANY },
-        { role: ROLE_MEMBER, permission: PERMISSION_UPDATE_OWN }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
+  }
+
+  rpc Ignored(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (sentinez.types.v1.x_method) = {ignore: true};
   }
 }

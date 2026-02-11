@@ -1464,14 +1464,14 @@ const file_sentinez_core_iam_v1_iam_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"7\n" +
 	"\x11DeleteUserRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaH\x0fr\r:\vsenz.users.R\x02id\"\x14\n" +
-	"\x12DeleteUserResponse2\xff\r\n" +
+	"\x12DeleteUserResponse2\x81\x0e\n" +
 	"\x1fIdentityAccessManagementService\x12a\n" +
 	"\n" +
 	"CreateUser\x12'.sentinez.core.iam.v1.CreateUserRequest\x1a(.sentinez.core.iam.v1.CreateUserResponse\"\x00\x12a\n" +
 	"\n" +
 	"UpdateUser\x12'.sentinez.core.iam.v1.UpdateUserRequest\x1a(.sentinez.core.iam.v1.UpdateUserResponse\"\x00\x12\x82\x01\n" +
-	"\fListAccounts\x12).sentinez.core.iam.v1.ListAccountsRequest\x1a*.sentinez.core.iam.v1.ListAccountsResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/iam/accounts\x12v\n" +
-	"\tListUsers\x12&.sentinez.core.iam.v1.ListUsersRequest\x1a'.sentinez.core.iam.v1.ListUsersResponse\"\x18\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\f\x12\n" +
+	"\fListAccounts\x12).sentinez.core.iam.v1.ListAccountsRequest\x1a*.sentinez.core.iam.v1.ListAccountsResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/iam/accounts\x12x\n" +
+	"\tListUsers\x12&.sentinez.core.iam.v1.ListUsersRequest\x1a'.sentinez.core.iam.v1.ListUsersResponse\"\x1a\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/iam/users\x12n\n" +
 	"\x06Status\x12#.sentinez.core.iam.v1.StatusRequest\x1a$.sentinez.core.iam.v1.StatusResponse\"\x19\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\r\x12\v/iam/status\x12\x87\x01\n" +
 	"\rCreateAccount\x12*.sentinez.core.iam.v1.CreateAccountRequest\x1a+.sentinez.core.iam.v1.CreateAccountResponse\"\x1d\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/iam/account\x12o\n" +

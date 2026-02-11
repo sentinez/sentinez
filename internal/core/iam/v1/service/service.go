@@ -33,7 +33,6 @@ import (
 	"github.com/sentinez/sentinez/pkg/security/crypto"
 	"github.com/sentinez/sentinez/pkg/security/passkey"
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
-	"github.com/sentinez/shared/perms"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -123,15 +122,17 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 		zlog.Debugf("faild to get user by username or email")
 		return nil, err
 	}
-	perm := perms.DefaultOwner()
+
+	console := typepb.Console_CONSOLE_PORTAL
 	if acc.GetUsername() == "admin" {
-		perm = perm.Add(typepb.Permission_PERMISSION_ROOT)
+		console = typepb.Console_CONSOLE_ADMIN
 	}
+
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
 		Name:     user.GetFullName(),
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 		UserId:   user.GetId(),
-		Perms:    perm.Int32(),
+		Console:  console,
 	})
 	if err != nil {
 		return nil, err
@@ -434,15 +435,17 @@ func (srv *IAMService) Login(ctx context.Context,
 		zlog.Debugf("faild to get user by username or email")
 		return nil, err
 	}
-	perm := perms.DefaultOwner()
+
+	console := typepb.Console_CONSOLE_PORTAL
 	if acc.GetUsername() == "admin" {
-		perm = perm.Add(typepb.Permission_PERMISSION_ROOT)
+		console = typepb.Console_CONSOLE_ADMIN
 	}
+
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
 		Name:     user.GetFullName(),
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 		UserId:   user.GetId(),
-		Perms:    perm.Int32(),
+		Console:  console,
 	})
 	if err != nil {
 		return nil, err

@@ -17,6 +17,7 @@ package zlog
 import (
 	"os"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -32,7 +33,7 @@ var (
 		MessageKey:    "message",
 		StacktraceKey: "stacktrace",
 		CallerKey:     "caller",
-		EncodeTime:    zap.NewDevelopmentEncoderConfig().EncodeTime,
+		EncodeTime:    timeEncoder,
 		EncodeLevel:   zapcore.CapitalColorLevelEncoder,
 		EncodeCaller:  zapcore.ShortCallerEncoder,
 	}
@@ -87,7 +88,6 @@ func (l Level) Int() int {
 // configConsoleLogger creates a new logger.
 func configConsoleLogger(scope string) *zap.Logger {
 	var consoleConf = config
-	consoleConf.EncodeTime = zap.NewDevelopmentEncoderConfig().EncodeTime
 
 	// Console output
 	consoleEncoder := zapcore.NewConsoleEncoder(consoleConf)
@@ -116,6 +116,10 @@ func configJSONLogger(scope string) *zap.Logger {
 
 	logger = logger.Named(scope)
 	return logger
+}
+
+func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("2006-01-02T15:04:05.000Z07:00"))
 }
 
 // SetLogLevel set logger default level

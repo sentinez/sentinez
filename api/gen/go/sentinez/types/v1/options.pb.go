@@ -151,7 +151,7 @@ func (x *XMessage) GetExportField() bool {
 type XMethod struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ignore        bool                   `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
-	Require       []*XRequire            `protobuf:"bytes,2,rep,name=require,proto3" json:"require,omitempty"`
+	Consoles      []Console              `protobuf:"varint,2,rep,packed,name=consoles,proto3,enum=sentinez.types.v1.Console" json:"consoles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -193,63 +193,11 @@ func (x *XMethod) GetIgnore() bool {
 	return false
 }
 
-func (x *XMethod) GetRequire() []*XRequire {
+func (x *XMethod) GetConsoles() []Console {
 	if x != nil {
-		return x.Require
+		return x.Consoles
 	}
 	return nil
-}
-
-type XRequire struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Role          Role                   `protobuf:"varint,1,opt,name=role,proto3,enum=sentinez.types.v1.Role" json:"role,omitempty"`
-	Permission    Permission             `protobuf:"varint,2,opt,name=permission,proto3,enum=sentinez.types.v1.Permission" json:"permission,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *XRequire) Reset() {
-	*x = XRequire{}
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *XRequire) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*XRequire) ProtoMessage() {}
-
-func (x *XRequire) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use XRequire.ProtoReflect.Descriptor instead.
-func (*XRequire) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *XRequire) GetRole() Role {
-	if x != nil {
-		return x.Role
-	}
-	return Role_ROLE_UNSPECIFIED
-}
-
-func (x *XRequire) GetPermission() Permission {
-	if x != nil {
-		return x.Permission
-	}
-	return Permission_PERMISSION_UNSPECIFIED
 }
 
 var file_sentinez_types_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
@@ -309,15 +257,10 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"serviceKey\"T\n" +
 	"\bXMessage\x12%\n" +
 	"\x0edatabase_model\x18\x01 \x01(\bR\rdatabaseModel\x12!\n" +
-	"\fexport_field\x18\x02 \x01(\bR\vexportField\"X\n" +
+	"\fexport_field\x18\x02 \x01(\bR\vexportField\"Y\n" +
 	"\aXMethod\x12\x16\n" +
-	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x125\n" +
-	"\arequire\x18\x02 \x03(\v2\x1b.sentinez.types.v1.XRequireR\arequire\"v\n" +
-	"\bXRequire\x12+\n" +
-	"\x04role\x18\x01 \x01(\x0e2\x17.sentinez.types.v1.RoleR\x04role\x12=\n" +
-	"\n" +
-	"permission\x18\x02 \x01(\x0e2\x1d.sentinez.types.v1.PermissionR\n" +
-	"permission:W\n" +
+	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x126\n" +
+	"\bconsoles\x18\x02 \x03(\x0e2\x1a.sentinez.types.v1.ConsoleR\bconsoles:W\n" +
 	"\bx_method\x12\x1e.google.protobuf.MethodOptions\x18ц\x03 \x01(\v2\x1a.sentinez.types.v1.XMethodR\axMethod:[\n" +
 	"\tx_message\x12\x1f.google.protobuf.MessageOptions\x18\xb9\x8e\x03 \x01(\v2\x1b.sentinez.types.v1.XMessageR\bxMessage:O\n" +
 	"\x06x_meta\x12\x1c.google.protobuf.FileOptions\x18\xa1\x96\x03 \x01(\v2\x18.sentinez.types.v1.XMetaR\x05xMetaBBZ@github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1;typepbb\x06proto3"
@@ -334,35 +277,31 @@ func file_sentinez_types_v1_options_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_options_proto_rawDescData
 }
 
-var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_types_v1_options_proto_goTypes = []any{
 	(*XMeta)(nil),                       // 0: sentinez.types.v1.XMeta
 	(*XMessage)(nil),                    // 1: sentinez.types.v1.XMessage
 	(*XMethod)(nil),                     // 2: sentinez.types.v1.XMethod
-	(*XRequire)(nil),                    // 3: sentinez.types.v1.XRequire
-	(Kind)(0),                           // 4: sentinez.types.v1.Kind
-	(Role)(0),                           // 5: sentinez.types.v1.Role
-	(Permission)(0),                     // 6: sentinez.types.v1.Permission
-	(*descriptorpb.MethodOptions)(nil),  // 7: google.protobuf.MethodOptions
-	(*descriptorpb.MessageOptions)(nil), // 8: google.protobuf.MessageOptions
-	(*descriptorpb.FileOptions)(nil),    // 9: google.protobuf.FileOptions
+	(Kind)(0),                           // 3: sentinez.types.v1.Kind
+	(Console)(0),                        // 4: sentinez.types.v1.Console
+	(*descriptorpb.MethodOptions)(nil),  // 5: google.protobuf.MethodOptions
+	(*descriptorpb.MessageOptions)(nil), // 6: google.protobuf.MessageOptions
+	(*descriptorpb.FileOptions)(nil),    // 7: google.protobuf.FileOptions
 }
 var file_sentinez_types_v1_options_proto_depIdxs = []int32{
-	4,  // 0: sentinez.types.v1.XMeta.service_kind:type_name -> sentinez.types.v1.Kind
-	3,  // 1: sentinez.types.v1.XMethod.require:type_name -> sentinez.types.v1.XRequire
-	5,  // 2: sentinez.types.v1.XRequire.role:type_name -> sentinez.types.v1.Role
-	6,  // 3: sentinez.types.v1.XRequire.permission:type_name -> sentinez.types.v1.Permission
-	7,  // 4: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
-	8,  // 5: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
-	9,  // 6: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
-	2,  // 7: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
-	1,  // 8: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
-	0,  // 9: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	7,  // [7:10] is the sub-list for extension type_name
-	4,  // [4:7] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	3, // 0: sentinez.types.v1.XMeta.service_kind:type_name -> sentinez.types.v1.Kind
+	4, // 1: sentinez.types.v1.XMethod.consoles:type_name -> sentinez.types.v1.Console
+	5, // 2: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
+	6, // 3: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
+	7, // 4: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
+	2, // 5: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
+	1, // 6: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
+	0, // 7: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	5, // [5:8] is the sub-list for extension type_name
+	2, // [2:5] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_options_proto_init() }
@@ -377,7 +316,7 @@ func file_sentinez_types_v1_options_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_options_proto_rawDesc), len(file_sentinez_types_v1_options_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 3,
 			NumServices:   0,
 		},

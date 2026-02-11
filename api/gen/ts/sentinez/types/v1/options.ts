@@ -6,17 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import {
-  Kind,
-  kindFromJSON,
-  kindToJSON,
-  Permission,
-  permissionFromJSON,
-  permissionToJSON,
-  Role,
-  roleFromJSON,
-  roleToJSON,
-} from "./known";
+import { Console, consoleFromJSON, consoleToJSON, Kind, kindFromJSON, kindToJSON } from "./known";
 
 export const protobufPackage = "sentinez.types.v1";
 
@@ -33,12 +23,7 @@ export interface XMessage {
 
 export interface XMethod {
   ignore: boolean;
-  require: XRequire[];
-}
-
-export interface XRequire {
-  role: Role;
-  permission: Permission;
+  consoles: Console[];
 }
 
 function createBaseXMeta(): XMeta {
@@ -210,7 +195,7 @@ export const XMessage: MessageFns<XMessage> = {
 };
 
 function createBaseXMethod(): XMethod {
-  return { ignore: false, require: [] };
+  return { ignore: false, consoles: [] };
 }
 
 export const XMethod: MessageFns<XMethod> = {
@@ -218,9 +203,11 @@ export const XMethod: MessageFns<XMethod> = {
     if (message.ignore !== false) {
       writer.uint32(8).bool(message.ignore);
     }
-    for (const v of message.require) {
-      XRequire.encode(v!, writer.uint32(18).fork()).join();
+    writer.uint32(18).fork();
+    for (const v of message.consoles) {
+      writer.int32(v);
     }
+    writer.join();
     return writer;
   },
 
@@ -240,12 +227,22 @@ export const XMethod: MessageFns<XMethod> = {
           continue;
         }
         case 2: {
-          if (tag !== 18) {
-            break;
+          if (tag === 16) {
+            message.consoles.push(reader.int32() as any);
+
+            continue;
           }
 
-          message.require.push(XRequire.decode(reader, reader.uint32()));
-          continue;
+          if (tag === 18) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.consoles.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
         }
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -259,7 +256,7 @@ export const XMethod: MessageFns<XMethod> = {
   fromJSON(object: any): XMethod {
     return {
       ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
-      require: globalThis.Array.isArray(object?.require) ? object.require.map((e: any) => XRequire.fromJSON(e)) : [],
+      consoles: globalThis.Array.isArray(object?.consoles) ? object.consoles.map((e: any) => consoleFromJSON(e)) : [],
     };
   },
 
@@ -268,8 +265,8 @@ export const XMethod: MessageFns<XMethod> = {
     if (message.ignore !== false) {
       obj.ignore = message.ignore;
     }
-    if (message.require?.length) {
-      obj.require = message.require.map((e) => XRequire.toJSON(e));
+    if (message.consoles?.length) {
+      obj.consoles = message.consoles.map((e) => consoleToJSON(e));
     }
     return obj;
   },
@@ -280,83 +277,7 @@ export const XMethod: MessageFns<XMethod> = {
   fromPartial<I extends Exact<DeepPartial<XMethod>, I>>(object: I): XMethod {
     const message = createBaseXMethod();
     message.ignore = object.ignore ?? false;
-    message.require = object.require?.map((e) => XRequire.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseXRequire(): XRequire {
-  return { role: 0, permission: 0 };
-}
-
-export const XRequire: MessageFns<XRequire> = {
-  encode(message: XRequire, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.role !== 0) {
-      writer.uint32(8).int32(message.role);
-    }
-    if (message.permission !== 0) {
-      writer.uint32(16).int32(message.permission);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): XRequire {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseXRequire();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.role = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.permission = reader.int32() as any;
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): XRequire {
-    return {
-      role: isSet(object.role) ? roleFromJSON(object.role) : 0,
-      permission: isSet(object.permission) ? permissionFromJSON(object.permission) : 0,
-    };
-  },
-
-  toJSON(message: XRequire): unknown {
-    const obj: any = {};
-    if (message.role !== 0) {
-      obj.role = roleToJSON(message.role);
-    }
-    if (message.permission !== 0) {
-      obj.permission = permissionToJSON(message.permission);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<XRequire>, I>>(base?: I): XRequire {
-    return XRequire.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<XRequire>, I>>(object: I): XRequire {
-    const message = createBaseXRequire();
-    message.role = object.role ?? 0;
-    message.permission = object.permission ?? 0;
+    message.consoles = object.consoles?.map((e) => e) || [];
     return message;
   },
 };

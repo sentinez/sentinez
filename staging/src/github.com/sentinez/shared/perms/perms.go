@@ -16,80 +16,34 @@ package perms
 
 import (
 	"errors"
+	"slices"
 
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
 
-type Claim int32
-
-func New(p int32) Claim {
-	return Claim(p)
-}
-
-func (c Claim) Int32() int32 {
-	return int32(c)
-}
-
-func (c Claim) Add(p typepb.Permission) Claim {
-	return c | Claim(p)
-}
-
-func (c Claim) Remove(p typepb.Permission) Claim {
-	return c &^ Claim(p)
-}
-
-func (c Claim) Has(p typepb.Permission) bool {
-	return (c & Claim(p)) != 0
-}
-
-func (c Claim) HasAny(flags Claim) bool {
-	return (c & flags) != 0
-}
-
-func (c Claim) HasAll(flags Claim) bool {
-	return (c & flags) == flags
-}
-
-// Check verifies if the claim and role satisfy the requirements.
-func (c Claim) Check(requires []*typepb.XRequire, role typepb.Role) error {
-	return Allow(requires, role, c)
-}
-
-// Allow checks if the given role and permissions satisfy any of the requirements.
+// Allow checks if the given console has access to the method.
 // The logic follows:
-//   - If requires is empty, access is allowed.
-//   - It iterates through the list of requirements (OR logic).
-//   - For each requirement:
-//   - If Role is specified, the user's role must match (AND logic).
-//   - If Permission is specified, the user must have that permission (AND logic).
-//   - If any requirement is fully satisfied, returns nil.
-//   - If no requirement is satisfied, returns an error.
-func Allow(requires []*typepb.XRequire, role typepb.Role, c Claim) error {
-	if len(requires) == 0 {
+//   - If method is nil, access is allowed.
+//   - If method.Ignore is true, access is allowed.
+//   - If method.Consoles is empty, access is allowed.
+//   - If user's console matches one of the allowed consoles, access is allowed.
+//   - Otherwise, access is denied.
+func Allow(method *typepb.XMethod, console typepb.Console) error {
+	if method == nil {
 		return nil
 	}
 
-	for _, req := range requires {
-		// Check Role constraint
-		roleMatch := true
-		if req.Role != typepb.Role_ROLE_UNSPECIFIED {
-			if role != req.Role {
-				roleMatch = false
-			}
-		}
-
-		// Check Permission constraint
-		permMatch := true
-		if req.Permission != typepb.Permission_PERMISSION_UNSPECIFIED {
-			if !c.Has(req.Permission) {
-				permMatch = false
-			}
-		}
-
-		if roleMatch && permMatch {
-			return nil
-		}
+	if method.Ignore {
+		return nil
 	}
 
-	return errors.New("permission denied")
+	if len(method.Consoles) == 0 {
+		return nil
+	}
+
+	if slices.Contains(method.Consoles, console) {
+		return nil
+	}
+
+	return errors.New("access denied: console not allowed")
 }

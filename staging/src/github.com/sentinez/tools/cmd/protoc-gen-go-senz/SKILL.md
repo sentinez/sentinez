@@ -85,19 +85,19 @@ protoc --go-senz_out=. --go-senz_opt=paths=source_relative <proto_files>
 
 It creates files with the suffix `_senz.pb.go`.
 
-### 4. Method Requirement Accessors
-For methods annotated with `(sentinez.types.v1.x_method).require`, the plugin gets the list of requirements for that method.
-If the list is not empty, the plugin generates a function returning the list of requirements for that method.
+### 4. Method Metadata Accessors
+For methods annotated with `(sentinez.types.v1.x_method)`, the plugin generates a function returning the method metadata.
+If both `ignore` is false and `consoles` is empty, no getter is generated.
 
-**Format:** `GetReq<ServiceName><MethodName>`
+**Format:** `Get<ServiceName><MethodName>`
 
 **Example Protobuf:**
 ```protobuf
 service Greeter {
   rpc SayHello (HelloRequest) returns (HelloReply) {
-    option (sentinez.types.v1.x_method).require = {
-      role: ROLE_MEMBER
-      permission: PERMISSION_CREATE_ANY
+    option (sentinez.types.v1.x_method) = {
+      ignore: false
+      consoles: [CONSOLE_PORTAL, CONSOLE_ADMIN]
     };
   }
 }
@@ -105,12 +105,13 @@ service Greeter {
 
 **Generated Go:**
 ```go
-func GetReqGreeterSayHello() []*typepb.XRequire {
-	return []*typepb.XRequire{
-		{
-			Role:       typepb.Role_ROLE_MEMBER,
-			Permission: typepb.Permission_PERMISSION_CREATE_ANY,
+func GetGreeterSayHello() *typepb.XMethod {
+	return &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+			typepb.Console_CONSOLE_ADMIN,
 		},
 	}
 }
 ```
+
