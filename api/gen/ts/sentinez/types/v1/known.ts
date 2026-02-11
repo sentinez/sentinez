@@ -61,130 +61,40 @@ export function kindToJSON(object: Kind): string {
   }
 }
 
-export enum Role {
-  ROLE_UNSPECIFIED = 0,
-  ROLE_MEMBER = 1,
-  ROLE_LEADER = 2,
+export enum Console {
+  CONSOLE_UNSPECIFIED = 0,
+  CONSOLE_PORTAL = 1,
+  CONSOLE_ADMIN = 2,
   UNRECOGNIZED = -1,
 }
 
-export function roleFromJSON(object: any): Role {
+export function consoleFromJSON(object: any): Console {
   switch (object) {
     case 0:
-    case "ROLE_UNSPECIFIED":
-      return Role.ROLE_UNSPECIFIED;
+    case "CONSOLE_UNSPECIFIED":
+      return Console.CONSOLE_UNSPECIFIED;
     case 1:
-    case "ROLE_MEMBER":
-      return Role.ROLE_MEMBER;
+    case "CONSOLE_PORTAL":
+      return Console.CONSOLE_PORTAL;
     case 2:
-    case "ROLE_LEADER":
-      return Role.ROLE_LEADER;
+    case "CONSOLE_ADMIN":
+      return Console.CONSOLE_ADMIN;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return Role.UNRECOGNIZED;
+      return Console.UNRECOGNIZED;
   }
 }
 
-export function roleToJSON(object: Role): string {
+export function consoleToJSON(object: Console): string {
   switch (object) {
-    case Role.ROLE_UNSPECIFIED:
-      return "ROLE_UNSPECIFIED";
-    case Role.ROLE_MEMBER:
-      return "ROLE_MEMBER";
-    case Role.ROLE_LEADER:
-      return "ROLE_LEADER";
-    case Role.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
-export enum Permission {
-  PERMISSION_UNSPECIFIED = 0,
-  /** PERMISSION_ROOT - 1 << 0 */
-  PERMISSION_ROOT = 1,
-  /** PERMISSION_CREATE_OWN - 1 << 1 */
-  PERMISSION_CREATE_OWN = 2,
-  /** PERMISSION_CREATE_ANY - 1 << 2 */
-  PERMISSION_CREATE_ANY = 4,
-  /** PERMISSION_VIEW_OWN - 1 << 3 */
-  PERMISSION_VIEW_OWN = 8,
-  /** PERMISSION_VIEW_ANY - 1 << 4 */
-  PERMISSION_VIEW_ANY = 16,
-  /** PERMISSION_UPDATE_OWN - 1 << 5 */
-  PERMISSION_UPDATE_OWN = 32,
-  /** PERMISSION_UPDATE_ANY - 1 << 6 */
-  PERMISSION_UPDATE_ANY = 64,
-  /** PERMISSION_DELETE_OWN - 1 << 7 */
-  PERMISSION_DELETE_OWN = 128,
-  /** PERMISSION_DELETE_ANY - 1 << 8 */
-  PERMISSION_DELETE_ANY = 256,
-  UNRECOGNIZED = -1,
-}
-
-export function permissionFromJSON(object: any): Permission {
-  switch (object) {
-    case 0:
-    case "PERMISSION_UNSPECIFIED":
-      return Permission.PERMISSION_UNSPECIFIED;
-    case 1:
-    case "PERMISSION_ROOT":
-      return Permission.PERMISSION_ROOT;
-    case 2:
-    case "PERMISSION_CREATE_OWN":
-      return Permission.PERMISSION_CREATE_OWN;
-    case 4:
-    case "PERMISSION_CREATE_ANY":
-      return Permission.PERMISSION_CREATE_ANY;
-    case 8:
-    case "PERMISSION_VIEW_OWN":
-      return Permission.PERMISSION_VIEW_OWN;
-    case 16:
-    case "PERMISSION_VIEW_ANY":
-      return Permission.PERMISSION_VIEW_ANY;
-    case 32:
-    case "PERMISSION_UPDATE_OWN":
-      return Permission.PERMISSION_UPDATE_OWN;
-    case 64:
-    case "PERMISSION_UPDATE_ANY":
-      return Permission.PERMISSION_UPDATE_ANY;
-    case 128:
-    case "PERMISSION_DELETE_OWN":
-      return Permission.PERMISSION_DELETE_OWN;
-    case 256:
-    case "PERMISSION_DELETE_ANY":
-      return Permission.PERMISSION_DELETE_ANY;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return Permission.UNRECOGNIZED;
-  }
-}
-
-export function permissionToJSON(object: Permission): string {
-  switch (object) {
-    case Permission.PERMISSION_UNSPECIFIED:
-      return "PERMISSION_UNSPECIFIED";
-    case Permission.PERMISSION_ROOT:
-      return "PERMISSION_ROOT";
-    case Permission.PERMISSION_CREATE_OWN:
-      return "PERMISSION_CREATE_OWN";
-    case Permission.PERMISSION_CREATE_ANY:
-      return "PERMISSION_CREATE_ANY";
-    case Permission.PERMISSION_VIEW_OWN:
-      return "PERMISSION_VIEW_OWN";
-    case Permission.PERMISSION_VIEW_ANY:
-      return "PERMISSION_VIEW_ANY";
-    case Permission.PERMISSION_UPDATE_OWN:
-      return "PERMISSION_UPDATE_OWN";
-    case Permission.PERMISSION_UPDATE_ANY:
-      return "PERMISSION_UPDATE_ANY";
-    case Permission.PERMISSION_DELETE_OWN:
-      return "PERMISSION_DELETE_OWN";
-    case Permission.PERMISSION_DELETE_ANY:
-      return "PERMISSION_DELETE_ANY";
-    case Permission.UNRECOGNIZED:
+    case Console.CONSOLE_UNSPECIFIED:
+      return "CONSOLE_UNSPECIFIED";
+    case Console.CONSOLE_PORTAL:
+      return "CONSOLE_PORTAL";
+    case Console.CONSOLE_ADMIN:
+      return "CONSOLE_ADMIN";
+    case Console.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -389,7 +299,7 @@ export interface Context {
   name: string;
   expireAt?: Date | undefined;
   userId: string;
-  permissionBitwise: number;
+  console: Console;
 }
 
 function createBaseEmpty(): Empty {
@@ -436,7 +346,7 @@ export const Empty: MessageFns<Empty> = {
 };
 
 function createBaseContext(): Context {
-  return { name: "", expireAt: undefined, userId: "", permissionBitwise: 0 };
+  return { name: "", expireAt: undefined, userId: "", console: 0 };
 }
 
 export const Context: MessageFns<Context> = {
@@ -450,8 +360,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       writer.uint32(26).string(message.userId);
     }
-    if (message.permissionBitwise !== 0) {
-      writer.uint32(32).int32(message.permissionBitwise);
+    if (message.console !== 0) {
+      writer.uint32(40).int32(message.console);
     }
     return writer;
   },
@@ -487,12 +397,12 @@ export const Context: MessageFns<Context> = {
           message.userId = reader.string();
           continue;
         }
-        case 4: {
-          if (tag !== 32) {
+        case 5: {
+          if (tag !== 40) {
             break;
           }
 
-          message.permissionBitwise = reader.int32();
+          message.console = reader.int32() as any;
           continue;
         }
       }
@@ -509,7 +419,7 @@ export const Context: MessageFns<Context> = {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       expireAt: isSet(object.expireAt) ? fromJsonTimestamp(object.expireAt) : undefined,
       userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
-      permissionBitwise: isSet(object.permissionBitwise) ? globalThis.Number(object.permissionBitwise) : 0,
+      console: isSet(object.console) ? consoleFromJSON(object.console) : 0,
     };
   },
 
@@ -524,8 +434,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       obj.userId = message.userId;
     }
-    if (message.permissionBitwise !== 0) {
-      obj.permissionBitwise = Math.round(message.permissionBitwise);
+    if (message.console !== 0) {
+      obj.console = consoleToJSON(message.console);
     }
     return obj;
   },
@@ -538,7 +448,7 @@ export const Context: MessageFns<Context> = {
     message.name = object.name ?? "";
     message.expireAt = object.expireAt ?? undefined;
     message.userId = object.userId ?? "";
-    message.permissionBitwise = object.permissionBitwise ?? 0;
+    message.console = object.console ?? 0;
     return message;
   },
 };

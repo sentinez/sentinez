@@ -7,72 +7,66 @@ import (
 	"github.com/sentinez/shared/perms"
 )
 
-func Example_member() {
-	// Scenario: A Member trying to access a resource that requires VIEW_OWN permission.
-
-	// 1. Create a claim for a Member who lacks the required permission.
-	claim := perms.New(0) // No permissions
-	role := typepb.Role_ROLE_MEMBER
-
-	requires := []*typepb.XRequire{
-		{Permission: typepb.Permission_PERMISSION_VIEW_OWN},
+func ExampleAllow_consoleMatch() {
+	viewMethod := &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+			typepb.Console_CONSOLE_ADMIN,
+		},
 	}
 
-	err := perms.Allow(requires, role, claim)
+	// User has PORTAL console
+	userConsole := typepb.Console_CONSOLE_PORTAL
+
+	err := perms.Allow(viewMethod, userConsole)
 	if err == nil {
-		fmt.Println("Member (no perms): Access allowed")
+		fmt.Println("Access granted")
 	} else {
-		fmt.Println("Member (no perms): Access denied")
+		fmt.Println("Access denied")
 	}
-
-	// 2. Grant the Member the required VIEW_OWN permission.
-	claim = claim.Add(typepb.Permission_PERMISSION_VIEW_OWN)
-
-	err = perms.Allow(requires, role, claim)
-	if err == nil {
-		fmt.Println("Member (with perms): Access allowed")
-	} else {
-		fmt.Println("Member (with perms): Access denied")
-	}
-
-	// Output:
-	// Member (no perms): Access denied
-	// Member (with perms): Access allowed
+	//Output: Access granted
 }
 
-func Example_leader() {
-	// Scenario: Accessing a resource that requires either Leader role OR VIEW_ANY permission.
-
-	requires := []*typepb.XRequire{
-		{Role: typepb.Role_ROLE_LEADER},
-		{Permission: typepb.Permission_PERMISSION_VIEW_ANY},
+func ExampleAllow_consoleMismatch() {
+	adminMethod := &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_ADMIN,
+		},
 	}
 
-	// 1. A Leader without specific permissions.
-	// Since the requirement allows ROLE_LEADER, access should be granted regardless of permissions.
-	leaderClaim := perms.New(0)
-	leaderRole := typepb.Role_ROLE_LEADER
+	// User has PORTAL console
+	userConsole := typepb.Console_CONSOLE_PORTAL
 
-	err := perms.Allow(requires, leaderRole, leaderClaim)
+	err := perms.Allow(adminMethod, userConsole)
+	if err != nil {
+		fmt.Println("Access denied")
+	}
+	//Output: Access denied
+}
+
+func ExampleAllow_ignoredMethod() {
+	ignoredMethod := &typepb.XMethod{
+		Ignore: true,
+	}
+
+	// Even if user has no matching console, ignored methods allow access
+	userConsole := typepb.Console_CONSOLE_UNSPECIFIED
+
+	err := perms.Allow(ignoredMethod, userConsole)
 	if err == nil {
-		fmt.Println("Leader: Access allowed")
-	} else {
-		fmt.Println("Leader: Access denied")
+		fmt.Println("Access granted")
 	}
+	//Output: Access granted
+}
 
-	// 2. A Member with ROLE_MEMBER (not leader) and no permissions.
-	// Should be denied.
-	memberClaim := perms.New(0)
-	memberRole := typepb.Role_ROLE_MEMBER
+func ExampleAllow_noRestrictions() {
+	// Method with no consoles specified - allows all
+	publicMethod := &typepb.XMethod{}
 
-	err = perms.Allow(requires, memberRole, memberClaim)
+	userConsole := typepb.Console_CONSOLE_PORTAL
+	err := perms.Allow(publicMethod, userConsole)
 	if err == nil {
-		fmt.Println("Member: Access allowed")
-	} else {
-		fmt.Println("Member: Access denied")
+		fmt.Println("Access granted")
 	}
-
-	// Output:
-	// Leader: Access allowed
-	// Member: Access denied
+	//Output: Access granted
 }

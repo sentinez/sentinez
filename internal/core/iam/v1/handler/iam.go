@@ -20,7 +20,6 @@ import (
 
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	iamsvc "github.com/sentinez/sentinez/internal/core/iam/v1/service"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/common/headers"
@@ -103,12 +102,9 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 		return nil, err
 	}
 
-	err = ss.Check(
-		iampb.IdentityAccessManagementServiceListUsers(),
-		typepb.Role_ROLE_LEADER,
-	)
+	err = ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())
 	if err != nil {
-		request.UserIds = []string{ss.GetUserId()}
+		return nil, err
 	}
 
 	resp, err := iam.service.ListAccounts(ctx, request)

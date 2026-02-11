@@ -695,14 +695,14 @@ const file_sentinez_core_tenant_v1_tenant_proto_rawDesc = "" +
 	"\tresources\x18\x02 \x03(\v2!.sentinez.core.tenant.v1.ResourceR\tresources\"*\n" +
 	"\x0eStatusResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x0f\n" +
-	"\rStatusRequest2\x98\a\n" +
+	"\rStatusRequest2\xee\x06\n" +
 	"\rTenantService\x12w\n" +
-	"\x06Status\x12&.sentinez.core.tenant.v1.StatusRequest\x1a'.sentinez.core.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x96\x01\n" +
-	"\fListResource\x12,.sentinez.core.tenant.v1.ListResourceRequest\x1a-.sentinez.core.tenant.v1.ListResourceResponse\")\x8a\xb5\x18\f\x12\x04\b\x01\x10\b\x12\x04\b\x02\x10\x10\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x9e\x01\n" +
-	"\x0eCreateResource\x12..sentinez.core.tenant.v1.CreateResourceRequest\x1a/.sentinez.core.tenant.v1.CreateResourceResponse\"+\x8a\xb5\x18\f\x12\x04\b\x01\x10\x02\x12\x04\b\x02\x10\x04\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x9e\x01\n" +
-	"\x0eUpdateResource\x12..sentinez.core.tenant.v1.UpdateResourceRequest\x1a/.sentinez.core.tenant.v1.UpdateResourceResponse\"+\x8a\xb5\x18\f\x12\x04\b\x01\x10 \x12\x04\b\x02\x10@\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x9d\x01\n" +
-	"\x0eDeleteResource\x12..sentinez.core.tenant.v1.DeleteResourceRequest\x1a/.sentinez.core.tenant.v1.DeleteResourceResponse\"*\x8a\xb5\x18\x0e\x12\x05\b\x01\x10\x80\x01\x12\x05\b\x02\x10\x80\x02\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resource\x12\x92\x01\n" +
-	"\vGetResource\x12+.sentinez.core.tenant.v1.GetResourceRequest\x1a,.sentinez.core.tenant.v1.GetResourceResponse\"(\x8a\xb5\x18\f\x12\x04\b\x01\x10\b\x12\x04\b\x02\x10\x10\x82\xd3\xe4\x93\x02\x12\x12\x10/tenant/resourceB\xe4\x01\x92Ad\x12\x15\n" +
+	"\x06Status\x12&.sentinez.core.tenant.v1.StatusRequest\x1a'.sentinez.core.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8e\x01\n" +
+	"\fListResource\x12,.sentinez.core.tenant.v1.ListResourceRequest\x1a-.sentinez.core.tenant.v1.ListResourceResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x96\x01\n" +
+	"\x0eCreateResource\x12..sentinez.core.tenant.v1.CreateResourceRequest\x1a/.sentinez.core.tenant.v1.CreateResourceResponse\"#\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x96\x01\n" +
+	"\x0eUpdateResource\x12..sentinez.core.tenant.v1.UpdateResourceRequest\x1a/.sentinez.core.tenant.v1.UpdateResourceResponse\"#\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x93\x01\n" +
+	"\x0eDeleteResource\x12..sentinez.core.tenant.v1.DeleteResourceRequest\x1a/.sentinez.core.tenant.v1.DeleteResourceResponse\" \x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resource\x12\x8a\x01\n" +
+	"\vGetResource\x12+.sentinez.core.tenant.v1.GetResourceRequest\x1a,.sentinez.core.tenant.v1.GetResourceResponse\" \x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x12\x12\x10/tenant/resourceB\xe4\x01\x92Ad\x12\x15\n" +
 	"\x0eTenant Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +

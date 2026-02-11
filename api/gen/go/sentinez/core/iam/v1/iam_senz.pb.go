@@ -38,15 +38,71 @@ func GetMetaIamServiceKey() string {
 	return metadata_iam.GetServiceKey()
 }
 
-func IdentityAccessManagementServiceListUsers() []*typepb.XRequire {
-	return []*typepb.XRequire{
-		{
-			Role:       typepb.Role_ROLE_MEMBER,
-			Permission: typepb.Permission_PERMISSION_VIEW_OWN,
+func GetIdentityAccessManagementServiceListAccounts() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServiceListUsers() *typepb.XMethod {
+	return &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+			typepb.Console_CONSOLE_ADMIN,
 		},
-		{
-			Role:       typepb.Role_ROLE_LEADER,
-			Permission: typepb.Permission_PERMISSION_VIEW_ANY,
-		},
+	}
+}
+
+func GetIdentityAccessManagementServiceStatus() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServiceCreateAccount() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServiceGetUser() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServiceDeleteUser() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServiceLogin() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServicePasskeyRegisterVerify() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServicePasskeyLoginChallenge() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetIdentityAccessManagementServicePasskeyLoginVerify() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
 	}
 }

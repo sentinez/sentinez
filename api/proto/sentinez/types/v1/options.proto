@@ -46,10 +46,5 @@ message XMessage {
 
 message XMethod {
   bool ignore = 1;
-  repeated XRequire require = 2;
-}
-
-message XRequire {
-  Role role = 1;
-  Permission permission = 2;
+  repeated Console consoles = 2;
 }

@@ -70,15 +70,9 @@ service TenantService {
     option (google.api.http) = {get: "/tenant/resources"};
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_VIEW_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_VIEW_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }
@@ -91,15 +85,9 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_CREATE_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_CREATE_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }
@@ -112,15 +100,9 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_UPDATE_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_UPDATE_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }
@@ -130,15 +112,9 @@ service TenantService {
     option (google.api.http) = {delete: "/tenant/resource"};
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_DELETE_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_DELETE_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }
@@ -147,15 +123,9 @@ service TenantService {
     option (google.api.http) = {get: "/tenant/resource"};
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_VIEW_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_VIEW_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }

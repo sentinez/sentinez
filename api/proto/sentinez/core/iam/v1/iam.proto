@@ -75,15 +75,9 @@ service IdentityAccessManagementService {
     option (google.api.http) = {get: "/iam/users"};
 
     option (sentinez.types.v1.x_method) = {
-      require: [
-        {
-          role: ROLE_MEMBER
-          permission: PERMISSION_VIEW_OWN
-        },
-        {
-          role: ROLE_LEADER
-          permission: PERMISSION_VIEW_ANY
-        }
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
       ]
     };
   }

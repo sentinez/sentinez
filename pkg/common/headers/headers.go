@@ -30,12 +30,8 @@ type Auth struct {
 	*typepb.Context
 }
 
-func (a *Auth) Permission() perms.Claim {
-	return perms.New(a.GetPerms())
-}
-
-func (a *Auth) Check(requires []*typepb.XRequire, role typepb.Role) error {
-	return a.Permission().Check(requires, role)
+func (a *Auth) Check(method *typepb.XMethod) error {
+	return perms.Allow(method, a.GetConsole())
 }
 
 func GetAuth(ctx context.Context) (*Auth, error) {
