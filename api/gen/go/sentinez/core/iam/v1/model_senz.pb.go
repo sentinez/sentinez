@@ -17,19 +17,21 @@ var (
 )
 
 const (
-	Account_Metadata    = "metadata"
-	Account_Id          = "id"
-	Account_UserId      = "user_id"
-	Account_Username    = "username"
-	Account_Password    = "password"
-	Account_Email       = "email"
-	Account_Credentials = "credentials"
+	Account_Metadata       = "metadata"
+	Account_Id             = "id"
+	Account_UserId         = "user_id"
+	Account_Username       = "username"
+	Account_PasswordHash   = "password_hash"
+	Account_Email          = "email"
+	Account_Credentials    = "credentials"
+	Account_Provider       = "provider"
+	Account_ProviderUserId = "provider_user_id"
 )
 
 const (
 	User_Metadata    = "metadata"
 	User_Id          = "id"
 	User_FullName    = "full_name"
-	User_Email       = "email"
+	User_EmailBackup = "email_backup"
 	User_PhoneNumber = "phone_number"
 )

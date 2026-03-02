@@ -46,10 +46,10 @@ func TestLogin(t *testing.T) {
 	pw, _ := crypto.HashPassword("secret123")
 	acc := &accrepos.AccountX{
 		Account: &iampb.Account{
-			Id:       "acc-123",
-			UserId:   "user-123",
-			Username: "admin",
-			Password: pw,
+			Id:           "acc-123",
+			UserId:       "user-123",
+			Username:     "admin",
+			PasswordHash: pw,
 		},
 	}
 	accountRepo.On("GetByUsernameOrEmail", mock.Anything, "admin").

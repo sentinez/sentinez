@@ -54,12 +54,12 @@ func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 	storage, err := postgres.New[AccountX](ctx, appConf,
 		dbx.WithTable(tables.Accounts),
 		dbx.WithColumns(dbx.ColumnM{
-			iampb.Account_Id:          postgres.String,
-			iampb.Account_Email:       postgres.String,
-			iampb.Account_Username:    postgres.String,
-			iampb.Account_Password:    postgres.String,
-			iampb.Account_Credentials: postgres.StringArr,
-			iampb.Account_UserId:      postgres.String,
+			iampb.Account_Id:           postgres.String,
+			iampb.Account_Email:        postgres.String,
+			iampb.Account_Username:     postgres.String,
+			iampb.Account_PasswordHash: postgres.String,
+			iampb.Account_Credentials:  postgres.StringArr,
+			iampb.Account_UserId:       postgres.String,
 		}),
 	)
 	if err != nil {
@@ -165,12 +165,12 @@ func (acc *Accounts) Create(ctx context.Context,
 	}
 
 	query := postgres.InsertBuilder(acc.storage, postgres.M{
-		iampb.Account_Id:          account.GetId(),
-		iampb.Account_Credentials: account.GetCredentials(),
-		iampb.Account_Username:    account.GetUsername(),
-		iampb.Account_Email:       account.GetEmail(),
-		iampb.Account_UserId:      account.GetUserId(),
-		iampb.Account_Password:    account.GetPassword(),
+		iampb.Account_Id:           account.GetId(),
+		iampb.Account_Credentials:  account.GetCredentials(),
+		iampb.Account_Username:     account.GetUsername(),
+		iampb.Account_Email:        account.GetEmail(),
+		iampb.Account_UserId:       account.GetUserId(),
+		iampb.Account_PasswordHash: account.GetPasswordHash(),
 	})
 
 	_, err := acc.storage.Insert(ctx, query)
@@ -205,8 +205,8 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 		query = query.Set(iampb.Account_Username, account.GetUsername())
 	}
 
-	if account.GetPassword() != "" {
-		query = query.Set(iampb.Account_Password, account.GetPassword())
+	if account.GetPasswordHash() != "" {
+		query = query.Set(iampb.Account_PasswordHash, account.GetPasswordHash())
 	}
 
 	if account.GetUserId() != "" {
@@ -232,7 +232,7 @@ func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		iampb.Account_Username,
 		iampb.Account_Email,
 		iampb.Account_UserId,
-		iampb.Account_Password,
+		iampb.Account_PasswordHash,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -263,7 +263,7 @@ func scanOne(row dbx.Row) (*AccountX, error) {
 		&account.Username,
 		&account.Email,
 		&account.UserId,
-		&account.Password,
+		&account.PasswordHash,
 		&createdAt,
 		&updatedAt,
 	)
