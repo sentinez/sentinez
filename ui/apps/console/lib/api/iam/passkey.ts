@@ -9,10 +9,7 @@ import {
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 
 import axios from 'axios';
-import {
-  PasskeyLoginVerifyRequest,
-  PasskeyRegisterVerifyRequest,
-} from '@sentinez/api/types/passkey';
+import { PasskeyLoginVerifyRequest, PasskeyRegisterVerifyRequest } from '@/lib/api/types/passkey';
 
 const API_BASE_PATH = process.env.SNTZ_BASE_PATH || 'http://localhost:8080';
 

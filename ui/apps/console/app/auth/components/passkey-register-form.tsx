@@ -13,7 +13,7 @@ import {
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import Image from 'next/image';
-import { PasskeyRegister } from '@sentinez/api/iam/passkey';
+import { PasskeyRegister } from '@/lib/api/iam/passkey';
 
 export function PasskeyRegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [email, setEmail] = useState('');

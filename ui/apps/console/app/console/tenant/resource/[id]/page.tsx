@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use } from 'react';
 
 type Props = {
   params: Promise<{
@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function ResourceSetting({ params }: Props) {
-  const props = use(params)
-  
+  const props = use(params);
+
   return <div>User ID: {props.id}</div>;
 }

@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@sentinez/ui/components/ale
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import Image from 'next/image';
-import { PasskeyLogin } from '@sentinez/api/iam/passkey';
+import { PasskeyLogin } from '@/lib/api/iam/passkey';
 import { Terminal } from 'lucide-react';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
