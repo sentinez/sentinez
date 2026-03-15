@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 	"github.com/sentinez/sentinez/pkg/storage/utils/table"
 	"github.com/sentinez/shared/ids"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -54,12 +55,14 @@ func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 	storage, err := postgres.New[AccountX](ctx, appConf,
 		dbx.WithTable(tables.Accounts),
 		dbx.WithColumns(dbx.ColumnM{
-			iampb.Account_Id:           postgres.String,
-			iampb.Account_Email:        postgres.String,
-			iampb.Account_Username:     postgres.String,
-			iampb.Account_PasswordHash: postgres.String,
-			iampb.Account_Credentials:  postgres.StringArr,
-			iampb.Account_UserId:       postgres.String,
+			iampb.Account_Id:             postgres.String,
+			iampb.Account_Email:          postgres.String,
+			iampb.Account_Username:       postgres.String,
+			iampb.Account_PasswordHash:   postgres.String,
+			iampb.Account_Credentials:    postgres.StringArr,
+			iampb.Account_UserId:         postgres.String,
+			iampb.Account_Provider:       postgres.String,
+			iampb.Account_ProviderUserId: postgres.String,
 		}),
 	)
 	if err != nil {
@@ -165,12 +168,14 @@ func (acc *Accounts) Create(ctx context.Context,
 	}
 
 	query := postgres.InsertBuilder(acc.storage, postgres.M{
-		iampb.Account_Id:           account.GetId(),
-		iampb.Account_Credentials:  account.GetCredentials(),
-		iampb.Account_Username:     account.GetUsername(),
-		iampb.Account_Email:        account.GetEmail(),
-		iampb.Account_UserId:       account.GetUserId(),
-		iampb.Account_PasswordHash: account.GetPasswordHash(),
+		iampb.Account_Id:             account.GetId(),
+		iampb.Account_Credentials:    account.GetCredentials(),
+		iampb.Account_Username:       account.GetUsername(),
+		iampb.Account_Email:          account.GetEmail(),
+		iampb.Account_UserId:         account.GetUserId(),
+		iampb.Account_PasswordHash:   account.GetPasswordHash(),
+		iampb.Account_Provider:       account.GetProvider(),
+		iampb.Account_ProviderUserId: account.GetProviderUserId(),
 	})
 
 	_, err := acc.storage.Insert(ctx, query)
@@ -217,6 +222,14 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 		query = query.Set(iampb.Account_Credentials, account.GetCredentials())
 	}
 
+	if account.GetProvider() != "" {
+		query = query.Set(iampb.Account_Provider, account.GetProvider())
+	}
+
+	if account.GetProviderUserId() != "" {
+		query = query.Set(iampb.Account_ProviderUserId, account.GetProviderUserId())
+	}
+
 	_, err := acc.storage.Exec(ctx, query)
 	if err != nil {
 		return err
@@ -233,6 +246,8 @@ func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		iampb.Account_Email,
 		iampb.Account_UserId,
 		iampb.Account_PasswordHash,
+		iampb.Account_Provider,
+		iampb.Account_ProviderUserId,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -264,10 +279,13 @@ func scanOne(row dbx.Row) (*AccountX, error) {
 		&account.Email,
 		&account.UserId,
 		&account.PasswordHash,
+		&account.Provider,
+		&account.ProviderUserId,
 		&createdAt,
 		&updatedAt,
 	)
 	if err != nil {
+		zlog.Debugf("postgres: in tx=false query: %s", row)
 		return nil, err
 	}
 
