@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -10,8 +13,31 @@ import {
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import Image from 'next/image';
+import { PasskeyRegister } from '@/lib/api/iam/passkey';
 
-export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function SignUpForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) {
+      alert('Please enter your email first');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await PasskeyRegister({ emailOrUsername: email });
+      alert('Account created successfully!');
+    } catch (err: any) {
+      console.error(err);
+      alert('Sign up failed: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -24,39 +50,34 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
               Sentinéz
             </a>
           </CardTitle>
-          <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
+          <CardDescription className="text-left">
+            Create your Sentinéz account
+          </CardDescription>
         </CardHeader> */}
         <CardContent>
-          <form>
+          <form onSubmit={handleSignUp}>
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="m@example.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
                 </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input id="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full cursor-pointer">
-                  Login
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+                  {isLoading ? 'Creating account…' : 'Sign Up'}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account? <br />
-                <a href="/auth/signup" className="underline underline-offset-4">
-                  Sign up
-                </a>
-                <br />
-                or
-                <br />
+                Already have an account? <br />
                 <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  Passkey
+                  Sign in
                 </a>
               </div>
             </div>

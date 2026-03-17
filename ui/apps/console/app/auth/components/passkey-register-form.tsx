@@ -36,7 +36,7 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
-        <CardHeader className="text-center">
+        {/* <CardHeader className="text-center">
           <CardTitle className="text-xl">
             <a href="#" className="flex items-center gap-2 self-center font-medium">
               <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
@@ -48,7 +48,7 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
           <CardDescription className=" text-left">
             Register with your Sentinéz account
           </CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
           <form onSubmit={handleRegisterPasskey}>
             <div className="grid gap-6">
@@ -78,10 +78,6 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
           </form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-        <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }
