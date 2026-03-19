@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// nolint:funlen
 func TestAllow(t *testing.T) {
 	tests := []struct {
 		name      string

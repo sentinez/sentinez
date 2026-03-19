@@ -56,9 +56,13 @@ func (m *Account) Validate() error {
 
 	// no validation rules for Username
 
-	// no validation rules for Password
+	// no validation rules for PasswordHash
 
 	// no validation rules for Email
+
+	// no validation rules for Provider
+
+	// no validation rules for ProviderUserId
 
 	return nil
 }
@@ -143,6 +147,8 @@ func (m *AccountResponse) Validate() error {
 
 	// no validation rules for Email
 
+	// no validation rules for Provider
+
 	return nil
 }
 
@@ -221,7 +227,7 @@ func (m *User) Validate() error {
 
 	// no validation rules for FullName
 
-	// no validation rules for Email
+	// no validation rules for EmailBackup
 
 	// no validation rules for PhoneNumber
 

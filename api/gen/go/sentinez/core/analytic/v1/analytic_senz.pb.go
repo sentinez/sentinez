@@ -37,3 +37,9 @@ func GetMetaAnalyticServiceKind() typepb.Kind {
 func GetMetaAnalyticServiceKey() string {
 	return metadata_analytic.GetServiceKey()
 }
+
+func GetAnalyticServiceListActivities() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}

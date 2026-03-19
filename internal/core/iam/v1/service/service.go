@@ -376,7 +376,7 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iampb.User{
 		FullName:    req.GetFullName(),
-		Email:       req.GetEmail(),
+		EmailBackup: req.GetEmail(),
 		PhoneNumber: req.GetPhoneNumber(),
 	})
 	if err != nil {
@@ -386,10 +386,10 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 
 	acc, err := srv.accounts.WithTX(txss).Create(ctx, &accrepos.AccountX{
 		Account: &iampb.Account{
-			UserId:   user.GetId(),
-			Email:    req.GetEmail(),
-			Username: req.GetUsername(),
-			Password: pw,
+			UserId:       user.GetId(),
+			Email:        req.GetEmail(),
+			Username:     req.GetUsername(),
+			PasswordHash: pw,
 		},
 	})
 	if err != nil {
@@ -425,7 +425,7 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPassword()) {
+	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPasswordHash()) {
 		return nil,
 			errorx.StatusUnauthorizedF("username, email or password is wrong!")
 	}
@@ -457,20 +457,20 @@ func (srv *IAMService) Login(ctx context.Context,
 func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
-	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
 	if errorx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
-	if user.GetId() != "" {
+	if acc.GetId() != "" {
 		return nil,
 			errorx.StatusAlreadyExistsF(
 				"email %s already exists", request.GetEmail())
 	}
 
-	user, err = srv.users.Create(ctx, &iampb.User{
+	user, err := srv.users.Create(ctx, &iampb.User{
 		FullName:    request.GetFullName(),
-		Email:       request.GetEmail(),
+		EmailBackup: request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
 	})
 	if err != nil {
@@ -491,7 +491,12 @@ func (srv *IAMService) GetUser(ctx context.Context,
 	}
 
 	if request.GetEmail() != "" {
-		user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
+		acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
+		if err != nil {
+			return nil, err
+		}
+
+		user, err := srv.users.Get(ctx, acc.GetUserId())
 		if err != nil {
 			return nil, err
 		}
@@ -527,17 +532,17 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
-	user, err := srv.users.GetByFullnameOrEmail(ctx, request.GetEmail())
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
 	if errorx.NotRowsNotFound(err) {
 		return nil, err
 	}
 
-	if user.GetId() != "" {
-		return nil, errorx.StatusAlreadyExistsF(
-			"email %s already exists", request.GetEmail())
+	if acc.GetId() == "" {
+		return nil, errorx.StatusNotFoundF(
+			"email %s not found", request.GetEmail())
 	}
 
-	user, err = srv.users.Get(ctx, request.GetId())
+	user, err := srv.users.Get(ctx, request.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -555,10 +560,10 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 func copyUserUpdateParams(dest *iampb.User, req *iampb.UpdateUserRequest) {
 
 	if req.GetEmail() != "" {
-		dest.Email = req.GetEmail()
+		dest.EmailBackup = req.GetEmail()
 	}
 
-	if req.GetEmail() != "" {
+	if req.GetFullName() != "" {
 		dest.FullName = req.GetFullName()
 	}
 

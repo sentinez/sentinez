@@ -22,3 +22,7 @@ const (
 const (
 	Resources = "tenant.resources"
 )
+
+const (
+	Activities = "analytic.activities"
+)

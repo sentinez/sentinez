@@ -15,7 +15,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
-        <CardHeader className="text-center">
+        {/* <CardHeader className="text-center">
           <CardTitle className="text-xl">
             <a href="#" className="flex items-center gap-2 self-center font-medium">
               <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
@@ -25,7 +25,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
             </a>
           </CardTitle>
           <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
           <form>
             <div className="grid gap-6">
@@ -49,7 +49,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account? <br />
-                <a href="#" className="underline underline-offset-4">
+                <a href="/auth/signup" className="underline underline-offset-4">
                   Sign up
                 </a>
                 <br />
@@ -63,10 +63,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
           </form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-        <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }

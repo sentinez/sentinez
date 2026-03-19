@@ -37,11 +37,22 @@ message Account {
     string: {prefix: "senz.iam.users."}
   }];
 
+  // username only support for local provider
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string password = 11 [(buf.validate.field).string.min_len = 8];
+
+  // password_hash only support for local provider
+  string password_hash = 11;
+
   string email = 12 [(buf.validate.field).string.email = true];
 
   repeated string credentials = 20;
+
+  string provider = 21 [(buf.validate.field) = {
+    required: true
+    string: {pattern: "^(local|google|github|sso|passkey)$"}
+  }];
+
+  string provider_user_id = 22;
 }
 
 message AccountResponse {
@@ -58,7 +69,10 @@ message AccountResponse {
   }];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+
   string email = 11 [(buf.validate.field).string.email = true];
+
+  string provider = 12;
 }
 
 message User {
@@ -72,6 +86,6 @@ message User {
   }];
 
   string full_name = 10 [(buf.validate.field).required = true];
-  string email = 11 [(buf.validate.field).string.email = true];
+  string email_backup = 11 [(buf.validate.field).string.email = true];
   string phone_number = 12 [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
