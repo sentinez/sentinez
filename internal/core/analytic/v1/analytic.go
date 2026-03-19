@@ -12,4 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package analytic
+package analyticv1
+
+import (
+	"context"
+
+	"github.com/sentinez/sentinez/api/client/local"
+	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	analyticfac "github.com/sentinez/sentinez/internal/core/analytic/v1/factory"
+	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
+	"google.golang.org/grpc/test/bufconn"
+)
+
+var bufLis *bufconn.Listener
+
+func GetListener() *bufconn.Listener {
+	return bufLis
+}
+
+func NewService(ctx context.Context, appConf *confpb.Config) *Analytic {
+	return &Analytic{
+		Server: netgrpc.NewDefault(appConf.GetMeta()),
+		hdl:    analyticfac.NewDefaultHandler(ctx, appConf),
+	}
+}
+
+type Analytic struct {
+	*netgrpc.Server
+	hdl pb.AnalyticServiceServer
+}
+
+func (mod *Analytic) Start(_ context.Context) error {
+	pb.RegisterAnalyticServiceServer(mod.AsServer(), mod.hdl)
+
+	bufLis = bufconn.Listen(local.BufSize)
+	return mod.BufServe(bufLis)
+}

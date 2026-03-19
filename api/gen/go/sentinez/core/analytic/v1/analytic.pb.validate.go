@@ -164,3 +164,164 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StatusResponseValidationError{}
+
+// Validate checks the field values on ListActivitiesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListActivitiesRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListActivitiesRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// ListActivitiesRequestValidationError is the validation error returned by
+// ListActivitiesRequest.Validate if the designated constraints aren't met.
+type ListActivitiesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListActivitiesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListActivitiesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListActivitiesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListActivitiesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListActivitiesRequestValidationError) ErrorName() string {
+	return "ListActivitiesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListActivitiesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListActivitiesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListActivitiesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListActivitiesRequestValidationError{}
+
+// Validate checks the field values on ListActivitiesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListActivitiesResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetActivities() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListActivitiesResponseValidationError{
+					field:  fmt.Sprintf("Activities[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	return nil
+}
+
+// ListActivitiesResponseValidationError is the validation error returned by
+// ListActivitiesResponse.Validate if the designated constraints aren't met.
+type ListActivitiesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListActivitiesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListActivitiesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListActivitiesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListActivitiesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListActivitiesResponseValidationError) ErrorName() string {
+	return "ListActivitiesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListActivitiesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListActivitiesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListActivitiesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListActivitiesResponseValidationError{}

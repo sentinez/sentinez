@@ -12,4 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package centraldata
+package centraldatav1
+
+import (
+	"context"
+
+	"github.com/sentinez/sentinez/api/client/local"
+	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/centraldata/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	centraldatafac "github.com/sentinez/sentinez/internal/core/centraldata/v1/factory"
+	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
+	"google.golang.org/grpc/test/bufconn"
+)
+
+var bufLis *bufconn.Listener
+
+func GetListener() *bufconn.Listener {
+	return bufLis
+}
+
+func NewService(ctx context.Context, appConf *confpb.Config) *CentralData {
+	return &CentralData{
+		Server: netgrpc.NewDefault(appConf.GetMeta()),
+		hdl:    centraldatafac.NewDefaultHandler(ctx, appConf),
+	}
+}
+
+type CentralData struct {
+	*netgrpc.Server
+	hdl pb.CentralDataServiceServer
+}
+
+func (mod *CentralData) Start(_ context.Context) error {
+	pb.RegisterCentralDataServiceServer(mod.AsServer(), mod.hdl)
+
+	bufLis = bufconn.Listen(local.BufSize)
+	return mod.BufServe(bufLis)
+}

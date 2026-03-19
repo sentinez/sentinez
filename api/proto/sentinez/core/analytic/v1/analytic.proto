@@ -16,6 +16,9 @@ syntax = "proto3";
 
 package sentinez.core.analytic.v1;
 
+import "google/api/annotations.proto";
+import "sentinez/core/analytic/v1/model.proto";
+import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/analytic/v1;analyticpb";
@@ -29,10 +32,26 @@ option (sentinez.types.v1.x_meta) = {
 service AnalyticService {
   // Health check Service
   rpc Status(StatusRequest) returns (StatusResponse) {}
+
+  rpc ListActivities(ListActivitiesRequest) returns (ListActivitiesResponse) {
+    option (google.api.http) = {get: "/analytic/activities"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
 }
 
 message StatusRequest {}
 
 message StatusResponse {
   string msg = 1;
+}
+
+message ListActivitiesRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+  repeated string resource_ids = 11;
+}
+
+message ListActivitiesResponse {
+  repeated sentinez.core.analytic.v1.Activity activities = 1;
+  int64 total = 2;
 }
