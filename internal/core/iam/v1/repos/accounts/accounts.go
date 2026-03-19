@@ -198,6 +198,7 @@ func (acc *Accounts) Get(ctx context.Context, id string) (*AccountX, error) {
 }
 
 // Update implements IAccount.
+// nolint:funlen
 func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 
 	query := postgres.UpdateBuilder(acc.storage, account.GetId())
@@ -227,7 +228,8 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 	}
 
 	if account.GetProviderUserId() != "" {
-		query = query.Set(iampb.Account_ProviderUserId, account.GetProviderUserId())
+		query = query.Set(
+			iampb.Account_ProviderUserId, account.GetProviderUserId())
 	}
 
 	_, err := acc.storage.Exec(ctx, query)

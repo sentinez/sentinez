@@ -10,8 +10,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/storage/dbx/postgres"
 )
 
-func NewDefaultService(
-	ctx context.Context, appConf *confpb.Config) *centraldatasvc.CentralDataService {
+func NewDefaultService(_ context.Context,
+	appConf *confpb.Config) *centraldatasvc.CentralDataService {
 
 	tx := postgres.NewTX(appConf)
 

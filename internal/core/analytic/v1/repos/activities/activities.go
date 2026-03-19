@@ -83,7 +83,8 @@ func buildListQuery(builder sq.SelectBuilder,
 	}
 
 	for _, resourceID := range req.GetResourceIds() {
-		builder = builder.Where(sq.Eq{analyticpb.Activity_ResourceId: resourceID})
+		builder = builder.Where(
+			sq.Eq{analyticpb.Activity_ResourceId: resourceID})
 	}
 
 	return builder
@@ -92,7 +93,8 @@ func buildListQuery(builder sq.SelectBuilder,
 // List implements IActivity.
 // nolint:funlen
 func (a *Activities) List(ctx context.Context,
-	req *analyticpb.ListActivitiesRequest) (*analyticpb.ListActivitiesResponse, error) {
+	req *analyticpb.ListActivitiesRequest,
+) (*analyticpb.ListActivitiesResponse, error) {
 
 	builder := postgres.SelectBuilder(a.storage, req.GetPage())
 	builder = buildListQuery(builder, req)
@@ -117,7 +119,8 @@ func (a *Activities) List(ctx context.Context,
 		}
 	}
 
-	return &analyticpb.ListActivitiesResponse{Activities: activities, Total: total}, nil
+	return &analyticpb.ListActivitiesResponse{
+		Activities: activities, Total: total}, nil
 }
 
 // Create implements IActivity.
@@ -144,22 +147,26 @@ func (a *Activities) Delete(ctx context.Context, id string) error {
 }
 
 // Get implements IActivity.
-func (a *Activities) Get(ctx context.Context, id string) (*analyticpb.Activity, error) {
+func (a *Activities) Get(ctx context.Context,
+	id string) (*analyticpb.Activity, error) {
 	builder := a.selectQuery(nil).Where(sq.Eq{analyticpb.Activity_Id: id})
 	return a.storage.Select(ctx, builder, scanOne)
 }
 
 // Update implements IActivity.
-func (a *Activities) Update(ctx context.Context, activity *analyticpb.Activity) error {
+func (a *Activities) Update(ctx context.Context,
+	activity *analyticpb.Activity) error {
 
 	query := postgres.UpdateBuilder(a.storage, activity.GetId())
 
 	if activity.GetResourceId() != "" {
-		query = query.Set(analyticpb.Activity_ResourceId, activity.GetResourceId())
+		query = query.Set(
+			analyticpb.Activity_ResourceId, activity.GetResourceId())
 	}
 
 	if len(activity.GetUniqueVisitor()) > 0 {
-		query = query.Set(analyticpb.Activity_UniqueVisitor, activity.GetUniqueVisitor())
+		query = query.Set(
+			analyticpb.Activity_UniqueVisitor, activity.GetUniqueVisitor())
 	}
 
 	_, err := a.storage.Exec(ctx, query)
