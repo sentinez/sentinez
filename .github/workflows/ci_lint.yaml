@@ -19,11 +19,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24'
+          go-version: '1.26'
 
       - name: Install golangci-lint
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.4.0
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.11.3
 
       - name: Run golangci-lint
         run: |
@@ -39,7 +39,7 @@ jobs:
 
       - name: Install buf
         run: |
-          curl -sSL https://github.com/bufbuild/buf/releases/download/v1.50.0/buf-Linux-x86_64 -o /usr/local/bin/buf
+          curl -sSL https://github.com/bufbuild/buf/releases/download/v1.66.1/buf-Linux-x86_64 -o /usr/local/bin/buf
           chmod +x /usr/local/bin/buf
 
       - name: Run buf lint
