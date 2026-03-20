@@ -1,6 +1,6 @@
 module github.com/sentinez/shared
 
-go 1.25.3
+go 1.26.1
 
 replace github.com/sentinez/sentinez/api => ../../../../../api
 

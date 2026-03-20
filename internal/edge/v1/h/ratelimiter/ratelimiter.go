@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func New() chains.Handler {
+func New(_ zlog.Level) chains.Handler {
 	return &Limiter{
 		BaseHandler: chains.New(),
 	}

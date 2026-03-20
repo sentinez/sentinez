@@ -20,11 +20,12 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*Static)(nil)
 
-func NewStatic() chains.Handler {
+func NewStatic(_ zlog.Level) chains.Handler {
 	return &Static{
 		BaseHandler: chains.New(),
 		staticExits: map[string]struct{}{

@@ -18,11 +18,12 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/sentinez/pkg/dmz/queue"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ chains.Handler = (*WaitingRoom)(nil)
 
-func New() chains.Handler {
+func New(_ zlog.Level) chains.Handler {
 	return &WaitingRoom{
 		BaseHandler: chains.New(),
 	}
