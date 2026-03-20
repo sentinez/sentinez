@@ -14,7 +14,7 @@ When asked to create the base core service/module entrypoint for a given functio
 ## 1. File Structure and Package
 
 The module entrypoint should be placed at the root of the domain version package: `internal/core/<domain>/v1/<domain>.go`.
-The package name should be `<domain>v1`.
+The package name should be `<domain>`.
 
 Use standard imports, especially:
 - Context from `context`
@@ -30,7 +30,7 @@ Use standard imports, especially:
 Declare a package-level global variable for the `bufconn.Listener` and a getter function `GetListener()` so the API Gateway or local test clients can connect to it.
 
 ```go
-package <domain>v1
+package <domain>
 
 import (
     "context"

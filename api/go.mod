@@ -1,6 +1,6 @@
 module github.com/sentinez/sentinez/api
 
-go 1.25.0
+go 1.26.1
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.5-20250219170025-d39267d9df8f.1

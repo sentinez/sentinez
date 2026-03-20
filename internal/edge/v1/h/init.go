@@ -42,11 +42,11 @@ func Init(appConf *confpb.Config) chains.Handler {
 
 	curr = curr.SetNext(secure.NewDomain(hostname))
 
-	curr = curr.SetNext(ratelimiter.New())
+	curr = curr.SetNext(ratelimiter.New(ll))
 
-	curr = curr.SetNext(waitingroom.New())
+	curr = curr.SetNext(waitingroom.New(ll))
 
-	curr = curr.SetNext(static.NewStatic())
+	curr = curr.SetNext(static.NewStatic(ll))
 
 	curr = curr.SetNext(logging.NewLogger(ll))
 

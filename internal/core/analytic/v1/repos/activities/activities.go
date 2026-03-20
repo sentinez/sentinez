@@ -53,7 +53,7 @@ func New(ctx context.Context, appConf *confpb.Config) (IActivity, error) {
 		dbx.WithColumns(dbx.ColumnM{
 			analyticpb.Activity_Id:            postgres.String,
 			analyticpb.Activity_ResourceId:    postgres.String,
-			analyticpb.Activity_UniqueVisitor: dbx.ColumnType("INTEGER[]"),
+			analyticpb.Activity_UniqueVisitor: postgres.IntArr,
 		}),
 	)
 	if err != nil {

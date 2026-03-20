@@ -65,8 +65,8 @@ func BenchmarkStandardConverter(b *testing.B) {
 
 	begin := trace.NewTracer()
 	begin.
-		SetNext(waitingroom.New()).
-		SetNext(static.NewStatic()).
+		SetNext(waitingroom.New(zlog.LevelError)).
+		SetNext(static.NewStatic(zlog.LevelError)).
 		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewRule(zlog.LevelError)).
@@ -98,8 +98,8 @@ func TestHandleChain(t *testing.T) {
 
 	begin := trace.NewTracer()
 	begin.
-		SetNext(waitingroom.New()).
-		SetNext(static.NewStatic()).
+		SetNext(waitingroom.New(zlog.LevelError)).
+		SetNext(static.NewStatic(zlog.LevelError)).
 		SetNext(logging.NewLogger(zlog.LevelError)).
 		SetNext(secure.NewDomain("is.s6z.io.vn")).
 		SetNext(secure.NewRule(zlog.LevelError)).
