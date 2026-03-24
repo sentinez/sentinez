@@ -12,24 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
-
-import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	"github.com/sentinez/sentinez/internal/edge/v1/http"
-	"github.com/sentinez/sentinez/internal/edge/v1/stream"
-	"github.com/sentinez/sentinez/internal/shared/mem"
-)
-
-func (s *Server) initialize(appConf *confpb.Config) error {
-
-	_ = stream.Init()
-
-	// init cache repository
-	mem.LoadConfiguration(s.setting, appConf)
-
-	income := http.Init(appConf)
-	s.core.Handle(income.Handle)
-
-	return nil
-}
+//go:generate go tool bpf2go Edge ./edge_kern.c
+package edgebpf

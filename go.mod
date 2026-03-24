@@ -14,6 +14,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/a-h/templ v0.3.960
 	github.com/bytedance/sonic v1.15.0
+	github.com/cilium/ebpf v0.21.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/go-webauthn/webauthn v0.15.0
@@ -106,3 +107,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )
+
+tool github.com/cilium/ebpf/cmd/bpf2go
