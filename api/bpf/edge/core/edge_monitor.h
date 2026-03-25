@@ -20,7 +20,7 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
-#include "../log/edge_log.h"
+#include "./edge_helper.h"
 
 struct {
     __uint(type, BPF_MAP_TYPE_ARRAY); 
