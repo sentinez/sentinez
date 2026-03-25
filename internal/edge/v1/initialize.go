@@ -17,16 +17,15 @@ package edge
 import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/http"
-	"github.com/sentinez/sentinez/internal/edge/v1/stream"
 	"github.com/sentinez/sentinez/internal/shared/mem"
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {
 
 	// init stream transport layer 4
-	go func() {
-		_ = stream.Init()
-	}()
+	// go func() {
+	// 	_ = stream.Init()
+	// }()
 
 	// init cache repository
 	mem.LoadConfiguration(s.setting, appConf)

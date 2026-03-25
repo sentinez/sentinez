@@ -18,8 +18,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/cilium/ebpf"
-	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/rlimit"
 	edgebpf "github.com/sentinez/sentinez/api/bpf/edge"
 	"github.com/sentinez/shared/zlog"
@@ -29,24 +27,11 @@ func setupRlimit() error {
 	return rlimit.RemoveMemlock()
 }
 
-func loadBPFObjects() (*edgebpf.EdgeObjects, error) {
-	var objs edgebpf.EdgeObjects
-	err := edgebpf.LoadEdgeObjects(&objs, nil)
-	return &objs, err
-}
-
 func getInterface(name string) (*net.Interface, error) {
 	return net.InterfaceByName(name)
 }
 
-func attachXDP(prog *ebpf.Program, ifIndex int) (link.Link, error) {
-	return link.AttachXDP(link.XDPOptions{
-		Program:   prog,
-		Interface: ifIndex,
-	})
-}
-
-func runCounterLoop(objs *edgebpf.EdgeObjects) {
+func RunCounterLoop(objs *edgebpf.EdgeObjects) {
 	tick := time.Tick(time.Second)
 	for range tick {
 		printCounter(objs)

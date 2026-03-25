@@ -15,7 +15,6 @@
 package main
 
 import (
-	"context"
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez"
@@ -27,17 +26,14 @@ import (
 
 func main() {
 	app := runner.NewApp(config.Config(), sentinez.Code)
-	app.Handle(func(conf *confpb.Config) error {
+	app.Run(func(conf *confpb.Config) error {
 		var (
 			wsSrv = wscore.NewServer(conf.GetMeta())
 			rt    = realtime.New(wsSrv)
 		)
 
-		app.OnStart(rt.Start)
-		app.OnStop(rt.Shutdown)
+		runner.Register(rt.Start, rt.Shutdown)
 
 		return nil
 	})
-
-	runner.Serve(context.Background(), app)
 }

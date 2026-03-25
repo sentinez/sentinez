@@ -89,5 +89,6 @@ func (srv *Server) Start(ctx context.Context, conf *confpb.Config) error {
 }
 
 func (srv *Server) Shutdown(ctx context.Context) error {
+	zlog.Debug("[apiserver] shutdown")
 	return srv.server.Shutdown(ctx)
 }

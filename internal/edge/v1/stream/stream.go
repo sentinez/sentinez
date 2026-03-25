@@ -14,7 +14,10 @@
 
 package stream
 
-import "github.com/sentinez/shared/zlog"
+import (
+	streamctx "github.com/sentinez/sentinez/internal/edge/v1/stream/context"
+	"github.com/sentinez/shared/zlog"
+)
 
 const networkInterface = "veth0"
 
@@ -24,12 +27,7 @@ func Init() error {
 		return err
 	}
 
-	objs, err := loadBPFObjects()
-	if err != nil {
-		zlog.Errorf("loading eBPF objects: %v", err)
-		return err
-	}
-	defer func() { _ = objs.Close() }()
+	ctx := streamctx.New()
 
 	iface, err := getInterface(networkInterface)
 	if err != nil {
@@ -37,16 +35,12 @@ func Init() error {
 		return err
 	}
 
-	link, err := attachXDP(objs.EdgeMain, iface.Index)
-	if err != nil {
+	if err := ctx.AttachXDP(iface.Index); err != nil {
 		zlog.Errorf("attaching XDP: %v", err)
 		return err
 	}
-	defer func() { _ = link.Close() }()
 
 	zlog.Infof("counting incoming packets on %s..", iface.Name)
-
-	runCounterLoop(objs)
 
 	return nil
 }

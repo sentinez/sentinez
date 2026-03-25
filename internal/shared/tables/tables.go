@@ -15,14 +15,14 @@
 package tables
 
 const (
-	Users    = "iam.users"
-	Accounts = "iam.accounts"
+	IAMUsers    = "iam.users"
+	IAMAccounts = "iam.accounts"
 )
 
 const (
-	Resources = "tenant.resources"
+	TenantResources = "tenant.resources"
 )
 
 const (
-	Activities = "analytic.activities"
+	AnalyticActivities = "analytic.activities"
 )

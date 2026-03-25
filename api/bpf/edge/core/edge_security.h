@@ -71,7 +71,7 @@ static __always_inline int security_rule_handler(struct xdp_md *ctx) {
 
         // match: (ip & mask) == prefix
         if ((src_ip & r->mask) == r->ip) {
-            debug("[quadrum] BLOCKED: ip=%x\n", src_ip);
+            debug("BLOCKED: ip=%x\n", src_ip);
             return XDP_DROP;
         }
     }

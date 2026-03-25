@@ -29,17 +29,13 @@ type Engine interface {
 	Shutdown(ctx context.Context) error
 }
 
-func Serve(ctx context.Context, app *App) {
-	if app.start != nil {
-		if err := app.start(app.conf); err != nil {
-			zlog.Fatal(err)
-		}
-	}
-
-	app.Inject(func() *confpb.Config {
+func serve(ctx context.Context, app *App) {
+	Inject(func() *confpb.Config {
 		return app.conf
 	})
 
 	ctn := container{engine: fx.New(internal.Option())}
-	_ = ctn.Run(ctx)
+	if err := ctn.Run(ctx); err != nil {
+		zlog.Fatal(err)
+	}
 }

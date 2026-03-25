@@ -41,19 +41,16 @@ import (
 func main() {
 	app := runner.NewApp(config.Config(), sentinez.Code)
 
-	app.Handle(func(conf *confpb.Config) error {
+	app.Run(func(conf *confpb.Config) error {
 		var (
 			httpSrv = httpx.NewServer(conf.GetMeta())
 			server  = apiserver.New(httpSrv)
 		)
 
-		app.OnStart(func(ctx context.Context) error {
+		runner.Register(func(ctx context.Context) error {
 			return server.Start(ctx, conf)
-		})
-		app.OnStop(server.Shutdown)
+		}, server.Shutdown)
 
 		return nil
 	})
-
-	runner.Serve(context.Background(), app)
 }

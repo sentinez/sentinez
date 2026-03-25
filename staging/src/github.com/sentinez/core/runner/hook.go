@@ -42,15 +42,15 @@ func NewApp(appConf *confpb.Config, scopeName string) *App {
 }
 
 type App struct {
-	conf  *confpb.Config
-	start func(conf *confpb.Config) error
+	conf *confpb.Config
 }
 
-func (a *App) Handle(start func(conf *confpb.Config) error) {
-	a.start = start
+func (a *App) Run(start func(conf *confpb.Config) error) {
+	start(a.conf)
+	serve(context.Background(), a)
 }
 
-func (a *App) OnStart(start any) {
+func OnStart(start any) {
 	switch fn := start.(type) {
 	case func(context.Context) error:
 		function := func(lc fx.Lifecycle) {
@@ -78,7 +78,7 @@ func (a *App) OnStart(start any) {
 	}
 }
 
-func (a *App) OnStop(stop func(ctx context.Context) error) {
+func OnStop(stop func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
 			OnStop: stop,
@@ -88,10 +88,62 @@ func (a *App) OnStop(stop func(ctx context.Context) error) {
 	internal.Invoke(function)
 }
 
-func (a *App) Invoke(fn any) {
+// Register adds a paired OnStart + OnStop lifecycle hook within a single fx.Hook.
+// This ensures that OnStop is always called by fx during shutdown,
+// because fx only invokes OnStop for hooks whose OnStart has run.
+//
+// Use this instead of calling OnStart and OnStop separately.
+func Register(
+	start any,
+	stop func(ctx context.Context) error,
+) {
+	switch fn := start.(type) {
+	case func(context.Context) error:
+		function := func(lc fx.Lifecycle) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					go func() {
+						if err := fn(ctx); err != nil {
+							if errors.Is(err, http.ErrServerClosed) {
+								zlog.Infof("[runner] %+v", err)
+							}
+						}
+					}()
+					return nil
+				},
+				OnStop: stop,
+			})
+		}
+		internal.Invoke(function)
+	default:
+		// For fx-injectable start functions (e.g. func(conf *confpb.Config) error),
+		// we wrap them in an lc.Append so they run in a goroutine during OnStart
+		// and OnStop is paired in the same fx.Hook — ensuring fx calls it on shutdown.
+		function := func(lc fx.Lifecycle, conf *confpb.Config) {
+			lc.Append(fx.Hook{
+				OnStart: func(_ context.Context) error {
+					if typedFn, ok := fn.(func(*confpb.Config) error); ok {
+						go func() {
+							if err := typedFn(conf); err != nil {
+								if errors.Is(err, http.ErrServerClosed) {
+									zlog.Infof("[runner] %+v", err)
+								}
+							}
+						}()
+					}
+					return nil
+				},
+				OnStop: stop,
+			})
+		}
+		internal.Invoke(function)
+	}
+}
+
+func Invoke(fn any) {
 	internal.Invoke(fn)
 }
 
-func (a *App) Inject(fn ...any) {
+func Inject(fn ...any) {
 	internal.Provide(fn...)
 }
