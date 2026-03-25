@@ -20,6 +20,8 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
+#include "../log/edge_log.h"
+
 struct {
     __uint(type, BPF_MAP_TYPE_ARRAY); 
     __type(key, __u32);
@@ -28,7 +30,7 @@ struct {
 } pkt_count SEC(".maps");
 
 static __always_inline int count_packets_handler() {
-    bpf_printk("[quadrum] count packets");
+    debug("count packets");
    
     __u32 key    = 0; 
     __u64 *count = bpf_map_lookup_elem(&pkt_count, &key); 

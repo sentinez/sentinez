@@ -22,6 +22,8 @@
 #include <linux/ip.h>
 #include <bpf/bpf_helpers.h>
 
+#include "../log/edge_log.h"
+
 #define MAX_BLOCK 128   // number of IP / CIDR can block
 
 struct ip_rule {
@@ -37,7 +39,7 @@ struct {
 } blocklist SEC(".maps");
 
 static __always_inline int security_rule_handler(struct xdp_md *ctx) {
-    bpf_printk("[quadrum] security rule");
+    debug("security rule");
 
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
@@ -69,7 +71,7 @@ static __always_inline int security_rule_handler(struct xdp_md *ctx) {
 
         // match: (ip & mask) == prefix
         if ((src_ip & r->mask) == r->ip) {
-            bpf_printk("[quadrum] BLOCKED: ip=%x\n", src_ip);
+            debug("[quadrum] BLOCKED: ip=%x\n", src_ip);
             return XDP_DROP;
         }
     }

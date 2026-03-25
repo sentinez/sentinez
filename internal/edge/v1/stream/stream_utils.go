@@ -16,8 +16,6 @@ package stream
 
 import (
 	"net"
-	"os"
-	"os/signal"
 	"time"
 
 	"github.com/cilium/ebpf"
@@ -50,17 +48,8 @@ func attachXDP(prog *ebpf.Program, ifIndex int) (link.Link, error) {
 
 func runCounterLoop(objs *edgebpf.EdgeObjects) {
 	tick := time.Tick(time.Second)
-	stop := make(chan os.Signal, 5)
-	signal.Notify(stop, os.Interrupt)
-
-	for {
-		select {
-		case <-tick:
-			printCounter(objs)
-		case <-stop:
-			zlog.Info("Received signal, exiting..")
-			return
-		}
+	for range tick {
+		printCounter(objs)
 	}
 }
 

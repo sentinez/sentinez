@@ -33,18 +33,18 @@ func Init() error {
 
 	iface, err := getInterface(networkInterface)
 	if err != nil {
-		zlog.Errorf("Getting interface: %v", err)
+		zlog.Errorf("getting interface: %v", err)
 		return err
 	}
 
 	link, err := attachXDP(objs.EdgeMain, iface.Index)
 	if err != nil {
-		zlog.Errorf("Attaching XDP: %v", err)
+		zlog.Errorf("attaching XDP: %v", err)
 		return err
 	}
 	defer func() { _ = link.Close() }()
 
-	zlog.Infof("Counting incoming packets on %s..", iface.Name)
+	zlog.Infof("counting incoming packets on %s..", iface.Name)
 
 	runCounterLoop(objs)
 
