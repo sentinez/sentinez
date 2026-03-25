@@ -70,11 +70,11 @@ func main() {
 		// zlog.Debugf("setting: %s", s)
 
 		runner.Register(edgeServer.Start, edgeServer.Shutdown)
-		runner.OnStart(func(ctx context.Context) error {
+		runner.OnStart(func(_ context.Context) error {
 			zlog.Debug("[main] start server")
 			return nil
 		})
-		runner.OnStop(func(ctx context.Context) error {
+		runner.OnStop(func(_ context.Context) error {
 			zlog.Debug("[main] stop server")
 			return nil
 		})

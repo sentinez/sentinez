@@ -16,7 +16,6 @@
 package main
 
 import (
-
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"

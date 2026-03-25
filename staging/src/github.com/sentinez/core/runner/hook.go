@@ -46,7 +46,9 @@ type App struct {
 }
 
 func (a *App) Run(start func(conf *confpb.Config) error) {
-	start(a.conf)
+	if err := start(a.conf); err != nil {
+		zlog.Fatal("[runner] failed to start: %v", err)
+	}
 	serve(context.Background(), a)
 }
 
@@ -88,6 +90,7 @@ func OnStop(stop func(ctx context.Context) error) {
 	internal.Invoke(function)
 }
 
+// nolint
 // Register adds a paired OnStart + OnStop lifecycle hook within a single fx.Hook.
 // This ensures that OnStop is always called by fx during shutdown,
 // because fx only invokes OnStop for hooks whose OnStart has run.
