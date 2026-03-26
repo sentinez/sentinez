@@ -13,33 +13,3 @@
 // limitations under the License.
 
 package runner
-
-import (
-	"context"
-
-	"github.com/sentinez/core/runner/internal"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	"github.com/sentinez/shared/zlog"
-
-	"go.uber.org/fx"
-)
-
-type Engine interface {
-	Start(ctx context.Context) error
-	Shutdown(ctx context.Context) error
-}
-
-func Serve(ctx context.Context, app *App) {
-	if app.start != nil {
-		if err := app.start(app.conf); err != nil {
-			zlog.Fatal(err)
-		}
-	}
-
-	app.Inject(func() *confpb.Config {
-		return app.conf
-	})
-
-	ctn := container{engine: fx.New(internal.Option())}
-	_ = ctn.Run(ctx)
-}

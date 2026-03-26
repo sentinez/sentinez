@@ -51,7 +51,7 @@ type IUser interface {
 
 func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
-		dbx.WithTable(tables.Users),
+		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.User_Id:          postgres.String,
 			iampb.User_EmailBackup: postgres.String,
@@ -131,7 +131,7 @@ func (u *Users) List(ctx context.Context,
 func (u *Users) Create(ctx context.Context,
 	user *iampb.User) (*iampb.User, error) {
 
-	user.Id = ids.NewID(table.NewPrimaryKey(tables.Users))
+	user.Id = ids.NewID(table.NewPrimaryKey(tables.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:          user.GetId(),
 		iampb.User_EmailBackup: user.GetEmailBackup(),

@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,23 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package main provides the entry point for the greeter service.
-package main
+package stream
 
 import (
-	"context"
+	"time"
 
-	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
-	"github.com/sentinez/sentinez/internal/core/greeter/v1"
+	edgebpf "github.com/sentinez/sentinez/api/bpf/edge"
+	"github.com/sentinez/shared/zlog"
 )
 
-func main() {
-	conf := config.Config()
-	grpc := greeter.NewService(conf.GetMeta())
+func RunCounterLoop(objs *edgebpf.EdgeObjects) {
+	tick := time.Tick(time.Second)
+	for range tick {
+		printCounter(objs)
+	}
+}
 
-	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(grpc.Start, grpc.Shutdown)
-	app.Run(context.Background())
+func printCounter(objs *edgebpf.EdgeObjects) {
+	var idx uint64
+	err := objs.PktCount.Lookup(uint32(0), &idx)
+	if err != nil {
+		zlog.Fatal("Map lookup:", err)
+	}
+	zlog.Infof("Received %d", idx)
 }

@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package h
+package http
 
 import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/ratelimiter"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/trace"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/ratelimiter"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/routing"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/waitingroom"
 	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	"github.com/sentinez/shared/zlog"
 )

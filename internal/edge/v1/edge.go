@@ -22,6 +22,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	"github.com/sentinez/sentinez/internal/edge/v1/stream"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -50,7 +51,6 @@ import (
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
 func New(server corehttp.Server, setting *edgepb.Setting) *Server {
-
 	corecmn.NormalizeEdgeSetting(setting)
 
 	return &Server{
@@ -79,6 +79,11 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
+
+	if err := stream.Close(); err != nil {
+		zlog.Errorf("failed to close stream: %v", err)
+	}
+
 	return s.core.Shutdown(ctx)
 }
 
@@ -97,6 +102,10 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start(conf *confpb.Config) error {
+	if err := stream.Init(); err != nil {
+		zlog.Errorf("failed to initialize stream: %v", err)
+	}
+
 	if err := s.initialize(conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err

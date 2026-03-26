@@ -20,7 +20,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/sentinez/core/runner/internal"
 	"go.uber.org/fx"
 )
 
@@ -51,9 +50,6 @@ func (ctn *container) Run(ctx context.Context) error {
 
 // onStart the app with the given context.
 func (ctn *container) onStart(ctx context.Context, errChan chan<- error) {
-	if ctn.engine == nil {
-		ctn.engine = fx.New(internal.Option())
-	}
 
 	// if the error is not nil, return the error to err channel end goroutine 1
 	if err := ctn.engine.Start(ctx); err != nil {

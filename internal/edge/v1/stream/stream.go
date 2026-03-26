@@ -12,20 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
+package stream
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	"github.com/sentinez/sentinez/internal/edge/v1/http"
-	"github.com/sentinez/sentinez/internal/shared/mem"
+	streamctx "github.com/sentinez/sentinez/internal/edge/v1/stream/context"
+	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/shared/zlog"
 )
 
-func (s *Server) initialize(appConf *confpb.Config) error {
-	// init cache repository
-	mem.LoadConfiguration(s.setting, appConf)
+const networkInterface = "veth0"
 
-	income := http.Init(appConf)
-	s.core.Handle(income.Handle)
+func Init() error {
+	ctx := streamctx.New()
+
+	iface, err := network.GetInterface(networkInterface)
+	if err != nil {
+		zlog.Errorf("getting interface: %v", err)
+		return err
+	}
+
+	if err := ctx.AttachXDP(iface.Index); err != nil {
+		zlog.Errorf("attaching XDP: %v", err)
+		return err
+	}
+
+	zlog.Infof("counting incoming packets on %s..", iface.Name)
 
 	return nil
+}
+
+func Close() error {
+	return streamctx.Get().Close()
 }

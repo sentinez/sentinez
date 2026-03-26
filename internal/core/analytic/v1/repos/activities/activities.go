@@ -49,7 +49,7 @@ type IActivity interface {
 
 func New(ctx context.Context, appConf *confpb.Config) (IActivity, error) {
 	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
-		dbx.WithTable(tables.Activities),
+		dbx.WithTable(tables.AnalyticActivities),
 		dbx.WithColumns(dbx.ColumnM{
 			analyticpb.Activity_Id:            postgres.String,
 			analyticpb.Activity_ResourceId:    postgres.String,
@@ -127,7 +127,7 @@ func (a *Activities) List(ctx context.Context,
 func (a *Activities) Create(ctx context.Context,
 	activity *analyticpb.Activity) (*analyticpb.Activity, error) {
 
-	activity.Id = ids.NewID(table.NewPrimaryKey(tables.Activities))
+	activity.Id = ids.NewID(table.NewPrimaryKey(tables.AnalyticActivities))
 	query := postgres.InsertBuilder(a.storage, postgres.M{
 		analyticpb.Activity_Id:            activity.GetId(),
 		analyticpb.Activity_ResourceId:    activity.GetResourceId(),

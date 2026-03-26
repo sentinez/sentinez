@@ -29,6 +29,26 @@ test.cover:
 fmt.proto:
 	@cd ./api && buf format -w
 
+veth.init:
+	ip link add veth0 type veth peer name veth1
+
+veth.add:
+	ip addr add 10.0.0.1/24 dev veth0
+	ip addr add 10.0.0.2/24 dev veth1
+
+veth.up:
+	ip link set veth0 up
+	ip link set veth1 up
+
+tracing:
+	cat /sys/kernel/tracing/trace_pipe
+
+tracing.debug:
+	cat /sys/kernel/debug/tracing/trace_pipe
+
+ping:
+	ping -i 0.1 10.0.0.1 -I veth1
+
 #####################################################################
 # Go linting tool                                              
 #####################################################################
@@ -103,6 +123,16 @@ edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
+		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
+		--rule_path=./deploy/ruleroot/v4-16-0 \
+		--proxy_config=./cmd/edge/v1/proxy.yaml \
+		--env_file=./cmd/edge/v1/.env
+
+sudo.edge.run: SENTINEZ_OUT ?= edge
+sudo.edge.run:
+	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
+	sudo ./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
 		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
 		--rule_path=./deploy/ruleroot/v4-16-0 \

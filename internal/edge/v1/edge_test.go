@@ -20,12 +20,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sentinez/sentinez/internal/edge/v1/h/logging"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/routing"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/secure"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/static"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/trace"
-	"github.com/sentinez/sentinez/internal/edge/v1/h/waitingroom"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/routing"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/waitingroom"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )

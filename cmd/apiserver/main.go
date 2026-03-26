@@ -20,7 +20,6 @@ import (
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -39,21 +38,15 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	app := runner.NewApp(config.Config(), sentinez.Code)
+	var (
+		conf    = config.Config()
+		httpSrv = httpx.NewServer(conf.GetMeta())
+		server  = apiserver.New(httpSrv)
+	)
 
-	app.Handle(func(conf *confpb.Config) error {
-		var (
-			httpSrv = httpx.NewServer(conf.GetMeta())
-			server  = apiserver.New(httpSrv)
-		)
-
-		app.OnStart(func(ctx context.Context) error {
-			return server.Start(ctx, conf)
-		})
-		app.OnStop(server.Shutdown)
-
-		return nil
-	})
-
-	runner.Serve(context.Background(), app)
+	app := runner.NewApp(conf, sentinez.Code)
+	app.Register(func(ctx context.Context) error {
+		return server.Start(ctx, conf)
+	}, server.Shutdown)
+	app.Run(context.Background())
 }

@@ -32,7 +32,7 @@ import (
 
 func New(ctx context.Context, appConf *confpb.Config) (*Resources, error) {
 	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
-		dbx.WithTable(tables.Resources),
+		dbx.WithTable(tables.TenantResources),
 		dbx.WithColumns(dbx.ColumnM{
 			tenantpb.Resource_Id:              postgres.String,
 			tenantpb.Resource_ResourceSetting: postgres.ByteA,
@@ -108,7 +108,7 @@ func (rsc *Resources) List(ctx context.Context,
 func (rsc *Resources) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 
-	rs.Id = ids.NewID(table.NewPrimaryKey(tables.Resources))
+	rs.Id = ids.NewID(table.NewPrimaryKey(tables.TenantResources))
 
 	st, _ := protox.Marshal(rs.GetResourceSetting())
 

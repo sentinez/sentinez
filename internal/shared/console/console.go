@@ -50,14 +50,14 @@ func GenFigure(header string, footer string) string {
 		footer,
 	}
 
-	var v string
+	var v strings.Builder
 	for i, line := range figureLines {
 		side := ""
 		if i < len(sideText) {
 			side = sideText[i]
 		}
-		v += fmt.Sprintf("%-40s %s\n", line, side)
+		fmt.Fprintf(&v, "%-40s %s\n", line, side)
 	}
 
-	return v
+	return v.String()
 }

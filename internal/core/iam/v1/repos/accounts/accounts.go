@@ -53,7 +53,7 @@ type IAccount interface {
 func New(ctx context.Context, appConf *confpb.Config) (IAccount, error) {
 
 	storage, err := postgres.New[AccountX](ctx, appConf,
-		dbx.WithTable(tables.Accounts),
+		dbx.WithTable(tables.IAMAccounts),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.Account_Id:             postgres.String,
 			iampb.Account_Email:          postgres.String,
@@ -161,7 +161,7 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	account.Id = ids.NewID(table.NewPrimaryKey(tables.Accounts))
+	account.Id = ids.NewID(table.NewPrimaryKey(tables.IAMAccounts))
 
 	if account.GetUsername() == "" {
 		account.Username = account.GetEmail()
