@@ -20,7 +20,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/sentinez/core/runner/internal"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
@@ -34,72 +33,68 @@ func NewApp(appConf *confpb.Config, scopeName string) *App {
 	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
 	zlog.SetScopeLogLevel(scopeName, level)
 
+	options := []fx.Option{}
 	if appConf.GetFlag().GetEnvMode() != "dev" {
-		internal.AppendOption(fx.NopLogger)
+		options = append(options, fx.NopLogger)
 	}
 
-	return &App{conf: appConf}
+	return &App{
+		conf: appConf,
+		opts: options,
+	}
 }
 
 type App struct {
 	conf *confpb.Config
+	opts []fx.Option
 }
 
-func (a *App) Run(start func(conf *confpb.Config) error) {
-	if err := start(a.conf); err != nil {
-		zlog.Fatal("[runner] failed to start: %v", err)
+func (a *App) Run(ctx context.Context) {
+	a.Inject(func() *confpb.Config {
+		return a.conf
+	})
+
+	ctn := container{engine: fx.New(a.opts...)}
+	if err := ctn.Run(ctx); err != nil {
+		zlog.Fatal(err)
 	}
-	serve(context.Background(), a)
 }
 
-func OnStart(start any) {
+func (a *App) OnStart(start any) {
 	switch fn := start.(type) {
 	case func(context.Context) error:
 		function := func(lc fx.Lifecycle) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-
 					go func() {
 						if err := fn(ctx); err != nil {
 							if errors.Is(err, http.ErrServerClosed) {
 								zlog.Infof("[runner] %+v", err)
 							}
-							//else {
-							//	logging.Fatalf("[runner] %+v", err)
-							//}
 						}
 					}()
-
 					return nil
 				},
 			})
 		}
-		internal.Invoke(function)
+		a.Invoke(function)
 	default:
-		internal.Invoke(start)
+		a.Invoke(start)
 	}
 }
 
-func OnStop(stop func(ctx context.Context) error) {
+func (a *App) OnStop(stop func(ctx context.Context) error) {
 	function := func(lc fx.Lifecycle) {
 		lc.Append(fx.Hook{
 			OnStop: stop,
 		})
 	}
-
-	internal.Invoke(function)
+	a.Invoke(function)
 }
 
 // nolint
 // Register adds a paired OnStart + OnStop lifecycle hook within a single fx.Hook.
-// This ensures that OnStop is always called by fx during shutdown,
-// because fx only invokes OnStop for hooks whose OnStart has run.
-//
-// Use this instead of calling OnStart and OnStop separately.
-func Register(
-	start any,
-	stop func(ctx context.Context) error,
-) {
+func (a *App) Register(start any, stop func(ctx context.Context) error) {
 	switch fn := start.(type) {
 	case func(context.Context) error:
 		function := func(lc fx.Lifecycle) {
@@ -117,11 +112,8 @@ func Register(
 				OnStop: stop,
 			})
 		}
-		internal.Invoke(function)
+		a.Invoke(function)
 	default:
-		// For fx-injectable start functions (e.g. func(conf *confpb.Config) error),
-		// we wrap them in an lc.Append so they run in a goroutine during OnStart
-		// and OnStop is paired in the same fx.Hook — ensuring fx calls it on shutdown.
 		function := func(lc fx.Lifecycle, conf *confpb.Config) {
 			lc.Append(fx.Hook{
 				OnStart: func(_ context.Context) error {
@@ -139,14 +131,14 @@ func Register(
 				OnStop: stop,
 			})
 		}
-		internal.Invoke(function)
+		a.Invoke(function)
 	}
 }
 
-func Invoke(fn any) {
-	internal.Invoke(fn)
+func (a *App) Invoke(fn any) {
+	a.opts = append(a.opts, fx.Invoke(fn))
 }
 
-func Inject(fn ...any) {
-	internal.Provide(fn...)
+func (a *App) Inject(fn ...any) {
+	a.opts = append(a.opts, fx.Provide(fn...))
 }

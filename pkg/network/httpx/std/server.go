@@ -22,6 +22,7 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
@@ -29,9 +30,9 @@ import (
 
 var _ corehttp.Server = (*Server)(nil)
 
-func NewServer(meta *typepb.XMeta) corehttp.Server {
+func NewServer(appConf *confpb.Config) corehttp.Server {
 	return &Server{
-		meta: meta,
+		meta: appConf.GetMeta(),
 		core: &http.Server{},
 		mux:  http.NewServeMux(),
 	}

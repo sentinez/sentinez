@@ -20,13 +20,10 @@ import (
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/zlog"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -54,31 +51,14 @@ func init() {
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	app := runner.NewApp(config.Config(), sentinez.Code)
-	app.Run(func(conf *confpb.Config) error {
-		var (
-			setting    = edgeyaml.LoadSetting(conf.GetFlag().GetProxyConfig())
-			httpSrv    = stdhttpx.NewServer(conf.GetMeta())
-			edgeServer = edge.New(httpSrv, setting)
-		)
+	var (
+		conf       = config.Config()
+		setting    = edgeyaml.LoadSetting(conf)
+		httpSrv    = stdhttpx.NewServer(conf)
+		edgeServer = edge.New(httpSrv, setting)
+	)
 
-		if err := protobuf.Validate(setting); err != nil {
-			return err
-		}
-
-		// s, _ := jsonx.Marshal(setting)
-		// zlog.Debugf("setting: %s", s)
-
-		runner.Register(edgeServer.Start, edgeServer.Shutdown)
-		runner.OnStart(func(_ context.Context) error {
-			zlog.Debug("[main] start server")
-			return nil
-		})
-		runner.OnStop(func(_ context.Context) error {
-			zlog.Debug("[main] stop server")
-			return nil
-		})
-
-		return nil
-	})
+	app := runner.NewApp(conf, sentinez.Code)
+	app.Register(edgeServer.Start, edgeServer.Shutdown)
+	app.Run(context.Background())
 }

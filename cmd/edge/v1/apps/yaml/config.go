@@ -18,6 +18,7 @@ import (
 	"os"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/shared/zlog"
 
 	"github.com/goccy/go-yaml"
@@ -27,8 +28,8 @@ type Config struct {
 	Setting *edgepb.Setting `yaml:"setting"`
 }
 
-func LoadSetting(filename string) *edgepb.Setting {
-	data, err := os.ReadFile(filename)
+func LoadSetting(appConf *confpb.Config) *edgepb.Setting {
+	data, err := os.ReadFile(appConf.GetFlag().GetProxyConfig())
 	if err != nil {
 		zlog.Fatal(err)
 	}
