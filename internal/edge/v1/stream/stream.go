@@ -15,7 +15,6 @@
 package stream
 
 import (
-	streamctx "github.com/sentinez/sentinez/internal/edge/v1/stream/context"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
@@ -23,7 +22,7 @@ import (
 const networkInterface = "veth0"
 
 func Init() error {
-	ctx := streamctx.New()
+	ctx := newContext()
 
 	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
@@ -42,5 +41,5 @@ func Init() error {
 }
 
 func Close() error {
-	return streamctx.Get().Close()
+	return getContext().Close()
 }

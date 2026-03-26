@@ -13,10 +13,10 @@ import (
 	"github.com/cilium/ebpf"
 )
 
-type EdgeIpRule struct {
-	_    structs.HostLayout
-	Ip   uint32
-	Mask uint32
+type EdgeIpLpmKey struct {
+	_         structs.HostLayout
+	Prefixlen uint32
+	Ip        uint32
 }
 
 // LoadEdge returns the embedded CollectionSpec for Edge.
