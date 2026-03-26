@@ -35,6 +35,11 @@ func Get() *Context {
 
 func New() *Context {
 	once.Do(func() {
+		if err := setupRlimit(); err != nil {
+			zlog.Errorf("remove mem lock err=%v", err)
+			return
+		}
+
 		var objs edgebpf.EdgeObjects
 		if err := edgebpf.LoadEdgeObjects(&objs, nil); err != nil {
 			zlog.Errorf("stream: load bpf object err: %v", err)
@@ -84,12 +89,16 @@ func (ctx *Context) Close() error {
 		return nil
 	}
 
-	if err := ctx.obj.Close(); err != nil {
-		return err
+	if ctx.obj != nil {
+		if err := ctx.obj.Close(); err != nil {
+			return err
+		}
 	}
 
-	if err := ctx.link.Close(); err != nil {
-		return err
+	if ctx.link != nil {
+		if err := ctx.link.Close(); err != nil {
+			return err
+		}
 	}
 
 	return nil

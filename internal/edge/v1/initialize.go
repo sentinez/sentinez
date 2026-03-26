@@ -21,12 +21,6 @@ import (
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {
-
-	// init stream transport layer 4
-	// go func() {
-	// 	_ = stream.Init()
-	// }()
-
 	// init cache repository
 	mem.LoadConfiguration(s.setting, appConf)
 

@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,27 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stream
+package streamctx
 
-import (
-	"time"
+import "github.com/cilium/ebpf/rlimit"
 
-	edgebpf "github.com/sentinez/sentinez/api/bpf/edge"
-	"github.com/sentinez/shared/zlog"
-)
-
-func RunCounterLoop(objs *edgebpf.EdgeObjects) {
-	tick := time.Tick(time.Second)
-	for range tick {
-		printCounter(objs)
-	}
-}
-
-func printCounter(objs *edgebpf.EdgeObjects) {
-	var idx uint64
-	err := objs.PktCount.Lookup(uint32(0), &idx)
-	if err != nil {
-		zlog.Fatal("Map lookup:", err)
-	}
-	zlog.Infof("Received %d", idx)
+func setupRlimit() error {
+	return rlimit.RemoveMemlock()
 }

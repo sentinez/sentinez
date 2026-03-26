@@ -32,3 +32,7 @@ func StandardTransporter() http.RoundTripper {
 	//_ = http2.ConfigureTransport(transport)
 	return transport
 }
+
+func GetInterface(name string) (*net.Interface, error) {
+	return net.InterfaceByName(name)
+}

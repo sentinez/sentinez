@@ -16,20 +16,16 @@ package stream
 
 import (
 	streamctx "github.com/sentinez/sentinez/internal/edge/v1/stream/context"
+	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
 
 const networkInterface = "veth0"
 
 func Init() error {
-	if err := setupRlimit(); err != nil {
-		zlog.Errorf("remove mem lock err=%v", err)
-		return err
-	}
-
 	ctx := streamctx.New()
 
-	iface, err := getInterface(networkInterface)
+	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
 		zlog.Errorf("getting interface: %v", err)
 		return err
@@ -43,4 +39,8 @@ func Init() error {
 	zlog.Infof("counting incoming packets on %s..", iface.Name)
 
 	return nil
+}
+
+func Close() error {
+	return streamctx.Get().Close()
 }
