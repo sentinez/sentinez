@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:generate go tool bpf2go Edge ./edge_kern.c
+//go:generate go tool bpf2go Edge ./edge.c
 package edgebpf

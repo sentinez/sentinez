@@ -19,8 +19,8 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
-#include "core/edge_security.h"
-#include "core/edge_monitor.h"
+#include "edge_security.h"
+#include "edge_monitor.h"
 
 SEC("xdp")
 int edge_main(struct xdp_md *ctx)

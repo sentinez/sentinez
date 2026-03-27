@@ -22,7 +22,7 @@
 #include <linux/ip.h>
 #include <bpf/bpf_helpers.h>
 
-#include "./edge_helper.h"
+#include "edge_helper.h"
 
 #define MAX_BLOCK 128   // number of IP / CIDR can block
 
