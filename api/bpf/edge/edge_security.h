@@ -22,20 +22,21 @@
 #include <linux/ip.h>
 #include <bpf/bpf_helpers.h>
 
-#include "./edge_helper.h"
+#include "edge_helper.h"
 
 #define MAX_BLOCK 128   // number of IP / CIDR can block
 
-struct ip_rule {
-    __u32 ip;    // network prefix
-    __u32 mask;  // CIDR mask
+struct ip_lpm_key {
+    __u32 prefixlen; // number of bits in mask (e.g. 24 for /24)
+    __u32 ip;        // network byte order
 };
 
 struct {
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-    __uint(max_entries, MAX_BLOCK);
-    __type(key, __u32);
-    __type(value, struct ip_rule);
+    __uint(type, BPF_MAP_TYPE_LPM_TRIE);
+    __uint(max_entries, 1024);
+    __uint(map_flags, BPF_F_NO_PREALLOC);
+    __type(key, struct ip_lpm_key);
+    __type(value, __u8); // dummy value (just mark blocked)
 } blocklist SEC(".maps");
 
 static __always_inline int security_rule_handler(struct xdp_md *ctx) {
@@ -44,36 +45,32 @@ static __always_inline int security_rule_handler(struct xdp_md *ctx) {
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
 
+    // Ethernet header
     struct ethhdr *eth = data;
     if ((void *)(eth + 1) > data_end)
         return XDP_ABORTED;
 
-    // IPv4
+    // Only IPv4
     if (eth->h_proto != __constant_htons(ETH_P_IP))
         return XDP_PASS;
 
+    // IP header
     struct iphdr *iph = (void *)(eth + 1);
     if ((void *)(iph + 1) > data_end)
         return XDP_ABORTED;
 
-    __u32 src_ip = iph->saddr;   // network byte order
+    __u32 src_ip = iph->saddr; // network byte order
 
     // --- CHECK BLOCKLIST ---
-    for (__u32 i = 0; i < MAX_BLOCK; i++) {
-        __u32 idx = i; // <-- use a local, initialized stack slot for map key
+    struct ip_lpm_key key = {
+        .prefixlen = 32, // full IP for lookup
+        .ip = src_ip,
+    };
 
-        struct ip_rule *r = bpf_map_lookup_elem(&blocklist, &idx);
-        if (!r)
-            continue;
-
-        if (r->mask == 0)
-            continue;   // rule empty
-
-        // match: (ip & mask) == prefix
-        if ((src_ip & r->mask) == r->ip) {
-            debug("BLOCKED: ip=%x\n", src_ip);
-            return XDP_DROP;
-        }
+    __u8 *blocked = bpf_map_lookup_elem(&blocklist, &key);
+    if (blocked) {
+        debug("BLOCKED: ip=%x\n", src_ip);
+        return XDP_DROP;
     }
 
     return XDP_PASS;

@@ -303,8 +303,14 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "AND: query parameter exists",
 			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN, "lang"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN, "lang2"),
+				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN,
+					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
+						structpb.NewStringValue("lang"),
+					}})),
+				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN,
+					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
+						structpb.NewStringValue("lang2"),
+					}})),
 			},
 			logics: []ruleenginepb.Logic{
 				ruleenginepb.Logic_LOGIC_AND,
@@ -322,39 +328,39 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 			},
 			expect: true,
 		},
-		// {
-		// 	name: "AND: body content mismatch should fail",
-		// 	rules: []*ruleenginepb.Rule{
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "john"),
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "123456"),
-		// 	},
-		// 	logics: []ruleenginepb.Logic{
-		// 		ruleenginepb.Logic_LOGIC_AND,
-		// 	},
-		// 	expect: false,
-		// },
-		// {
-		// 	name: "OR: body username matches or ip mismatch",
-		// 	rules: []*ruleenginepb.Rule{
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "hung"),
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "198.51.100.10"),
-		// 	},
-		// 	logics: []ruleenginepb.Logic{
-		// 		ruleenginepb.Logic_LOGIC_OR,
-		// 	},
-		// 	expect: true,
-		// },
-		// {
-		// 	name: "AND: host and TLS must both be true",
-		// 	rules: []*ruleenginepb.Rule{
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "api.example.com"),
-		// 		newRule(ruleenginepb.FieldSource_FIELD_SOURCE_TLS, ruleenginepb.Operator_OPERATOR_EQ, "true"),
-		// 	},
-		// 	logics: []ruleenginepb.Logic{
-		// 		ruleenginepb.Logic_LOGIC_AND,
-		// 	},
-		// 	expect: true,
-		// },
+		{
+			name: "AND: body content mismatch should fail",
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "john"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "123456"),
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_AND,
+			},
+			expect: false,
+		},
+		{
+			name: "OR: body username matches or ip mismatch",
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "hung"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "198.51.100.10"),
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_OR,
+			},
+			expect: true,
+		},
+		{
+			name: "AND: host and TLS must both be true",
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "api.example.com"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_TLS, ruleenginepb.Operator_OPERATOR_EQ, "true"),
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_AND,
+			},
+			expect: true,
+		},
 		{
 			name: "OR: wrong method but correct path",
 			rules: []*ruleenginepb.Rule{

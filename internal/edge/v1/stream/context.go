@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package streamctx
+package stream
 
 import (
 	"fmt"
@@ -29,11 +29,11 @@ var (
 	inst *Context
 )
 
-func Get() *Context {
-	return New()
+func getContext() *Context {
+	return newContext()
 }
 
-func New() *Context {
+func newContext() *Context {
 	once.Do(func() {
 		if err := setupRlimit(); err != nil {
 			zlog.Errorf("remove mem lock err=%v", err)
