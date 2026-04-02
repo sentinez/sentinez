@@ -67,14 +67,17 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
   React.useEffect(() => {
     for (const [index, item] of rootNavMain.entries()) {
       // Use exact match for root-level URLs to avoid false positives
-      const itemMatches = item.url === '/console' ? pathname === '/console' || pathname.startsWith('/console/') : pathname.startsWith(item.url);
+      const itemMatches =
+        item.url === '/console'
+          ? pathname === '/console' || pathname.startsWith('/console/')
+          : pathname.startsWith(item.url);
       if (itemMatches) {
         setActiveItem(item);
         setNavIndex(index);
         setChildItems(item.items);
 
         const matchedChild = item.items?.find((subItem: any) =>
-          subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url)
+          subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url),
         );
         if (matchedChild) {
           const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);

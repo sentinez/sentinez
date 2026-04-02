@@ -23,21 +23,21 @@ import (
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 
-var _ chains.Handler = (*Domain)(nil)
+var _ chains.Handler = (*DomainBased)(nil)
 
-func NewDomain(hostname string) chains.Handler {
-	return &Domain{
+func NewDomainBased(hostname string) chains.Handler {
+	return &DomainBased{
 		BaseHandler: chains.New(),
 		hostname:    hostname,
 	}
 }
 
-type Domain struct {
+type DomainBased struct {
 	*chains.BaseHandler
 	hostname string
 }
 
-func (d *Domain) Handle(ctx corehttp.Context) error {
+func (d *DomainBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit domain")
 
 	ns, ok := d.isValidSingleLevelSubdomain(ctx.Host(), d.hostname)
@@ -57,7 +57,7 @@ func (d *Domain) Handle(ctx corehttp.Context) error {
 	return d.HandleNext(ctx)
 }
 
-func (d *Domain) isValidSingleLevelSubdomain(
+func (d *DomainBased) isValidSingleLevelSubdomain(
 	subdomain, root string) (string, bool) {
 
 	// Remove port if present

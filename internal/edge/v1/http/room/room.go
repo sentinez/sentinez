@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package waitingroom
+package room
 
 import (
 	corehttp "github.com/sentinez/core/http"
@@ -23,7 +23,7 @@ import (
 
 var _ chains.Handler = (*WaitingRoom)(nil)
 
-func New(_ zlog.Level) chains.Handler {
+func NewRoom(_ zlog.Level) chains.Handler {
 	return &WaitingRoom{
 		BaseHandler: chains.New(),
 	}

@@ -42,10 +42,14 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
     if (!domain) return dashboard.domainNavMain;
     return dashboard.domainNavMain.map((item: any) => ({
       ...item,
-      url: item.url.startsWith('/console/') ? item.url.replace('/console/', `/console/${domain}/`) : item.url,
+      url: item.url.startsWith('/console/')
+        ? item.url.replace('/console/', `/console/${domain}/`)
+        : item.url,
       items: item.items?.map((subItem: any) => ({
         ...subItem,
-        url: subItem.url.startsWith('/console/') ? subItem.url.replace('/console/', `/console/${domain}/`) : subItem.url,
+        url: subItem.url.startsWith('/console/')
+          ? subItem.url.replace('/console/', `/console/${domain}/`)
+          : subItem.url,
       })),
     }));
   }, [domain]);

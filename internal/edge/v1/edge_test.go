@@ -21,11 +21,11 @@ import (
 	"testing"
 
 	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/room"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
-	"github.com/sentinez/sentinez/internal/edge/v1/http/waitingroom"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
@@ -63,13 +63,13 @@ func putRecorder(w *httptest.ResponseRecorder) {
 func BenchmarkStandardConverter(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelInfo)
 
-	begin := trace.NewTracer()
+	begin := trace.NewTracer(zlog.LevelError)
 	begin.
-		SetNext(waitingroom.New(zlog.LevelError)).
+		SetNext(room.NewRoom(zlog.LevelError)).
 		SetNext(static.NewStatic(zlog.LevelError)).
 		SetNext(logging.NewLogger(zlog.LevelError)).
-		SetNext(secure.NewDomain("is.s6z.io.vn")).
-		SetNext(secure.NewRule(zlog.LevelError)).
+		SetNext(secure.NewDomainBased("is.s6z.io.vn")).
+		SetNext(secure.NewRuleBased(zlog.LevelError)).
 		SetNext(secure.NewWAF(zlog.LevelError)).
 		SetNext(routing.NewMockRouter())
 
@@ -96,13 +96,13 @@ func TestHandleChain(t *testing.T) {
 
 	zlog.SetLogLevel(zlog.LevelInfo)
 
-	begin := trace.NewTracer()
+	begin := trace.NewTracer(zlog.LevelError)
 	begin.
-		SetNext(waitingroom.New(zlog.LevelError)).
+		SetNext(room.NewRoom(zlog.LevelError)).
 		SetNext(static.NewStatic(zlog.LevelError)).
 		SetNext(logging.NewLogger(zlog.LevelError)).
-		SetNext(secure.NewDomain("is.s6z.io.vn")).
-		SetNext(secure.NewRule(zlog.LevelError)).
+		SetNext(secure.NewDomainBased("is.s6z.io.vn")).
+		SetNext(secure.NewRuleBased(zlog.LevelError)).
 		SetNext(secure.NewWAF(zlog.LevelError)).
 		SetNext(routing.NewMockRouter())
 

@@ -25,8 +25,8 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewRule(ll zlog.Level) chains.Handler {
-	return &Rule{
+func NewRuleBased(ll zlog.Level) chains.Handler {
+	return &RuleBased{
 		BaseHandler: chains.New(),
 		ingress:     corerules.NewIngress(),
 		logger: zlog.NewJSONLogger(
@@ -36,13 +36,13 @@ func NewRule(ll zlog.Level) chains.Handler {
 	}
 }
 
-type Rule struct {
+type RuleBased struct {
 	*chains.BaseHandler
 	ingress corerules.Rules
 	logger  zlog.Logger
 }
 
-func (r *Rule) Handle(ctx corehttp.Context) error {
+func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
 	rule := ruleengine.GetEngine().LoadContext(ctx)

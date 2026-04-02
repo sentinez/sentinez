@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ConsoleLayout({ children }: { children: React.ReactNode }) {
-
   return (
     <SidebarProvider
       // style={{'--sidebar-width': '300px'} as React.CSSProperties}

@@ -18,11 +18,11 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/ratelimiter"
+	"github.com/sentinez/sentinez/internal/edge/v1/http/room"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/routing"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
-	"github.com/sentinez/sentinez/internal/edge/v1/http/waitingroom"
 	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
@@ -35,22 +35,22 @@ func Init(appConf *confpb.Config) chains.Handler {
 		income   chains.Handler
 	)
 	// begin first middleware when request income
-	income = trace.NewTracer()
+	income = trace.NewTracer(ll)
 
 	// current middleware
 	curr = income
 
-	curr = curr.SetNext(secure.NewDomain(hostname))
+	curr = curr.SetNext(logging.NewLogger(ll))
 
-	curr = curr.SetNext(ratelimiter.New(ll))
+	curr = curr.SetNext(secure.NewDomainBased(hostname))
 
-	curr = curr.SetNext(waitingroom.New(ll))
+	curr = curr.SetNext(ratelimiter.NewLimiter(ll))
+
+	curr = curr.SetNext(room.NewRoom(ll))
 
 	curr = curr.SetNext(static.NewStatic(ll))
 
-	curr = curr.SetNext(logging.NewLogger(ll))
-
-	curr = curr.SetNext(secure.NewRule(ll))
+	curr = curr.SetNext(secure.NewRuleBased(ll))
 
 	curr = curr.SetNext(secure.NewWAF(ll))
 

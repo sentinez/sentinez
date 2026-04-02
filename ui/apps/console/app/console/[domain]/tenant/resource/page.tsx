@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@sentinez/ui/components/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@sentinez/ui/components/card';
 import { Badge } from '@sentinez/ui/components/badge';
 import { Separator } from '@sentinez/ui/components/separator';
 import { getResourceByDomain } from '@/lib/api/tenant';
@@ -14,7 +20,11 @@ export default async function ResourcePage({ params }: Props) {
   const resource = await getResourceByDomain(domain);
 
   if (!resource) {
-    return <div className="p-4 text-muted-foreground">Resource not found for domain: <strong>{domain}</strong></div>;
+    return (
+      <div className="p-4 text-muted-foreground">
+        Resource not found for domain: <strong>{domain}</strong>
+      </div>
+    );
   }
 
   return (
@@ -22,9 +32,14 @@ export default async function ResourcePage({ params }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{resource.resourceName}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{resource.resourceDomain} &mdash; {resource.id}</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {resource.resourceDomain} &mdash; {resource.id}
+          </p>
         </div>
-        <Badge variant={resource.status === 'STATUS_ACTIVE' ? 'default' : 'secondary'} className="text-sm">
+        <Badge
+          variant={resource.status === 'STATUS_ACTIVE' ? 'default' : 'secondary'}
+          className="text-sm"
+        >
           {resource.status}
         </Badge>
       </div>
@@ -70,13 +85,17 @@ export default async function ResourcePage({ params }: Props) {
             <div className="grid grid-cols-3 gap-4">
               <span className="font-semibold text-sm">Created At:</span>
               <span className="col-span-2 text-sm">
-                {resource.metadata?.createdAt ? new Date(resource.metadata.createdAt).toLocaleString() : 'N/A'}
+                {resource.metadata?.createdAt
+                  ? new Date(resource.metadata.createdAt).toLocaleString()
+                  : 'N/A'}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <span className="font-semibold text-sm">Updated At:</span>
               <span className="col-span-2 text-sm">
-                {resource.metadata?.updatedAt ? new Date(resource.metadata.updatedAt).toLocaleString() : 'N/A'}
+                {resource.metadata?.updatedAt
+                  ? new Date(resource.metadata.updatedAt).toLocaleString()
+                  : 'N/A'}
               </span>
             </div>
           </CardContent>
@@ -94,7 +113,9 @@ export default async function ResourcePage({ params }: Props) {
               {JSON.stringify(resource.resourceSetting, null, 2)}
             </pre>
           ) : (
-            <div className="text-sm text-muted-foreground p-4 border rounded-md">No settings applied.</div>
+            <div className="text-sm text-muted-foreground p-4 border rounded-md">
+              No settings applied.
+            </div>
           )}
         </CardContent>
       </Card>

@@ -7,7 +7,7 @@ import {
   ShieldAlert,
   SquareActivity,
   Users,
-  Gamepad2
+  Gamepad2,
 } from 'lucide-react';
 
 // This is sample data
