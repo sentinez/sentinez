@@ -36,6 +36,11 @@ export const dashboard = {
           url: '/console',
           icon: Server,
         },
+        {
+          title: 'member',
+          url: '/console/member',
+          icon: Building2,
+        },
       ],
     },
   ],
@@ -50,11 +55,6 @@ export const dashboard = {
           title: 'resource',
           url: '/console/tenant/resource',
           icon: Server,
-        },
-        {
-          title: 'member',
-          url: '/console/tenant/member',
-          icon: Building2,
         },
       ],
     },

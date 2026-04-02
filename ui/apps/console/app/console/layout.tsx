@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ConsoleLayout({ children }: { children: React.ReactNode }) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return (
     <SidebarProvider
