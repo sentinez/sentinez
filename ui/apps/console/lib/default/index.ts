@@ -7,6 +7,7 @@ import {
   ShieldAlert,
   SquareActivity,
   Users,
+  Gamepad2
 } from 'lucide-react';
 
 // This is sample data
@@ -14,7 +15,7 @@ export const dashboard = {
   user: {
     name: 'shadcn',
     email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+    avatar: '/assets/sntz.png',
   },
   tenant: [
     {
@@ -23,7 +24,22 @@ export const dashboard = {
       plan: 'member',
     },
   ],
-  navMain: [
+  rootNavMain: [
+    {
+      title: 'Console',
+      url: '/console',
+      icon: Gamepad2,
+      isActive: true,
+      items: [
+        {
+          title: 'resource',
+          url: '/console',
+          icon: Server,
+        },
+      ],
+    },
+  ],
+  domainNavMain: [
     {
       title: 'Tenants',
       url: '/console/tenant',
@@ -40,11 +56,6 @@ export const dashboard = {
           url: '/console/tenant/member',
           icon: Building2,
         },
-        // {
-        //   title: 'origin',
-        //   url: '/console/tenant/origin',
-        //   icon: Cloud,
-        // },
       ],
     },
     {

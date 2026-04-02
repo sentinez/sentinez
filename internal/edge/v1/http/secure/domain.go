@@ -19,7 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/internal/shared/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 

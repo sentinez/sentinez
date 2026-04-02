@@ -37,6 +37,7 @@ func newTestRule(id string) *RuleBuilder {
 		)
 }
 
+// nolint
 func TestRuleBuilder_JSONExportImport(t *testing.T) {
 	ruleBuilder := newTestRule("rule-1")
 	rule := ruleBuilder.Build()
@@ -92,6 +93,7 @@ func newTestExprBuilder() *ExprBuilder {
 		AddLogicAndRule(rulepb.Logic_LOGIC_AND, r2)
 }
 
+// nolint
 func TestExprBuilder_JSONExportImport(t *testing.T) {
 	exprBuilder := newTestExprBuilder()
 	b, err := exprBuilder.ToJSON()

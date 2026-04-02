@@ -32,6 +32,9 @@ func main() {
 	)
 
 	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(rt.Start, rt.Shutdown)
+	app.Register(
+		rt.Start,
+		rt.Shutdown,
+	)
 	app.Run(context.Background())
 }

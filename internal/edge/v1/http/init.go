@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/waitingroom"
-	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 

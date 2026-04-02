@@ -45,8 +45,11 @@ func main() {
 	)
 
 	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(func(ctx context.Context) error {
-		return server.Start(ctx, conf)
-	}, server.Shutdown)
+	app.Register(
+		func(ctx context.Context) error {
+			return server.Start(ctx, conf)
+		},
+		server.Shutdown,
+	)
 	app.Run(context.Background())
 }

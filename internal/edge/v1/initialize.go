@@ -17,12 +17,18 @@ package edge
 import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/http"
+	"github.com/sentinez/sentinez/internal/edge/v1/stream"
 	"github.com/sentinez/sentinez/internal/shared/mem"
+	"github.com/sentinez/shared/zlog"
 )
 
 func (s *Server) initialize(appConf *confpb.Config) error {
 	// init cache repository
 	mem.LoadConfiguration(s.setting, appConf)
+
+	if err := stream.Init(); err != nil {
+		zlog.Errorf("failed to initialize stream: %v", err)
+	}
 
 	income := http.Init(appConf)
 	s.core.Handle(income.Handle)

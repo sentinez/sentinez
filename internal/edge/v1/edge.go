@@ -102,10 +102,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start(conf *confpb.Config) error {
-	if err := stream.Init(); err != nil {
-		zlog.Errorf("failed to initialize stream: %v", err)
-	}
-
 	if err := s.initialize(conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
