@@ -18,6 +18,9 @@ importers:
       '@sentinez/tsconfig':
         specifier: workspace:*
         version: link:packages/tsconfig
+      eslint:
+        specifier: ^9.20.1
+        version: 9.32.0(jiti@2.5.1)
       prettier:
         specifier: ^3.5.1
         version: 3.6.2
