@@ -35,6 +35,13 @@ type Tenant struct {
 	svc *tenantsvc.Service
 }
 
+// GetResourceByDomain implements [tenantpb.TenantServiceServer].
+func (t *Tenant) GetResourceByDomain(ctx context.Context,
+	req *tenantpb.GetResourceByDomainRequest,
+) (*tenantpb.GetResourceByDomainResponse, error) {
+	return t.svc.GetResourceByDomain(ctx, req)
+}
+
 func (t *Tenant) GetResource(ctx context.Context,
 	req *tenantpb.GetResourceRequest) (*tenantpb.GetResourceResponse, error) {
 	return t.svc.GetResource(ctx, req)

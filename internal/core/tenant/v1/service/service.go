@@ -21,6 +21,7 @@ import (
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	resourcerepo "github.com/sentinez/sentinez/internal/core/tenant/v1/repos/resources"
+	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -34,6 +35,28 @@ func New(resource resourcerepo.IResource) *Service {
 
 type Service struct {
 	resource resourcerepo.IResource
+}
+
+// GetResourceByDomain implements [tenantpb.TenantServiceServer].
+func (svc *Service) GetResourceByDomain(ctx context.Context,
+	req *tenantpb.GetResourceByDomainRequest,
+) (*tenantpb.GetResourceByDomainResponse, error) {
+
+	rsrc, err := svc.resource.List(ctx, &tenantpb.ListResourceRequest{
+		ResourceDomain: req.GetResourceDomain(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rsrc.GetResources()) == 0 {
+		return nil, errorx.StatusNotFoundF("resource not found!")
+	}
+
+	resp := &tenantpb.GetResourceByDomainResponse{
+		Resource: rsrc.GetResources()[0],
+	}
+	return resp, nil
 }
 
 func (svc *Service) defaultSetting() *edgepb.Setting {

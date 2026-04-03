@@ -129,6 +129,17 @@ service TenantService {
       ]
     };
   }
+
+  rpc GetResourceByDomain(GetResourceByDomainRequest) returns (GetResourceByDomainResponse) {
+    option (google.api.http) = {get: "/tenant/resource/{resource_domain}"};
+
+    option (sentinez.types.v1.x_method) = {
+      consoles: [
+        CONSOLE_PORTAL,
+        CONSOLE_ADMIN
+      ]
+    };
+  }
 }
 
 message GetResourceRequest {
@@ -137,6 +148,14 @@ message GetResourceRequest {
     string: {prefix: "senz.tenant.resources."}
   }];
   bool default = 2;
+}
+
+message GetResourceByDomainRequest {
+  string resource_domain = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+}
+
+message GetResourceByDomainResponse {
+  Resource resource = 1;
 }
 
 message GetResourceResponse {

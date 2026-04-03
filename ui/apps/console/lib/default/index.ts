@@ -27,7 +27,7 @@ export const dashboard = {
   rootNavMain: [
     {
       title: 'Console',
-      url: '/console',
+      url: '/console/resource',
       icon: Gamepad2,
       isActive: true,
       items: [
@@ -47,7 +47,7 @@ export const dashboard = {
   domainNavMain: [
     {
       title: 'Tenants',
-      url: '/console/tenant',
+      url: '/console/tenant/resource',
       icon: User,
       isActive: true,
       items: [
@@ -60,7 +60,7 @@ export const dashboard = {
     },
     {
       title: 'Securities',
-      url: '/console/security',
+      url: '/console/security/logs',
       icon: Shield,
       isActive: false,
       items: [
@@ -78,7 +78,7 @@ export const dashboard = {
     },
     {
       title: 'Analytics',
-      url: '/console/analytic',
+      url: '/console/analytic/logs',
       icon: Activity,
       isActive: false,
       items: [
