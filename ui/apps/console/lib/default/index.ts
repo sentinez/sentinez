@@ -33,7 +33,7 @@ export const dashboard = {
       items: [
         {
           title: 'resource',
-          url: '/console',
+          url: '/console/resource',
           icon: Server,
         },
         {

@@ -1,10 +1,5 @@
-import PageLayout from '@/components/page-layout';
-import { ResourceTable } from '@/app/console/[domain]/tenant/resource/components/table';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return (
-    <PageLayout>
-      <ResourceTable />
-    </PageLayout>
-  );
+  redirect('/console/resource');
 }
