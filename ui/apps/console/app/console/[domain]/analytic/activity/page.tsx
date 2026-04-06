@@ -1,4 +1,6 @@
 export default async function Page() {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   return (
     <>
       {Array.from({ length: 24 }).map((_, index) => (

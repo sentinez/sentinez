@@ -19,14 +19,14 @@ import (
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/sentinez/internal/shared/mem/ruleengine"
-	"github.com/sentinez/sentinez/pkg/dmz/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewRule(ll zlog.Level) chains.Handler {
-	return &Rule{
+func NewRuleBased(ll zlog.Level) chains.Handler {
+	return &RuleBased{
 		BaseHandler: chains.New(),
 		ingress:     corerules.NewIngress(),
 		logger: zlog.NewJSONLogger(
@@ -36,13 +36,13 @@ func NewRule(ll zlog.Level) chains.Handler {
 	}
 }
 
-type Rule struct {
+type RuleBased struct {
 	*chains.BaseHandler
 	ingress corerules.Rules
 	logger  zlog.Logger
 }
 
-func (r *Rule) Handle(ctx corehttp.Context) error {
+func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
 	rule := ruleengine.GetEngine().LoadContext(ctx)

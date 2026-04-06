@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 

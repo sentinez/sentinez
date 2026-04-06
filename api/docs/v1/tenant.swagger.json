@@ -147,6 +147,36 @@
         ]
       }
     },
+    "/tenant/resource/{resourceDomain}": {
+      "get": {
+        "operationId": "TenantService_GetResourceByDomain",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetResourceByDomainResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resourceDomain",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
     "/tenant/resources": {
       "get": {
         "summary": "Lists tenant resources.",
@@ -556,6 +586,14 @@
       ],
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
+    },
+    "v1GetResourceByDomainResponse": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        }
+      }
     },
     "v1GetResourceResponse": {
       "type": "object",

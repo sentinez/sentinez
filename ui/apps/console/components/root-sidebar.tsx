@@ -31,7 +31,7 @@ import {
 import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
   const router = useRouter();
@@ -39,8 +39,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [, startTransitionNavMain] = React.useTransition();
   const [, startTransitionChildren] = React.useTransition();
 
-  const [activeItem, setActiveItem] = React.useState(dashboard.navMain[0]);
-  const [childItems, setChildItems] = React.useState(dashboard.navMain[0]?.items);
+  const rootNavMain = dashboard.rootNavMain;
+
+  const [activeItem, setActiveItem] = React.useState(rootNavMain[0]);
+  const [childItems, setChildItems] = React.useState(rootNavMain[0]?.items);
   const [navIndex, setNavIndex] = React.useState(0);
   const [tabIndex, setTabIndex] = React.useState(-1);
   const [search, setSearch] = React.useState('');
@@ -48,11 +50,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   React.useEffect(() => {
     const handler = setTimeout(() => {
-      const originalItems = dashboard.navMain[navIndex]?.items || [];
+      const originalItems = rootNavMain[navIndex]?.items || [];
       if (search.trim() === '') {
         setChildItems(originalItems);
       } else {
-        const filtered = originalItems.filter((item) =>
+        const filtered = originalItems.filter((item: any) =>
           item.title.toLowerCase().includes(search.toLowerCase()),
         );
         setChildItems(filtered);
@@ -63,16 +65,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [search, activeItem, navIndex]);
 
   React.useEffect(() => {
-    for (const [index, item] of dashboard.navMain.entries()) {
-      if (pathname.startsWith(item.url)) {
+    for (const [index, item] of rootNavMain.entries()) {
+      // Use exact match for root-level URLs to avoid false positives
+      const itemMatches =
+        item.url === '/console'
+          ? pathname === '/console' || pathname.startsWith('/console/')
+          : pathname.startsWith(item.url);
+      if (itemMatches) {
         setActiveItem(item);
         setNavIndex(index);
         setChildItems(item.items);
 
-        const matchedChild = item.items?.find((subItem) => pathname.startsWith(subItem.url));
+        const matchedChild = item.items?.find((subItem: any) =>
+          subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url),
+        );
         if (matchedChild) {
-          const subIndex = item.items.findIndex((sub) => sub.url === matchedChild.url);
+          const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
           setTabIndex(subIndex);
+        } else {
+          setTabIndex(-1);
         }
 
         break;
@@ -127,7 +138,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {dashboard.navMain.map((item, index) => (
+                {rootNavMain.map((item: any, index: number) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
@@ -171,7 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup className="px-0">
             <SidebarGroupContent className="px-1.5 md:px-0 flex justify-center">
               <SidebarMenu className="w-11/12">
-                {childItems?.map((item, index) => (
+                {childItems?.map((item: any, index: number) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
@@ -196,7 +207,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   );
 }
 
-export function AppSidebarInset({ children }: { children: React.ReactNode }) {
+export function RootSidebarInset({ children }: { children: React.ReactNode }) {
   const [breadcrumbs, setBreadcrumbs] = React.useState<React.JSX.Element[]>([]);
   const pathname = usePathname();
 

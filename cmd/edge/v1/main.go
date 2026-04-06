@@ -59,6 +59,9 @@ func main() {
 	)
 
 	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(edgeServer.Start, edgeServer.Shutdown)
+	app.Register(
+		edgeServer.Start,
+		edgeServer.Shutdown,
+	)
 	app.Run(context.Background())
 }

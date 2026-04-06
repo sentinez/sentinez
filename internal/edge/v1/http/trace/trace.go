@@ -17,12 +17,15 @@ package trace
 import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/pkg/dmz/chains"
+	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/ids"
+	"github.com/sentinez/shared/zlog"
 )
 
-func NewTracer() chains.Handler {
-	return &Trace{BaseHandler: chains.New()}
+func NewTracer(_ zlog.Level) chains.Handler {
+	return &Trace{
+		BaseHandler: chains.New(),
+	}
 }
 
 type Trace struct {

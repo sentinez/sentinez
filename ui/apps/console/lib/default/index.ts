@@ -7,6 +7,7 @@ import {
   ShieldAlert,
   SquareActivity,
   Users,
+  Gamepad2,
 } from 'lucide-react';
 
 // This is sample data
@@ -14,7 +15,7 @@ export const dashboard = {
   user: {
     name: 'shadcn',
     email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+    avatar: '/assets/sntz.png',
   },
   tenant: [
     {
@@ -23,10 +24,30 @@ export const dashboard = {
       plan: 'member',
     },
   ],
-  navMain: [
+  rootNavMain: [
+    {
+      title: 'Console',
+      url: '/console/resource',
+      icon: Gamepad2,
+      isActive: true,
+      items: [
+        {
+          title: 'resource',
+          url: '/console/resource',
+          icon: Server,
+        },
+        {
+          title: 'member',
+          url: '/console/member',
+          icon: Building2,
+        },
+      ],
+    },
+  ],
+  domainNavMain: [
     {
       title: 'Tenants',
-      url: '/console/tenant',
+      url: '/console/tenant/resource',
       icon: User,
       isActive: true,
       items: [
@@ -35,21 +56,11 @@ export const dashboard = {
           url: '/console/tenant/resource',
           icon: Server,
         },
-        {
-          title: 'member',
-          url: '/console/tenant/member',
-          icon: Building2,
-        },
-        // {
-        //   title: 'origin',
-        //   url: '/console/tenant/origin',
-        //   icon: Cloud,
-        // },
       ],
     },
     {
       title: 'Securities',
-      url: '/console/security',
+      url: '/console/security/logs',
       icon: Shield,
       isActive: false,
       items: [
@@ -67,7 +78,7 @@ export const dashboard = {
     },
     {
       title: 'Analytics',
-      url: '/console/analytic',
+      url: '/console/analytic/logs',
       icon: Activity,
       isActive: false,
       items: [

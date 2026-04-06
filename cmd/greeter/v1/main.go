@@ -29,6 +29,9 @@ func main() {
 	grpc := greeter.NewService(conf.GetMeta())
 
 	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(grpc.Start, grpc.Shutdown)
+	app.Register(
+		grpc.Start,
+		grpc.Shutdown,
+	)
 	app.Run(context.Background())
 }

@@ -1,4 +1,4 @@
-// Copyright 2025 Sentinéz Labs.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,4 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package content
+package room
+
+import (
+	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/sentinez/internal/shared/chains"
+	"github.com/sentinez/sentinez/internal/shared/queue"
+	"github.com/sentinez/shared/zlog"
+)
+
+var _ chains.Handler = (*WaitingRoom)(nil)
+
+func NewRoom(_ zlog.Level) chains.Handler {
+	return &WaitingRoom{
+		BaseHandler: chains.New(),
+	}
+}
+
+type WaitingRoom struct {
+	*chains.BaseHandler
+	_ *queue.Queue
+}
+
+func (wr *WaitingRoom) Handle(ctx corehttp.Context) error {
+
+	return wr.HandleNext(ctx)
+}

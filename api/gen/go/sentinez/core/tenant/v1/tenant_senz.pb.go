@@ -88,3 +88,12 @@ func GetTenantServiceGetResource() *typepb.XMethod {
 		},
 	}
 }
+
+func GetTenantServiceGetResourceByDomain() *typepb.XMethod {
+	return &typepb.XMethod{
+		Consoles: []typepb.Console{
+			typepb.Console_CONSOLE_PORTAL,
+			typepb.Console_CONSOLE_ADMIN,
+		},
+	}
+}

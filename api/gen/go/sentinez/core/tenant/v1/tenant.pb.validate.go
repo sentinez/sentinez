@@ -118,6 +118,153 @@ var _ interface {
 	ErrorName() string
 } = GetResourceRequestValidationError{}
 
+// Validate checks the field values on GetResourceByDomainRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetResourceByDomainRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for ResourceDomain
+
+	return nil
+}
+
+// GetResourceByDomainRequestValidationError is the validation error returned
+// by GetResourceByDomainRequest.Validate if the designated constraints aren't met.
+type GetResourceByDomainRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetResourceByDomainRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetResourceByDomainRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetResourceByDomainRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetResourceByDomainRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetResourceByDomainRequestValidationError) ErrorName() string {
+	return "GetResourceByDomainRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetResourceByDomainRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetResourceByDomainRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetResourceByDomainRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetResourceByDomainRequestValidationError{}
+
+// Validate checks the field values on GetResourceByDomainResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetResourceByDomainResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetResourceByDomainResponseValidationError{
+				field:  "Resource",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetResourceByDomainResponseValidationError is the validation error returned
+// by GetResourceByDomainResponse.Validate if the designated constraints
+// aren't met.
+type GetResourceByDomainResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetResourceByDomainResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetResourceByDomainResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetResourceByDomainResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetResourceByDomainResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetResourceByDomainResponseValidationError) ErrorName() string {
+	return "GetResourceByDomainResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetResourceByDomainResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetResourceByDomainResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetResourceByDomainResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetResourceByDomainResponseValidationError{}
+
 // Validate checks the field values on GetResourceResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.

@@ -62,7 +62,7 @@ export const columns: ColumnDef<Payment>[] = [
       <div className="w-full lowercase truncate">
         <a
           className=" text-blue-700 font-semibold underline"
-          href={`/console/tenant/resource/${row.original.id}`}
+          href={`/console/${row.original.name}/tenant/resource`}
         >
           {row.getValue('name')}
         </a>

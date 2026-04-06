@@ -133,6 +133,7 @@ func NewExpr(id, name string) *ExprBuilder {
 	}
 }
 
+// nolint
 // ExprFromJSON deserializes a JSON string into an ExprBuilder.
 func ExprFromJSON(data []byte) (*ExprBuilder, error) {
 	expr := &ruleenginepb.Expr{}
