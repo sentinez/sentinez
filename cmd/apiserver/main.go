@@ -38,18 +38,16 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	var (
-		conf    = config.Config()
-		httpSrv = httpx.NewServer(conf.GetMeta())
-		server  = apiserver.New(httpSrv)
-	)
+	app := runner.NewApp[*apiserver.Server](config.Config(), sentinez.Code)
+	app.Main(func(c *runner.Context[*apiserver.Server]) {
+		c.Inject(config.Config, httpx.NewServer, apiserver.New)
 
-	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(
-		func(ctx context.Context) error {
-			return server.Start(ctx, conf)
-		},
-		server.Shutdown,
-	)
-	app.Run(context.Background())
+		c.OnStart(func(ctx context.Context, server *apiserver.Server) error {
+			return server.Start(ctx)
+		})
+
+		c.OnStop(func(ctx context.Context, server *apiserver.Server) error {
+			return server.Shutdown(ctx)
+		})
+	})
 }

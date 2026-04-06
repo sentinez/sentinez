@@ -18,14 +18,13 @@ package greeter
 import (
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	greeterhdl "github.com/sentinez/sentinez/internal/core/greeter/v1/handler"
 	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
 )
 
-func NewService(meta *typepb.XMeta) *Greeter {
+func NewService(conf *confpb.Config) *Greeter {
 	return &Greeter{
-		Server:  netgrpc.NewDefault(meta),
+		Server:  netgrpc.NewDefault(conf),
 		handler: greeterhdl.New(),
 	}
 }
@@ -34,10 +33,11 @@ func NewService(meta *typepb.XMeta) *Greeter {
 type Greeter struct {
 	*netgrpc.Server
 	handler greeterpb.GreeterServiceServer
+	conf    *confpb.Config
 }
 
-func (g *Greeter) Start(conf *confpb.Config) error {
+func (g *Greeter) Start() error {
 	greeterpb.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	return g.Serve(conf)
+	return g.Serve(g.conf)
 }

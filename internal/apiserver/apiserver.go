@@ -23,9 +23,10 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func New(server httpx.Server) *Server {
+func New(conf *confpb.Config, server httpx.Server) *Server {
 	srv := &Server{
 		server: server,
+		conf:   conf,
 	}
 
 	return srv
@@ -43,6 +44,7 @@ type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
 	server httpx.Server
+	conf   *confpb.Config
 }
 
 // visitToEndpoint all service to external grpc server
@@ -76,14 +78,14 @@ func (srv *Server) Visit(ctx context.Context,
 }
 
 // Start the apiserver/gateway app
-func (srv *Server) Start(ctx context.Context, conf *confpb.Config) error {
-	if err := srv.Initialize(ctx, conf); err != nil {
+func (srv *Server) Start(ctx context.Context) error {
+	if err := srv.Initialize(ctx, srv.conf); err != nil {
 		zlog.Errorf("apiserver: failed to initialize: %v", err)
 		return err
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.ListenAndServe(conf.GetEnv().GetHttpAddress())
+	return srv.server.ListenAndServe(srv.conf.GetEnv().GetHttpAddress())
 	// for DEBUG:
 	// return fmt.Errorf("apiserver: failed to listen and serve")
 }

@@ -19,7 +19,6 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/engine"
 	grpc "github.com/sentinez/sentinez/pkg/network/grpc"
 )
@@ -40,9 +39,9 @@ import (
 // across the entire edge system.
 //
 
-func NewEngine(meta *typepb.XMeta) *Engine {
+func NewEngine(conf *confpb.Config) *Engine {
 	return &Engine{
-		Server: grpc.NewDefault(meta),
+		Server: grpc.NewDefault(conf),
 		Engine: engine.New(),
 	}
 }

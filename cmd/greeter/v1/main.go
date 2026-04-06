@@ -25,13 +25,16 @@ import (
 )
 
 func main() {
-	conf := config.Config()
-	grpc := greeter.NewService(conf.GetMeta())
+	app := runner.NewApp[*greeter.Greeter](config.Config(), sentinez.Code)
+	app.Main(func(c *runner.Context[*greeter.Greeter]) {
+		c.Inject(config.Config, greeter.NewService)
 
-	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(
-		grpc.Start,
-		grpc.Shutdown,
-	)
-	app.Run(context.Background())
+		c.OnStart(func(_ context.Context, server *greeter.Greeter) error {
+			return server.Start()
+		})
+
+		c.OnStop(func(ctx context.Context, server *greeter.Greeter) error {
+			return server.Shutdown(ctx)
+		})
+	})
 }

@@ -13,3 +13,38 @@
 // limitations under the License.
 
 package runner
+
+import (
+	"context"
+
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	"github.com/sentinez/shared/zlog"
+	"go.uber.org/fx"
+	"google.golang.org/grpc/grpclog"
+)
+
+func NewApp[T any](appConf *confpb.Config, scopeName string) *App[T] {
+	logging := zlog.NewConsole(scopeName, zlog.LevelError)
+	grpclog.SetLoggerV2(logging)
+
+	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
+	zlog.SetScopeLogLevel(scopeName, level)
+	ctx := NewContext[T](appConf)
+
+	return &App[T]{
+		ctx: ctx,
+	}
+}
+
+type App[T any] struct {
+	ctx *Context[T]
+}
+
+func (a *App[T]) Main(main func(*Context[T])) {
+	main(a.ctx)
+
+	ctn := container{engine: fx.New(a.ctx.opts...)}
+	if err := ctn.Run(context.Background()); err != nil {
+		zlog.Fatal(err)
+	}
+}
