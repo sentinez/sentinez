@@ -70,14 +70,7 @@ func (c *Context[T]) OnStop(stop any) {
 		function := func(lc fx.Lifecycle, server T) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
-					go func() {
-						if err := fn(ctx, server); err != nil {
-							if errors.Is(err, http.ErrServerClosed) {
-								zlog.Infof("[runner] %+v", err)
-							}
-						}
-					}()
-					return nil
+					return fn(ctx, server)
 				},
 			})
 		}
