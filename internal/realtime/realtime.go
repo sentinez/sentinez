@@ -23,24 +23,26 @@ import (
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 )
 
-func New(ws *wsz.WebSocket) *Realtime {
+func New(conf *confpb.Config, ws *wsz.WebSocket) *Realtime {
 	return &Realtime{
 		core: ws,
+		conf: conf,
 	}
 }
 
 type Realtime struct {
 	core *wsz.WebSocket
+	conf *confpb.Config
 }
 
 func (r *Realtime) router() {
 	r.core.HandlerFunc("/ws", realtimehdl.Handler)
 }
 
-func (r *Realtime) Start(conf *confpb.Config) error {
+func (r *Realtime) Start() error {
 	// register the route with websocket handler
 	r.router()
-	return r.core.ListenAndServe(conf.GetEnv().GetHttpAddress())
+	return r.core.ListenAndServe(r.conf.GetEnv().GetHttpAddress())
 }
 
 func (r *Realtime) Shutdown(_ context.Context) error {

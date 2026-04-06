@@ -10,7 +10,7 @@ replace (
 
 require (
 	github.com/bufbuild/buf v1.66.1
-	github.com/cilium/ebpf v0.20.0
+	github.com/cilium/ebpf v0.21.0
 	github.com/codesenberg/bombardier v1.2.6
 	github.com/favadi/protoc-go-inject-tag v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2

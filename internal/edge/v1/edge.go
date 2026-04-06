@@ -50,10 +50,14 @@ import (
 //
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
-func New(server corehttp.Server, setting *edgepb.Setting) *Server {
+func New(conf *confpb.Config,
+	setting *edgepb.Setting,
+	server corehttp.Server,
+) *Server {
 	corecmn.NormalizeEdgeSetting(setting)
 
 	return &Server{
+		conf:    conf,
 		core:    server,
 		setting: setting,
 	}
@@ -66,6 +70,7 @@ func New(server corehttp.Server, setting *edgepb.Setting) *Server {
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
+	conf    *confpb.Config
 	core    corehttp.Server
 	setting *edgepb.Setting
 }
@@ -101,16 +106,16 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // Returns:
 //   - error: Any error that occurred during startup or serving.
-func (s *Server) Start(conf *confpb.Config) error {
-	if err := s.initialize(conf); err != nil {
+func (s *Server) Start() error {
+	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
 	}
 
 	var (
-		addr     = conf.GetEnv().GetHttpAddress()
-		certFile = conf.GetFlag().GetCertificateFile()
-		keyFile  = conf.GetFlag().GetCertKeyFile()
+		addr     = s.conf.GetEnv().GetHttpAddress()
+		certFile = s.conf.GetFlag().GetCertificateFile()
+		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
 	return s.core.ListenAndServeTLS(addr, certFile, keyFile)

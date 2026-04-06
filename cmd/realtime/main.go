@@ -25,16 +25,17 @@ import (
 )
 
 func main() {
-	var (
-		conf  = config.Config()
-		wsSrv = wscore.NewServer(conf.GetMeta())
-		rt    = realtime.New(wsSrv)
-	)
+	app := runner.NewApp[*realtime.Realtime](config.Config(), sentinez.Code)
+	app.Main(func(c *runner.Context[*realtime.Realtime]) {
+		c.Inject(config.Config, wscore.NewServer, realtime.New)
 
-	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(
-		rt.Start,
-		rt.Shutdown,
-	)
-	app.Run(context.Background())
+		c.OnStart(func(_ context.Context, server *realtime.Realtime) error {
+			return server.Start()
+		})
+
+		c.OnStop(func(ctx context.Context, server *realtime.Realtime) error {
+			return server.Shutdown(ctx)
+		})
+	})
+
 }

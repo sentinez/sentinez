@@ -80,16 +80,16 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(meta *typepb.XMeta, opts ...grpc.ServerOption) *Server {
+func New(conf *confpb.Config, opts ...grpc.ServerOption) *Server {
 	return &Server{
 		server: grpc.NewServer(opts...),
-		meta:   meta,
+		meta:   conf.GetMeta(),
 	}
 }
 
 // NewDefault returns a new service registrar with default options.
-func NewDefault(meta *typepb.XMeta) *Server {
-	return New(meta)
+func NewDefault(conf *confpb.Config) *Server {
+	return New(conf)
 }
 
 func NewDefaultServer() *Server {

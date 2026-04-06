@@ -51,17 +51,21 @@ func init() {
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	var (
-		conf       = config.Config()
-		setting    = edgeyaml.LoadSetting(conf)
-		httpSrv    = stdhttpx.NewServer(conf)
-		edgeServer = edge.New(httpSrv, setting)
-	)
+	app := runner.NewApp[*edge.Server](config.Config(), sentinez.Code)
+	app.Main(func(c *runner.Context[*edge.Server]) {
+		c.Inject(
+			config.Config,
+			edgeyaml.LoadSetting,
+			stdhttpx.NewServer,
+			edge.New,
+		)
 
-	app := runner.NewApp(conf, sentinez.Code)
-	app.Register(
-		edgeServer.Start,
-		edgeServer.Shutdown,
-	)
-	app.Run(context.Background())
+		c.OnStart(func(_ context.Context, server *edge.Server) error {
+			return server.Start()
+		})
+
+		c.OnStop(func(ctx context.Context, server *edge.Server) error {
+			return server.Shutdown(ctx)
+		})
+	})
 }
