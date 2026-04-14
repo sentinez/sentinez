@@ -15,9 +15,9 @@
 package trace
 
 import (
+	"github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/ids"
 	"github.com/sentinez/shared/zlog"
 )

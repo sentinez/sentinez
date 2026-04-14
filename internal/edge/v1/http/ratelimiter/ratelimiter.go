@@ -15,8 +15,8 @@
 package ratelimiter
 
 import (
+	"github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/sentinez/internal/shared/mem/ratelimiter"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"

@@ -20,8 +20,8 @@ import (
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/http/variable"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/internal/shared/variable"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"

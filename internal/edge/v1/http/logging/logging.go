@@ -15,10 +15,10 @@
 package logging
 
 import (
+	"github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 

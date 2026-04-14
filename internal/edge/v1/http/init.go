@@ -15,6 +15,7 @@
 package http
 
 import (
+	"github.com/sentinez/core/chains"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/ratelimiter"
@@ -23,7 +24,6 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 

@@ -15,8 +15,8 @@
 package room
 
 import (
+	"github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/sentinez/internal/shared/queue"
 	"github.com/sentinez/shared/zlog"
 )
