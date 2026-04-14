@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,26 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package routing provides the WAF handler.
-package routing
+package variable
 
-import (
-	"net/http"
-
-	corechains "github.com/sentinez/core/chains"
-	corehttp "github.com/sentinez/core/http"
+const (
+	VarHost                  = "$host"
+	VarRemoteAddr            = "$remote_addr"
+	VarScheme                = "$scheme"
+	VarRequestURI            = "$request_uri"
+	VarProxyAddXForwardedFor = "$proxy_add_x_forwarded_for"
 )
-
-func NewMockRouter() corechains.ChainNode {
-	return &Mock{
-		Node: corechains.NewNode(),
-	}
-}
-
-type Mock struct {
-	*corechains.Node
-}
-
-func (r *Mock) Handle(ctx corehttp.Context) error {
-	return ctx.String(http.StatusOK, "")
-}

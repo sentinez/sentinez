@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/core/limiter"
+	corelimiter "github.com/sentinez/core/limiter"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -32,7 +32,7 @@ var (
 func New() *Limiter {
 	once.Do(func() {
 		limiterInst = &Limiter{
-			space: ssync.NewMap[string, *limiter.RateLimiter](),
+			space: ssync.NewMap[string, *corelimiter.RateLimiter](),
 		}
 	})
 
@@ -44,14 +44,14 @@ func GetEngine() *Limiter {
 }
 
 type Limiter struct {
-	space *ssync.Map[string, *limiter.RateLimiter]
+	space *ssync.Map[string, *corelimiter.RateLimiter]
 }
 
-func (lim *Limiter) Store(namespace string, l *limiter.RateLimiter) {
+func (lim *Limiter) Store(namespace string, l *corelimiter.RateLimiter) {
 	lim.space.Store(namespace, l)
 }
 
-func (lim *Limiter) Load(namespace string) *limiter.RateLimiter {
+func (lim *Limiter) Load(namespace string) *corelimiter.RateLimiter {
 	expr, ok := lim.space.Load(namespace)
 	if !ok {
 		return nil
@@ -60,7 +60,7 @@ func (lim *Limiter) Load(namespace string) *limiter.RateLimiter {
 	return expr
 }
 
-func (lim *Limiter) LoadContext(ctx corehttp.Context) *limiter.RateLimiter {
+func (lim *Limiter) LoadContext(ctx corehttp.Context) *corelimiter.RateLimiter {
 	if lim == nil {
 		return nil
 	}
@@ -74,7 +74,7 @@ func (lim *Limiter) LoadContext(ctx corehttp.Context) *limiter.RateLimiter {
 	return lim.Load(hCtx.GetTenantNs())
 }
 
-func Store(namespace string, l *limiter.RateLimiter) {
+func Store(namespace string, l *corelimiter.RateLimiter) {
 	mu.Lock()
 	defer mu.Unlock()
 

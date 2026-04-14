@@ -15,11 +15,12 @@
 package routes
 
 import (
-	"fmt"
+	"sort"
 	"strings"
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/http/variable"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	ssync "github.com/sentinez/shared/sync"
@@ -35,8 +36,7 @@ var (
 func NewRouter() *Router {
 	once.Do(func() {
 		inst = &Router{
-			dynamic: ssync.NewMap[string, string](),
-			rewrite: ssync.NewMap[string, string](),
+			routes: ssync.NewMap[string, []*edgepb.OriginRoute](),
 		}
 	})
 
@@ -48,89 +48,103 @@ func GetRouter() *Router {
 }
 
 type Router struct {
-	dynamic *ssync.Map[string, string]
-	rewrite *ssync.Map[string, string]
+	routes *ssync.Map[string, []*edgepb.OriginRoute]
 }
 
-func key(ns, prefix string) string {
-	return fmt.Sprintf("%s|%s", ns, prefix)
-}
-
+// nolint:funlen
 func (r *Router) Store(origin *edgepb.Origin) {
+	if len(origin.Routes) == 0 {
+		return
+	}
+
+	var validRoutes []*edgepb.OriginRoute
 	for _, routeConfig := range origin.Routes {
 		zlog.Debugf(
 			"[edge] ns=%s %s -> %s (rewrite: %s)",
-			origin.Namespace, routeConfig.MatchPrefix,
-			routeConfig.Target, routeConfig.Rewrite,
+			origin.Namespace, routeConfig.Location,
+			routeConfig.ProxyPass, routeConfig.Rewrite,
 		)
 
-		target, ok := r.dynamic.Load(routeConfig.MatchPrefix)
-		if ok && target != "" {
-			zlog.Warnf(
-				"[edge] dup prefix: %s -> %s (new: %s), ignoring",
-				routeConfig.MatchPrefix, target, routeConfig.Target,
-			)
-
-			continue
+		route := &edgepb.OriginRoute{
+			Location:        routeConfig.Location,
+			ProxyPass:       routeConfig.ProxyPass,
+			Rewrite:         routeConfig.Rewrite,
+			ProxySetHeaders: make(map[string]string),
 		}
 
-		if routeConfig.Rewrite == "" {
-			routeConfig.Rewrite = routeConfig.MatchPrefix
+		for k, v := range routeConfig.ProxySetHeaders {
+			if variable.IsValidHeaderKey(k) {
+				route.ProxySetHeaders[k] = v
+			} else {
+				zlog.Warnf(
+					"invalid proxy header %q in ns=%q location=%q, ignoring",
+					k, origin.Namespace, routeConfig.Location,
+				)
+			}
 		}
 
-		k := key(origin.Namespace, routeConfig.MatchPrefix)
+		if route.Rewrite == "" {
+			route.Rewrite = route.Location
+		}
 
-		r.dynamic.Store(k, routeConfig.Target)
-		r.rewrite.Store(k, routeConfig.Rewrite)
+		validRoutes = append(validRoutes, route)
 	}
+
+	// sort routes descending by location
+	// length for longest-prefix match (like nginx)
+	sort.Slice(validRoutes, func(i, j int) bool {
+		return len(validRoutes[i].Location) > len(validRoutes[j].Location)
+	})
+
+	r.routes.Store(origin.Namespace, validRoutes)
 }
 
+// nolint:funlen
 func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok || hCtx.GetTenantNs() == "" {
 		return "", errorx.F("unknown namespace of request")
 	}
 
-	origin := ""
+	ns := hCtx.GetTenantNs()
 	path := ctx.Path()
-	matchPrefix := r.prefixPath(path)
-	k := key(hCtx.GetTenantNs(), matchPrefix)
-	defaultKey := key(hCtx.TenantNs, "/")
 
-	rewritePrefix, ok := r.rewrite.Load(k)
-	if !ok || rewritePrefix == "" {
-		rewritePrefix = matchPrefix
+	routes, ok := r.routes.Load(ns)
+	if !ok {
+		return "", errorx.F("not found: %s", path)
 	}
 
-	target, ok := r.dynamic.Load(k)
-	if ok {
-		zlog.Debugf(
-			"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-			hCtx.GetTenantNs(), rewritePrefix, target, matchPrefix,
-		)
+	for _, route := range routes {
+		if strings.HasPrefix(path, route.Location) {
+			zlog.Debugf(
+				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
+				ns, route.Rewrite, route.ProxyPass, route.Location,
+			)
 
-		remainingPath := strings.TrimPrefix(path, matchPrefix) + rewritePrefix
-		ctx.SetPath(remainingPath)
-		origin = target
+			// path = /api/v1/users, location = /api, rewrite = /v1
+			// remainingPath = /v1 + /v1/users = /v1/v1/users
+			remainingPath := route.Rewrite +
+				strings.TrimPrefix(path, route.Location)
+			ctx.SetPath(remainingPath)
 
-		return target, nil
-	}
+			// Set default proxy routing headers
+			ctx.SetHeader("X-Forwarded-Prefix", route.Location)
 
-	if origin, ok = r.dynamic.Load(defaultKey); ok {
-		return origin, nil
+			// Add custom headers from config
+			for hk, hv := range route.ProxySetHeaders {
+				val, err := variable.ParseProxyVal(ctx, hv)
+				if err != nil {
+					return "", err
+				}
+
+				ctx.SetHeader(hk, val)
+			}
+
+			return route.ProxyPass, nil
+		}
 	}
 
 	return "", errorx.F("not found: %s", path)
-}
-
-func (r *Router) prefixPath(path string) string {
-	path = strings.TrimPrefix(path, "/")
-	parts := strings.SplitN(path, "/", 2)
-
-	if len(parts) > 0 && parts[0] != "" {
-		return "/" + parts[0]
-	}
-	return "/"
 }
 
 func Store(origin *edgepb.Origin) {

@@ -55,10 +55,10 @@ func (m *Flag) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x4a
 	}
-	if len(m.CertificateFile) > 0 {
-		i -= len(m.CertificateFile)
-		copy(dAtA[i:], m.CertificateFile)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertificateFile)))
+	if len(m.CertFile) > 0 {
+		i -= len(m.CertFile)
+		copy(dAtA[i:], m.CertFile)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertFile)))
 		i--
 		dAtA[i] = 0x42
 	}
@@ -148,7 +148,7 @@ func (m *Flag) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	l = len(m.CertificateFile)
+	l = len(m.CertFile)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -415,7 +415,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 8:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CertificateFile", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CertFile", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -443,7 +443,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CertificateFile = string(dAtA[iNdEx:postIndex])
+			m.CertFile = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 9:
 			if wireType != 2 {

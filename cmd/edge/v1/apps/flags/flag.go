@@ -35,7 +35,7 @@ func Parse() *flagspb.Flag {
 		flagx.Get().RulePath = "./crs/v4-16-0"
 		flagx.Get().ProxyConfig = "./proxy.yaml"
 		flagx.Get().EnvFile = "./.env"
-		flagx.Get().CertificateFile = "./_wildcard.sentinez.vn+1.pem"
+		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
 		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
 
 		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
@@ -47,8 +47,8 @@ func Parse() *flagspb.Flag {
 		pflag.StringVar(&flagx.Get().ProxyConfig, flagspb.XFlag_ProxyConfig,
 			flagx.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		pflag.StringVar(&flagx.Get().CertificateFile, flagspb.XFlag_CertificateFile,
-			flagx.Get().GetCertificateFile(), "TLS certificate file")
+		pflag.StringVar(&flagx.Get().CertFile, flagspb.XFlag_CertFile,
+			flagx.Get().GetCertFile(), "TLS certificate file")
 
 		pflag.StringVar(&flagx.Get().CertKeyFile, flagspb.XFlag_CertKeyFile,
 			flagx.Get().GetCertKeyFile(), "TLS certificate key")

@@ -15,21 +15,21 @@
 package trace
 
 import (
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/ids"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewTracer(_ zlog.Level) chains.Handler {
+func NewTracer(_ zlog.Level) corechains.ChainNode {
 	return &Trace{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 	}
 }
 
 type Trace struct {
-	*chains.BaseHandler
+	*corechains.Node
 }
 
 func (t *Trace) Handle(ctx corehttp.Context) error {

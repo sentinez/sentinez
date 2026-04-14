@@ -17,23 +17,23 @@ package secure
 import (
 	"strings"
 
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
 
-var _ chains.Handler = (*DomainBased)(nil)
+var _ corechains.ChainNode = (*DomainBased)(nil)
 
-func NewDomainBased(hostname string) chains.Handler {
+func NewDomainBased(hostname string) corechains.ChainNode {
 	return &DomainBased{
-		BaseHandler: chains.New(),
-		hostname:    hostname,
+		Node:     corechains.NewNode(),
+		hostname: hostname,
 	}
 }
 
 type DomainBased struct {
-	*chains.BaseHandler
+	*corechains.Node
 	hostname string
 }
 

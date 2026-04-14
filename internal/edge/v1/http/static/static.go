@@ -18,16 +18,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ chains.Handler = (*Static)(nil)
+var _ corechains.ChainNode = (*Static)(nil)
 
-func NewStatic(_ zlog.Level) chains.Handler {
+func NewStatic(_ zlog.Level) corechains.ChainNode {
 	return &Static{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 		staticExits: map[string]struct{}{
 			".css": {}, ".js": {}, ".png": {}, ".jpg": {}, ".jpeg": {},
 			".gif": {}, ".ico": {}, ".svg": {}, ".woff": {}, ".woff2": {},
@@ -37,7 +37,7 @@ func NewStatic(_ zlog.Level) chains.Handler {
 }
 
 type Static struct {
-	*chains.BaseHandler
+	*corechains.Node
 	staticExits map[string]struct{}
 }
 

@@ -17,13 +17,13 @@ var (
 )
 
 const (
-	XFlag_EnvMode         = "env_mode"
-	XFlag_LogLevel        = "log_level"
-	XFlag_EnvFile         = "env_file"
-	XFlag_SwaggerPath     = "swagger_path"
-	XFlag_ApiSpecsPath    = "api_specs_path"
-	XFlag_RulePath        = "rule_path"
-	XFlag_ProxyConfig     = "proxy_config"
-	XFlag_CertificateFile = "certificate_file"
-	XFlag_CertKeyFile     = "cert_key_file"
+	XFlag_EnvMode      = "env_mode"
+	XFlag_LogLevel     = "log_level"
+	XFlag_EnvFile      = "env_file"
+	XFlag_SwaggerPath  = "swagger_path"
+	XFlag_ApiSpecsPath = "api_specs_path"
+	XFlag_RulePath     = "rule_path"
+	XFlag_ProxyConfig  = "proxy_config"
+	XFlag_CertFile     = "cert_file"
+	XFlag_CertKeyFile  = "cert_key_file"
 )

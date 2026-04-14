@@ -15,18 +15,18 @@
 package logging
 
 import (
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ chains.Handler = (*Logger)(nil)
+var _ corechains.ChainNode = (*Logger)(nil)
 
-func NewLogger(logLevel zlog.Level) chains.Handler {
+func NewLogger(logLevel zlog.Level) corechains.ChainNode {
 	return &Logger{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_HTTP, logLevel,
 		),
@@ -34,7 +34,7 @@ func NewLogger(logLevel zlog.Level) chains.Handler {
 }
 
 type Logger struct {
-	*chains.BaseHandler
+	*corechains.Node
 	logger zlog.Logger
 }
 

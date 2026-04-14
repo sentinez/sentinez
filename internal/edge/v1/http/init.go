@@ -15,6 +15,7 @@
 package http
 
 import (
+	corechains "github.com/sentinez/core/chains"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/logging"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/ratelimiter"
@@ -23,16 +24,15 @@ import (
 	"github.com/sentinez/sentinez/internal/edge/v1/http/secure"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/static"
 	"github.com/sentinez/sentinez/internal/edge/v1/http/trace"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/shared/zlog"
 )
 
-func Init(appConf *confpb.Config) chains.Handler {
+func Init(appConf *confpb.Config) corechains.ChainNode {
 	var (
 		hostname = appConf.GetEnv().GetHostname()
 		ll       = zlog.LevelInfo
-		curr     chains.Handler
-		income   chains.Handler
+		curr     corechains.ChainNode
+		income   corechains.ChainNode
 	)
 	// begin first middleware when request income
 	income = trace.NewTracer(ll)

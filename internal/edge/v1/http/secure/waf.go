@@ -19,21 +19,21 @@ import (
 	"strconv"
 	"time"
 
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/sentinez/internal/shared/mem/wafengine"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewWAF(logLevel zlog.Level) chains.Handler {
+func NewWAF(logLevel zlog.Level) corechains.ChainNode {
 	return &WAF{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_WAF, logLevel,
 		),
@@ -42,7 +42,7 @@ func NewWAF(logLevel zlog.Level) chains.Handler {
 }
 
 type WAF struct {
-	*chains.BaseHandler
+	*corechains.Node
 	logger zlog.Logger
 	cached *mem.Cache[[]byte]
 }

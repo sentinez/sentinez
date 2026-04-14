@@ -40,9 +40,10 @@ message Origin {
 }
 
 message OriginRoute {
-  string match_prefix = 1; // @gotags: yaml:"matchPrefix"
-  string target = 2; // @gotags: yaml:"target"
-  string rewrite = 3; // @gotags: yaml:"rewrite"
+  string location = 1; // @gotags: yaml:"location"
+  string rewrite = 2; // @gotags: yaml:"rewrite"
+  string proxy_pass = 3; // @gotags: yaml:"proxyPass"
+  map<string, string> proxy_set_headers = 4; // @gotags: yaml:"proxySetHeaders"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules

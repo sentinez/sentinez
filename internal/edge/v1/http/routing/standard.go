@@ -15,24 +15,24 @@
 package routing
 
 import (
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/internal/shared/chains"
 	"github.com/sentinez/sentinez/internal/shared/mem/reverseproxy"
 	"github.com/sentinez/sentinez/internal/shared/mem/routes"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewStandardRouter() chains.Handler {
+func NewStandardRouter() corechains.ChainNode {
 	return &StandardRouter{
-		BaseHandler:  chains.New(),
+		Node:         corechains.NewNode(),
 		router:       routes.GetRouter(),
 		reverseProxy: reverseproxy.GetEngine(),
 	}
 }
 
 type StandardRouter struct {
-	*chains.BaseHandler
+	*corechains.Node
 	reverseProxy *reverseproxy.ReverseProxy
 	router       *routes.Router
 }
