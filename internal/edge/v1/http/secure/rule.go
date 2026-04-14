@@ -15,7 +15,7 @@
 package secure
 
 import (
-	"github.com/sentinez/core/chains"
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -25,10 +25,10 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewRuleBased(ll zlog.Level) chains.Handler {
+func NewRuleBased(ll zlog.Level) corechains.ChainNode {
 	return &RuleBased{
-		BaseHandler: chains.New(),
-		ingress:     corerules.NewIngress(),
+		Node:    corechains.NewNode(),
+		ingress: corerules.NewIngress(),
 		logger: zlog.NewJSONLogger(
 			edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_RULE, ll,
@@ -37,7 +37,7 @@ func NewRuleBased(ll zlog.Level) chains.Handler {
 }
 
 type RuleBased struct {
-	*chains.BaseHandler
+	*corechains.Node
 	ingress corerules.Rules
 	logger  zlog.Logger
 }

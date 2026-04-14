@@ -15,21 +15,21 @@
 package ratelimiter
 
 import (
-	"github.com/sentinez/core/chains"
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/mem/ratelimiter"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewLimiter(_ zlog.Level) chains.Handler {
+func NewLimiter(_ zlog.Level) corechains.ChainNode {
 	return &Limiter{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 	}
 }
 
 type Limiter struct {
-	*chains.BaseHandler
+	*corechains.Node
 }
 
 func (l *Limiter) Handle(ctx corehttp.Context) error {

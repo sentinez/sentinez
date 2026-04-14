@@ -18,18 +18,18 @@ package routing
 import (
 	"net/http"
 
-	"github.com/sentinez/core/chains"
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 )
 
-func NewMockRouter() chains.Handler {
+func NewMockRouter() corechains.ChainNode {
 	return &Mock{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 	}
 }
 
 type Mock struct {
-	*chains.BaseHandler
+	*corechains.Node
 }
 
 func (r *Mock) Handle(ctx corehttp.Context) error {

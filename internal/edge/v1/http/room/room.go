@@ -15,22 +15,22 @@
 package room
 
 import (
-	"github.com/sentinez/core/chains"
+	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/internal/shared/queue"
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ chains.Handler = (*WaitingRoom)(nil)
+var _ corechains.ChainNode = (*WaitingRoom)(nil)
 
-func NewRoom(_ zlog.Level) chains.Handler {
+func NewRoom(_ zlog.Level) corechains.ChainNode {
 	return &WaitingRoom{
-		BaseHandler: chains.New(),
+		Node: corechains.NewNode(),
 	}
 }
 
 type WaitingRoom struct {
-	*chains.BaseHandler
+	*corechains.Node
 	_ *queue.Queue
 }
 

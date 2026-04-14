@@ -12,53 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package chains
+package corechains
 
 import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/shared/zlog"
 )
 
-type Handler interface {
-	SetNext(mdw Handler) Handler
+type ChainNode interface {
+	SetNext(mdw ChainNode) ChainNode
 	Handle(ctx corehttp.Context) error
 }
 
-func New() *BaseHandler {
-	return &BaseHandler{}
+func NewNode() *Node {
+	return &Node{}
 }
 
-type BaseHandler struct {
-	next Handler
+type Node struct {
+	next ChainNode
 }
 
-func (b *BaseHandler) SetNext(handler Handler) Handler {
-	if b == nil {
-		zlog.Warn("chains: uninitialized base chains")
+func (n *Node) SetNext(node ChainNode) ChainNode {
+	if n == nil {
+		zlog.Warn("node: uninitialized base node")
 		return nil
 	}
 
-	b.next = handler
-	return handler
+	n.next = node
+	return node
 }
 
-func (b *BaseHandler) GetNext() Handler {
-	if b == nil {
-		zlog.Warn("chains: uninitialized base chains")
+func (n *Node) GetNext() ChainNode {
+	if n == nil {
+		zlog.Warn("node: uninitialized base node")
 		return nil
 	}
 
-	return b.next
+	return n.next
 }
 
-func (b *BaseHandler) HandleNext(ctx corehttp.Context) error {
-	if b == nil {
-		zlog.Warn("chains: uninitialized base chains")
+func (n *Node) HandleNext(ctx corehttp.Context) error {
+	if n == nil {
+		zlog.Warn("node: uninitialized base node")
 		return nil
 	}
 
-	if b.next != nil {
-		return b.next.Handle(ctx)
+	if n.next != nil {
+		return n.next.Handle(ctx)
 	}
 
 	return nil

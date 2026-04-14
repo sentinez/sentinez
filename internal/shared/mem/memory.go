@@ -18,7 +18,7 @@ package mem
 import (
 	"time"
 
-	"github.com/sentinez/core/limiter"
+	corelimiter "github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
@@ -80,7 +80,11 @@ func LoadRateLimiter() {
 			return true
 		}
 
-		lim := limiter.NewRateLimiter(timeout, size, s.GetSecurity().GetLimit())
+		lim := corelimiter.NewRateLimiter(
+			timeout,
+			size,
+			s.GetSecurity().GetLimit(),
+		)
 		ratelimiter.Store(s.GetOrigin().GetNamespace(), lim)
 
 		return true
