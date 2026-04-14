@@ -48,12 +48,12 @@ func LoadRouter() {
 func LoadReverseProxy() {
 	settings.Visit(func(s *edgepb.Setting) bool {
 		for _, routeConfig := range s.GetOrigin().GetRoutes() {
-			rproxy, err := stdproxy.NewReverseProxy(routeConfig.Target)
+			rproxy, err := stdproxy.NewReverseProxy(routeConfig.ProxyPass)
 			if err != nil {
 				continue
 			}
 
-			reverseproxy.Store(routeConfig.Target, rproxy)
+			reverseproxy.Store(routeConfig.ProxyPass, rproxy)
 		}
 
 		return true

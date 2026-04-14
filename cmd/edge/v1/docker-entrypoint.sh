@@ -21,5 +21,5 @@
     --rule_path ./ruleroot/v4-16-0 \
     --proxy_config ./proxy.yaml \
     --env_file "" \
-	--certificate_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
+	--cert_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
     --cert_key_file /etc/senz/ssl/private/is.s6z.io.vn.key

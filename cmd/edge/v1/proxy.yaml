@@ -29,34 +29,43 @@ setting:
   origin:
     namespace: badcheese # Logical namespace grouping related routes
     routes:
-      - matchPrefix: / # URL prefix to match incoming requests
-        target: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
+      - location: / # URL prefix to match incoming requests
+        proxyPass: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
         rewrite: /                   # (Optional) rewrite prefix before forwarding
+        proxySetHeaders:
+          Host: $host
+          X-Real-IP: $remote_addr
+          X-Forwarded-For: $proxy_add_x_forwarded_for
+          X-Forwarded-Proto: $scheme
+          X-Forwarded-Host: $host
 
       # Example 1 (disabled):
-      # - matchPrefix: /
-      #   target: http://localhost:7778
-      #   rewrite: /
-      #
+      - location: /local
+        proxyPass: http://localhost:7778
+      
       # Example 2 (disabled):
-      # - matchPrefix: /api
-      #   target: https://shark-app-8dkwp.ondigitalocean.app/
+      - location: /api
+        rewrite: /
+        proxyPass: https://shark-app-8dkwp.ondigitalocean.app/
+        proxySetHeaders:
+          X-Original-Path: $request_uri
+          X-Forwarded-Prefix: /api
 
     # --------------------------------------------------------
     # EXAMPLE: NEWS NAMESPACE
     # --------------------------------------------------------
     # namespace: news
     # routes:
-    #   - matchPrefix: /
-    #     target: http://badcheese.com/
+    #   - location: /
+    #     proxyPass: http://badcheese.com/
     #
     #   # English version route
-    #   # - matchPrefix: /en
-    #   #   target: https://vneconomy.vn/en
+    #   # - location: /en
+    #   #   proxyPass: https://vneconomy.vn/en
     #
     #   # Vietnamese version route
-    #   # - matchPrefix: /vi
-    #   #   target: https://vneconomy.vn
+    #   # - location: /vi
+    #   #   proxyPass: https://vneconomy.vn
     # --------------------------------------------------------
 
   # ----------------------------------------------------------

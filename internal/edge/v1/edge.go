@@ -114,7 +114,7 @@ func (s *Server) Start() error {
 
 	var (
 		addr     = s.conf.GetEnv().GetHttpAddress()
-		certFile = s.conf.GetFlag().GetCertificateFile()
+		certFile = s.conf.GetFlag().GetCertFile()
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 

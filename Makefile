@@ -123,7 +123,7 @@ edge.run: SENTINEZ_OUT ?= edge
 edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert_file=cmd/edge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
 		--rule_path=./deploy/ruleroot/v4-16-0 \
 		--proxy_config=./cmd/edge/v1/proxy.yaml \
@@ -133,7 +133,7 @@ sudo.edge.run: SENTINEZ_OUT ?= edge
 sudo.edge.run:
 	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
 	sudo ./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--certificate_file=cmd/edge/v1/is.s6z.io.vn.cert \
+		--cert_file=cmd/edge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
 		--rule_path=./deploy/ruleroot/v4-16-0 \
 		--proxy_config=./cmd/edge/v1/proxy.yaml \

@@ -300,11 +300,13 @@ func (m *OriginRoute) Validate() error {
 		return nil
 	}
 
-	// no validation rules for MatchPrefix
-
-	// no validation rules for Target
+	// no validation rules for Location
 
 	// no validation rules for Rewrite
+
+	// no validation rules for ProxyPass
+
+	// no validation rules for ProxySetHeaders
 
 	return nil
 }
