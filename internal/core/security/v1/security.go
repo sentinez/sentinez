@@ -1,4 +1,4 @@
-// Copyright 2025-2026 Duc-Hung Ho.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,5 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package rule provides the interface for the rule engine.
-package rule
+// Package security provides the Security service.
+package security
+
+import (
+	"context"
+
+	"github.com/sentinez/sentinez/api/client/local"
+	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	securityfac "github.com/sentinez/sentinez/internal/core/security/v1/factory"
+	netgrpc "github.com/sentinez/sentinez/pkg/network/grpc"
+	"google.golang.org/grpc/test/bufconn"
+)
+
+var bufLis *bufconn.Listener
+
+// GetListener returns the local buffer listener for the security module.
+func GetListener() *bufconn.Listener {
+	return bufLis
+}
+
+// NewService creates a new Security module instance.
+func NewService(ctx context.Context, appConf *confpb.Config) *Security {
+	return &Security{
+		Server: netgrpc.NewDefault(appConf),
+		hdl:    securityfac.NewDefaultHandler(ctx, appConf),
+	}
+}
+
+// Security orchestrates the security core domain.
+type Security struct {
+	*netgrpc.Server
+	hdl securitypb.SecurityServiceServer
+}
+
+// Start registers the handler and begins serving gRPC traffic over a buffer listener.
+func (mod *Security) Start(_ context.Context) error {
+	securitypb.RegisterSecurityServiceServer(mod.AsServer(), mod.hdl)
+
+	// Begin listening on the buffer
+	bufLis = bufconn.Listen(local.BufSize)
+
+	// Serve requests over the buffer connections
+	return mod.BufServe(bufLis)
+}

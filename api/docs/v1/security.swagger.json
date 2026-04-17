@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Rule Service",
+    "title": "Security Service",
     "version": "1.0"
   },
   "tags": [
@@ -20,15 +20,15 @@
     "application/json"
   ],
   "paths": {
-    "/rule": {
+    "/security/expr": {
       "post": {
-        "summary": "Create custom rule based for resource",
-        "operationId": "SecurityService_CreateRuleBased",
+        "summary": "CreateExpr creates a new WAF rule expression",
+        "operationId": "SecurityService_CreateExpr",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleBasedResponse"
+              "$ref": "#/definitions/v1CreateExprResponse"
             }
           },
           "default": {
@@ -44,7 +44,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleBasedRequest"
+              "$ref": "#/definitions/v1CreateExprRequest"
             }
           }
         ],
@@ -52,9 +52,391 @@
           "SecurityService"
         ]
       }
+    },
+    "/security/expr/{id}": {
+      "get": {
+        "summary": "GetExpr retrieves a WAF rule expression by ID",
+        "operationId": "SecurityService_GetExpr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetExprResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteExpr removes a WAF rule expression by ID",
+        "operationId": "SecurityService_DeleteExpr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteExprResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateExpr updates an existing WAF rule expression",
+        "operationId": "SecurityService_UpdateExpr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateExprResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateExprBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/exprs": {
+      "get": {
+        "summary": "ListExprs lists WAF rule expressions with optional filters",
+        "operationId": "SecurityService_ListExprs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListExprsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rule": {
+      "post": {
+        "summary": "CreateRule creates a new security rule",
+        "operationId": "SecurityService_CreateRule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rule/{id}": {
+      "get": {
+        "summary": "GetRule retrieves a security rule by ID",
+        "operationId": "SecurityService_GetRule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRuleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteRule removes a security rule by ID",
+        "operationId": "SecurityService_DeleteRule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRuleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateRule updates an existing security rule",
+        "operationId": "SecurityService_UpdateRule",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRuleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateRuleBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rules": {
+      "get": {
+        "summary": "ListRules lists security rules with optional filters",
+        "operationId": "SecurityService_ListRules",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRulesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/status": {
+      "get": {
+        "summary": "Status returns the health status of the security service",
+        "operationId": "SecurityService_Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SecurityService"
+        ]
+      }
     }
   },
   "definitions": {
+    "SecurityServiceUpdateExprBody": {
+      "type": "object",
+      "properties": {
+        "expr": {
+          "$ref": "#/definitions/v1Expr"
+        },
+        "updateMask": {
+          "type": "string"
+        }
+      }
+    },
+    "SecurityServiceUpdateRuleBody": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/ruleenginev1Rule"
+        },
+        "updateMask": {
+          "type": "string"
+        }
+      }
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -91,111 +473,7 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "v1Action": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/v1ActionType",
-          "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
-        },
-        "params": {
-          "type": "object",
-          "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
-        }
-      },
-      "title": "An action to execute when a rule matches"
-    },
-    "v1ActionType": {
-      "type": "string",
-      "enum": [
-        "ACTION_TYPE_UNSPECIFIED",
-        "ACTION_TYPE_BLOCK",
-        "ACTION_TYPE_LOG",
-        "ACTION_TYPE_MODIFY_HEADER",
-        "ACTION_TYPE_REDIRECT",
-        "ACTION_TYPE_SET_TAG",
-        "ACTION_TYPE_ROUTE_TO"
-      ],
-      "default": "ACTION_TYPE_UNSPECIFIED"
-    },
-    "v1Condition": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "source": {
-          "$ref": "#/definitions/v1FieldSource",
-          "description": "@gotags: yaml:\"source\"",
-          "title": "The source of the field\nExample: \"User-Agent\" or \"country\""
-        },
-        "key": {
-          "type": "string",
-          "title": "@gotags: yaml:\"key\""
-        },
-        "operator": {
-          "$ref": "#/definitions/v1Operator",
-          "description": "@gotags: yaml:\"operator\"",
-          "title": "Supported operators: \"eq\", \"ne\", \"contains\",\n\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
-        },
-        "value": {
-          "description": "@gotags: yaml:\"value\"",
-          "title": "The value to compare against"
-        }
-      },
-      "title": "A logical condition expression"
-    },
-    "v1CreateRuleBasedRequest": {
-      "type": "object",
-      "properties": {
-        "rule": {
-          "$ref": "#/definitions/v1Rule"
-        }
-      }
-    },
-    "v1CreateRuleBasedResponse": {
-      "type": "object"
-    },
-    "v1FieldSource": {
-      "type": "string",
-      "enum": [
-        "FIELD_SOURCE_UNSPECIFIED",
-        "FIELD_SOURCE_HEADER",
-        "FIELD_SOURCE_QUERY",
-        "FIELD_SOURCE_PATH",
-        "FIELD_SOURCE_BODY",
-        "FIELD_SOURCE_IP",
-        "FIELD_SOURCE_JA4",
-        "FIELD_SOURCE_TLS",
-        "FIELD_SOURCE_METHOD",
-        "FIELD_SOURCE_HOST"
-      ],
-      "default": "FIELD_SOURCE_UNSPECIFIED",
-      "title": "The possible sources from which a field can be extracted in a request"
-    },
-    "v1Operator": {
-      "type": "string",
-      "enum": [
-        "OPERATOR_UNSPECIFIED",
-        "OPERATOR_EQ",
-        "OPERATOR_NE",
-        "OPERATOR_CONTAINS",
-        "OPERATOR_MATCHES",
-        "OPERATOR_IN",
-        "OPERATOR_PREFIX",
-        "OPERATOR_SUFFIX",
-        "OPERATOR_GT",
-        "OPERATOR_GTE",
-        "OPERATOR_LT",
-        "OPERATOR_LTE",
-        "OPERATOR_NOT_IN"
-      ],
-      "default": "OPERATOR_UNSPECIFIED"
-    },
-    "v1Rule": {
+    "ruleenginev1Rule": {
       "type": "object",
       "properties": {
         "id": {
@@ -240,11 +518,263 @@
       },
       "title": "A complete rule definition"
     },
+    "v1Action": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/v1ActionType",
+          "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
+        },
+        "params": {
+          "type": "object",
+          "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
+        }
+      },
+      "title": "An action to execute when a rule matches"
+    },
+    "v1ActionType": {
+      "type": "string",
+      "enum": [
+        "ACTION_TYPE_UNSPECIFIED",
+        "ACTION_TYPE_BLOCK",
+        "ACTION_TYPE_LOG",
+        "ACTION_TYPE_MODIFY_HEADER",
+        "ACTION_TYPE_REDIRECT",
+        "ACTION_TYPE_SET_TAG",
+        "ACTION_TYPE_ROUTE_TO"
+      ],
+      "default": "ACTION_TYPE_UNSPECIFIED"
+    },
+    "v1Condition": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/v1FieldSource",
+          "description": "@gotags: yaml:\"source\"",
+          "title": "The source of the field\nExample: \"User-Agent\" or \"country\""
+        },
+        "key": {
+          "type": "string",
+          "title": "@gotags: yaml:\"key\""
+        },
+        "operator": {
+          "$ref": "#/definitions/v1Operator",
+          "description": "@gotags: yaml:\"operator\"",
+          "title": "Supported operators: \"eq\", \"ne\", \"contains\",\n\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
+        },
+        "value": {
+          "description": "@gotags: yaml:\"value\"",
+          "title": "The value to compare against"
+        }
+      },
+      "title": "A logical condition expression"
+    },
+    "v1CreateExprRequest": {
+      "type": "object",
+      "properties": {
+        "expr": {
+          "$ref": "#/definitions/v1Expr"
+        }
+      }
+    },
+    "v1CreateExprResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CreateRuleRequest": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/ruleenginev1Rule"
+        }
+      }
+    },
+    "v1CreateRuleResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1DeleteExprResponse": {
+      "type": "object"
+    },
+    "v1DeleteRuleResponse": {
+      "type": "object"
+    },
+    "v1Expr": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "title": "@gotags: yaml:\"name\""
+        },
+        "description": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"enabled\""
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ruleenginev1Rule"
+          },
+          "title": "@gotags: yaml:\"rules\""
+        },
+        "logics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Logic"
+          },
+          "title": "@gotags: yaml:\"logics\""
+        }
+      },
+      "title": "A collection of rules (e.g., grouped by tenant or domain)"
+    },
+    "v1FieldSource": {
+      "type": "string",
+      "enum": [
+        "FIELD_SOURCE_UNSPECIFIED",
+        "FIELD_SOURCE_HEADER",
+        "FIELD_SOURCE_QUERY",
+        "FIELD_SOURCE_PATH",
+        "FIELD_SOURCE_BODY",
+        "FIELD_SOURCE_IP",
+        "FIELD_SOURCE_JA4",
+        "FIELD_SOURCE_TLS",
+        "FIELD_SOURCE_METHOD",
+        "FIELD_SOURCE_HOST"
+      ],
+      "default": "FIELD_SOURCE_UNSPECIFIED",
+      "title": "The possible sources from which a field can be extracted in a request"
+    },
+    "v1GetExprResponse": {
+      "type": "object",
+      "properties": {
+        "expr": {
+          "$ref": "#/definitions/v1Expr"
+        }
+      }
+    },
+    "v1GetRuleResponse": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/ruleenginev1Rule"
+        }
+      }
+    },
+    "v1ListExprsResponse": {
+      "type": "object",
+      "properties": {
+        "exprs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Expr"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1ListRulesResponse": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ruleenginev1Rule"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Logic": {
+      "type": "string",
+      "enum": [
+        "LOGIC_UNSPECIFIED",
+        "LOGIC_AND",
+        "LOGIC_OR"
+      ],
+      "default": "LOGIC_UNSPECIFIED"
+    },
+    "v1Operator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_UNSPECIFIED",
+        "OPERATOR_EQ",
+        "OPERATOR_NE",
+        "OPERATOR_CONTAINS",
+        "OPERATOR_MATCHES",
+        "OPERATOR_IN",
+        "OPERATOR_PREFIX",
+        "OPERATOR_SUFFIX",
+        "OPERATOR_GT",
+        "OPERATOR_GTE",
+        "OPERATOR_LT",
+        "OPERATOR_LTE",
+        "OPERATOR_NOT_IN"
+      ],
+      "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1Pages": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "type": "boolean"
+        }
+      }
+    },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
         "msg": {
           "type": "string"
+        }
+      }
+    },
+    "v1UpdateExprResponse": {
+      "type": "object",
+      "properties": {
+        "expr": {
+          "$ref": "#/definitions/v1Expr"
+        }
+      }
+    },
+    "v1UpdateRuleResponse": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/ruleenginev1Rule"
         }
       }
     }

@@ -16,16 +16,18 @@ syntax = "proto3";
 
 package sentinez.core.security.v1;
 
-// import "buf/validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
+import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Rule Service"
+    title: "Security Service"
     version: "1.0"
   }
   schemes: HTTP
@@ -54,24 +56,173 @@ option (sentinez.types.v1.x_meta) = {
   service_key: "sentinez.core.security.v1"
 };
 
-// SecurityService handles security rule resource management
+// SecurityService handles CRUD operations for WAF rule expressions and rules
 service SecurityService {
-  // Create custom rule based for resource
-  rpc CreateRuleBased(CreateRuleBasedRequest) returns (CreateRuleBasedResponse) {
+  // ── Expr ──────────────────────────────────────────────────────────────────
+
+  // CreateExpr creates a new WAF rule expression
+  rpc CreateExpr(CreateExprRequest) returns (CreateExprResponse) {
     option (google.api.http) = {
-      post: "/rule"
+      post: "/security/expr"
       body: "*"
     };
   }
 
-  rpc Status(StatusRequest) returns (StatusResponse) {}
+  // GetExpr retrieves a WAF rule expression by ID
+  rpc GetExpr(GetExprRequest) returns (GetExprResponse) {
+    option (google.api.http) = {get: "/security/expr/{id}"};
+  }
+
+  // UpdateExpr updates an existing WAF rule expression
+  rpc UpdateExpr(UpdateExprRequest) returns (UpdateExprResponse) {
+    option (google.api.http) = {
+      put: "/security/expr/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteExpr removes a WAF rule expression by ID
+  rpc DeleteExpr(DeleteExprRequest) returns (DeleteExprResponse) {
+    option (google.api.http) = {delete: "/security/expr/{id}"};
+  }
+
+  // ListExprs lists WAF rule expressions with optional filters
+  rpc ListExprs(ListExprsRequest) returns (ListExprsResponse) {
+    option (google.api.http) = {get: "/security/exprs"};
+  }
+
+  // ── Rule ──────────────────────────────────────────────────────────────────
+
+  // CreateRule creates a new security rule
+  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
+    option (google.api.http) = {
+      post: "/security/rule"
+      body: "*"
+    };
+  }
+
+  // GetRule retrieves a security rule by ID
+  rpc GetRule(GetRuleRequest) returns (GetRuleResponse) {
+    option (google.api.http) = {get: "/security/rule/{id}"};
+  }
+
+  // UpdateRule updates an existing security rule
+  rpc UpdateRule(UpdateRuleRequest) returns (UpdateRuleResponse) {
+    option (google.api.http) = {
+      put: "/security/rule/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteRule removes a security rule by ID
+  rpc DeleteRule(DeleteRuleRequest) returns (DeleteRuleResponse) {
+    option (google.api.http) = {delete: "/security/rule/{id}"};
+  }
+
+  // ListRules lists security rules with optional filters
+  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
+    option (google.api.http) = {get: "/security/rules"};
+  }
+
+  // ── Status ────────────────────────────────────────────────────────────────
+
+  // Status returns the health status of the security service
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {get: "/security/status"};
+
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
 }
 
-message CreateRuleBasedRequest {
+// ── Expr Messages ───────────────────────────────────────────────────────────
+
+message CreateExprRequest {
+  sentinez.types.secure.ruleengine.v1.Expr expr = 1 [(buf.validate.field).required = true];
+}
+
+message CreateExprResponse {
+  string id = 1;
+}
+
+message GetExprRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetExprResponse {
+  sentinez.types.secure.ruleengine.v1.Expr expr = 1;
+}
+
+message UpdateExprRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  sentinez.types.secure.ruleengine.v1.Expr expr = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateExprResponse {
+  sentinez.types.secure.ruleengine.v1.Expr expr = 1;
+}
+
+message DeleteExprRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteExprResponse {}
+
+message ListExprsRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+}
+
+message ListExprsResponse {
+  repeated sentinez.types.secure.ruleengine.v1.Expr exprs = 1;
+  int64 total = 2;
+}
+
+// ── Rule Messages ───────────────────────────────────────────────────────────
+
+message CreateRuleRequest {
+  sentinez.types.secure.ruleengine.v1.Rule rule = 1 [(buf.validate.field).required = true];
+}
+
+message CreateRuleResponse {
+  string id = 1;
+}
+
+message GetRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetRuleResponse {
   sentinez.types.secure.ruleengine.v1.Rule rule = 1;
 }
 
-message CreateRuleBasedResponse {}
+message UpdateRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  sentinez.types.secure.ruleengine.v1.Rule rule = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateRuleResponse {
+  sentinez.types.secure.ruleengine.v1.Rule rule = 1;
+}
+
+message DeleteRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteRuleResponse {}
+
+message ListRulesRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+}
+
+message ListRulesResponse {
+  repeated sentinez.types.secure.ruleengine.v1.Rule rules = 1;
+  int64 total = 2;
+}
+
+// ── Status Messages ─────────────────────────────────────────────────────────
 
 message StatusRequest {}
 
