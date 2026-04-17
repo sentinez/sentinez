@@ -15,6 +15,7 @@
 package edgeyaml
 
 import (
+	"encoding/json"
 	"os"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -22,6 +23,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 
 	"github.com/goccy/go-yaml"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Config struct {
@@ -34,10 +36,29 @@ func LoadSetting(appConf *confpb.Config) *edgepb.Setting {
 		zlog.Fatal(err)
 	}
 
-	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
+	var raw map[string]interface{}
+	if err := yaml.Unmarshal(data, &raw); err != nil {
 		zlog.Fatal(err)
 	}
 
-	return cfg.Setting
+	settingRaw, ok := raw["setting"]
+	if !ok {
+		zlog.Fatal("missing 'setting' in configuration")
+	}
+
+	settingJSON, err := json.Marshal(settingRaw)
+	if err != nil {
+		zlog.Fatal(err)
+	}
+
+	setting := &edgepb.Setting{}
+	unmarshaler := protojson.UnmarshalOptions{
+		DiscardUnknown: false,
+	}
+
+	if err := unmarshaler.Unmarshal(settingJSON, setting); err != nil {
+		zlog.Fatal(err)
+	}
+
+	return setting
 }

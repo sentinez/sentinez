@@ -18,6 +18,7 @@ import (
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
@@ -75,13 +76,22 @@ func (in *ingress) EvalExpr(
 	expr, ok := in.expr.Load(chain.GetId())
 	if !ok {
 		expr = newExpr(chain)
+		root, err := expr.build(in.matched)
+		if err != nil {
+			zlog.Errorf("[edge][%s] expr build error: %v", ctx.RequestId(), err)
+			return nil, false
+		}
+		expr.root = root
 		in.expr.Store(chain.GetId(), expr)
 	}
 
-	expr.tx.reset()
+	if expr.root == nil {
+		return nil, false
+	}
 
-	if ok = expr.build(in.matched).eval(ctx); ok {
-		return expr.tx.matched, ok
+	matched := &rulepb.MatchedRules{}
+	if ok = expr.root.eval(ctx, matched); ok {
+		return matched, ok
 	}
 
 	return nil, false

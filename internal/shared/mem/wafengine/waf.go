@@ -95,8 +95,8 @@ func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
 		return nil
 	}
 
-	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetTenantNs())
-	return w.Load(hCtx.GetTenantNs())
+	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetServerName())
+	return w.Load(hCtx.GetServerName())
 }
 
 func Store(rulePath string,

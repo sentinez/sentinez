@@ -386,6 +386,55 @@ func (x *EvaluateIngressResponse) GetResults() []*EvaluationResult {
 	return nil
 }
 
+// Context helps the edge identify which user is connected
+type Context struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// server_name server name of tenant
+	// example: dev.sentinez.test
+	//   - namespace: dev
+	//   - root: sentinez.test
+	ServerName    string `protobuf:"bytes,1,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Context) Reset() {
+	*x = Context{}
+	mi := &file_sentinez_edge_v1_edge_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Context) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Context) ProtoMessage() {}
+
+func (x *Context) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_edge_v1_edge_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Context.ProtoReflect.Descriptor instead.
+func (*Context) Descriptor() ([]byte, []int) {
+	return file_sentinez_edge_v1_edge_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Context) GetServerName() string {
+	if x != nil {
+		return x.ServerName
+	}
+	return ""
+}
+
 var File_sentinez_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
@@ -425,7 +474,10 @@ const file_sentinez_edge_v1_edge_proto_rawDesc = "" +
 	"\amatched\x18\x02 \x01(\bR\amatched\x12E\n" +
 	"\aactions\x18\x03 \x03(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\aactions\"W\n" +
 	"\x17EvaluateIngressResponse\x12<\n" +
-	"\aresults\x18\x01 \x03(\v2\".sentinez.edge.v1.EvaluationResultR\aresults2{\n" +
+	"\aresults\x18\x01 \x03(\v2\".sentinez.edge.v1.EvaluationResultR\aresults\"*\n" +
+	"\aContext\x12\x1f\n" +
+	"\vserver_name\x18\x01 \x01(\tR\n" +
+	"serverName2{\n" +
 	"\x11EdgeEngineService\x12f\n" +
 	"\x0fEvaluateIngress\x12(.sentinez.edge.v1.EvaluateIngressRequest\x1a).sentinez.edge.v1.EvaluateIngressResponseBk\x8a\xb2\x19&\n" +
 	"\x10SENTINEZ // EDGE\x10\x02\x1a\x10sentinez.edge.v1Z?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
@@ -442,22 +494,23 @@ func file_sentinez_edge_v1_edge_proto_rawDescGZIP() []byte {
 	return file_sentinez_edge_v1_edge_proto_rawDescData
 }
 
-var file_sentinez_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_sentinez_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_sentinez_edge_v1_edge_proto_goTypes = []any{
 	(*RequestContext)(nil),          // 0: sentinez.edge.v1.RequestContext
 	(*RequestQuery)(nil),            // 1: sentinez.edge.v1.RequestQuery
 	(*EvaluateIngressRequest)(nil),  // 2: sentinez.edge.v1.EvaluateIngressRequest
 	(*EvaluationResult)(nil),        // 3: sentinez.edge.v1.EvaluationResult
 	(*EvaluateIngressResponse)(nil), // 4: sentinez.edge.v1.EvaluateIngressResponse
-	nil,                             // 5: sentinez.edge.v1.RequestContext.HeaderEntry
-	nil,                             // 6: sentinez.edge.v1.RequestContext.QueriesEntry
-	(*v1.Action)(nil),               // 7: sentinez.types.secure.ruleengine.v1.Action
+	(*Context)(nil),                 // 5: sentinez.edge.v1.Context
+	nil,                             // 6: sentinez.edge.v1.RequestContext.HeaderEntry
+	nil,                             // 7: sentinez.edge.v1.RequestContext.QueriesEntry
+	(*v1.Action)(nil),               // 8: sentinez.types.secure.ruleengine.v1.Action
 }
 var file_sentinez_edge_v1_edge_proto_depIdxs = []int32{
-	5, // 0: sentinez.edge.v1.RequestContext.header:type_name -> sentinez.edge.v1.RequestContext.HeaderEntry
-	6, // 1: sentinez.edge.v1.RequestContext.queries:type_name -> sentinez.edge.v1.RequestContext.QueriesEntry
+	6, // 0: sentinez.edge.v1.RequestContext.header:type_name -> sentinez.edge.v1.RequestContext.HeaderEntry
+	7, // 1: sentinez.edge.v1.RequestContext.queries:type_name -> sentinez.edge.v1.RequestContext.QueriesEntry
 	0, // 2: sentinez.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.edge.v1.RequestContext
-	7, // 3: sentinez.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
+	8, // 3: sentinez.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
 	3, // 4: sentinez.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.edge.v1.EvaluationResult
 	1, // 5: sentinez.edge.v1.RequestContext.QueriesEntry.value:type_name -> sentinez.edge.v1.RequestQuery
 	2, // 6: sentinez.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.edge.v1.EvaluateIngressRequest
@@ -480,7 +533,7 @@ func file_sentinez_edge_v1_edge_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_edge_proto_rawDesc), len(file_sentinez_edge_v1_edge_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

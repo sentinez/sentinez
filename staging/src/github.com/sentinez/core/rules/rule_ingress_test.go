@@ -383,6 +383,51 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 			},
 			expect: false,
 		},
+		{
+			name: "MIXED: A OR (B AND C AND D) OR E with short-circuiting",
+			// A (false), B (true), C (true), D (true), E (false) --> Expected: true
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/false-path"), // A = false
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"), // B = true
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"), // C = true
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"), // D = true
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"), // E = false
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_OR,
+				ruleenginepb.Logic_LOGIC_AND,
+				ruleenginepb.Logic_LOGIC_AND,
+				ruleenginepb.Logic_LOGIC_OR,
+			},
+			expect: true,
+		},
+		{
+			name: "MIXED: A OR (B AND C AND D) OR E but B is false",
+			// A (false), B (false), C (true), D (true), E (false) --> Expected: false
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/false-path"), // A = false
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/false-path"), // B = false (breaking AND chain)
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"), // C = true
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"), // D = true
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"), // E = false
+			},
+			logics: []ruleenginepb.Logic{
+				ruleenginepb.Logic_LOGIC_OR,
+				ruleenginepb.Logic_LOGIC_AND,
+				ruleenginepb.Logic_LOGIC_AND,
+				ruleenginepb.Logic_LOGIC_OR,
+			},
+			expect: false,
+		},
+		{
+			name: "ERROR: Mismatched logics returning false (bypassed)",
+			rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+			},
+			logics: []ruleenginepb.Logic{}, // Missing logics
+			expect: false, // returns false on structural error
+		},
 	}
 
 	ig := NewIngress()

@@ -37,16 +37,111 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type BalanceStrategy int32
+
+const (
+	BalanceStrategy_BALANCE_STRATEGY_UNSPECIFIED BalanceStrategy = 0
+	BalanceStrategy_BALANCE_STRATEGY_ROUND_ROBIN BalanceStrategy = 1
+)
+
+// Enum value maps for BalanceStrategy.
+var (
+	BalanceStrategy_name = map[int32]string{
+		0: "BALANCE_STRATEGY_UNSPECIFIED",
+		1: "BALANCE_STRATEGY_ROUND_ROBIN",
+	}
+	BalanceStrategy_value = map[string]int32{
+		"BALANCE_STRATEGY_UNSPECIFIED": 0,
+		"BALANCE_STRATEGY_ROUND_ROBIN": 1,
+	}
+)
+
+func (x BalanceStrategy) Enum() *BalanceStrategy {
+	p := new(BalanceStrategy)
+	*p = x
+	return p
+}
+
+func (x BalanceStrategy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BalanceStrategy) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_edge_v1_setting_proto_enumTypes[0].Descriptor()
+}
+
+func (BalanceStrategy) Type() protoreflect.EnumType {
+	return &file_sentinez_edge_v1_setting_proto_enumTypes[0]
+}
+
+func (x BalanceStrategy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BalanceStrategy.Descriptor instead.
+func (BalanceStrategy) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{0}
+}
+
+type ProxyProtocol int32
+
+const (
+	ProxyProtocol_PROXY_PROTOCOL_UNSPECIFIED ProxyProtocol = 0
+	ProxyProtocol_PROXY_PROTOCOL_HTTP        ProxyProtocol = 1
+	ProxyProtocol_PROXY_PROTOCOL_HTTPS       ProxyProtocol = 2
+)
+
+// Enum value maps for ProxyProtocol.
+var (
+	ProxyProtocol_name = map[int32]string{
+		0: "PROXY_PROTOCOL_UNSPECIFIED",
+		1: "PROXY_PROTOCOL_HTTP",
+		2: "PROXY_PROTOCOL_HTTPS",
+	}
+	ProxyProtocol_value = map[string]int32{
+		"PROXY_PROTOCOL_UNSPECIFIED": 0,
+		"PROXY_PROTOCOL_HTTP":        1,
+		"PROXY_PROTOCOL_HTTPS":       2,
+	}
+)
+
+func (x ProxyProtocol) Enum() *ProxyProtocol {
+	p := new(ProxyProtocol)
+	*p = x
+	return p
+}
+
+func (x ProxyProtocol) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProxyProtocol) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_edge_v1_setting_proto_enumTypes[1].Descriptor()
+}
+
+func (ProxyProtocol) Type() protoreflect.EnumType {
+	return &file_sentinez_edge_v1_setting_proto_enumTypes[1]
+}
+
+func (x ProxyProtocol) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProxyProtocol.Descriptor instead.
+func (ProxyProtocol) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{1}
+}
+
 // Setting edge setting per user
 type Setting struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Metadata       *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty" yaml:"metadata"`                                   // @gotags: yaml:"metadata"
-	Origin         *Origin                `protobuf:"bytes,2,opt,name=origin,proto3" json:"origin,omitempty" yaml:"origin"`                                       // @gotags: yaml:"origin"
-	Security       *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty" yaml:"security"`                                   // @gotags: yaml:"security"
-	TrafficControl *TrafficControl        `protobuf:"bytes,4,opt,name=traffic_control,json=trafficControl,proto3" json:"traffic_control,omitempty" yaml:"trafficControl"` // @gotags: yaml:"trafficControl"
-	Personal       *Personalization       `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty" yaml:"personal"`                                   // @gotags: yaml:"personal"
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty" yaml:"metadata"`     // @gotags: yaml:"metadata"
+	Server        *Server                `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`         // @gotags: yaml:"server"
+	Security      *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty" yaml:"security"`     // @gotags: yaml:"security"
+	Controller    *Controller            `protobuf:"bytes,4,opt,name=controller,proto3" json:"controller,omitempty" yaml:"controller"` // @gotags: yaml:"controller"
+	Personal      *Personal              `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty" yaml:"personal"`     // @gotags: yaml:"personal"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Setting) Reset() {
@@ -86,9 +181,9 @@ func (x *Setting) GetMetadata() *Metadata {
 	return nil
 }
 
-func (x *Setting) GetOrigin() *Origin {
+func (x *Setting) GetServer() *Server {
 	if x != nil {
-		return x.Origin
+		return x.Server
 	}
 	return nil
 }
@@ -100,14 +195,14 @@ func (x *Setting) GetSecurity() *Security {
 	return nil
 }
 
-func (x *Setting) GetTrafficControl() *TrafficControl {
+func (x *Setting) GetController() *Controller {
 	if x != nil {
-		return x.TrafficControl
+		return x.Controller
 	}
 	return nil
 }
 
-func (x *Setting) GetPersonal() *Personalization {
+func (x *Setting) GetPersonal() *Personal {
 	if x != nil {
 		return x.Personal
 	}
@@ -151,29 +246,30 @@ func (*Metadata) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{1}
 }
 
-// Origin defines where the request goes and how the edge processes it:
-type Origin struct {
+// Server defines where the request goes and how the edge processes it:
+type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty" yaml:"namespace"` // @gotags: yaml:"namespace"
-	Routes        []*OriginRoute         `protobuf:"bytes,2,rep,name=routes,proto3" json:"routes,omitempty" yaml:"routes"`       // @gotags: yaml:"routes"
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`             // @gotags: yaml:"name"
+	Listen        []uint32               `protobuf:"varint,2,rep,packed,name=listen,proto3" json:"listen,omitempty" yaml:"listen"` // @gotags: yaml:"listen"
+	Locations     []*Location            `protobuf:"bytes,3,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"`   // @gotags: yaml:"locations"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Origin) Reset() {
-	*x = Origin{}
+func (x *Server) Reset() {
+	*x = Server{}
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Origin) String() string {
+func (x *Server) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Origin) ProtoMessage() {}
+func (*Server) ProtoMessage() {}
 
-func (x *Origin) ProtoReflect() protoreflect.Message {
+func (x *Server) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -185,49 +281,57 @@ func (x *Origin) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Origin.ProtoReflect.Descriptor instead.
-func (*Origin) Descriptor() ([]byte, []int) {
+// Deprecated: Use Server.ProtoReflect.Descriptor instead.
+func (*Server) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Origin) GetNamespace() string {
+func (x *Server) GetName() string {
 	if x != nil {
-		return x.Namespace
+		return x.Name
 	}
 	return ""
 }
 
-func (x *Origin) GetRoutes() []*OriginRoute {
+func (x *Server) GetListen() []uint32 {
 	if x != nil {
-		return x.Routes
+		return x.Listen
 	}
 	return nil
 }
 
-type OriginRoute struct {
+func (x *Server) GetLocations() []*Location {
+	if x != nil {
+		return x.Locations
+	}
+	return nil
+}
+
+type Location struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Location        string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty" yaml:"location"`                                                                                                                  // @gotags: yaml:"location"
-	Rewrite         string                 `protobuf:"bytes,2,opt,name=rewrite,proto3" json:"rewrite,omitempty" yaml:"rewrite"`                                                                                                                    // @gotags: yaml:"rewrite"
-	ProxyPass       string                 `protobuf:"bytes,3,opt,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty" yaml:"proxyPass"`                                                                                               // @gotags: yaml:"proxyPass"
-	ProxySetHeaders map[string]string      `protobuf:"bytes,4,rep,name=proxy_set_headers,json=proxySetHeaders,proto3" json:"proxy_set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" yaml:"proxySetHeaders"` // @gotags: yaml:"proxySetHeaders"
+	ProxyRewrite    string                 `protobuf:"bytes,2,opt,name=proxy_rewrite,json=proxyRewrite,proto3" json:"proxy_rewrite,omitempty" yaml:"proxyRewrite"`                                                                                      // @gotags: yaml:"proxyRewrite"
+	ProxyPass       []*Upstream            `protobuf:"bytes,3,rep,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty" yaml:"proxyPass"`                                                                                               // @gotags: yaml:"proxyPass"
+	BalanceStrategy BalanceStrategy        `protobuf:"varint,4,opt,name=balance_strategy,json=balanceStrategy,proto3,enum=sentinez.edge.v1.BalanceStrategy" json:"balance_strategy,omitempty" yaml:"balanceStrategy"`                                      // @gotags: yaml:"balanceStrategy"
+	ProxySetHeaders map[string]string      `protobuf:"bytes,5,rep,name=proxy_set_headers,json=proxySetHeaders,proto3" json:"proxy_set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" yaml:"proxySetHeaders"` // @gotags: yaml:"proxySetHeaders"
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *OriginRoute) Reset() {
-	*x = OriginRoute{}
+func (x *Location) Reset() {
+	*x = Location{}
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OriginRoute) String() string {
+func (x *Location) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OriginRoute) ProtoMessage() {}
+func (*Location) ProtoMessage() {}
 
-func (x *OriginRoute) ProtoReflect() protoreflect.Message {
+func (x *Location) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -239,33 +343,40 @@ func (x *OriginRoute) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OriginRoute.ProtoReflect.Descriptor instead.
-func (*OriginRoute) Descriptor() ([]byte, []int) {
+// Deprecated: Use Location.ProtoReflect.Descriptor instead.
+func (*Location) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *OriginRoute) GetLocation() string {
+func (x *Location) GetLocation() string {
 	if x != nil {
 		return x.Location
 	}
 	return ""
 }
 
-func (x *OriginRoute) GetRewrite() string {
+func (x *Location) GetProxyRewrite() string {
 	if x != nil {
-		return x.Rewrite
+		return x.ProxyRewrite
 	}
 	return ""
 }
 
-func (x *OriginRoute) GetProxyPass() string {
+func (x *Location) GetProxyPass() []*Upstream {
 	if x != nil {
 		return x.ProxyPass
 	}
-	return ""
+	return nil
 }
 
-func (x *OriginRoute) GetProxySetHeaders() map[string]string {
+func (x *Location) GetBalanceStrategy() BalanceStrategy {
+	if x != nil {
+		return x.BalanceStrategy
+	}
+	return BalanceStrategy_BALANCE_STRATEGY_UNSPECIFIED
+}
+
+func (x *Location) GetProxySetHeaders() map[string]string {
 	if x != nil {
 		return x.ProxySetHeaders
 	}
@@ -277,8 +388,8 @@ type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IsWafEngineOn bool                   `protobuf:"varint,1,opt,name=is_waf_engine_on,json=isWafEngineOn,proto3" json:"is_waf_engine_on,omitempty" yaml:"isWafEngineOn"`  // @gotags: yaml:"isWafEngineOn"
 	Expression    *v1.ExprLite           `protobuf:"bytes,2,opt,name=expression,proto3" json:"expression,omitempty" yaml:"expression"`                                  // @gotags: yaml:"expression"
-	Rule          *v1.Rule               `protobuf:"bytes,3,opt,name=rule,proto3" json:"rule,omitempty" yaml:"rule"`                                              // @gotags: yaml:"rule"
-	Expr          *v1.Expr               `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty" yaml:"expr"`                                              // @gotags: yaml:"expr"
+	Rule          *v1.Rule               `protobuf:"bytes,3,opt,name=rule,proto3" json:"rule,omitempty" yaml:"-"`                                              // @gotags: yaml:"-"
+	Expr          *v1.Expr               `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty" yaml:"-"`                                              // @gotags: yaml:"-"
 	IsRateLimitOn bool                   `protobuf:"varint,10,opt,name=is_rate_limit_on,json=isRateLimitOn,proto3" json:"is_rate_limit_on,omitempty" yaml:"isRateLimitOn"` //@gotags: yaml:"isRateLimitOn"
 	TimeWindow    string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`               //@gotags: yaml:"timeWindow"
 	Limit         int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                          //@gotags: yaml:"limit"
@@ -373,27 +484,27 @@ func (x *Security) GetTimeout() string {
 	return ""
 }
 
-// TrafficControl for systems using a virtual waiting room or throttling:
-type TrafficControl struct {
+// Controller for systems using a virtual waiting room or throttling:
+type Controller struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TrafficControl) Reset() {
-	*x = TrafficControl{}
+func (x *Controller) Reset() {
+	*x = Controller{}
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TrafficControl) String() string {
+func (x *Controller) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TrafficControl) ProtoMessage() {}
+func (*Controller) ProtoMessage() {}
 
-func (x *TrafficControl) ProtoReflect() protoreflect.Message {
+func (x *Controller) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -405,32 +516,32 @@ func (x *TrafficControl) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TrafficControl.ProtoReflect.Descriptor instead.
-func (*TrafficControl) Descriptor() ([]byte, []int) {
+// Deprecated: Use Controller.ProtoReflect.Descriptor instead.
+func (*Controller) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{5}
 }
 
-// Personalization defines where the request goes and how the edge processes it
-type Personalization struct {
+// Personal defines where the request goes and how the edge processes it
+type Personal struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Personalization) Reset() {
-	*x = Personalization{}
+func (x *Personal) Reset() {
+	*x = Personal{}
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Personalization) String() string {
+func (x *Personal) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Personalization) ProtoMessage() {}
+func (*Personal) ProtoMessage() {}
 
-func (x *Personalization) ProtoReflect() protoreflect.Message {
+func (x *Personal) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -442,37 +553,33 @@ func (x *Personalization) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Personalization.ProtoReflect.Descriptor instead.
-func (*Personalization) Descriptor() ([]byte, []int) {
+// Deprecated: Use Personal.ProtoReflect.Descriptor instead.
+func (*Personal) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{6}
 }
 
-// Context helps the edge identify which user is connected
-type Context struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant_ns namespace of tenant
-	// example: dev.sentinez.test
-	//   - namespace: dev
-	//   - root: sentinez.test
-	TenantNs      string `protobuf:"bytes,1,opt,name=tenant_ns,json=tenantNs,proto3" json:"tenant_ns,omitempty"`
+type Upstream struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`                                          // @gotags: yaml:"server"
+	Protocol      ProxyProtocol          `protobuf:"varint,2,opt,name=protocol,proto3,enum=sentinez.edge.v1.ProxyProtocol" json:"protocol,omitempty" yaml:"protocol"` // @gotags: yaml:"protocol"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Context) Reset() {
-	*x = Context{}
+func (x *Upstream) Reset() {
+	*x = Upstream{}
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Context) String() string {
+func (x *Upstream) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Context) ProtoMessage() {}
+func (*Upstream) ProtoMessage() {}
 
-func (x *Context) ProtoReflect() protoreflect.Message {
+func (x *Upstream) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_edge_v1_setting_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -484,40 +591,51 @@ func (x *Context) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Context.ProtoReflect.Descriptor instead.
-func (*Context) Descriptor() ([]byte, []int) {
+// Deprecated: Use Upstream.ProtoReflect.Descriptor instead.
+func (*Upstream) Descriptor() ([]byte, []int) {
 	return file_sentinez_edge_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *Context) GetTenantNs() string {
+func (x *Upstream) GetServer() string {
 	if x != nil {
-		return x.TenantNs
+		return x.Server
 	}
 	return ""
+}
+
+func (x *Upstream) GetProtocol() ProxyProtocol {
+	if x != nil {
+		return x.Protocol
+	}
+	return ProxyProtocol_PROXY_PROTOCOL_UNSPECIFIED
 }
 
 var File_sentinez_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"\xb5\x02\n" +
+	"\x1esentinez/edge/v1/setting.proto\x12\x10sentinez.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"\xa1\x02\n" +
 	"\aSetting\x126\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1a.sentinez.edge.v1.MetadataR\bmetadata\x120\n" +
-	"\x06origin\x18\x02 \x01(\v2\x18.sentinez.edge.v1.OriginR\x06origin\x126\n" +
-	"\bsecurity\x18\x03 \x01(\v2\x1a.sentinez.edge.v1.SecurityR\bsecurity\x12I\n" +
-	"\x0ftraffic_control\x18\x04 \x01(\v2 .sentinez.edge.v1.TrafficControlR\x0etrafficControl\x12=\n" +
-	"\bpersonal\x18\x05 \x01(\v2!.sentinez.edge.v1.PersonalizationR\bpersonal\"\n" +
+	"\x06server\x18\x02 \x01(\v2\x18.sentinez.edge.v1.ServerR\x06server\x126\n" +
+	"\bsecurity\x18\x03 \x01(\v2\x1a.sentinez.edge.v1.SecurityR\bsecurity\x12<\n" +
 	"\n" +
-	"\bMetadata\"]\n" +
-	"\x06Origin\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x125\n" +
-	"\x06routes\x18\x02 \x03(\v2\x1d.sentinez.edge.v1.OriginRouteR\x06routes\"\x86\x02\n" +
-	"\vOriginRoute\x12\x1a\n" +
-	"\blocation\x18\x01 \x01(\tR\blocation\x12\x18\n" +
-	"\arewrite\x18\x02 \x01(\tR\arewrite\x12\x1d\n" +
+	"controller\x18\x04 \x01(\v2\x1c.sentinez.edge.v1.ControllerR\n" +
+	"controller\x126\n" +
+	"\bpersonal\x18\x05 \x01(\v2\x1a.sentinez.edge.v1.PersonalR\bpersonal\"\n" +
 	"\n" +
-	"proxy_pass\x18\x03 \x01(\tR\tproxyPass\x12^\n" +
-	"\x11proxy_set_headers\x18\x04 \x03(\v22.sentinez.edge.v1.OriginRoute.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
+	"\bMetadata\"\x85\x01\n" +
+	"\x06Server\x12)\n" +
+	"\x04name\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12\x16\n" +
+	"\x06listen\x18\x02 \x03(\rR\x06listen\x128\n" +
+	"\tlocations\x18\x03 \x03(\v2\x1a.sentinez.edge.v1.LocationR\tlocations\"\x91\x03\n" +
+	"\bLocation\x12(\n" +
+	"\blocation\x18\x01 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\blocation\x121\n" +
+	"\rproxy_rewrite\x18\x02 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\fproxyRewrite\x129\n" +
+	"\n" +
+	"proxy_pass\x18\x03 \x03(\v2\x1a.sentinez.edge.v1.UpstreamR\tproxyPass\x12L\n" +
+	"\x10balance_strategy\x18\x04 \x01(\x0e2!.sentinez.edge.v1.BalanceStrategyR\x0fbalanceStrategy\x12[\n" +
+	"\x11proxy_set_headers\x18\x05 \x03(\v2/.sentinez.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xea\x03\n" +
@@ -533,11 +651,21 @@ const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12\x14\n" +
 	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
-	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"\x10\n" +
-	"\x0eTrafficControl\"\x11\n" +
-	"\x0fPersonalization\"&\n" +
-	"\aContext\x12\x1b\n" +
-	"\ttenant_ns\x18\x01 \x01(\tR\btenantNsBAZ?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
+	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"\f\n" +
+	"\n" +
+	"Controller\"\n" +
+	"\n" +
+	"\bPersonal\"\xe4\x01\n" +
+	"\bUpstream\x12\x9a\x01\n" +
+	"\x06server\x18\x01 \x01(\tB\x81\x01\xbaH~r|2z^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}))$R\x06server\x12;\n" +
+	"\bprotocol\x18\x02 \x01(\x0e2\x1f.sentinez.edge.v1.ProxyProtocolR\bprotocol*U\n" +
+	"\x0fBalanceStrategy\x12 \n" +
+	"\x1cBALANCE_STRATEGY_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cBALANCE_STRATEGY_ROUND_ROBIN\x10\x01*b\n" +
+	"\rProxyProtocol\x12\x1e\n" +
+	"\x1aPROXY_PROTOCOL_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13PROXY_PROTOCOL_HTTP\x10\x01\x12\x18\n" +
+	"\x14PROXY_PROTOCOL_HTTPS\x10\x02BAZ?github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;edgepbb\x06proto3"
 
 var (
 	file_sentinez_edge_v1_setting_proto_rawDescOnce sync.Once
@@ -551,37 +679,43 @@ func file_sentinez_edge_v1_setting_proto_rawDescGZIP() []byte {
 	return file_sentinez_edge_v1_setting_proto_rawDescData
 }
 
+var file_sentinez_edge_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_sentinez_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_sentinez_edge_v1_setting_proto_goTypes = []any{
-	(*Setting)(nil),         // 0: sentinez.edge.v1.Setting
-	(*Metadata)(nil),        // 1: sentinez.edge.v1.Metadata
-	(*Origin)(nil),          // 2: sentinez.edge.v1.Origin
-	(*OriginRoute)(nil),     // 3: sentinez.edge.v1.OriginRoute
-	(*Security)(nil),        // 4: sentinez.edge.v1.Security
-	(*TrafficControl)(nil),  // 5: sentinez.edge.v1.TrafficControl
-	(*Personalization)(nil), // 6: sentinez.edge.v1.Personalization
-	(*Context)(nil),         // 7: sentinez.edge.v1.Context
-	nil,                     // 8: sentinez.edge.v1.OriginRoute.ProxySetHeadersEntry
-	(*v1.ExprLite)(nil),     // 9: sentinez.types.secure.ruleengine.v1.ExprLite
-	(*v1.Rule)(nil),         // 10: sentinez.types.secure.ruleengine.v1.Rule
-	(*v1.Expr)(nil),         // 11: sentinez.types.secure.ruleengine.v1.Expr
+	(BalanceStrategy)(0), // 0: sentinez.edge.v1.BalanceStrategy
+	(ProxyProtocol)(0),   // 1: sentinez.edge.v1.ProxyProtocol
+	(*Setting)(nil),      // 2: sentinez.edge.v1.Setting
+	(*Metadata)(nil),     // 3: sentinez.edge.v1.Metadata
+	(*Server)(nil),       // 4: sentinez.edge.v1.Server
+	(*Location)(nil),     // 5: sentinez.edge.v1.Location
+	(*Security)(nil),     // 6: sentinez.edge.v1.Security
+	(*Controller)(nil),   // 7: sentinez.edge.v1.Controller
+	(*Personal)(nil),     // 8: sentinez.edge.v1.Personal
+	(*Upstream)(nil),     // 9: sentinez.edge.v1.Upstream
+	nil,                  // 10: sentinez.edge.v1.Location.ProxySetHeadersEntry
+	(*v1.ExprLite)(nil),  // 11: sentinez.types.secure.ruleengine.v1.ExprLite
+	(*v1.Rule)(nil),      // 12: sentinez.types.secure.ruleengine.v1.Rule
+	(*v1.Expr)(nil),      // 13: sentinez.types.secure.ruleengine.v1.Expr
 }
 var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
-	1,  // 0: sentinez.edge.v1.Setting.metadata:type_name -> sentinez.edge.v1.Metadata
-	2,  // 1: sentinez.edge.v1.Setting.origin:type_name -> sentinez.edge.v1.Origin
-	4,  // 2: sentinez.edge.v1.Setting.security:type_name -> sentinez.edge.v1.Security
-	5,  // 3: sentinez.edge.v1.Setting.traffic_control:type_name -> sentinez.edge.v1.TrafficControl
-	6,  // 4: sentinez.edge.v1.Setting.personal:type_name -> sentinez.edge.v1.Personalization
-	3,  // 5: sentinez.edge.v1.Origin.routes:type_name -> sentinez.edge.v1.OriginRoute
-	8,  // 6: sentinez.edge.v1.OriginRoute.proxy_set_headers:type_name -> sentinez.edge.v1.OriginRoute.ProxySetHeadersEntry
-	9,  // 7: sentinez.edge.v1.Security.expression:type_name -> sentinez.types.secure.ruleengine.v1.ExprLite
-	10, // 8: sentinez.edge.v1.Security.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	11, // 9: sentinez.edge.v1.Security.expr:type_name -> sentinez.types.secure.ruleengine.v1.Expr
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	3,  // 0: sentinez.edge.v1.Setting.metadata:type_name -> sentinez.edge.v1.Metadata
+	4,  // 1: sentinez.edge.v1.Setting.server:type_name -> sentinez.edge.v1.Server
+	6,  // 2: sentinez.edge.v1.Setting.security:type_name -> sentinez.edge.v1.Security
+	7,  // 3: sentinez.edge.v1.Setting.controller:type_name -> sentinez.edge.v1.Controller
+	8,  // 4: sentinez.edge.v1.Setting.personal:type_name -> sentinez.edge.v1.Personal
+	5,  // 5: sentinez.edge.v1.Server.locations:type_name -> sentinez.edge.v1.Location
+	9,  // 6: sentinez.edge.v1.Location.proxy_pass:type_name -> sentinez.edge.v1.Upstream
+	0,  // 7: sentinez.edge.v1.Location.balance_strategy:type_name -> sentinez.edge.v1.BalanceStrategy
+	10, // 8: sentinez.edge.v1.Location.proxy_set_headers:type_name -> sentinez.edge.v1.Location.ProxySetHeadersEntry
+	11, // 9: sentinez.edge.v1.Security.expression:type_name -> sentinez.types.secure.ruleengine.v1.ExprLite
+	12, // 10: sentinez.edge.v1.Security.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	13, // 11: sentinez.edge.v1.Security.expr:type_name -> sentinez.types.secure.ruleengine.v1.Expr
+	1,  // 12: sentinez.edge.v1.Upstream.protocol:type_name -> sentinez.edge.v1.ProxyProtocol
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_edge_v1_setting_proto_init() }
@@ -594,13 +728,14 @@ func file_sentinez_edge_v1_setting_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_edge_v1_setting_proto_rawDesc), len(file_sentinez_edge_v1_setting_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_edge_v1_setting_proto_goTypes,
 		DependencyIndexes: file_sentinez_edge_v1_setting_proto_depIdxs,
+		EnumInfos:         file_sentinez_edge_v1_setting_proto_enumTypes,
 		MessageInfos:      file_sentinez_edge_v1_setting_proto_msgTypes,
 	}.Build()
 	File_sentinez_edge_v1_setting_proto = out.File

@@ -36,7 +36,7 @@ var (
 func NewRouter() *Router {
 	once.Do(func() {
 		inst = &Router{
-			routes: ssync.NewMap[string, []*edgepb.OriginRoute](),
+			routes: ssync.NewMap[string, []*edgepb.Location](),
 		}
 	})
 
@@ -48,27 +48,27 @@ func GetRouter() *Router {
 }
 
 type Router struct {
-	routes *ssync.Map[string, []*edgepb.OriginRoute]
+	routes *ssync.Map[string, []*edgepb.Location]
 }
 
 // nolint:funlen
-func (r *Router) Store(origin *edgepb.Origin) {
-	if len(origin.Routes) == 0 {
+func (r *Router) Store(server *edgepb.Server) {
+	if len(server.Locations) == 0 {
 		return
 	}
 
-	var validRoutes []*edgepb.OriginRoute
-	for _, routeConfig := range origin.Routes {
+	var validRoutes []*edgepb.Location
+	for _, routeConfig := range server.Locations {
 		zlog.Debugf(
 			"[edge] ns=%s %s -> %s (rewrite: %s)",
-			origin.Namespace, routeConfig.Location,
-			routeConfig.ProxyPass, routeConfig.Rewrite,
+			server.Name, routeConfig.Location,
+			routeConfig.ProxyPass, routeConfig.ProxyRewrite,
 		)
 
-		route := &edgepb.OriginRoute{
+		route := &edgepb.Location{
 			Location:        routeConfig.Location,
 			ProxyPass:       routeConfig.ProxyPass,
-			Rewrite:         routeConfig.Rewrite,
+			ProxyRewrite:    routeConfig.ProxyRewrite,
 			ProxySetHeaders: make(map[string]string),
 		}
 
@@ -78,13 +78,13 @@ func (r *Router) Store(origin *edgepb.Origin) {
 			} else {
 				zlog.Warnf(
 					"invalid proxy header %q in ns=%q location=%q, ignoring",
-					k, origin.Namespace, routeConfig.Location,
+					k, server.Name, routeConfig.Location,
 				)
 			}
 		}
 
-		if route.Rewrite == "" {
-			route.Rewrite = route.Location
+		if route.ProxyRewrite == "" {
+			route.ProxyRewrite = route.Location
 		}
 
 		validRoutes = append(validRoutes, route)
@@ -96,20 +96,20 @@ func (r *Router) Store(origin *edgepb.Origin) {
 		return len(validRoutes[i].Location) > len(validRoutes[j].Location)
 	})
 
-	r.routes.Store(origin.Namespace, validRoutes)
+	r.routes.Store(server.Name, validRoutes)
 }
 
 // nolint:funlen
 func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	hCtx, ok := corehttp.GetRequestContext(ctx)
-	if !ok || hCtx.GetTenantNs() == "" {
-		return "", errorx.F("unknown namespace of request")
+	if !ok || hCtx.GetServerName() == "" {
+		return "", errorx.F("unknown server name of request")
 	}
 
-	ns := hCtx.GetTenantNs()
+	serverName := hCtx.GetServerName()
 	path := ctx.Path()
 
-	routes, ok := r.routes.Load(ns)
+	routes, ok := r.routes.Load(serverName)
 	if !ok {
 		return "", errorx.F("not found: %s", path)
 	}
@@ -118,12 +118,12 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 		if strings.HasPrefix(path, route.Location) {
 			zlog.Debugf(
 				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-				ns, route.Rewrite, route.ProxyPass, route.Location,
+				serverName, route.ProxyRewrite, route.ProxyPass, route.Location,
 			)
 
 			// path = /api/v1/users, location = /api, rewrite = /v1
 			// remainingPath = /v1 + /v1/users = /v1/v1/users
-			remainingPath := route.Rewrite +
+			remainingPath := route.ProxyRewrite +
 				strings.TrimPrefix(path, route.Location)
 			ctx.SetPath(remainingPath)
 
@@ -140,14 +140,14 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 				ctx.SetHeader(hk, val)
 			}
 
-			return route.ProxyPass, nil
+			return route.GetProxyPass()[0].GetServer(), nil
 		}
 	}
 
 	return "", errorx.F("not found: %s", path)
 }
 
-func Store(origin *edgepb.Origin) {
+func Store(server *edgepb.Server) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -155,5 +155,5 @@ func Store(origin *edgepb.Origin) {
 		inst = NewRouter()
 	}
 
-	inst.Store(origin)
+	inst.Store(server)
 }

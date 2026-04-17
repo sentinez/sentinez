@@ -15,27 +15,15 @@
 package corerule
 
 import (
+	"fmt"
+
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
-type tx struct {
-	matched *rulepb.MatchedRules
-}
-
-func (t *tx) reset() {
-	if t.matched == nil {
-		return
-	}
-
-	t.matched.Ids = t.matched.Ids[:0]
-
-	t.matched.Names = t.matched.Names[:0]
-}
-
 type exprs struct {
 	chain *rulepb.Expr
-	tx    *tx
+	root  *node
 }
 
 // Example context:
@@ -59,82 +47,58 @@ type exprs struct {
 //	a || (b && c && d)
 //
 //nolint:funlen
-func (ex *exprs) build(exec MatchedFunc) *node {
+func (ex *exprs) build(exec MatchedFunc) (*node, error) {
 
-	// Get the list of rules and logical operators (AND / OR)
 	rules := ex.chain.GetRules()
 	logics := ex.chain.GetLogics()
 
-	// Sanity check: in a valid expression,
-	// the number of logics = number of rules - 1
-	if len(logics)+1 != len(rules) {
-		return nil
+	if len(rules) == 0 {
+		return nil, fmt.Errorf("expression contains no rules")
 	}
 
-	// Step 1: Convert all rules into leaf nodes in the logic tree.
-	// Each rule becomes a node that can execute and return true/false.
+	if len(logics)+1 != len(rules) {
+		return nil, fmt.Errorf(
+			"invalid expression: %d rules, %d logics",
+			len(rules), len(logics))
+	}
+
 	nodes := make([]*node, len(rules))
 	for i, r := range rules {
-		// idx := i // capture index for logging
-		nodes[i] = newNode(func(ctx chttp.RequestContext) bool {
-			id, name, ok := exec(ctx, r)
-			if ok {
-				ex.tx.matched.Ids = append(ex.tx.matched.Ids, id)
-				ex.tx.matched.Names = append(ex.tx.matched.Names, name)
-			}
-
-			return ok
-		})
+		nodes[i] = newNode(
+			func(ctx chttp.RequestContext, out *rulepb.MatchedRules) bool {
+				id, name, ok := exec(ctx, r)
+				if ok && out != nil {
+					out.Ids = append(out.Ids, id)
+					out.Names = append(out.Names, name)
+				}
+				return ok
+			})
 	}
 
-	// Step 2: Start building the tree from the leftmost node.
-	current := nodes[0]
-	i := 1
+	var stack []*node
+	stack = append(stack, nodes[0])
 
-	// Step 3: Iterate through all logic operators to combine nodes.
-	for i < len(nodes) {
+	for i := 1; i < len(nodes); i++ {
 		op := logics[i-1]
-
-		// Case 1: Current operator is AND
 		if op == rulepb.Logic_LOGIC_AND {
-			// Build a chain of consecutive AND operations.
-			andNode := nodes[i-1]
-			for i < len(nodes) && logics[i-1] == rulepb.Logic_LOGIC_AND {
-				// Combine the previous AND node with the next one.
-				andNode = newLogic(andNode, logicAnd, nodes[i])
-				i++
-			}
-
-			// After finishing a block of ANDs, check the previous operator type
-			// to decide whether to attach this AND group to the current tree
-			// with OR AND.
-
-			// Potentially incorrect index; ensure this logic is valid.
-			prevOp := logics[i-len(nodes)]
-
-			if prevOp == rulepb.Logic_LOGIC_OR {
-				current = newLogic(current, logicOr, andNode)
-			} else {
-				current = newLogic(current, logicAnd, andNode)
-			}
-
+			left := stack[len(stack)-1]
+			right := nodes[i]
+			stack[len(stack)-1] = newLogic(left, logicAnd, right)
 		} else {
-			// Case 2: Current operator is OR
-			// Directly connect current node with the next one using OR logic.
-			current = newLogic(current, logicOr, nodes[i])
-			i++
+			stack = append(stack, nodes[i])
 		}
 	}
 
-	// Return the root of the constructed logical expression tree.
-	return current
+	current := stack[0]
+	for i := 1; i < len(stack); i++ {
+		current = newLogic(current, logicOr, stack[i])
+	}
+
+	return current, nil
 }
 
 func newExpr(chain *rulepb.Expr) *exprs {
 	return &exprs{
 		chain: chain,
-		tx: &tx{
-			matched: &rulepb.MatchedRules{},
-		},
 	}
 }

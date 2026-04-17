@@ -70,11 +70,11 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
 		return nil
 	}
 
-	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetTenantNs())
-	return rc.Load(hCtx.GetTenantNs())
+	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetServerName())
+	return rc.Load(hCtx.GetServerName())
 }
 
-func Store(namespace string, expr *ruleenginepb.Expr) {
+func Store(serverName string, expr *ruleenginepb.Expr) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -82,5 +82,5 @@ func Store(namespace string, expr *ruleenginepb.Expr) {
 		ruleInst = New()
 	}
 
-	ruleInst.Store(namespace, expr)
+	ruleInst.Store(serverName, expr)
 }

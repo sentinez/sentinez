@@ -18,8 +18,8 @@ package routing
 import (
 	"net/http"
 
-	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
+	corechains "github.com/sentinez/core/http/chains"
 )
 
 func NewMockRouter() corechains.ChainNode {
