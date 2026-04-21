@@ -96,14 +96,12 @@ setting:
   # ----------------------------------------------------------
   security:
     isWafEngineOn: true
-    ruleGroup:
+    ruleBased:
       name: "Complex Logic: (Path AND Method) OR IP"
       node:
         operator: "LOGIC_OR"
         rules:
           - name: "block ip"
-            enabled: true
-            priority: 3
             condition:
               source: FIELD_SOURCE_IP
               key: "1.1.1.1"
@@ -113,16 +111,12 @@ setting:
           - operator: "LOGIC_AND"
             rules:
               - name: "block path"
-                enabled: true
-                priority: 1
                 condition:
                   source: FIELD_SOURCE_PATH
                   key: "/block"
                   operator: OPERATOR_EQ
                   value: "/block"
               - name: "block method"
-                enabled: true
-                priority: 2
                 condition:
                   source: FIELD_SOURCE_METHOD
                   key: "POST"
