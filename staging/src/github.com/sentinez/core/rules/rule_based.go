@@ -20,7 +20,7 @@ import (
 )
 
 // nolint:funlen
-func buildNode(pbNode *rulepb.RuleGroup_Node, exec MatchedFunc) (*node, error) {
+func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) (*node, error) {
 	if pbNode == nil {
 		return nil, nil
 	}

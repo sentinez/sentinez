@@ -22,8 +22,7 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rulegroups"
-	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rules"
+	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rulebased"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 )
 
@@ -32,313 +31,205 @@ var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
 // New creates a new SecurityService.
 func New(
 	config *confpb.Config,
-	rulesRepo rules.IRule,
-	rulegroupsRepo rulegroups.IRuleGroup,
+	ruleBasedRepo rulebased.IRuleBased,
 ) *SecurityService {
 	return &SecurityService{
-		config:         config,
-		rulesRepo:      rulesRepo,
-		rulegroupsRepo: rulegroupsRepo,
+		config:        config,
+		ruleBasedRepo: ruleBasedRepo,
 	}
 }
 
 // SecurityService handles security operations.
 type SecurityService struct {
-	config         *confpb.Config
-	rulesRepo      rules.IRule
-	rulegroupsRepo rulegroups.IRuleGroup
+	config        *confpb.Config
+	ruleBasedRepo rulebased.IRuleBased
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-
-func mapRuleToDB(apiRule *ruleenginepb.Rule) (*securitypb.Rule, error) {
-	b, err := protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(apiRule)
-	if err != nil {
-		return nil, err
-	}
-	return &securitypb.Rule{
-		Name:        apiRule.GetName(),
-		Description: apiRule.GetDescription(),
-		Rule:        string(b),
-	}, nil
-}
-
-func mapDBToRule(dbRule *securitypb.Rule) (*ruleenginepb.Rule, error) {
-	var rule ruleenginepb.Rule
-	if dbRule.Rule != "" {
-		if err := protojson.Unmarshal([]byte(dbRule.Rule), &rule); err != nil {
-			return nil, err
-		}
-	}
-	rule.Id = dbRule.Id
-	rule.Name = dbRule.Name
-	rule.Description = dbRule.Description
-	if dbRule.Metadata != nil {
-		rule.CreatedAt = dbRule.Metadata.CreatedAt
-		rule.UpdatedAt = dbRule.Metadata.UpdatedAt
-	}
-	return &rule, nil
-}
-
-// mapDBToRuleGroup translates the DB RuleGroup into ruleengine RuleGroup
-func (srv *SecurityService) mapDBToRuleGroup(_ context.Context,
-	dbRG *securitypb.RuleGroup,
-) (*ruleenginepb.RuleGroup, error) {
-	if dbRG == nil {
+// mapDBToRuleBased translates the DB RuleBased into ruleengine RuleBased
+func (srv *SecurityService) mapDBToRuleBased(_ context.Context,
+	dbRB *securitypb.RuleBased,
+) (*ruleenginepb.RuleBased, error) {
+	if dbRB == nil {
 		return nil, nil
 	}
 
-	var node ruleenginepb.RuleGroup_Node
-	if dbRG.Node != "" {
-		if err := protojson.Unmarshal([]byte(dbRG.Node), &node); err != nil {
+	var node ruleenginepb.RuleBased_Node
+	if dbRB.Node != "" {
+		if err := protojson.Unmarshal([]byte(dbRB.Node), &node); err != nil {
 			return nil, err
 		}
 	}
 
-	return &ruleenginepb.RuleGroup{
-		Node: &node,
+	var action ruleenginepb.Action
+	if dbRB.Action != "" {
+		if err := protojson.
+			Unmarshal([]byte(dbRB.Action), &action); err != nil {
+			return nil, err
+		}
+	}
+
+	return &ruleenginepb.RuleBased{
+		Node:        &node,
+		Action:      &action,
+		Id:          dbRB.GetId(),
+		Name:        dbRB.GetName(),
+		Description: dbRB.GetDescription(),
+		Priority:    dbRB.GetPriority(),
+		Status:      dbRB.GetStatus(),
 	}, nil
 }
 
-// ── RuleGroup ────────────────────────────────────────────────────────────
+// ── RuleBased ────────────────────────────────────────────────────────────
 
-func (srv *SecurityService) CreateRuleGroup(ctx context.Context,
-	req *securitypb.CreateRuleGroupRequest,
-) (*securitypb.CreateRuleGroupResponse, error) {
-	if req.RuleGroup == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule_group is required")
+// nolint:funlen
+func (srv *SecurityService) CreateRuleBased(ctx context.Context,
+	req *securitypb.CreateRuleBasedRequest,
+) (*securitypb.CreateRuleBasedResponse, error) {
+	if req.RuleBased == nil {
+		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
 
 	var nodeStr string
-	if req.RuleGroup.Node != nil {
+	if req.RuleBased.Node != nil {
 		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.RuleGroup.Node)
+			Marshal(req.RuleBased.Node)
 		if err != nil {
 			return nil, err
 		}
 		nodeStr = string(b)
 	}
 
-	dbRG := &securitypb.RuleGroup{
-		Name:        req.RuleGroup.Name,
-		Description: req.RuleGroup.Description,
-		Node:        nodeStr,
+	var action string
+	if req.GetRuleBased().GetAction() != nil {
+		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
+			Marshal(req.RuleBased.Action)
+		if err != nil {
+			return nil, err
+		}
+		action = string(b)
 	}
 
-	created, err := srv.rulegroupsRepo.Create(ctx, dbRG)
+	dbRB := &securitypb.RuleBased{
+		Name:        req.RuleBased.Name,
+		Description: req.RuleBased.Description,
+		Node:        nodeStr,
+		Action:      action,
+		Priority:    req.RuleBased.Priority,
+		Status:      req.RuleBased.Status,
+	}
+
+	created, err := srv.ruleBasedRepo.Create(ctx, dbRB)
 	if err != nil {
 		return nil, err
 	}
 
-	return &securitypb.CreateRuleGroupResponse{Id: created.Id}, nil
+	return &securitypb.CreateRuleBasedResponse{Id: created.Id}, nil
 }
 
-func (srv *SecurityService) GetRuleGroup(ctx context.Context,
-	req *securitypb.GetRuleGroupRequest,
-) (*securitypb.GetRuleGroupResponse, error) {
-	dbRG, err := srv.rulegroupsRepo.Get(ctx, req.Id)
+func (srv *SecurityService) GetRuleBased(ctx context.Context,
+	req *securitypb.GetRuleBasedRequest,
+) (*securitypb.GetRuleBasedResponse, error) {
+	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	rg, err := srv.mapDBToRuleGroup(ctx, dbRG)
+	rb, err := srv.mapDBToRuleBased(ctx, dbRB)
 	if err != nil {
 		return nil, err
 	}
 
 	// Transfer top-level metadata from DB model to ruleenginepb structure
-	if rg != nil {
-		rg.Id = dbRG.Id
-		rg.Name = dbRG.Name
-		rg.Description = dbRG.Description
+	if rb != nil {
+		rb.Id = dbRB.Id
+		rb.Name = dbRB.Name
+		rb.Description = dbRB.Description
 	}
 
-	return &securitypb.GetRuleGroupResponse{RuleGroup: rg}, nil
+	return &securitypb.GetRuleBasedResponse{RuleBased: rb}, nil
 }
 
 //nolint:funlen
-func (srv *SecurityService) UpdateRuleGroup(ctx context.Context,
-	req *securitypb.UpdateRuleGroupRequest,
-) (*securitypb.UpdateRuleGroupResponse, error) {
-	if req.RuleGroup == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule_group is required")
+func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
+	req *securitypb.UpdateRuleBasedRequest,
+) (*securitypb.UpdateRuleBasedResponse, error) {
+	if req.RuleBased == nil {
+		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
 
-	dbRG, err := srv.rulegroupsRepo.Get(ctx, req.Id)
+	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	dbRG.Name = req.RuleGroup.Name
-	dbRG.Description = req.RuleGroup.Description
+	dbRB.Name = req.RuleBased.Name
+	dbRB.Description = req.RuleBased.Description
 
-	if req.RuleGroup.Node != nil {
+	if req.RuleBased.Node != nil {
 		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.RuleGroup.Node)
+			Marshal(req.RuleBased.Node)
 		if err != nil {
 			return nil, err
 		}
-		dbRG.Node = string(b)
+		dbRB.Node = string(b)
 	} else {
-		dbRG.Node = ""
+		dbRB.Node = ""
 	}
 
-	if err := srv.rulegroupsRepo.Update(ctx, dbRG); err != nil {
+	if err := srv.ruleBasedRepo.Update(ctx, dbRB); err != nil {
 		return nil, err
 	}
 
-	rg, err := srv.mapDBToRuleGroup(ctx, dbRG)
+	rb, err := srv.mapDBToRuleBased(ctx, dbRB)
 	if err != nil {
 		return nil, err
 	}
 
-	if rg != nil {
-		rg.Id = dbRG.Id
-		rg.Name = dbRG.Name
-		rg.Description = dbRG.Description
+	if rb != nil {
+		rb.Id = dbRB.Id
+		rb.Name = dbRB.Name
+		rb.Description = dbRB.Description
 	}
 
-	return &securitypb.UpdateRuleGroupResponse{RuleGroup: rg}, nil
+	return &securitypb.UpdateRuleBasedResponse{RuleBased: rb}, nil
 }
 
-func (srv *SecurityService) DeleteRuleGroup(ctx context.Context,
-	req *securitypb.DeleteRuleGroupRequest,
-) (*securitypb.DeleteRuleGroupResponse, error) {
-	if err := srv.rulegroupsRepo.Delete(ctx, req.Id); err != nil {
+func (srv *SecurityService) DeleteRuleBased(ctx context.Context,
+	req *securitypb.DeleteRuleBasedRequest,
+) (*securitypb.DeleteRuleBasedResponse, error) {
+	if err := srv.ruleBasedRepo.Delete(ctx, req.Id); err != nil {
 		return nil, err
 	}
-	return &securitypb.DeleteRuleGroupResponse{}, nil
+	return &securitypb.DeleteRuleBasedResponse{}, nil
 }
 
-func (srv *SecurityService) ListRuleGroups(ctx context.Context,
-	req *securitypb.ListRuleGroupsRequest,
-) (*securitypb.ListRuleGroupsResponse, error) {
-	dbRGs, total, err := srv.rulegroupsRepo.List(ctx, req)
+func (srv *SecurityService) ListRuleBaseds(ctx context.Context,
+	req *securitypb.ListRuleBasedsRequest,
+) (*securitypb.ListRuleBasedsResponse, error) {
+	dbRBs, total, err := srv.ruleBasedRepo.List(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	var rgs []*ruleenginepb.RuleGroup
-	for _, dbRG := range dbRGs {
-		rg, err := srv.mapDBToRuleGroup(ctx, dbRG)
+	var rbs []*ruleenginepb.RuleBased
+	for _, dbRB := range dbRBs {
+		rb, err := srv.mapDBToRuleBased(ctx, dbRB)
 		if err != nil {
 			return nil, err
 		}
-		if rg != nil {
-			rg.Id = dbRG.Id
-			rg.Name = dbRG.Name
-			rg.Description = dbRG.Description
-			rgs = append(rgs, rg)
+		if rb != nil {
+			rb.Id = dbRB.Id
+			rb.Name = dbRB.Name
+			rb.Description = dbRB.Description
+			rbs = append(rbs, rb)
 		}
 	}
 
-	return &securitypb.ListRuleGroupsResponse{
-		RuleGroups: rgs,
+	return &securitypb.ListRuleBasedsResponse{
+		RuleBaseds: rbs,
 		Total:      total,
 	}, nil
 }
-
-// ── Rule ──────────────────────────────────────────────────────────────────
-
-func (srv *SecurityService) CreateRule(ctx context.Context,
-	req *securitypb.CreateRuleRequest,
-) (*securitypb.CreateRuleResponse, error) {
-	if req.Rule == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule is required")
-	}
-
-	dbRule, err := mapRuleToDB(req.Rule)
-	if err != nil {
-		return nil, err
-	}
-
-	created, err := srv.rulesRepo.Create(ctx, dbRule)
-	if err != nil {
-		return nil, err
-	}
-
-	return &securitypb.CreateRuleResponse{Id: created.Id}, nil
-}
-
-func (srv *SecurityService) GetRule(ctx context.Context,
-	req *securitypb.GetRuleRequest,
-) (*securitypb.GetRuleResponse, error) {
-	dbRule, err := srv.rulesRepo.Get(ctx, req.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	rule, err := mapDBToRule(dbRule)
-	if err != nil {
-		return nil, err
-	}
-
-	return &securitypb.GetRuleResponse{Rule: rule}, nil
-}
-
-func (srv *SecurityService) UpdateRule(ctx context.Context,
-	req *securitypb.UpdateRuleRequest,
-) (*securitypb.UpdateRuleResponse, error) {
-	if req.Rule == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule is required")
-	}
-
-	dbRule, err := srv.rulesRepo.Get(ctx, req.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	newDbRule, err := mapRuleToDB(req.Rule)
-	if err != nil {
-		return nil, err
-	}
-
-	dbRule.Name = newDbRule.Name
-	dbRule.Description = newDbRule.Description
-	dbRule.Rule = newDbRule.Rule
-
-	if err := srv.rulesRepo.Update(ctx, dbRule); err != nil {
-		return nil, err
-	}
-
-	rule, err := mapDBToRule(dbRule)
-	if err != nil {
-		return nil, err
-	}
-
-	return &securitypb.UpdateRuleResponse{Rule: rule}, nil
-}
-
-func (srv *SecurityService) DeleteRule(ctx context.Context,
-	req *securitypb.DeleteRuleRequest,
-) (*securitypb.DeleteRuleResponse, error) {
-	if err := srv.rulesRepo.Delete(ctx, req.Id); err != nil {
-		return nil, err
-	}
-	return &securitypb.DeleteRuleResponse{}, nil
-}
-
-func (srv *SecurityService) ListRules(ctx context.Context,
-	req *securitypb.ListRulesRequest,
-) (*securitypb.ListRulesResponse, error) {
-	dbRules, total, err := srv.rulesRepo.List(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	var rules []*ruleenginepb.Rule
-	for _, dbRule := range dbRules {
-		rule, err := mapDBToRule(dbRule)
-		if err != nil {
-			return nil, err
-		}
-		rules = append(rules, rule)
-	}
-
-	return &securitypb.ListRulesResponse{Rules: rules, Total: total}, nil
-}
-
-// ── Status ────────────────────────────────────────────────────────────────
 
 func (srv *SecurityService) Status(_ context.Context,
 	_ *securitypb.StatusRequest,

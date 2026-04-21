@@ -4,6 +4,7 @@ package sentinez.types.secure.ruleengine.v1;
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1;ruleenginepb";
 
@@ -86,11 +87,6 @@ message Rule {
   string name = 2; // @gotags: yaml:"name"
   string description = 3;
   Condition condition = 4; // @gotags: yaml:"condition"
-  repeated Action actions = 5; // @gotags: yaml:"actions"
-  int32 priority = 6; // @gotags: yaml:"priority"
-  bool enabled = 7; // @gotags: yaml:"enabled"
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
 }
 
 // A complete rule definition
@@ -99,8 +95,6 @@ message RuleLite {
   string name = 2; // @gotags: yaml:"name"
   ConditionLite condition = 4; // @gotags: yaml:"condition"
   repeated string actions = 5; // @gotags: yaml:"actions"
-  int32 priority = 6; // @gotags: yaml:"priority"
-  bool enabled = 7; // @gotags: yaml:"enabled"
 }
 
 // A logical condition expression
@@ -121,7 +115,7 @@ message MatchedRules {
   repeated string names = 2;
 }
 
-message RuleGroup {
+message RuleBased {
   string id = 1;
   string name = 2;
   string description = 3;
@@ -133,9 +127,14 @@ message RuleGroup {
   }
 
   Node node = 4;
+  Action action = 5;
+  sentinez.types.v1.Status status = 6;
+  int32 priority = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
-message RuleGroupLite {
+message RuleBasedLite {
   string id = 1;
   string name = 2;
   string description = 3;

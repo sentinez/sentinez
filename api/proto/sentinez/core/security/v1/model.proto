@@ -23,34 +23,20 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypb";
 
-message Rule {
+message RuleBased {
   option (sentinez.types.v1.x_message).database_model = true;
 
   sentinez.types.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: {prefix: "senz.security.rules."}
+    string: {prefix: "senz.security.rulebaseds."}
   }];
 
   string name = 3;
   string description = 4;
-  string rule = 5;
-}
-
-message RuleGroup {
-  option (sentinez.types.v1.x_message).database_model = true;
-
-  sentinez.types.v1.Metadata metadata = 1;
-
-  string id = 2 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "senz.security.rulegroups."}
-  }];
-
-  string name = 3;
-  string description = 4;
-
   string node = 5;
+  string action = 6;
   sentinez.types.v1.Status status = 7;
+  int32 priority = 8;
 }

@@ -37,109 +37,35 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Rule struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Rule          string                 `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Rule) Reset() {
-	*x = Rule{}
-	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Rule) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Rule) ProtoMessage() {}
-
-func (x *Rule) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Rule.ProtoReflect.Descriptor instead.
-func (*Rule) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_security_v1_model_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Rule) GetMetadata() *v1.Metadata {
-	if x != nil {
-		return x.Metadata
-	}
-	return nil
-}
-
-func (x *Rule) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *Rule) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *Rule) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *Rule) GetRule() string {
-	if x != nil {
-		return x.Rule
-	}
-	return ""
-}
-
-type RuleGroup struct {
+type RuleBased struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	Node          string                 `protobuf:"bytes,5,opt,name=node,proto3" json:"node,omitempty"`
+	Action        string                 `protobuf:"bytes,6,opt,name=action,proto3" json:"action,omitempty"`
 	Status        v1.Status              `protobuf:"varint,7,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Priority      int32                  `protobuf:"varint,8,opt,name=priority,proto3" json:"priority,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleGroup) Reset() {
-	*x = RuleGroup{}
-	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[1]
+func (x *RuleBased) Reset() {
+	*x = RuleBased{}
+	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleGroup) String() string {
+func (x *RuleBased) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleGroup) ProtoMessage() {}
+func (*RuleBased) ProtoMessage() {}
 
-func (x *RuleGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[1]
+func (x *RuleBased) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_core_security_v1_model_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -150,71 +76,81 @@ func (x *RuleGroup) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleGroup.ProtoReflect.Descriptor instead.
-func (*RuleGroup) Descriptor() ([]byte, []int) {
-	return file_sentinez_core_security_v1_model_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use RuleBased.ProtoReflect.Descriptor instead.
+func (*RuleBased) Descriptor() ([]byte, []int) {
+	return file_sentinez_core_security_v1_model_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RuleGroup) GetMetadata() *v1.Metadata {
+func (x *RuleBased) GetMetadata() *v1.Metadata {
 	if x != nil {
 		return x.Metadata
 	}
 	return nil
 }
 
-func (x *RuleGroup) GetId() string {
+func (x *RuleBased) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetName() string {
+func (x *RuleBased) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetDescription() string {
+func (x *RuleBased) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetNode() string {
+func (x *RuleBased) GetNode() string {
 	if x != nil {
 		return x.Node
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetStatus() v1.Status {
+func (x *RuleBased) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *RuleBased) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
 	return v1.Status(0)
 }
 
+func (x *RuleBased) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
 var File_sentinez_core_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/core/security/v1/model.proto\x12\x19sentinez.core.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc1\x01\n" +
-	"\x04Rule\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12.\n" +
-	"\x02id\x18\x02 \x01(\tB\x1e\xbaH\x1b\xc8\x01\x01r\x16:\x14senz.security.rules.R\x02id\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04rule\x18\x05 \x01(\tR\x04rule:\x06\xca\xf3\x18\x02\b\x01\"\xfe\x01\n" +
-	"\tRuleGroup\x127\n" +
+	"%sentinez/core/security/v1/model.proto\x12\x19sentinez.core.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xb2\x02\n" +
+	"\tRuleBased\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x123\n" +
-	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.rulegroups.R\x02id\x12\x12\n" +
+	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.rulebaseds.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04node\x18\x05 \x01(\tR\x04node\x121\n" +
-	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\x06\xca\xf3\x18\x02\b\x01BNZLgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypbb\x06proto3"
+	"\x04node\x18\x05 \x01(\tR\x04node\x12\x16\n" +
+	"\x06action\x18\x06 \x01(\tR\x06action\x121\n" +
+	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
+	"\bpriority\x18\b \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01BNZLgithub.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_core_security_v1_model_proto_rawDescOnce sync.Once
@@ -228,22 +164,20 @@ func file_sentinez_core_security_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_core_security_v1_model_proto_rawDescData
 }
 
-var file_sentinez_core_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_core_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_core_security_v1_model_proto_goTypes = []any{
-	(*Rule)(nil),        // 0: sentinez.core.security.v1.Rule
-	(*RuleGroup)(nil),   // 1: sentinez.core.security.v1.RuleGroup
-	(*v1.Metadata)(nil), // 2: sentinez.types.v1.Metadata
-	(v1.Status)(0),      // 3: sentinez.types.v1.Status
+	(*RuleBased)(nil),   // 0: sentinez.core.security.v1.RuleBased
+	(*v1.Metadata)(nil), // 1: sentinez.types.v1.Metadata
+	(v1.Status)(0),      // 2: sentinez.types.v1.Status
 }
 var file_sentinez_core_security_v1_model_proto_depIdxs = []int32{
-	2, // 0: sentinez.core.security.v1.Rule.metadata:type_name -> sentinez.types.v1.Metadata
-	2, // 1: sentinez.core.security.v1.RuleGroup.metadata:type_name -> sentinez.types.v1.Metadata
-	3, // 2: sentinez.core.security.v1.RuleGroup.status:type_name -> sentinez.types.v1.Status
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 0: sentinez.core.security.v1.RuleBased.metadata:type_name -> sentinez.types.v1.Metadata
+	2, // 1: sentinez.core.security.v1.RuleBased.status:type_name -> sentinez.types.v1.Status
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_core_security_v1_model_proto_init() }
@@ -257,7 +191,7 @@ func file_sentinez_core_security_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_core_security_v1_model_proto_rawDesc), len(file_sentinez_core_security_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

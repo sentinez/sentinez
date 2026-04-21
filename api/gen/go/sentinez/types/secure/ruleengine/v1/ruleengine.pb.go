@@ -7,6 +7,7 @@
 package ruleenginepb
 
 import (
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -439,11 +440,6 @@ type Rule struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"` // @gotags: yaml:"name"
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Condition     *Condition             `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
-	Actions       []*Action              `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`     // @gotags: yaml:"actions"
-	Priority      int32                  `protobuf:"varint,6,opt,name=priority,proto3" json:"priority,omitempty" yaml:"priority"`  // @gotags: yaml:"priority"
-	Enabled       bool                   `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty" yaml:"enabled"`    // @gotags: yaml:"enabled"
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -506,41 +502,6 @@ func (x *Rule) GetCondition() *Condition {
 	return nil
 }
 
-func (x *Rule) GetActions() []*Action {
-	if x != nil {
-		return x.Actions
-	}
-	return nil
-}
-
-func (x *Rule) GetPriority() int32 {
-	if x != nil {
-		return x.Priority
-	}
-	return 0
-}
-
-func (x *Rule) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
-	}
-	return false
-}
-
-func (x *Rule) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *Rule) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
-}
-
 // A complete rule definition
 type RuleLite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -548,8 +509,6 @@ type RuleLite struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
 	Condition     *ConditionLite         `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
 	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`     // @gotags: yaml:"actions"
-	Priority      int32                  `protobuf:"varint,6,opt,name=priority,proto3" json:"priority,omitempty" yaml:"priority"`  // @gotags: yaml:"priority"
-	Enabled       bool                   `protobuf:"varint,7,opt,name=enabled,proto3" json:"enabled,omitempty" yaml:"enabled"`    // @gotags: yaml:"enabled"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -610,20 +569,6 @@ func (x *RuleLite) GetActions() []string {
 		return x.Actions
 	}
 	return nil
-}
-
-func (x *RuleLite) GetPriority() int32 {
-	if x != nil {
-		return x.Priority
-	}
-	return 0
-}
-
-func (x *RuleLite) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
-	}
-	return false
 }
 
 // A logical condition expression
@@ -752,30 +697,35 @@ func (x *MatchedRules) GetNames() []string {
 	return nil
 }
 
-type RuleGroup struct {
+type RuleBased struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Node          *RuleGroup_Node        `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
+	Node          *RuleBased_Node        `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
+	Action        *Action                `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	Status        v1.Status              `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Priority      int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleGroup) Reset() {
-	*x = RuleGroup{}
+func (x *RuleBased) Reset() {
+	*x = RuleBased{}
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleGroup) String() string {
+func (x *RuleBased) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleGroup) ProtoMessage() {}
+func (*RuleBased) ProtoMessage() {}
 
-func (x *RuleGroup) ProtoReflect() protoreflect.Message {
+func (x *RuleBased) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -787,63 +737,98 @@ func (x *RuleGroup) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleGroup.ProtoReflect.Descriptor instead.
-func (*RuleGroup) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleBased.ProtoReflect.Descriptor instead.
+func (*RuleBased) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *RuleGroup) GetId() string {
+func (x *RuleBased) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetName() string {
+func (x *RuleBased) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetDescription() string {
+func (x *RuleBased) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *RuleGroup) GetNode() *RuleGroup_Node {
+func (x *RuleBased) GetNode() *RuleBased_Node {
 	if x != nil {
 		return x.Node
 	}
 	return nil
 }
 
-type RuleGroupLite struct {
+func (x *RuleBased) GetAction() *Action {
+	if x != nil {
+		return x.Action
+	}
+	return nil
+}
+
+func (x *RuleBased) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *RuleBased) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
+func (x *RuleBased) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *RuleBased) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+type RuleBasedLite struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
 	Id            string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                  `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                  `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Node          *RuleGroupLite_NodeLite `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
+	Node          *RuleBasedLite_NodeLite `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleGroupLite) Reset() {
-	*x = RuleGroupLite{}
+func (x *RuleBasedLite) Reset() {
+	*x = RuleBasedLite{}
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleGroupLite) String() string {
+func (x *RuleBasedLite) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleGroupLite) ProtoMessage() {}
+func (*RuleBasedLite) ProtoMessage() {}
 
-func (x *RuleGroupLite) ProtoReflect() protoreflect.Message {
+func (x *RuleBasedLite) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -855,62 +840,62 @@ func (x *RuleGroupLite) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleGroupLite.ProtoReflect.Descriptor instead.
-func (*RuleGroupLite) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleBasedLite.ProtoReflect.Descriptor instead.
+func (*RuleBasedLite) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *RuleGroupLite) GetId() string {
+func (x *RuleBasedLite) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleGroupLite) GetName() string {
+func (x *RuleBasedLite) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *RuleGroupLite) GetDescription() string {
+func (x *RuleBasedLite) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *RuleGroupLite) GetNode() *RuleGroupLite_NodeLite {
+func (x *RuleBasedLite) GetNode() *RuleBasedLite_NodeLite {
 	if x != nil {
 		return x.Node
 	}
 	return nil
 }
 
-type RuleGroup_Node struct {
+type RuleBased_Node struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Operator      Logic                  `protobuf:"varint,1,opt,name=operator,proto3,enum=sentinez.types.secure.ruleengine.v1.Logic" json:"operator,omitempty"`
 	Rules         []*Rule                `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
-	Groups        []*RuleGroup_Node      `protobuf:"bytes,3,rep,name=groups,proto3" json:"groups,omitempty"`
+	Groups        []*RuleBased_Node      `protobuf:"bytes,3,rep,name=groups,proto3" json:"groups,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleGroup_Node) Reset() {
-	*x = RuleGroup_Node{}
+func (x *RuleBased_Node) Reset() {
+	*x = RuleBased_Node{}
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleGroup_Node) String() string {
+func (x *RuleBased_Node) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleGroup_Node) ProtoMessage() {}
+func (*RuleBased_Node) ProtoMessage() {}
 
-func (x *RuleGroup_Node) ProtoReflect() protoreflect.Message {
+func (x *RuleBased_Node) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -922,55 +907,55 @@ func (x *RuleGroup_Node) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleGroup_Node.ProtoReflect.Descriptor instead.
-func (*RuleGroup_Node) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleBased_Node.ProtoReflect.Descriptor instead.
+func (*RuleBased_Node) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDescGZIP(), []int{6, 0}
 }
 
-func (x *RuleGroup_Node) GetOperator() Logic {
+func (x *RuleBased_Node) GetOperator() Logic {
 	if x != nil {
 		return x.Operator
 	}
 	return Logic_LOGIC_UNSPECIFIED
 }
 
-func (x *RuleGroup_Node) GetRules() []*Rule {
+func (x *RuleBased_Node) GetRules() []*Rule {
 	if x != nil {
 		return x.Rules
 	}
 	return nil
 }
 
-func (x *RuleGroup_Node) GetGroups() []*RuleGroup_Node {
+func (x *RuleBased_Node) GetGroups() []*RuleBased_Node {
 	if x != nil {
 		return x.Groups
 	}
 	return nil
 }
 
-type RuleGroupLite_NodeLite struct {
+type RuleBasedLite_NodeLite struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Operator      string                    `protobuf:"bytes,1,opt,name=operator,proto3" json:"operator,omitempty"` // AND, OR, NOT
 	Rules         []*RuleLite               `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
-	Groups        []*RuleGroupLite_NodeLite `protobuf:"bytes,3,rep,name=groups,proto3" json:"groups,omitempty"`
+	Groups        []*RuleBasedLite_NodeLite `protobuf:"bytes,3,rep,name=groups,proto3" json:"groups,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleGroupLite_NodeLite) Reset() {
-	*x = RuleGroupLite_NodeLite{}
+func (x *RuleBasedLite_NodeLite) Reset() {
+	*x = RuleBasedLite_NodeLite{}
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleGroupLite_NodeLite) String() string {
+func (x *RuleBasedLite_NodeLite) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleGroupLite_NodeLite) ProtoMessage() {}
+func (*RuleBasedLite_NodeLite) ProtoMessage() {}
 
-func (x *RuleGroupLite_NodeLite) ProtoReflect() protoreflect.Message {
+func (x *RuleBasedLite_NodeLite) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -982,26 +967,26 @@ func (x *RuleGroupLite_NodeLite) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleGroupLite_NodeLite.ProtoReflect.Descriptor instead.
-func (*RuleGroupLite_NodeLite) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleBasedLite_NodeLite.ProtoReflect.Descriptor instead.
+func (*RuleBasedLite_NodeLite) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDescGZIP(), []int{7, 0}
 }
 
-func (x *RuleGroupLite_NodeLite) GetOperator() string {
+func (x *RuleBasedLite_NodeLite) GetOperator() string {
 	if x != nil {
 		return x.Operator
 	}
 	return ""
 }
 
-func (x *RuleGroupLite_NodeLite) GetRules() []*RuleLite {
+func (x *RuleBasedLite_NodeLite) GetRules() []*RuleLite {
 	if x != nil {
 		return x.Rules
 	}
 	return nil
 }
 
-func (x *RuleGroupLite_NodeLite) GetGroups() []*RuleGroupLite_NodeLite {
+func (x *RuleBasedLite_NodeLite) GetGroups() []*RuleBasedLite_NodeLite {
 	if x != nil {
 		return x.Groups
 	}
@@ -1012,7 +997,7 @@ var File_sentinez_types_secure_ruleengine_v1_ruleengine_proto protoreflect.FileD
 
 const file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDesc = "" +
 	"\n" +
-	"4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x12#sentinez.types.secure.ruleengine.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf0\x01\n" +
+	"4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x12#sentinez.types.secure.ruleengine.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1dsentinez/types/v1/known.proto\"\xf0\x01\n" +
 	"\tCondition\x12\x0e\n" +
 	"\x02id\x18\x05 \x01(\tR\x02id\x12H\n" +
 	"\x06source\x18\x01 \x01(\x0e20.sentinez.types.secure.ruleengine.v1.FieldSourceR\x06source\x12\x10\n" +
@@ -1022,26 +1007,17 @@ const file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDesc = "" +
 	"\x06Action\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
 	"\x04type\x18\x02 \x01(\x0e2/.sentinez.types.secure.ruleengine.v1.ActionTypeR\x04type\x12/\n" +
-	"\x06params\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x06params\"\x8d\x03\n" +
+	"\x06params\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x06params\"\x9a\x01\n" +
 	"\x04Rule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12L\n" +
-	"\tcondition\x18\x04 \x01(\v2..sentinez.types.secure.ruleengine.v1.ConditionR\tcondition\x12E\n" +
-	"\aactions\x18\x05 \x03(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\aactions\x12\x1a\n" +
-	"\bpriority\x18\x06 \x01(\x05R\bpriority\x12\x18\n" +
-	"\aenabled\x18\a \x01(\bR\aenabled\x129\n" +
-	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
-	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xd0\x01\n" +
+	"\tcondition\x18\x04 \x01(\v2..sentinez.types.secure.ruleengine.v1.ConditionR\tcondition\"\x9a\x01\n" +
 	"\bRuleLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12P\n" +
 	"\tcondition\x18\x04 \x01(\v22.sentinez.types.secure.ruleengine.v1.ConditionLiteR\tcondition\x12\x18\n" +
-	"\aactions\x18\x05 \x03(\tR\aactions\x12\x1a\n" +
-	"\bpriority\x18\x06 \x01(\x05R\bpriority\x12\x18\n" +
-	"\aenabled\x18\a \x01(\bR\aenabled\"k\n" +
+	"\aactions\x18\x05 \x03(\tR\aactions\"k\n" +
 	"\rConditionLite\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x1a\n" +
@@ -1049,25 +1025,32 @@ const file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDesc = "" +
 	"\x05value\x18\x04 \x01(\tR\x05value\"6\n" +
 	"\fMatchedRules\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x14\n" +
-	"\x05names\x18\x02 \x03(\tR\x05names\"\xf9\x02\n" +
-	"\tRuleGroup\x12\x0e\n" +
+	"\x05names\x18\x02 \x03(\tR\x05names\"\x83\x05\n" +
+	"\tRuleBased\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12G\n" +
-	"\x04node\x18\x04 \x01(\v23.sentinez.types.secure.ruleengine.v1.RuleGroup.NodeR\x04node\x1a\xdc\x01\n" +
+	"\x04node\x18\x04 \x01(\v23.sentinez.types.secure.ruleengine.v1.RuleBased.NodeR\x04node\x12C\n" +
+	"\x06action\x18\x05 \x01(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\x06action\x121\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
+	"\bpriority\x18\a \x01(\x05R\bpriority\x129\n" +
+	"\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x1a\xdc\x01\n" +
 	"\x04Node\x12F\n" +
 	"\boperator\x18\x01 \x01(\x0e2*.sentinez.types.secure.ruleengine.v1.LogicR\boperator\x12?\n" +
 	"\x05rules\x18\x02 \x03(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x05rules\x12K\n" +
-	"\x06groups\x18\x03 \x03(\v23.sentinez.types.secure.ruleengine.v1.RuleGroup.NodeR\x06groups\"\xe9\x02\n" +
-	"\rRuleGroupLite\x12\x0e\n" +
+	"\x06groups\x18\x03 \x03(\v23.sentinez.types.secure.ruleengine.v1.RuleBased.NodeR\x06groups\"\xe9\x02\n" +
+	"\rRuleBasedLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12O\n" +
-	"\x04node\x18\x04 \x01(\v2;.sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLiteR\x04node\x1a\xc0\x01\n" +
+	"\x04node\x18\x04 \x01(\v2;.sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLiteR\x04node\x1a\xc0\x01\n" +
 	"\bNodeLite\x12\x1a\n" +
 	"\boperator\x18\x01 \x01(\tR\boperator\x12C\n" +
 	"\x05rules\x18\x02 \x03(\v2-.sentinez.types.secure.ruleengine.v1.RuleLiteR\x05rules\x12S\n" +
-	"\x06groups\x18\x03 \x03(\v2;.sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLiteR\x06groups*\xfb\x01\n" +
+	"\x06groups\x18\x03 \x03(\v2;.sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLiteR\x06groups*\xfb\x01\n" +
 	"\vFieldSource\x12\x1c\n" +
 	"\x18FIELD_SOURCE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FIELD_SOURCE_HEADER\x10\x01\x12\x16\n" +
@@ -1134,13 +1117,14 @@ var file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_goTypes = []any{
 	(*RuleLite)(nil),               // 7: sentinez.types.secure.ruleengine.v1.RuleLite
 	(*ConditionLite)(nil),          // 8: sentinez.types.secure.ruleengine.v1.ConditionLite
 	(*MatchedRules)(nil),           // 9: sentinez.types.secure.ruleengine.v1.MatchedRules
-	(*RuleGroup)(nil),              // 10: sentinez.types.secure.ruleengine.v1.RuleGroup
-	(*RuleGroupLite)(nil),          // 11: sentinez.types.secure.ruleengine.v1.RuleGroupLite
-	(*RuleGroup_Node)(nil),         // 12: sentinez.types.secure.ruleengine.v1.RuleGroup.Node
-	(*RuleGroupLite_NodeLite)(nil), // 13: sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLite
+	(*RuleBased)(nil),              // 10: sentinez.types.secure.ruleengine.v1.RuleBased
+	(*RuleBasedLite)(nil),          // 11: sentinez.types.secure.ruleengine.v1.RuleBasedLite
+	(*RuleBased_Node)(nil),         // 12: sentinez.types.secure.ruleengine.v1.RuleBased.Node
+	(*RuleBasedLite_NodeLite)(nil), // 13: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
 	(*structpb.Value)(nil),         // 14: google.protobuf.Value
 	(*structpb.Struct)(nil),        // 15: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),  // 16: google.protobuf.Timestamp
+	(v1.Status)(0),                 // 16: sentinez.types.v1.Status
+	(*timestamppb.Timestamp)(nil),  // 17: google.protobuf.Timestamp
 }
 var file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_depIdxs = []int32{
 	0,  // 0: sentinez.types.secure.ruleengine.v1.Condition.source:type_name -> sentinez.types.secure.ruleengine.v1.FieldSource
@@ -1149,22 +1133,23 @@ var file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_depIdxs = []int32{
 	3,  // 3: sentinez.types.secure.ruleengine.v1.Action.type:type_name -> sentinez.types.secure.ruleengine.v1.ActionType
 	15, // 4: sentinez.types.secure.ruleengine.v1.Action.params:type_name -> google.protobuf.Struct
 	4,  // 5: sentinez.types.secure.ruleengine.v1.Rule.condition:type_name -> sentinez.types.secure.ruleengine.v1.Condition
-	5,  // 6: sentinez.types.secure.ruleengine.v1.Rule.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
-	16, // 7: sentinez.types.secure.ruleengine.v1.Rule.created_at:type_name -> google.protobuf.Timestamp
-	16, // 8: sentinez.types.secure.ruleengine.v1.Rule.updated_at:type_name -> google.protobuf.Timestamp
-	8,  // 9: sentinez.types.secure.ruleengine.v1.RuleLite.condition:type_name -> sentinez.types.secure.ruleengine.v1.ConditionLite
-	12, // 10: sentinez.types.secure.ruleengine.v1.RuleGroup.node:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup.Node
-	13, // 11: sentinez.types.secure.ruleengine.v1.RuleGroupLite.node:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLite
-	2,  // 12: sentinez.types.secure.ruleengine.v1.RuleGroup.Node.operator:type_name -> sentinez.types.secure.ruleengine.v1.Logic
-	6,  // 13: sentinez.types.secure.ruleengine.v1.RuleGroup.Node.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	12, // 14: sentinez.types.secure.ruleengine.v1.RuleGroup.Node.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup.Node
-	7,  // 15: sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLite.rules:type_name -> sentinez.types.secure.ruleengine.v1.RuleLite
-	13, // 16: sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLite.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroupLite.NodeLite
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	8,  // 6: sentinez.types.secure.ruleengine.v1.RuleLite.condition:type_name -> sentinez.types.secure.ruleengine.v1.ConditionLite
+	12, // 7: sentinez.types.secure.ruleengine.v1.RuleBased.node:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased.Node
+	5,  // 8: sentinez.types.secure.ruleengine.v1.RuleBased.action:type_name -> sentinez.types.secure.ruleengine.v1.Action
+	16, // 9: sentinez.types.secure.ruleengine.v1.RuleBased.status:type_name -> sentinez.types.v1.Status
+	17, // 10: sentinez.types.secure.ruleengine.v1.RuleBased.created_at:type_name -> google.protobuf.Timestamp
+	17, // 11: sentinez.types.secure.ruleengine.v1.RuleBased.updated_at:type_name -> google.protobuf.Timestamp
+	13, // 12: sentinez.types.secure.ruleengine.v1.RuleBasedLite.node:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
+	2,  // 13: sentinez.types.secure.ruleengine.v1.RuleBased.Node.operator:type_name -> sentinez.types.secure.ruleengine.v1.Logic
+	6,  // 14: sentinez.types.secure.ruleengine.v1.RuleBased.Node.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	12, // 15: sentinez.types.secure.ruleengine.v1.RuleBased.Node.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased.Node
+	7,  // 16: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.rules:type_name -> sentinez.types.secure.ruleengine.v1.RuleLite
+	13, // 17: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_init() }

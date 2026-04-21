@@ -17,18 +17,12 @@ var (
 )
 
 const (
-	Rule_Metadata    = "metadata"
-	Rule_Id          = "id"
-	Rule_Name        = "name"
-	Rule_Description = "description"
-	Rule_Rule        = "rule"
-)
-
-const (
-	RuleGroup_Metadata    = "metadata"
-	RuleGroup_Id          = "id"
-	RuleGroup_Name        = "name"
-	RuleGroup_Description = "description"
-	RuleGroup_Node        = "node"
-	RuleGroup_Status      = "status"
+	RuleBased_Metadata    = "metadata"
+	RuleBased_Id          = "id"
+	RuleBased_Name        = "name"
+	RuleBased_Description = "description"
+	RuleBased_Node        = "node"
+	RuleBased_Action      = "action"
+	RuleBased_Status      = "status"
+	RuleBased_Priority    = "priority"
 )

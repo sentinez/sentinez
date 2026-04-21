@@ -65,7 +65,6 @@ func TestRulePath(t *testing.T) {
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -77,7 +76,7 @@ func TestRulePath(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %s", string(val))
 
-	ok := rule.EvalRule(newContext(), req)
+	ok := rule.eval(newContext(), req)
 	if ok {
 		t.Logf("rule engine matched !!!")
 		return
@@ -90,7 +89,6 @@ func TestRuleQuery(t *testing.T) {
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
 			Operator: ruleenginepb.Operator_OPERATOR_IN,
@@ -107,7 +105,7 @@ func TestRuleQuery(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.EvalRule(newContext(), req)
+	ok := rule.eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -121,7 +119,6 @@ func TestRuleClientIP(t *testing.T) {
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -133,7 +130,7 @@ func TestRuleClientIP(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.EvalRule(newContext(), req)
+	ok := rule.eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -147,7 +144,6 @@ func TestRuleClientIPRange(t *testing.T) {
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -159,7 +155,7 @@ func TestRuleClientIPRange(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.EvalRule(newContext(), req)
+	ok := rule.eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -173,7 +169,6 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_NE,
@@ -185,7 +180,7 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.EvalRule(newContext(), req)
+	ok := rule.eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -197,9 +192,9 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 
 // nolint
 func TestChain(t *testing.T) {
-	// Directly build RuleGroup using newRule helper
-	rg := &ruleenginepb.RuleGroup{
-		Node: &ruleenginepb.RuleGroup_Node{
+	// Directly build RuleBased using newRule helper
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
 			Operator: ruleenginepb.Logic_LOGIC_AND,
 			Rules: []*ruleenginepb.Rule{
 				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
@@ -211,7 +206,7 @@ func TestChain(t *testing.T) {
 
 	ig := NewIngress()
 
-	if _, ok := ig.EvalRuleGroup(newContext(), rg); ok {
+	if _, ok := ig.Eval(newContext(), rg); ok {
 		t.Logf("rule engine matched !!!")
 		return
 	}
@@ -225,13 +220,13 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		rg     *ruleenginepb.RuleGroup
+		rg     *ruleenginepb.RuleBased
 		expect bool
 	}{
 		{
 			name: "AND: path, method, ip all match",
-			rg: &ruleenginepb.RuleGroup{
-				Node: &ruleenginepb.RuleGroup_Node{
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
 					Operator: ruleenginepb.Logic_LOGIC_AND,
 					Rules: []*ruleenginepb.Rule{
 						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
@@ -244,8 +239,8 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 		{
 			name: "OR: host mismatch but IP match",
-			rg: &ruleenginepb.RuleGroup{
-				Node: &ruleenginepb.RuleGroup_Node{
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
 					Operator: ruleenginepb.Logic_LOGIC_OR,
 					Rules: []*ruleenginepb.Rule{
 						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "fake.example.com"),
@@ -258,13 +253,13 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NESTED: A AND (B OR C)",
 			// A (IP match), B (Path mismatch), C (Method match) -> True
-			rg: &ruleenginepb.RuleGroup{
-				Node: &ruleenginepb.RuleGroup_Node{
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
 					Operator: ruleenginepb.Logic_LOGIC_AND,
 					Rules: []*ruleenginepb.Rule{
 						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
 					},
-					Groups: []*ruleenginepb.RuleGroup_Node{
+					Groups: []*ruleenginepb.RuleBased_Node{
 						{
 							Operator: ruleenginepb.Logic_LOGIC_OR,
 							Rules: []*ruleenginepb.Rule{
@@ -280,8 +275,8 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NOT: NOT (Method GET)",
 			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
-			rg: &ruleenginepb.RuleGroup{
-				Node: &ruleenginepb.RuleGroup_Node{
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
 					Operator: ruleenginepb.Logic_LOGIC_NOT,
 					Rules: []*ruleenginepb.Rule{
 						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
@@ -296,7 +291,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, ok := ig.EvalRuleGroup(ctx, tt.rg)
+			_, ok := ig.Eval(ctx, tt.rg)
 			if ok != tt.expect {
 				t.Errorf("expected %v, got %v", tt.expect, ok)
 			} else {
@@ -331,7 +326,6 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 	}
 
 	return &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
@@ -344,12 +338,93 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 // nolint
 func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *structpb.Value) *ruleenginepb.Rule {
 	return &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
 			Value:    val,
 			Key:      fmt.Sprintf("%v", val),
 		},
+	}
+}
+
+func BenchmarkEvalRule(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rule := NewIngress()
+	req := &ruleenginepb.Rule{
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Value:    structpb.NewStringValue("/v1/login"),
+			Key:      "path",
+		},
+	}
+	ctx := newContext()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = rule.eval(ctx, req)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Simple(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	ig := NewIngress()
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+		},
+	}
+	ctx := newContext()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = ig.Eval(ctx, rg)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Complex(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	ig := NewIngress()
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+			Groups: []*ruleenginepb.RuleBased_Node{
+				{
+					Operator: ruleenginepb.Logic_LOGIC_OR,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					},
+				},
+				{
+					Operator: ruleenginepb.Logic_LOGIC_NOT,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					},
+				},
+			},
+		},
+	}
+	ctx := newContext()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = ig.Eval(ctx, rg)
 	}
 }

@@ -42,14 +42,15 @@ func (e *Engine) EvaluateIngress(ctx context.Context,
 	enginectx := requests.New(ctx, request.GetRequestContext())
 	defer requests.Free(enginectx)
 
-	rule := ruleenginepb.Rule{}
-	if ok := e.in.EvalRule(enginectx, &rule); !ok {
+	rule := ruleenginepb.RuleBased{}
+	_, ok := e.in.Eval(enginectx, &rule)
+	if !ok {
 		return &edgepb.EvaluateIngressResponse{}, nil
 	}
 
 	return &edgepb.EvaluateIngressResponse{
 		Results: []*edgepb.EvaluationResult{{
-			Actions: rule.GetActions(),
+			Matched: ok,
 		}},
 	}, nil
 }

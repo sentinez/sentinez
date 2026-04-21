@@ -25,11 +25,10 @@ var _ Rules = (*ingress)(nil)
 type MatchedFunc func(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool)
 
+// nolint
 type Rules interface {
-	EvalRule(ctx chttp.RequestContext,
-		rule *rulepb.Rule) bool
-	EvalRuleGroup(ctx chttp.RequestContext,
-		rg *rulepb.RuleGroup) (*rulepb.MatchedRules, bool)
+	eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool
+	Eval(ctx chttp.RequestContext, rg *rulepb.RuleBased) (*rulepb.MatchedRules, bool)
 }
 
 func NewIngress() Rules {
@@ -38,16 +37,14 @@ func NewIngress() Rules {
 
 type ingress struct{}
 
-func (in *ingress) EvalRule(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
+func (in *ingress) eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 	// zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
-
-	if !rule.GetEnabled() {
-		return false
-	}
 
 	cond := newCondition(rule.GetCondition())
 	ruleCtx := newEvaluator(ctx)
+
 	defer ruleCtx.Release()
+	defer cond.Release()
 
 	return cond.Accept(ruleCtx)
 }
@@ -55,24 +52,24 @@ func (in *ingress) EvalRule(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 func (in *ingress) matched(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool) {
 
-	if ok = in.EvalRule(ctx, rule); !ok {
+	if ok = in.eval(ctx, rule); !ok {
 		return "", "", false
 	}
 
 	return rule.GetId(), rule.GetName(), true
 }
 
-// EvalRuleGroup a nested group of rules
-func (in *ingress) EvalRuleGroup(
+// Eval a nested group of rules
+func (in *ingress) Eval(
 	ctx chttp.RequestContext,
-	rg *rulepb.RuleGroup,
+	rg *rulepb.RuleBased,
 ) (*rulepb.MatchedRules, bool) {
 
-	if rg == nil || rg.Node == nil {
+	if rg == nil || rg.GetNode() == nil {
 		return nil, false
 	}
 
-	root, err := buildNode(rg.Node, in.matched)
+	root, err := buildNode(rg.GetNode(), in.matched)
 	if err != nil {
 		zlog.Errorf("[%s] rule group build error: %v", ctx.RequestId(), err)
 		return nil, false

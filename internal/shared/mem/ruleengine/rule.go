@@ -33,7 +33,7 @@ var (
 func New() *RuleCache {
 	once.Do(func() {
 		ruleInst = &RuleCache{
-			space: ssync.NewMap[string, *ruleenginepb.RuleGroup](),
+			space: ssync.NewMap[string, *ruleenginepb.RuleBased](),
 		}
 	})
 
@@ -45,17 +45,17 @@ func GetEngine() *RuleCache {
 }
 
 type RuleCache struct {
-	space *ssync.Map[string, *ruleenginepb.RuleGroup]
+	space *ssync.Map[string, *ruleenginepb.RuleBased]
 }
 
-func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleGroup) {
+func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleBased) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
 	rc.space.Store(namespace, gr)
 }
 
-func (rc *RuleCache) Load(namespace string) *ruleenginepb.RuleGroup {
+func (rc *RuleCache) Load(namespace string) *ruleenginepb.RuleBased {
 	expr, ok := rc.space.Load(namespace)
 	if !ok {
 		return nil
@@ -64,7 +64,7 @@ func (rc *RuleCache) Load(namespace string) *ruleenginepb.RuleGroup {
 	return expr
 }
 
-func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.RuleGroup {
+func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.RuleBased {
 	if rc == nil {
 		return nil
 	}
@@ -78,7 +78,7 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.RuleGroup {
 	return rc.Load(hCtx.GetServerName())
 }
 
-func Store(serverName string, gr *ruleenginepb.RuleGroup) {
+func Store(serverName string, gr *ruleenginepb.RuleBased) {
 	mu.Lock()
 	defer mu.Unlock()
 

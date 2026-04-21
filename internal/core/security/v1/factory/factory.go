@@ -20,8 +20,7 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	securityhdl "github.com/sentinez/sentinez/internal/core/security/v1/handler"
-	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rulegroups"
-	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rules"
+	"github.com/sentinez/sentinez/internal/core/security/v1/repos/rulebased"
 	securitysvc "github.com/sentinez/sentinez/internal/core/security/v1/service"
 	"github.com/sentinez/shared/zlog"
 )
@@ -38,15 +37,11 @@ func NewDefaultHandler(ctx context.Context,
 func NewDefaultService(ctx context.Context,
 	appConf *confpb.Config,
 ) *securitysvc.SecurityService {
-	rulesRepo, err := rules.New(ctx, appConf)
+
+	ruleBasedRepo, err := rulebased.New(ctx, appConf)
 	if err != nil {
-		zlog.Fatalf("failed to init rules repo: %v", err)
+		zlog.Fatalf("failed to init rulebased repo: %v", err)
 	}
 
-	rulegroupsRepo, err := rulegroups.New(ctx, appConf)
-	if err != nil {
-		zlog.Fatalf("failed to init rulegroups repo: %v", err)
-	}
-
-	return securitysvc.New(appConf, rulesRepo, rulegroupsRepo)
+	return securitysvc.New(appConf, ruleBasedRepo)
 }

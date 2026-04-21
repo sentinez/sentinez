@@ -33,18 +33,18 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on CreateRuleGroupRequest with the rules
+// Validate checks the field values on CreateRuleBasedRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *CreateRuleGroupRequest) Validate() error {
+func (m *CreateRuleBasedRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleGroup()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CreateRuleGroupRequestValidationError{
-				field:  "RuleGroup",
+			return CreateRuleBasedRequestValidationError{
+				field:  "RuleBased",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -54,9 +54,9 @@ func (m *CreateRuleGroupRequest) Validate() error {
 	return nil
 }
 
-// CreateRuleGroupRequestValidationError is the validation error returned by
-// CreateRuleGroupRequest.Validate if the designated constraints aren't met.
-type CreateRuleGroupRequestValidationError struct {
+// CreateRuleBasedRequestValidationError is the validation error returned by
+// CreateRuleBasedRequest.Validate if the designated constraints aren't met.
+type CreateRuleBasedRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -64,24 +64,24 @@ type CreateRuleGroupRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateRuleGroupRequestValidationError) Field() string { return e.field }
+func (e CreateRuleBasedRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateRuleGroupRequestValidationError) Reason() string { return e.reason }
+func (e CreateRuleBasedRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateRuleGroupRequestValidationError) Cause() error { return e.cause }
+func (e CreateRuleBasedRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateRuleGroupRequestValidationError) Key() bool { return e.key }
+func (e CreateRuleBasedRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateRuleGroupRequestValidationError) ErrorName() string {
-	return "CreateRuleGroupRequestValidationError"
+func (e CreateRuleBasedRequestValidationError) ErrorName() string {
+	return "CreateRuleBasedRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateRuleGroupRequestValidationError) Error() string {
+func (e CreateRuleBasedRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -93,14 +93,14 @@ func (e CreateRuleGroupRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateRuleGroupRequest.%s: %s%s",
+		"invalid %sCreateRuleBasedRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateRuleGroupRequestValidationError{}
+var _ error = CreateRuleBasedRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -108,12 +108,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateRuleGroupRequestValidationError{}
+} = CreateRuleBasedRequestValidationError{}
 
-// Validate checks the field values on CreateRuleGroupResponse with the rules
+// Validate checks the field values on CreateRuleBasedResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *CreateRuleGroupResponse) Validate() error {
+func (m *CreateRuleBasedResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -123,9 +123,9 @@ func (m *CreateRuleGroupResponse) Validate() error {
 	return nil
 }
 
-// CreateRuleGroupResponseValidationError is the validation error returned by
-// CreateRuleGroupResponse.Validate if the designated constraints aren't met.
-type CreateRuleGroupResponseValidationError struct {
+// CreateRuleBasedResponseValidationError is the validation error returned by
+// CreateRuleBasedResponse.Validate if the designated constraints aren't met.
+type CreateRuleBasedResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -133,24 +133,24 @@ type CreateRuleGroupResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateRuleGroupResponseValidationError) Field() string { return e.field }
+func (e CreateRuleBasedResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateRuleGroupResponseValidationError) Reason() string { return e.reason }
+func (e CreateRuleBasedResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateRuleGroupResponseValidationError) Cause() error { return e.cause }
+func (e CreateRuleBasedResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateRuleGroupResponseValidationError) Key() bool { return e.key }
+func (e CreateRuleBasedResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateRuleGroupResponseValidationError) ErrorName() string {
-	return "CreateRuleGroupResponseValidationError"
+func (e CreateRuleBasedResponseValidationError) ErrorName() string {
+	return "CreateRuleBasedResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateRuleGroupResponseValidationError) Error() string {
+func (e CreateRuleBasedResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -162,14 +162,14 @@ func (e CreateRuleGroupResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateRuleGroupResponse.%s: %s%s",
+		"invalid %sCreateRuleBasedResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateRuleGroupResponseValidationError{}
+var _ error = CreateRuleBasedResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -177,12 +177,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateRuleGroupResponseValidationError{}
+} = CreateRuleBasedResponseValidationError{}
 
-// Validate checks the field values on GetRuleGroupRequest with the rules
+// Validate checks the field values on GetRuleBasedRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *GetRuleGroupRequest) Validate() error {
+func (m *GetRuleBasedRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -192,9 +192,9 @@ func (m *GetRuleGroupRequest) Validate() error {
 	return nil
 }
 
-// GetRuleGroupRequestValidationError is the validation error returned by
-// GetRuleGroupRequest.Validate if the designated constraints aren't met.
-type GetRuleGroupRequestValidationError struct {
+// GetRuleBasedRequestValidationError is the validation error returned by
+// GetRuleBasedRequest.Validate if the designated constraints aren't met.
+type GetRuleBasedRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -202,24 +202,24 @@ type GetRuleGroupRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetRuleGroupRequestValidationError) Field() string { return e.field }
+func (e GetRuleBasedRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetRuleGroupRequestValidationError) Reason() string { return e.reason }
+func (e GetRuleBasedRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetRuleGroupRequestValidationError) Cause() error { return e.cause }
+func (e GetRuleBasedRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetRuleGroupRequestValidationError) Key() bool { return e.key }
+func (e GetRuleBasedRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetRuleGroupRequestValidationError) ErrorName() string {
-	return "GetRuleGroupRequestValidationError"
+func (e GetRuleBasedRequestValidationError) ErrorName() string {
+	return "GetRuleBasedRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetRuleGroupRequestValidationError) Error() string {
+func (e GetRuleBasedRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -231,14 +231,14 @@ func (e GetRuleGroupRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetRuleGroupRequest.%s: %s%s",
+		"invalid %sGetRuleBasedRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetRuleGroupRequestValidationError{}
+var _ error = GetRuleBasedRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -246,20 +246,20 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetRuleGroupRequestValidationError{}
+} = GetRuleBasedRequestValidationError{}
 
-// Validate checks the field values on GetRuleGroupResponse with the rules
+// Validate checks the field values on GetRuleBasedResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *GetRuleGroupResponse) Validate() error {
+func (m *GetRuleBasedResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleGroup()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return GetRuleGroupResponseValidationError{
-				field:  "RuleGroup",
+			return GetRuleBasedResponseValidationError{
+				field:  "RuleBased",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -269,9 +269,9 @@ func (m *GetRuleGroupResponse) Validate() error {
 	return nil
 }
 
-// GetRuleGroupResponseValidationError is the validation error returned by
-// GetRuleGroupResponse.Validate if the designated constraints aren't met.
-type GetRuleGroupResponseValidationError struct {
+// GetRuleBasedResponseValidationError is the validation error returned by
+// GetRuleBasedResponse.Validate if the designated constraints aren't met.
+type GetRuleBasedResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -279,24 +279,24 @@ type GetRuleGroupResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetRuleGroupResponseValidationError) Field() string { return e.field }
+func (e GetRuleBasedResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetRuleGroupResponseValidationError) Reason() string { return e.reason }
+func (e GetRuleBasedResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetRuleGroupResponseValidationError) Cause() error { return e.cause }
+func (e GetRuleBasedResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetRuleGroupResponseValidationError) Key() bool { return e.key }
+func (e GetRuleBasedResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetRuleGroupResponseValidationError) ErrorName() string {
-	return "GetRuleGroupResponseValidationError"
+func (e GetRuleBasedResponseValidationError) ErrorName() string {
+	return "GetRuleBasedResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetRuleGroupResponseValidationError) Error() string {
+func (e GetRuleBasedResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -308,14 +308,14 @@ func (e GetRuleGroupResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetRuleGroupResponse.%s: %s%s",
+		"invalid %sGetRuleBasedResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetRuleGroupResponseValidationError{}
+var _ error = GetRuleBasedResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -323,22 +323,22 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetRuleGroupResponseValidationError{}
+} = GetRuleBasedResponseValidationError{}
 
-// Validate checks the field values on UpdateRuleGroupRequest with the rules
+// Validate checks the field values on UpdateRuleBasedRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *UpdateRuleGroupRequest) Validate() error {
+func (m *UpdateRuleBasedRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	// no validation rules for Id
 
-	if v, ok := interface{}(m.GetRuleGroup()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleGroupRequestValidationError{
-				field:  "RuleGroup",
+			return UpdateRuleBasedRequestValidationError{
+				field:  "RuleBased",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -347,7 +347,7 @@ func (m *UpdateRuleGroupRequest) Validate() error {
 
 	if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleGroupRequestValidationError{
+			return UpdateRuleBasedRequestValidationError{
 				field:  "UpdateMask",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -358,9 +358,9 @@ func (m *UpdateRuleGroupRequest) Validate() error {
 	return nil
 }
 
-// UpdateRuleGroupRequestValidationError is the validation error returned by
-// UpdateRuleGroupRequest.Validate if the designated constraints aren't met.
-type UpdateRuleGroupRequestValidationError struct {
+// UpdateRuleBasedRequestValidationError is the validation error returned by
+// UpdateRuleBasedRequest.Validate if the designated constraints aren't met.
+type UpdateRuleBasedRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -368,24 +368,24 @@ type UpdateRuleGroupRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateRuleGroupRequestValidationError) Field() string { return e.field }
+func (e UpdateRuleBasedRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateRuleGroupRequestValidationError) Reason() string { return e.reason }
+func (e UpdateRuleBasedRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateRuleGroupRequestValidationError) Cause() error { return e.cause }
+func (e UpdateRuleBasedRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateRuleGroupRequestValidationError) Key() bool { return e.key }
+func (e UpdateRuleBasedRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateRuleGroupRequestValidationError) ErrorName() string {
-	return "UpdateRuleGroupRequestValidationError"
+func (e UpdateRuleBasedRequestValidationError) ErrorName() string {
+	return "UpdateRuleBasedRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateRuleGroupRequestValidationError) Error() string {
+func (e UpdateRuleBasedRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -397,14 +397,14 @@ func (e UpdateRuleGroupRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateRuleGroupRequest.%s: %s%s",
+		"invalid %sUpdateRuleBasedRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateRuleGroupRequestValidationError{}
+var _ error = UpdateRuleBasedRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -412,20 +412,20 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateRuleGroupRequestValidationError{}
+} = UpdateRuleBasedRequestValidationError{}
 
-// Validate checks the field values on UpdateRuleGroupResponse with the rules
+// Validate checks the field values on UpdateRuleBasedResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *UpdateRuleGroupResponse) Validate() error {
+func (m *UpdateRuleBasedResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleGroup()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleGroupResponseValidationError{
-				field:  "RuleGroup",
+			return UpdateRuleBasedResponseValidationError{
+				field:  "RuleBased",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -435,9 +435,9 @@ func (m *UpdateRuleGroupResponse) Validate() error {
 	return nil
 }
 
-// UpdateRuleGroupResponseValidationError is the validation error returned by
-// UpdateRuleGroupResponse.Validate if the designated constraints aren't met.
-type UpdateRuleGroupResponseValidationError struct {
+// UpdateRuleBasedResponseValidationError is the validation error returned by
+// UpdateRuleBasedResponse.Validate if the designated constraints aren't met.
+type UpdateRuleBasedResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -445,24 +445,24 @@ type UpdateRuleGroupResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateRuleGroupResponseValidationError) Field() string { return e.field }
+func (e UpdateRuleBasedResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateRuleGroupResponseValidationError) Reason() string { return e.reason }
+func (e UpdateRuleBasedResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateRuleGroupResponseValidationError) Cause() error { return e.cause }
+func (e UpdateRuleBasedResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateRuleGroupResponseValidationError) Key() bool { return e.key }
+func (e UpdateRuleBasedResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateRuleGroupResponseValidationError) ErrorName() string {
-	return "UpdateRuleGroupResponseValidationError"
+func (e UpdateRuleBasedResponseValidationError) ErrorName() string {
+	return "UpdateRuleBasedResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateRuleGroupResponseValidationError) Error() string {
+func (e UpdateRuleBasedResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -474,14 +474,14 @@ func (e UpdateRuleGroupResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateRuleGroupResponse.%s: %s%s",
+		"invalid %sUpdateRuleBasedResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateRuleGroupResponseValidationError{}
+var _ error = UpdateRuleBasedResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -489,12 +489,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateRuleGroupResponseValidationError{}
+} = UpdateRuleBasedResponseValidationError{}
 
-// Validate checks the field values on DeleteRuleGroupRequest with the rules
+// Validate checks the field values on DeleteRuleBasedRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *DeleteRuleGroupRequest) Validate() error {
+func (m *DeleteRuleBasedRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -504,9 +504,9 @@ func (m *DeleteRuleGroupRequest) Validate() error {
 	return nil
 }
 
-// DeleteRuleGroupRequestValidationError is the validation error returned by
-// DeleteRuleGroupRequest.Validate if the designated constraints aren't met.
-type DeleteRuleGroupRequestValidationError struct {
+// DeleteRuleBasedRequestValidationError is the validation error returned by
+// DeleteRuleBasedRequest.Validate if the designated constraints aren't met.
+type DeleteRuleBasedRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -514,24 +514,24 @@ type DeleteRuleGroupRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e DeleteRuleGroupRequestValidationError) Field() string { return e.field }
+func (e DeleteRuleBasedRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DeleteRuleGroupRequestValidationError) Reason() string { return e.reason }
+func (e DeleteRuleBasedRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DeleteRuleGroupRequestValidationError) Cause() error { return e.cause }
+func (e DeleteRuleBasedRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DeleteRuleGroupRequestValidationError) Key() bool { return e.key }
+func (e DeleteRuleBasedRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DeleteRuleGroupRequestValidationError) ErrorName() string {
-	return "DeleteRuleGroupRequestValidationError"
+func (e DeleteRuleBasedRequestValidationError) ErrorName() string {
+	return "DeleteRuleBasedRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DeleteRuleGroupRequestValidationError) Error() string {
+func (e DeleteRuleBasedRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -543,14 +543,14 @@ func (e DeleteRuleGroupRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDeleteRuleGroupRequest.%s: %s%s",
+		"invalid %sDeleteRuleBasedRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DeleteRuleGroupRequestValidationError{}
+var _ error = DeleteRuleBasedRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -558,12 +558,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DeleteRuleGroupRequestValidationError{}
+} = DeleteRuleBasedRequestValidationError{}
 
-// Validate checks the field values on DeleteRuleGroupResponse with the rules
+// Validate checks the field values on DeleteRuleBasedResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *DeleteRuleGroupResponse) Validate() error {
+func (m *DeleteRuleBasedResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -571,9 +571,9 @@ func (m *DeleteRuleGroupResponse) Validate() error {
 	return nil
 }
 
-// DeleteRuleGroupResponseValidationError is the validation error returned by
-// DeleteRuleGroupResponse.Validate if the designated constraints aren't met.
-type DeleteRuleGroupResponseValidationError struct {
+// DeleteRuleBasedResponseValidationError is the validation error returned by
+// DeleteRuleBasedResponse.Validate if the designated constraints aren't met.
+type DeleteRuleBasedResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -581,24 +581,24 @@ type DeleteRuleGroupResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e DeleteRuleGroupResponseValidationError) Field() string { return e.field }
+func (e DeleteRuleBasedResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DeleteRuleGroupResponseValidationError) Reason() string { return e.reason }
+func (e DeleteRuleBasedResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DeleteRuleGroupResponseValidationError) Cause() error { return e.cause }
+func (e DeleteRuleBasedResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DeleteRuleGroupResponseValidationError) Key() bool { return e.key }
+func (e DeleteRuleBasedResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DeleteRuleGroupResponseValidationError) ErrorName() string {
-	return "DeleteRuleGroupResponseValidationError"
+func (e DeleteRuleBasedResponseValidationError) ErrorName() string {
+	return "DeleteRuleBasedResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DeleteRuleGroupResponseValidationError) Error() string {
+func (e DeleteRuleBasedResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -610,14 +610,14 @@ func (e DeleteRuleGroupResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDeleteRuleGroupResponse.%s: %s%s",
+		"invalid %sDeleteRuleBasedResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DeleteRuleGroupResponseValidationError{}
+var _ error = DeleteRuleBasedResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -625,19 +625,19 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DeleteRuleGroupResponseValidationError{}
+} = DeleteRuleBasedResponseValidationError{}
 
-// Validate checks the field values on ListRuleGroupsRequest with the rules
+// Validate checks the field values on ListRuleBasedsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListRuleGroupsRequest) Validate() error {
+func (m *ListRuleBasedsRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListRuleGroupsRequestValidationError{
+			return ListRuleBasedsRequestValidationError{
 				field:  "Page",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -648,9 +648,9 @@ func (m *ListRuleGroupsRequest) Validate() error {
 	return nil
 }
 
-// ListRuleGroupsRequestValidationError is the validation error returned by
-// ListRuleGroupsRequest.Validate if the designated constraints aren't met.
-type ListRuleGroupsRequestValidationError struct {
+// ListRuleBasedsRequestValidationError is the validation error returned by
+// ListRuleBasedsRequest.Validate if the designated constraints aren't met.
+type ListRuleBasedsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -658,24 +658,24 @@ type ListRuleGroupsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRuleGroupsRequestValidationError) Field() string { return e.field }
+func (e ListRuleBasedsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRuleGroupsRequestValidationError) Reason() string { return e.reason }
+func (e ListRuleBasedsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRuleGroupsRequestValidationError) Cause() error { return e.cause }
+func (e ListRuleBasedsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRuleGroupsRequestValidationError) Key() bool { return e.key }
+func (e ListRuleBasedsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRuleGroupsRequestValidationError) ErrorName() string {
-	return "ListRuleGroupsRequestValidationError"
+func (e ListRuleBasedsRequestValidationError) ErrorName() string {
+	return "ListRuleBasedsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRuleGroupsRequestValidationError) Error() string {
+func (e ListRuleBasedsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -687,14 +687,14 @@ func (e ListRuleGroupsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRuleGroupsRequest.%s: %s%s",
+		"invalid %sListRuleBasedsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRuleGroupsRequestValidationError{}
+var _ error = ListRuleBasedsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -702,23 +702,23 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRuleGroupsRequestValidationError{}
+} = ListRuleBasedsRequestValidationError{}
 
-// Validate checks the field values on ListRuleGroupsResponse with the rules
+// Validate checks the field values on ListRuleBasedsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListRuleGroupsResponse) Validate() error {
+func (m *ListRuleBasedsResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	for idx, item := range m.GetRuleGroups() {
+	for idx, item := range m.GetRuleBaseds() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListRuleGroupsResponseValidationError{
-					field:  fmt.Sprintf("RuleGroups[%v]", idx),
+				return ListRuleBasedsResponseValidationError{
+					field:  fmt.Sprintf("RuleBaseds[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -732,9 +732,9 @@ func (m *ListRuleGroupsResponse) Validate() error {
 	return nil
 }
 
-// ListRuleGroupsResponseValidationError is the validation error returned by
-// ListRuleGroupsResponse.Validate if the designated constraints aren't met.
-type ListRuleGroupsResponseValidationError struct {
+// ListRuleBasedsResponseValidationError is the validation error returned by
+// ListRuleBasedsResponse.Validate if the designated constraints aren't met.
+type ListRuleBasedsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -742,24 +742,24 @@ type ListRuleGroupsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRuleGroupsResponseValidationError) Field() string { return e.field }
+func (e ListRuleBasedsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRuleGroupsResponseValidationError) Reason() string { return e.reason }
+func (e ListRuleBasedsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRuleGroupsResponseValidationError) Cause() error { return e.cause }
+func (e ListRuleBasedsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRuleGroupsResponseValidationError) Key() bool { return e.key }
+func (e ListRuleBasedsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRuleGroupsResponseValidationError) ErrorName() string {
-	return "ListRuleGroupsResponseValidationError"
+func (e ListRuleBasedsResponseValidationError) ErrorName() string {
+	return "ListRuleBasedsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRuleGroupsResponseValidationError) Error() string {
+func (e ListRuleBasedsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -771,14 +771,14 @@ func (e ListRuleGroupsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRuleGroupsResponse.%s: %s%s",
+		"invalid %sListRuleBasedsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRuleGroupsResponseValidationError{}
+var _ error = ListRuleBasedsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -786,7 +786,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRuleGroupsResponseValidationError{}
+} = ListRuleBasedsResponseValidationError{}
 
 // Validate checks the field values on CreateRuleRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, an

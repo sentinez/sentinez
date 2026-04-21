@@ -33,16 +33,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreateRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/CreateRuleGroup"
-	SecurityService_GetRuleGroup_FullMethodName    = "/sentinez.core.security.v1.SecurityService/GetRuleGroup"
-	SecurityService_UpdateRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/UpdateRuleGroup"
-	SecurityService_DeleteRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/DeleteRuleGroup"
-	SecurityService_ListRuleGroups_FullMethodName  = "/sentinez.core.security.v1.SecurityService/ListRuleGroups"
-	SecurityService_CreateRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/CreateRule"
-	SecurityService_GetRule_FullMethodName         = "/sentinez.core.security.v1.SecurityService/GetRule"
-	SecurityService_UpdateRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/UpdateRule"
-	SecurityService_DeleteRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/DeleteRule"
-	SecurityService_ListRules_FullMethodName       = "/sentinez.core.security.v1.SecurityService/ListRules"
+	SecurityService_CreateRuleBased_FullMethodName = "/sentinez.core.security.v1.SecurityService/CreateRuleBased"
+	SecurityService_GetRuleBased_FullMethodName    = "/sentinez.core.security.v1.SecurityService/GetRuleBased"
+	SecurityService_UpdateRuleBased_FullMethodName = "/sentinez.core.security.v1.SecurityService/UpdateRuleBased"
+	SecurityService_DeleteRuleBased_FullMethodName = "/sentinez.core.security.v1.SecurityService/DeleteRuleBased"
+	SecurityService_ListRuleBaseds_FullMethodName  = "/sentinez.core.security.v1.SecurityService/ListRuleBaseds"
 	SecurityService_Status_FullMethodName          = "/sentinez.core.security.v1.SecurityService/Status"
 )
 
@@ -52,26 +47,16 @@ const (
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceClient interface {
-	// CreateRuleGroup creates a new WAF rule group
-	CreateRuleGroup(ctx context.Context, in *CreateRuleGroupRequest, opts ...grpc.CallOption) (*CreateRuleGroupResponse, error)
-	// GetRuleGroup retrieves a WAF rule group by ID
-	GetRuleGroup(ctx context.Context, in *GetRuleGroupRequest, opts ...grpc.CallOption) (*GetRuleGroupResponse, error)
-	// UpdateRuleGroup updates an existing WAF rule group
-	UpdateRuleGroup(ctx context.Context, in *UpdateRuleGroupRequest, opts ...grpc.CallOption) (*UpdateRuleGroupResponse, error)
-	// DeleteRuleGroup removes a WAF rule group by ID
-	DeleteRuleGroup(ctx context.Context, in *DeleteRuleGroupRequest, opts ...grpc.CallOption) (*DeleteRuleGroupResponse, error)
-	// ListRuleGroups lists WAF rule groups with optional filters
-	ListRuleGroups(ctx context.Context, in *ListRuleGroupsRequest, opts ...grpc.CallOption) (*ListRuleGroupsResponse, error)
-	// CreateRule creates a new security rule
-	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
-	// GetRule retrieves a security rule by ID
-	GetRule(ctx context.Context, in *GetRuleRequest, opts ...grpc.CallOption) (*GetRuleResponse, error)
-	// UpdateRule updates an existing security rule
-	UpdateRule(ctx context.Context, in *UpdateRuleRequest, opts ...grpc.CallOption) (*UpdateRuleResponse, error)
-	// DeleteRule removes a security rule by ID
-	DeleteRule(ctx context.Context, in *DeleteRuleRequest, opts ...grpc.CallOption) (*DeleteRuleResponse, error)
-	// ListRules lists security rules with optional filters
-	ListRules(ctx context.Context, in *ListRulesRequest, opts ...grpc.CallOption) (*ListRulesResponse, error)
+	// CreateRuleBased creates a new WAF rule based
+	CreateRuleBased(ctx context.Context, in *CreateRuleBasedRequest, opts ...grpc.CallOption) (*CreateRuleBasedResponse, error)
+	// GetRuleBased retrieves a WAF rule based by ID
+	GetRuleBased(ctx context.Context, in *GetRuleBasedRequest, opts ...grpc.CallOption) (*GetRuleBasedResponse, error)
+	// UpdateRuleBased updates an existing WAF rule based
+	UpdateRuleBased(ctx context.Context, in *UpdateRuleBasedRequest, opts ...grpc.CallOption) (*UpdateRuleBasedResponse, error)
+	// DeleteRuleBased removes a WAF rule based by ID
+	DeleteRuleBased(ctx context.Context, in *DeleteRuleBasedRequest, opts ...grpc.CallOption) (*DeleteRuleBasedResponse, error)
+	// ListRuleBaseds lists WAF rule baseds with optional filters
+	ListRuleBaseds(ctx context.Context, in *ListRuleBasedsRequest, opts ...grpc.CallOption) (*ListRuleBasedsResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -84,100 +69,50 @@ func NewSecurityServiceClient(cc grpc.ClientConnInterface) SecurityServiceClient
 	return &securityServiceClient{cc}
 }
 
-func (c *securityServiceClient) CreateRuleGroup(ctx context.Context, in *CreateRuleGroupRequest, opts ...grpc.CallOption) (*CreateRuleGroupResponse, error) {
+func (c *securityServiceClient) CreateRuleBased(ctx context.Context, in *CreateRuleBasedRequest, opts ...grpc.CallOption) (*CreateRuleBasedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateRuleGroupResponse)
-	err := c.cc.Invoke(ctx, SecurityService_CreateRuleGroup_FullMethodName, in, out, cOpts...)
+	out := new(CreateRuleBasedResponse)
+	err := c.cc.Invoke(ctx, SecurityService_CreateRuleBased_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) GetRuleGroup(ctx context.Context, in *GetRuleGroupRequest, opts ...grpc.CallOption) (*GetRuleGroupResponse, error) {
+func (c *securityServiceClient) GetRuleBased(ctx context.Context, in *GetRuleBasedRequest, opts ...grpc.CallOption) (*GetRuleBasedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetRuleGroupResponse)
-	err := c.cc.Invoke(ctx, SecurityService_GetRuleGroup_FullMethodName, in, out, cOpts...)
+	out := new(GetRuleBasedResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetRuleBased_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) UpdateRuleGroup(ctx context.Context, in *UpdateRuleGroupRequest, opts ...grpc.CallOption) (*UpdateRuleGroupResponse, error) {
+func (c *securityServiceClient) UpdateRuleBased(ctx context.Context, in *UpdateRuleBasedRequest, opts ...grpc.CallOption) (*UpdateRuleBasedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateRuleGroupResponse)
-	err := c.cc.Invoke(ctx, SecurityService_UpdateRuleGroup_FullMethodName, in, out, cOpts...)
+	out := new(UpdateRuleBasedResponse)
+	err := c.cc.Invoke(ctx, SecurityService_UpdateRuleBased_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) DeleteRuleGroup(ctx context.Context, in *DeleteRuleGroupRequest, opts ...grpc.CallOption) (*DeleteRuleGroupResponse, error) {
+func (c *securityServiceClient) DeleteRuleBased(ctx context.Context, in *DeleteRuleBasedRequest, opts ...grpc.CallOption) (*DeleteRuleBasedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRuleGroupResponse)
-	err := c.cc.Invoke(ctx, SecurityService_DeleteRuleGroup_FullMethodName, in, out, cOpts...)
+	out := new(DeleteRuleBasedResponse)
+	err := c.cc.Invoke(ctx, SecurityService_DeleteRuleBased_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) ListRuleGroups(ctx context.Context, in *ListRuleGroupsRequest, opts ...grpc.CallOption) (*ListRuleGroupsResponse, error) {
+func (c *securityServiceClient) ListRuleBaseds(ctx context.Context, in *ListRuleBasedsRequest, opts ...grpc.CallOption) (*ListRuleBasedsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRuleGroupsResponse)
-	err := c.cc.Invoke(ctx, SecurityService_ListRuleGroups_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *securityServiceClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateRuleResponse)
-	err := c.cc.Invoke(ctx, SecurityService_CreateRule_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *securityServiceClient) GetRule(ctx context.Context, in *GetRuleRequest, opts ...grpc.CallOption) (*GetRuleResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetRuleResponse)
-	err := c.cc.Invoke(ctx, SecurityService_GetRule_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *securityServiceClient) UpdateRule(ctx context.Context, in *UpdateRuleRequest, opts ...grpc.CallOption) (*UpdateRuleResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateRuleResponse)
-	err := c.cc.Invoke(ctx, SecurityService_UpdateRule_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *securityServiceClient) DeleteRule(ctx context.Context, in *DeleteRuleRequest, opts ...grpc.CallOption) (*DeleteRuleResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRuleResponse)
-	err := c.cc.Invoke(ctx, SecurityService_DeleteRule_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *securityServiceClient) ListRules(ctx context.Context, in *ListRulesRequest, opts ...grpc.CallOption) (*ListRulesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRulesResponse)
-	err := c.cc.Invoke(ctx, SecurityService_ListRules_FullMethodName, in, out, cOpts...)
+	out := new(ListRuleBasedsResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRuleBaseds_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,26 +135,16 @@ func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, o
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceServer interface {
-	// CreateRuleGroup creates a new WAF rule group
-	CreateRuleGroup(context.Context, *CreateRuleGroupRequest) (*CreateRuleGroupResponse, error)
-	// GetRuleGroup retrieves a WAF rule group by ID
-	GetRuleGroup(context.Context, *GetRuleGroupRequest) (*GetRuleGroupResponse, error)
-	// UpdateRuleGroup updates an existing WAF rule group
-	UpdateRuleGroup(context.Context, *UpdateRuleGroupRequest) (*UpdateRuleGroupResponse, error)
-	// DeleteRuleGroup removes a WAF rule group by ID
-	DeleteRuleGroup(context.Context, *DeleteRuleGroupRequest) (*DeleteRuleGroupResponse, error)
-	// ListRuleGroups lists WAF rule groups with optional filters
-	ListRuleGroups(context.Context, *ListRuleGroupsRequest) (*ListRuleGroupsResponse, error)
-	// CreateRule creates a new security rule
-	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
-	// GetRule retrieves a security rule by ID
-	GetRule(context.Context, *GetRuleRequest) (*GetRuleResponse, error)
-	// UpdateRule updates an existing security rule
-	UpdateRule(context.Context, *UpdateRuleRequest) (*UpdateRuleResponse, error)
-	// DeleteRule removes a security rule by ID
-	DeleteRule(context.Context, *DeleteRuleRequest) (*DeleteRuleResponse, error)
-	// ListRules lists security rules with optional filters
-	ListRules(context.Context, *ListRulesRequest) (*ListRulesResponse, error)
+	// CreateRuleBased creates a new WAF rule based
+	CreateRuleBased(context.Context, *CreateRuleBasedRequest) (*CreateRuleBasedResponse, error)
+	// GetRuleBased retrieves a WAF rule based by ID
+	GetRuleBased(context.Context, *GetRuleBasedRequest) (*GetRuleBasedResponse, error)
+	// UpdateRuleBased updates an existing WAF rule based
+	UpdateRuleBased(context.Context, *UpdateRuleBasedRequest) (*UpdateRuleBasedResponse, error)
+	// DeleteRuleBased removes a WAF rule based by ID
+	DeleteRuleBased(context.Context, *DeleteRuleBasedRequest) (*DeleteRuleBasedResponse, error)
+	// ListRuleBaseds lists WAF rule baseds with optional filters
+	ListRuleBaseds(context.Context, *ListRuleBasedsRequest) (*ListRuleBasedsResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -231,35 +156,20 @@ type SecurityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSecurityServiceServer struct{}
 
-func (UnimplementedSecurityServiceServer) CreateRuleGroup(context.Context, *CreateRuleGroupRequest) (*CreateRuleGroupResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateRuleGroup not implemented")
+func (UnimplementedSecurityServiceServer) CreateRuleBased(context.Context, *CreateRuleBasedRequest) (*CreateRuleBasedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateRuleBased not implemented")
 }
-func (UnimplementedSecurityServiceServer) GetRuleGroup(context.Context, *GetRuleGroupRequest) (*GetRuleGroupResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRuleGroup not implemented")
+func (UnimplementedSecurityServiceServer) GetRuleBased(context.Context, *GetRuleBasedRequest) (*GetRuleBasedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRuleBased not implemented")
 }
-func (UnimplementedSecurityServiceServer) UpdateRuleGroup(context.Context, *UpdateRuleGroupRequest) (*UpdateRuleGroupResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateRuleGroup not implemented")
+func (UnimplementedSecurityServiceServer) UpdateRuleBased(context.Context, *UpdateRuleBasedRequest) (*UpdateRuleBasedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRuleBased not implemented")
 }
-func (UnimplementedSecurityServiceServer) DeleteRuleGroup(context.Context, *DeleteRuleGroupRequest) (*DeleteRuleGroupResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRuleGroup not implemented")
+func (UnimplementedSecurityServiceServer) DeleteRuleBased(context.Context, *DeleteRuleBasedRequest) (*DeleteRuleBasedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRuleBased not implemented")
 }
-func (UnimplementedSecurityServiceServer) ListRuleGroups(context.Context, *ListRuleGroupsRequest) (*ListRuleGroupsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRuleGroups not implemented")
-}
-func (UnimplementedSecurityServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateRule not implemented")
-}
-func (UnimplementedSecurityServiceServer) GetRule(context.Context, *GetRuleRequest) (*GetRuleResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRule not implemented")
-}
-func (UnimplementedSecurityServiceServer) UpdateRule(context.Context, *UpdateRuleRequest) (*UpdateRuleResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateRule not implemented")
-}
-func (UnimplementedSecurityServiceServer) DeleteRule(context.Context, *DeleteRuleRequest) (*DeleteRuleResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRule not implemented")
-}
-func (UnimplementedSecurityServiceServer) ListRules(context.Context, *ListRulesRequest) (*ListRulesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRules not implemented")
+func (UnimplementedSecurityServiceServer) ListRuleBaseds(context.Context, *ListRuleBasedsRequest) (*ListRuleBasedsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRuleBaseds not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -284,182 +194,92 @@ func RegisterSecurityServiceServer(s grpc.ServiceRegistrar, srv SecurityServiceS
 	s.RegisterService(&SecurityService_ServiceDesc, srv)
 }
 
-func _SecurityService_CreateRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRuleGroupRequest)
+func _SecurityService_CreateRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRuleBasedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).CreateRuleGroup(ctx, in)
+		return srv.(SecurityServiceServer).CreateRuleBased(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_CreateRuleGroup_FullMethodName,
+		FullMethod: SecurityService_CreateRuleBased_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).CreateRuleGroup(ctx, req.(*CreateRuleGroupRequest))
+		return srv.(SecurityServiceServer).CreateRuleBased(ctx, req.(*CreateRuleBasedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_GetRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRuleGroupRequest)
+func _SecurityService_GetRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRuleBasedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).GetRuleGroup(ctx, in)
+		return srv.(SecurityServiceServer).GetRuleBased(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_GetRuleGroup_FullMethodName,
+		FullMethod: SecurityService_GetRuleBased_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).GetRuleGroup(ctx, req.(*GetRuleGroupRequest))
+		return srv.(SecurityServiceServer).GetRuleBased(ctx, req.(*GetRuleBasedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_UpdateRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRuleGroupRequest)
+func _SecurityService_UpdateRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRuleBasedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).UpdateRuleGroup(ctx, in)
+		return srv.(SecurityServiceServer).UpdateRuleBased(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_UpdateRuleGroup_FullMethodName,
+		FullMethod: SecurityService_UpdateRuleBased_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).UpdateRuleGroup(ctx, req.(*UpdateRuleGroupRequest))
+		return srv.(SecurityServiceServer).UpdateRuleBased(ctx, req.(*UpdateRuleBasedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_DeleteRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRuleGroupRequest)
+func _SecurityService_DeleteRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRuleBasedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).DeleteRuleGroup(ctx, in)
+		return srv.(SecurityServiceServer).DeleteRuleBased(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_DeleteRuleGroup_FullMethodName,
+		FullMethod: SecurityService_DeleteRuleBased_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).DeleteRuleGroup(ctx, req.(*DeleteRuleGroupRequest))
+		return srv.(SecurityServiceServer).DeleteRuleBased(ctx, req.(*DeleteRuleBasedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_ListRuleGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRuleGroupsRequest)
+func _SecurityService_ListRuleBaseds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRuleBasedsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).ListRuleGroups(ctx, in)
+		return srv.(SecurityServiceServer).ListRuleBaseds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_ListRuleGroups_FullMethodName,
+		FullMethod: SecurityService_ListRuleBaseds_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).ListRuleGroups(ctx, req.(*ListRuleGroupsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityService_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRuleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).CreateRule(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityService_CreateRule_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).CreateRule(ctx, req.(*CreateRuleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityService_GetRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRuleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).GetRule(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityService_GetRule_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).GetRule(ctx, req.(*GetRuleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityService_UpdateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRuleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).UpdateRule(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityService_UpdateRule_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).UpdateRule(ctx, req.(*UpdateRuleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityService_DeleteRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRuleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).DeleteRule(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityService_DeleteRule_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).DeleteRule(ctx, req.(*DeleteRuleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityService_ListRules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRulesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).ListRules(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityService_ListRules_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).ListRules(ctx, req.(*ListRulesRequest))
+		return srv.(SecurityServiceServer).ListRuleBaseds(ctx, req.(*ListRuleBasedsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -490,44 +310,24 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SecurityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateRuleGroup",
-			Handler:    _SecurityService_CreateRuleGroup_Handler,
+			MethodName: "CreateRuleBased",
+			Handler:    _SecurityService_CreateRuleBased_Handler,
 		},
 		{
-			MethodName: "GetRuleGroup",
-			Handler:    _SecurityService_GetRuleGroup_Handler,
+			MethodName: "GetRuleBased",
+			Handler:    _SecurityService_GetRuleBased_Handler,
 		},
 		{
-			MethodName: "UpdateRuleGroup",
-			Handler:    _SecurityService_UpdateRuleGroup_Handler,
+			MethodName: "UpdateRuleBased",
+			Handler:    _SecurityService_UpdateRuleBased_Handler,
 		},
 		{
-			MethodName: "DeleteRuleGroup",
-			Handler:    _SecurityService_DeleteRuleGroup_Handler,
+			MethodName: "DeleteRuleBased",
+			Handler:    _SecurityService_DeleteRuleBased_Handler,
 		},
 		{
-			MethodName: "ListRuleGroups",
-			Handler:    _SecurityService_ListRuleGroups_Handler,
-		},
-		{
-			MethodName: "CreateRule",
-			Handler:    _SecurityService_CreateRule_Handler,
-		},
-		{
-			MethodName: "GetRule",
-			Handler:    _SecurityService_GetRule_Handler,
-		},
-		{
-			MethodName: "UpdateRule",
-			Handler:    _SecurityService_UpdateRule_Handler,
-		},
-		{
-			MethodName: "DeleteRule",
-			Handler:    _SecurityService_DeleteRule_Handler,
-		},
-		{
-			MethodName: "ListRules",
-			Handler:    _SecurityService_ListRules_Handler,
+			MethodName: "ListRuleBaseds",
+			Handler:    _SecurityService_ListRuleBaseds_Handler,
 		},
 		{
 			MethodName: "Status",

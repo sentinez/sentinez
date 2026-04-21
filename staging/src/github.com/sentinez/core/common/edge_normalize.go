@@ -19,11 +19,10 @@ import (
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/shared/ids"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
-	rgPrefix   = "senz.rulegroup."
+	rgPrefix   = "senz.RuleBased."
 	condPrefix = "senz.cond."
 	rulePrefix = "senz.rule."
 )
@@ -33,20 +32,20 @@ func NormalizeEdgeSetting(edge *edgepb.Setting) {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	rgLite := edgeSec.GetRuleGroup()
+	rgLite := edgeSec.GetRuleBased()
 	if rgLite == nil {
 		return
 	}
 
-	edgeSec.RuleGroupCompiled = toRuleGroup(rgLite)
+	edgeSec.RuleBasedCompiled = toRuleBased(rgLite)
 }
 
-func toRuleGroup(rgLite *ruleenginepb.RuleGroupLite) *ruleenginepb.RuleGroup {
+func toRuleBased(rgLite *ruleenginepb.RuleBasedLite) *ruleenginepb.RuleBased {
 	if rgLite == nil {
 		return nil
 	}
 
-	return &ruleenginepb.RuleGroup{
+	return &ruleenginepb.RuleBased{
 		Id:          rgLite.GetId(),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
@@ -55,13 +54,13 @@ func toRuleGroup(rgLite *ruleenginepb.RuleGroupLite) *ruleenginepb.RuleGroup {
 }
 
 func toNode(
-	nodeLite *ruleenginepb.RuleGroupLite_NodeLite,
-) *ruleenginepb.RuleGroup_Node {
+	nodeLite *ruleenginepb.RuleBasedLite_NodeLite,
+) *ruleenginepb.RuleBased_Node {
 	if nodeLite == nil {
 		return nil
 	}
 
-	node := &ruleenginepb.RuleGroup_Node{
+	node := &ruleenginepb.RuleBased_Node{
 		Operator: toLogic(nodeLite.GetOperator()),
 	}
 
@@ -125,10 +124,6 @@ func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
 	return &ruleenginepb.Rule{
 		Id:        ids.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
-		Priority:  rule.GetPriority(),
-		Enabled:   rule.GetEnabled(),
-		CreatedAt: timestamppb.Now(),
-		UpdatedAt: timestamppb.Now(),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

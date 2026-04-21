@@ -387,8 +387,8 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 type Security struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	IsWafEngineOn     bool                   `protobuf:"varint,1,opt,name=is_waf_engine_on,json=isWafEngineOn,proto3" json:"is_waf_engine_on,omitempty" yaml:"isWafEngineOn"`          // @gotags: yaml:"isWafEngineOn"
-	RuleGroup         *v1.RuleGroupLite      `protobuf:"bytes,2,opt,name=rule_group,json=ruleGroup,proto3" json:"rule_group,omitempty" yaml:"ruleGroup"`                           // @gotags: yaml:"ruleGroup"
-	RuleGroupCompiled *v1.RuleGroup          `protobuf:"bytes,3,opt,name=rule_group_compiled,json=ruleGroupCompiled,proto3" json:"rule_group_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	RuleBased         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty" yaml:"ruleBased"`                           // @gotags: yaml:"ruleBased"
+	RuleBasedCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_based_compiled,json=ruleBasedCompiled,proto3" json:"rule_based_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
 	IsRateLimitOn     bool                   `protobuf:"varint,10,opt,name=is_rate_limit_on,json=isRateLimitOn,proto3" json:"is_rate_limit_on,omitempty" yaml:"isRateLimitOn"`         //@gotags: yaml:"isRateLimitOn"
 	TimeWindow        string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`                       //@gotags: yaml:"timeWindow"
 	Limit             int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                                  //@gotags: yaml:"limit"
@@ -434,16 +434,16 @@ func (x *Security) GetIsWafEngineOn() bool {
 	return false
 }
 
-func (x *Security) GetRuleGroup() *v1.RuleGroupLite {
+func (x *Security) GetRuleBased() *v1.RuleBasedLite {
 	if x != nil {
-		return x.RuleGroup
+		return x.RuleBased
 	}
 	return nil
 }
 
-func (x *Security) GetRuleGroupCompiled() *v1.RuleGroup {
+func (x *Security) GetRuleBasedCompiled() *v1.RuleBased {
 	if x != nil {
-		return x.RuleGroupCompiled
+		return x.RuleBasedCompiled
 	}
 	return nil
 }
@@ -634,8 +634,8 @@ const file_sentinez_edge_v1_setting_proto_rawDesc = "" +
 	"\bSecurity\x12'\n" +
 	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12Q\n" +
 	"\n" +
-	"rule_group\x18\x02 \x01(\v22.sentinez.types.secure.ruleengine.v1.RuleGroupLiteR\truleGroup\x12^\n" +
-	"\x13rule_group_compiled\x18\x03 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupR\x11ruleGroupCompiled\x12'\n" +
+	"rule_based\x18\x02 \x01(\v22.sentinez.types.secure.ruleengine.v1.RuleBasedLiteR\truleBased\x12^\n" +
+	"\x13rule_based_compiled\x18\x03 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\x11ruleBasedCompiled\x12'\n" +
 	"\x10is_rate_limit_on\x18\n" +
 	" \x01(\bR\risRateLimitOn\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
@@ -683,8 +683,8 @@ var file_sentinez_edge_v1_setting_proto_goTypes = []any{
 	(*Personal)(nil),         // 8: sentinez.edge.v1.Personal
 	(*Upstream)(nil),         // 9: sentinez.edge.v1.Upstream
 	nil,                      // 10: sentinez.edge.v1.Location.ProxySetHeadersEntry
-	(*v1.RuleGroupLite)(nil), // 11: sentinez.types.secure.ruleengine.v1.RuleGroupLite
-	(*v1.RuleGroup)(nil),     // 12: sentinez.types.secure.ruleengine.v1.RuleGroup
+	(*v1.RuleBasedLite)(nil), // 11: sentinez.types.secure.ruleengine.v1.RuleBasedLite
+	(*v1.RuleBased)(nil),     // 12: sentinez.types.secure.ruleengine.v1.RuleBased
 }
 var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.edge.v1.Setting.metadata:type_name -> sentinez.edge.v1.Metadata
@@ -696,8 +696,8 @@ var file_sentinez_edge_v1_setting_proto_depIdxs = []int32{
 	9,  // 6: sentinez.edge.v1.Location.proxy_pass:type_name -> sentinez.edge.v1.Upstream
 	0,  // 7: sentinez.edge.v1.Location.balance_strategy:type_name -> sentinez.edge.v1.BalanceStrategy
 	10, // 8: sentinez.edge.v1.Location.proxy_set_headers:type_name -> sentinez.edge.v1.Location.ProxySetHeadersEntry
-	11, // 9: sentinez.edge.v1.Security.rule_group:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroupLite
-	12, // 10: sentinez.edge.v1.Security.rule_group_compiled:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
+	11, // 9: sentinez.edge.v1.Security.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite
+	12, // 10: sentinez.edge.v1.Security.rule_based_compiled:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
 	1,  // 11: sentinez.edge.v1.Upstream.protocol:type_name -> sentinez.edge.v1.ProxyProtocol
 	12, // [12:12] is the sub-list for method output_type
 	12, // [12:12] is the sub-list for method input_type

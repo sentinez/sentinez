@@ -41,27 +41,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type CreateRuleGroupRequest struct {
+type CreateRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleGroup     *v1.RuleGroup          `protobuf:"bytes,1,opt,name=rule_group,json=ruleGroup,proto3" json:"rule_group,omitempty"`
+	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateRuleGroupRequest) Reset() {
-	*x = CreateRuleGroupRequest{}
+func (x *CreateRuleBasedRequest) Reset() {
+	*x = CreateRuleBasedRequest{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateRuleGroupRequest) String() string {
+func (x *CreateRuleBasedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateRuleGroupRequest) ProtoMessage() {}
+func (*CreateRuleBasedRequest) ProtoMessage() {}
 
-func (x *CreateRuleGroupRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateRuleBasedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -73,39 +73,39 @@ func (x *CreateRuleGroupRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateRuleGroupRequest.ProtoReflect.Descriptor instead.
-func (*CreateRuleGroupRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateRuleBasedRequest.ProtoReflect.Descriptor instead.
+func (*CreateRuleBasedRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateRuleGroupRequest) GetRuleGroup() *v1.RuleGroup {
+func (x *CreateRuleBasedRequest) GetRuleBased() *v1.RuleBased {
 	if x != nil {
-		return x.RuleGroup
+		return x.RuleBased
 	}
 	return nil
 }
 
-type CreateRuleGroupResponse struct {
+type CreateRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateRuleGroupResponse) Reset() {
-	*x = CreateRuleGroupResponse{}
+func (x *CreateRuleBasedResponse) Reset() {
+	*x = CreateRuleBasedResponse{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateRuleGroupResponse) String() string {
+func (x *CreateRuleBasedResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateRuleGroupResponse) ProtoMessage() {}
+func (*CreateRuleBasedResponse) ProtoMessage() {}
 
-func (x *CreateRuleGroupResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateRuleBasedResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -117,39 +117,39 @@ func (x *CreateRuleGroupResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateRuleGroupResponse.ProtoReflect.Descriptor instead.
-func (*CreateRuleGroupResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateRuleBasedResponse.ProtoReflect.Descriptor instead.
+func (*CreateRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateRuleGroupResponse) GetId() string {
+func (x *CreateRuleBasedResponse) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetRuleGroupRequest struct {
+type GetRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRuleGroupRequest) Reset() {
-	*x = GetRuleGroupRequest{}
+func (x *GetRuleBasedRequest) Reset() {
+	*x = GetRuleBasedRequest{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRuleGroupRequest) String() string {
+func (x *GetRuleBasedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRuleGroupRequest) ProtoMessage() {}
+func (*GetRuleBasedRequest) ProtoMessage() {}
 
-func (x *GetRuleGroupRequest) ProtoReflect() protoreflect.Message {
+func (x *GetRuleBasedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -161,39 +161,39 @@ func (x *GetRuleGroupRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRuleGroupRequest.ProtoReflect.Descriptor instead.
-func (*GetRuleGroupRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetRuleBasedRequest.ProtoReflect.Descriptor instead.
+func (*GetRuleBasedRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetRuleGroupRequest) GetId() string {
+func (x *GetRuleBasedRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetRuleGroupResponse struct {
+type GetRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleGroup     *v1.RuleGroup          `protobuf:"bytes,1,opt,name=rule_group,json=ruleGroup,proto3" json:"rule_group,omitempty"`
+	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRuleGroupResponse) Reset() {
-	*x = GetRuleGroupResponse{}
+func (x *GetRuleBasedResponse) Reset() {
+	*x = GetRuleBasedResponse{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRuleGroupResponse) String() string {
+func (x *GetRuleBasedResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRuleGroupResponse) ProtoMessage() {}
+func (*GetRuleBasedResponse) ProtoMessage() {}
 
-func (x *GetRuleGroupResponse) ProtoReflect() protoreflect.Message {
+func (x *GetRuleBasedResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -205,41 +205,41 @@ func (x *GetRuleGroupResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRuleGroupResponse.ProtoReflect.Descriptor instead.
-func (*GetRuleGroupResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetRuleBasedResponse.ProtoReflect.Descriptor instead.
+func (*GetRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetRuleGroupResponse) GetRuleGroup() *v1.RuleGroup {
+func (x *GetRuleBasedResponse) GetRuleBased() *v1.RuleBased {
 	if x != nil {
-		return x.RuleGroup
+		return x.RuleBased
 	}
 	return nil
 }
 
-type UpdateRuleGroupRequest struct {
+type UpdateRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RuleGroup     *v1.RuleGroup          `protobuf:"bytes,2,opt,name=rule_group,json=ruleGroup,proto3" json:"rule_group,omitempty"`
+	RuleBased     *v1.RuleBased          `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateRuleGroupRequest) Reset() {
-	*x = UpdateRuleGroupRequest{}
+func (x *UpdateRuleBasedRequest) Reset() {
+	*x = UpdateRuleBasedRequest{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateRuleGroupRequest) String() string {
+func (x *UpdateRuleBasedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateRuleGroupRequest) ProtoMessage() {}
+func (*UpdateRuleBasedRequest) ProtoMessage() {}
 
-func (x *UpdateRuleGroupRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateRuleBasedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -251,53 +251,53 @@ func (x *UpdateRuleGroupRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateRuleGroupRequest.ProtoReflect.Descriptor instead.
-func (*UpdateRuleGroupRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateRuleBasedRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRuleBasedRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *UpdateRuleGroupRequest) GetId() string {
+func (x *UpdateRuleBasedRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *UpdateRuleGroupRequest) GetRuleGroup() *v1.RuleGroup {
+func (x *UpdateRuleBasedRequest) GetRuleBased() *v1.RuleBased {
 	if x != nil {
-		return x.RuleGroup
+		return x.RuleBased
 	}
 	return nil
 }
 
-func (x *UpdateRuleGroupRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+func (x *UpdateRuleBasedRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
 	}
 	return nil
 }
 
-type UpdateRuleGroupResponse struct {
+type UpdateRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleGroup     *v1.RuleGroup          `protobuf:"bytes,1,opt,name=rule_group,json=ruleGroup,proto3" json:"rule_group,omitempty"`
+	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateRuleGroupResponse) Reset() {
-	*x = UpdateRuleGroupResponse{}
+func (x *UpdateRuleBasedResponse) Reset() {
+	*x = UpdateRuleBasedResponse{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateRuleGroupResponse) String() string {
+func (x *UpdateRuleBasedResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateRuleGroupResponse) ProtoMessage() {}
+func (*UpdateRuleBasedResponse) ProtoMessage() {}
 
-func (x *UpdateRuleGroupResponse) ProtoReflect() protoreflect.Message {
+func (x *UpdateRuleBasedResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -309,39 +309,39 @@ func (x *UpdateRuleGroupResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateRuleGroupResponse.ProtoReflect.Descriptor instead.
-func (*UpdateRuleGroupResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateRuleBasedResponse.ProtoReflect.Descriptor instead.
+func (*UpdateRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *UpdateRuleGroupResponse) GetRuleGroup() *v1.RuleGroup {
+func (x *UpdateRuleBasedResponse) GetRuleBased() *v1.RuleBased {
 	if x != nil {
-		return x.RuleGroup
+		return x.RuleBased
 	}
 	return nil
 }
 
-type DeleteRuleGroupRequest struct {
+type DeleteRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteRuleGroupRequest) Reset() {
-	*x = DeleteRuleGroupRequest{}
+func (x *DeleteRuleBasedRequest) Reset() {
+	*x = DeleteRuleBasedRequest{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteRuleGroupRequest) String() string {
+func (x *DeleteRuleBasedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteRuleGroupRequest) ProtoMessage() {}
+func (*DeleteRuleBasedRequest) ProtoMessage() {}
 
-func (x *DeleteRuleGroupRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteRuleBasedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -353,38 +353,38 @@ func (x *DeleteRuleGroupRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteRuleGroupRequest.ProtoReflect.Descriptor instead.
-func (*DeleteRuleGroupRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteRuleBasedRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRuleBasedRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteRuleGroupRequest) GetId() string {
+func (x *DeleteRuleBasedRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type DeleteRuleGroupResponse struct {
+type DeleteRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteRuleGroupResponse) Reset() {
-	*x = DeleteRuleGroupResponse{}
+func (x *DeleteRuleBasedResponse) Reset() {
+	*x = DeleteRuleBasedResponse{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteRuleGroupResponse) String() string {
+func (x *DeleteRuleBasedResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteRuleGroupResponse) ProtoMessage() {}
+func (*DeleteRuleBasedResponse) ProtoMessage() {}
 
-func (x *DeleteRuleGroupResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteRuleBasedResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -396,12 +396,12 @@ func (x *DeleteRuleGroupResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteRuleGroupResponse.ProtoReflect.Descriptor instead.
-func (*DeleteRuleGroupResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteRuleBasedResponse.ProtoReflect.Descriptor instead.
+func (*DeleteRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{7}
 }
 
-type ListRuleGroupsRequest struct {
+type ListRuleBasedsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
@@ -409,20 +409,20 @@ type ListRuleGroupsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleGroupsRequest) Reset() {
-	*x = ListRuleGroupsRequest{}
+func (x *ListRuleBasedsRequest) Reset() {
+	*x = ListRuleBasedsRequest{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleGroupsRequest) String() string {
+func (x *ListRuleBasedsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleGroupsRequest) ProtoMessage() {}
+func (*ListRuleBasedsRequest) ProtoMessage() {}
 
-func (x *ListRuleGroupsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListRuleBasedsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -434,47 +434,47 @@ func (x *ListRuleGroupsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleGroupsRequest.ProtoReflect.Descriptor instead.
-func (*ListRuleGroupsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRuleBasedsRequest.ProtoReflect.Descriptor instead.
+func (*ListRuleBasedsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListRuleGroupsRequest) GetPage() *v11.Pages {
+func (x *ListRuleBasedsRequest) GetPage() *v11.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListRuleGroupsRequest) GetIds() []string {
+func (x *ListRuleBasedsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-type ListRuleGroupsResponse struct {
+type ListRuleBasedsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleGroups    []*v1.RuleGroup        `protobuf:"bytes,1,rep,name=rule_groups,json=ruleGroups,proto3" json:"rule_groups,omitempty"`
+	RuleBaseds    []*v1.RuleBased        `protobuf:"bytes,1,rep,name=rule_baseds,json=ruleBaseds,proto3" json:"rule_baseds,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleGroupsResponse) Reset() {
-	*x = ListRuleGroupsResponse{}
+func (x *ListRuleBasedsResponse) Reset() {
+	*x = ListRuleBasedsResponse{}
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleGroupsResponse) String() string {
+func (x *ListRuleBasedsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleGroupsResponse) ProtoMessage() {}
+func (*ListRuleBasedsResponse) ProtoMessage() {}
 
-func (x *ListRuleGroupsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListRuleBasedsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_core_security_v1_security_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -486,19 +486,19 @@ func (x *ListRuleGroupsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleGroupsResponse.ProtoReflect.Descriptor instead.
-func (*ListRuleGroupsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListRuleBasedsResponse.ProtoReflect.Descriptor instead.
+func (*ListRuleBasedsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListRuleGroupsResponse) GetRuleGroups() []*v1.RuleGroup {
+func (x *ListRuleBasedsResponse) GetRuleBaseds() []*v1.RuleBased {
 	if x != nil {
-		return x.RuleGroups
+		return x.RuleBaseds
 	}
 	return nil
 }
 
-func (x *ListRuleGroupsResponse) GetTotal() int64 {
+func (x *ListRuleBasedsResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
@@ -1054,35 +1054,35 @@ var File_sentinez_core_security_v1_security_proto protoreflect.FileDescriptor
 const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\n" +
 	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"o\n" +
-	"\x16CreateRuleGroupRequest\x12U\n" +
+	"\x16CreateRuleBasedRequest\x12U\n" +
 	"\n" +
-	"rule_group\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\truleGroup\")\n" +
-	"\x17CreateRuleGroupResponse\x12\x0e\n" +
+	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\")\n" +
+	"\x17CreateRuleBasedResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\".\n" +
-	"\x13GetRuleGroupRequest\x12\x17\n" +
+	"\x13GetRuleBasedRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"e\n" +
-	"\x14GetRuleGroupResponse\x12M\n" +
+	"\x14GetRuleBasedResponse\x12M\n" +
 	"\n" +
-	"rule_group\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupR\truleGroup\"\xc5\x01\n" +
-	"\x16UpdateRuleGroupRequest\x12\x17\n" +
+	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\truleBased\"\xc5\x01\n" +
+	"\x16UpdateRuleBasedRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12U\n" +
 	"\n" +
-	"rule_group\x18\x02 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\truleGroup\x12;\n" +
+	"rule_based\x18\x02 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"h\n" +
-	"\x17UpdateRuleGroupResponse\x12M\n" +
+	"\x17UpdateRuleBasedResponse\x12M\n" +
 	"\n" +
-	"rule_group\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupR\truleGroup\"1\n" +
-	"\x16DeleteRuleGroupRequest\x12\x17\n" +
+	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\truleBased\"1\n" +
+	"\x16DeleteRuleBasedRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x19\n" +
-	"\x17DeleteRuleGroupResponse\"W\n" +
-	"\x15ListRuleGroupsRequest\x12,\n" +
+	"\x17DeleteRuleBasedResponse\"W\n" +
+	"\x15ListRuleBasedsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\"\x7f\n" +
-	"\x16ListRuleGroupsResponse\x12O\n" +
-	"\vrule_groups\x18\x01 \x03(\v2..sentinez.types.secure.ruleengine.v1.RuleGroupR\n" +
-	"ruleGroups\x12\x14\n" +
+	"\x16ListRuleBasedsResponse\x12O\n" +
+	"\vrule_baseds\x18\x01 \x03(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\n" +
+	"ruleBaseds\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"Z\n" +
 	"\x11CreateRuleRequest\x12E\n" +
 	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleB\x06\xbaH\x03\xc8\x01\x01R\x04rule\"$\n" +
@@ -1111,21 +1111,13 @@ const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\xae\f\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\x92\a\n" +
 	"\x0fSecurityService\x12\x98\x01\n" +
-	"\x0fCreateRuleGroup\x121.sentinez.core.security.v1.CreateRuleGroupRequest\x1a2.sentinez.core.security.v1.CreateRuleGroupResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/security/rulegroup\x12\x91\x01\n" +
-	"\fGetRuleGroup\x12..sentinez.core.security.v1.GetRuleGroupRequest\x1a/.sentinez.core.security.v1.GetRuleGroupResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/security/rulegroup/{id}\x12\x9d\x01\n" +
-	"\x0fUpdateRuleGroup\x121.sentinez.core.security.v1.UpdateRuleGroupRequest\x1a2.sentinez.core.security.v1.UpdateRuleGroupResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/security/rulegroup/{id}\x12\x9a\x01\n" +
-	"\x0fDeleteRuleGroup\x121.sentinez.core.security.v1.DeleteRuleGroupRequest\x1a2.sentinez.core.security.v1.DeleteRuleGroupResponse\" \x82\xd3\xe4\x93\x02\x1a*\x18/security/rulegroup/{id}\x12\x93\x01\n" +
-	"\x0eListRuleGroups\x120.sentinez.core.security.v1.ListRuleGroupsRequest\x1a1.sentinez.core.security.v1.ListRuleGroupsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/security/rulegroups\x12\x84\x01\n" +
-	"\n" +
-	"CreateRule\x12,.sentinez.core.security.v1.CreateRuleRequest\x1a-.sentinez.core.security.v1.CreateRuleResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/security/rule\x12}\n" +
-	"\aGetRule\x12).sentinez.core.security.v1.GetRuleRequest\x1a*.sentinez.core.security.v1.GetRuleResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/security/rule/{id}\x12\x89\x01\n" +
-	"\n" +
-	"UpdateRule\x12,.sentinez.core.security.v1.UpdateRuleRequest\x1a-.sentinez.core.security.v1.UpdateRuleResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/security/rule/{id}\x12\x86\x01\n" +
-	"\n" +
-	"DeleteRule\x12,.sentinez.core.security.v1.DeleteRuleRequest\x1a-.sentinez.core.security.v1.DeleteRuleResponse\"\x1b\x82\xd3\xe4\x93\x02\x15*\x13/security/rule/{id}\x12\x7f\n" +
-	"\tListRules\x12+.sentinez.core.security.v1.ListRulesRequest\x1a,.sentinez.core.security.v1.ListRulesResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/security/rules\x12}\n" +
+	"\x0fCreateRuleBased\x121.sentinez.core.security.v1.CreateRuleBasedRequest\x1a2.sentinez.core.security.v1.CreateRuleBasedResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/security/rulebased\x12\x91\x01\n" +
+	"\fGetRuleBased\x12..sentinez.core.security.v1.GetRuleBasedRequest\x1a/.sentinez.core.security.v1.GetRuleBasedResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/security/rulebased/{id}\x12\x9d\x01\n" +
+	"\x0fUpdateRuleBased\x121.sentinez.core.security.v1.UpdateRuleBasedRequest\x1a2.sentinez.core.security.v1.UpdateRuleBasedResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/security/rulebased/{id}\x12\x9a\x01\n" +
+	"\x0fDeleteRuleBased\x121.sentinez.core.security.v1.DeleteRuleBasedRequest\x1a2.sentinez.core.security.v1.DeleteRuleBasedResponse\" \x82\xd3\xe4\x93\x02\x1a*\x18/security/rulebased/{id}\x12\x93\x01\n" +
+	"\x0eListRuleBaseds\x120.sentinez.core.security.v1.ListRuleBasedsRequest\x1a1.sentinez.core.security.v1.ListRuleBasedsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/security/rulebaseds\x12}\n" +
 	"\x06Status\x12(.sentinez.core.security.v1.StatusRequest\x1a).sentinez.core.security.v1.StatusResponse\"\x1e\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/security/statusB\xee\x01\x92Af\x12\x17\n" +
 	"\x10Security Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
@@ -1150,16 +1142,16 @@ func file_sentinez_core_security_v1_security_proto_rawDescGZIP() []byte {
 
 var file_sentinez_core_security_v1_security_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_sentinez_core_security_v1_security_proto_goTypes = []any{
-	(*CreateRuleGroupRequest)(nil),  // 0: sentinez.core.security.v1.CreateRuleGroupRequest
-	(*CreateRuleGroupResponse)(nil), // 1: sentinez.core.security.v1.CreateRuleGroupResponse
-	(*GetRuleGroupRequest)(nil),     // 2: sentinez.core.security.v1.GetRuleGroupRequest
-	(*GetRuleGroupResponse)(nil),    // 3: sentinez.core.security.v1.GetRuleGroupResponse
-	(*UpdateRuleGroupRequest)(nil),  // 4: sentinez.core.security.v1.UpdateRuleGroupRequest
-	(*UpdateRuleGroupResponse)(nil), // 5: sentinez.core.security.v1.UpdateRuleGroupResponse
-	(*DeleteRuleGroupRequest)(nil),  // 6: sentinez.core.security.v1.DeleteRuleGroupRequest
-	(*DeleteRuleGroupResponse)(nil), // 7: sentinez.core.security.v1.DeleteRuleGroupResponse
-	(*ListRuleGroupsRequest)(nil),   // 8: sentinez.core.security.v1.ListRuleGroupsRequest
-	(*ListRuleGroupsResponse)(nil),  // 9: sentinez.core.security.v1.ListRuleGroupsResponse
+	(*CreateRuleBasedRequest)(nil),  // 0: sentinez.core.security.v1.CreateRuleBasedRequest
+	(*CreateRuleBasedResponse)(nil), // 1: sentinez.core.security.v1.CreateRuleBasedResponse
+	(*GetRuleBasedRequest)(nil),     // 2: sentinez.core.security.v1.GetRuleBasedRequest
+	(*GetRuleBasedResponse)(nil),    // 3: sentinez.core.security.v1.GetRuleBasedResponse
+	(*UpdateRuleBasedRequest)(nil),  // 4: sentinez.core.security.v1.UpdateRuleBasedRequest
+	(*UpdateRuleBasedResponse)(nil), // 5: sentinez.core.security.v1.UpdateRuleBasedResponse
+	(*DeleteRuleBasedRequest)(nil),  // 6: sentinez.core.security.v1.DeleteRuleBasedRequest
+	(*DeleteRuleBasedResponse)(nil), // 7: sentinez.core.security.v1.DeleteRuleBasedResponse
+	(*ListRuleBasedsRequest)(nil),   // 8: sentinez.core.security.v1.ListRuleBasedsRequest
+	(*ListRuleBasedsResponse)(nil),  // 9: sentinez.core.security.v1.ListRuleBasedsResponse
 	(*CreateRuleRequest)(nil),       // 10: sentinez.core.security.v1.CreateRuleRequest
 	(*CreateRuleResponse)(nil),      // 11: sentinez.core.security.v1.CreateRuleResponse
 	(*GetRuleRequest)(nil),          // 12: sentinez.core.security.v1.GetRuleRequest
@@ -1172,19 +1164,19 @@ var file_sentinez_core_security_v1_security_proto_goTypes = []any{
 	(*ListRulesResponse)(nil),       // 19: sentinez.core.security.v1.ListRulesResponse
 	(*StatusRequest)(nil),           // 20: sentinez.core.security.v1.StatusRequest
 	(*StatusResponse)(nil),          // 21: sentinez.core.security.v1.StatusResponse
-	(*v1.RuleGroup)(nil),            // 22: sentinez.types.secure.ruleengine.v1.RuleGroup
+	(*v1.RuleBased)(nil),            // 22: sentinez.types.secure.ruleengine.v1.RuleBased
 	(*fieldmaskpb.FieldMask)(nil),   // 23: google.protobuf.FieldMask
 	(*v11.Pages)(nil),               // 24: sentinez.types.v1.Pages
 	(*v1.Rule)(nil),                 // 25: sentinez.types.secure.ruleengine.v1.Rule
 }
 var file_sentinez_core_security_v1_security_proto_depIdxs = []int32{
-	22, // 0: sentinez.core.security.v1.CreateRuleGroupRequest.rule_group:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
-	22, // 1: sentinez.core.security.v1.GetRuleGroupResponse.rule_group:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
-	22, // 2: sentinez.core.security.v1.UpdateRuleGroupRequest.rule_group:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
-	23, // 3: sentinez.core.security.v1.UpdateRuleGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	22, // 4: sentinez.core.security.v1.UpdateRuleGroupResponse.rule_group:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
-	24, // 5: sentinez.core.security.v1.ListRuleGroupsRequest.page:type_name -> sentinez.types.v1.Pages
-	22, // 6: sentinez.core.security.v1.ListRuleGroupsResponse.rule_groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleGroup
+	22, // 0: sentinez.core.security.v1.CreateRuleBasedRequest.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	22, // 1: sentinez.core.security.v1.GetRuleBasedResponse.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	22, // 2: sentinez.core.security.v1.UpdateRuleBasedRequest.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	23, // 3: sentinez.core.security.v1.UpdateRuleBasedRequest.update_mask:type_name -> google.protobuf.FieldMask
+	22, // 4: sentinez.core.security.v1.UpdateRuleBasedResponse.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	24, // 5: sentinez.core.security.v1.ListRuleBasedsRequest.page:type_name -> sentinez.types.v1.Pages
+	22, // 6: sentinez.core.security.v1.ListRuleBasedsResponse.rule_baseds:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
 	25, // 7: sentinez.core.security.v1.CreateRuleRequest.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
 	25, // 8: sentinez.core.security.v1.GetRuleResponse.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
 	25, // 9: sentinez.core.security.v1.UpdateRuleRequest.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
@@ -1192,30 +1184,20 @@ var file_sentinez_core_security_v1_security_proto_depIdxs = []int32{
 	25, // 11: sentinez.core.security.v1.UpdateRuleResponse.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
 	24, // 12: sentinez.core.security.v1.ListRulesRequest.page:type_name -> sentinez.types.v1.Pages
 	25, // 13: sentinez.core.security.v1.ListRulesResponse.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	0,  // 14: sentinez.core.security.v1.SecurityService.CreateRuleGroup:input_type -> sentinez.core.security.v1.CreateRuleGroupRequest
-	2,  // 15: sentinez.core.security.v1.SecurityService.GetRuleGroup:input_type -> sentinez.core.security.v1.GetRuleGroupRequest
-	4,  // 16: sentinez.core.security.v1.SecurityService.UpdateRuleGroup:input_type -> sentinez.core.security.v1.UpdateRuleGroupRequest
-	6,  // 17: sentinez.core.security.v1.SecurityService.DeleteRuleGroup:input_type -> sentinez.core.security.v1.DeleteRuleGroupRequest
-	8,  // 18: sentinez.core.security.v1.SecurityService.ListRuleGroups:input_type -> sentinez.core.security.v1.ListRuleGroupsRequest
-	10, // 19: sentinez.core.security.v1.SecurityService.CreateRule:input_type -> sentinez.core.security.v1.CreateRuleRequest
-	12, // 20: sentinez.core.security.v1.SecurityService.GetRule:input_type -> sentinez.core.security.v1.GetRuleRequest
-	14, // 21: sentinez.core.security.v1.SecurityService.UpdateRule:input_type -> sentinez.core.security.v1.UpdateRuleRequest
-	16, // 22: sentinez.core.security.v1.SecurityService.DeleteRule:input_type -> sentinez.core.security.v1.DeleteRuleRequest
-	18, // 23: sentinez.core.security.v1.SecurityService.ListRules:input_type -> sentinez.core.security.v1.ListRulesRequest
-	20, // 24: sentinez.core.security.v1.SecurityService.Status:input_type -> sentinez.core.security.v1.StatusRequest
-	1,  // 25: sentinez.core.security.v1.SecurityService.CreateRuleGroup:output_type -> sentinez.core.security.v1.CreateRuleGroupResponse
-	3,  // 26: sentinez.core.security.v1.SecurityService.GetRuleGroup:output_type -> sentinez.core.security.v1.GetRuleGroupResponse
-	5,  // 27: sentinez.core.security.v1.SecurityService.UpdateRuleGroup:output_type -> sentinez.core.security.v1.UpdateRuleGroupResponse
-	7,  // 28: sentinez.core.security.v1.SecurityService.DeleteRuleGroup:output_type -> sentinez.core.security.v1.DeleteRuleGroupResponse
-	9,  // 29: sentinez.core.security.v1.SecurityService.ListRuleGroups:output_type -> sentinez.core.security.v1.ListRuleGroupsResponse
-	11, // 30: sentinez.core.security.v1.SecurityService.CreateRule:output_type -> sentinez.core.security.v1.CreateRuleResponse
-	13, // 31: sentinez.core.security.v1.SecurityService.GetRule:output_type -> sentinez.core.security.v1.GetRuleResponse
-	15, // 32: sentinez.core.security.v1.SecurityService.UpdateRule:output_type -> sentinez.core.security.v1.UpdateRuleResponse
-	17, // 33: sentinez.core.security.v1.SecurityService.DeleteRule:output_type -> sentinez.core.security.v1.DeleteRuleResponse
-	19, // 34: sentinez.core.security.v1.SecurityService.ListRules:output_type -> sentinez.core.security.v1.ListRulesResponse
-	21, // 35: sentinez.core.security.v1.SecurityService.Status:output_type -> sentinez.core.security.v1.StatusResponse
-	25, // [25:36] is the sub-list for method output_type
-	14, // [14:25] is the sub-list for method input_type
+	0,  // 14: sentinez.core.security.v1.SecurityService.CreateRuleBased:input_type -> sentinez.core.security.v1.CreateRuleBasedRequest
+	2,  // 15: sentinez.core.security.v1.SecurityService.GetRuleBased:input_type -> sentinez.core.security.v1.GetRuleBasedRequest
+	4,  // 16: sentinez.core.security.v1.SecurityService.UpdateRuleBased:input_type -> sentinez.core.security.v1.UpdateRuleBasedRequest
+	6,  // 17: sentinez.core.security.v1.SecurityService.DeleteRuleBased:input_type -> sentinez.core.security.v1.DeleteRuleBasedRequest
+	8,  // 18: sentinez.core.security.v1.SecurityService.ListRuleBaseds:input_type -> sentinez.core.security.v1.ListRuleBasedsRequest
+	20, // 19: sentinez.core.security.v1.SecurityService.Status:input_type -> sentinez.core.security.v1.StatusRequest
+	1,  // 20: sentinez.core.security.v1.SecurityService.CreateRuleBased:output_type -> sentinez.core.security.v1.CreateRuleBasedResponse
+	3,  // 21: sentinez.core.security.v1.SecurityService.GetRuleBased:output_type -> sentinez.core.security.v1.GetRuleBasedResponse
+	5,  // 22: sentinez.core.security.v1.SecurityService.UpdateRuleBased:output_type -> sentinez.core.security.v1.UpdateRuleBasedResponse
+	7,  // 23: sentinez.core.security.v1.SecurityService.DeleteRuleBased:output_type -> sentinez.core.security.v1.DeleteRuleBasedResponse
+	9,  // 24: sentinez.core.security.v1.SecurityService.ListRuleBaseds:output_type -> sentinez.core.security.v1.ListRuleBasedsResponse
+	21, // 25: sentinez.core.security.v1.SecurityService.Status:output_type -> sentinez.core.security.v1.StatusResponse
+	20, // [20:26] is the sub-list for method output_type
+	14, // [14:20] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
 	14, // [14:14] is the sub-list for extension extendee
 	0,  // [0:14] is the sub-list for field type_name

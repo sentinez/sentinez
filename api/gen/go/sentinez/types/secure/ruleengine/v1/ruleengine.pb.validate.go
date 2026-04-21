@@ -16,6 +16,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
 
 // ensure the imports are used
@@ -31,6 +33,8 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+
+	_ = typepb.Status(0)
 )
 
 // Validate checks the field values on Condition with the rules defined in the
@@ -216,45 +220,6 @@ func (m *Rule) Validate() error {
 		}
 	}
 
-	for idx, item := range m.GetActions() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return RuleValidationError{
-					field:  fmt.Sprintf("Actions[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	// no validation rules for Priority
-
-	// no validation rules for Enabled
-
-	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return RuleValidationError{
-				field:  "CreatedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return RuleValidationError{
-				field:  "UpdatedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -332,10 +297,6 @@ func (m *RuleLite) Validate() error {
 			}
 		}
 	}
-
-	// no validation rules for Priority
-
-	// no validation rules for Enabled
 
 	return nil
 }
@@ -532,9 +493,9 @@ var _ interface {
 	ErrorName() string
 } = MatchedRulesValidationError{}
 
-// Validate checks the field values on RuleGroup with the rules defined in the
+// Validate checks the field values on RuleBased with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *RuleGroup) Validate() error {
+func (m *RuleBased) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -547,8 +508,42 @@ func (m *RuleGroup) Validate() error {
 
 	if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleGroupValidationError{
+			return RuleBasedValidationError{
 				field:  "Node",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedValidationError{
+				field:  "Action",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for Priority
+
+	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedValidationError{
+				field:  "UpdatedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -558,9 +553,9 @@ func (m *RuleGroup) Validate() error {
 	return nil
 }
 
-// RuleGroupValidationError is the validation error returned by
-// RuleGroup.Validate if the designated constraints aren't met.
-type RuleGroupValidationError struct {
+// RuleBasedValidationError is the validation error returned by
+// RuleBased.Validate if the designated constraints aren't met.
+type RuleBasedValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -568,22 +563,22 @@ type RuleGroupValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleGroupValidationError) Field() string { return e.field }
+func (e RuleBasedValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleGroupValidationError) Reason() string { return e.reason }
+func (e RuleBasedValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleGroupValidationError) Cause() error { return e.cause }
+func (e RuleBasedValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleGroupValidationError) Key() bool { return e.key }
+func (e RuleBasedValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleGroupValidationError) ErrorName() string { return "RuleGroupValidationError" }
+func (e RuleBasedValidationError) ErrorName() string { return "RuleBasedValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleGroupValidationError) Error() string {
+func (e RuleBasedValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -595,14 +590,14 @@ func (e RuleGroupValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleGroup.%s: %s%s",
+		"invalid %sRuleBased.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleGroupValidationError{}
+var _ error = RuleBasedValidationError{}
 
 var _ interface {
 	Field() string
@@ -610,12 +605,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleGroupValidationError{}
+} = RuleBasedValidationError{}
 
-// Validate checks the field values on RuleGroupLite with the rules defined in
+// Validate checks the field values on RuleBasedLite with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
-func (m *RuleGroupLite) Validate() error {
+func (m *RuleBasedLite) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -628,7 +623,7 @@ func (m *RuleGroupLite) Validate() error {
 
 	if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleGroupLiteValidationError{
+			return RuleBasedLiteValidationError{
 				field:  "Node",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -639,9 +634,9 @@ func (m *RuleGroupLite) Validate() error {
 	return nil
 }
 
-// RuleGroupLiteValidationError is the validation error returned by
-// RuleGroupLite.Validate if the designated constraints aren't met.
-type RuleGroupLiteValidationError struct {
+// RuleBasedLiteValidationError is the validation error returned by
+// RuleBasedLite.Validate if the designated constraints aren't met.
+type RuleBasedLiteValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -649,22 +644,22 @@ type RuleGroupLiteValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleGroupLiteValidationError) Field() string { return e.field }
+func (e RuleBasedLiteValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleGroupLiteValidationError) Reason() string { return e.reason }
+func (e RuleBasedLiteValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleGroupLiteValidationError) Cause() error { return e.cause }
+func (e RuleBasedLiteValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleGroupLiteValidationError) Key() bool { return e.key }
+func (e RuleBasedLiteValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleGroupLiteValidationError) ErrorName() string { return "RuleGroupLiteValidationError" }
+func (e RuleBasedLiteValidationError) ErrorName() string { return "RuleBasedLiteValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleGroupLiteValidationError) Error() string {
+func (e RuleBasedLiteValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -676,14 +671,14 @@ func (e RuleGroupLiteValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleGroupLite.%s: %s%s",
+		"invalid %sRuleBasedLite.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleGroupLiteValidationError{}
+var _ error = RuleBasedLiteValidationError{}
 
 var _ interface {
 	Field() string
@@ -691,12 +686,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleGroupLiteValidationError{}
+} = RuleBasedLiteValidationError{}
 
-// Validate checks the field values on RuleGroup_Node with the rules defined in
+// Validate checks the field values on RuleBased_Node with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
-func (m *RuleGroup_Node) Validate() error {
+func (m *RuleBased_Node) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -708,7 +703,7 @@ func (m *RuleGroup_Node) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RuleGroup_NodeValidationError{
+				return RuleBased_NodeValidationError{
 					field:  fmt.Sprintf("Rules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -723,7 +718,7 @@ func (m *RuleGroup_Node) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RuleGroup_NodeValidationError{
+				return RuleBased_NodeValidationError{
 					field:  fmt.Sprintf("Groups[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -736,9 +731,9 @@ func (m *RuleGroup_Node) Validate() error {
 	return nil
 }
 
-// RuleGroup_NodeValidationError is the validation error returned by
-// RuleGroup_Node.Validate if the designated constraints aren't met.
-type RuleGroup_NodeValidationError struct {
+// RuleBased_NodeValidationError is the validation error returned by
+// RuleBased_Node.Validate if the designated constraints aren't met.
+type RuleBased_NodeValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -746,22 +741,22 @@ type RuleGroup_NodeValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleGroup_NodeValidationError) Field() string { return e.field }
+func (e RuleBased_NodeValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleGroup_NodeValidationError) Reason() string { return e.reason }
+func (e RuleBased_NodeValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleGroup_NodeValidationError) Cause() error { return e.cause }
+func (e RuleBased_NodeValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleGroup_NodeValidationError) Key() bool { return e.key }
+func (e RuleBased_NodeValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleGroup_NodeValidationError) ErrorName() string { return "RuleGroup_NodeValidationError" }
+func (e RuleBased_NodeValidationError) ErrorName() string { return "RuleBased_NodeValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleGroup_NodeValidationError) Error() string {
+func (e RuleBased_NodeValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -773,14 +768,14 @@ func (e RuleGroup_NodeValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleGroup_Node.%s: %s%s",
+		"invalid %sRuleBased_Node.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleGroup_NodeValidationError{}
+var _ error = RuleBased_NodeValidationError{}
 
 var _ interface {
 	Field() string
@@ -788,12 +783,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleGroup_NodeValidationError{}
+} = RuleBased_NodeValidationError{}
 
-// Validate checks the field values on RuleGroupLite_NodeLite with the rules
+// Validate checks the field values on RuleBasedLite_NodeLite with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *RuleGroupLite_NodeLite) Validate() error {
+func (m *RuleBasedLite_NodeLite) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -805,7 +800,7 @@ func (m *RuleGroupLite_NodeLite) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RuleGroupLite_NodeLiteValidationError{
+				return RuleBasedLite_NodeLiteValidationError{
 					field:  fmt.Sprintf("Rules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -820,7 +815,7 @@ func (m *RuleGroupLite_NodeLite) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RuleGroupLite_NodeLiteValidationError{
+				return RuleBasedLite_NodeLiteValidationError{
 					field:  fmt.Sprintf("Groups[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -833,9 +828,9 @@ func (m *RuleGroupLite_NodeLite) Validate() error {
 	return nil
 }
 
-// RuleGroupLite_NodeLiteValidationError is the validation error returned by
-// RuleGroupLite_NodeLite.Validate if the designated constraints aren't met.
-type RuleGroupLite_NodeLiteValidationError struct {
+// RuleBasedLite_NodeLiteValidationError is the validation error returned by
+// RuleBasedLite_NodeLite.Validate if the designated constraints aren't met.
+type RuleBasedLite_NodeLiteValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -843,24 +838,24 @@ type RuleGroupLite_NodeLiteValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleGroupLite_NodeLiteValidationError) Field() string { return e.field }
+func (e RuleBasedLite_NodeLiteValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleGroupLite_NodeLiteValidationError) Reason() string { return e.reason }
+func (e RuleBasedLite_NodeLiteValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleGroupLite_NodeLiteValidationError) Cause() error { return e.cause }
+func (e RuleBasedLite_NodeLiteValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleGroupLite_NodeLiteValidationError) Key() bool { return e.key }
+func (e RuleBasedLite_NodeLiteValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleGroupLite_NodeLiteValidationError) ErrorName() string {
-	return "RuleGroupLite_NodeLiteValidationError"
+func (e RuleBasedLite_NodeLiteValidationError) ErrorName() string {
+	return "RuleBasedLite_NodeLiteValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RuleGroupLite_NodeLiteValidationError) Error() string {
+func (e RuleBasedLite_NodeLiteValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -872,14 +867,14 @@ func (e RuleGroupLite_NodeLiteValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleGroupLite_NodeLite.%s: %s%s",
+		"invalid %sRuleBasedLite_NodeLite.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleGroupLite_NodeLiteValidationError{}
+var _ error = RuleBasedLite_NodeLiteValidationError{}
 
 var _ interface {
 	Field() string
@@ -887,4 +882,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleGroupLite_NodeLiteValidationError{}
+} = RuleBasedLite_NodeLiteValidationError{}

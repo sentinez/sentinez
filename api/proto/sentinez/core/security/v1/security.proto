@@ -58,70 +58,37 @@ option (sentinez.types.v1.x_meta) = {
 
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 service SecurityService {
-  // ── RuleGroup ────────────────────────────────────────────────────────────
+  // ── RuleBased ────────────────────────────────────────────────────────────
   
-  // CreateRuleGroup creates a new WAF rule group
-  rpc CreateRuleGroup(CreateRuleGroupRequest) returns (CreateRuleGroupResponse) {
+  // CreateRuleBased creates a new WAF rule based
+  rpc CreateRuleBased(CreateRuleBasedRequest) returns (CreateRuleBasedResponse) {
     option (google.api.http) = {
-      post: "/security/rulegroup"
+      post: "/security/rulebased"
       body: "*"
     };
   }
 
-  // GetRuleGroup retrieves a WAF rule group by ID
-  rpc GetRuleGroup(GetRuleGroupRequest) returns (GetRuleGroupResponse) {
-    option (google.api.http) = {get: "/security/rulegroup/{id}"};
+  // GetRuleBased retrieves a WAF rule based by ID
+  rpc GetRuleBased(GetRuleBasedRequest) returns (GetRuleBasedResponse) {
+    option (google.api.http) = {get: "/security/rulebased/{id}"};
   }
 
-  // UpdateRuleGroup updates an existing WAF rule group
-  rpc UpdateRuleGroup(UpdateRuleGroupRequest) returns (UpdateRuleGroupResponse) {
+  // UpdateRuleBased updates an existing WAF rule based
+  rpc UpdateRuleBased(UpdateRuleBasedRequest) returns (UpdateRuleBasedResponse) {
     option (google.api.http) = {
-      put: "/security/rulegroup/{id}"
+      put: "/security/rulebased/{id}"
       body: "*"
     };
   }
 
-  // DeleteRuleGroup removes a WAF rule group by ID
-  rpc DeleteRuleGroup(DeleteRuleGroupRequest) returns (DeleteRuleGroupResponse) {
-    option (google.api.http) = {delete: "/security/rulegroup/{id}"};
+  // DeleteRuleBased removes a WAF rule based by ID
+  rpc DeleteRuleBased(DeleteRuleBasedRequest) returns (DeleteRuleBasedResponse) {
+    option (google.api.http) = {delete: "/security/rulebased/{id}"};
   }
 
-  // ListRuleGroups lists WAF rule groups with optional filters
-  rpc ListRuleGroups(ListRuleGroupsRequest) returns (ListRuleGroupsResponse) {
-    option (google.api.http) = {get: "/security/rulegroups"};
-  }
-
-  // ── Rule ──────────────────────────────────────────────────────────────────
-
-  // CreateRule creates a new security rule
-  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
-    option (google.api.http) = {
-      post: "/security/rule"
-      body: "*"
-    };
-  }
-
-  // GetRule retrieves a security rule by ID
-  rpc GetRule(GetRuleRequest) returns (GetRuleResponse) {
-    option (google.api.http) = {get: "/security/rule/{id}"};
-  }
-
-  // UpdateRule updates an existing security rule
-  rpc UpdateRule(UpdateRuleRequest) returns (UpdateRuleResponse) {
-    option (google.api.http) = {
-      put: "/security/rule/{id}"
-      body: "*"
-    };
-  }
-
-  // DeleteRule removes a security rule by ID
-  rpc DeleteRule(DeleteRuleRequest) returns (DeleteRuleResponse) {
-    option (google.api.http) = {delete: "/security/rule/{id}"};
-  }
-
-  // ListRules lists security rules with optional filters
-  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
-    option (google.api.http) = {get: "/security/rules"};
+  // ListRuleBaseds lists WAF rule baseds with optional filters
+  rpc ListRuleBaseds(ListRuleBasedsRequest) returns (ListRuleBasedsResponse) {
+    option (google.api.http) = {get: "/security/rulebaseds"};
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
@@ -134,47 +101,47 @@ service SecurityService {
   }
 }
 
-// ── RuleGroup Messages ─────────────────────────────────────────────────────
+// ── RuleBased Messages ─────────────────────────────────────────────────────
 
-message CreateRuleGroupRequest {
-  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1 [(buf.validate.field).required = true];
+message CreateRuleBasedRequest {
+  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1 [(buf.validate.field).required = true];
 }
 
-message CreateRuleGroupResponse {
+message CreateRuleBasedResponse {
   string id = 1;
 }
 
-message GetRuleGroupRequest {
+message GetRuleBasedRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetRuleGroupResponse {
-  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1;
+message GetRuleBasedResponse {
+  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1;
 }
 
-message UpdateRuleGroupRequest {
+message UpdateRuleBasedRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 2 [(buf.validate.field).required = true];
+  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 2 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateRuleGroupResponse {
-  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1;
+message UpdateRuleBasedResponse {
+  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1;
 }
 
-message DeleteRuleGroupRequest {
+message DeleteRuleBasedRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteRuleGroupResponse {}
+message DeleteRuleBasedResponse {}
 
-message ListRuleGroupsRequest {
+message ListRuleBasedsRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
 }
 
-message ListRuleGroupsResponse {
-  repeated sentinez.types.secure.ruleengine.v1.RuleGroup rule_groups = 1;
+message ListRuleBasedsResponse {
+  repeated sentinez.types.secure.ruleengine.v1.RuleBased rule_baseds = 1;
   int64 total = 2;
 }
 

@@ -15,19 +15,14 @@
 package corerule
 
 import (
-	"sync"
-
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	"github.com/sentinez/shared/sync"
 )
 
 var (
 	_ Condition = (*conditionX)(nil)
 
-	condPool = sync.Pool{
-		New: func() any {
-			return &conditionX{}
-		},
-	}
+	condPool = sync.NewPool[conditionX]()
 )
 
 type Condition interface {
@@ -39,8 +34,7 @@ type Condition interface {
 // Remember to call Condition.Release when the
 // context is done to avoid memory leaks.
 func newCondition(cdt *ruleengpb.Condition) Condition {
-
-	cond := condPool.Get().(*conditionX)
+	cond := condPool.Get()
 	cond.Condition = cdt
 	return cond
 }

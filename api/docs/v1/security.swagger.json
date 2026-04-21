@@ -20,15 +20,15 @@
     "application/json"
   ],
   "paths": {
-    "/security/rule": {
+    "/security/rulebased": {
       "post": {
-        "summary": "CreateRule creates a new security rule",
-        "operationId": "SecurityService_CreateRule",
+        "summary": "CreateRuleBased creates a new WAF rule based",
+        "operationId": "SecurityService_CreateRuleBased",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleResponse"
+              "$ref": "#/definitions/v1CreateRuleBasedResponse"
             }
           },
           "default": {
@@ -44,7 +44,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleRequest"
+              "$ref": "#/definitions/v1CreateRuleBasedRequest"
             }
           }
         ],
@@ -53,15 +53,15 @@
         ]
       }
     },
-    "/security/rule/{id}": {
+    "/security/rulebased/{id}": {
       "get": {
-        "summary": "GetRule retrieves a security rule by ID",
-        "operationId": "SecurityService_GetRule",
+        "summary": "GetRuleBased retrieves a WAF rule based by ID",
+        "operationId": "SecurityService_GetRuleBased",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetRuleResponse"
+              "$ref": "#/definitions/v1GetRuleBasedResponse"
             }
           },
           "default": {
@@ -84,13 +84,13 @@
         ]
       },
       "delete": {
-        "summary": "DeleteRule removes a security rule by ID",
-        "operationId": "SecurityService_DeleteRule",
+        "summary": "DeleteRuleBased removes a WAF rule based by ID",
+        "operationId": "SecurityService_DeleteRuleBased",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1DeleteRuleResponse"
+              "$ref": "#/definitions/v1DeleteRuleBasedResponse"
             }
           },
           "default": {
@@ -113,13 +113,13 @@
         ]
       },
       "put": {
-        "summary": "UpdateRule updates an existing security rule",
-        "operationId": "SecurityService_UpdateRule",
+        "summary": "UpdateRuleBased updates an existing WAF rule based",
+        "operationId": "SecurityService_UpdateRuleBased",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1UpdateRuleResponse"
+              "$ref": "#/definitions/v1UpdateRuleBasedResponse"
             }
           },
           "default": {
@@ -141,7 +141,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SecurityServiceUpdateRuleBody"
+              "$ref": "#/definitions/SecurityServiceUpdateRuleBasedBody"
             }
           }
         ],
@@ -150,200 +150,15 @@
         ]
       }
     },
-    "/security/rulegroup": {
-      "post": {
-        "summary": "CreateRuleGroup creates a new WAF rule group",
-        "operationId": "SecurityService_CreateRuleGroup",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1CreateRuleGroupResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateRuleGroupRequest"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/rulegroup/{id}": {
+    "/security/rulebaseds": {
       "get": {
-        "summary": "GetRuleGroup retrieves a WAF rule group by ID",
-        "operationId": "SecurityService_GetRuleGroup",
+        "summary": "ListRuleBaseds lists WAF rule baseds with optional filters",
+        "operationId": "SecurityService_ListRuleBaseds",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetRuleGroupResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "delete": {
-        "summary": "DeleteRuleGroup removes a WAF rule group by ID",
-        "operationId": "SecurityService_DeleteRuleGroup",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteRuleGroupResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "put": {
-        "summary": "UpdateRuleGroup updates an existing WAF rule group",
-        "operationId": "SecurityService_UpdateRuleGroup",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpdateRuleGroupResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SecurityServiceUpdateRuleGroupBody"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/rulegroups": {
-      "get": {
-        "summary": "ListRuleGroups lists WAF rule groups with optional filters",
-        "operationId": "SecurityService_ListRuleGroups",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListRuleGroupsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "page.index",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.total",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/rules": {
-      "get": {
-        "summary": "ListRules lists security rules with optional filters",
-        "operationId": "SecurityService_ListRules",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListRulesResponse"
+              "$ref": "#/definitions/v1ListRuleBasedsResponse"
             }
           },
           "default": {
@@ -415,7 +230,7 @@
     }
   },
   "definitions": {
-    "RuleGroupNode": {
+    "RuleBasedNode": {
       "type": "object",
       "properties": {
         "operator": {
@@ -432,27 +247,16 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/RuleGroupNode"
+            "$ref": "#/definitions/RuleBasedNode"
           }
         }
       }
     },
-    "SecurityServiceUpdateRuleBody": {
+    "SecurityServiceUpdateRuleBasedBody": {
       "type": "object",
       "properties": {
-        "rule": {
-          "$ref": "#/definitions/ruleenginev1Rule"
-        },
-        "updateMask": {
-          "type": "string"
-        }
-      }
-    },
-    "SecurityServiceUpdateRuleGroupBody": {
-      "type": "object",
-      "properties": {
-        "ruleGroup": {
-          "$ref": "#/definitions/v1RuleGroup"
+        "ruleBased": {
+          "$ref": "#/definitions/v1RuleBased"
         },
         "updateMask": {
           "type": "string"
@@ -511,34 +315,18 @@
         "condition": {
           "$ref": "#/definitions/v1Condition",
           "title": "@gotags: yaml:\"condition\""
-        },
-        "actions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Action"
-          },
-          "title": "@gotags: yaml:\"actions\""
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32",
-          "title": "@gotags: yaml:\"priority\""
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       },
       "title": "A complete rule definition"
+    },
+    "typesv1Status": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_ACTIVE",
+        "STATUS_DISABLE"
+      ],
+      "default": "STATUS_UNSPECIFIED"
     },
     "v1Action": {
       "type": "object",
@@ -598,31 +386,15 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CreateRuleGroupRequest": {
+    "v1CreateRuleBasedRequest": {
       "type": "object",
       "properties": {
-        "ruleGroup": {
-          "$ref": "#/definitions/v1RuleGroup"
+        "ruleBased": {
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     },
-    "v1CreateRuleGroupResponse": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "v1CreateRuleRequest": {
-      "type": "object",
-      "properties": {
-        "rule": {
-          "$ref": "#/definitions/ruleenginev1Rule"
-        }
-      }
-    },
-    "v1CreateRuleResponse": {
+    "v1CreateRuleBasedResponse": {
       "type": "object",
       "properties": {
         "id": {
@@ -630,10 +402,7 @@
         }
       }
     },
-    "v1DeleteRuleGroupResponse": {
-      "type": "object"
-    },
-    "v1DeleteRuleResponse": {
+    "v1DeleteRuleBasedResponse": {
       "type": "object"
     },
     "v1FieldSource": {
@@ -653,46 +422,22 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
-    "v1GetRuleGroupResponse": {
+    "v1GetRuleBasedResponse": {
       "type": "object",
       "properties": {
-        "ruleGroup": {
-          "$ref": "#/definitions/v1RuleGroup"
+        "ruleBased": {
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     },
-    "v1GetRuleResponse": {
+    "v1ListRuleBasedsResponse": {
       "type": "object",
       "properties": {
-        "rule": {
-          "$ref": "#/definitions/ruleenginev1Rule"
-        }
-      }
-    },
-    "v1ListRuleGroupsResponse": {
-      "type": "object",
-      "properties": {
-        "ruleGroups": {
+        "ruleBaseds": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleGroup"
-          }
-        },
-        "total": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "v1ListRulesResponse": {
-      "type": "object",
-      "properties": {
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/ruleenginev1Rule"
+            "$ref": "#/definitions/v1RuleBased"
           }
         },
         "total": {
@@ -746,7 +491,7 @@
         }
       }
     },
-    "v1RuleGroup": {
+    "v1RuleBased": {
       "type": "object",
       "properties": {
         "id": {
@@ -759,7 +504,25 @@
           "type": "string"
         },
         "node": {
-          "$ref": "#/definitions/RuleGroupNode"
+          "$ref": "#/definitions/RuleBasedNode"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -771,19 +534,11 @@
         }
       }
     },
-    "v1UpdateRuleGroupResponse": {
+    "v1UpdateRuleBasedResponse": {
       "type": "object",
       "properties": {
-        "ruleGroup": {
-          "$ref": "#/definitions/v1RuleGroup"
-        }
-      }
-    },
-    "v1UpdateRuleResponse": {
-      "type": "object",
-      "properties": {
-        "rule": {
-          "$ref": "#/definitions/ruleenginev1Rule"
+        "ruleBased": {
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     }

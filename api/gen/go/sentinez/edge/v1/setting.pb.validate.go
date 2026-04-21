@@ -388,20 +388,20 @@ func (m *Security) Validate() error {
 
 	// no validation rules for IsWafEngineOn
 
-	if v, ok := interface{}(m.GetRuleGroup()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SecurityValidationError{
-				field:  "RuleGroup",
+				field:  "RuleBased",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	if v, ok := interface{}(m.GetRuleGroupCompiled()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleBasedCompiled()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SecurityValidationError{
-				field:  "RuleGroupCompiled",
+				field:  "RuleBasedCompiled",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

@@ -21,19 +21,19 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// GroupBuilder provides a fluent API for building RuleGroups.
+// GroupBuilder provides a fluent API for building RuleBaseds.
 type GroupBuilder struct {
-	group *ruleenginepb.RuleGroup
+	group *ruleenginepb.RuleBased
 }
 
-// NewGroup starts a new RuleGroup builder with the given logical operator.
+// NewGroup starts a new RuleBased builder with the given logical operator.
 func NewGroup(op ruleenginepb.Logic) *GroupBuilder {
 	return &GroupBuilder{
-		group: &ruleenginepb.RuleGroup{
-			Node: &ruleenginepb.RuleGroup_Node{
+		group: &ruleenginepb.RuleBased{
+			Node: &ruleenginepb.RuleBased_Node{
 				Operator: op,
 				Rules:    []*ruleenginepb.Rule{},
-				Groups:   []*ruleenginepb.RuleGroup_Node{},
+				Groups:   []*ruleenginepb.RuleBased_Node{},
 			},
 		},
 	}
@@ -59,14 +59,14 @@ func (b *GroupBuilder) AddRule(r *ruleenginepb.Rule) *GroupBuilder {
 	return b
 }
 
-func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleGroup) *GroupBuilder {
+func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleBased) *GroupBuilder {
 	if g != nil && g.Node != nil {
 		b.group.Node.Groups = append(b.group.Node.Groups, g.Node)
 	}
 	return b
 }
 
-func (b *GroupBuilder) Build() *ruleenginepb.RuleGroup {
+func (b *GroupBuilder) Build() *ruleenginepb.RuleBased {
 	return b.group
 }
 
@@ -78,9 +78,7 @@ type RuleBuilder struct {
 // NewRule starts a new Rule builder.
 func NewRule() *RuleBuilder {
 	return &RuleBuilder{
-		rule: &ruleenginepb.Rule{
-			Enabled: true,
-		},
+		rule: &ruleenginepb.Rule{},
 	}
 }
 
@@ -91,11 +89,6 @@ func (b *RuleBuilder) WithID(id string) *RuleBuilder {
 
 func (b *RuleBuilder) WithName(name string) *RuleBuilder {
 	b.rule.Name = name
-	return b
-}
-
-func (b *RuleBuilder) WithPriority(p int32) *RuleBuilder {
-	b.rule.Priority = p
 	return b
 }
 
@@ -165,7 +158,7 @@ func Not(node any) *GroupBuilder {
 	switch v := node.(type) {
 	case *ruleenginepb.Rule:
 		g.AddRule(v)
-	case *ruleenginepb.RuleGroup:
+	case *ruleenginepb.RuleBased:
 		g.AddGroup(v)
 	}
 	return g

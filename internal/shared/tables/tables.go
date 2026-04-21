@@ -29,5 +29,5 @@ const (
 
 const (
 	SecurityRules      = "security.rules"
-	SecurityRuleGroups = "security.rulegroups"
+	SecurityRuleBaseds = "security.rulebaseds"
 )

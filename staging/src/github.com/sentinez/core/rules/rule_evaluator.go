@@ -15,21 +15,16 @@
 package corerule
 
 import (
-	"sync"
-
 	corehttp "github.com/sentinez/core/http"
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
 var (
 	_ Evaluator = (*evaluator)(nil)
 
-	evPool = sync.Pool{
-		New: func() any {
-			return &evaluator{}
-		},
-	}
+	evPool = sync.NewPool[evaluator]()
 )
 
 type Evaluator interface {
@@ -43,7 +38,7 @@ type Evaluator interface {
 // context is done to avoid memory leaks.
 func newEvaluator(ctx corehttp.RequestContext) Evaluator {
 
-	ev := evPool.Get().(*evaluator)
+	ev := evPool.Get()
 	ev.ctx = ctx
 
 	return ev
