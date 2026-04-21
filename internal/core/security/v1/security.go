@@ -47,7 +47,8 @@ type Security struct {
 	hdl securitypb.SecurityServiceServer
 }
 
-// Start registers the handler and begins serving gRPC traffic over a buffer listener.
+// Start registers the handler and begins
+// serving gRPC traffic over a buffer listener.
 func (mod *Security) Start(_ context.Context) error {
 	securitypb.RegisterSecurityServiceServer(mod.AsServer(), mod.hdl)
 

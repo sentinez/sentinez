@@ -131,6 +131,10 @@ func StatusAlreadyExistsF(format string, args ...any) error {
 	return status.Error(codes.AlreadyExists, fmt.Sprintf(format, args...))
 }
 
+func StatusInvalidArgumentF(format string, args ...any) error {
+	return status.Error(codes.InvalidArgument, fmt.Sprintf(format, args...))
+}
+
 // Is checks if the error is a specific error
 func Is(err error, target error) bool {
 	if err == nil {

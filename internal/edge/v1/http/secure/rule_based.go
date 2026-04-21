@@ -46,7 +46,7 @@ func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
 	rule := ruleengine.GetEngine().LoadContext(ctx)
-	matched, ok := r.ingress.EvalExpr(ctx, rule)
+	matched, ok := r.ingress.EvalRuleGroup(ctx, rule)
 	if ok {
 		zlog.Debugf("[edge] matched rule %v", matched)
 		return httpxcmn.Forbidden(ctx)

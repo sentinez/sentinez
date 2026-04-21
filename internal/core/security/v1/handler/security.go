@@ -24,7 +24,9 @@ import (
 var _ securitypb.SecurityServiceServer = (*Security)(nil)
 
 // New creates a new Security handler.
-func New(service *securitysvc.SecurityService) securitypb.SecurityServiceServer {
+func New(
+	service *securitysvc.SecurityService,
+) securitypb.SecurityServiceServer {
 	return &Security{
 		service: service,
 	}
@@ -35,52 +37,74 @@ type Security struct {
 	service *securitysvc.SecurityService
 }
 
-// ── Expr ──────────────────────────────────────────────────────────────────
+// ── RuleGroup ────────────────────────────────────────────────────────────
 
-func (h *Security) CreateExpr(ctx context.Context, req *securitypb.CreateExprRequest) (*securitypb.CreateExprResponse, error) {
-	return h.service.CreateExpr(ctx, req)
+func (h *Security) CreateRuleGroup(ctx context.Context,
+	req *securitypb.CreateRuleGroupRequest,
+) (*securitypb.CreateRuleGroupResponse, error) {
+	return h.service.CreateRuleGroup(ctx, req)
 }
 
-func (h *Security) GetExpr(ctx context.Context, req *securitypb.GetExprRequest) (*securitypb.GetExprResponse, error) {
-	return h.service.GetExpr(ctx, req)
+func (h *Security) GetRuleGroup(ctx context.Context,
+	req *securitypb.GetRuleGroupRequest,
+) (*securitypb.GetRuleGroupResponse, error) {
+	return h.service.GetRuleGroup(ctx, req)
 }
 
-func (h *Security) UpdateExpr(ctx context.Context, req *securitypb.UpdateExprRequest) (*securitypb.UpdateExprResponse, error) {
-	return h.service.UpdateExpr(ctx, req)
+func (h *Security) UpdateRuleGroup(ctx context.Context,
+	req *securitypb.UpdateRuleGroupRequest,
+) (*securitypb.UpdateRuleGroupResponse, error) {
+	return h.service.UpdateRuleGroup(ctx, req)
 }
 
-func (h *Security) DeleteExpr(ctx context.Context, req *securitypb.DeleteExprRequest) (*securitypb.DeleteExprResponse, error) {
-	return h.service.DeleteExpr(ctx, req)
+func (h *Security) DeleteRuleGroup(ctx context.Context,
+	req *securitypb.DeleteRuleGroupRequest,
+) (*securitypb.DeleteRuleGroupResponse, error) {
+	return h.service.DeleteRuleGroup(ctx, req)
 }
 
-func (h *Security) ListExprs(ctx context.Context, req *securitypb.ListExprsRequest) (*securitypb.ListExprsResponse, error) {
-	return h.service.ListExprs(ctx, req)
+func (h *Security) ListRuleGroups(ctx context.Context,
+	req *securitypb.ListRuleGroupsRequest,
+) (*securitypb.ListRuleGroupsResponse, error) {
+	return h.service.ListRuleGroups(ctx, req)
 }
 
 // ── Rule ──────────────────────────────────────────────────────────────────
 
-func (h *Security) CreateRule(ctx context.Context, req *securitypb.CreateRuleRequest) (*securitypb.CreateRuleResponse, error) {
+func (h *Security) CreateRule(ctx context.Context,
+	req *securitypb.CreateRuleRequest,
+) (*securitypb.CreateRuleResponse, error) {
 	return h.service.CreateRule(ctx, req)
 }
 
-func (h *Security) GetRule(ctx context.Context, req *securitypb.GetRuleRequest) (*securitypb.GetRuleResponse, error) {
+func (h *Security) GetRule(ctx context.Context,
+	req *securitypb.GetRuleRequest,
+) (*securitypb.GetRuleResponse, error) {
 	return h.service.GetRule(ctx, req)
 }
 
-func (h *Security) UpdateRule(ctx context.Context, req *securitypb.UpdateRuleRequest) (*securitypb.UpdateRuleResponse, error) {
+func (h *Security) UpdateRule(ctx context.Context,
+	req *securitypb.UpdateRuleRequest,
+) (*securitypb.UpdateRuleResponse, error) {
 	return h.service.UpdateRule(ctx, req)
 }
 
-func (h *Security) DeleteRule(ctx context.Context, req *securitypb.DeleteRuleRequest) (*securitypb.DeleteRuleResponse, error) {
+func (h *Security) DeleteRule(ctx context.Context,
+	req *securitypb.DeleteRuleRequest,
+) (*securitypb.DeleteRuleResponse, error) {
 	return h.service.DeleteRule(ctx, req)
 }
 
-func (h *Security) ListRules(ctx context.Context, req *securitypb.ListRulesRequest) (*securitypb.ListRulesResponse, error) {
+func (h *Security) ListRules(ctx context.Context,
+	req *securitypb.ListRulesRequest,
+) (*securitypb.ListRulesResponse, error) {
 	return h.service.ListRules(ctx, req)
 }
 
 // ── Status ────────────────────────────────────────────────────────────────
 
-func (h *Security) Status(ctx context.Context, req *securitypb.StatusRequest) (*securitypb.StatusResponse, error) {
+func (h *Security) Status(ctx context.Context,
+	req *securitypb.StatusRequest,
+) (*securitypb.StatusResponse, error) {
 	return h.service.Status(ctx, req)
 }

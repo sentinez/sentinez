@@ -44,6 +44,7 @@ const (
 const (
 	logicOr  logicType = 0
 	logicAnd logicType = 1
+	logicNot logicType = 2
 )
 
 func newLogic(l *node, op logicType, r *node) *node {
@@ -119,6 +120,9 @@ func (n *node) eval(
 			// zlog.Debug("visit right")
 			res := n.right.eval(ctx, out)
 			return res
+		case logicNot:
+			l := n.left.eval(ctx, out)
+			return !l
 		}
 
 		return false

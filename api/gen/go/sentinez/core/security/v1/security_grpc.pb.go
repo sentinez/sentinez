@@ -33,17 +33,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreateExpr_FullMethodName = "/sentinez.core.security.v1.SecurityService/CreateExpr"
-	SecurityService_GetExpr_FullMethodName    = "/sentinez.core.security.v1.SecurityService/GetExpr"
-	SecurityService_UpdateExpr_FullMethodName = "/sentinez.core.security.v1.SecurityService/UpdateExpr"
-	SecurityService_DeleteExpr_FullMethodName = "/sentinez.core.security.v1.SecurityService/DeleteExpr"
-	SecurityService_ListExprs_FullMethodName  = "/sentinez.core.security.v1.SecurityService/ListExprs"
-	SecurityService_CreateRule_FullMethodName = "/sentinez.core.security.v1.SecurityService/CreateRule"
-	SecurityService_GetRule_FullMethodName    = "/sentinez.core.security.v1.SecurityService/GetRule"
-	SecurityService_UpdateRule_FullMethodName = "/sentinez.core.security.v1.SecurityService/UpdateRule"
-	SecurityService_DeleteRule_FullMethodName = "/sentinez.core.security.v1.SecurityService/DeleteRule"
-	SecurityService_ListRules_FullMethodName  = "/sentinez.core.security.v1.SecurityService/ListRules"
-	SecurityService_Status_FullMethodName     = "/sentinez.core.security.v1.SecurityService/Status"
+	SecurityService_CreateRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/CreateRuleGroup"
+	SecurityService_GetRuleGroup_FullMethodName    = "/sentinez.core.security.v1.SecurityService/GetRuleGroup"
+	SecurityService_UpdateRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/UpdateRuleGroup"
+	SecurityService_DeleteRuleGroup_FullMethodName = "/sentinez.core.security.v1.SecurityService/DeleteRuleGroup"
+	SecurityService_ListRuleGroups_FullMethodName  = "/sentinez.core.security.v1.SecurityService/ListRuleGroups"
+	SecurityService_CreateRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/CreateRule"
+	SecurityService_GetRule_FullMethodName         = "/sentinez.core.security.v1.SecurityService/GetRule"
+	SecurityService_UpdateRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/UpdateRule"
+	SecurityService_DeleteRule_FullMethodName      = "/sentinez.core.security.v1.SecurityService/DeleteRule"
+	SecurityService_ListRules_FullMethodName       = "/sentinez.core.security.v1.SecurityService/ListRules"
+	SecurityService_Status_FullMethodName          = "/sentinez.core.security.v1.SecurityService/Status"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -52,16 +52,16 @@ const (
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceClient interface {
-	// CreateExpr creates a new WAF rule expression
-	CreateExpr(ctx context.Context, in *CreateExprRequest, opts ...grpc.CallOption) (*CreateExprResponse, error)
-	// GetExpr retrieves a WAF rule expression by ID
-	GetExpr(ctx context.Context, in *GetExprRequest, opts ...grpc.CallOption) (*GetExprResponse, error)
-	// UpdateExpr updates an existing WAF rule expression
-	UpdateExpr(ctx context.Context, in *UpdateExprRequest, opts ...grpc.CallOption) (*UpdateExprResponse, error)
-	// DeleteExpr removes a WAF rule expression by ID
-	DeleteExpr(ctx context.Context, in *DeleteExprRequest, opts ...grpc.CallOption) (*DeleteExprResponse, error)
-	// ListExprs lists WAF rule expressions with optional filters
-	ListExprs(ctx context.Context, in *ListExprsRequest, opts ...grpc.CallOption) (*ListExprsResponse, error)
+	// CreateRuleGroup creates a new WAF rule group
+	CreateRuleGroup(ctx context.Context, in *CreateRuleGroupRequest, opts ...grpc.CallOption) (*CreateRuleGroupResponse, error)
+	// GetRuleGroup retrieves a WAF rule group by ID
+	GetRuleGroup(ctx context.Context, in *GetRuleGroupRequest, opts ...grpc.CallOption) (*GetRuleGroupResponse, error)
+	// UpdateRuleGroup updates an existing WAF rule group
+	UpdateRuleGroup(ctx context.Context, in *UpdateRuleGroupRequest, opts ...grpc.CallOption) (*UpdateRuleGroupResponse, error)
+	// DeleteRuleGroup removes a WAF rule group by ID
+	DeleteRuleGroup(ctx context.Context, in *DeleteRuleGroupRequest, opts ...grpc.CallOption) (*DeleteRuleGroupResponse, error)
+	// ListRuleGroups lists WAF rule groups with optional filters
+	ListRuleGroups(ctx context.Context, in *ListRuleGroupsRequest, opts ...grpc.CallOption) (*ListRuleGroupsResponse, error)
 	// CreateRule creates a new security rule
 	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
 	// GetRule retrieves a security rule by ID
@@ -84,50 +84,50 @@ func NewSecurityServiceClient(cc grpc.ClientConnInterface) SecurityServiceClient
 	return &securityServiceClient{cc}
 }
 
-func (c *securityServiceClient) CreateExpr(ctx context.Context, in *CreateExprRequest, opts ...grpc.CallOption) (*CreateExprResponse, error) {
+func (c *securityServiceClient) CreateRuleGroup(ctx context.Context, in *CreateRuleGroupRequest, opts ...grpc.CallOption) (*CreateRuleGroupResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateExprResponse)
-	err := c.cc.Invoke(ctx, SecurityService_CreateExpr_FullMethodName, in, out, cOpts...)
+	out := new(CreateRuleGroupResponse)
+	err := c.cc.Invoke(ctx, SecurityService_CreateRuleGroup_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) GetExpr(ctx context.Context, in *GetExprRequest, opts ...grpc.CallOption) (*GetExprResponse, error) {
+func (c *securityServiceClient) GetRuleGroup(ctx context.Context, in *GetRuleGroupRequest, opts ...grpc.CallOption) (*GetRuleGroupResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetExprResponse)
-	err := c.cc.Invoke(ctx, SecurityService_GetExpr_FullMethodName, in, out, cOpts...)
+	out := new(GetRuleGroupResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetRuleGroup_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) UpdateExpr(ctx context.Context, in *UpdateExprRequest, opts ...grpc.CallOption) (*UpdateExprResponse, error) {
+func (c *securityServiceClient) UpdateRuleGroup(ctx context.Context, in *UpdateRuleGroupRequest, opts ...grpc.CallOption) (*UpdateRuleGroupResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateExprResponse)
-	err := c.cc.Invoke(ctx, SecurityService_UpdateExpr_FullMethodName, in, out, cOpts...)
+	out := new(UpdateRuleGroupResponse)
+	err := c.cc.Invoke(ctx, SecurityService_UpdateRuleGroup_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) DeleteExpr(ctx context.Context, in *DeleteExprRequest, opts ...grpc.CallOption) (*DeleteExprResponse, error) {
+func (c *securityServiceClient) DeleteRuleGroup(ctx context.Context, in *DeleteRuleGroupRequest, opts ...grpc.CallOption) (*DeleteRuleGroupResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteExprResponse)
-	err := c.cc.Invoke(ctx, SecurityService_DeleteExpr_FullMethodName, in, out, cOpts...)
+	out := new(DeleteRuleGroupResponse)
+	err := c.cc.Invoke(ctx, SecurityService_DeleteRuleGroup_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) ListExprs(ctx context.Context, in *ListExprsRequest, opts ...grpc.CallOption) (*ListExprsResponse, error) {
+func (c *securityServiceClient) ListRuleGroups(ctx context.Context, in *ListRuleGroupsRequest, opts ...grpc.CallOption) (*ListRuleGroupsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListExprsResponse)
-	err := c.cc.Invoke(ctx, SecurityService_ListExprs_FullMethodName, in, out, cOpts...)
+	out := new(ListRuleGroupsResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRuleGroups_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,16 +200,16 @@ func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, o
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceServer interface {
-	// CreateExpr creates a new WAF rule expression
-	CreateExpr(context.Context, *CreateExprRequest) (*CreateExprResponse, error)
-	// GetExpr retrieves a WAF rule expression by ID
-	GetExpr(context.Context, *GetExprRequest) (*GetExprResponse, error)
-	// UpdateExpr updates an existing WAF rule expression
-	UpdateExpr(context.Context, *UpdateExprRequest) (*UpdateExprResponse, error)
-	// DeleteExpr removes a WAF rule expression by ID
-	DeleteExpr(context.Context, *DeleteExprRequest) (*DeleteExprResponse, error)
-	// ListExprs lists WAF rule expressions with optional filters
-	ListExprs(context.Context, *ListExprsRequest) (*ListExprsResponse, error)
+	// CreateRuleGroup creates a new WAF rule group
+	CreateRuleGroup(context.Context, *CreateRuleGroupRequest) (*CreateRuleGroupResponse, error)
+	// GetRuleGroup retrieves a WAF rule group by ID
+	GetRuleGroup(context.Context, *GetRuleGroupRequest) (*GetRuleGroupResponse, error)
+	// UpdateRuleGroup updates an existing WAF rule group
+	UpdateRuleGroup(context.Context, *UpdateRuleGroupRequest) (*UpdateRuleGroupResponse, error)
+	// DeleteRuleGroup removes a WAF rule group by ID
+	DeleteRuleGroup(context.Context, *DeleteRuleGroupRequest) (*DeleteRuleGroupResponse, error)
+	// ListRuleGroups lists WAF rule groups with optional filters
+	ListRuleGroups(context.Context, *ListRuleGroupsRequest) (*ListRuleGroupsResponse, error)
 	// CreateRule creates a new security rule
 	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
 	// GetRule retrieves a security rule by ID
@@ -231,20 +231,20 @@ type SecurityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSecurityServiceServer struct{}
 
-func (UnimplementedSecurityServiceServer) CreateExpr(context.Context, *CreateExprRequest) (*CreateExprResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateExpr not implemented")
+func (UnimplementedSecurityServiceServer) CreateRuleGroup(context.Context, *CreateRuleGroupRequest) (*CreateRuleGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateRuleGroup not implemented")
 }
-func (UnimplementedSecurityServiceServer) GetExpr(context.Context, *GetExprRequest) (*GetExprResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetExpr not implemented")
+func (UnimplementedSecurityServiceServer) GetRuleGroup(context.Context, *GetRuleGroupRequest) (*GetRuleGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRuleGroup not implemented")
 }
-func (UnimplementedSecurityServiceServer) UpdateExpr(context.Context, *UpdateExprRequest) (*UpdateExprResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateExpr not implemented")
+func (UnimplementedSecurityServiceServer) UpdateRuleGroup(context.Context, *UpdateRuleGroupRequest) (*UpdateRuleGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRuleGroup not implemented")
 }
-func (UnimplementedSecurityServiceServer) DeleteExpr(context.Context, *DeleteExprRequest) (*DeleteExprResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteExpr not implemented")
+func (UnimplementedSecurityServiceServer) DeleteRuleGroup(context.Context, *DeleteRuleGroupRequest) (*DeleteRuleGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRuleGroup not implemented")
 }
-func (UnimplementedSecurityServiceServer) ListExprs(context.Context, *ListExprsRequest) (*ListExprsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListExprs not implemented")
+func (UnimplementedSecurityServiceServer) ListRuleGroups(context.Context, *ListRuleGroupsRequest) (*ListRuleGroupsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRuleGroups not implemented")
 }
 func (UnimplementedSecurityServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateRule not implemented")
@@ -284,92 +284,92 @@ func RegisterSecurityServiceServer(s grpc.ServiceRegistrar, srv SecurityServiceS
 	s.RegisterService(&SecurityService_ServiceDesc, srv)
 }
 
-func _SecurityService_CreateExpr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateExprRequest)
+func _SecurityService_CreateRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRuleGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).CreateExpr(ctx, in)
+		return srv.(SecurityServiceServer).CreateRuleGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_CreateExpr_FullMethodName,
+		FullMethod: SecurityService_CreateRuleGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).CreateExpr(ctx, req.(*CreateExprRequest))
+		return srv.(SecurityServiceServer).CreateRuleGroup(ctx, req.(*CreateRuleGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_GetExpr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetExprRequest)
+func _SecurityService_GetRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRuleGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).GetExpr(ctx, in)
+		return srv.(SecurityServiceServer).GetRuleGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_GetExpr_FullMethodName,
+		FullMethod: SecurityService_GetRuleGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).GetExpr(ctx, req.(*GetExprRequest))
+		return srv.(SecurityServiceServer).GetRuleGroup(ctx, req.(*GetRuleGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_UpdateExpr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateExprRequest)
+func _SecurityService_UpdateRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRuleGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).UpdateExpr(ctx, in)
+		return srv.(SecurityServiceServer).UpdateRuleGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_UpdateExpr_FullMethodName,
+		FullMethod: SecurityService_UpdateRuleGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).UpdateExpr(ctx, req.(*UpdateExprRequest))
+		return srv.(SecurityServiceServer).UpdateRuleGroup(ctx, req.(*UpdateRuleGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_DeleteExpr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteExprRequest)
+func _SecurityService_DeleteRuleGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRuleGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).DeleteExpr(ctx, in)
+		return srv.(SecurityServiceServer).DeleteRuleGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_DeleteExpr_FullMethodName,
+		FullMethod: SecurityService_DeleteRuleGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).DeleteExpr(ctx, req.(*DeleteExprRequest))
+		return srv.(SecurityServiceServer).DeleteRuleGroup(ctx, req.(*DeleteRuleGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_ListExprs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListExprsRequest)
+func _SecurityService_ListRuleGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRuleGroupsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).ListExprs(ctx, in)
+		return srv.(SecurityServiceServer).ListRuleGroups(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_ListExprs_FullMethodName,
+		FullMethod: SecurityService_ListRuleGroups_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).ListExprs(ctx, req.(*ListExprsRequest))
+		return srv.(SecurityServiceServer).ListRuleGroups(ctx, req.(*ListRuleGroupsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -490,24 +490,24 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SecurityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateExpr",
-			Handler:    _SecurityService_CreateExpr_Handler,
+			MethodName: "CreateRuleGroup",
+			Handler:    _SecurityService_CreateRuleGroup_Handler,
 		},
 		{
-			MethodName: "GetExpr",
-			Handler:    _SecurityService_GetExpr_Handler,
+			MethodName: "GetRuleGroup",
+			Handler:    _SecurityService_GetRuleGroup_Handler,
 		},
 		{
-			MethodName: "UpdateExpr",
-			Handler:    _SecurityService_UpdateExpr_Handler,
+			MethodName: "UpdateRuleGroup",
+			Handler:    _SecurityService_UpdateRuleGroup_Handler,
 		},
 		{
-			MethodName: "DeleteExpr",
-			Handler:    _SecurityService_DeleteExpr_Handler,
+			MethodName: "DeleteRuleGroup",
+			Handler:    _SecurityService_DeleteRuleGroup_Handler,
 		},
 		{
-			MethodName: "ListExprs",
-			Handler:    _SecurityService_ListExprs_Handler,
+			MethodName: "ListRuleGroups",
+			Handler:    _SecurityService_ListRuleGroups_Handler,
 		},
 		{
 			MethodName: "CreateRule",

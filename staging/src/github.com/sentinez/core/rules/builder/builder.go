@@ -18,168 +18,155 @@ import (
 	"fmt"
 
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// RuleBuilder provides a fluent API to build a Rule protobuf message.
+// GroupBuilder provides a fluent API for building RuleGroups.
+type GroupBuilder struct {
+	group *ruleenginepb.RuleGroup
+}
+
+// NewGroup starts a new RuleGroup builder with the given logical operator.
+func NewGroup(op ruleenginepb.Logic) *GroupBuilder {
+	return &GroupBuilder{
+		group: &ruleenginepb.RuleGroup{
+			Node: &ruleenginepb.RuleGroup_Node{
+				Operator: op,
+				Rules:    []*ruleenginepb.Rule{},
+				Groups:   []*ruleenginepb.RuleGroup_Node{},
+			},
+		},
+	}
+}
+
+func (b *GroupBuilder) WithID(id string) *GroupBuilder {
+	b.group.Id = id
+	return b
+}
+
+func (b *GroupBuilder) WithName(name string) *GroupBuilder {
+	b.group.Name = name
+	return b
+}
+
+func (b *GroupBuilder) WithDescription(desc string) *GroupBuilder {
+	b.group.Description = desc
+	return b
+}
+
+func (b *GroupBuilder) AddRule(r *ruleenginepb.Rule) *GroupBuilder {
+	b.group.Node.Rules = append(b.group.Node.Rules, r)
+	return b
+}
+
+func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleGroup) *GroupBuilder {
+	if g != nil && g.Node != nil {
+		b.group.Node.Groups = append(b.group.Node.Groups, g.Node)
+	}
+	return b
+}
+
+func (b *GroupBuilder) Build() *ruleenginepb.RuleGroup {
+	return b.group
+}
+
+// RuleBuilder provides a fluent API for building individual Rules.
 type RuleBuilder struct {
 	rule *ruleenginepb.Rule
 }
 
-// NewRule initializes a new RuleBuilder with a given ID and Name.
-func NewRule(id, name string) *RuleBuilder {
+// NewRule starts a new Rule builder.
+func NewRule() *RuleBuilder {
 	return &RuleBuilder{
 		rule: &ruleenginepb.Rule{
-			Id:      id,
-			Name:    name,
 			Enabled: true,
 		},
 	}
 }
 
-// RuleFromJSON deserializes a JSON string into a RuleBuilder.
-func RuleFromJSON(data []byte) (*RuleBuilder, error) {
-	rule := &ruleenginepb.Rule{}
-	opts := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err := opts.Unmarshal(data, rule); err != nil {
-		return nil, fmt.Errorf("builder: failed to import from json: %w", err)
-	}
-	return &RuleBuilder{rule: rule}, nil
-}
-
-func (b *RuleBuilder) Description(desc string) *RuleBuilder {
-	b.rule.Description = desc
+func (b *RuleBuilder) WithID(id string) *RuleBuilder {
+	b.rule.Id = id
 	return b
 }
 
-func (b *RuleBuilder) Priority(p int32) *RuleBuilder {
+func (b *RuleBuilder) WithName(name string) *RuleBuilder {
+	b.rule.Name = name
+	return b
+}
+
+func (b *RuleBuilder) WithPriority(p int32) *RuleBuilder {
 	b.rule.Priority = p
 	return b
 }
 
-func (b *RuleBuilder) Disable() *RuleBuilder {
-	b.rule.Enabled = false
-	return b
-}
-
-// Condition configures the conditional match parameters.
-func (b *RuleBuilder) Condition(
+func (b *RuleBuilder) WithCondition(
 	src ruleenginepb.FieldSource,
 	op ruleenginepb.Operator,
-	key string,
 	val any,
+	key ...string,
 ) *RuleBuilder {
-	v, err := structpb.NewValue(val)
+	// structpb.NewValue handles []interface{} as ListValue.
+	// We convert common slice types to []interface{}
+	// to ensure correct behavior.
+	finalVal := val
+	switch v := val.(type) {
+	case []string:
+		items := make([]any, len(v))
+		for i, s := range v {
+			items[i] = s
+		}
+		finalVal = items
+	case []any:
+		finalVal = v
+	}
+
+	v, err := structpb.NewValue(finalVal)
 	if err != nil {
-		panic(fmt.Errorf("builder: invalid value for condition: %w", err))
+		v, _ = structpb.NewValue(fmt.Sprintf("%v", val))
+	}
+
+	k := ""
+	if len(key) > 0 {
+		k = key[0]
 	}
 
 	b.rule.Condition = &ruleenginepb.Condition{
 		Source:   src,
 		Operator: op,
-		Key:      key,
 		Value:    v,
+		Key:      k,
 	}
 	return b
 }
 
-// Action append an execution action to the rule.
-func (b *RuleBuilder) Action(
-	id string,
-	t ruleenginepb.ActionType,
-	params map[string]any,
-) *RuleBuilder {
-	p, err := structpb.NewStruct(params)
-	if err != nil {
-		panic(fmt.Errorf("builder: invalid params for action: %w", err))
-	}
-
-	b.rule.Actions = append(b.rule.Actions, &ruleenginepb.Action{
-		Id:     id,
-		Type:   t,
-		Params: p,
-	})
-	return b
-}
-
-// Build returns the finalized Rule protobuf message.
 func (b *RuleBuilder) Build() *ruleenginepb.Rule {
 	return b.rule
 }
 
-// ToJSON exports the rule as a compliant protobuf JSON object.
-func (b *RuleBuilder) ToJSON() ([]byte, error) {
-	opts := protojson.MarshalOptions{
-		UseProtoNames:   true,
-		EmitUnpopulated: true,
+// Helper functions for easy access
+func And(rules ...*ruleenginepb.Rule) *GroupBuilder {
+	g := NewGroup(ruleenginepb.Logic_LOGIC_AND)
+	for _, r := range rules {
+		g.AddRule(r)
 	}
-	return opts.Marshal(b.rule)
+	return g
 }
 
-// ExprBuilder provides a fluent API to build an Expr protobuf message.
-type ExprBuilder struct {
-	expr *ruleenginepb.Expr
-}
-
-// NewExpr initializes a new ExprBuilder with a given ID and Name.
-func NewExpr(id, name string) *ExprBuilder {
-	return &ExprBuilder{
-		expr: &ruleenginepb.Expr{
-			Id:      id,
-			Name:    name,
-			Enabled: true,
-		},
+func Or(rules ...*ruleenginepb.Rule) *GroupBuilder {
+	g := NewGroup(ruleenginepb.Logic_LOGIC_OR)
+	for _, r := range rules {
+		g.AddRule(r)
 	}
+	return g
 }
 
-// nolint
-// ExprFromJSON deserializes a JSON string into an ExprBuilder.
-func ExprFromJSON(data []byte) (*ExprBuilder, error) {
-	expr := &ruleenginepb.Expr{}
-	opts := protojson.UnmarshalOptions{DiscardUnknown: true}
-	if err := opts.Unmarshal(data, expr); err != nil {
-		return nil, fmt.Errorf("builder: failed to import expr from json: %w", err)
+func Not(node any) *GroupBuilder {
+	g := NewGroup(ruleenginepb.Logic_LOGIC_NOT)
+	switch v := node.(type) {
+	case *ruleenginepb.Rule:
+		g.AddRule(v)
+	case *ruleenginepb.RuleGroup:
+		g.AddGroup(v)
 	}
-	return &ExprBuilder{expr: expr}, nil
-}
-
-func (b *ExprBuilder) Description(desc string) *ExprBuilder {
-	b.expr.Description = desc
-	return b
-}
-
-func (b *ExprBuilder) Disable() *ExprBuilder {
-	b.expr.Enabled = false
-	return b
-}
-
-// AddRule adds an initial rule to the expression chain.
-func (b *ExprBuilder) AddRule(rule *ruleenginepb.Rule) *ExprBuilder {
-	b.expr.Rules = append(b.expr.Rules, rule)
-	return b
-}
-
-// AddLogicAndRule appends a logic operator and a trailing rule.
-func (b *ExprBuilder) AddLogicAndRule(
-	logic ruleenginepb.Logic,
-	rule *ruleenginepb.Rule,
-) *ExprBuilder {
-	b.expr.Logics = append(b.expr.Logics, logic)
-	b.expr.Rules = append(b.expr.Rules, rule)
-	return b
-}
-
-// Build returns the finalized Expr protobuf message.
-func (b *ExprBuilder) Build() *ruleenginepb.Expr {
-	return b.expr
-}
-
-// ToJSON exports the expr collection as a compliant protobuf JSON object.
-func (b *ExprBuilder) ToJSON() ([]byte, error) {
-	opts := protojson.MarshalOptions{
-		UseProtoNames:   true,
-		EmitUnpopulated: true,
-	}
-	return opts.Marshal(b.expr)
+	return g
 }

@@ -58,37 +58,37 @@ option (sentinez.types.v1.x_meta) = {
 
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 service SecurityService {
-  // ── Expr ──────────────────────────────────────────────────────────────────
-
-  // CreateExpr creates a new WAF rule expression
-  rpc CreateExpr(CreateExprRequest) returns (CreateExprResponse) {
+  // ── RuleGroup ────────────────────────────────────────────────────────────
+  
+  // CreateRuleGroup creates a new WAF rule group
+  rpc CreateRuleGroup(CreateRuleGroupRequest) returns (CreateRuleGroupResponse) {
     option (google.api.http) = {
-      post: "/security/expr"
+      post: "/security/rulegroup"
       body: "*"
     };
   }
 
-  // GetExpr retrieves a WAF rule expression by ID
-  rpc GetExpr(GetExprRequest) returns (GetExprResponse) {
-    option (google.api.http) = {get: "/security/expr/{id}"};
+  // GetRuleGroup retrieves a WAF rule group by ID
+  rpc GetRuleGroup(GetRuleGroupRequest) returns (GetRuleGroupResponse) {
+    option (google.api.http) = {get: "/security/rulegroup/{id}"};
   }
 
-  // UpdateExpr updates an existing WAF rule expression
-  rpc UpdateExpr(UpdateExprRequest) returns (UpdateExprResponse) {
+  // UpdateRuleGroup updates an existing WAF rule group
+  rpc UpdateRuleGroup(UpdateRuleGroupRequest) returns (UpdateRuleGroupResponse) {
     option (google.api.http) = {
-      put: "/security/expr/{id}"
+      put: "/security/rulegroup/{id}"
       body: "*"
     };
   }
 
-  // DeleteExpr removes a WAF rule expression by ID
-  rpc DeleteExpr(DeleteExprRequest) returns (DeleteExprResponse) {
-    option (google.api.http) = {delete: "/security/expr/{id}"};
+  // DeleteRuleGroup removes a WAF rule group by ID
+  rpc DeleteRuleGroup(DeleteRuleGroupRequest) returns (DeleteRuleGroupResponse) {
+    option (google.api.http) = {delete: "/security/rulegroup/{id}"};
   }
 
-  // ListExprs lists WAF rule expressions with optional filters
-  rpc ListExprs(ListExprsRequest) returns (ListExprsResponse) {
-    option (google.api.http) = {get: "/security/exprs"};
+  // ListRuleGroups lists WAF rule groups with optional filters
+  rpc ListRuleGroups(ListRuleGroupsRequest) returns (ListRuleGroupsResponse) {
+    option (google.api.http) = {get: "/security/rulegroups"};
   }
 
   // ── Rule ──────────────────────────────────────────────────────────────────
@@ -134,47 +134,47 @@ service SecurityService {
   }
 }
 
-// ── Expr Messages ───────────────────────────────────────────────────────────
+// ── RuleGroup Messages ─────────────────────────────────────────────────────
 
-message CreateExprRequest {
-  sentinez.types.secure.ruleengine.v1.Expr expr = 1 [(buf.validate.field).required = true];
+message CreateRuleGroupRequest {
+  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1 [(buf.validate.field).required = true];
 }
 
-message CreateExprResponse {
+message CreateRuleGroupResponse {
   string id = 1;
 }
 
-message GetExprRequest {
+message GetRuleGroupRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetExprResponse {
-  sentinez.types.secure.ruleengine.v1.Expr expr = 1;
+message GetRuleGroupResponse {
+  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1;
 }
 
-message UpdateExprRequest {
+message UpdateRuleGroupRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  sentinez.types.secure.ruleengine.v1.Expr expr = 2 [(buf.validate.field).required = true];
+  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 2 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateExprResponse {
-  sentinez.types.secure.ruleengine.v1.Expr expr = 1;
+message UpdateRuleGroupResponse {
+  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group = 1;
 }
 
-message DeleteExprRequest {
+message DeleteRuleGroupRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteExprResponse {}
+message DeleteRuleGroupResponse {}
 
-message ListExprsRequest {
+message ListRuleGroupsRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
 }
 
-message ListExprsResponse {
-  repeated sentinez.types.secure.ruleengine.v1.Expr exprs = 1;
+message ListRuleGroupsResponse {
+  repeated sentinez.types.secure.ruleengine.v1.RuleGroup rule_groups = 1;
   int64 total = 2;
 }
 

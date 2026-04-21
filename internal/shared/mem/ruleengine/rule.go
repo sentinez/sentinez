@@ -19,6 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -32,7 +33,7 @@ var (
 func New() *RuleCache {
 	once.Do(func() {
 		ruleInst = &RuleCache{
-			space: ssync.NewMap[string, *ruleenginepb.Expr](),
+			space: ssync.NewMap[string, *ruleenginepb.RuleGroup](),
 		}
 	})
 
@@ -44,14 +45,17 @@ func GetEngine() *RuleCache {
 }
 
 type RuleCache struct {
-	space *ssync.Map[string, *ruleenginepb.Expr]
+	space *ssync.Map[string, *ruleenginepb.RuleGroup]
 }
 
-func (rc *RuleCache) Store(namespace string, expr *ruleenginepb.Expr) {
-	rc.space.Store(namespace, expr)
+func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleGroup) {
+	val, _ := jsonx.Marshal(gr)
+	zlog.Debugf("rule: load config: %s", val)
+
+	rc.space.Store(namespace, gr)
 }
 
-func (rc *RuleCache) Load(namespace string) *ruleenginepb.Expr {
+func (rc *RuleCache) Load(namespace string) *ruleenginepb.RuleGroup {
 	expr, ok := rc.space.Load(namespace)
 	if !ok {
 		return nil
@@ -60,7 +64,7 @@ func (rc *RuleCache) Load(namespace string) *ruleenginepb.Expr {
 	return expr
 }
 
-func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
+func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.RuleGroup {
 	if rc == nil {
 		return nil
 	}
@@ -74,7 +78,7 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
 	return rc.Load(hCtx.GetServerName())
 }
 
-func Store(serverName string, expr *ruleenginepb.Expr) {
+func Store(serverName string, gr *ruleenginepb.RuleGroup) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -82,5 +86,5 @@ func Store(serverName string, expr *ruleenginepb.Expr) {
 		ruleInst = New()
 	}
 
-	ruleInst.Store(serverName, expr)
+	ruleInst.Store(serverName, gr)
 }

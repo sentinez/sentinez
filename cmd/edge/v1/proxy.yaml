@@ -96,37 +96,38 @@ setting:
   # ----------------------------------------------------------
   security:
     isWafEngineOn: true
-    expression:
-      name: "AND: path, method, ip all match"
-      enabled: true
-      logics:
-        - "LOGIC_AND"
-        - "LOGIC_AND"
-      rules:
-        - name: "block path"
-          enabled: true
-          priority: 1
-          condition:
-            source: FIELD_SOURCE_PATH
-            key: "/block"
-            operator: OPERATOR_EQ
-            value: "/block"
-        - name: "block method"
-          enabled: true
-          priority: 2
-          condition:
-            source: FIELD_SOURCE_METHOD
-            key: "POST"
-            operator: OPERATOR_EQ
-            value: "POST"
-        - name: "block ip"
-          enabled: true
-          priority: 3
-          condition:
-            source: FIELD_SOURCE_IP
-            key: "1.1.1.1"
-            operator: OPERATOR_EQ
-            value: "1.1.1.1"
+    ruleGroup:
+      name: "Complex Logic: (Path AND Method) OR IP"
+      node:
+        operator: "LOGIC_OR"
+        rules:
+          - name: "block ip"
+            enabled: true
+            priority: 3
+            condition:
+              source: FIELD_SOURCE_IP
+              key: "1.1.1.1"
+              operator: OPERATOR_EQ
+              value: "1.1.1.1"
+        groups:
+          - operator: "LOGIC_AND"
+            rules:
+              - name: "block path"
+                enabled: true
+                priority: 1
+                condition:
+                  source: FIELD_SOURCE_PATH
+                  key: "/block"
+                  operator: OPERATOR_EQ
+                  value: "/block"
+              - name: "block method"
+                enabled: true
+                priority: 2
+                condition:
+                  source: FIELD_SOURCE_METHOD
+                  key: "POST"
+                  operator: OPERATOR_EQ
+                  value: "POST"
 
     isRateLimitOn: true
     timeWindow: 5s

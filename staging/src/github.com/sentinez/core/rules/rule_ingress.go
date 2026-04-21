@@ -17,7 +17,6 @@ package corerule
 import (
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -27,20 +26,19 @@ type MatchedFunc func(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool)
 
 type Rules interface {
-	Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool
-	EvalExpr(ctx chttp.RequestContext,
-		rule *rulepb.Expr) (*rulepb.MatchedRules, bool)
+	EvalRule(ctx chttp.RequestContext,
+		rule *rulepb.Rule) bool
+	EvalRuleGroup(ctx chttp.RequestContext,
+		rg *rulepb.RuleGroup) (*rulepb.MatchedRules, bool)
 }
 
 func NewIngress() Rules {
 	return &ingress{}
 }
 
-type ingress struct {
-	expr sync.Map[string, *exprs]
-}
+type ingress struct{}
 
-func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
+func (in *ingress) EvalRule(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 	// zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
 
 	if !rule.GetEnabled() {
@@ -57,40 +55,35 @@ func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 func (in *ingress) matched(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool) {
 
-	if ok = in.Eval(ctx, rule); !ok {
+	if ok = in.EvalRule(ctx, rule); !ok {
 		return "", "", false
 	}
 
 	return rule.GetId(), rule.GetName(), true
 }
 
-// EvalExpr a list of rule
-func (in *ingress) EvalExpr(
-	ctx chttp.RequestContext, chain *rulepb.Expr) (*rulepb.MatchedRules, bool) {
-	// zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
+// EvalRuleGroup a nested group of rules
+func (in *ingress) EvalRuleGroup(
+	ctx chttp.RequestContext,
+	rg *rulepb.RuleGroup,
+) (*rulepb.MatchedRules, bool) {
 
-	if !chain.GetEnabled() {
+	if rg == nil || rg.Node == nil {
 		return nil, false
 	}
 
-	expr, ok := in.expr.Load(chain.GetId())
-	if !ok {
-		expr = newExpr(chain)
-		root, err := expr.build(in.matched)
-		if err != nil {
-			zlog.Errorf("[edge][%s] expr build error: %v", ctx.RequestId(), err)
-			return nil, false
-		}
-		expr.root = root
-		in.expr.Store(chain.GetId(), expr)
+	root, err := buildNode(rg.Node, in.matched)
+	if err != nil {
+		zlog.Errorf("[%s] rule group build error: %v", ctx.RequestId(), err)
+		return nil, false
 	}
 
-	if expr.root == nil {
+	if root == nil {
 		return nil, false
 	}
 
 	matched := &rulepb.MatchedRules{}
-	if ok = expr.root.eval(ctx, matched); ok {
+	if ok := root.eval(ctx, matched); ok {
 		return matched, ok
 	}
 

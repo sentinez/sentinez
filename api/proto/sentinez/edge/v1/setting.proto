@@ -63,10 +63,9 @@ message Location {
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
-  sentinez.types.secure.ruleengine.v1.ExprLite expression = 2; // @gotags: yaml:"expression"
+  sentinez.types.secure.ruleengine.v1.RuleGroupLite rule_group = 2; // @gotags: yaml:"ruleGroup"
 
-  sentinez.types.secure.ruleengine.v1.Rule rule = 3; // @gotags: yaml:"-"
-  sentinez.types.secure.ruleengine.v1.Expr expr = 4; // @gotags: yaml:"-"
+  sentinez.types.secure.ruleengine.v1.RuleGroup rule_group_compiled = 3; // @gotags: yaml:"-"
 
   bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"
 

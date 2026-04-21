@@ -20,191 +20,6 @@
     "application/json"
   ],
   "paths": {
-    "/security/expr": {
-      "post": {
-        "summary": "CreateExpr creates a new WAF rule expression",
-        "operationId": "SecurityService_CreateExpr",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1CreateExprResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateExprRequest"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/expr/{id}": {
-      "get": {
-        "summary": "GetExpr retrieves a WAF rule expression by ID",
-        "operationId": "SecurityService_GetExpr",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetExprResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "delete": {
-        "summary": "DeleteExpr removes a WAF rule expression by ID",
-        "operationId": "SecurityService_DeleteExpr",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteExprResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "put": {
-        "summary": "UpdateExpr updates an existing WAF rule expression",
-        "operationId": "SecurityService_UpdateExpr",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpdateExprResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SecurityServiceUpdateExprBody"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/exprs": {
-      "get": {
-        "summary": "ListExprs lists WAF rule expressions with optional filters",
-        "operationId": "SecurityService_ListExprs",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListExprsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "page.index",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.total",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
     "/security/rule": {
       "post": {
         "summary": "CreateRule creates a new security rule",
@@ -335,6 +150,191 @@
         ]
       }
     },
+    "/security/rulegroup": {
+      "post": {
+        "summary": "CreateRuleGroup creates a new WAF rule group",
+        "operationId": "SecurityService_CreateRuleGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRuleGroupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rulegroup/{id}": {
+      "get": {
+        "summary": "GetRuleGroup retrieves a WAF rule group by ID",
+        "operationId": "SecurityService_GetRuleGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRuleGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteRuleGroup removes a WAF rule group by ID",
+        "operationId": "SecurityService_DeleteRuleGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRuleGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateRuleGroup updates an existing WAF rule group",
+        "operationId": "SecurityService_UpdateRuleGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRuleGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateRuleGroupBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rulegroups": {
+      "get": {
+        "summary": "ListRuleGroups lists WAF rule groups with optional filters",
+        "operationId": "SecurityService_ListRuleGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRuleGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
     "/security/rules": {
       "get": {
         "summary": "ListRules lists security rules with optional filters",
@@ -415,14 +415,25 @@
     }
   },
   "definitions": {
-    "SecurityServiceUpdateExprBody": {
+    "RuleGroupNode": {
       "type": "object",
       "properties": {
-        "expr": {
-          "$ref": "#/definitions/v1Expr"
+        "operator": {
+          "$ref": "#/definitions/v1Logic"
         },
-        "updateMask": {
-          "type": "string"
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ruleenginev1Rule"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/RuleGroupNode"
+          }
         }
       }
     },
@@ -431,6 +442,17 @@
       "properties": {
         "rule": {
           "$ref": "#/definitions/ruleenginev1Rule"
+        },
+        "updateMask": {
+          "type": "string"
+        }
+      }
+    },
+    "SecurityServiceUpdateRuleGroupBody": {
+      "type": "object",
+      "properties": {
+        "ruleGroup": {
+          "$ref": "#/definitions/v1RuleGroup"
         },
         "updateMask": {
           "type": "string"
@@ -551,6 +573,10 @@
     "v1Condition": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "title": "@gotags: yaml:\"-\""
+        },
         "source": {
           "$ref": "#/definitions/v1FieldSource",
           "description": "@gotags: yaml:\"source\"",
@@ -572,15 +598,15 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CreateExprRequest": {
+    "v1CreateRuleGroupRequest": {
       "type": "object",
       "properties": {
-        "expr": {
-          "$ref": "#/definitions/v1Expr"
+        "ruleGroup": {
+          "$ref": "#/definitions/v1RuleGroup"
         }
       }
     },
-    "v1CreateExprResponse": {
+    "v1CreateRuleGroupResponse": {
       "type": "object",
       "properties": {
         "id": {
@@ -604,46 +630,11 @@
         }
       }
     },
-    "v1DeleteExprResponse": {
+    "v1DeleteRuleGroupResponse": {
       "type": "object"
     },
     "v1DeleteRuleResponse": {
       "type": "object"
-    },
-    "v1Expr": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "description": {
-          "type": "string"
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/ruleenginev1Rule"
-          },
-          "title": "@gotags: yaml:\"rules\""
-        },
-        "logics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Logic"
-          },
-          "title": "@gotags: yaml:\"logics\""
-        }
-      },
-      "title": "A collection of rules (e.g., grouped by tenant or domain)"
     },
     "v1FieldSource": {
       "type": "string",
@@ -662,11 +653,11 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
-    "v1GetExprResponse": {
+    "v1GetRuleGroupResponse": {
       "type": "object",
       "properties": {
-        "expr": {
-          "$ref": "#/definitions/v1Expr"
+        "ruleGroup": {
+          "$ref": "#/definitions/v1RuleGroup"
         }
       }
     },
@@ -678,14 +669,14 @@
         }
       }
     },
-    "v1ListExprsResponse": {
+    "v1ListRuleGroupsResponse": {
       "type": "object",
       "properties": {
-        "exprs": {
+        "ruleGroups": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Expr"
+            "$ref": "#/definitions/v1RuleGroup"
           }
         },
         "total": {
@@ -715,7 +706,8 @@
       "enum": [
         "LOGIC_UNSPECIFIED",
         "LOGIC_AND",
-        "LOGIC_OR"
+        "LOGIC_OR",
+        "LOGIC_NOT"
       ],
       "default": "LOGIC_UNSPECIFIED"
     },
@@ -754,6 +746,23 @@
         }
       }
     },
+    "v1RuleGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/RuleGroupNode"
+        }
+      }
+    },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
@@ -762,11 +771,11 @@
         }
       }
     },
-    "v1UpdateExprResponse": {
+    "v1UpdateRuleGroupResponse": {
       "type": "object",
       "properties": {
-        "expr": {
-          "$ref": "#/definitions/v1Expr"
+        "ruleGroup": {
+          "$ref": "#/definitions/v1RuleGroup"
         }
       }
     },

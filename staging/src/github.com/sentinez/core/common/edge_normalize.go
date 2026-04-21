@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	exprPrefix = "senz.expr."
+	rgPrefix   = "senz.rulegroup."
 	condPrefix = "senz.cond."
 	rulePrefix = "senz.rule."
 )
@@ -33,30 +33,47 @@ func NormalizeEdgeSetting(edge *edgepb.Setting) {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	expression := edgeSec.GetExpression()
-	defer func() { edgeSec.Expression = nil }()
-
-	if expression == nil {
+	rgLite := edgeSec.GetRuleGroup()
+	if rgLite == nil {
 		return
 	}
 
-	expr := edgeSec.GetExpr()
-	if expr == nil {
-		edgeSec.Expr = &ruleenginepb.Expr{}
-		expr = edgeSec.Expr
+	edgeSec.RuleGroupCompiled = toRuleGroup(rgLite)
+}
+
+func toRuleGroup(rgLite *ruleenginepb.RuleGroupLite) *ruleenginepb.RuleGroup {
+	if rgLite == nil {
+		return nil
 	}
 
-	expr.Id = ids.NewNanoID(exprPrefix)
-	expr.Name = expression.GetName()
-	expr.Enabled = expression.GetEnabled()
+	return &ruleenginepb.RuleGroup{
+		Id:          rgLite.GetId(),
+		Name:        rgLite.GetName(),
+		Description: rgLite.GetDescription(),
+		Node:        toNode(rgLite.GetNode()),
+	}
+}
 
-	for _, logic := range expression.GetLogics() {
-		expr.Logics = append(expr.Logics, toLogic(logic))
+func toNode(
+	nodeLite *ruleenginepb.RuleGroupLite_NodeLite,
+) *ruleenginepb.RuleGroup_Node {
+	if nodeLite == nil {
+		return nil
 	}
 
-	for _, rule := range expression.GetRules() {
-		expr.Rules = append(expr.Rules, toRule(rule))
+	node := &ruleenginepb.RuleGroup_Node{
+		Operator: toLogic(nodeLite.GetOperator()),
 	}
+
+	for _, rLite := range nodeLite.GetRules() {
+		node.Rules = append(node.Rules, toRule(rLite))
+	}
+
+	for _, gLite := range nodeLite.GetGroups() {
+		node.Groups = append(node.Groups, toNode(gLite))
+	}
+
+	return node
 }
 
 func toLogic(logic string) ruleenginepb.Logic {

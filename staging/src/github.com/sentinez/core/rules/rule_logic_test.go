@@ -68,6 +68,7 @@ func TestAST2(t *testing.T) {
 		{"T8: false OR false AND true", false, false, true, logicOr, logicAnd},
 		{"T9: true OR false OR false", true, false, false, logicOr, logicOr},
 		{"T10: false AND false OR true", false, false, true, logicAnd, logicOr},
+		{"T11: NOT (false)", false, false, false, logicNot, logicAnd}, // logicNot only uses first operand
 	}
 
 	for _, tt := range tests {
@@ -94,12 +95,14 @@ func TestAST2(t *testing.T) {
 				} else {
 					ans = cmd1.eval(nil, nil) && (cmd2.eval(nil, nil) || cmd3.eval(nil, nil))
 				}
-			} else {
+			} else if tt.op1 == logicOr {
 				if tt.op2 == logicAnd {
 					ans = cmd1.eval(nil, nil) || (cmd2.eval(nil, nil) && cmd3.eval(nil, nil))
 				} else {
 					ans = cmd1.eval(nil, nil) || cmd2.eval(nil, nil) || cmd3.eval(nil, nil)
 				}
+			} else { // logicNot
+				ans = !cmd1.eval(nil, nil)
 			}
 
 			// Xây cây AST tương ứng

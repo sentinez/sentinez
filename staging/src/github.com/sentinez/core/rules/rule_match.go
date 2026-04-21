@@ -64,22 +64,44 @@ func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	return matchString(cond.GetOperator(), src, des)
 }
 
+// nolint:funlen
 func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
-	list := cond.GetValue().GetListValue()
-	if list != nil {
+	key := cond.GetKey()
+	val := cond.GetValue()
+	op := cond.GetOperator()
+
+	// If no key is provided, we check for existence of the listed keys
+	if key == "" || key == "header" {
+		list := val.GetListValue()
+		if list == nil {
+			// fallback to single key existence check
+			s := val.GetStringValue()
+			zlog.Debugf("rules: header existence check (single): %s", s)
+			if s == "" {
+				return unmatched
+			}
+			_, exist := ctx.Headers()[s]
+			return matchOperator(op, exist)
+		}
+
+		des := list.GetValues()
 		src := ctx.Headers()
-		switch cond.GetOperator() {
+		zlog.Debugf("rules: header existence check (list): %v", des)
+		if len(src) == 0 {
+			return unmatched
+		}
+
+		switch op {
 		case rulepb.Operator_OPERATOR_IN:
-			for _, v := range list.GetValues() {
+			for _, v := range des {
 				s := v.GetStringValue()
 				if _, ok := src[s]; !ok {
 					return unmatched
 				}
 			}
 			return matched
-
 		case rulepb.Operator_OPERATOR_NOT_IN:
-			for _, v := range list.GetValues() {
+			for _, v := range des {
 				s := v.GetStringValue()
 				if _, ok := src[s]; ok {
 					return unmatched
@@ -90,14 +112,26 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		return unmatched
 	}
 
-	key := cond.GetKey()
-	if key != "" {
-		val := ctx.Header(key)
-		des := cond.GetValue().GetStringValue()
-		return matchString(cond.GetOperator(), val, des)
+	// If a key is provided, we check its value
+	srcVal := ctx.Header(key)
+	list := val.GetListValue()
+	zlog.Debugf("rules: header value check key=%s src=%s", key, srcVal)
+
+	if list != nil {
+		// Membership check
+		found := false
+		for _, v := range list.GetValues() {
+			if srcVal == v.GetStringValue() {
+				found = true
+				break
+			}
+		}
+		return matchOperator(op, found)
 	}
 
-	return unmatched
+	// Single value check
+	desString := val.GetStringValue()
+	return matchString(op, srcVal, desString)
 }
 
 func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
@@ -109,26 +143,42 @@ func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 // nolint:funlen
 func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
-	list := cond.GetValue().GetListValue()
-	if list != nil {
+	key := cond.GetKey()
+	val := cond.GetValue()
+	op := cond.GetOperator()
+
+	// If no key is provided, we check for existence of the listed keys
+	if key == "" || key == "query" {
+		list := val.GetListValue()
+		if list == nil {
+			// fallback to single key existence check
+			s := val.GetStringValue()
+			zlog.Debugf("rules: query existence check (single): %s", s)
+			if s == "" {
+				return unmatched
+			}
+			_, exist := ctx.Queries()[s]
+			return matchOperator(op, exist)
+		}
+
 		des := list.AsSlice()
 		src := ctx.Queries()
-
+		zlog.Debugf("rules: query existence check (list): %v", des)
 		if len(src) == 0 {
 			return unmatched
 		}
 
-		switch cond.GetOperator() {
+		switch op {
 		case rulepb.Operator_OPERATOR_IN:
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
 					if _, exist := src[ds]; !exist {
+						zlog.Debugf("rules: query key not found: %s", ds)
 						return unmatched
 					}
 				}
 			}
 			return matched
-
 		case rulepb.Operator_OPERATOR_NOT_IN:
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
@@ -138,20 +188,45 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 				}
 			}
 			return matched
-
-		default:
-			return unmatched
 		}
+		return unmatched
 	}
 
-	key := cond.GetKey()
-	if key != "" {
-		val := ctx.Query(key)
-		desString := cond.GetValue().GetStringValue()
-		return matchString(cond.GetOperator(), val, desString)
+	// If a key is provided, we check its value
+	srcVal := ctx.Query(key)
+	list := val.GetListValue()
+	zlog.Debugf("rules: query value check key=%s src=%s", key, srcVal)
+
+	if list != nil {
+		// Membership check
+		found := false
+		for _, v := range list.GetValues() {
+			if srcVal == v.GetStringValue() {
+				found = true
+				break
+			}
+		}
+		return matchOperator(op, found)
 	}
 
-	return unmatched
+	// Single value check
+	desString := val.GetStringValue()
+	return matchString(op, srcVal, desString)
+}
+
+func matchOperator(op rulepb.Operator, ok bool) bool {
+	switch op {
+	case rulepb.Operator_OPERATOR_IN:
+		return ok
+	case rulepb.Operator_OPERATOR_NOT_IN:
+		return !ok
+	case rulepb.Operator_OPERATOR_EQ:
+		return ok
+	case rulepb.Operator_OPERATOR_NE:
+		return !ok
+	default:
+		return ok
+	}
 }
 
 func matchIP(src, des string) bool {

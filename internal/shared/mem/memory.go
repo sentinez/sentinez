@@ -124,7 +124,7 @@ func LoadRuleBased() {
 	settings.Visit(func(s *edgepb.Setting) bool {
 		ruleengine.Store(
 			s.GetServer().GetName(),
-			s.GetSecurity().GetExpr())
+			s.GetSecurity().GetRuleGroupCompiled())
 
 		return true
 	})

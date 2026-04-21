@@ -43,7 +43,7 @@ func (e *Engine) EvaluateIngress(ctx context.Context,
 	defer requests.Free(enginectx)
 
 	rule := ruleenginepb.Rule{}
-	if ok := e.in.Eval(enginectx, &rule); !ok {
+	if ok := e.in.EvalRule(enginectx, &rule); !ok {
 		return &edgepb.EvaluateIngressResponse{}, nil
 	}
 
