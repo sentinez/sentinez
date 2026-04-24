@@ -62,8 +62,6 @@ func newContext() corehttp.RequestContext {
 }
 
 func TestRulePath(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
@@ -76,7 +74,7 @@ func TestRulePath(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %s", string(val))
 
-	ok := rule.eval(newContext(), req)
+	ok := eval(newContext(), req)
 	if ok {
 		t.Logf("rule engine matched !!!")
 		return
@@ -86,8 +84,6 @@ func TestRulePath(t *testing.T) {
 }
 
 func TestRuleQuery(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
@@ -105,7 +101,7 @@ func TestRuleQuery(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -116,8 +112,6 @@ func TestRuleQuery(t *testing.T) {
 }
 
 func TestRuleClientIP(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
@@ -130,7 +124,7 @@ func TestRuleClientIP(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -141,8 +135,6 @@ func TestRuleClientIP(t *testing.T) {
 }
 
 func TestRuleClientIPRange(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
@@ -155,7 +147,7 @@ func TestRuleClientIPRange(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -166,7 +158,6 @@ func TestRuleClientIPRange(t *testing.T) {
 }
 
 func TestRuleClientIPRangeNotEQ(t *testing.T) {
-	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
@@ -180,7 +171,7 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -204,9 +195,9 @@ func TestChain(t *testing.T) {
 		},
 	}
 
-	ig := NewIngress()
-
-	if _, ok := ig.Eval(newContext(), rg); ok {
+	ig := NewIngress(rg)
+	matched := &ruleenginepb.MatchedRules{}
+	if ok := ig.Eval(newContext(), matched); ok {
 		t.Logf("rule engine matched !!!")
 		return
 	}
@@ -287,12 +278,12 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 	}
 
-	ig := NewIngress()
+	matched := &ruleenginepb.MatchedRules{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, ok := ig.Eval(ctx, tt.rg)
-			if ok != tt.expect {
+			ig := NewIngress(tt.rg)
+			if ok := ig.Eval(ctx, matched); ok != tt.expect {
 				t.Errorf("expected %v, got %v", tt.expect, ok)
 			} else {
 				t.Logf("%s: passed", tt.name)
@@ -350,7 +341,6 @@ func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *s
 func BenchmarkEvalRule(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rule := NewIngress()
 	req := &ruleenginepb.Rule{
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
@@ -364,7 +354,7 @@ func BenchmarkEvalRule(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = rule.eval(ctx, req)
+		_ = eval(ctx, req)
 	}
 }
 
@@ -372,7 +362,6 @@ func BenchmarkEvalRule(b *testing.B) {
 func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	ig := NewIngress()
 	rg := &ruleenginepb.RuleBased{
 		Node: &ruleenginepb.RuleBased_Node{
 			Operator: ruleenginepb.Logic_LOGIC_AND,
@@ -383,12 +372,15 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 			},
 		},
 	}
+	ig := NewIngress(rg)
+
 	ctx := newContext()
+	matched := &ruleenginepb.MatchedRules{}
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = ig.Eval(ctx, rg)
+		_ = ig.Eval(ctx, matched)
 	}
 }
 
@@ -396,7 +388,6 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	ig := NewIngress()
 	rg := &ruleenginepb.RuleBased{
 		Node: &ruleenginepb.RuleBased_Node{
 			Operator: ruleenginepb.Logic_LOGIC_AND,
@@ -420,11 +411,55 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 			},
 		},
 	}
+
+	ig := NewIngress(rg)
+	ctx := newContext()
+	matched := &ruleenginepb.MatchedRules{}
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = ig.Eval(ctx, matched)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+			Groups: []*ruleenginepb.RuleBased_Node{
+				{
+					Operator: ruleenginepb.Logic_LOGIC_OR,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					},
+				},
+				{
+					Operator: ruleenginepb.Logic_LOGIC_NOT,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					},
+				},
+			},
+		},
+	}
+
+	ig := NewIngress(rg)
+
 	ctx := newContext()
 
-	b.ReportAllocs()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, _ = ig.Eval(ctx, rg)
-	}
+	b.ReportAllocs()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_ = ig.Eval(ctx, nil)
+		}
+	})
 }

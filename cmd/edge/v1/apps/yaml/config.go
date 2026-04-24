@@ -46,6 +46,8 @@ func LoadSetting(appConf *confpb.Config) *edgepb.Setting {
 		zlog.Fatal("missing 'setting' in configuration")
 	}
 
+	zlog.Debugf("setting: %v", settingRaw)
+
 	settingJSON, err := json.Marshal(settingRaw)
 	if err != nil {
 		zlog.Fatal(err)
@@ -59,6 +61,8 @@ func LoadSetting(appConf *confpb.Config) *edgepb.Setting {
 	if err := unmarshaler.Unmarshal(settingJSON, setting); err != nil {
 		zlog.Fatal(err)
 	}
+
+	zlog.Debugf("unmarshal: security: %v", setting.GetSecurity().GetRuleBased().GetAction())
 
 	return setting
 }

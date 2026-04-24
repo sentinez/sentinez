@@ -53,38 +53,38 @@ type Router struct {
 
 // nolint:funlen
 func (r *Router) Store(server *edgepb.Server) {
-	if len(server.Locations) == 0 {
+	if len(server.GetLocations()) == 0 {
 		return
 	}
 
 	var validRoutes []*edgepb.Location
-	for _, routeConfig := range server.Locations {
+	for _, routeConfig := range server.GetLocations() {
 		zlog.Debugf(
 			"[edge] ns=%s %s -> %s (rewrite: %s)",
-			server.Name, routeConfig.Location,
-			routeConfig.ProxyPass, routeConfig.ProxyRewrite,
+			server.GetName(), routeConfig.GetLocation(),
+			routeConfig.GetProxyPass(), routeConfig.GetProxyRewrite(),
 		)
 
 		route := &edgepb.Location{
-			Location:        routeConfig.Location,
-			ProxyPass:       routeConfig.ProxyPass,
-			ProxyRewrite:    routeConfig.ProxyRewrite,
+			Location:        routeConfig.GetLocation(),
+			ProxyPass:       routeConfig.GetProxyPass(),
+			ProxyRewrite:    routeConfig.GetProxyRewrite(),
 			ProxySetHeaders: make(map[string]string),
 		}
 
-		for k, v := range routeConfig.ProxySetHeaders {
+		for k, v := range routeConfig.GetProxySetHeaders() {
 			if variable.IsValidHeaderKey(k) {
 				route.ProxySetHeaders[k] = v
 			} else {
 				zlog.Warnf(
 					"invalid proxy header %q in ns=%q location=%q, ignoring",
-					k, server.Name, routeConfig.Location,
+					k, server.GetName(), routeConfig.GetLocation(),
 				)
 			}
 		}
 
-		if route.ProxyRewrite == "" {
-			route.ProxyRewrite = route.Location
+		if route.GetProxyRewrite() == "" {
+			route.ProxyRewrite = route.GetLocation()
 		}
 
 		validRoutes = append(validRoutes, route)
@@ -93,10 +93,11 @@ func (r *Router) Store(server *edgepb.Server) {
 	// sort routes descending by location
 	// length for longest-prefix match (like nginx)
 	sort.Slice(validRoutes, func(i, j int) bool {
-		return len(validRoutes[i].Location) > len(validRoutes[j].Location)
+		return len(validRoutes[i].GetLocation()) >
+			len(validRoutes[j].GetLocation())
 	})
 
-	r.routes.Store(server.Name, validRoutes)
+	r.routes.Store(server.GetName(), validRoutes)
 }
 
 // nolint:funlen
@@ -115,23 +116,24 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	}
 
 	for _, route := range routes {
-		if strings.HasPrefix(path, route.Location) {
+		if strings.HasPrefix(path, route.GetLocation()) {
 			zlog.Debugf(
 				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-				serverName, route.ProxyRewrite, route.ProxyPass, route.Location,
+				serverName, route.GetProxyRewrite(), route.GetProxyPass(),
+				route.GetLocation(),
 			)
 
 			// path = /api/v1/users, location = /api, rewrite = /v1
 			// remainingPath = /v1 + /v1/users = /v1/v1/users
-			remainingPath := route.ProxyRewrite +
-				strings.TrimPrefix(path, route.Location)
+			remainingPath := route.GetProxyRewrite() +
+				strings.TrimPrefix(path, route.GetLocation())
 			ctx.SetPath(remainingPath)
 
 			// Set default proxy routing headers
-			ctx.SetHeader("X-Forwarded-Prefix", route.Location)
+			ctx.SetHeader("X-Forwarded-Prefix", route.GetLocation())
 
 			// Add custom headers from config
-			for hk, hv := range route.ProxySetHeaders {
+			for hk, hv := range route.GetProxySetHeaders() {
 				val, err := variable.ParseProxyVal(ctx, hv)
 				if err != nil {
 					return "", err

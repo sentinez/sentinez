@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	rgPrefix   = "senz.RuleBased."
+	rgPrefix   = "senz.rulebased."
 	condPrefix = "senz.cond."
 	rulePrefix = "senz.rule."
 )
@@ -50,6 +50,7 @@ func toRuleBased(rgLite *ruleenginepb.RuleBasedLite) *ruleenginepb.RuleBased {
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
 		Node:        toNode(rgLite.GetNode()),
+		Action:      rgLite.GetAction(),
 	}
 }
 

@@ -53,7 +53,7 @@ func LoadReverseProxy() {
 					continue
 				}
 
-				rproxy, err := stdproxy.NewReverseProxy(upstream.GetServer())
+				rproxy, err := stdproxy.NewReverseProxy(upstream)
 				if err != nil {
 					continue
 				}

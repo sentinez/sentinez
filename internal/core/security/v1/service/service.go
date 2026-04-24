@@ -54,16 +54,17 @@ func (srv *SecurityService) mapDBToRuleBased(_ context.Context,
 	}
 
 	var node ruleenginepb.RuleBased_Node
-	if dbRB.Node != "" {
-		if err := protojson.Unmarshal([]byte(dbRB.Node), &node); err != nil {
+	if dbRB.GetNode() != "" {
+		if err := protojson.
+			Unmarshal([]byte(dbRB.GetNode()), &node); err != nil {
 			return nil, err
 		}
 	}
 
 	var action ruleenginepb.Action
-	if dbRB.Action != "" {
+	if dbRB.GetAction() != "" {
 		if err := protojson.
-			Unmarshal([]byte(dbRB.Action), &action); err != nil {
+			Unmarshal([]byte(dbRB.GetAction()), &action); err != nil {
 			return nil, err
 		}
 	}
@@ -85,14 +86,14 @@ func (srv *SecurityService) mapDBToRuleBased(_ context.Context,
 func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 	req *securitypb.CreateRuleBasedRequest,
 ) (*securitypb.CreateRuleBasedResponse, error) {
-	if req.RuleBased == nil {
+	if req.GetRuleBased() == nil {
 		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
 
 	var nodeStr string
-	if req.RuleBased.Node != nil {
+	if req.GetRuleBased().GetNode() != nil {
 		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.RuleBased.Node)
+			Marshal(req.GetRuleBased().GetNode())
 		if err != nil {
 			return nil, err
 		}
@@ -102,7 +103,7 @@ func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 	var action string
 	if req.GetRuleBased().GetAction() != nil {
 		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.RuleBased.Action)
+			Marshal(req.GetRuleBased().GetAction())
 		if err != nil {
 			return nil, err
 		}
@@ -110,12 +111,12 @@ func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 	}
 
 	dbRB := &securitypb.RuleBased{
-		Name:        req.RuleBased.Name,
-		Description: req.RuleBased.Description,
+		Name:        req.GetRuleBased().GetName(),
+		Description: req.GetRuleBased().GetDescription(),
 		Node:        nodeStr,
 		Action:      action,
-		Priority:    req.RuleBased.Priority,
-		Status:      req.RuleBased.Status,
+		Priority:    req.GetRuleBased().GetPriority(),
+		Status:      req.GetRuleBased().GetStatus(),
 	}
 
 	created, err := srv.ruleBasedRepo.Create(ctx, dbRB)
@@ -123,13 +124,13 @@ func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 		return nil, err
 	}
 
-	return &securitypb.CreateRuleBasedResponse{Id: created.Id}, nil
+	return &securitypb.CreateRuleBasedResponse{Id: created.GetId()}, nil
 }
 
 func (srv *SecurityService) GetRuleBased(ctx context.Context,
 	req *securitypb.GetRuleBasedRequest,
 ) (*securitypb.GetRuleBasedResponse, error) {
-	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.Id)
+	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +142,9 @@ func (srv *SecurityService) GetRuleBased(ctx context.Context,
 
 	// Transfer top-level metadata from DB model to ruleenginepb structure
 	if rb != nil {
-		rb.Id = dbRB.Id
-		rb.Name = dbRB.Name
-		rb.Description = dbRB.Description
+		rb.Id = dbRB.GetId()
+		rb.Name = dbRB.GetName()
+		rb.Description = dbRB.GetDescription()
 	}
 
 	return &securitypb.GetRuleBasedResponse{RuleBased: rb}, nil
@@ -153,21 +154,21 @@ func (srv *SecurityService) GetRuleBased(ctx context.Context,
 func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 	req *securitypb.UpdateRuleBasedRequest,
 ) (*securitypb.UpdateRuleBasedResponse, error) {
-	if req.RuleBased == nil {
+	if req.GetRuleBased() == nil {
 		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
 
-	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.Id)
+	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
-	dbRB.Name = req.RuleBased.Name
-	dbRB.Description = req.RuleBased.Description
+	dbRB.Name = req.GetRuleBased().GetName()
+	dbRB.Description = req.GetRuleBased().GetDescription()
 
-	if req.RuleBased.Node != nil {
+	if req.GetRuleBased().GetNode() != nil {
 		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.RuleBased.Node)
+			Marshal(req.GetRuleBased().GetNode())
 		if err != nil {
 			return nil, err
 		}
@@ -186,9 +187,9 @@ func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 	}
 
 	if rb != nil {
-		rb.Id = dbRB.Id
-		rb.Name = dbRB.Name
-		rb.Description = dbRB.Description
+		rb.Id = dbRB.GetId()
+		rb.Name = dbRB.GetName()
+		rb.Description = dbRB.GetDescription()
 	}
 
 	return &securitypb.UpdateRuleBasedResponse{RuleBased: rb}, nil
@@ -197,7 +198,7 @@ func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 func (srv *SecurityService) DeleteRuleBased(ctx context.Context,
 	req *securitypb.DeleteRuleBasedRequest,
 ) (*securitypb.DeleteRuleBasedResponse, error) {
-	if err := srv.ruleBasedRepo.Delete(ctx, req.Id); err != nil {
+	if err := srv.ruleBasedRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
 	return &securitypb.DeleteRuleBasedResponse{}, nil
@@ -218,9 +219,9 @@ func (srv *SecurityService) ListRuleBaseds(ctx context.Context,
 			return nil, err
 		}
 		if rb != nil {
-			rb.Id = dbRB.Id
-			rb.Name = dbRB.Name
-			rb.Description = dbRB.Description
+			rb.Id = dbRB.GetId()
+			rb.Name = dbRB.GetName()
+			rb.Description = dbRB.GetDescription()
 			rbs = append(rbs, rb)
 		}
 	}

@@ -18,6 +18,7 @@ import (
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
+	corerule "github.com/sentinez/core/rules"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	ssync "github.com/sentinez/shared/sync"
@@ -33,7 +34,7 @@ var (
 func New() *RuleCache {
 	once.Do(func() {
 		ruleInst = &RuleCache{
-			space: ssync.NewMap[string, *ruleenginepb.RuleBased](),
+			space: ssync.NewMap[string, corerule.Rules](),
 		}
 	})
 
@@ -45,26 +46,28 @@ func GetEngine() *RuleCache {
 }
 
 type RuleCache struct {
-	space *ssync.Map[string, *ruleenginepb.RuleBased]
+	space *ssync.Map[string, corerule.Rules]
 }
 
 func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleBased) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
-	rc.space.Store(namespace, gr)
+	rule := corerule.NewIngress(gr)
+
+	rc.space.Store(namespace, rule)
 }
 
-func (rc *RuleCache) Load(namespace string) *ruleenginepb.RuleBased {
-	expr, ok := rc.space.Load(namespace)
+func (rc *RuleCache) Load(namespace string) corerule.Rules {
+	rule, ok := rc.space.Load(namespace)
 	if !ok {
 		return nil
 	}
 
-	return expr
+	return rule
 }
 
-func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.RuleBased {
+func (rc *RuleCache) LoadContext(ctx corehttp.Context) corerule.Rules {
 	if rc == nil {
 		return nil
 	}

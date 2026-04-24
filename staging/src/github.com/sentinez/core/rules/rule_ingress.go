@@ -17,7 +17,6 @@ package corerule
 import (
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
 var _ Rules = (*ingress)(nil)
@@ -27,32 +26,33 @@ type MatchedFunc func(ctx chttp.RequestContext,
 
 // nolint
 type Rules interface {
-	eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool
-	Eval(ctx chttp.RequestContext, rg *rulepb.RuleBased) (*rulepb.MatchedRules, bool)
+	Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool
+	Action() *rulepb.Action
 }
 
-func NewIngress() Rules {
-	return &ingress{}
+func NewIngress(rg *rulepb.RuleBased) Rules {
+	root := buildNode(rg.GetNode(), match)
+
+	return &ingress{
+		root:   root,
+		action: rg.GetAction(),
+	}
 }
 
-type ingress struct{}
+type ingress struct {
+	root   *node
+	action *rulepb.Action
+}
 
-func (in *ingress) eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
+func eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 	// zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
-
-	cond := newCondition(rule.GetCondition())
-	ruleCtx := newEvaluator(ctx)
-
-	defer ruleCtx.Release()
-	defer cond.Release()
-
-	return cond.Accept(ruleCtx)
+	return accept(ctx, rule.GetCondition())
 }
 
-func (in *ingress) matched(ctx chttp.RequestContext,
+func match(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool) {
 
-	if ok = in.eval(ctx, rule); !ok {
+	if ok = eval(ctx, rule); !ok {
 		return "", "", false
 	}
 
@@ -60,29 +60,18 @@ func (in *ingress) matched(ctx chttp.RequestContext,
 }
 
 // Eval a nested group of rules
-func (in *ingress) Eval(
-	ctx chttp.RequestContext,
-	rg *rulepb.RuleBased,
-) (*rulepb.MatchedRules, bool) {
-
-	if rg == nil || rg.GetNode() == nil {
-		return nil, false
+func (in *ingress) Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool {
+	if in.root == nil {
+		return false
 	}
 
-	root, err := buildNode(rg.GetNode(), in.matched)
-	if err != nil {
-		zlog.Errorf("[%s] rule group build error: %v", ctx.RequestId(), err)
-		return nil, false
+	if ok := in.root.eval(ctx, m); ok {
+		return true
 	}
 
-	if root == nil {
-		return nil, false
-	}
+	return false
+}
 
-	matched := &rulepb.MatchedRules{}
-	if ok := root.eval(ctx, matched); ok {
-		return matched, ok
-	}
-
-	return nil, false
+func (in *ingress) Action() *rulepb.Action {
+	return in.action
 }

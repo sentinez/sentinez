@@ -99,29 +99,31 @@ setting:
     ruleBased:
       name: "Complex Logic: (Path AND Method) OR IP"
       node:
-        operator: "LOGIC_OR"
+        operator: LOGIC_OR
         rules:
-          - name: "block ip"
+          - name: "block path"
             condition:
-              source: FIELD_SOURCE_IP
-              key: "1.1.1.1"
+              source: FIELD_SOURCE_PATH
+              key: "/block"
               operator: OPERATOR_EQ
-              value: "1.1.1.1"
+              value: "/block"
         groups:
-          - operator: "LOGIC_AND"
+          - operator: LOGIC_AND
             rules:
-              - name: "block path"
+              - name: "block ip"
                 condition:
-                  source: FIELD_SOURCE_PATH
-                  key: "/block"
+                  source: FIELD_SOURCE_IP
+                  key: "1.1.1.1"
                   operator: OPERATOR_EQ
-                  value: "/block"
+                  value: "1.1.1.1"
               - name: "block method"
                 condition:
                   source: FIELD_SOURCE_METHOD
                   key: "POST"
                   operator: OPERATOR_EQ
                   value: "POST"
+      action:
+        type: ACTION_TYPE_BLOCK
 
     isRateLimitOn: true
     timeWindow: 5s

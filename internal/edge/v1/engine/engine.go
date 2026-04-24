@@ -26,14 +26,10 @@ import (
 var _ edgepb.EdgeEngineServiceServer = (*Engine)(nil)
 
 func New() *Engine {
-	return &Engine{
-		in: corerules.NewIngress(),
-	}
+	return &Engine{}
 }
 
-type Engine struct {
-	in corerules.Rules
-}
+type Engine struct{}
 
 func (e *Engine) EvaluateIngress(ctx context.Context,
 	request *edgepb.EvaluateIngressRequest,
@@ -42,8 +38,9 @@ func (e *Engine) EvaluateIngress(ctx context.Context,
 	enginectx := requests.New(ctx, request.GetRequestContext())
 	defer requests.Free(enginectx)
 
-	rule := ruleenginepb.RuleBased{}
-	_, ok := e.in.Eval(enginectx, &rule)
+	rule := corerules.NewIngress(&ruleenginepb.RuleBased{})
+	matched := &ruleenginepb.MatchedRules{}
+	ok := rule.Eval(enginectx, matched)
 	if !ok {
 		return &edgepb.EvaluateIngressResponse{}, nil
 	}

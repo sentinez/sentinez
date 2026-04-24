@@ -126,8 +126,6 @@ func (m *Action) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Id
-
 	// no validation rules for Type
 
 	if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
@@ -625,6 +623,16 @@ func (m *RuleBasedLite) Validate() error {
 		if err := v.Validate(); err != nil {
 			return RuleBasedLiteValidationError{
 				field:  "Node",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedLiteValidationError{
+				field:  "Action",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

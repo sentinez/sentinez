@@ -55,13 +55,15 @@ func (b *GroupBuilder) WithDescription(desc string) *GroupBuilder {
 }
 
 func (b *GroupBuilder) AddRule(r *ruleenginepb.Rule) *GroupBuilder {
-	b.group.Node.Rules = append(b.group.Node.Rules, r)
+	node := b.group.GetNode()
+	node.Rules = append(node.GetRules(), r)
 	return b
 }
 
 func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleBased) *GroupBuilder {
-	if g != nil && g.Node != nil {
-		b.group.Node.Groups = append(b.group.Node.Groups, g.Node)
+	if g != nil && g.GetNode() != nil {
+		node := b.group.GetNode()
+		node.Groups = append(node.GetGroups(), g.GetNode())
 	}
 	return b
 }

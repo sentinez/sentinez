@@ -20,9 +20,9 @@ import (
 )
 
 // nolint:funlen
-func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) (*node, error) {
+func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) *node {
 	if pbNode == nil {
-		return nil, nil
+		return nil
 	}
 
 	var nodes []*node
@@ -43,17 +43,14 @@ func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) (*node, error) {
 
 	// Build nodes for sub-groups recursively
 	for _, subNode := range pbNode.GetGroups() {
-		subEvalNode, err := buildNode(subNode, exec)
-		if err != nil {
-			return nil, err
-		}
+		subEvalNode := buildNode(subNode, exec)
 		if subEvalNode != nil {
 			nodes = append(nodes, subEvalNode)
 		}
 	}
 
 	if len(nodes) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	op := pbNode.GetOperator()
@@ -66,7 +63,7 @@ func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) (*node, error) {
 		for i := 1; i < len(nodes); i++ {
 			current = newLogic(current, logicAnd, nodes[i])
 		}
-		return newLogic(current, logicNot, nil), nil
+		return newLogic(current, logicNot, nil)
 	}
 
 	// For AND/OR, we chain them
@@ -80,5 +77,5 @@ func buildNode(pbNode *rulepb.RuleBased_Node, exec MatchedFunc) (*node, error) {
 		current = newLogic(current, lOp, nodes[i])
 	}
 
-	return current, nil
+	return current
 }

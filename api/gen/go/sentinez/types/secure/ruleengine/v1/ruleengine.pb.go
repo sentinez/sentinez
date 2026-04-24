@@ -372,12 +372,11 @@ func (x *Condition) GetValue() *structpb.Value {
 // An action to execute when a rule matches
 type Action struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Example types: "block", "log", "modify_header",
 	// "redirect", "set_tag", "route_to"
-	Type ActionType `protobuf:"varint,2,opt,name=type,proto3,enum=sentinez.types.secure.ruleengine.v1.ActionType" json:"type,omitempty"`
+	Type ActionType `protobuf:"varint,1,opt,name=type,proto3,enum=sentinez.types.secure.ruleengine.v1.ActionType" json:"type,omitempty" yaml:"type"` // @gotags: yaml:"type"
 	// Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
-	Params        *structpb.Struct `protobuf:"bytes,3,opt,name=params,proto3" json:"params,omitempty"`
+	Params        *structpb.Struct `protobuf:"bytes,2,opt,name=params,proto3" json:"params,omitempty" yaml:"params"` // @gotags: yaml:"params"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,13 +409,6 @@ func (x *Action) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Action.ProtoReflect.Descriptor instead.
 func (*Action) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Action) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
 }
 
 func (x *Action) GetType() ActionType {
@@ -811,6 +803,7 @@ type RuleBasedLite struct {
 	Name          string                  `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                  `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Node          *RuleBasedLite_NodeLite `protobuf:"bytes,4,opt,name=node,proto3" json:"node,omitempty"`
+	Action        *Action                 `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -869,6 +862,13 @@ func (x *RuleBasedLite) GetDescription() string {
 func (x *RuleBasedLite) GetNode() *RuleBasedLite_NodeLite {
 	if x != nil {
 		return x.Node
+	}
+	return nil
+}
+
+func (x *RuleBasedLite) GetAction() *Action {
+	if x != nil {
+		return x.Action
 	}
 	return nil
 }
@@ -1003,11 +1003,10 @@ const file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDesc = "" +
 	"\x06source\x18\x01 \x01(\x0e20.sentinez.types.secure.ruleengine.v1.FieldSourceR\x06source\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12I\n" +
 	"\boperator\x18\x03 \x01(\x0e2-.sentinez.types.secure.ruleengine.v1.OperatorR\boperator\x12,\n" +
-	"\x05value\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\x05value\"\x8e\x01\n" +
-	"\x06Action\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
-	"\x04type\x18\x02 \x01(\x0e2/.sentinez.types.secure.ruleengine.v1.ActionTypeR\x04type\x12/\n" +
-	"\x06params\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x06params\"\x9a\x01\n" +
+	"\x05value\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\x05value\"~\n" +
+	"\x06Action\x12C\n" +
+	"\x04type\x18\x01 \x01(\x0e2/.sentinez.types.secure.ruleengine.v1.ActionTypeR\x04type\x12/\n" +
+	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"\x9a\x01\n" +
 	"\x04Rule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1041,12 +1040,13 @@ const file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_rawDesc = "" +
 	"\x04Node\x12F\n" +
 	"\boperator\x18\x01 \x01(\x0e2*.sentinez.types.secure.ruleengine.v1.LogicR\boperator\x12?\n" +
 	"\x05rules\x18\x02 \x03(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x05rules\x12K\n" +
-	"\x06groups\x18\x03 \x03(\v23.sentinez.types.secure.ruleengine.v1.RuleBased.NodeR\x06groups\"\xe9\x02\n" +
+	"\x06groups\x18\x03 \x03(\v23.sentinez.types.secure.ruleengine.v1.RuleBased.NodeR\x06groups\"\xae\x03\n" +
 	"\rRuleBasedLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12O\n" +
-	"\x04node\x18\x04 \x01(\v2;.sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLiteR\x04node\x1a\xc0\x01\n" +
+	"\x04node\x18\x04 \x01(\v2;.sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLiteR\x04node\x12C\n" +
+	"\x06action\x18\x05 \x01(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\x06action\x1a\xc0\x01\n" +
 	"\bNodeLite\x12\x1a\n" +
 	"\boperator\x18\x01 \x01(\tR\boperator\x12C\n" +
 	"\x05rules\x18\x02 \x03(\v2-.sentinez.types.secure.ruleengine.v1.RuleLiteR\x05rules\x12S\n" +
@@ -1140,16 +1140,17 @@ var file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_depIdxs = []int32{
 	17, // 10: sentinez.types.secure.ruleengine.v1.RuleBased.created_at:type_name -> google.protobuf.Timestamp
 	17, // 11: sentinez.types.secure.ruleengine.v1.RuleBased.updated_at:type_name -> google.protobuf.Timestamp
 	13, // 12: sentinez.types.secure.ruleengine.v1.RuleBasedLite.node:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
-	2,  // 13: sentinez.types.secure.ruleengine.v1.RuleBased.Node.operator:type_name -> sentinez.types.secure.ruleengine.v1.Logic
-	6,  // 14: sentinez.types.secure.ruleengine.v1.RuleBased.Node.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	12, // 15: sentinez.types.secure.ruleengine.v1.RuleBased.Node.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased.Node
-	7,  // 16: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.rules:type_name -> sentinez.types.secure.ruleengine.v1.RuleLite
-	13, // 17: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	5,  // 13: sentinez.types.secure.ruleengine.v1.RuleBasedLite.action:type_name -> sentinez.types.secure.ruleengine.v1.Action
+	2,  // 14: sentinez.types.secure.ruleengine.v1.RuleBased.Node.operator:type_name -> sentinez.types.secure.ruleengine.v1.Logic
+	6,  // 15: sentinez.types.secure.ruleengine.v1.RuleBased.Node.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	12, // 16: sentinez.types.secure.ruleengine.v1.RuleBased.Node.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased.Node
+	7,  // 17: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.rules:type_name -> sentinez.types.secure.ruleengine.v1.RuleLite
+	13, // 18: sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite.groups:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite.NodeLite
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_secure_ruleengine_v1_ruleengine_proto_init() }

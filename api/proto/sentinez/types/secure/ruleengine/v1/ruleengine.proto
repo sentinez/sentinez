@@ -61,14 +61,12 @@ enum Logic {
 
 // An action to execute when a rule matches
 message Action {
-  string id = 1;
-
   // Example types: "block", "log", "modify_header",
   // "redirect", "set_tag", "route_to"
-  ActionType type = 2;
+  ActionType type = 1; // @gotags: yaml:"type"
 
   // Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
-  google.protobuf.Struct params = 3;
+  google.protobuf.Struct params = 2; // @gotags: yaml:"params"
 }
 
 enum ActionType {
@@ -146,4 +144,5 @@ message RuleBasedLite {
   }
 
   NodeLite node = 4;
+  Action action = 5;
 }
