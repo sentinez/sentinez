@@ -47,7 +47,7 @@ type Setting struct {
 }
 
 func (s *Setting) Store(st *edgepb.Setting) error {
-	ns := st.GetOrigin().GetNamespace()
+	ns := st.GetServer().GetName()
 	if _, ok := s.setting.Load(ns); ok {
 		return errorx.F("[mem][setting][store]:namespace %s already exists", ns)
 	}

@@ -36,7 +36,7 @@ var (
 func NewRouter() *Router {
 	once.Do(func() {
 		inst = &Router{
-			routes: ssync.NewMap[string, []*edgepb.OriginRoute](),
+			routes: ssync.NewMap[string, []*edgepb.Location](),
 		}
 	})
 
@@ -48,43 +48,43 @@ func GetRouter() *Router {
 }
 
 type Router struct {
-	routes *ssync.Map[string, []*edgepb.OriginRoute]
+	routes *ssync.Map[string, []*edgepb.Location]
 }
 
 // nolint:funlen
-func (r *Router) Store(origin *edgepb.Origin) {
-	if len(origin.Routes) == 0 {
+func (r *Router) Store(server *edgepb.Server) {
+	if len(server.GetLocations()) == 0 {
 		return
 	}
 
-	var validRoutes []*edgepb.OriginRoute
-	for _, routeConfig := range origin.Routes {
+	var validRoutes []*edgepb.Location
+	for _, routeConfig := range server.GetLocations() {
 		zlog.Debugf(
 			"[edge] ns=%s %s -> %s (rewrite: %s)",
-			origin.Namespace, routeConfig.Location,
-			routeConfig.ProxyPass, routeConfig.Rewrite,
+			server.GetName(), routeConfig.GetLocation(),
+			routeConfig.GetProxyPass(), routeConfig.GetProxyRewrite(),
 		)
 
-		route := &edgepb.OriginRoute{
-			Location:        routeConfig.Location,
-			ProxyPass:       routeConfig.ProxyPass,
-			Rewrite:         routeConfig.Rewrite,
+		route := &edgepb.Location{
+			Location:        routeConfig.GetLocation(),
+			ProxyPass:       routeConfig.GetProxyPass(),
+			ProxyRewrite:    routeConfig.GetProxyRewrite(),
 			ProxySetHeaders: make(map[string]string),
 		}
 
-		for k, v := range routeConfig.ProxySetHeaders {
+		for k, v := range routeConfig.GetProxySetHeaders() {
 			if variable.IsValidHeaderKey(k) {
 				route.ProxySetHeaders[k] = v
 			} else {
 				zlog.Warnf(
 					"invalid proxy header %q in ns=%q location=%q, ignoring",
-					k, origin.Namespace, routeConfig.Location,
+					k, server.GetName(), routeConfig.GetLocation(),
 				)
 			}
 		}
 
-		if route.Rewrite == "" {
-			route.Rewrite = route.Location
+		if route.GetProxyRewrite() == "" {
+			route.ProxyRewrite = route.GetLocation()
 		}
 
 		validRoutes = append(validRoutes, route)
@@ -93,45 +93,47 @@ func (r *Router) Store(origin *edgepb.Origin) {
 	// sort routes descending by location
 	// length for longest-prefix match (like nginx)
 	sort.Slice(validRoutes, func(i, j int) bool {
-		return len(validRoutes[i].Location) > len(validRoutes[j].Location)
+		return len(validRoutes[i].GetLocation()) >
+			len(validRoutes[j].GetLocation())
 	})
 
-	r.routes.Store(origin.Namespace, validRoutes)
+	r.routes.Store(server.GetName(), validRoutes)
 }
 
 // nolint:funlen
 func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	hCtx, ok := corehttp.GetRequestContext(ctx)
-	if !ok || hCtx.GetTenantNs() == "" {
-		return "", errorx.F("unknown namespace of request")
+	if !ok || hCtx.GetServerName() == "" {
+		return "", errorx.F("unknown server name of request")
 	}
 
-	ns := hCtx.GetTenantNs()
+	serverName := hCtx.GetServerName()
 	path := ctx.Path()
 
-	routes, ok := r.routes.Load(ns)
+	routes, ok := r.routes.Load(serverName)
 	if !ok {
 		return "", errorx.F("not found: %s", path)
 	}
 
 	for _, route := range routes {
-		if strings.HasPrefix(path, route.Location) {
+		if strings.HasPrefix(path, route.GetLocation()) {
 			zlog.Debugf(
 				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-				ns, route.Rewrite, route.ProxyPass, route.Location,
+				serverName, route.GetProxyRewrite(), route.GetProxyPass(),
+				route.GetLocation(),
 			)
 
 			// path = /api/v1/users, location = /api, rewrite = /v1
 			// remainingPath = /v1 + /v1/users = /v1/v1/users
-			remainingPath := route.Rewrite +
-				strings.TrimPrefix(path, route.Location)
+			remainingPath := route.GetProxyRewrite() +
+				strings.TrimPrefix(path, route.GetLocation())
 			ctx.SetPath(remainingPath)
 
 			// Set default proxy routing headers
-			ctx.SetHeader("X-Forwarded-Prefix", route.Location)
+			ctx.SetHeader("X-Forwarded-Prefix", route.GetLocation())
 
 			// Add custom headers from config
-			for hk, hv := range route.ProxySetHeaders {
+			for hk, hv := range route.GetProxySetHeaders() {
 				val, err := variable.ParseProxyVal(ctx, hv)
 				if err != nil {
 					return "", err
@@ -140,14 +142,14 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 				ctx.SetHeader(hk, val)
 			}
 
-			return route.ProxyPass, nil
+			return route.GetProxyPass()[0].GetServer(), nil
 		}
 	}
 
 	return "", errorx.F("not found: %s", path)
 }
 
-func Store(origin *edgepb.Origin) {
+func Store(server *edgepb.Server) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -155,5 +157,5 @@ func Store(origin *edgepb.Origin) {
 		inst = NewRouter()
 	}
 
-	inst.Store(origin)
+	inst.Store(server)
 }

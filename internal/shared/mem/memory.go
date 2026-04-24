@@ -40,20 +40,26 @@ func LoadSetting(st *edgepb.Setting) {
 
 func LoadRouter() {
 	settings.Visit(func(s *edgepb.Setting) bool {
-		routes.Store(s.GetOrigin())
+		routes.Store(s.GetServer())
 		return true
 	})
 }
 
 func LoadReverseProxy() {
 	settings.Visit(func(s *edgepb.Setting) bool {
-		for _, routeConfig := range s.GetOrigin().GetRoutes() {
-			rproxy, err := stdproxy.NewReverseProxy(routeConfig.ProxyPass)
-			if err != nil {
-				continue
-			}
+		for _, routeConfig := range s.GetServer().GetLocations() {
+			for _, upstream := range routeConfig.GetProxyPass() {
+				if _, ok := reverseproxy.Load(upstream.GetServer()); ok {
+					continue
+				}
 
-			reverseproxy.Store(routeConfig.ProxyPass, rproxy)
+				rproxy, err := stdproxy.NewReverseProxy(upstream)
+				if err != nil {
+					continue
+				}
+
+				reverseproxy.Store(upstream.GetServer(), rproxy)
+			}
 		}
 
 		return true
@@ -64,7 +70,7 @@ func LoadRateLimiter() {
 	settings.Visit(func(s *edgepb.Setting) bool {
 		if !s.GetSecurity().GetIsRateLimitOn() {
 			zlog.Infof("[edge][limiter] ignore '%s'",
-				s.GetOrigin().GetNamespace())
+				s.GetServer().GetName())
 			return true
 		}
 
@@ -85,7 +91,7 @@ func LoadRateLimiter() {
 			size,
 			s.GetSecurity().GetLimit(),
 		)
-		ratelimiter.Store(s.GetOrigin().GetNamespace(), lim)
+		ratelimiter.Store(s.GetServer().GetName(), lim)
 
 		return true
 	})
@@ -98,11 +104,11 @@ func LoadWAF(appConf *confpb.Config) {
 
 	settings.Visit(func(s *edgepb.Setting) bool {
 		if !s.GetSecurity().GetIsWafEngineOn() {
-			zlog.Infof("[edge][waf] ignore '%s'", s.GetOrigin().GetNamespace())
+			zlog.Infof("[edge][waf] ignore '%s'", s.GetServer().GetName())
 			return true
 		}
 
-		ns := s.GetOrigin().GetNamespace()
+		ns := s.GetServer().GetName()
 
 		rulePath := appConf.GetFlag().GetRulePath()
 		err := wafengine.Store(rulePath, ns, corers.WAF4160, flag)
@@ -117,8 +123,8 @@ func LoadWAF(appConf *confpb.Config) {
 func LoadRuleBased() {
 	settings.Visit(func(s *edgepb.Setting) bool {
 		ruleengine.Store(
-			s.GetOrigin().GetNamespace(),
-			s.GetSecurity().GetExpr())
+			s.GetServer().GetName(),
+			s.GetSecurity().GetRuleBasedCompiled())
 
 		return true
 	})

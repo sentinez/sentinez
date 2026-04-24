@@ -4,6 +4,7 @@ package sentinez.types.secure.ruleengine.v1;
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1;ruleenginepb";
 
@@ -23,16 +24,16 @@ enum FieldSource {
 
 // A logical condition expression
 message Condition {
-  string id = 1;
+  string id = 5; // @gotags: yaml:"-"
   // The source of the field
   // Example: "User-Agent" or "country"
-  FieldSource source = 2; // @gotags: yaml:"source"
-  string key = 3; // @gotags: yaml:"key"
+  FieldSource source = 1; // @gotags: yaml:"source"
+  string key = 2; // @gotags: yaml:"key"
   // Supported operators: "eq", "ne", "contains",
   // "matches", "in", "prefix", "suffix", "gt", "lt"
-  Operator operator = 4; // @gotags: yaml:"operator"
+  Operator operator = 3; // @gotags: yaml:"operator"
   // The value to compare against
-  google.protobuf.Value value = 5; // @gotags: yaml:"value"
+  google.protobuf.Value value = 4; // @gotags: yaml:"value"
 }
 
 enum Operator {
@@ -55,18 +56,17 @@ enum Logic {
   LOGIC_UNSPECIFIED = 0;
   LOGIC_AND = 1;
   LOGIC_OR = 2;
+  LOGIC_NOT = 3;
 }
 
 // An action to execute when a rule matches
 message Action {
-  string id = 1;
-
   // Example types: "block", "log", "modify_header",
   // "redirect", "set_tag", "route_to"
-  ActionType type = 2;
+  ActionType type = 1; // @gotags: yaml:"type"
 
   // Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
-  google.protobuf.Struct params = 3;
+  google.protobuf.Struct params = 2; // @gotags: yaml:"params"
 }
 
 enum ActionType {
@@ -85,29 +85,6 @@ message Rule {
   string name = 2; // @gotags: yaml:"name"
   string description = 3;
   Condition condition = 4; // @gotags: yaml:"condition"
-  repeated Action actions = 5; // @gotags: yaml:"actions"
-  int32 priority = 6; // @gotags: yaml:"priority"
-  bool enabled = 7; // @gotags: yaml:"enabled"
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
-}
-
-// A collection of rules (e.g., grouped by tenant or domain)
-message Expr {
-  string id = 1;
-  string name = 2; // @gotags: yaml:"name"
-  string description = 3;
-  bool enabled = 4; // @gotags: yaml:"enabled"
-  repeated Rule rules = 5; // @gotags: yaml:"rules"
-  repeated Logic logics = 6; // @gotags: yaml:"logics"
-}
-
-message ExprLite {
-  string id = 1;
-  string name = 2; // @gotags: yaml:"name"
-  bool enabled = 4; // @gotags: yaml:"enabled"
-  repeated RuleLite rules = 5; // @gotags: yaml:"rules"
-  repeated string logics = 6; // @gotags: yaml:"logics"
 }
 
 // A complete rule definition
@@ -116,24 +93,56 @@ message RuleLite {
   string name = 2; // @gotags: yaml:"name"
   ConditionLite condition = 4; // @gotags: yaml:"condition"
   repeated string actions = 5; // @gotags: yaml:"actions"
-  int32 priority = 6; // @gotags: yaml:"priority"
-  bool enabled = 7; // @gotags: yaml:"enabled"
 }
 
 // A logical condition expression
 message ConditionLite {
   // The source of the field
   // Example: "User-Agent" or "country"
-  string source = 2; // @gotags: yaml:"source"
-  string key = 3; // @gotags: yaml:"key"
+  string source = 1; // @gotags: yaml:"source"
+  string key = 2; // @gotags: yaml:"key"
   // Supported operators: "eq", "ne", "contains",
   // "matches", "in", "prefix", "suffix", "gt", "lt"
-  string operator = 4; // @gotags: yaml:"operator"
+  string operator = 3; // @gotags: yaml:"operator"
   // The value to compare against
-  string value = 5; // @gotags: yaml:"value"
+  string value = 4; // @gotags: yaml:"value"
 }
 
 message MatchedRules {
   repeated string ids = 1;
   repeated string names = 2;
+}
+
+message RuleBased {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+
+  message Node {
+    Logic operator = 1;
+    repeated Rule rules = 2;
+    repeated Node groups = 3;
+  }
+
+  Node node = 4;
+  Action action = 5;
+  sentinez.types.v1.Status status = 6;
+  int32 priority = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message RuleBasedLite {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+
+  message NodeLite {
+    string operator = 1; // AND, OR, NOT
+    repeated RuleLite rules = 2;
+    repeated NodeLite groups = 3;
+  }
+
+  NodeLite node = 4;
+  Action action = 5;
 }

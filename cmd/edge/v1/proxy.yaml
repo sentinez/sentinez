@@ -21,17 +21,35 @@
 # ----------------------------------------------------------
 setting:
   # ----------------------------------------------------------
-  # ORIGIN — ROUTING CONFIGURATION
+  # METADATA — DEBUG & OBSERVABILITY
+  # ----------------------------------------------------------
+  # Contains configuration metadata for monitoring,
+  # versioning, and debugging purposes.
+  # ----------------------------------------------------------
+  metadata:
+    # version: "v1"                    # Configuration version
+    # owner: "hunghd"                  # Maintainer or tenant identifier
+    # traceId: "abc123"                # Optional trace ID for tracking
+    {}
+
+  # ----------------------------------------------------------
+  # SERVER — ROUTING CONFIGURATION
   # ----------------------------------------------------------
   # Defines where incoming requests are forwarded to
   # and how URLs are rewritten before reaching the origin server.
   # ----------------------------------------------------------
-  origin:
-    namespace: badcheese # Logical namespace grouping related routes
-    routes:
+  server:
+    name: badcheese # Logical namespace grouping related routes
+    listen:
+      - 80
+      - 443
+    locations:
       - location: / # URL prefix to match incoming requests
-        proxyPass: https://shark-app-8dkwp.ondigitalocean.app/ # Destination origin endpoint
-        rewrite: /                   # (Optional) rewrite prefix before forwarding
+        proxyRewrite: / # (Optional) rewrite prefix before forwarding
+        proxyPass: # Destination origin upstream(s)
+          - server: shark-app-8dkwp.ondigitalocean.app
+            protocol: PROXY_PROTOCOL_HTTPS
+        balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
         proxySetHeaders:
           Host: $host
           X-Real-IP: $remote_addr
@@ -39,14 +57,19 @@ setting:
           X-Forwarded-Proto: $scheme
           X-Forwarded-Host: $host
 
-      # Example 1 (disabled):
+      # Example 1:
       - location: /local
-        proxyPass: http://localhost:7778
-      
-      # Example 2 (disabled):
+        proxyRewrite: /
+        proxyPass:
+          - server: 127.0.0.1
+            protocol: PROXY_PROTOCOL_HTTP
+
+      # Example 2:
       - location: /api
-        rewrite: /
-        proxyPass: https://shark-app-8dkwp.ondigitalocean.app/
+        proxyRewrite: /
+        proxyPass:
+          - server: shark-app-8dkwp.ondigitalocean.app
+            protocol: PROXY_PROTOCOL_HTTPS
         proxySetHeaders:
           X-Original-Path: $request_uri
           X-Forwarded-Prefix: /api
@@ -54,18 +77,14 @@ setting:
     # --------------------------------------------------------
     # EXAMPLE: NEWS NAMESPACE
     # --------------------------------------------------------
-    # namespace: news
-    # routes:
+    # name: news
+    # listen:
+    #   - 80
+    # locations:
     #   - location: /
-    #     proxyPass: http://badcheese.com/
-    #
-    #   # English version route
-    #   # - location: /en
-    #   #   proxyPass: https://vneconomy.vn/en
-    #
-    #   # Vietnamese version route
-    #   # - location: /vi
-    #   #   proxyPass: https://vneconomy.vn
+    #     proxyPass:
+    #       - server: badcheese.com
+    #         protocol: 1
     # --------------------------------------------------------
 
   # ----------------------------------------------------------
@@ -76,37 +95,48 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    # rateLimit:
-    #   requestsPerSecond: 100         # Allowed requests per second
-    # botProtection: true              # Enable bot protection
-    
     isWafEngineOn: true
-    expression:
-      name: "AND: path, method, ip all match"
-      enabled: true
-      logics:
-      rules:
-        - name: "block path"
-          enabled: true
-          priority: 1
-          condition:
-            source: FIELD_SOURCE_PATH
-            key: "/block"
-            operator: OPERATOR_EQ
-            value: "/block"
-            logic: LOGIC_AND
+    ruleBased:
+      name: "Complex Logic: (Path AND Method) OR IP"
+      node:
+        operator: LOGIC_OR
+        rules:
+          - name: "block path"
+            condition:
+              source: FIELD_SOURCE_PATH
+              key: "/block"
+              operator: OPERATOR_EQ
+              value: "/block"
+        groups:
+          - operator: LOGIC_AND
+            rules:
+              - name: "block ip"
+                condition:
+                  source: FIELD_SOURCE_IP
+                  key: "1.1.1.1"
+                  operator: OPERATOR_EQ
+                  value: "1.1.1.1"
+              - name: "block method"
+                condition:
+                  source: FIELD_SOURCE_METHOD
+                  key: "POST"
+                  operator: OPERATOR_EQ
+                  value: "POST"
+      action:
+        type: ACTION_TYPE_BLOCK
+
     isRateLimitOn: true
     timeWindow: 5s
     limit: 50
     timeout: 5s
 
   # ----------------------------------------------------------
-  # TRAFFIC CONTROL — THROTTLING, WAITING ROOM
+  # CONTROLLER — THROTTLING, WAITING ROOM
   # ----------------------------------------------------------
   # Controls request flow, concurrency limits, and queuing
   # during high-traffic periods.
   # ----------------------------------------------------------
-  trafficControl:
+  controller:
     # maxConcurrent: 500               # Maximum concurrent users
     # waitingRoom:
     #   enabled: true
@@ -124,16 +154,4 @@ setting:
     # language: "en"                   # Preferred language
     # customHeader:                    # Custom HTTP headers
     #   X-User-Type: "premium"
-    {}
-
-  # ----------------------------------------------------------
-  # METADATA — DEBUG & OBSERVABILITY
-  # ----------------------------------------------------------
-  # Contains configuration metadata for monitoring,
-  # versioning, and debugging purposes.
-  # ----------------------------------------------------------
-  metadata:
-    # version: "v1"                    # Configuration version
-    # owner: "hunghd"                  # Maintainer or tenant identifier
-    # traceId: "abc123"                # Optional trace ID for tracking
     {}

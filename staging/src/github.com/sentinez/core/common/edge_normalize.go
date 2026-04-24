@@ -19,11 +19,10 @@ import (
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	"github.com/sentinez/shared/ids"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
-	exprPrefix = "senz.expr."
+	rgPrefix   = "senz.rulebased."
 	condPrefix = "senz.cond."
 	rulePrefix = "senz.rule."
 )
@@ -33,30 +32,48 @@ func NormalizeEdgeSetting(edge *edgepb.Setting) {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	expression := edgeSec.GetExpression()
-	defer func() { edgeSec.Expression = nil }()
-
-	if expression == nil {
+	rgLite := edgeSec.GetRuleBased()
+	if rgLite == nil {
 		return
 	}
 
-	expr := edgeSec.GetExpr()
-	if expr == nil {
-		edgeSec.Expr = &ruleenginepb.Expr{}
-		expr = edgeSec.Expr
+	edgeSec.RuleBasedCompiled = toRuleBased(rgLite)
+}
+
+func toRuleBased(rgLite *ruleenginepb.RuleBasedLite) *ruleenginepb.RuleBased {
+	if rgLite == nil {
+		return nil
 	}
 
-	expr.Id = ids.NewNanoID(exprPrefix)
-	expr.Name = expression.GetName()
-	expr.Enabled = expression.GetEnabled()
+	return &ruleenginepb.RuleBased{
+		Id:          rgLite.GetId(),
+		Name:        rgLite.GetName(),
+		Description: rgLite.GetDescription(),
+		Node:        toNode(rgLite.GetNode()),
+		Action:      rgLite.GetAction(),
+	}
+}
 
-	for _, logic := range expression.GetLogics() {
-		expr.Logics = append(expr.Logics, toLogic(logic))
+func toNode(
+	nodeLite *ruleenginepb.RuleBasedLite_NodeLite,
+) *ruleenginepb.RuleBased_Node {
+	if nodeLite == nil {
+		return nil
 	}
 
-	for _, rule := range expression.GetRules() {
-		expr.Rules = append(expr.Rules, toRule(rule))
+	node := &ruleenginepb.RuleBased_Node{
+		Operator: toLogic(nodeLite.GetOperator()),
 	}
+
+	for _, rLite := range nodeLite.GetRules() {
+		node.Rules = append(node.Rules, toRule(rLite))
+	}
+
+	for _, gLite := range nodeLite.GetGroups() {
+		node.Groups = append(node.Groups, toNode(gLite))
+	}
+
+	return node
 }
 
 func toLogic(logic string) ruleenginepb.Logic {
@@ -108,10 +125,6 @@ func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
 	return &ruleenginepb.Rule{
 		Id:        ids.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
-		Priority:  rule.GetPriority(),
-		Enabled:   rule.GetEnabled(),
-		CreatedAt: timestamppb.Now(),
-		UpdatedAt: timestamppb.Now(),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

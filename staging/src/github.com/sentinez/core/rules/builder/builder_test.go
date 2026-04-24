@@ -17,107 +17,79 @@ package builder
 import (
 	"testing"
 
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
-func newTestRule(id string) *RuleBuilder {
-	return NewRule(id, "Test rule").
-		Description("Test rule description").
-		Priority(100).
-		Condition(
-			rulepb.FieldSource_FIELD_SOURCE_IP,
-			rulepb.Operator_OPERATOR_EQ,
-			"",
-			"192.168.1.100",
-		).
-		Action(
-			"act-1",
-			rulepb.ActionType_ACTION_TYPE_BLOCK,
-			map[string]any{"status": 403, "msg": "blocked"},
-		)
-}
-
 // nolint
-func TestRuleBuilder_JSONExportImport(t *testing.T) {
-	ruleBuilder := newTestRule("rule-1")
-	rule := ruleBuilder.Build()
+func TestBuilder(t *testing.T) {
+	r1 := NewRule().
+		WithID("r1").
+		WithName("Path Rule").
+		WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login").
+		Build()
 
-	b, err := ruleBuilder.ToJSON()
-	if err != nil {
-		t.Fatalf("failed to marshal rule to json: %v", err)
-	}
+	r2 := NewRule().
+		WithID("r2").
+		WithName("Method Rule").
+		WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_IN, []string{"GET", "POST"}).
+		Build()
 
-	importedBuilder, err := RuleFromJSON(b)
-	if err != nil {
-		t.Fatalf("failed to unmarshal rule from json: %v", err)
-	}
-
-	importedRule := importedBuilder.Build()
-	if importedRule.GetId() != rule.GetId() {
-		t.Errorf("expected id %v, got %v", rule.GetId(), importedRule.GetId())
-	}
-	if importedRule.GetCondition().GetSource() != rule.GetCondition().GetSource() {
-		t.Errorf("expected source %v, got %v", rule.GetCondition().GetSource(),
-			importedRule.GetCondition().GetSource())
-	}
-	if len(importedRule.GetActions()) != 1 {
-		t.Fatalf("expected 1 action, got %v", len(importedRule.GetActions()))
-	}
-
-	msgVal := importedRule.GetActions()[0].GetParams().GetFields()["msg"].GetStringValue()
-	if msgVal != "blocked" {
-		t.Errorf("expected msg 'blocked', got '%s'", msgVal)
-	}
-}
-
-func newTestExprBuilder() *ExprBuilder {
-	r1 := NewRule("r1", "Check Path").
-		Condition(
-			rulepb.FieldSource_FIELD_SOURCE_PATH,
-			rulepb.Operator_OPERATOR_PREFIX,
-			"",
-			"/api/v1/",
-		).Build()
-
-	r2 := NewRule("r2", "Check Method").
-		Condition(
-			rulepb.FieldSource_FIELD_SOURCE_METHOD,
-			rulepb.Operator_OPERATOR_IN,
-			"",
-			[]any{"POST", "PUT"},
-		).Build()
-
-	return NewExpr("expr-1", "API Write Protection").
-		Description("Protects API write endpoints").
+	subGroup := NewGroup(ruleenginepb.Logic_LOGIC_OR).
+		WithName("Sub Group").
 		AddRule(r1).
-		AddLogicAndRule(rulepb.Logic_LOGIC_AND, r2)
+		AddRule(r2).
+		Build()
+
+	root := NewGroup(ruleenginepb.Logic_LOGIC_AND).
+		WithID("root").
+		WithName("Root Group").
+		AddRule(NewRule().WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "127.0.0.1").Build()).
+		AddGroup(subGroup).
+		Build()
+
+	if root.Id != "root" {
+		t.Errorf("expected root ID to be 'root', got %s", root.Id)
+	}
+
+	if len(root.Node.Rules) != 1 {
+		t.Errorf("expected 1 rule in root, got %d", len(root.Node.Rules))
+	}
+
+	if len(root.Node.Groups) != 1 {
+		t.Errorf("expected 1 group in root, got %d", len(root.Node.Groups))
+	}
+
+	if root.Node.Groups[0].Operator != ruleenginepb.Logic_LOGIC_OR {
+		t.Errorf("expected subgroup operator to be OR, got %v", root.Node.Groups[0].Operator)
+	}
+
+	if len(root.Node.Groups[0].Rules) != 2 {
+		t.Errorf("expected 2 rules in subgroup, got %d", len(root.Node.Groups[0].Rules))
+	}
 }
 
 // nolint
-func TestExprBuilder_JSONExportImport(t *testing.T) {
-	exprBuilder := newTestExprBuilder()
-	b, err := exprBuilder.ToJSON()
-	if err != nil {
-		t.Fatalf("failed to marshal expr to json: %v", err)
+func TestConvenienceHelpers(t *testing.T) {
+	r1 := NewRule().WithID("1").Build()
+	r2 := NewRule().WithID("2").Build()
+
+	andGroup := And(r1, r2).Build()
+	if andGroup.Node.Operator != ruleenginepb.Logic_LOGIC_AND || len(andGroup.Node.Rules) != 2 {
+		t.Error("And helper failed")
 	}
 
-	importedExprBuilder, err := ExprFromJSON(b)
-	if err != nil {
-		t.Fatalf("failed to unmarshal expr from json: %v", err)
+	orGroup := Or(r1, r2).Build()
+	if orGroup.Node.Operator != ruleenginepb.Logic_LOGIC_OR || len(orGroup.Node.Rules) != 2 {
+		t.Error("Or helper failed")
 	}
 
-	importedExpr := importedExprBuilder.Build()
+	notGroup := Not(r1).Build()
+	if notGroup.Node.Operator != ruleenginepb.Logic_LOGIC_NOT || len(notGroup.Node.Rules) != 1 {
+		t.Error("Not helper failed for rule")
+	}
 
-	if importedExpr.GetId() != "expr-1" {
-		t.Errorf("expected id expr-1, got %v", importedExpr.GetId())
-	}
-	if len(importedExpr.GetRules()) != 2 {
-		t.Errorf("expected 2 rules, got %v", len(importedExpr.GetRules()))
-	}
-	if len(importedExpr.GetLogics()) != 1 {
-		t.Errorf("expected 1 logic operator, got %v", len(importedExpr.GetLogics()))
-	}
-	if importedExpr.GetLogics()[0] != rulepb.Logic_LOGIC_AND {
-		t.Errorf("expected LOGIC_AND, got %v", importedExpr.GetLogics()[0])
+	notSubGroup := Not(andGroup).Build()
+	if notSubGroup.Node.Operator != ruleenginepb.Logic_LOGIC_NOT || len(notSubGroup.Node.Groups) != 1 {
+		t.Error("Not helper failed for group")
 	}
 }

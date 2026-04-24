@@ -18,6 +18,7 @@ import (
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
 var (
@@ -29,7 +30,7 @@ var (
 )
 
 type (
-	nodeFunc func(ctx corehttp.RequestContext) bool
+	nodeFunc func(ctx corehttp.RequestContext, out *rulepb.MatchedRules) bool
 
 	nodeType  int
 	logicType int
@@ -43,6 +44,7 @@ const (
 const (
 	logicOr  logicType = 0
 	logicAnd logicType = 1
+	logicNot logicType = 2
 )
 
 func newLogic(l *node, op logicType, r *node) *node {
@@ -87,34 +89,40 @@ type node struct {
 	fn    nodeFunc
 }
 
-func (n *node) eval(ctx corehttp.RequestContext) bool {
+func (n *node) eval(
+	ctx corehttp.RequestContext,
+	out *rulepb.MatchedRules,
+) bool {
 	if n == nil {
 		return false
 	}
 
 	switch n.types {
 	case nodeBase:
-		return n.fn(ctx)
+		return n.fn(ctx, out)
 	case nodeLogic:
 		switch n.op {
 		case logicAnd:
-			l := n.left.eval(ctx)
+			l := n.left.eval(ctx, out)
 			if !l {
 				// stop branch AND, left is fasle
 				return false
 			}
 			// zlog.Debug("visit right")
-			res := n.right.eval(ctx)
+			res := n.right.eval(ctx, out)
 			return res
 		case logicOr:
-			l := n.left.eval(ctx)
+			l := n.left.eval(ctx, out)
 			if l {
 				// stop branch OR, left is true
 				return true
 			}
 			// zlog.Debug("visit right")
-			res := n.right.eval(ctx)
+			res := n.right.eval(ctx, out)
 			return res
+		case logicNot:
+			l := n.left.eval(ctx, out)
+			return !l
 		}
 
 		return false

@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
+	corechains "github.com/sentinez/core/http/chains"
 	"github.com/sentinez/shared/zlog"
 )
 

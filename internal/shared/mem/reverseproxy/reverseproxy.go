@@ -68,3 +68,11 @@ func Store(target string, rproxy corehttp.ReverseProxy) {
 
 	reverseProxyInst.Store(target, rproxy)
 }
+
+func Load(target string) (corehttp.ReverseProxy, bool) {
+	if reverseProxyInst == nil {
+		return nil, false
+	}
+
+	return reverseProxyInst.Load(target), true
+}

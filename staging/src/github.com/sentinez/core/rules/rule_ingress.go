@@ -17,7 +17,6 @@ package corerule
 import (
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/sync"
 )
 
 var _ Rules = (*ingress)(nil)
@@ -25,64 +24,54 @@ var _ Rules = (*ingress)(nil)
 type MatchedFunc func(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool)
 
+// nolint
 type Rules interface {
-	Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool
-	EvalExpr(ctx chttp.RequestContext,
-		rule *rulepb.Expr) (*rulepb.MatchedRules, bool)
+	Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool
+	Action() *rulepb.Action
 }
 
-func NewIngress() Rules {
-	return &ingress{}
+func NewIngress(rg *rulepb.RuleBased) Rules {
+	root := buildNode(rg.GetNode(), match)
+
+	return &ingress{
+		root:   root,
+		action: rg.GetAction(),
+	}
 }
 
 type ingress struct {
-	expr sync.Map[string, *exprs]
+	root   *node
+	action *rulepb.Action
 }
 
-func (in *ingress) Eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
+func eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {
 	// zlog.Debugf("[edge][%s] >>> visit ingress eval", ctx.RequestId())
-
-	if !rule.GetEnabled() {
-		return false
-	}
-
-	cond := newCondition(rule.GetCondition())
-	ruleCtx := newEvaluator(ctx)
-	defer ruleCtx.Release()
-
-	return cond.Accept(ruleCtx)
+	return accept(ctx, rule.GetCondition())
 }
 
-func (in *ingress) matched(ctx chttp.RequestContext,
+func match(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool) {
 
-	if ok = in.Eval(ctx, rule); !ok {
+	if ok = eval(ctx, rule); !ok {
 		return "", "", false
 	}
 
 	return rule.GetId(), rule.GetName(), true
 }
 
-// EvalExpr a list of rule
-func (in *ingress) EvalExpr(
-	ctx chttp.RequestContext, chain *rulepb.Expr) (*rulepb.MatchedRules, bool) {
-	// zlog.Debugf("[edge][%s] >>> visit ingress", ctx.RequestId())
-
-	if !chain.GetEnabled() {
-		return nil, false
+// Eval a nested group of rules
+func (in *ingress) Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool {
+	if in.root == nil {
+		return false
 	}
 
-	expr, ok := in.expr.Load(chain.GetId())
-	if !ok {
-		expr = newExpr(chain)
-		in.expr.Store(chain.GetId(), expr)
+	if ok := in.root.eval(ctx, m); ok {
+		return true
 	}
 
-	expr.tx.reset()
+	return false
+}
 
-	if ok = expr.build(in.matched).eval(ctx); ok {
-		return expr.tx.matched, ok
-	}
-
-	return nil, false
+func (in *ingress) Action() *rulepb.Action {
+	return in.action
 }

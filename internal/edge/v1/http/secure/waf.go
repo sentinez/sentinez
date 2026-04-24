@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"time"
 
-	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
+	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"

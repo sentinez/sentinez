@@ -15,46 +15,10 @@
 package corerule
 
 import (
-	"sync"
-
+	chttp "github.com/sentinez/core/http"
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
-var (
-	_ Condition = (*conditionX)(nil)
-
-	condPool = sync.Pool{
-		New: func() any {
-			return &conditionX{}
-		},
-	}
-)
-
-type Condition interface {
-	Accept(v Evaluator) bool
-	Release()
-}
-
-// newCondition creates a new Condition instance.
-// Remember to call Condition.Release when the
-// context is done to avoid memory leaks.
-func newCondition(cdt *ruleengpb.Condition) Condition {
-
-	cond := condPool.Get().(*conditionX)
-	cond.Condition = cdt
-	return cond
-}
-
-// conditionX its means: condition extend
-type conditionX struct {
-	*ruleengpb.Condition
-}
-
-func (c *conditionX) Release() {
-	c.Condition = nil
-	condPool.Put(c)
-}
-
-func (c *conditionX) Accept(v Evaluator) bool {
-	return v.visit(c.Condition)
+func accept(ctx chttp.RequestContext, c *ruleengpb.Condition) bool {
+	return visit(ctx, c)
 }

@@ -11,7 +11,6 @@ require (
 	github.com/a-h/templ v0.3.960
 	github.com/antlr4-go/antlr/v4 v4.13.1
 	github.com/corazawaf/coraza/v3 v3.3.3
-	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-00010101000000-000000000000
@@ -24,6 +23,7 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20251209175733-2a1774d88802.1 // indirect
 	github.com/cloudresty/ulid v1.2.1 // indirect
 	github.com/corazawaf/libinjection-go v0.2.3 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/magefile/mage v1.15.1-0.20241126214340-bdc92f694516 // indirect
 	github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
 	github.com/petar-dambovaliev/aho-corasick v0.0.0-20250424160509-463d218d4745 // indirect

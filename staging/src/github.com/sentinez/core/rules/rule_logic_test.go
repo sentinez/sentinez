@@ -18,28 +18,29 @@ import (
 	"testing"
 
 	corehttp "github.com/sentinez/core/http"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 )
 
 // nolint
 func TestAST(t *testing.T) {
-	cmd1 := newNode(func(_ corehttp.RequestContext) bool {
+	cmd1 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 		t.Log("cmd1 is running")
 		return false
 	})
 
-	cmd2 := newNode(func(_ corehttp.RequestContext) bool {
+	cmd2 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 		t.Log("cmd2 is running")
 		return false
 	})
 
-	cmd3 := newNode(func(_ corehttp.RequestContext) bool {
+	cmd3 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 		t.Log("cmd3 is running")
 		return true
 	})
 
-	ans := cmd1.eval(nil) || cmd2.eval(nil) && cmd3.eval(nil)
+	ans := cmd1.eval(nil, nil) || cmd2.eval(nil, nil) && cmd3.eval(nil, nil)
 	tree := newLogic(cmd1, logicOr, newLogic(cmd2, logicAnd, cmd3))
-	if ok := tree.eval(nil); ok != ans {
+	if ok := tree.eval(nil, nil); ok != ans {
 		t.Error("cmd does not match with answer")
 		return
 	}
@@ -67,20 +68,21 @@ func TestAST2(t *testing.T) {
 		{"T8: false OR false AND true", false, false, true, logicOr, logicAnd},
 		{"T9: true OR false OR false", true, false, false, logicOr, logicOr},
 		{"T10: false AND false OR true", false, false, true, logicAnd, logicOr},
+		{"T11: NOT (false)", false, false, false, logicNot, logicAnd}, // logicNot only uses first operand
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// mock node functions
-			cmd1 := newNode(func(_ corehttp.RequestContext) bool {
+			cmd1 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 				t.Log("cmd1 running:", tt.f1)
 				return tt.f1
 			})
-			cmd2 := newNode(func(_ corehttp.RequestContext) bool {
+			cmd2 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 				t.Log("cmd2 running:", tt.f2)
 				return tt.f2
 			})
-			cmd3 := newNode(func(_ corehttp.RequestContext) bool {
+			cmd3 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool {
 				t.Log("cmd3 running:", tt.f3)
 				return tt.f3
 			})
@@ -89,21 +91,23 @@ func TestAST2(t *testing.T) {
 			var ans bool
 			if tt.op1 == logicAnd {
 				if tt.op2 == logicAnd {
-					ans = cmd1.eval(nil) && cmd2.eval(nil) && cmd3.eval(nil)
+					ans = cmd1.eval(nil, nil) && cmd2.eval(nil, nil) && cmd3.eval(nil, nil)
 				} else {
-					ans = cmd1.eval(nil) && (cmd2.eval(nil) || cmd3.eval(nil))
+					ans = cmd1.eval(nil, nil) && (cmd2.eval(nil, nil) || cmd3.eval(nil, nil))
 				}
-			} else {
+			} else if tt.op1 == logicOr {
 				if tt.op2 == logicAnd {
-					ans = cmd1.eval(nil) || (cmd2.eval(nil) && cmd3.eval(nil))
+					ans = cmd1.eval(nil, nil) || (cmd2.eval(nil, nil) && cmd3.eval(nil, nil))
 				} else {
-					ans = cmd1.eval(nil) || cmd2.eval(nil) || cmd3.eval(nil)
+					ans = cmd1.eval(nil, nil) || cmd2.eval(nil, nil) || cmd3.eval(nil, nil)
 				}
+			} else { // logicNot
+				ans = !cmd1.eval(nil, nil)
 			}
 
 			// Xây cây AST tương ứng
 			tree := newLogic(cmd1, tt.op1, newLogic(cmd2, tt.op2, cmd3))
-			got := tree.eval(nil)
+			got := tree.eval(nil, nil)
 
 			// So sánh kết quả
 			if got != ans {
@@ -117,13 +121,13 @@ func TestAST2(t *testing.T) {
 
 // nolint
 func BenchmarkAST(b *testing.B) {
-	cmd1 := newNode(func(_ corehttp.RequestContext) bool { return false })
-	cmd2 := newNode(func(_ corehttp.RequestContext) bool { return false })
-	cmd3 := newNode(func(_ corehttp.RequestContext) bool { return false })
+	cmd1 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return false })
+	cmd2 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return false })
+	cmd3 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return false })
 	tree := newLogic(cmd1, logicOr, newLogic(cmd2, logicAnd, cmd3))
 
 	for b.Loop() {
-		_ = tree.eval(nil)
+		_ = tree.eval(nil, nil)
 	}
 }
 
@@ -151,14 +155,14 @@ func BenchmarkAST_TableDriven(b *testing.B) {
 
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
-			cmd1 := newNode(func(_ corehttp.RequestContext) bool { return tt.f1 })
-			cmd2 := newNode(func(_ corehttp.RequestContext) bool { return tt.f2 })
-			cmd3 := newNode(func(_ corehttp.RequestContext) bool { return tt.f3 })
+			cmd1 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return tt.f1 })
+			cmd2 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return tt.f2 })
+			cmd3 := newNode(func(_ corehttp.RequestContext, _ *rulepb.MatchedRules) bool { return tt.f3 })
 			tree := newLogic(cmd1, tt.op1, newLogic(cmd2, tt.op2, cmd3))
 
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				_ = tree.eval(nil)
+				_ = tree.eval(nil, nil)
 			}
 
 			free(cmd1)

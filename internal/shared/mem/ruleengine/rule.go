@@ -18,7 +18,9 @@ import (
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
+	corerule "github.com/sentinez/core/rules"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	"github.com/sentinez/sentinez/pkg/common/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -32,7 +34,7 @@ var (
 func New() *RuleCache {
 	once.Do(func() {
 		ruleInst = &RuleCache{
-			space: ssync.NewMap[string, *ruleenginepb.Expr](),
+			space: ssync.NewMap[string, corerule.Rules](),
 		}
 	})
 
@@ -44,23 +46,28 @@ func GetEngine() *RuleCache {
 }
 
 type RuleCache struct {
-	space *ssync.Map[string, *ruleenginepb.Expr]
+	space *ssync.Map[string, corerule.Rules]
 }
 
-func (rc *RuleCache) Store(namespace string, expr *ruleenginepb.Expr) {
-	rc.space.Store(namespace, expr)
+func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleBased) {
+	val, _ := jsonx.Marshal(gr)
+	zlog.Debugf("rule: load config: %s", val)
+
+	rule := corerule.NewIngress(gr)
+
+	rc.space.Store(namespace, rule)
 }
 
-func (rc *RuleCache) Load(namespace string) *ruleenginepb.Expr {
-	expr, ok := rc.space.Load(namespace)
+func (rc *RuleCache) Load(namespace string) corerule.Rules {
+	rule, ok := rc.space.Load(namespace)
 	if !ok {
 		return nil
 	}
 
-	return expr
+	return rule
 }
 
-func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
+func (rc *RuleCache) LoadContext(ctx corehttp.Context) corerule.Rules {
 	if rc == nil {
 		return nil
 	}
@@ -70,11 +77,11 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) *ruleenginepb.Expr {
 		return nil
 	}
 
-	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetTenantNs())
-	return rc.Load(hCtx.GetTenantNs())
+	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetServerName())
+	return rc.Load(hCtx.GetServerName())
 }
 
-func Store(namespace string, expr *ruleenginepb.Expr) {
+func Store(serverName string, gr *ruleenginepb.RuleBased) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -82,5 +89,5 @@ func Store(namespace string, expr *ruleenginepb.Expr) {
 		ruleInst = New()
 	}
 
-	ruleInst.Store(namespace, expr)
+	ruleInst.Store(serverName, gr)
 }

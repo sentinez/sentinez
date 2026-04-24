@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/sentinez/internal/apiserver/services/v1"
 	greeterfac "github.com/sentinez/sentinez/internal/core/greeter/v1/factory"
 	iamfac "github.com/sentinez/sentinez/internal/core/iam/v1/factory"
+	securityfac "github.com/sentinez/sentinez/internal/core/security/v1/factory"
 	tenantfac "github.com/sentinez/sentinez/internal/core/tenant/v1/factory"
 )
 
@@ -41,6 +42,7 @@ func (srv *Server) Initialize(
 	return srv.Visit(ctx,
 		services.NewGreeter(greeterfac.NewDefaultHandler(conf)),
 		services.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
+		services.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
 		services.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
 	)
 }

@@ -26,3 +26,8 @@ const (
 const (
 	AnalyticActivities = "analytic.activities"
 )
+
+const (
+	SecurityRules      = "security.rules"
+	SecurityRuleBaseds = "security.rulebaseds"
+)

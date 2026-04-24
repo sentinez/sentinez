@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/uuid"
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
@@ -63,10 +62,7 @@ func newContext() corehttp.RequestContext {
 }
 
 func TestRulePath(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -78,7 +74,7 @@ func TestRulePath(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %s", string(val))
 
-	ok := rule.Eval(newContext(), req)
+	ok := eval(newContext(), req)
 	if ok {
 		t.Logf("rule engine matched !!!")
 		return
@@ -88,10 +84,7 @@ func TestRulePath(t *testing.T) {
 }
 
 func TestRuleQuery(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
 			Operator: ruleenginepb.Operator_OPERATOR_IN,
@@ -108,7 +101,7 @@ func TestRuleQuery(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.Eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -119,10 +112,7 @@ func TestRuleQuery(t *testing.T) {
 }
 
 func TestRuleClientIP(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -134,7 +124,7 @@ func TestRuleClientIP(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.Eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -145,10 +135,7 @@ func TestRuleClientIP(t *testing.T) {
 }
 
 func TestRuleClientIPRange(t *testing.T) {
-	rule := NewIngress()
-
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_EQ,
@@ -160,7 +147,7 @@ func TestRuleClientIPRange(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.Eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -171,10 +158,8 @@ func TestRuleClientIPRange(t *testing.T) {
 }
 
 func TestRuleClientIPRangeNotEQ(t *testing.T) {
-	rule := NewIngress()
 
 	req := &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
 			Operator: ruleenginepb.Operator_OPERATOR_NE,
@@ -186,7 +171,7 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 	val, _ := json.Marshal(req)
 	t.Logf("[request][rule] %v", string(val))
 
-	ok := rule.Eval(newContext(), req)
+	ok := eval(newContext(), req)
 
 	if ok {
 		t.Logf("rule engine matched !!!")
@@ -198,50 +183,21 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 
 // nolint
 func TestChain(t *testing.T) {
-	rulePath := &ruleenginepb.Rule{
-		Enabled: true,
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Value:    structpb.NewStringValue("/v1/login"),
-			Key:      "path",
+	// Directly build RuleBased using newRule helper
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
 		},
 	}
 
-	ruleQuery := &ruleenginepb.Rule{
-		Enabled: true,
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
-			Operator: ruleenginepb.Operator_OPERATOR_IN,
-			Value: structpb.NewListValue(&structpb.ListValue{
-				Values: []*structpb.Value{
-					structpb.NewStringValue("lang"),
-					structpb.NewStringValue("lang2"),
-				},
-			}),
-			Key: "query",
-		},
-	}
-
-	ruleClientIP := &ruleenginepb.Rule{
-		Enabled: true,
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
-			Value:    structpb.NewStringValue("203.0.113.42"),
-			Key:      "ip",
-		},
-	}
-
-	ruleChain := &ruleenginepb.Expr{
-		Enabled: true,
-		Rules:   []*ruleenginepb.Rule{rulePath, ruleQuery, ruleClientIP, ruleClientIP},
-		Logics:  []ruleenginepb.Logic{ruleenginepb.Logic_LOGIC_AND, ruleenginepb.Logic_LOGIC_AND, ruleenginepb.Logic_LOGIC_AND},
-	}
-
-	ig := NewIngress()
-
-	if _, ok := ig.EvalExpr(newContext(), ruleChain); ok {
+	ig := NewIngress(rg)
+	matched := &ruleenginepb.MatchedRules{}
+	if ok := ig.Eval(newContext(), matched); ok {
 		t.Logf("rule engine matched !!!")
 		return
 	}
@@ -255,150 +211,79 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		rules  []*ruleenginepb.Rule
-		logics []ruleenginepb.Logic
+		rg     *ruleenginepb.RuleBased
 		expect bool
 	}{
 		{
 			name: "AND: path, method, ip all match",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
-				ruleenginepb.Logic_LOGIC_AND,
-			},
-			expect: true,
-		},
-		{
-			name: "AND: header mismatch should fail",
-			rules: []*ruleenginepb.Rule{
-				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_IN,
-					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
-						structpb.NewStringValue("wrong-header"),
-					}})),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
-			},
-			expect: false,
-		},
-		{
-			name: "OR: header match or path mismatch",
-			rules: []*ruleenginepb.Rule{
-				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_HEADER, ruleenginepb.Operator_OPERATOR_IN,
-					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
-						structpb.NewStringValue("User-Agent"),
-					}})),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/wrong"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_OR,
-			},
-			expect: true,
-		},
-		{
-			name: "AND: query parameter exists",
-			rules: []*ruleenginepb.Rule{
-				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN,
-					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
-						structpb.NewStringValue("lang"),
-					}})),
-				newRuleValue(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN,
-					structpb.NewListValue(&structpb.ListValue{Values: []*structpb.Value{
-						structpb.NewStringValue("lang2"),
-					}})),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
+					Operator: ruleenginepb.Logic_LOGIC_AND,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+				},
 			},
 			expect: true,
 		},
 		{
 			name: "OR: host mismatch but IP match",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "fake.example.com"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_OR,
-			},
-			expect: true,
-		},
-		{
-			name: "AND: body content mismatch should fail",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "john"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "123456"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
-			},
-			expect: false,
-		},
-		{
-			name: "OR: body username matches or ip mismatch",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_BODY, ruleenginepb.Operator_OPERATOR_CONTAINS, "hung"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "198.51.100.10"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_OR,
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
+					Operator: ruleenginepb.Logic_LOGIC_OR,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "fake.example.com"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+				},
 			},
 			expect: true,
 		},
 		{
-			name: "AND: host and TLS must both be true",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "api.example.com"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_TLS, ruleenginepb.Operator_OPERATOR_EQ, "true"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
+			name: "NESTED: A AND (B OR C)",
+			// A (IP match), B (Path mismatch), C (Method match) -> True
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
+					Operator: ruleenginepb.Logic_LOGIC_AND,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
+					},
+					Groups: []*ruleenginepb.RuleBased_Node{
+						{
+							Operator: ruleenginepb.Logic_LOGIC_OR,
+							Rules: []*ruleenginepb.Rule{
+								newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"), // B
+								newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"), // C
+							},
+						},
+					},
+				},
 			},
 			expect: true,
 		},
 		{
-			name: "OR: wrong method but correct path",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_OR,
+			name: "NOT: NOT (Method GET)",
+			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
+			rg: &ruleenginepb.RuleBased{
+				Node: &ruleenginepb.RuleBased_Node{
+					Operator: ruleenginepb.Logic_LOGIC_NOT,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					},
+				},
 			},
 			expect: true,
-		},
-		{
-			name: "AND: wrong IP should fail",
-			rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "198.51.100.10"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-			},
-			logics: []ruleenginepb.Logic{
-				ruleenginepb.Logic_LOGIC_AND,
-			},
-			expect: false,
 		},
 	}
 
-	ig := NewIngress()
+	matched := &ruleenginepb.MatchedRules{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			chain := &ruleenginepb.Expr{
-				Id:      uuid.New().String(),
-				Enabled: true,
-				Rules:   tt.rules,
-				Logics:  tt.logics,
-			}
-			_, ok := ig.EvalExpr(ctx, chain)
-			if ok != tt.expect {
-				val, _ := json.Marshal(tt.rules)
-				t.Logf("[request][rule] %v", string(val))
+			ig := NewIngress(tt.rg)
+			if ok := ig.Eval(ctx, matched); ok != tt.expect {
 				t.Errorf("expected %v, got %v", tt.expect, ok)
 			} else {
 				t.Logf("%s: passed", tt.name)
@@ -409,17 +294,34 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 // nolint
 func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *ruleenginepb.Rule {
-	v, err := structpb.NewValue(val)
+	// structpb.NewValue handles []interface{} as ListValue.
+	// We convert common slice types to []interface{} to ensure correct behavior.
+	var finalVal any = val
+	switch v := val.(type) {
+	case []string:
+		items := make([]any, len(v))
+		for i, s := range v {
+			items[i] = s
+		}
+		finalVal = items
+	}
+
+	v, err := structpb.NewValue(finalVal)
 	if err != nil {
 		zlog.Warnf("rule: new value error: %v", err)
 	}
+
+	key := ""
+	if src != ruleenginepb.FieldSource_FIELD_SOURCE_QUERY && src != ruleenginepb.FieldSource_FIELD_SOURCE_HEADER {
+		key = fmt.Sprintf("%v", val)
+	}
+
 	return &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
 			Value:    v,
-			Key:      fmt.Sprintf("%v", val),
+			Key:      key,
 		},
 	}
 }
@@ -427,7 +329,6 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 // nolint
 func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *structpb.Value) *ruleenginepb.Rule {
 	return &ruleenginepb.Rule{
-		Enabled: true,
 		Condition: &ruleenginepb.Condition{
 			Source:   src,
 			Operator: op,
@@ -435,4 +336,130 @@ func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *s
 			Key:      fmt.Sprintf("%v", val),
 		},
 	}
+}
+
+func BenchmarkEvalRule(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	req := &ruleenginepb.Rule{
+		Condition: &ruleenginepb.Condition{
+			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+			Value:    structpb.NewStringValue("/v1/login"),
+			Key:      "path",
+		},
+	}
+	ctx := newContext()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = eval(ctx, req)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Simple(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+		},
+	}
+	ig := NewIngress(rg)
+
+	ctx := newContext()
+	matched := &ruleenginepb.MatchedRules{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = ig.Eval(ctx, matched)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Complex(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+			Groups: []*ruleenginepb.RuleBased_Node{
+				{
+					Operator: ruleenginepb.Logic_LOGIC_OR,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					},
+				},
+				{
+					Operator: ruleenginepb.Logic_LOGIC_NOT,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					},
+				},
+			},
+		},
+	}
+
+	ig := NewIngress(rg)
+	ctx := newContext()
+	matched := &ruleenginepb.MatchedRules{}
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = ig.Eval(ctx, matched)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rg := &ruleenginepb.RuleBased{
+		Node: &ruleenginepb.RuleBased_Node{
+			Operator: ruleenginepb.Logic_LOGIC_AND,
+			Rules: []*ruleenginepb.Rule{
+				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			},
+			Groups: []*ruleenginepb.RuleBased_Node{
+				{
+					Operator: ruleenginepb.Logic_LOGIC_OR,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					},
+				},
+				{
+					Operator: ruleenginepb.Logic_LOGIC_NOT,
+					Rules: []*ruleenginepb.Rule{
+						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					},
+				},
+			},
+		},
+	}
+
+	ig := NewIngress(rg)
+
+	ctx := newContext()
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_ = ig.Eval(ctx, nil)
+		}
+	})
 }

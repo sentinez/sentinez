@@ -15,80 +15,41 @@
 package corerule
 
 import (
-	"sync"
-
 	corehttp "github.com/sentinez/core/http"
 	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
-var (
-	_ Evaluator = (*evaluator)(nil)
-
-	evPool = sync.Pool{
-		New: func() any {
-			return &evaluator{}
-		},
-	}
-)
-
-type Evaluator interface {
-	visit(cond *ruleengpb.Condition) bool
-
-	Release()
-}
-
-// newEvaluator creates a new Evaluator instance.
-// Remember to call Evaluator.Release when the
-// context is done to avoid memory leaks.
-func newEvaluator(ctx corehttp.RequestContext) Evaluator {
-
-	ev := evPool.Get().(*evaluator)
-	ev.ctx = ctx
-
-	return ev
-}
-
-type evaluator struct {
-	ctx corehttp.RequestContext
-}
-
-func (ev *evaluator) Release() {
-	ev.ctx = nil
-	evPool.Put(ev)
-}
-
-func (ev *evaluator) visit(cond *ruleengpb.Condition) bool {
-	zlog.Debugf("ev: visit with source: %s", cond.GetSource())
+func visit(ctx corehttp.RequestContext, cond *ruleengpb.Condition) bool {
+	// zlog.Debugf("ev: visit with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_PATH:
-		return matchSourcePath(ev.ctx, cond)
+		return matchSourcePath(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_QUERY:
-		return matchSourceQuery(ev.ctx, cond)
+		return matchSourceQuery(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
-		return matchSourceBody(ev.ctx, cond)
+		return matchSourceBody(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_HEADER:
-		return matchSourceHeader(ev.ctx, cond)
+		return matchSourceHeader(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
-		return matchSourceMethod(ev.ctx, cond)
+		return matchSourceMethod(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
-		return matchSourceHost(ev.ctx, cond)
+		return matchSourceHost(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
-		return matchSourceIP(ev.ctx, cond)
+		return matchSourceIP(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
-		return matchSourceTLS(ev.ctx, cond)
+		return matchSourceTLS(ctx, cond)
 
 	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
-		return matchSourceJA4(ev.ctx, cond)
+		return matchSourceJA4(ctx, cond)
 
 	default:
 		return bypass

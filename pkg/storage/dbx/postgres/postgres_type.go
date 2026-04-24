@@ -26,4 +26,6 @@ const (
 	Int8      dbx.ColumnType = "BIGINT"
 	Float4    dbx.ColumnType = "REAL"
 	Float8    dbx.ColumnType = "DOUBLE PRECISION"
+	Bool      dbx.ColumnType = "BOOLEAN"
+	JSONB     dbx.ColumnType = "JSONB"
 )

@@ -17,8 +17,8 @@ package secure
 import (
 	"strings"
 
-	corechains "github.com/sentinez/core/chains"
 	corehttp "github.com/sentinez/core/http"
+	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 )
@@ -50,7 +50,7 @@ func (d *DomainBased) Handle(ctx corehttp.Context) error {
 		ctxValue = &edgepb.Context{}
 	}
 
-	ctxValue.TenantNs = ns
+	ctxValue.ServerName = ns
 
 	ctx = corehttp.SetRequestContext(ctx, ctxValue)
 

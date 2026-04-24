@@ -24,35 +24,48 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1;ed
 // Setting edge setting per user
 message Setting {
   Metadata metadata = 1; // @gotags: yaml:"metadata"
-  Origin origin = 2; // @gotags: yaml:"origin"
+  Server server = 2; // @gotags: yaml:"server"
   Security security = 3; // @gotags: yaml:"security"
-  TrafficControl traffic_control = 4; // @gotags: yaml:"trafficControl"
-  Personalization personal = 5; // @gotags: yaml:"personal"
+  Controller controller = 4; // @gotags: yaml:"controller"
+  Personal personal = 5; // @gotags: yaml:"personal"
 }
 
 // Metadata used for observability and debugging:
 message Metadata {}
 
-// Origin defines where the request goes and how the edge processes it:
-message Origin {
-  string namespace = 1; // @gotags: yaml:"namespace"
-  repeated OriginRoute routes = 2; // @gotags: yaml:"routes"
+// Server defines where the request goes and how the edge processes it:
+message Server {
+  string name = 1 [(buf.validate.field) = {
+    string: {pattern: "^[a-zA-Z0-9-]+"}
+  }]; // @gotags: yaml:"name"
+
+  repeated uint32 listen = 2; // @gotags: yaml:"listen"
+
+  repeated Location locations = 3; // @gotags: yaml:"locations"
 }
 
-message OriginRoute {
-  string location = 1; // @gotags: yaml:"location"
-  string rewrite = 2; // @gotags: yaml:"rewrite"
-  string proxy_pass = 3; // @gotags: yaml:"proxyPass"
-  map<string, string> proxy_set_headers = 4; // @gotags: yaml:"proxySetHeaders"
+message Location {
+  string location = 1 [(buf.validate.field) = {
+    string: {pattern: "^/.*$"}
+  }]; // @gotags: yaml:"location"
+
+  string proxy_rewrite = 2 [(buf.validate.field) = {
+    string: {pattern: "^/.*$"}
+  }]; // @gotags: yaml:"proxyRewrite"
+
+  repeated Upstream proxy_pass = 3; // @gotags: yaml:"proxyPass"
+
+  BalanceStrategy balance_strategy = 4; // @gotags: yaml:"balanceStrategy"
+
+  map<string, string> proxy_set_headers = 5; // @gotags: yaml:"proxySetHeaders"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
-  sentinez.types.secure.ruleengine.v1.ExprLite expression = 2; // @gotags: yaml:"expression"
+  sentinez.types.secure.ruleengine.v1.RuleBasedLite rule_based = 2; // @gotags: yaml:"ruleBased"
 
-  sentinez.types.secure.ruleengine.v1.Rule rule = 3; // @gotags: yaml:"rule"
-  sentinez.types.secure.ruleengine.v1.Expr expr = 4; // @gotags: yaml:"expr"
+  sentinez.types.secure.ruleengine.v1.RuleBased rule_based_compiled = 3; // @gotags: yaml:"-"
 
   bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"
 
@@ -69,17 +82,27 @@ message Security {
   }]; //@gotags: yaml:"timeout"
 }
 
-// TrafficControl for systems using a virtual waiting room or throttling:
-message TrafficControl {}
+// Controller for systems using a virtual waiting room or throttling:
+message Controller {}
 
-// Personalization defines where the request goes and how the edge processes it
-message Personalization {}
+// Personal defines where the request goes and how the edge processes it
+message Personal {}
 
-// Context helps the edge identify which user is connected
-message Context {
-  // tenant_ns namespace of tenant
-  // example: dev.sentinez.test
-  //  - namespace: dev
-  //  - root: sentinez.test
-  string tenant_ns = 1;
+message Upstream {
+  string server = 1 [(buf.validate.field) = {
+    string: {pattern: "^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}))$"}
+  }]; // @gotags: yaml:"server"
+
+  ProxyProtocol protocol = 2; // @gotags: yaml:"protocol"
+}
+
+enum BalanceStrategy {
+  BALANCE_STRATEGY_UNSPECIFIED = 0;
+  BALANCE_STRATEGY_ROUND_ROBIN = 1;
+}
+
+enum ProxyProtocol {
+  PROXY_PROTOCOL_UNSPECIFIED = 0;
+  PROXY_PROTOCOL_HTTP = 1;
+  PROXY_PROTOCOL_HTTPS = 2;
 }

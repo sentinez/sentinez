@@ -37,3 +37,9 @@ func GetMetaSecurityServiceKind() typepb.Kind {
 func GetMetaSecurityServiceKey() string {
 	return metadata_security.GetServiceKey()
 }
+
+func GetSecurityServiceStatus() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}

@@ -47,12 +47,12 @@ type Limiter struct {
 	space *ssync.Map[string, *corelimiter.RateLimiter]
 }
 
-func (lim *Limiter) Store(namespace string, l *corelimiter.RateLimiter) {
-	lim.space.Store(namespace, l)
+func (lim *Limiter) Store(serverName string, l *corelimiter.RateLimiter) {
+	lim.space.Store(serverName, l)
 }
 
-func (lim *Limiter) Load(namespace string) *corelimiter.RateLimiter {
-	expr, ok := lim.space.Load(namespace)
+func (lim *Limiter) Load(serverName string) *corelimiter.RateLimiter {
+	expr, ok := lim.space.Load(serverName)
 	if !ok {
 		return nil
 	}
@@ -70,8 +70,8 @@ func (lim *Limiter) LoadContext(ctx corehttp.Context) *corelimiter.RateLimiter {
 		return nil
 	}
 
-	zlog.Debugf("[edge] hit limiter cached %s", hCtx.GetTenantNs())
-	return lim.Load(hCtx.GetTenantNs())
+	zlog.Debugf("[edge] hit limiter cached %s", hCtx.GetServerName())
+	return lim.Load(hCtx.GetServerName())
 }
 
 func Store(namespace string, l *corelimiter.RateLimiter) {
