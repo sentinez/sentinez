@@ -18,6 +18,14 @@ export interface GetResourceRequest {
   default: boolean;
 }
 
+export interface GetResourceByDomainRequest {
+  resourceDomain: string;
+}
+
+export interface GetResourceByDomainResponse {
+  resource?: Resource | undefined;
+}
+
 export interface GetResourceResponse {
   resource?: Resource | undefined;
 }
@@ -144,6 +152,124 @@ export const GetResourceRequest: MessageFns<GetResourceRequest> = {
     const message = createBaseGetResourceRequest();
     message.id = object.id ?? "";
     message.default = object.default ?? false;
+    return message;
+  },
+};
+
+function createBaseGetResourceByDomainRequest(): GetResourceByDomainRequest {
+  return { resourceDomain: "" };
+}
+
+export const GetResourceByDomainRequest: MessageFns<GetResourceByDomainRequest> = {
+  encode(message: GetResourceByDomainRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resourceDomain !== "") {
+      writer.uint32(10).string(message.resourceDomain);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetResourceByDomainRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetResourceByDomainRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.resourceDomain = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetResourceByDomainRequest {
+    return { resourceDomain: isSet(object.resourceDomain) ? globalThis.String(object.resourceDomain) : "" };
+  },
+
+  toJSON(message: GetResourceByDomainRequest): unknown {
+    const obj: any = {};
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetResourceByDomainRequest>, I>>(base?: I): GetResourceByDomainRequest {
+    return GetResourceByDomainRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetResourceByDomainRequest>, I>>(object: I): GetResourceByDomainRequest {
+    const message = createBaseGetResourceByDomainRequest();
+    message.resourceDomain = object.resourceDomain ?? "";
+    return message;
+  },
+};
+
+function createBaseGetResourceByDomainResponse(): GetResourceByDomainResponse {
+  return { resource: undefined };
+}
+
+export const GetResourceByDomainResponse: MessageFns<GetResourceByDomainResponse> = {
+  encode(message: GetResourceByDomainResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resource !== undefined) {
+      Resource.encode(message.resource, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetResourceByDomainResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetResourceByDomainResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.resource = Resource.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetResourceByDomainResponse {
+    return { resource: isSet(object.resource) ? Resource.fromJSON(object.resource) : undefined };
+  },
+
+  toJSON(message: GetResourceByDomainResponse): unknown {
+    const obj: any = {};
+    if (message.resource !== undefined) {
+      obj.resource = Resource.toJSON(message.resource);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetResourceByDomainResponse>, I>>(base?: I): GetResourceByDomainResponse {
+    return GetResourceByDomainResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetResourceByDomainResponse>, I>>(object: I): GetResourceByDomainResponse {
+    const message = createBaseGetResourceByDomainResponse();
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource.fromPartial(object.resource)
+      : undefined;
     return message;
   },
 };

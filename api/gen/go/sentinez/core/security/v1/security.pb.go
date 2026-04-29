@@ -23,8 +23,7 @@ package securitypb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -43,7 +42,7 @@ const (
 
 type CreateRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
+	RuleBased     *RuleBased             `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -78,7 +77,7 @@ func (*CreateRuleBasedRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateRuleBasedRequest) GetRuleBased() *v1.RuleBased {
+func (x *CreateRuleBasedRequest) GetRuleBased() *RuleBased {
 	if x != nil {
 		return x.RuleBased
 	}
@@ -175,7 +174,7 @@ func (x *GetRuleBasedRequest) GetId() string {
 
 type GetRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
+	RuleBased     *RuleBased             `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -210,7 +209,7 @@ func (*GetRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetRuleBasedResponse) GetRuleBased() *v1.RuleBased {
+func (x *GetRuleBasedResponse) GetRuleBased() *RuleBased {
 	if x != nil {
 		return x.RuleBased
 	}
@@ -220,7 +219,7 @@ func (x *GetRuleBasedResponse) GetRuleBased() *v1.RuleBased {
 type UpdateRuleBasedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RuleBased     *v1.RuleBased          `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
+	RuleBased     *RuleBased             `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -263,7 +262,7 @@ func (x *UpdateRuleBasedRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateRuleBasedRequest) GetRuleBased() *v1.RuleBased {
+func (x *UpdateRuleBasedRequest) GetRuleBased() *RuleBased {
 	if x != nil {
 		return x.RuleBased
 	}
@@ -279,7 +278,7 @@ func (x *UpdateRuleBasedRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 
 type UpdateRuleBasedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleBased     *v1.RuleBased          `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
+	RuleBased     *RuleBased             `protobuf:"bytes,1,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -314,7 +313,7 @@ func (*UpdateRuleBasedResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *UpdateRuleBasedResponse) GetRuleBased() *v1.RuleBased {
+func (x *UpdateRuleBasedResponse) GetRuleBased() *RuleBased {
 	if x != nil {
 		return x.RuleBased
 	}
@@ -403,7 +402,7 @@ func (*DeleteRuleBasedResponse) Descriptor() ([]byte, []int) {
 
 type ListRuleBasedsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -439,7 +438,7 @@ func (*ListRuleBasedsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListRuleBasedsRequest) GetPage() *v11.Pages {
+func (x *ListRuleBasedsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
@@ -455,7 +454,7 @@ func (x *ListRuleBasedsRequest) GetIds() []string {
 
 type ListRuleBasedsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleBaseds    []*v1.RuleBased        `protobuf:"bytes,1,rep,name=rule_baseds,json=ruleBaseds,proto3" json:"rule_baseds,omitempty"`
+	RuleBaseds    []*RuleBased           `protobuf:"bytes,1,rep,name=rule_baseds,json=ruleBaseds,proto3" json:"rule_baseds,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -491,7 +490,7 @@ func (*ListRuleBasedsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListRuleBasedsResponse) GetRuleBaseds() []*v1.RuleBased {
+func (x *ListRuleBasedsResponse) GetRuleBaseds() []*RuleBased {
 	if x != nil {
 		return x.RuleBaseds
 	}
@@ -507,7 +506,7 @@ func (x *ListRuleBasedsResponse) GetTotal() int64 {
 
 type CreateRuleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *v1.Rule               `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
+	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -542,7 +541,7 @@ func (*CreateRuleRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *CreateRuleRequest) GetRule() *v1.Rule {
+func (x *CreateRuleRequest) GetRule() *RuleGroup {
 	if x != nil {
 		return x.Rule
 	}
@@ -639,7 +638,7 @@ func (x *GetRuleRequest) GetId() string {
 
 type GetRuleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *v1.Rule               `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
+	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -674,7 +673,7 @@ func (*GetRuleResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *GetRuleResponse) GetRule() *v1.Rule {
+func (x *GetRuleResponse) GetRule() *RuleGroup {
 	if x != nil {
 		return x.Rule
 	}
@@ -684,7 +683,7 @@ func (x *GetRuleResponse) GetRule() *v1.Rule {
 type UpdateRuleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Rule          *v1.Rule               `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"`
+	Rule          *RuleGroup             `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"`
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -727,7 +726,7 @@ func (x *UpdateRuleRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateRuleRequest) GetRule() *v1.Rule {
+func (x *UpdateRuleRequest) GetRule() *RuleGroup {
 	if x != nil {
 		return x.Rule
 	}
@@ -743,7 +742,7 @@ func (x *UpdateRuleRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 
 type UpdateRuleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *v1.Rule               `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
+	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -778,7 +777,7 @@ func (*UpdateRuleResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *UpdateRuleResponse) GetRule() *v1.Rule {
+func (x *UpdateRuleResponse) GetRule() *RuleGroup {
 	if x != nil {
 		return x.Rule
 	}
@@ -867,7 +866,7 @@ func (*DeleteRuleResponse) Descriptor() ([]byte, []int) {
 
 type ListRulesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -903,7 +902,7 @@ func (*ListRulesRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *ListRulesRequest) GetPage() *v11.Pages {
+func (x *ListRulesRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
@@ -919,7 +918,7 @@ func (x *ListRulesRequest) GetIds() []string {
 
 type ListRulesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rules         []*v1.Rule             `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
+	Rules         []*RuleGroup           `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -955,7 +954,7 @@ func (*ListRulesResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_core_security_v1_security_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *ListRulesResponse) GetRules() []*v1.Rule {
+func (x *ListRulesResponse) GetRules() []*RuleGroup {
 	if x != nil {
 		return x.Rules
 	}
@@ -1053,61 +1052,61 @@ var File_sentinez_core_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_core_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"o\n" +
-	"\x16CreateRuleBasedRequest\x12U\n" +
+	"(sentinez/core/security/v1/security.proto\x12\x19sentinez.core.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a%sentinez/core/security/v1/model.proto\x1a&sentinez/core/security/v1/shared.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"e\n" +
+	"\x16CreateRuleBasedRequest\x12K\n" +
 	"\n" +
-	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\")\n" +
+	"rule_based\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\")\n" +
 	"\x17CreateRuleBasedResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\".\n" +
 	"\x13GetRuleBasedRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"e\n" +
-	"\x14GetRuleBasedResponse\x12M\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"[\n" +
+	"\x14GetRuleBasedResponse\x12C\n" +
 	"\n" +
-	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\truleBased\"\xc5\x01\n" +
+	"rule_based\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleBasedR\truleBased\"\xbb\x01\n" +
 	"\x16UpdateRuleBasedRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12U\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12K\n" +
 	"\n" +
-	"rule_based\x18\x02 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\x12;\n" +
+	"rule_based\x18\x02 \x01(\v2$.sentinez.core.security.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"h\n" +
-	"\x17UpdateRuleBasedResponse\x12M\n" +
+	"updateMask\"^\n" +
+	"\x17UpdateRuleBasedResponse\x12C\n" +
 	"\n" +
-	"rule_based\x18\x01 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\truleBased\"1\n" +
+	"rule_based\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleBasedR\truleBased\"1\n" +
 	"\x16DeleteRuleBasedRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x19\n" +
 	"\x17DeleteRuleBasedResponse\"W\n" +
 	"\x15ListRuleBasedsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\"\x7f\n" +
-	"\x16ListRuleBasedsResponse\x12O\n" +
-	"\vrule_baseds\x18\x01 \x03(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\n" +
+	" \x03(\tR\x03ids\"u\n" +
+	"\x16ListRuleBasedsResponse\x12E\n" +
+	"\vrule_baseds\x18\x01 \x03(\v2$.sentinez.core.security.v1.RuleBasedR\n" +
 	"ruleBaseds\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"Z\n" +
-	"\x11CreateRuleRequest\x12E\n" +
-	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleB\x06\xbaH\x03\xc8\x01\x01R\x04rule\"$\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"U\n" +
+	"\x11CreateRuleRequest\x12@\n" +
+	"\x04rule\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\x04rule\"$\n" +
 	"\x12CreateRuleResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x0eGetRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"P\n" +
-	"\x0fGetRuleResponse\x12=\n" +
-	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\"\xb0\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"K\n" +
+	"\x0fGetRuleResponse\x128\n" +
+	"\x04rule\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleGroupR\x04rule\"\xab\x01\n" +
 	"\x11UpdateRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12E\n" +
-	"\x04rule\x18\x02 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleB\x06\xbaH\x03\xc8\x01\x01R\x04rule\x12;\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12@\n" +
+	"\x04rule\x18\x02 \x01(\v2$.sentinez.core.security.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\x04rule\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"S\n" +
-	"\x12UpdateRuleResponse\x12=\n" +
-	"\x04rule\x18\x01 \x01(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x04rule\",\n" +
+	"updateMask\"N\n" +
+	"\x12UpdateRuleResponse\x128\n" +
+	"\x04rule\x18\x01 \x01(\v2$.sentinez.core.security.v1.RuleGroupR\x04rule\",\n" +
 	"\x11DeleteRuleRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x14\n" +
 	"\x12DeleteRuleResponse\"R\n" +
 	"\x10ListRulesRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\"j\n" +
-	"\x11ListRulesResponse\x12?\n" +
-	"\x05rules\x18\x01 \x03(\v2).sentinez.types.secure.ruleengine.v1.RuleR\x05rules\x12\x14\n" +
+	" \x03(\tR\x03ids\"e\n" +
+	"\x11ListRulesResponse\x12:\n" +
+	"\x05rules\x18\x01 \x03(\v2$.sentinez.core.security.v1.RuleGroupR\x05rules\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
@@ -1164,26 +1163,26 @@ var file_sentinez_core_security_v1_security_proto_goTypes = []any{
 	(*ListRulesResponse)(nil),       // 19: sentinez.core.security.v1.ListRulesResponse
 	(*StatusRequest)(nil),           // 20: sentinez.core.security.v1.StatusRequest
 	(*StatusResponse)(nil),          // 21: sentinez.core.security.v1.StatusResponse
-	(*v1.RuleBased)(nil),            // 22: sentinez.types.secure.ruleengine.v1.RuleBased
+	(*RuleBased)(nil),               // 22: sentinez.core.security.v1.RuleBased
 	(*fieldmaskpb.FieldMask)(nil),   // 23: google.protobuf.FieldMask
-	(*v11.Pages)(nil),               // 24: sentinez.types.v1.Pages
-	(*v1.Rule)(nil),                 // 25: sentinez.types.secure.ruleengine.v1.Rule
+	(*v1.Pages)(nil),                // 24: sentinez.types.v1.Pages
+	(*RuleGroup)(nil),               // 25: sentinez.core.security.v1.RuleGroup
 }
 var file_sentinez_core_security_v1_security_proto_depIdxs = []int32{
-	22, // 0: sentinez.core.security.v1.CreateRuleBasedRequest.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
-	22, // 1: sentinez.core.security.v1.GetRuleBasedResponse.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
-	22, // 2: sentinez.core.security.v1.UpdateRuleBasedRequest.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	22, // 0: sentinez.core.security.v1.CreateRuleBasedRequest.rule_based:type_name -> sentinez.core.security.v1.RuleBased
+	22, // 1: sentinez.core.security.v1.GetRuleBasedResponse.rule_based:type_name -> sentinez.core.security.v1.RuleBased
+	22, // 2: sentinez.core.security.v1.UpdateRuleBasedRequest.rule_based:type_name -> sentinez.core.security.v1.RuleBased
 	23, // 3: sentinez.core.security.v1.UpdateRuleBasedRequest.update_mask:type_name -> google.protobuf.FieldMask
-	22, // 4: sentinez.core.security.v1.UpdateRuleBasedResponse.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	22, // 4: sentinez.core.security.v1.UpdateRuleBasedResponse.rule_based:type_name -> sentinez.core.security.v1.RuleBased
 	24, // 5: sentinez.core.security.v1.ListRuleBasedsRequest.page:type_name -> sentinez.types.v1.Pages
-	22, // 6: sentinez.core.security.v1.ListRuleBasedsResponse.rule_baseds:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
-	25, // 7: sentinez.core.security.v1.CreateRuleRequest.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	25, // 8: sentinez.core.security.v1.GetRuleResponse.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
-	25, // 9: sentinez.core.security.v1.UpdateRuleRequest.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	22, // 6: sentinez.core.security.v1.ListRuleBasedsResponse.rule_baseds:type_name -> sentinez.core.security.v1.RuleBased
+	25, // 7: sentinez.core.security.v1.CreateRuleRequest.rule:type_name -> sentinez.core.security.v1.RuleGroup
+	25, // 8: sentinez.core.security.v1.GetRuleResponse.rule:type_name -> sentinez.core.security.v1.RuleGroup
+	25, // 9: sentinez.core.security.v1.UpdateRuleRequest.rule:type_name -> sentinez.core.security.v1.RuleGroup
 	23, // 10: sentinez.core.security.v1.UpdateRuleRequest.update_mask:type_name -> google.protobuf.FieldMask
-	25, // 11: sentinez.core.security.v1.UpdateRuleResponse.rule:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	25, // 11: sentinez.core.security.v1.UpdateRuleResponse.rule:type_name -> sentinez.core.security.v1.RuleGroup
 	24, // 12: sentinez.core.security.v1.ListRulesRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 13: sentinez.core.security.v1.ListRulesResponse.rules:type_name -> sentinez.types.secure.ruleengine.v1.Rule
+	25, // 13: sentinez.core.security.v1.ListRulesResponse.rules:type_name -> sentinez.core.security.v1.RuleGroup
 	0,  // 14: sentinez.core.security.v1.SecurityService.CreateRuleBased:input_type -> sentinez.core.security.v1.CreateRuleBasedRequest
 	2,  // 15: sentinez.core.security.v1.SecurityService.GetRuleBased:input_type -> sentinez.core.security.v1.GetRuleBasedRequest
 	4,  // 16: sentinez.core.security.v1.SecurityService.UpdateRuleBased:input_type -> sentinez.core.security.v1.UpdateRuleBasedRequest
@@ -1208,6 +1207,8 @@ func file_sentinez_core_security_v1_security_proto_init() {
 	if File_sentinez_core_security_v1_security_proto != nil {
 		return
 	}
+	file_sentinez_core_security_v1_model_proto_init()
+	file_sentinez_core_security_v1_shared_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

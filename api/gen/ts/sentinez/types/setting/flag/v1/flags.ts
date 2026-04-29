@@ -19,7 +19,7 @@ export interface Flag {
   apiSpecsPath: string;
   rulePath: string;
   proxyConfig: string;
-  certificateFile: string;
+  certFile: string;
   certKeyFile: string;
 }
 
@@ -32,7 +32,7 @@ function createBaseFlag(): Flag {
     apiSpecsPath: "",
     rulePath: "",
     proxyConfig: "",
-    certificateFile: "",
+    certFile: "",
     certKeyFile: "",
   };
 }
@@ -60,8 +60,8 @@ export const Flag: MessageFns<Flag> = {
     if (message.proxyConfig !== "") {
       writer.uint32(58).string(message.proxyConfig);
     }
-    if (message.certificateFile !== "") {
-      writer.uint32(66).string(message.certificateFile);
+    if (message.certFile !== "") {
+      writer.uint32(66).string(message.certFile);
     }
     if (message.certKeyFile !== "") {
       writer.uint32(74).string(message.certKeyFile);
@@ -137,7 +137,7 @@ export const Flag: MessageFns<Flag> = {
             break;
           }
 
-          message.certificateFile = reader.string();
+          message.certFile = reader.string();
           continue;
         }
         case 9: {
@@ -166,7 +166,7 @@ export const Flag: MessageFns<Flag> = {
       apiSpecsPath: isSet(object.apiSpecsPath) ? globalThis.String(object.apiSpecsPath) : "",
       rulePath: isSet(object.rulePath) ? globalThis.String(object.rulePath) : "",
       proxyConfig: isSet(object.proxyConfig) ? globalThis.String(object.proxyConfig) : "",
-      certificateFile: isSet(object.certificateFile) ? globalThis.String(object.certificateFile) : "",
+      certFile: isSet(object.certFile) ? globalThis.String(object.certFile) : "",
       certKeyFile: isSet(object.certKeyFile) ? globalThis.String(object.certKeyFile) : "",
     };
   },
@@ -194,8 +194,8 @@ export const Flag: MessageFns<Flag> = {
     if (message.proxyConfig !== "") {
       obj.proxyConfig = message.proxyConfig;
     }
-    if (message.certificateFile !== "") {
-      obj.certificateFile = message.certificateFile;
+    if (message.certFile !== "") {
+      obj.certFile = message.certFile;
     }
     if (message.certKeyFile !== "") {
       obj.certKeyFile = message.certKeyFile;
@@ -215,7 +215,7 @@ export const Flag: MessageFns<Flag> = {
     message.apiSpecsPath = object.apiSpecsPath ?? "";
     message.rulePath = object.rulePath ?? "";
     message.proxyConfig = object.proxyConfig ?? "";
-    message.certificateFile = object.certificateFile ?? "";
+    message.certFile = object.certFile ?? "";
     message.certKeyFile = object.certKeyFile ?? "";
     return message;
   },

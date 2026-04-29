@@ -16,28 +16,31 @@ syntax = "proto3";
 
 package sentinez.core.security.v1;
 
-import "buf/validate/validate.proto";
-import "sentinez/core/security/v1/shared.proto";
-import "sentinez/types/v1/known.proto";
-import "sentinez/types/v1/model.proto";
-import "sentinez/types/v1/options.proto";
+import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1;securitypb";
 
-message RuleBased {
-  option (sentinez.types.v1.x_message).database_model = true;
+// Single rule
+message Rule {
+  string id = 1;
+  sentinez.types.secure.ruleengine.v1.FieldSource field = 2;
+  sentinez.types.secure.ruleengine.v1.Operator operator = 3;
+  string value = 4;
+  string key = 5;
+}
 
-  sentinez.types.v1.Metadata metadata = 1;
+// Rule group item (recursive structure)
+message RuleNode {
+  oneof node {
+    Rule rule = 1;
+    RuleGroup group = 2;
+  }
+}
 
-  string id = 2 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "senz.security.rulebaseds."}
-  }];
-
-  string name = 3;
-  string description = 4;
-  RuleGroup node = 5;
-  string action = 6;
-  sentinez.types.v1.Status status = 7;
-  int32 priority = 8;
+// Group of rules
+message RuleGroup {
+  string id = 1;
+  sentinez.types.secure.ruleengine.v1.Logic combinator = 2;
+  repeated RuleNode rules = 3;
+  bool not = 4;
 }

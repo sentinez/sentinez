@@ -3,6 +3,7 @@ import {
   Server,
   Building2,
   Shield,
+  ShieldCheck,
   Activity,
   ShieldAlert,
   SquareActivity,
@@ -60,19 +61,14 @@ export const dashboard = {
     },
     {
       title: 'Securities',
-      url: '/console/security/logs',
+      url: '/console/security/rulebased',
       icon: Shield,
       isActive: false,
       items: [
         {
-          title: 'logs',
-          url: '/console/security/logs',
-          icon: SquareActivity,
-        },
-        {
-          title: 'activity',
-          url: '/console/security/activity',
-          icon: ShieldAlert,
+          title: 'rule based',
+          url: '/console/security/rulebased',
+          icon: ShieldCheck,
         },
       ],
     },

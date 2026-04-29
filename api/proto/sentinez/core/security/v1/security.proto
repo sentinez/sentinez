@@ -20,7 +20,8 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
+import "sentinez/core/security/v1/model.proto";
+import "sentinez/core/security/v1/shared.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
@@ -104,7 +105,7 @@ service SecurityService {
 // ── RuleBased Messages ─────────────────────────────────────────────────────
 
 message CreateRuleBasedRequest {
-  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1 [(buf.validate.field).required = true];
+  RuleBased rule_based = 1 [(buf.validate.field).required = true];
 }
 
 message CreateRuleBasedResponse {
@@ -116,17 +117,17 @@ message GetRuleBasedRequest {
 }
 
 message GetRuleBasedResponse {
-  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1;
+  RuleBased rule_based = 1;
 }
 
 message UpdateRuleBasedRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 2 [(buf.validate.field).required = true];
+  RuleBased rule_based = 2 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateRuleBasedResponse {
-  sentinez.types.secure.ruleengine.v1.RuleBased rule_based = 1;
+  RuleBased rule_based = 1;
 }
 
 message DeleteRuleBasedRequest {
@@ -141,14 +142,14 @@ message ListRuleBasedsRequest {
 }
 
 message ListRuleBasedsResponse {
-  repeated sentinez.types.secure.ruleengine.v1.RuleBased rule_baseds = 1;
+  repeated RuleBased rule_baseds = 1;
   int64 total = 2;
 }
 
 // ── Rule Messages ───────────────────────────────────────────────────────────
 
 message CreateRuleRequest {
-  sentinez.types.secure.ruleengine.v1.Rule rule = 1 [(buf.validate.field).required = true];
+  RuleGroup rule = 1 [(buf.validate.field).required = true];
 }
 
 message CreateRuleResponse {
@@ -160,17 +161,17 @@ message GetRuleRequest {
 }
 
 message GetRuleResponse {
-  sentinez.types.secure.ruleengine.v1.Rule rule = 1;
+  RuleGroup rule = 1;
 }
 
 message UpdateRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  sentinez.types.secure.ruleengine.v1.Rule rule = 2 [(buf.validate.field).required = true];
+  RuleGroup rule = 2 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateRuleResponse {
-  sentinez.types.secure.ruleengine.v1.Rule rule = 1;
+  RuleGroup rule = 1;
 }
 
 message DeleteRuleRequest {
@@ -185,7 +186,7 @@ message ListRulesRequest {
 }
 
 message ListRulesResponse {
-  repeated sentinez.types.secure.ruleengine.v1.Rule rules = 1;
+  repeated RuleGroup rules = 1;
   int64 total = 2;
 }
 

@@ -15,12 +15,11 @@
 package corerule
 
 import (
-	"net"
+	"net/netip"
 	"strings"
 
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
 const (
@@ -52,7 +51,7 @@ func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := ctx.Path()
 
-	zlog.Debugf("rules: src: %s -> des: %s", src, des)
+	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
 	return matchString(cond.GetOperator(), src, des)
 }
 
@@ -60,7 +59,7 @@ func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	src := string(ctx.Body())
 	des := cond.GetValue().GetStringValue()
 
-	zlog.Debugf("rules body: srcLen: %d -> des: %s", len(src), des)
+	// zlog.Debugf("rules body: srcLen: %d -> des: %s", len(src), des)
 	return matchString(cond.GetOperator(), src, des)
 }
 
@@ -76,7 +75,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list == nil {
 			// fallback to single key existence check
 			s := val.GetStringValue()
-			zlog.Debugf("rules: header existence check (single): %s", s)
+			// zlog.Debugf("rules: header existence check (single): %s", s)
 			if s == "" {
 				return unmatched
 			}
@@ -86,7 +85,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 		des := list.GetValues()
 		src := ctx.Headers()
-		zlog.Debugf("rules: header existence check (list): %v", des)
+		// zlog.Debugf("rules: header existence check (list): %v", des)
 		if len(src) == 0 {
 			return unmatched
 		}
@@ -115,7 +114,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	// If a key is provided, we check its value
 	srcVal := ctx.Header(key)
 	list := val.GetListValue()
-	zlog.Debugf("rules: header value check key=%s src=%s", key, srcVal)
+	// zlog.Debugf("rules: header value check key=%s src=%s", key, srcVal)
 
 	if list != nil {
 		// Membership check
@@ -153,7 +152,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list == nil {
 			// fallback to single key existence check
 			s := val.GetStringValue()
-			zlog.Debugf("rules: query existence check (single): %s", s)
+			// zlog.Debugf("rules: query existence check (single): %s", s)
 			if s == "" {
 				return unmatched
 			}
@@ -163,7 +162,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 		des := list.AsSlice()
 		src := ctx.Queries()
-		zlog.Debugf("rules: query existence check (list): %v", des)
+		// zlog.Debugf("rules: query existence check (list): %v", des)
 		if len(src) == 0 {
 			return unmatched
 		}
@@ -173,7 +172,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
 					if _, exist := src[ds]; !exist {
-						zlog.Debugf("rules: query key not found: %s", ds)
+						// zlog.Debugf("rules: query key not found: %s", ds)
 						return unmatched
 					}
 				}
@@ -195,7 +194,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	// If a key is provided, we check its value
 	srcVal := ctx.Query(key)
 	list := val.GetListValue()
-	zlog.Debugf("rules: query value check key=%s src=%s", key, srcVal)
+	// zlog.Debugf("rules: query value check key=%s src=%s", key, srcVal)
 
 	if list != nil {
 		// Membership check
@@ -230,12 +229,12 @@ func matchOperator(op rulepb.Operator, ok bool) bool {
 }
 
 func matchIP(src, des string) bool {
-	_, ipnet, err := net.ParseCIDR(des)
+	prefix, err := netip.ParsePrefix(des)
 	if err != nil {
 		return src == des
 	}
 
-	return ipnet.Contains(net.ParseIP(src))
+	return prefix.Contains(netip.MustParseAddr(src))
 }
 
 func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {

@@ -230,36 +230,65 @@
     }
   },
   "definitions": {
-    "RuleBasedNode": {
-      "type": "object",
-      "properties": {
-        "operator": {
-          "$ref": "#/definitions/v1Logic"
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/ruleenginev1Rule"
-          }
-        },
-        "groups": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/RuleBasedNode"
-          }
-        }
-      }
-    },
     "SecurityServiceUpdateRuleBasedBody": {
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+          "$ref": "#/definitions/coresecurityv1RuleBased"
         },
         "updateMask": {
           "type": "string"
+        }
+      }
+    },
+    "coresecurityv1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "field": {
+          "$ref": "#/definitions/v1FieldSource"
+        },
+        "operator": {
+          "$ref": "#/definitions/v1Operator"
+        },
+        "value": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        }
+      },
+      "title": "Single rule"
+    },
+    "coresecurityv1RuleBased": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/v1RuleGroup"
+        },
+        "action": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -291,34 +320,6 @@
       },
       "additionalProperties": {}
     },
-    "protobufNullValue": {
-      "type": "string",
-      "enum": [
-        "NULL_VALUE"
-      ],
-      "default": "NULL_VALUE",
-      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
-    },
-    "ruleenginev1Rule": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "description": {
-          "type": "string"
-        },
-        "condition": {
-          "$ref": "#/definitions/v1Condition",
-          "title": "@gotags: yaml:\"condition\""
-        }
-      },
-      "title": "A complete rule definition"
-    },
     "typesv1Status": {
       "type": "string",
       "enum": [
@@ -328,69 +329,11 @@
       ],
       "default": "STATUS_UNSPECIFIED"
     },
-    "v1Action": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/v1ActionType",
-          "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
-        },
-        "params": {
-          "type": "object",
-          "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
-        }
-      },
-      "title": "An action to execute when a rule matches"
-    },
-    "v1ActionType": {
-      "type": "string",
-      "enum": [
-        "ACTION_TYPE_UNSPECIFIED",
-        "ACTION_TYPE_BLOCK",
-        "ACTION_TYPE_LOG",
-        "ACTION_TYPE_MODIFY_HEADER",
-        "ACTION_TYPE_REDIRECT",
-        "ACTION_TYPE_SET_TAG",
-        "ACTION_TYPE_ROUTE_TO"
-      ],
-      "default": "ACTION_TYPE_UNSPECIFIED"
-    },
-    "v1Condition": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "title": "@gotags: yaml:\"-\""
-        },
-        "source": {
-          "$ref": "#/definitions/v1FieldSource",
-          "description": "@gotags: yaml:\"source\"",
-          "title": "The source of the field\nExample: \"User-Agent\" or \"country\""
-        },
-        "key": {
-          "type": "string",
-          "title": "@gotags: yaml:\"key\""
-        },
-        "operator": {
-          "$ref": "#/definitions/v1Operator",
-          "description": "@gotags: yaml:\"operator\"",
-          "title": "Supported operators: \"eq\", \"ne\", \"contains\",\n\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
-        },
-        "value": {
-          "description": "@gotags: yaml:\"value\"",
-          "title": "The value to compare against"
-        }
-      },
-      "title": "A logical condition expression"
-    },
     "v1CreateRuleBasedRequest": {
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+          "$ref": "#/definitions/coresecurityv1RuleBased"
         }
       }
     },
@@ -426,7 +369,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+          "$ref": "#/definitions/coresecurityv1RuleBased"
         }
       }
     },
@@ -437,7 +380,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleBased"
+            "$ref": "#/definitions/coresecurityv1RuleBased"
           }
         },
         "total": {
@@ -455,6 +398,19 @@
         "LOGIC_NOT"
       ],
       "default": "LOGIC_UNSPECIFIED"
+    },
+    "v1Metadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     },
     "v1Operator": {
       "type": "string",
@@ -491,40 +447,39 @@
         }
       }
     },
-    "v1RuleBased": {
+    "v1RuleGroup": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
-        "name": {
-          "type": "string"
+        "combinator": {
+          "$ref": "#/definitions/v1Logic"
         },
-        "description": {
-          "type": "string"
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleNode"
+          }
         },
-        "node": {
-          "$ref": "#/definitions/RuleBasedNode"
-        },
-        "action": {
-          "$ref": "#/definitions/v1Action"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+        "not": {
+          "type": "boolean"
         }
-      }
+      },
+      "title": "Group of rules"
+    },
+    "v1RuleNode": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/coresecurityv1Rule"
+        },
+        "group": {
+          "$ref": "#/definitions/v1RuleGroup"
+        }
+      },
+      "title": "Rule group item (recursive structure)"
     },
     "v1StatusResponse": {
       "type": "object",
@@ -538,7 +493,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+          "$ref": "#/definitions/coresecurityv1RuleBased"
         }
       }
     }

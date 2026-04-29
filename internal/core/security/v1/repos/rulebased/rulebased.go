@@ -158,7 +158,7 @@ func (r *RuleBased) Update(
 			model.GetDescription(),
 		)
 	}
-	if model.GetNode() != "" {
+	if model.GetNode() != nil {
 		query = query.Set(securitypb.RuleBased_Node, model.GetNode())
 	}
 
