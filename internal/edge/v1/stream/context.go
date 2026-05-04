@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
 	edgebpf "github.com/sentinez/sentinez/api/bpf/edge"
 	"github.com/sentinez/shared/zlog"
@@ -26,26 +25,23 @@ import (
 
 var (
 	once sync.Once
-	inst *Context
+	inst *context
 )
 
-func getContext() *Context {
-	return newContext()
-}
-
-func newContext() *Context {
+func newContext() *context {
 	once.Do(func() {
 		if err := setupRlimit(); err != nil {
-			zlog.Errorf("remove mem lock err=%v", err)
+			zlog.Errorf("stream: remove mem lock err=%v", err)
 			return
 		}
 
 		var objs edgebpf.EdgeObjects
 		if err := edgebpf.LoadEdgeObjects(&objs, nil); err != nil {
 			zlog.Errorf("stream: load bpf object err: %v", err)
+			return
 		}
 
-		inst = &Context{
+		inst = &context{
 			obj: &objs,
 		}
 	})
@@ -53,26 +49,18 @@ func newContext() *Context {
 	return inst
 }
 
-type Context struct {
+type context struct {
 	obj  *edgebpf.EdgeObjects
 	link link.Link
 }
 
-func (ctx *Context) Program() *ebpf.Program {
-	if ctx == nil {
-		return nil
-	}
-
-	return ctx.obj.EdgeMain
-}
-
-func (ctx *Context) AttachXDP(ifIndex int) error {
+func (ctx *context) attachXDP(ifIndex int) error {
 	if ctx == nil || ctx.obj == nil {
 		return fmt.Errorf("stream context unavailable: context is nil")
 	}
 
 	l, err := link.AttachXDP(link.XDPOptions{
-		Program:   ctx.Program(),
+		Program:   ctx.obj.EdgeMain,
 		Interface: ifIndex,
 	})
 	if err != nil {
@@ -84,7 +72,7 @@ func (ctx *Context) AttachXDP(ifIndex int) error {
 	return nil
 }
 
-func (ctx *Context) Close() error {
+func (ctx *context) close() error {
 	if ctx == nil {
 		return nil
 	}

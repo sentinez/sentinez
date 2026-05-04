@@ -19,27 +19,33 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-const networkInterface = "veth0"
+const VETH0 = "veth0"
 
-func Init() error {
+func Init(networkInterface string) error {
 	ctx := newContext()
 
 	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
-		zlog.Errorf("getting interface: %v", err)
+		zlog.Errorf("stream: getting interface: %v", err)
 		return err
 	}
 
-	if err := ctx.AttachXDP(iface.Index); err != nil {
-		zlog.Errorf("attaching XDP: %v", err)
+	if err := ctx.attachXDP(iface.Index); err != nil {
+		zlog.Errorf("stream: attaching xdp: %v", err)
 		return err
 	}
-
-	zlog.Infof("counting incoming packets on %s..", iface.Name)
 
 	return nil
 }
 
 func Close() error {
-	return getContext().Close()
+	if inst == nil {
+		return nil
+	}
+
+	return inst.close()
+}
+
+func getContext() *context {
+	return newContext()
 }

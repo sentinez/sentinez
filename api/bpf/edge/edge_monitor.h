@@ -32,15 +32,20 @@ struct {
 } ip_bandwidth SEC(".maps");
 
 static __always_inline int bandwidth_handler(struct xdp_md *ctx) {
+    // debug("monitor: bandwidth_handler");
+
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
 
     struct ethhdr *eth = data;
-    if ((void *)(eth + 1) > data_end)
+    if ((void *)(eth + 1) > data_end) {
         return XDP_PASS;
+    }
 
-    if (eth->h_proto != __constant_htons(ETH_P_IP))
+    if (eth->h_proto != __constant_htons(ETH_P_IP)) {
+        debug("ARP packet detected");
         return XDP_PASS;
+    }
 
     struct iphdr *iph = (void *)(eth + 1);
     if ((void *)(iph + 1) > data_end)
@@ -48,6 +53,8 @@ static __always_inline int bandwidth_handler(struct xdp_md *ctx) {
 
     __u32 src_ip = iph->saddr;
     __u64 pkt_len = data_end - data;
+
+    debug("monitor: bandwidth_handler: src_ip=%x", src_ip);
 
     __u64 *bytes = bpf_map_lookup_elem(&ip_bandwidth, &src_ip);
     if (bytes) {
