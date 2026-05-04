@@ -176,7 +176,7 @@ export function ResourceTable() {
         </DropdownMenu>
       </div>
       <div className="overflow-hidden rounded-md">
-        <Table className=" table-fixed w-full">
+        <Table className="table-fixed w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="max-h-fit">

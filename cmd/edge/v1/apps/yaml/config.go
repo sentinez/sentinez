@@ -62,7 +62,5 @@ func LoadSetting(appConf *confpb.Config) *edgepb.Setting {
 		zlog.Fatal(err)
 	}
 
-	zlog.Debugf("unmarshal: security: %v", setting.GetSecurity().GetRuleBased().GetAction())
-
 	return setting
 }

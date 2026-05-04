@@ -17,8 +17,7 @@ package securitysvc
 import (
 	"context"
 
-	"google.golang.org/protobuf/encoding/protojson"
-
+	"github.com/sentinez/core/rules/builder"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/security/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
@@ -45,44 +44,69 @@ type SecurityService struct {
 	ruleBasedRepo rulebased.IRuleBased
 }
 
-// mapDBToRuleBased translates the DB RuleBased into ruleengine RuleBased
-func (srv *SecurityService) mapDBToRuleBased(_ context.Context,
+// toSystemNode converts a shared RuleGroup into a system rule node.
+func (srv *SecurityService) toSystemNode(
+	group *securitypb.RuleGroup) *ruleenginepb.RuleBased_Node {
+	if group == nil {
+		return nil
+	}
+
+	var b *builder.GroupBuilder
+	switch group.GetCombinator() {
+	case ruleenginepb.Logic_LOGIC_OR:
+		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_OR)
+	case ruleenginepb.Logic_LOGIC_NOT:
+		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_NOT)
+	default:
+		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_AND)
+	}
+
+	for _, node := range group.GetRules() {
+		if node.GetGroup() != nil {
+			subNode := srv.toSystemNode(node.GetGroup())
+			if subNode != nil {
+				b.AddGroup(&ruleenginepb.RuleBased{Node: subNode})
+			}
+		} else if node.GetRule() != nil {
+			r := node.GetRule()
+			rb := builder.NewRule().WithCondition(
+				r.GetField(), r.GetOperator(), r.GetValue(), r.GetKey())
+			b.AddRule(rb.Build())
+		}
+	}
+
+	res := b.Build()
+	if group.GetNot() {
+		return builder.Not(res).Build().GetNode()
+	}
+
+	return res.GetNode()
+}
+
+// mapRuleBased converts a DB RuleBased into an API RuleBased response.
+func (srv *SecurityService) mapRuleBased(_ context.Context,
 	dbRB *securitypb.RuleBased,
-) (*ruleenginepb.RuleBased, error) {
+) *securitypb.RuleBased {
 	if dbRB == nil {
-		return nil, nil
+		return nil
 	}
 
-	var node ruleenginepb.RuleBased_Node
-	if dbRB.GetNode() != "" {
-		if err := protojson.
-			Unmarshal([]byte(dbRB.GetNode()), &node); err != nil {
-			return nil, err
-		}
-	}
-
-	var action ruleenginepb.Action
-	if dbRB.GetAction() != "" {
-		if err := protojson.
-			Unmarshal([]byte(dbRB.GetAction()), &action); err != nil {
-			return nil, err
-		}
-	}
-
-	return &ruleenginepb.RuleBased{
-		Node:        &node,
-		Action:      &action,
+	return &securitypb.RuleBased{
 		Id:          dbRB.GetId(),
 		Name:        dbRB.GetName(),
 		Description: dbRB.GetDescription(),
-		Priority:    dbRB.GetPriority(),
-		Status:      dbRB.GetStatus(),
-	}, nil
+		// This is now a RuleGroup pointer in the proto
+		Node:     dbRB.GetNode(),
+		Action:   dbRB.GetAction(),
+		Status:   dbRB.GetStatus(),
+		Priority: dbRB.GetPriority(),
+		Metadata: dbRB.GetMetadata(),
+	}
 }
 
 // ── RuleBased ────────────────────────────────────────────────────────────
 
-// nolint:funlen
+// CreateRuleBased creates a new WAF rule based
 func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 	req *securitypb.CreateRuleBasedRequest,
 ) (*securitypb.CreateRuleBasedResponse, error) {
@@ -90,36 +114,10 @@ func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
 
-	var nodeStr string
-	if req.GetRuleBased().GetNode() != nil {
-		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.GetRuleBased().GetNode())
-		if err != nil {
-			return nil, err
-		}
-		nodeStr = string(b)
-	}
+	// Validate rule structure using the builder
+	_ = srv.toSystemNode(req.GetRuleBased().GetNode())
 
-	var action string
-	if req.GetRuleBased().GetAction() != nil {
-		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.GetRuleBased().GetAction())
-		if err != nil {
-			return nil, err
-		}
-		action = string(b)
-	}
-
-	dbRB := &securitypb.RuleBased{
-		Name:        req.GetRuleBased().GetName(),
-		Description: req.GetRuleBased().GetDescription(),
-		Node:        nodeStr,
-		Action:      action,
-		Priority:    req.GetRuleBased().GetPriority(),
-		Status:      req.GetRuleBased().GetStatus(),
-	}
-
-	created, err := srv.ruleBasedRepo.Create(ctx, dbRB)
+	created, err := srv.ruleBasedRepo.Create(ctx, req.GetRuleBased())
 	if err != nil {
 		return nil, err
 	}
@@ -135,22 +133,11 @@ func (srv *SecurityService) GetRuleBased(ctx context.Context,
 		return nil, err
 	}
 
-	rb, err := srv.mapDBToRuleBased(ctx, dbRB)
-	if err != nil {
-		return nil, err
-	}
-
-	// Transfer top-level metadata from DB model to ruleenginepb structure
-	if rb != nil {
-		rb.Id = dbRB.GetId()
-		rb.Name = dbRB.GetName()
-		rb.Description = dbRB.GetDescription()
-	}
-
-	return &securitypb.GetRuleBasedResponse{RuleBased: rb}, nil
+	return &securitypb.
+		GetRuleBasedResponse{RuleBased: srv.mapRuleBased(ctx, dbRB)}, nil
 }
 
-//nolint:funlen
+// UpdateRuleBased updates an existing WAF rule based
 func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 	req *securitypb.UpdateRuleBasedRequest,
 ) (*securitypb.UpdateRuleBasedResponse, error) {
@@ -163,36 +150,22 @@ func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 		return nil, err
 	}
 
+	// Validate rule structure
+	_ = srv.toSystemNode(req.GetRuleBased().GetNode())
+
 	dbRB.Name = req.GetRuleBased().GetName()
 	dbRB.Description = req.GetRuleBased().GetDescription()
-
-	if req.GetRuleBased().GetNode() != nil {
-		b, err := protojson.MarshalOptions{EmitUnpopulated: true}.
-			Marshal(req.GetRuleBased().GetNode())
-		if err != nil {
-			return nil, err
-		}
-		dbRB.Node = string(b)
-	} else {
-		dbRB.Node = ""
-	}
+	dbRB.Node = req.GetRuleBased().GetNode()
+	dbRB.Status = req.GetRuleBased().GetStatus()
+	dbRB.Priority = req.GetRuleBased().GetPriority()
+	dbRB.Action = req.GetRuleBased().GetAction()
 
 	if err := srv.ruleBasedRepo.Update(ctx, dbRB); err != nil {
 		return nil, err
 	}
 
-	rb, err := srv.mapDBToRuleBased(ctx, dbRB)
-	if err != nil {
-		return nil, err
-	}
-
-	if rb != nil {
-		rb.Id = dbRB.GetId()
-		rb.Name = dbRB.GetName()
-		rb.Description = dbRB.GetDescription()
-	}
-
-	return &securitypb.UpdateRuleBasedResponse{RuleBased: rb}, nil
+	return &securitypb.
+		UpdateRuleBasedResponse{RuleBased: srv.mapRuleBased(ctx, dbRB)}, nil
 }
 
 func (srv *SecurityService) DeleteRuleBased(ctx context.Context,
@@ -212,18 +185,9 @@ func (srv *SecurityService) ListRuleBaseds(ctx context.Context,
 		return nil, err
 	}
 
-	var rbs []*ruleenginepb.RuleBased
+	var rbs []*securitypb.RuleBased
 	for _, dbRB := range dbRBs {
-		rb, err := srv.mapDBToRuleBased(ctx, dbRB)
-		if err != nil {
-			return nil, err
-		}
-		if rb != nil {
-			rb.Id = dbRB.GetId()
-			rb.Name = dbRB.GetName()
-			rb.Description = dbRB.GetDescription()
-			rbs = append(rbs, rb)
-		}
+		rbs = append(rbs, srv.mapRuleBased(ctx, dbRB))
 	}
 
 	return &securitypb.ListRuleBasedsResponse{

@@ -6,9 +6,81 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Expr, ExprLite, Rule } from "../../types/secure/ruleengine/v1/ruleengine";
+import { RuleBased, RuleBasedLite } from "../../types/secure/ruleengine/v1/ruleengine";
 
 export const protobufPackage = "sentinez.edge.v1";
+
+export enum BalanceStrategy {
+  BALANCE_STRATEGY_UNSPECIFIED = 0,
+  BALANCE_STRATEGY_ROUND_ROBIN = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function balanceStrategyFromJSON(object: any): BalanceStrategy {
+  switch (object) {
+    case 0:
+    case "BALANCE_STRATEGY_UNSPECIFIED":
+      return BalanceStrategy.BALANCE_STRATEGY_UNSPECIFIED;
+    case 1:
+    case "BALANCE_STRATEGY_ROUND_ROBIN":
+      return BalanceStrategy.BALANCE_STRATEGY_ROUND_ROBIN;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return BalanceStrategy.UNRECOGNIZED;
+  }
+}
+
+export function balanceStrategyToJSON(object: BalanceStrategy): string {
+  switch (object) {
+    case BalanceStrategy.BALANCE_STRATEGY_UNSPECIFIED:
+      return "BALANCE_STRATEGY_UNSPECIFIED";
+    case BalanceStrategy.BALANCE_STRATEGY_ROUND_ROBIN:
+      return "BALANCE_STRATEGY_ROUND_ROBIN";
+    case BalanceStrategy.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum ProxyProtocol {
+  PROXY_PROTOCOL_UNSPECIFIED = 0,
+  PROXY_PROTOCOL_HTTP = 1,
+  PROXY_PROTOCOL_HTTPS = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function proxyProtocolFromJSON(object: any): ProxyProtocol {
+  switch (object) {
+    case 0:
+    case "PROXY_PROTOCOL_UNSPECIFIED":
+      return ProxyProtocol.PROXY_PROTOCOL_UNSPECIFIED;
+    case 1:
+    case "PROXY_PROTOCOL_HTTP":
+      return ProxyProtocol.PROXY_PROTOCOL_HTTP;
+    case 2:
+    case "PROXY_PROTOCOL_HTTPS":
+      return ProxyProtocol.PROXY_PROTOCOL_HTTPS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ProxyProtocol.UNRECOGNIZED;
+  }
+}
+
+export function proxyProtocolToJSON(object: ProxyProtocol): string {
+  switch (object) {
+    case ProxyProtocol.PROXY_PROTOCOL_UNSPECIFIED:
+      return "PROXY_PROTOCOL_UNSPECIFIED";
+    case ProxyProtocol.PROXY_PROTOCOL_HTTP:
+      return "PROXY_PROTOCOL_HTTP";
+    case ProxyProtocol.PROXY_PROTOCOL_HTTPS:
+      return "PROXY_PROTOCOL_HTTPS";
+    case ProxyProtocol.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
 
 /** Setting edge setting per user */
 export interface Setting {
@@ -16,58 +88,65 @@ export interface Setting {
   metadata?:
     | Metadata
     | undefined;
-  /** @gotags: yaml:"origin" */
-  origin?:
-    | Origin
+  /** @gotags: yaml:"server" */
+  server?:
+    | Server
     | undefined;
   /** @gotags: yaml:"security" */
   security?:
     | Security
     | undefined;
-  /** @gotags: yaml:"trafficControl" */
-  trafficControl?:
-    | TrafficControl
+  /** @gotags: yaml:"controller" */
+  controller?:
+    | Controller
     | undefined;
   /** @gotags: yaml:"personal" */
-  personal?: Personalization | undefined;
+  personal?: Personal | undefined;
 }
 
 /** Metadata used for observability and debugging: */
 export interface Metadata {
 }
 
-/** Origin defines where the request goes and how the edge processes it: */
-export interface Origin {
-  /** @gotags: yaml:"namespace" */
-  namespace: string;
-  /** @gotags: yaml:"routes" */
-  routes: OriginRoute[];
+/** Server defines where the request goes and how the edge processes it: */
+export interface Server {
+  /** @gotags: yaml:"name" */
+  name: string;
+  /** @gotags: yaml:"listen" */
+  listen: number[];
+  /** @gotags: yaml:"locations" */
+  locations: Location[];
 }
 
-export interface OriginRoute {
-  /** @gotags: yaml:"matchPrefix" */
-  matchPrefix: string;
-  /** @gotags: yaml:"target" */
-  target: string;
-  /** @gotags: yaml:"rewrite" */
-  rewrite: string;
+export interface Location {
+  /** @gotags: yaml:"location" */
+  location: string;
+  /** @gotags: yaml:"proxyRewrite" */
+  proxyRewrite: string;
+  /** @gotags: yaml:"proxyPass" */
+  proxyPass: Upstream[];
+  /** @gotags: yaml:"balanceStrategy" */
+  balanceStrategy: BalanceStrategy;
+  /** @gotags: yaml:"proxySetHeaders" */
+  proxySetHeaders: { [key: string]: string };
+}
+
+export interface Location_ProxySetHeadersEntry {
+  key: string;
+  value: string;
 }
 
 /** Security user-specific WAF, rate limiting, or bot protection rules */
 export interface Security {
   /** @gotags: yaml:"isWafEngineOn" */
   isWafEngineOn: boolean;
-  /** @gotags: yaml:"expression" */
-  expression?:
-    | ExprLite
+  /** @gotags: yaml:"ruleBased" */
+  ruleBased?:
+    | RuleBasedLite
     | undefined;
-  /** @gotags: yaml:"rule" */
-  rule?:
-    | Rule
-    | undefined;
-  /** @gotags: yaml:"expr" */
-  expr?:
-    | Expr
+  /** @gotags: yaml:"-" */
+  ruleBasedCompiled?:
+    | RuleBased
     | undefined;
   /** @gotags: yaml:"isRateLimitOn" */
   isRateLimitOn: boolean;
@@ -79,33 +158,23 @@ export interface Security {
   timeout: string;
 }
 
-/** TrafficControl for systems using a virtual waiting room or throttling: */
-export interface TrafficControl {
+/** Controller for systems using a virtual waiting room or throttling: */
+export interface Controller {
 }
 
-/** Personalization defines where the request goes and how the edge processes it */
-export interface Personalization {
+/** Personal defines where the request goes and how the edge processes it */
+export interface Personal {
 }
 
-/** Context helps the edge identify which user is connected */
-export interface Context {
-  /**
-   * tenant_ns namespace of tenant
-   * example: dev.sentinez.test
-   *  - namespace: dev
-   *  - root: sentinez.test
-   */
-  tenantNs: string;
+export interface Upstream {
+  /** @gotags: yaml:"server" */
+  server: string;
+  /** @gotags: yaml:"protocol" */
+  protocol: ProxyProtocol;
 }
 
 function createBaseSetting(): Setting {
-  return {
-    metadata: undefined,
-    origin: undefined,
-    security: undefined,
-    trafficControl: undefined,
-    personal: undefined,
-  };
+  return { metadata: undefined, server: undefined, security: undefined, controller: undefined, personal: undefined };
 }
 
 export const Setting: MessageFns<Setting> = {
@@ -113,17 +182,17 @@ export const Setting: MessageFns<Setting> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.origin !== undefined) {
-      Origin.encode(message.origin, writer.uint32(18).fork()).join();
+    if (message.server !== undefined) {
+      Server.encode(message.server, writer.uint32(18).fork()).join();
     }
     if (message.security !== undefined) {
       Security.encode(message.security, writer.uint32(26).fork()).join();
     }
-    if (message.trafficControl !== undefined) {
-      TrafficControl.encode(message.trafficControl, writer.uint32(34).fork()).join();
+    if (message.controller !== undefined) {
+      Controller.encode(message.controller, writer.uint32(34).fork()).join();
     }
     if (message.personal !== undefined) {
-      Personalization.encode(message.personal, writer.uint32(42).fork()).join();
+      Personal.encode(message.personal, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -148,7 +217,7 @@ export const Setting: MessageFns<Setting> = {
             break;
           }
 
-          message.origin = Origin.decode(reader, reader.uint32());
+          message.server = Server.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -164,7 +233,7 @@ export const Setting: MessageFns<Setting> = {
             break;
           }
 
-          message.trafficControl = TrafficControl.decode(reader, reader.uint32());
+          message.controller = Controller.decode(reader, reader.uint32());
           continue;
         }
         case 5: {
@@ -172,7 +241,7 @@ export const Setting: MessageFns<Setting> = {
             break;
           }
 
-          message.personal = Personalization.decode(reader, reader.uint32());
+          message.personal = Personal.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -187,10 +256,10 @@ export const Setting: MessageFns<Setting> = {
   fromJSON(object: any): Setting {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      origin: isSet(object.origin) ? Origin.fromJSON(object.origin) : undefined,
+      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
       security: isSet(object.security) ? Security.fromJSON(object.security) : undefined,
-      trafficControl: isSet(object.trafficControl) ? TrafficControl.fromJSON(object.trafficControl) : undefined,
-      personal: isSet(object.personal) ? Personalization.fromJSON(object.personal) : undefined,
+      controller: isSet(object.controller) ? Controller.fromJSON(object.controller) : undefined,
+      personal: isSet(object.personal) ? Personal.fromJSON(object.personal) : undefined,
     };
   },
 
@@ -199,17 +268,17 @@ export const Setting: MessageFns<Setting> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.origin !== undefined) {
-      obj.origin = Origin.toJSON(message.origin);
+    if (message.server !== undefined) {
+      obj.server = Server.toJSON(message.server);
     }
     if (message.security !== undefined) {
       obj.security = Security.toJSON(message.security);
     }
-    if (message.trafficControl !== undefined) {
-      obj.trafficControl = TrafficControl.toJSON(message.trafficControl);
+    if (message.controller !== undefined) {
+      obj.controller = Controller.toJSON(message.controller);
     }
     if (message.personal !== undefined) {
-      obj.personal = Personalization.toJSON(message.personal);
+      obj.personal = Personal.toJSON(message.personal);
     }
     return obj;
   },
@@ -222,17 +291,17 @@ export const Setting: MessageFns<Setting> = {
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;
-    message.origin = (object.origin !== undefined && object.origin !== null)
-      ? Origin.fromPartial(object.origin)
+    message.server = (object.server !== undefined && object.server !== null)
+      ? Server.fromPartial(object.server)
       : undefined;
     message.security = (object.security !== undefined && object.security !== null)
       ? Security.fromPartial(object.security)
       : undefined;
-    message.trafficControl = (object.trafficControl !== undefined && object.trafficControl !== null)
-      ? TrafficControl.fromPartial(object.trafficControl)
+    message.controller = (object.controller !== undefined && object.controller !== null)
+      ? Controller.fromPartial(object.controller)
       : undefined;
     message.personal = (object.personal !== undefined && object.personal !== null)
-      ? Personalization.fromPartial(object.personal)
+      ? Personal.fromPartial(object.personal)
       : undefined;
     return message;
   },
@@ -281,25 +350,30 @@ export const Metadata: MessageFns<Metadata> = {
   },
 };
 
-function createBaseOrigin(): Origin {
-  return { namespace: "", routes: [] };
+function createBaseServer(): Server {
+  return { name: "", listen: [], locations: [] };
 }
 
-export const Origin: MessageFns<Origin> = {
-  encode(message: Origin, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.namespace !== "") {
-      writer.uint32(10).string(message.namespace);
+export const Server: MessageFns<Server> = {
+  encode(message: Server, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
     }
-    for (const v of message.routes) {
-      OriginRoute.encode(v!, writer.uint32(18).fork()).join();
+    writer.uint32(18).fork();
+    for (const v of message.listen) {
+      writer.uint32(v);
+    }
+    writer.join();
+    for (const v of message.locations) {
+      Location.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Origin {
+  decode(input: BinaryReader | Uint8Array, length?: number): Server {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOrigin();
+    const message = createBaseServer();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -308,15 +382,33 @@ export const Origin: MessageFns<Origin> = {
             break;
           }
 
-          message.namespace = reader.string();
+          message.name = reader.string();
           continue;
         }
         case 2: {
-          if (tag !== 18) {
+          if (tag === 16) {
+            message.listen.push(reader.uint32());
+
+            continue;
+          }
+
+          if (tag === 18) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.listen.push(reader.uint32());
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 3: {
+          if (tag !== 26) {
             break;
           }
 
-          message.routes.push(OriginRoute.decode(reader, reader.uint32()));
+          message.locations.push(Location.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -328,57 +420,70 @@ export const Origin: MessageFns<Origin> = {
     return message;
   },
 
-  fromJSON(object: any): Origin {
+  fromJSON(object: any): Server {
     return {
-      namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
-      routes: globalThis.Array.isArray(object?.routes) ? object.routes.map((e: any) => OriginRoute.fromJSON(e)) : [],
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      listen: globalThis.Array.isArray(object?.listen) ? object.listen.map((e: any) => globalThis.Number(e)) : [],
+      locations: globalThis.Array.isArray(object?.locations)
+        ? object.locations.map((e: any) => Location.fromJSON(e))
+        : [],
     };
   },
 
-  toJSON(message: Origin): unknown {
+  toJSON(message: Server): unknown {
     const obj: any = {};
-    if (message.namespace !== "") {
-      obj.namespace = message.namespace;
+    if (message.name !== "") {
+      obj.name = message.name;
     }
-    if (message.routes?.length) {
-      obj.routes = message.routes.map((e) => OriginRoute.toJSON(e));
+    if (message.listen?.length) {
+      obj.listen = message.listen.map((e) => Math.round(e));
+    }
+    if (message.locations?.length) {
+      obj.locations = message.locations.map((e) => Location.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Origin>, I>>(base?: I): Origin {
-    return Origin.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Server>, I>>(base?: I): Server {
+    return Server.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Origin>, I>>(object: I): Origin {
-    const message = createBaseOrigin();
-    message.namespace = object.namespace ?? "";
-    message.routes = object.routes?.map((e) => OriginRoute.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<Server>, I>>(object: I): Server {
+    const message = createBaseServer();
+    message.name = object.name ?? "";
+    message.listen = object.listen?.map((e) => e) || [];
+    message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     return message;
   },
 };
 
-function createBaseOriginRoute(): OriginRoute {
-  return { matchPrefix: "", target: "", rewrite: "" };
+function createBaseLocation(): Location {
+  return { location: "", proxyRewrite: "", proxyPass: [], balanceStrategy: 0, proxySetHeaders: {} };
 }
 
-export const OriginRoute: MessageFns<OriginRoute> = {
-  encode(message: OriginRoute, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.matchPrefix !== "") {
-      writer.uint32(10).string(message.matchPrefix);
+export const Location: MessageFns<Location> = {
+  encode(message: Location, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.location !== "") {
+      writer.uint32(10).string(message.location);
     }
-    if (message.target !== "") {
-      writer.uint32(18).string(message.target);
+    if (message.proxyRewrite !== "") {
+      writer.uint32(18).string(message.proxyRewrite);
     }
-    if (message.rewrite !== "") {
-      writer.uint32(26).string(message.rewrite);
+    for (const v of message.proxyPass) {
+      Upstream.encode(v!, writer.uint32(26).fork()).join();
     }
+    if (message.balanceStrategy !== 0) {
+      writer.uint32(32).int32(message.balanceStrategy);
+    }
+    Object.entries(message.proxySetHeaders).forEach(([key, value]) => {
+      Location_ProxySetHeadersEntry.encode({ key: key as any, value }, writer.uint32(42).fork()).join();
+    });
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): OriginRoute {
+  decode(input: BinaryReader | Uint8Array, length?: number): Location {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOriginRoute();
+    const message = createBaseLocation();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -387,7 +492,7 @@ export const OriginRoute: MessageFns<OriginRoute> = {
             break;
           }
 
-          message.matchPrefix = reader.string();
+          message.location = reader.string();
           continue;
         }
         case 2: {
@@ -395,7 +500,7 @@ export const OriginRoute: MessageFns<OriginRoute> = {
             break;
           }
 
-          message.target = reader.string();
+          message.proxyRewrite = reader.string();
           continue;
         }
         case 3: {
@@ -403,7 +508,26 @@ export const OriginRoute: MessageFns<OriginRoute> = {
             break;
           }
 
-          message.rewrite = reader.string();
+          message.proxyPass.push(Upstream.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.balanceStrategy = reader.int32() as any;
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          const entry5 = Location_ProxySetHeadersEntry.decode(reader, reader.uint32());
+          if (entry5.value !== undefined) {
+            message.proxySetHeaders[entry5.key] = entry5.value;
+          }
           continue;
         }
       }
@@ -415,36 +539,145 @@ export const OriginRoute: MessageFns<OriginRoute> = {
     return message;
   },
 
-  fromJSON(object: any): OriginRoute {
+  fromJSON(object: any): Location {
     return {
-      matchPrefix: isSet(object.matchPrefix) ? globalThis.String(object.matchPrefix) : "",
-      target: isSet(object.target) ? globalThis.String(object.target) : "",
-      rewrite: isSet(object.rewrite) ? globalThis.String(object.rewrite) : "",
+      location: isSet(object.location) ? globalThis.String(object.location) : "",
+      proxyRewrite: isSet(object.proxyRewrite) ? globalThis.String(object.proxyRewrite) : "",
+      proxyPass: globalThis.Array.isArray(object?.proxyPass)
+        ? object.proxyPass.map((e: any) => Upstream.fromJSON(e))
+        : [],
+      balanceStrategy: isSet(object.balanceStrategy) ? balanceStrategyFromJSON(object.balanceStrategy) : 0,
+      proxySetHeaders: isObject(object.proxySetHeaders)
+        ? Object.entries(object.proxySetHeaders).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {})
+        : {},
     };
   },
 
-  toJSON(message: OriginRoute): unknown {
+  toJSON(message: Location): unknown {
     const obj: any = {};
-    if (message.matchPrefix !== "") {
-      obj.matchPrefix = message.matchPrefix;
+    if (message.location !== "") {
+      obj.location = message.location;
     }
-    if (message.target !== "") {
-      obj.target = message.target;
+    if (message.proxyRewrite !== "") {
+      obj.proxyRewrite = message.proxyRewrite;
     }
-    if (message.rewrite !== "") {
-      obj.rewrite = message.rewrite;
+    if (message.proxyPass?.length) {
+      obj.proxyPass = message.proxyPass.map((e) => Upstream.toJSON(e));
+    }
+    if (message.balanceStrategy !== 0) {
+      obj.balanceStrategy = balanceStrategyToJSON(message.balanceStrategy);
+    }
+    if (message.proxySetHeaders) {
+      const entries = Object.entries(message.proxySetHeaders);
+      if (entries.length > 0) {
+        obj.proxySetHeaders = {};
+        entries.forEach(([k, v]) => {
+          obj.proxySetHeaders[k] = v;
+        });
+      }
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OriginRoute>, I>>(base?: I): OriginRoute {
-    return OriginRoute.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Location>, I>>(base?: I): Location {
+    return Location.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OriginRoute>, I>>(object: I): OriginRoute {
-    const message = createBaseOriginRoute();
-    message.matchPrefix = object.matchPrefix ?? "";
-    message.target = object.target ?? "";
-    message.rewrite = object.rewrite ?? "";
+  fromPartial<I extends Exact<DeepPartial<Location>, I>>(object: I): Location {
+    const message = createBaseLocation();
+    message.location = object.location ?? "";
+    message.proxyRewrite = object.proxyRewrite ?? "";
+    message.proxyPass = object.proxyPass?.map((e) => Upstream.fromPartial(e)) || [];
+    message.balanceStrategy = object.balanceStrategy ?? 0;
+    message.proxySetHeaders = Object.entries(object.proxySetHeaders ?? {}).reduce<{ [key: string]: string }>(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = globalThis.String(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBaseLocation_ProxySetHeadersEntry(): Location_ProxySetHeadersEntry {
+  return { key: "", value: "" };
+}
+
+export const Location_ProxySetHeadersEntry: MessageFns<Location_ProxySetHeadersEntry> = {
+  encode(message: Location_ProxySetHeadersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Location_ProxySetHeadersEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLocation_ProxySetHeadersEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Location_ProxySetHeadersEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: Location_ProxySetHeadersEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Location_ProxySetHeadersEntry>, I>>(base?: I): Location_ProxySetHeadersEntry {
+    return Location_ProxySetHeadersEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Location_ProxySetHeadersEntry>, I>>(
+    object: I,
+  ): Location_ProxySetHeadersEntry {
+    const message = createBaseLocation_ProxySetHeadersEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -452,9 +685,8 @@ export const OriginRoute: MessageFns<OriginRoute> = {
 function createBaseSecurity(): Security {
   return {
     isWafEngineOn: false,
-    expression: undefined,
-    rule: undefined,
-    expr: undefined,
+    ruleBased: undefined,
+    ruleBasedCompiled: undefined,
     isRateLimitOn: false,
     timeWindow: "",
     limit: 0,
@@ -467,14 +699,11 @@ export const Security: MessageFns<Security> = {
     if (message.isWafEngineOn !== false) {
       writer.uint32(8).bool(message.isWafEngineOn);
     }
-    if (message.expression !== undefined) {
-      ExprLite.encode(message.expression, writer.uint32(18).fork()).join();
+    if (message.ruleBased !== undefined) {
+      RuleBasedLite.encode(message.ruleBased, writer.uint32(18).fork()).join();
     }
-    if (message.rule !== undefined) {
-      Rule.encode(message.rule, writer.uint32(26).fork()).join();
-    }
-    if (message.expr !== undefined) {
-      Expr.encode(message.expr, writer.uint32(34).fork()).join();
+    if (message.ruleBasedCompiled !== undefined) {
+      RuleBased.encode(message.ruleBasedCompiled, writer.uint32(26).fork()).join();
     }
     if (message.isRateLimitOn !== false) {
       writer.uint32(80).bool(message.isRateLimitOn);
@@ -511,7 +740,7 @@ export const Security: MessageFns<Security> = {
             break;
           }
 
-          message.expression = ExprLite.decode(reader, reader.uint32());
+          message.ruleBased = RuleBasedLite.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -519,15 +748,7 @@ export const Security: MessageFns<Security> = {
             break;
           }
 
-          message.rule = Rule.decode(reader, reader.uint32());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.expr = Expr.decode(reader, reader.uint32());
+          message.ruleBasedCompiled = RuleBased.decode(reader, reader.uint32());
           continue;
         }
         case 10: {
@@ -574,9 +795,8 @@ export const Security: MessageFns<Security> = {
   fromJSON(object: any): Security {
     return {
       isWafEngineOn: isSet(object.isWafEngineOn) ? globalThis.Boolean(object.isWafEngineOn) : false,
-      expression: isSet(object.expression) ? ExprLite.fromJSON(object.expression) : undefined,
-      rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined,
-      expr: isSet(object.expr) ? Expr.fromJSON(object.expr) : undefined,
+      ruleBased: isSet(object.ruleBased) ? RuleBasedLite.fromJSON(object.ruleBased) : undefined,
+      ruleBasedCompiled: isSet(object.ruleBasedCompiled) ? RuleBased.fromJSON(object.ruleBasedCompiled) : undefined,
       isRateLimitOn: isSet(object.isRateLimitOn) ? globalThis.Boolean(object.isRateLimitOn) : false,
       timeWindow: isSet(object.timeWindow) ? globalThis.String(object.timeWindow) : "",
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
@@ -589,14 +809,11 @@ export const Security: MessageFns<Security> = {
     if (message.isWafEngineOn !== false) {
       obj.isWafEngineOn = message.isWafEngineOn;
     }
-    if (message.expression !== undefined) {
-      obj.expression = ExprLite.toJSON(message.expression);
+    if (message.ruleBased !== undefined) {
+      obj.ruleBased = RuleBasedLite.toJSON(message.ruleBased);
     }
-    if (message.rule !== undefined) {
-      obj.rule = Rule.toJSON(message.rule);
-    }
-    if (message.expr !== undefined) {
-      obj.expr = Expr.toJSON(message.expr);
+    if (message.ruleBasedCompiled !== undefined) {
+      obj.ruleBasedCompiled = RuleBased.toJSON(message.ruleBasedCompiled);
     }
     if (message.isRateLimitOn !== false) {
       obj.isRateLimitOn = message.isRateLimitOn;
@@ -619,11 +836,12 @@ export const Security: MessageFns<Security> = {
   fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
     message.isWafEngineOn = object.isWafEngineOn ?? false;
-    message.expression = (object.expression !== undefined && object.expression !== null)
-      ? ExprLite.fromPartial(object.expression)
+    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
+      ? RuleBasedLite.fromPartial(object.ruleBased)
       : undefined;
-    message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
-    message.expr = (object.expr !== undefined && object.expr !== null) ? Expr.fromPartial(object.expr) : undefined;
+    message.ruleBasedCompiled = (object.ruleBasedCompiled !== undefined && object.ruleBasedCompiled !== null)
+      ? RuleBased.fromPartial(object.ruleBasedCompiled)
+      : undefined;
     message.isRateLimitOn = object.isRateLimitOn ?? false;
     message.timeWindow = object.timeWindow ?? "";
     message.limit = object.limit ?? 0;
@@ -632,19 +850,19 @@ export const Security: MessageFns<Security> = {
   },
 };
 
-function createBaseTrafficControl(): TrafficControl {
+function createBaseController(): Controller {
   return {};
 }
 
-export const TrafficControl: MessageFns<TrafficControl> = {
-  encode(_: TrafficControl, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Controller: MessageFns<Controller> = {
+  encode(_: Controller, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): TrafficControl {
+  decode(input: BinaryReader | Uint8Array, length?: number): Controller {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseTrafficControl();
+    const message = createBaseController();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -657,37 +875,37 @@ export const TrafficControl: MessageFns<TrafficControl> = {
     return message;
   },
 
-  fromJSON(_: any): TrafficControl {
+  fromJSON(_: any): Controller {
     return {};
   },
 
-  toJSON(_: TrafficControl): unknown {
+  toJSON(_: Controller): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TrafficControl>, I>>(base?: I): TrafficControl {
-    return TrafficControl.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Controller>, I>>(base?: I): Controller {
+    return Controller.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TrafficControl>, I>>(_: I): TrafficControl {
-    const message = createBaseTrafficControl();
+  fromPartial<I extends Exact<DeepPartial<Controller>, I>>(_: I): Controller {
+    const message = createBaseController();
     return message;
   },
 };
 
-function createBasePersonalization(): Personalization {
+function createBasePersonal(): Personal {
   return {};
 }
 
-export const Personalization: MessageFns<Personalization> = {
-  encode(_: Personalization, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Personal: MessageFns<Personal> = {
+  encode(_: Personal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Personalization {
+  decode(input: BinaryReader | Uint8Array, length?: number): Personal {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePersonalization();
+    const message = createBasePersonal();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -700,40 +918,43 @@ export const Personalization: MessageFns<Personalization> = {
     return message;
   },
 
-  fromJSON(_: any): Personalization {
+  fromJSON(_: any): Personal {
     return {};
   },
 
-  toJSON(_: Personalization): unknown {
+  toJSON(_: Personal): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Personalization>, I>>(base?: I): Personalization {
-    return Personalization.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Personal>, I>>(base?: I): Personal {
+    return Personal.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Personalization>, I>>(_: I): Personalization {
-    const message = createBasePersonalization();
+  fromPartial<I extends Exact<DeepPartial<Personal>, I>>(_: I): Personal {
+    const message = createBasePersonal();
     return message;
   },
 };
 
-function createBaseContext(): Context {
-  return { tenantNs: "" };
+function createBaseUpstream(): Upstream {
+  return { server: "", protocol: 0 };
 }
 
-export const Context: MessageFns<Context> = {
-  encode(message: Context, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.tenantNs !== "") {
-      writer.uint32(10).string(message.tenantNs);
+export const Upstream: MessageFns<Upstream> = {
+  encode(message: Upstream, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.server !== "") {
+      writer.uint32(10).string(message.server);
+    }
+    if (message.protocol !== 0) {
+      writer.uint32(16).int32(message.protocol);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Context {
+  decode(input: BinaryReader | Uint8Array, length?: number): Upstream {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseContext();
+    const message = createBaseUpstream();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -742,7 +963,15 @@ export const Context: MessageFns<Context> = {
             break;
           }
 
-          message.tenantNs = reader.string();
+          message.server = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.protocol = reader.int32() as any;
           continue;
         }
       }
@@ -754,24 +983,31 @@ export const Context: MessageFns<Context> = {
     return message;
   },
 
-  fromJSON(object: any): Context {
-    return { tenantNs: isSet(object.tenantNs) ? globalThis.String(object.tenantNs) : "" };
+  fromJSON(object: any): Upstream {
+    return {
+      server: isSet(object.server) ? globalThis.String(object.server) : "",
+      protocol: isSet(object.protocol) ? proxyProtocolFromJSON(object.protocol) : 0,
+    };
   },
 
-  toJSON(message: Context): unknown {
+  toJSON(message: Upstream): unknown {
     const obj: any = {};
-    if (message.tenantNs !== "") {
-      obj.tenantNs = message.tenantNs;
+    if (message.server !== "") {
+      obj.server = message.server;
+    }
+    if (message.protocol !== 0) {
+      obj.protocol = proxyProtocolToJSON(message.protocol);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Context>, I>>(base?: I): Context {
-    return Context.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Upstream>, I>>(base?: I): Upstream {
+    return Upstream.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Context>, I>>(object: I): Context {
-    const message = createBaseContext();
-    message.tenantNs = object.tenantNs ?? "";
+  fromPartial<I extends Exact<DeepPartial<Upstream>, I>>(object: I): Upstream {
+    const message = createBaseUpstream();
+    message.server = object.server ?? "";
+    message.protocol = object.protocol ?? 0;
     return message;
   },
 };
@@ -797,6 +1033,10 @@ function longToNumber(int64: { toString(): string }): number {
     throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

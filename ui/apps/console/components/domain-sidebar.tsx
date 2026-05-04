@@ -82,12 +82,12 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
 
   React.useEffect(() => {
     for (const [index, item] of navMain.entries()) {
-      if (pathname.startsWith(item.url)) {
+      const matchedChild = item.items?.find((subItem: any) => pathname.startsWith(subItem.url));
+      if (pathname.startsWith(item.url) || matchedChild) {
         setActiveItem(item);
         setNavIndex(index);
         setChildItems(item.items);
 
-        const matchedChild = item.items?.find((subItem: any) => pathname.startsWith(subItem.url));
         if (matchedChild) {
           const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
           setTabIndex(subIndex);

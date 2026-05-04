@@ -25,7 +25,7 @@
 SEC("xdp")
 int edge_main(struct xdp_md *ctx)
 {
-    enum xdp_action action = count_packets_handler();
+    enum xdp_action action = bandwidth_handler(ctx);
     if (action != XDP_PASS) {
         return action;
     }

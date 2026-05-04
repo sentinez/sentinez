@@ -68,8 +68,8 @@ type EdgeProgramSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type EdgeMapSpecs struct {
-	Blocklist *ebpf.MapSpec `ebpf:"blocklist"`
-	PktCount  *ebpf.MapSpec `ebpf:"pkt_count"`
+	Blocklist   *ebpf.MapSpec `ebpf:"blocklist"`
+	IpBandwidth *ebpf.MapSpec `ebpf:"ip_bandwidth"`
 }
 
 // EdgeVariableSpecs contains global variables before they are loaded into the kernel.
@@ -98,14 +98,14 @@ func (o *EdgeObjects) Close() error {
 //
 // It can be passed to LoadEdgeObjects or ebpf.CollectionSpec.LoadAndAssign.
 type EdgeMaps struct {
-	Blocklist *ebpf.Map `ebpf:"blocklist"`
-	PktCount  *ebpf.Map `ebpf:"pkt_count"`
+	Blocklist   *ebpf.Map `ebpf:"blocklist"`
+	IpBandwidth *ebpf.Map `ebpf:"ip_bandwidth"`
 }
 
 func (m *EdgeMaps) Close() error {
 	return _EdgeClose(
 		m.Blocklist,
-		m.PktCount,
+		m.IpBandwidth,
 	)
 }
 

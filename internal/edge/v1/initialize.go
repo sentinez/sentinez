@@ -26,7 +26,7 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 	// init cache repository
 	mem.LoadConfiguration(s.setting, appConf)
 
-	if err := stream.Init(); err != nil {
+	if err := stream.Init(stream.VETH0); err != nil {
 		zlog.Errorf("failed to initialize stream: %v", err)
 	}
 

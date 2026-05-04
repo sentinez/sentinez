@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tables
-
-const (
-	IAMUsers    = "iam.users"
-	IAMAccounts = "iam.accounts"
-)
-
-const (
-	TenantResources = "tenant.resources"
-)
-
-const (
-	AnalyticActivities = "analytic.activities"
-)
-
-const (
-	SecurityRuleBaseds = "security.rule_baseds"
-)
+package security

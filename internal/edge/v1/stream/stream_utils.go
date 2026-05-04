@@ -13,3 +13,17 @@
 // limitations under the License.
 
 package stream
+
+import (
+	"fmt"
+
+	edgebpf "github.com/sentinez/sentinez/api/bpf/edge"
+)
+
+func Lookup[T any](fn func(*edgebpf.EdgeObjects) (T, error)) (T, error) {
+	if inst == nil || inst.obj == nil {
+		return *new(T), fmt.Errorf("stream: context is nil or uninitialized")
+	}
+
+	return fn(inst.obj)
+}

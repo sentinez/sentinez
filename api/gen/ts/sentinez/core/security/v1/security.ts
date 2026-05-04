@@ -6,15 +6,97 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Rule } from "../../../types/secure/ruleengine/v1/ruleengine";
+import { FieldMask } from "../../../../google/protobuf/field_mask";
+import { Pages } from "../../../types/v1/model";
+import { RuleBased } from "./model";
+import { RuleGroup } from "./shared";
 
 export const protobufPackage = "sentinez.core.security.v1";
 
 export interface CreateRuleBasedRequest {
-  rule?: Rule | undefined;
+  ruleBased?: RuleBased | undefined;
 }
 
 export interface CreateRuleBasedResponse {
+  id: string;
+}
+
+export interface GetRuleBasedRequest {
+  id: string;
+}
+
+export interface GetRuleBasedResponse {
+  ruleBased?: RuleBased | undefined;
+}
+
+export interface UpdateRuleBasedRequest {
+  id: string;
+  ruleBased?: RuleBased | undefined;
+  updateMask?: string[] | undefined;
+}
+
+export interface UpdateRuleBasedResponse {
+  ruleBased?: RuleBased | undefined;
+}
+
+export interface DeleteRuleBasedRequest {
+  id: string;
+}
+
+export interface DeleteRuleBasedResponse {
+}
+
+export interface ListRuleBasedsRequest {
+  page?: Pages | undefined;
+  ids: string[];
+}
+
+export interface ListRuleBasedsResponse {
+  ruleBaseds: RuleBased[];
+  total: number;
+}
+
+export interface CreateRuleRequest {
+  rule?: RuleGroup | undefined;
+}
+
+export interface CreateRuleResponse {
+  id: string;
+}
+
+export interface GetRuleRequest {
+  id: string;
+}
+
+export interface GetRuleResponse {
+  rule?: RuleGroup | undefined;
+}
+
+export interface UpdateRuleRequest {
+  id: string;
+  rule?: RuleGroup | undefined;
+  updateMask?: string[] | undefined;
+}
+
+export interface UpdateRuleResponse {
+  rule?: RuleGroup | undefined;
+}
+
+export interface DeleteRuleRequest {
+  id: string;
+}
+
+export interface DeleteRuleResponse {
+}
+
+export interface ListRulesRequest {
+  page?: Pages | undefined;
+  ids: string[];
+}
+
+export interface ListRulesResponse {
+  rules: RuleGroup[];
+  total: number;
 }
 
 export interface StatusRequest {
@@ -25,13 +107,13 @@ export interface StatusResponse {
 }
 
 function createBaseCreateRuleBasedRequest(): CreateRuleBasedRequest {
-  return { rule: undefined };
+  return { ruleBased: undefined };
 }
 
 export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
   encode(message: CreateRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rule !== undefined) {
-      Rule.encode(message.rule, writer.uint32(10).fork()).join();
+    if (message.ruleBased !== undefined) {
+      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -48,7 +130,7 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
             break;
           }
 
-          message.rule = Rule.decode(reader, reader.uint32());
+          message.ruleBased = RuleBased.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -61,13 +143,13 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
   },
 
   fromJSON(object: any): CreateRuleBasedRequest {
-    return { rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined };
+    return { ruleBased: isSet(object.ruleBased) ? RuleBased.fromJSON(object.ruleBased) : undefined };
   },
 
   toJSON(message: CreateRuleBasedRequest): unknown {
     const obj: any = {};
-    if (message.rule !== undefined) {
-      obj.rule = Rule.toJSON(message.rule);
+    if (message.ruleBased !== undefined) {
+      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
     }
     return obj;
   },
@@ -77,17 +159,22 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateRuleBasedRequest>, I>>(object: I): CreateRuleBasedRequest {
     const message = createBaseCreateRuleBasedRequest();
-    message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
+    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
+      ? RuleBased.fromPartial(object.ruleBased)
+      : undefined;
     return message;
   },
 };
 
 function createBaseCreateRuleBasedResponse(): CreateRuleBasedResponse {
-  return {};
+  return { id: "" };
 }
 
 export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
-  encode(_: CreateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: CreateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
     return writer;
   },
 
@@ -95,6 +182,391 @@ export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateRuleBasedResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateRuleBasedResponse {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: CreateRuleBasedResponse): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(base?: I): CreateRuleBasedResponse {
+    return CreateRuleBasedResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(object: I): CreateRuleBasedResponse {
+    const message = createBaseCreateRuleBasedResponse();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRuleBasedRequest(): GetRuleBasedRequest {
+  return { id: "" };
+}
+
+export const GetRuleBasedRequest: MessageFns<GetRuleBasedRequest> = {
+  encode(message: GetRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleBasedRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetRuleBasedRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRuleBasedRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetRuleBasedRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRuleBasedRequest>, I>>(base?: I): GetRuleBasedRequest {
+    return GetRuleBasedRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRuleBasedRequest>, I>>(object: I): GetRuleBasedRequest {
+    const message = createBaseGetRuleBasedRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRuleBasedResponse(): GetRuleBasedResponse {
+  return { ruleBased: undefined };
+}
+
+export const GetRuleBasedResponse: MessageFns<GetRuleBasedResponse> = {
+  encode(message: GetRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ruleBased !== undefined) {
+      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleBasedResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetRuleBasedResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ruleBased = RuleBased.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRuleBasedResponse {
+    return { ruleBased: isSet(object.ruleBased) ? RuleBased.fromJSON(object.ruleBased) : undefined };
+  },
+
+  toJSON(message: GetRuleBasedResponse): unknown {
+    const obj: any = {};
+    if (message.ruleBased !== undefined) {
+      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRuleBasedResponse>, I>>(base?: I): GetRuleBasedResponse {
+    return GetRuleBasedResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRuleBasedResponse>, I>>(object: I): GetRuleBasedResponse {
+    const message = createBaseGetRuleBasedResponse();
+    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
+      ? RuleBased.fromPartial(object.ruleBased)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRuleBasedRequest(): UpdateRuleBasedRequest {
+  return { id: "", ruleBased: undefined, updateMask: undefined };
+}
+
+export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
+  encode(message: UpdateRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.ruleBased !== undefined) {
+      RuleBased.encode(message.ruleBased, writer.uint32(18).fork()).join();
+    }
+    if (message.updateMask !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleBasedRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateRuleBasedRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.ruleBased = RuleBased.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateRuleBasedRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      ruleBased: isSet(object.ruleBased) ? RuleBased.fromJSON(object.ruleBased) : undefined,
+      updateMask: isSet(object.updateMask) ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask)) : undefined,
+    };
+  },
+
+  toJSON(message: UpdateRuleBasedRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.ruleBased !== undefined) {
+      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    }
+    if (message.updateMask !== undefined) {
+      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRuleBasedRequest>, I>>(base?: I): UpdateRuleBasedRequest {
+    return UpdateRuleBasedRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRuleBasedRequest>, I>>(object: I): UpdateRuleBasedRequest {
+    const message = createBaseUpdateRuleBasedRequest();
+    message.id = object.id ?? "";
+    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
+      ? RuleBased.fromPartial(object.ruleBased)
+      : undefined;
+    message.updateMask = object.updateMask ?? undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRuleBasedResponse(): UpdateRuleBasedResponse {
+  return { ruleBased: undefined };
+}
+
+export const UpdateRuleBasedResponse: MessageFns<UpdateRuleBasedResponse> = {
+  encode(message: UpdateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ruleBased !== undefined) {
+      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleBasedResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateRuleBasedResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ruleBased = RuleBased.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateRuleBasedResponse {
+    return { ruleBased: isSet(object.ruleBased) ? RuleBased.fromJSON(object.ruleBased) : undefined };
+  },
+
+  toJSON(message: UpdateRuleBasedResponse): unknown {
+    const obj: any = {};
+    if (message.ruleBased !== undefined) {
+      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRuleBasedResponse>, I>>(base?: I): UpdateRuleBasedResponse {
+    return UpdateRuleBasedResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRuleBasedResponse>, I>>(object: I): UpdateRuleBasedResponse {
+    const message = createBaseUpdateRuleBasedResponse();
+    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
+      ? RuleBased.fromPartial(object.ruleBased)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteRuleBasedRequest(): DeleteRuleBasedRequest {
+  return { id: "" };
+}
+
+export const DeleteRuleBasedRequest: MessageFns<DeleteRuleBasedRequest> = {
+  encode(message: DeleteRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleBasedRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteRuleBasedRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeleteRuleBasedRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteRuleBasedRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteRuleBasedRequest>, I>>(base?: I): DeleteRuleBasedRequest {
+    return DeleteRuleBasedRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteRuleBasedRequest>, I>>(object: I): DeleteRuleBasedRequest {
+    const message = createBaseDeleteRuleBasedRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteRuleBasedResponse(): DeleteRuleBasedResponse {
+  return {};
+}
+
+export const DeleteRuleBasedResponse: MessageFns<DeleteRuleBasedResponse> = {
+  encode(_: DeleteRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleBasedResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteRuleBasedResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -107,20 +579,809 @@ export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
     return message;
   },
 
-  fromJSON(_: any): CreateRuleBasedResponse {
+  fromJSON(_: any): DeleteRuleBasedResponse {
     return {};
   },
 
-  toJSON(_: CreateRuleBasedResponse): unknown {
+  toJSON(_: DeleteRuleBasedResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(base?: I): CreateRuleBasedResponse {
-    return CreateRuleBasedResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteRuleBasedResponse>, I>>(base?: I): DeleteRuleBasedResponse {
+    return DeleteRuleBasedResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(_: I): CreateRuleBasedResponse {
-    const message = createBaseCreateRuleBasedResponse();
+  fromPartial<I extends Exact<DeepPartial<DeleteRuleBasedResponse>, I>>(_: I): DeleteRuleBasedResponse {
+    const message = createBaseDeleteRuleBasedResponse();
+    return message;
+  },
+};
+
+function createBaseListRuleBasedsRequest(): ListRuleBasedsRequest {
+  return { page: undefined, ids: [] };
+}
+
+export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
+  encode(message: ListRuleBasedsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.ids) {
+      writer.uint32(82).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleBasedsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListRuleBasedsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.page = Pages.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.ids.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListRuleBasedsRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: ListRuleBasedsRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRuleBasedsRequest>, I>>(base?: I): ListRuleBasedsRequest {
+    return ListRuleBasedsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRuleBasedsRequest>, I>>(object: I): ListRuleBasedsRequest {
+    const message = createBaseListRuleBasedsRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.ids = object.ids?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseListRuleBasedsResponse(): ListRuleBasedsResponse {
+  return { ruleBaseds: [], total: 0 };
+}
+
+export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
+  encode(message: ListRuleBasedsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.ruleBaseds) {
+      RuleBased.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleBasedsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListRuleBasedsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ruleBaseds.push(RuleBased.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListRuleBasedsResponse {
+    return {
+      ruleBaseds: globalThis.Array.isArray(object?.ruleBaseds)
+        ? object.ruleBaseds.map((e: any) => RuleBased.fromJSON(e))
+        : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: ListRuleBasedsResponse): unknown {
+    const obj: any = {};
+    if (message.ruleBaseds?.length) {
+      obj.ruleBaseds = message.ruleBaseds.map((e) => RuleBased.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRuleBasedsResponse>, I>>(base?: I): ListRuleBasedsResponse {
+    return ListRuleBasedsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRuleBasedsResponse>, I>>(object: I): ListRuleBasedsResponse {
+    const message = createBaseListRuleBasedsResponse();
+    message.ruleBaseds = object.ruleBaseds?.map((e) => RuleBased.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
+    return message;
+  },
+};
+
+function createBaseCreateRuleRequest(): CreateRuleRequest {
+  return { rule: undefined };
+}
+
+export const CreateRuleRequest: MessageFns<CreateRuleRequest> = {
+  encode(message: CreateRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rule !== undefined) {
+      RuleGroup.encode(message.rule, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateRuleRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rule = RuleGroup.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateRuleRequest {
+    return { rule: isSet(object.rule) ? RuleGroup.fromJSON(object.rule) : undefined };
+  },
+
+  toJSON(message: CreateRuleRequest): unknown {
+    const obj: any = {};
+    if (message.rule !== undefined) {
+      obj.rule = RuleGroup.toJSON(message.rule);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(base?: I): CreateRuleRequest {
+    return CreateRuleRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRuleRequest>, I>>(object: I): CreateRuleRequest {
+    const message = createBaseCreateRuleRequest();
+    message.rule = (object.rule !== undefined && object.rule !== null) ? RuleGroup.fromPartial(object.rule) : undefined;
+    return message;
+  },
+};
+
+function createBaseCreateRuleResponse(): CreateRuleResponse {
+  return { id: "" };
+}
+
+export const CreateRuleResponse: MessageFns<CreateRuleResponse> = {
+  encode(message: CreateRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateRuleResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CreateRuleResponse {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: CreateRuleResponse): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(base?: I): CreateRuleResponse {
+    return CreateRuleResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRuleResponse>, I>>(object: I): CreateRuleResponse {
+    const message = createBaseCreateRuleResponse();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRuleRequest(): GetRuleRequest {
+  return { id: "" };
+}
+
+export const GetRuleRequest: MessageFns<GetRuleRequest> = {
+  encode(message: GetRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetRuleRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRuleRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetRuleRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRuleRequest>, I>>(base?: I): GetRuleRequest {
+    return GetRuleRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRuleRequest>, I>>(object: I): GetRuleRequest {
+    const message = createBaseGetRuleRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRuleResponse(): GetRuleResponse {
+  return { rule: undefined };
+}
+
+export const GetRuleResponse: MessageFns<GetRuleResponse> = {
+  encode(message: GetRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rule !== undefined) {
+      RuleGroup.encode(message.rule, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetRuleResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rule = RuleGroup.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRuleResponse {
+    return { rule: isSet(object.rule) ? RuleGroup.fromJSON(object.rule) : undefined };
+  },
+
+  toJSON(message: GetRuleResponse): unknown {
+    const obj: any = {};
+    if (message.rule !== undefined) {
+      obj.rule = RuleGroup.toJSON(message.rule);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRuleResponse>, I>>(base?: I): GetRuleResponse {
+    return GetRuleResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRuleResponse>, I>>(object: I): GetRuleResponse {
+    const message = createBaseGetRuleResponse();
+    message.rule = (object.rule !== undefined && object.rule !== null) ? RuleGroup.fromPartial(object.rule) : undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRuleRequest(): UpdateRuleRequest {
+  return { id: "", rule: undefined, updateMask: undefined };
+}
+
+export const UpdateRuleRequest: MessageFns<UpdateRuleRequest> = {
+  encode(message: UpdateRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.rule !== undefined) {
+      RuleGroup.encode(message.rule, writer.uint32(18).fork()).join();
+    }
+    if (message.updateMask !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateRuleRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.rule = RuleGroup.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateRuleRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      rule: isSet(object.rule) ? RuleGroup.fromJSON(object.rule) : undefined,
+      updateMask: isSet(object.updateMask) ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask)) : undefined,
+    };
+  },
+
+  toJSON(message: UpdateRuleRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.rule !== undefined) {
+      obj.rule = RuleGroup.toJSON(message.rule);
+    }
+    if (message.updateMask !== undefined) {
+      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRuleRequest>, I>>(base?: I): UpdateRuleRequest {
+    return UpdateRuleRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRuleRequest>, I>>(object: I): UpdateRuleRequest {
+    const message = createBaseUpdateRuleRequest();
+    message.id = object.id ?? "";
+    message.rule = (object.rule !== undefined && object.rule !== null) ? RuleGroup.fromPartial(object.rule) : undefined;
+    message.updateMask = object.updateMask ?? undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRuleResponse(): UpdateRuleResponse {
+  return { rule: undefined };
+}
+
+export const UpdateRuleResponse: MessageFns<UpdateRuleResponse> = {
+  encode(message: UpdateRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rule !== undefined) {
+      RuleGroup.encode(message.rule, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateRuleResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rule = RuleGroup.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateRuleResponse {
+    return { rule: isSet(object.rule) ? RuleGroup.fromJSON(object.rule) : undefined };
+  },
+
+  toJSON(message: UpdateRuleResponse): unknown {
+    const obj: any = {};
+    if (message.rule !== undefined) {
+      obj.rule = RuleGroup.toJSON(message.rule);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRuleResponse>, I>>(base?: I): UpdateRuleResponse {
+    return UpdateRuleResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRuleResponse>, I>>(object: I): UpdateRuleResponse {
+    const message = createBaseUpdateRuleResponse();
+    message.rule = (object.rule !== undefined && object.rule !== null) ? RuleGroup.fromPartial(object.rule) : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteRuleRequest(): DeleteRuleRequest {
+  return { id: "" };
+}
+
+export const DeleteRuleRequest: MessageFns<DeleteRuleRequest> = {
+  encode(message: DeleteRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteRuleRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeleteRuleRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteRuleRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteRuleRequest>, I>>(base?: I): DeleteRuleRequest {
+    return DeleteRuleRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteRuleRequest>, I>>(object: I): DeleteRuleRequest {
+    const message = createBaseDeleteRuleRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteRuleResponse(): DeleteRuleResponse {
+  return {};
+}
+
+export const DeleteRuleResponse: MessageFns<DeleteRuleResponse> = {
+  encode(_: DeleteRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteRuleResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): DeleteRuleResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteRuleResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteRuleResponse>, I>>(base?: I): DeleteRuleResponse {
+    return DeleteRuleResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteRuleResponse>, I>>(_: I): DeleteRuleResponse {
+    const message = createBaseDeleteRuleResponse();
+    return message;
+  },
+};
+
+function createBaseListRulesRequest(): ListRulesRequest {
+  return { page: undefined, ids: [] };
+}
+
+export const ListRulesRequest: MessageFns<ListRulesRequest> = {
+  encode(message: ListRulesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.ids) {
+      writer.uint32(82).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListRulesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.page = Pages.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.ids.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListRulesRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: ListRulesRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRulesRequest>, I>>(base?: I): ListRulesRequest {
+    return ListRulesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRulesRequest>, I>>(object: I): ListRulesRequest {
+    const message = createBaseListRulesRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.ids = object.ids?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseListRulesResponse(): ListRulesResponse {
+  return { rules: [], total: 0 };
+}
+
+export const ListRulesResponse: MessageFns<ListRulesResponse> = {
+  encode(message: ListRulesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      RuleGroup.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListRulesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rules.push(RuleGroup.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListRulesResponse {
+    return {
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleGroup.fromJSON(e)) : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: ListRulesResponse): unknown {
+    const obj: any = {};
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => RuleGroup.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRulesResponse>, I>>(base?: I): ListRulesResponse {
+    return ListRulesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRulesResponse>, I>>(object: I): ListRulesResponse {
+    const message = createBaseListRulesResponse();
+    message.rules = object.rules?.map((e) => RuleGroup.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
     return message;
   },
 };
@@ -237,6 +1498,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

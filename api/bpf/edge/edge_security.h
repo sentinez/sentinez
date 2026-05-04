@@ -40,7 +40,7 @@ struct {
 } blocklist SEC(".maps");
 
 static __always_inline int security_rule_handler(struct xdp_md *ctx) {
-    debug("security rule");
+    // debug("security rule");
 
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
@@ -60,6 +60,7 @@ static __always_inline int security_rule_handler(struct xdp_md *ctx) {
         return XDP_ABORTED;
 
     __u32 src_ip = iph->saddr; // network byte order
+    // debug("security_rule_handler: src_ip=%x", src_ip);
 
     // --- CHECK BLOCKLIST ---
     struct ip_lpm_key key = {

@@ -14,10 +14,14 @@ export interface Account {
   metadata?: Metadata | undefined;
   id: string;
   userId: string;
+  /** username only support for local provider */
   username: string;
-  password: string;
+  /** password_hash only support for local provider */
+  passwordHash: string;
   email: string;
   credentials: string[];
+  provider: string;
+  providerUserId: string;
 }
 
 export interface AccountResponse {
@@ -26,18 +30,29 @@ export interface AccountResponse {
   userId: string;
   username: string;
   email: string;
+  provider: string;
 }
 
 export interface User {
   metadata?: Metadata | undefined;
   id: string;
   fullName: string;
-  email: string;
+  emailBackup: string;
   phoneNumber: string;
 }
 
 function createBaseAccount(): Account {
-  return { metadata: undefined, id: "", userId: "", username: "", password: "", email: "", credentials: [] };
+  return {
+    metadata: undefined,
+    id: "",
+    userId: "",
+    username: "",
+    passwordHash: "",
+    email: "",
+    credentials: [],
+    provider: "",
+    providerUserId: "",
+  };
 }
 
 export const Account: MessageFns<Account> = {
@@ -54,14 +69,20 @@ export const Account: MessageFns<Account> = {
     if (message.username !== "") {
       writer.uint32(82).string(message.username);
     }
-    if (message.password !== "") {
-      writer.uint32(90).string(message.password);
+    if (message.passwordHash !== "") {
+      writer.uint32(90).string(message.passwordHash);
     }
     if (message.email !== "") {
       writer.uint32(98).string(message.email);
     }
     for (const v of message.credentials) {
       writer.uint32(162).string(v!);
+    }
+    if (message.provider !== "") {
+      writer.uint32(170).string(message.provider);
+    }
+    if (message.providerUserId !== "") {
+      writer.uint32(178).string(message.providerUserId);
     }
     return writer;
   },
@@ -110,7 +131,7 @@ export const Account: MessageFns<Account> = {
             break;
           }
 
-          message.password = reader.string();
+          message.passwordHash = reader.string();
           continue;
         }
         case 12: {
@@ -129,6 +150,22 @@ export const Account: MessageFns<Account> = {
           message.credentials.push(reader.string());
           continue;
         }
+        case 21: {
+          if (tag !== 170) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
+        case 22: {
+          if (tag !== 178) {
+            break;
+          }
+
+          message.providerUserId = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -144,11 +181,13 @@ export const Account: MessageFns<Account> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
-      password: isSet(object.password) ? globalThis.String(object.password) : "",
+      passwordHash: isSet(object.passwordHash) ? globalThis.String(object.passwordHash) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       credentials: globalThis.Array.isArray(object?.credentials)
         ? object.credentials.map((e: any) => globalThis.String(e))
         : [],
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      providerUserId: isSet(object.providerUserId) ? globalThis.String(object.providerUserId) : "",
     };
   },
 
@@ -166,14 +205,20 @@ export const Account: MessageFns<Account> = {
     if (message.username !== "") {
       obj.username = message.username;
     }
-    if (message.password !== "") {
-      obj.password = message.password;
+    if (message.passwordHash !== "") {
+      obj.passwordHash = message.passwordHash;
     }
     if (message.email !== "") {
       obj.email = message.email;
     }
     if (message.credentials?.length) {
       obj.credentials = message.credentials;
+    }
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    if (message.providerUserId !== "") {
+      obj.providerUserId = message.providerUserId;
     }
     return obj;
   },
@@ -189,15 +234,17 @@ export const Account: MessageFns<Account> = {
     message.id = object.id ?? "";
     message.userId = object.userId ?? "";
     message.username = object.username ?? "";
-    message.password = object.password ?? "";
+    message.passwordHash = object.passwordHash ?? "";
     message.email = object.email ?? "";
     message.credentials = object.credentials?.map((e) => e) || [];
+    message.provider = object.provider ?? "";
+    message.providerUserId = object.providerUserId ?? "";
     return message;
   },
 };
 
 function createBaseAccountResponse(): AccountResponse {
-  return { metadata: undefined, id: "", userId: "", username: "", email: "" };
+  return { metadata: undefined, id: "", userId: "", username: "", email: "", provider: "" };
 }
 
 export const AccountResponse: MessageFns<AccountResponse> = {
@@ -216,6 +263,9 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     }
     if (message.email !== "") {
       writer.uint32(90).string(message.email);
+    }
+    if (message.provider !== "") {
+      writer.uint32(98).string(message.provider);
     }
     return writer;
   },
@@ -267,6 +317,14 @@ export const AccountResponse: MessageFns<AccountResponse> = {
           message.email = reader.string();
           continue;
         }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.provider = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -283,6 +341,7 @@ export const AccountResponse: MessageFns<AccountResponse> = {
       userId: isSet(object.userId) ? globalThis.String(object.userId) : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
     };
   },
 
@@ -303,6 +362,9 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
     return obj;
   },
 
@@ -318,12 +380,13 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     message.userId = object.userId ?? "";
     message.username = object.username ?? "";
     message.email = object.email ?? "";
+    message.provider = object.provider ?? "";
     return message;
   },
 };
 
 function createBaseUser(): User {
-  return { metadata: undefined, id: "", fullName: "", email: "", phoneNumber: "" };
+  return { metadata: undefined, id: "", fullName: "", emailBackup: "", phoneNumber: "" };
 }
 
 export const User: MessageFns<User> = {
@@ -337,8 +400,8 @@ export const User: MessageFns<User> = {
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
     }
-    if (message.email !== "") {
-      writer.uint32(90).string(message.email);
+    if (message.emailBackup !== "") {
+      writer.uint32(90).string(message.emailBackup);
     }
     if (message.phoneNumber !== "") {
       writer.uint32(98).string(message.phoneNumber);
@@ -382,7 +445,7 @@ export const User: MessageFns<User> = {
             break;
           }
 
-          message.email = reader.string();
+          message.emailBackup = reader.string();
           continue;
         }
         case 12: {
@@ -407,7 +470,7 @@ export const User: MessageFns<User> = {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       fullName: isSet(object.fullName) ? globalThis.String(object.fullName) : "",
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      emailBackup: isSet(object.emailBackup) ? globalThis.String(object.emailBackup) : "",
       phoneNumber: isSet(object.phoneNumber) ? globalThis.String(object.phoneNumber) : "",
     };
   },
@@ -423,8 +486,8 @@ export const User: MessageFns<User> = {
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
     }
-    if (message.email !== "") {
-      obj.email = message.email;
+    if (message.emailBackup !== "") {
+      obj.emailBackup = message.emailBackup;
     }
     if (message.phoneNumber !== "") {
       obj.phoneNumber = message.phoneNumber;
@@ -442,7 +505,7 @@ export const User: MessageFns<User> = {
       : undefined;
     message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
-    message.email = object.email ?? "";
+    message.emailBackup = object.emailBackup ?? "";
     message.phoneNumber = object.phoneNumber ?? "";
     return message;
   },

@@ -6,6 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Pages } from "../../../types/v1/model";
+import { Activity } from "./model";
 
 export const protobufPackage = "sentinez.core.analytic.v1";
 
@@ -14,6 +16,17 @@ export interface StatusRequest {
 
 export interface StatusResponse {
   msg: string;
+}
+
+export interface ListActivitiesRequest {
+  page?: Pages | undefined;
+  ids: string[];
+  resourceIds: string[];
+}
+
+export interface ListActivitiesResponse {
+  activities: Activity[];
+  total: number;
 }
 
 function createBaseStatusRequest(): StatusRequest {
@@ -117,6 +130,178 @@ export const StatusResponse: MessageFns<StatusResponse> = {
   },
 };
 
+function createBaseListActivitiesRequest(): ListActivitiesRequest {
+  return { page: undefined, ids: [], resourceIds: [] };
+}
+
+export const ListActivitiesRequest: MessageFns<ListActivitiesRequest> = {
+  encode(message: ListActivitiesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.ids) {
+      writer.uint32(82).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(90).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListActivitiesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListActivitiesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.page = Pages.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.ids.push(reader.string());
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.resourceIds.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListActivitiesRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: ListActivitiesRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListActivitiesRequest>, I>>(base?: I): ListActivitiesRequest {
+    return ListActivitiesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListActivitiesRequest>, I>>(object: I): ListActivitiesRequest {
+    const message = createBaseListActivitiesRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.ids = object.ids?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseListActivitiesResponse(): ListActivitiesResponse {
+  return { activities: [], total: 0 };
+}
+
+export const ListActivitiesResponse: MessageFns<ListActivitiesResponse> = {
+  encode(message: ListActivitiesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.activities) {
+      Activity.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListActivitiesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListActivitiesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.activities.push(Activity.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListActivitiesResponse {
+    return {
+      activities: globalThis.Array.isArray(object?.activities)
+        ? object.activities.map((e: any) => Activity.fromJSON(e))
+        : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: ListActivitiesResponse): unknown {
+    const obj: any = {};
+    if (message.activities?.length) {
+      obj.activities = message.activities.map((e) => Activity.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListActivitiesResponse>, I>>(base?: I): ListActivitiesResponse {
+    return ListActivitiesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListActivitiesResponse>, I>>(object: I): ListActivitiesResponse {
+    const message = createBaseListActivitiesResponse();
+    message.activities = object.activities?.map((e) => Activity.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
+    return message;
+  },
+};
+
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
@@ -128,6 +313,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

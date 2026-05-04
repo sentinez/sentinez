@@ -8,6 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Struct, Value } from "../../../../../google/protobuf/struct";
 import { Timestamp } from "../../../../../google/protobuf/timestamp";
+import { Status, statusFromJSON, statusToJSON } from "../../../v1/known";
 
 export const protobufPackage = "sentinez.types.secure.ruleengine.v1";
 
@@ -196,6 +197,7 @@ export enum Logic {
   LOGIC_UNSPECIFIED = 0,
   LOGIC_AND = 1,
   LOGIC_OR = 2,
+  LOGIC_NOT = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -210,6 +212,9 @@ export function logicFromJSON(object: any): Logic {
     case 2:
     case "LOGIC_OR":
       return Logic.LOGIC_OR;
+    case 3:
+    case "LOGIC_NOT":
+      return Logic.LOGIC_NOT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -225,6 +230,8 @@ export function logicToJSON(object: Logic): string {
       return "LOGIC_AND";
     case Logic.LOGIC_OR:
       return "LOGIC_OR";
+    case Logic.LOGIC_NOT:
+      return "LOGIC_NOT";
     case Logic.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -296,6 +303,7 @@ export function actionTypeToJSON(object: ActionType): string {
 
 /** A logical condition expression */
 export interface Condition {
+  /** @gotags: yaml:"-" */
   id: string;
   /**
    * The source of the field
@@ -315,7 +323,6 @@ export interface Condition {
 
 /** An action to execute when a rule matches */
 export interface Action {
-  id: string;
   /**
    * Example types: "block", "log", "modify_header",
    * "redirect", "set_tag", "route_to"
@@ -332,43 +339,7 @@ export interface Rule {
   name: string;
   description: string;
   /** @gotags: yaml:"condition" */
-  condition?:
-    | Condition
-    | undefined;
-  /** @gotags: yaml:"actions" */
-  actions: Action[];
-  /** @gotags: yaml:"priority" */
-  priority: number;
-  /** @gotags: yaml:"enabled" */
-  enabled: boolean;
-  createdAt?: Date | undefined;
-  updatedAt?: Date | undefined;
-}
-
-/** A collection of rules (e.g., grouped by tenant or domain) */
-export interface Expr {
-  id: string;
-  /** @gotags: yaml:"name" */
-  name: string;
-  description: string;
-  /** @gotags: yaml:"enabled" */
-  enabled: boolean;
-  /** @gotags: yaml:"rules" */
-  rules: Rule[];
-  /** @gotags: yaml:"logics" */
-  logics: Logic[];
-}
-
-export interface ExprLite {
-  id: string;
-  /** @gotags: yaml:"name" */
-  name: string;
-  /** @gotags: yaml:"enabled" */
-  enabled: boolean;
-  /** @gotags: yaml:"rules" */
-  rules: RuleLite[];
-  /** @gotags: yaml:"logics" */
-  logics: string[];
+  condition?: Condition | undefined;
 }
 
 /** A complete rule definition */
@@ -382,10 +353,6 @@ export interface RuleLite {
     | undefined;
   /** @gotags: yaml:"actions" */
   actions: string[];
-  /** @gotags: yaml:"priority" */
-  priority: number;
-  /** @gotags: yaml:"enabled" */
-  enabled: boolean;
 }
 
 /** A logical condition expression */
@@ -411,6 +378,39 @@ export interface MatchedRules {
   names: string[];
 }
 
+export interface RuleBased {
+  id: string;
+  name: string;
+  description: string;
+  node?: RuleBased_Node | undefined;
+  action?: Action | undefined;
+  status: Status;
+  priority: number;
+  createdAt?: Date | undefined;
+  updatedAt?: Date | undefined;
+}
+
+export interface RuleBased_Node {
+  operator: Logic;
+  rules: Rule[];
+  groups: RuleBased_Node[];
+}
+
+export interface RuleBasedLite {
+  id: string;
+  name: string;
+  description: string;
+  node?: RuleBasedLite_NodeLite | undefined;
+  action?: Action | undefined;
+}
+
+export interface RuleBasedLite_NodeLite {
+  /** AND, OR, NOT */
+  operator: string;
+  rules: RuleLite[];
+  groups: RuleBasedLite_NodeLite[];
+}
+
 function createBaseCondition(): Condition {
   return { id: "", source: 0, key: "", operator: 0, value: undefined };
 }
@@ -418,19 +418,19 @@ function createBaseCondition(): Condition {
 export const Condition: MessageFns<Condition> = {
   encode(message: Condition, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
-      writer.uint32(10).string(message.id);
+      writer.uint32(42).string(message.id);
     }
     if (message.source !== 0) {
-      writer.uint32(16).int32(message.source);
+      writer.uint32(8).int32(message.source);
     }
     if (message.key !== "") {
-      writer.uint32(26).string(message.key);
+      writer.uint32(18).string(message.key);
     }
     if (message.operator !== 0) {
-      writer.uint32(32).int32(message.operator);
+      writer.uint32(24).int32(message.operator);
     }
     if (message.value !== undefined) {
-      Value.encode(Value.wrap(message.value), writer.uint32(42).fork()).join();
+      Value.encode(Value.wrap(message.value), writer.uint32(34).fork()).join();
     }
     return writer;
   },
@@ -442,40 +442,40 @@ export const Condition: MessageFns<Condition> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
           message.id = reader.string();
           continue;
         }
-        case 2: {
-          if (tag !== 16) {
+        case 1: {
+          if (tag !== 8) {
             break;
           }
 
           message.source = reader.int32() as any;
           continue;
         }
-        case 3: {
-          if (tag !== 26) {
+        case 2: {
+          if (tag !== 18) {
             break;
           }
 
           message.key = reader.string();
           continue;
         }
-        case 4: {
-          if (tag !== 32) {
+        case 3: {
+          if (tag !== 24) {
             break;
           }
 
           message.operator = reader.int32() as any;
           continue;
         }
-        case 5: {
-          if (tag !== 42) {
+        case 4: {
+          if (tag !== 34) {
             break;
           }
 
@@ -536,19 +536,16 @@ export const Condition: MessageFns<Condition> = {
 };
 
 function createBaseAction(): Action {
-  return { id: "", type: 0, params: undefined };
+  return { type: 0, params: undefined };
 }
 
 export const Action: MessageFns<Action> = {
   encode(message: Action, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
     if (message.type !== 0) {
-      writer.uint32(16).int32(message.type);
+      writer.uint32(8).int32(message.type);
     }
     if (message.params !== undefined) {
-      Struct.encode(Struct.wrap(message.params), writer.uint32(26).fork()).join();
+      Struct.encode(Struct.wrap(message.params), writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -561,23 +558,15 @@ export const Action: MessageFns<Action> = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
+          if (tag !== 8) {
             break;
           }
 
           message.type = reader.int32() as any;
           continue;
         }
-        case 3: {
-          if (tag !== 26) {
+        case 2: {
+          if (tag !== 18) {
             break;
           }
 
@@ -595,7 +584,6 @@ export const Action: MessageFns<Action> = {
 
   fromJSON(object: any): Action {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
       type: isSet(object.type) ? actionTypeFromJSON(object.type) : 0,
       params: isObject(object.params) ? object.params : undefined,
     };
@@ -603,9 +591,6 @@ export const Action: MessageFns<Action> = {
 
   toJSON(message: Action): unknown {
     const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
     if (message.type !== 0) {
       obj.type = actionTypeToJSON(message.type);
     }
@@ -620,7 +605,6 @@ export const Action: MessageFns<Action> = {
   },
   fromPartial<I extends Exact<DeepPartial<Action>, I>>(object: I): Action {
     const message = createBaseAction();
-    message.id = object.id ?? "";
     message.type = object.type ?? 0;
     message.params = object.params ?? undefined;
     return message;
@@ -628,17 +612,7 @@ export const Action: MessageFns<Action> = {
 };
 
 function createBaseRule(): Rule {
-  return {
-    id: "",
-    name: "",
-    description: "",
-    condition: undefined,
-    actions: [],
-    priority: 0,
-    enabled: false,
-    createdAt: undefined,
-    updatedAt: undefined,
-  };
+  return { id: "", name: "", description: "", condition: undefined };
 }
 
 export const Rule: MessageFns<Rule> = {
@@ -654,21 +628,6 @@ export const Rule: MessageFns<Rule> = {
     }
     if (message.condition !== undefined) {
       Condition.encode(message.condition, writer.uint32(34).fork()).join();
-    }
-    for (const v of message.actions) {
-      Action.encode(v!, writer.uint32(42).fork()).join();
-    }
-    if (message.priority !== 0) {
-      writer.uint32(48).int32(message.priority);
-    }
-    if (message.enabled !== false) {
-      writer.uint32(56).bool(message.enabled);
-    }
-    if (message.createdAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(66).fork()).join();
-    }
-    if (message.updatedAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(74).fork()).join();
     }
     return writer;
   },
@@ -712,46 +671,6 @@ export const Rule: MessageFns<Rule> = {
           message.condition = Condition.decode(reader, reader.uint32());
           continue;
         }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.actions.push(Action.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.priority = reader.int32();
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.enabled = reader.bool();
-          continue;
-        }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.createdAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 9: {
-          if (tag !== 74) {
-            break;
-          }
-
-          message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -767,11 +686,6 @@ export const Rule: MessageFns<Rule> = {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
       condition: isSet(object.condition) ? Condition.fromJSON(object.condition) : undefined,
-      actions: globalThis.Array.isArray(object?.actions) ? object.actions.map((e: any) => Action.fromJSON(e)) : [],
-      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
-      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
-      createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
-      updatedAt: isSet(object.updatedAt) ? fromJsonTimestamp(object.updatedAt) : undefined,
     };
   },
 
@@ -789,21 +703,6 @@ export const Rule: MessageFns<Rule> = {
     if (message.condition !== undefined) {
       obj.condition = Condition.toJSON(message.condition);
     }
-    if (message.actions?.length) {
-      obj.actions = message.actions.map((e) => Action.toJSON(e));
-    }
-    if (message.priority !== 0) {
-      obj.priority = Math.round(message.priority);
-    }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
-    }
-    if (message.createdAt !== undefined) {
-      obj.createdAt = message.createdAt.toISOString();
-    }
-    if (message.updatedAt !== undefined) {
-      obj.updatedAt = message.updatedAt.toISOString();
-    }
     return obj;
   },
 
@@ -818,293 +717,12 @@ export const Rule: MessageFns<Rule> = {
     message.condition = (object.condition !== undefined && object.condition !== null)
       ? Condition.fromPartial(object.condition)
       : undefined;
-    message.actions = object.actions?.map((e) => Action.fromPartial(e)) || [];
-    message.priority = object.priority ?? 0;
-    message.enabled = object.enabled ?? false;
-    message.createdAt = object.createdAt ?? undefined;
-    message.updatedAt = object.updatedAt ?? undefined;
-    return message;
-  },
-};
-
-function createBaseExpr(): Expr {
-  return { id: "", name: "", description: "", enabled: false, rules: [], logics: [] };
-}
-
-export const Expr: MessageFns<Expr> = {
-  encode(message: Expr, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
-    if (message.description !== "") {
-      writer.uint32(26).string(message.description);
-    }
-    if (message.enabled !== false) {
-      writer.uint32(32).bool(message.enabled);
-    }
-    for (const v of message.rules) {
-      Rule.encode(v!, writer.uint32(42).fork()).join();
-    }
-    writer.uint32(50).fork();
-    for (const v of message.logics) {
-      writer.int32(v);
-    }
-    writer.join();
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Expr {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseExpr();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.description = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.enabled = reader.bool();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.rules.push(Rule.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 6: {
-          if (tag === 48) {
-            message.logics.push(reader.int32() as any);
-
-            continue;
-          }
-
-          if (tag === 50) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.logics.push(reader.int32() as any);
-            }
-
-            continue;
-          }
-
-          break;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Expr {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
-      logics: globalThis.Array.isArray(object?.logics) ? object.logics.map((e: any) => logicFromJSON(e)) : [],
-    };
-  },
-
-  toJSON(message: Expr): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
-    }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
-    }
-    if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => Rule.toJSON(e));
-    }
-    if (message.logics?.length) {
-      obj.logics = message.logics.map((e) => logicToJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<Expr>, I>>(base?: I): Expr {
-    return Expr.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<Expr>, I>>(object: I): Expr {
-    const message = createBaseExpr();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
-    message.enabled = object.enabled ?? false;
-    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
-    message.logics = object.logics?.map((e) => e) || [];
-    return message;
-  },
-};
-
-function createBaseExprLite(): ExprLite {
-  return { id: "", name: "", enabled: false, rules: [], logics: [] };
-}
-
-export const ExprLite: MessageFns<ExprLite> = {
-  encode(message: ExprLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
-    if (message.enabled !== false) {
-      writer.uint32(32).bool(message.enabled);
-    }
-    for (const v of message.rules) {
-      RuleLite.encode(v!, writer.uint32(42).fork()).join();
-    }
-    for (const v of message.logics) {
-      writer.uint32(50).string(v!);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ExprLite {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseExprLite();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.enabled = reader.bool();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.rules.push(RuleLite.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.logics.push(reader.string());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ExprLite {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleLite.fromJSON(e)) : [],
-      logics: globalThis.Array.isArray(object?.logics) ? object.logics.map((e: any) => globalThis.String(e)) : [],
-    };
-  },
-
-  toJSON(message: ExprLite): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
-    }
-    if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => RuleLite.toJSON(e));
-    }
-    if (message.logics?.length) {
-      obj.logics = message.logics;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ExprLite>, I>>(base?: I): ExprLite {
-    return ExprLite.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ExprLite>, I>>(object: I): ExprLite {
-    const message = createBaseExprLite();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.enabled = object.enabled ?? false;
-    message.rules = object.rules?.map((e) => RuleLite.fromPartial(e)) || [];
-    message.logics = object.logics?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseRuleLite(): RuleLite {
-  return { id: "", name: "", condition: undefined, actions: [], priority: 0, enabled: false };
+  return { id: "", name: "", condition: undefined, actions: [] };
 }
 
 export const RuleLite: MessageFns<RuleLite> = {
@@ -1120,12 +738,6 @@ export const RuleLite: MessageFns<RuleLite> = {
     }
     for (const v of message.actions) {
       writer.uint32(42).string(v!);
-    }
-    if (message.priority !== 0) {
-      writer.uint32(48).int32(message.priority);
-    }
-    if (message.enabled !== false) {
-      writer.uint32(56).bool(message.enabled);
     }
     return writer;
   },
@@ -1169,22 +781,6 @@ export const RuleLite: MessageFns<RuleLite> = {
           message.actions.push(reader.string());
           continue;
         }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.priority = reader.int32();
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.enabled = reader.bool();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1200,8 +796,6 @@ export const RuleLite: MessageFns<RuleLite> = {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       condition: isSet(object.condition) ? ConditionLite.fromJSON(object.condition) : undefined,
       actions: globalThis.Array.isArray(object?.actions) ? object.actions.map((e: any) => globalThis.String(e)) : [],
-      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
-      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
 
@@ -1219,12 +813,6 @@ export const RuleLite: MessageFns<RuleLite> = {
     if (message.actions?.length) {
       obj.actions = message.actions;
     }
-    if (message.priority !== 0) {
-      obj.priority = Math.round(message.priority);
-    }
-    if (message.enabled !== false) {
-      obj.enabled = message.enabled;
-    }
     return obj;
   },
 
@@ -1239,8 +827,6 @@ export const RuleLite: MessageFns<RuleLite> = {
       ? ConditionLite.fromPartial(object.condition)
       : undefined;
     message.actions = object.actions?.map((e) => e) || [];
-    message.priority = object.priority ?? 0;
-    message.enabled = object.enabled ?? false;
     return message;
   },
 };
@@ -1252,16 +838,16 @@ function createBaseConditionLite(): ConditionLite {
 export const ConditionLite: MessageFns<ConditionLite> = {
   encode(message: ConditionLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.source !== "") {
-      writer.uint32(18).string(message.source);
+      writer.uint32(10).string(message.source);
     }
     if (message.key !== "") {
-      writer.uint32(26).string(message.key);
+      writer.uint32(18).string(message.key);
     }
     if (message.operator !== "") {
-      writer.uint32(34).string(message.operator);
+      writer.uint32(26).string(message.operator);
     }
     if (message.value !== "") {
-      writer.uint32(42).string(message.value);
+      writer.uint32(34).string(message.value);
     }
     return writer;
   },
@@ -1273,12 +859,20 @@ export const ConditionLite: MessageFns<ConditionLite> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.source = reader.string();
+          continue;
+        }
         case 2: {
           if (tag !== 18) {
             break;
           }
 
-          message.source = reader.string();
+          message.key = reader.string();
           continue;
         }
         case 3: {
@@ -1286,19 +880,11 @@ export const ConditionLite: MessageFns<ConditionLite> = {
             break;
           }
 
-          message.key = reader.string();
+          message.operator = reader.string();
           continue;
         }
         case 4: {
           if (tag !== 34) {
-            break;
-          }
-
-          message.operator = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
             break;
           }
 
@@ -1425,6 +1011,522 @@ export const MatchedRules: MessageFns<MatchedRules> = {
     const message = createBaseMatchedRules();
     message.ids = object.ids?.map((e) => e) || [];
     message.names = object.names?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseRuleBased(): RuleBased {
+  return {
+    id: "",
+    name: "",
+    description: "",
+    node: undefined,
+    action: undefined,
+    status: 0,
+    priority: 0,
+    createdAt: undefined,
+    updatedAt: undefined,
+  };
+}
+
+export const RuleBased: MessageFns<RuleBased> = {
+  encode(message: RuleBased, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.node !== undefined) {
+      RuleBased_Node.encode(message.node, writer.uint32(34).fork()).join();
+    }
+    if (message.action !== undefined) {
+      Action.encode(message.action, writer.uint32(42).fork()).join();
+    }
+    if (message.status !== 0) {
+      writer.uint32(48).int32(message.status);
+    }
+    if (message.priority !== 0) {
+      writer.uint32(56).int32(message.priority);
+    }
+    if (message.createdAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(66).fork()).join();
+    }
+    if (message.updatedAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(74).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleBased();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.node = RuleBased_Node.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.action = Action.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.priority = reader.int32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.createdAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleBased {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      node: isSet(object.node) ? RuleBased_Node.fromJSON(object.node) : undefined,
+      action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
+      createdAt: isSet(object.createdAt) ? fromJsonTimestamp(object.createdAt) : undefined,
+      updatedAt: isSet(object.updatedAt) ? fromJsonTimestamp(object.updatedAt) : undefined,
+    };
+  },
+
+  toJSON(message: RuleBased): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.node !== undefined) {
+      obj.node = RuleBased_Node.toJSON(message.node);
+    }
+    if (message.action !== undefined) {
+      obj.action = Action.toJSON(message.action);
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.priority !== 0) {
+      obj.priority = Math.round(message.priority);
+    }
+    if (message.createdAt !== undefined) {
+      obj.createdAt = message.createdAt.toISOString();
+    }
+    if (message.updatedAt !== undefined) {
+      obj.updatedAt = message.updatedAt.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleBased>, I>>(base?: I): RuleBased {
+    return RuleBased.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleBased>, I>>(object: I): RuleBased {
+    const message = createBaseRuleBased();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.node = (object.node !== undefined && object.node !== null)
+      ? RuleBased_Node.fromPartial(object.node)
+      : undefined;
+    message.action = (object.action !== undefined && object.action !== null)
+      ? Action.fromPartial(object.action)
+      : undefined;
+    message.status = object.status ?? 0;
+    message.priority = object.priority ?? 0;
+    message.createdAt = object.createdAt ?? undefined;
+    message.updatedAt = object.updatedAt ?? undefined;
+    return message;
+  },
+};
+
+function createBaseRuleBased_Node(): RuleBased_Node {
+  return { operator: 0, rules: [], groups: [] };
+}
+
+export const RuleBased_Node: MessageFns<RuleBased_Node> = {
+  encode(message: RuleBased_Node, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.operator !== 0) {
+      writer.uint32(8).int32(message.operator);
+    }
+    for (const v of message.rules) {
+      Rule.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.groups) {
+      RuleBased_Node.encode(v!, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased_Node {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleBased_Node();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.operator = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.rules.push(Rule.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.groups.push(RuleBased_Node.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleBased_Node {
+    return {
+      operator: isSet(object.operator) ? logicFromJSON(object.operator) : 0,
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
+      groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => RuleBased_Node.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: RuleBased_Node): unknown {
+    const obj: any = {};
+    if (message.operator !== 0) {
+      obj.operator = logicToJSON(message.operator);
+    }
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => Rule.toJSON(e));
+    }
+    if (message.groups?.length) {
+      obj.groups = message.groups.map((e) => RuleBased_Node.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleBased_Node>, I>>(base?: I): RuleBased_Node {
+    return RuleBased_Node.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleBased_Node>, I>>(object: I): RuleBased_Node {
+    const message = createBaseRuleBased_Node();
+    message.operator = object.operator ?? 0;
+    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
+    message.groups = object.groups?.map((e) => RuleBased_Node.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseRuleBasedLite(): RuleBasedLite {
+  return { id: "", name: "", description: "", node: undefined, action: undefined };
+}
+
+export const RuleBasedLite: MessageFns<RuleBasedLite> = {
+  encode(message: RuleBasedLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.node !== undefined) {
+      RuleBasedLite_NodeLite.encode(message.node, writer.uint32(34).fork()).join();
+    }
+    if (message.action !== undefined) {
+      Action.encode(message.action, writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleBasedLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleBasedLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.node = RuleBasedLite_NodeLite.decode(reader, reader.uint32());
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.action = Action.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleBasedLite {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      node: isSet(object.node) ? RuleBasedLite_NodeLite.fromJSON(object.node) : undefined,
+      action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
+    };
+  },
+
+  toJSON(message: RuleBasedLite): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.node !== undefined) {
+      obj.node = RuleBasedLite_NodeLite.toJSON(message.node);
+    }
+    if (message.action !== undefined) {
+      obj.action = Action.toJSON(message.action);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleBasedLite>, I>>(base?: I): RuleBasedLite {
+    return RuleBasedLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleBasedLite>, I>>(object: I): RuleBasedLite {
+    const message = createBaseRuleBasedLite();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.node = (object.node !== undefined && object.node !== null)
+      ? RuleBasedLite_NodeLite.fromPartial(object.node)
+      : undefined;
+    message.action = (object.action !== undefined && object.action !== null)
+      ? Action.fromPartial(object.action)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseRuleBasedLite_NodeLite(): RuleBasedLite_NodeLite {
+  return { operator: "", rules: [], groups: [] };
+}
+
+export const RuleBasedLite_NodeLite: MessageFns<RuleBasedLite_NodeLite> = {
+  encode(message: RuleBasedLite_NodeLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.operator !== "") {
+      writer.uint32(10).string(message.operator);
+    }
+    for (const v of message.rules) {
+      RuleLite.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.groups) {
+      RuleBasedLite_NodeLite.encode(v!, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleBasedLite_NodeLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleBasedLite_NodeLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.operator = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.rules.push(RuleLite.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.groups.push(RuleBasedLite_NodeLite.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleBasedLite_NodeLite {
+    return {
+      operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleLite.fromJSON(e)) : [],
+      groups: globalThis.Array.isArray(object?.groups)
+        ? object.groups.map((e: any) => RuleBasedLite_NodeLite.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: RuleBasedLite_NodeLite): unknown {
+    const obj: any = {};
+    if (message.operator !== "") {
+      obj.operator = message.operator;
+    }
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => RuleLite.toJSON(e));
+    }
+    if (message.groups?.length) {
+      obj.groups = message.groups.map((e) => RuleBasedLite_NodeLite.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleBasedLite_NodeLite>, I>>(base?: I): RuleBasedLite_NodeLite {
+    return RuleBasedLite_NodeLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleBasedLite_NodeLite>, I>>(object: I): RuleBasedLite_NodeLite {
+    const message = createBaseRuleBasedLite_NodeLite();
+    message.operator = object.operator ?? "";
+    message.rules = object.rules?.map((e) => RuleLite.fromPartial(e)) || [];
+    message.groups = object.groups?.map((e) => RuleBasedLite_NodeLite.fromPartial(e)) || [];
     return message;
   },
 };
