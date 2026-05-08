@@ -11,7 +11,7 @@
 ---
 **Sentinez** *stylized as* **Sentinéz**
 
-### 🛡️ Sentinel of the Seventh Layer
+### 🛡️ Sentinel - Edge reverse proxy with many antioxidants
 
 > [!WARNING]
 > Please keep in mind that ***Sentinéz*** is still under active development
