@@ -15,7 +15,6 @@ require (
 	github.com/a-h/templ v0.3.960
 	github.com/bytedance/sonic v1.15.0
 	github.com/cilium/ebpf v0.21.0
-	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/go-webauthn/webauthn v0.15.0
 	github.com/goccy/go-yaml v1.19.2
@@ -28,6 +27,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-00010101000000-000000000000
@@ -48,9 +48,15 @@ require (
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/cloudresty/ulid v1.2.1 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/cloudwego/gopkg v0.1.7 // indirect
+	github.com/cloudwego/hertz v0.10.3 // indirect
+	github.com/cloudwego/netpoll v0.7.2 // indirect
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/corazawaf/libinjection-go v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/exaring/ja4plus v0.0.3 // indirect
 	github.com/fatih/color v1.19.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.1.26 // indirect
@@ -68,6 +74,9 @@ require (
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/serf v0.10.2 // indirect
+	github.com/hertz-contrib/http2 v0.1.8 // indirect
+	github.com/hertz-contrib/reverseproxy v1.0.6 // indirect
+	github.com/hertz-contrib/websocket v0.2.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -79,6 +88,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/nyaruka/phonenumbers v1.6.7 // indirect
 	github.com/petar-dambovaliev/aho-corasick v0.0.0-20250424160509-463d218d4745 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

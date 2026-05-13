@@ -103,7 +103,7 @@ apiserver.build:
 apiserver.run: SENTINEZ_OUT ?= apiserver
 apiserver.run:
 	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
- 	./cmd/apiserver/bin/$(SENTINEZ_OUT)
+ 	./cmd/apiserver/bin/$(SENTINEZ_OUT) 
 
 apiserver.image.build: TAG ?= sentinez/apiserver
 apiserver.image.build:
@@ -117,7 +117,7 @@ greeter.build:
 greeter.run: SENTINEZ_OUT ?= greeter
 greeter.run:
 	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
-	./cmd/greeter/v1/bin/$(SENTINEZ_OUT)
+	./cmd/greeter/v1/bin/$(SENTINEZ_OUT) --env_file=./cmd/greeter/v1/.env
 
 greeter.image.build: TAG ?= sentinez/greeter
 greeter.image.build:

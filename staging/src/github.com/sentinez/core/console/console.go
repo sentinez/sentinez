@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	"github.com/common-nighthawk/go-figure"
-	"github.com/sentinez/sentinez"
+	"github.com/sentinez/core"
 	"github.com/sentinez/shared/color"
 )
 
@@ -29,7 +29,7 @@ var (
 )
 
 func INFO(serviceName string, key string, msgs ...string) {
-	msgs = append([]string{sentinez.Code + " " + sentinez.Version}, msgs...)
+	msgs = append([]string{core.Code + " " + core.Version}, msgs...)
 	gts := color.Green.Add(">")
 	msg := strings.Join(msgs, "\n"+gts+" ")
 
@@ -40,7 +40,7 @@ func INFO(serviceName string, key string, msgs ...string) {
 
 // GenFigure generates the ASCII art of the project.
 func GenFigure(header string, footer string) string {
-	fig := figure.NewFigure(strings.ToLower(sentinez.Code), "speed", true)
+	fig := figure.NewFigure(strings.ToLower(core.Code), "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
 		"",

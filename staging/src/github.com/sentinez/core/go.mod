@@ -10,6 +10,7 @@ replace (
 require (
 	github.com/a-h/templ v0.3.960
 	github.com/antlr4-go/antlr/v4 v4.13.1
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/gorilla/websocket v1.5.3
 	github.com/sentinez/sentinez/api v0.0.0

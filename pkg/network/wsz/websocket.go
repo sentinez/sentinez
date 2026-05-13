@@ -15,12 +15,9 @@
 package wsz
 
 import (
-	"fmt"
-
 	corehttp "github.com/sentinez/core/http"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/console"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"
 )
@@ -56,9 +53,6 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 		})
 
 	ws.routers.Clear()
-
-	console.INFO(ws.meta.GetServiceName(),
-		ws.meta.GetServiceKey(), fmt.Sprintf("running on ws %s", addr))
 
 	return stdhttpx.ListenAndServe(addr)
 }

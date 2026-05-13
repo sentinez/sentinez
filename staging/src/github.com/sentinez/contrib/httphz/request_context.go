@@ -9,6 +9,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/gorilla/websocket"
+	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/shared/sync"
@@ -39,7 +40,11 @@ type Context struct {
 
 // SetRequestId implements corehttp.Context.
 func (c *Context) SetRequestId(id string) {
-	c.id = id
+	if id == "" {
+		return
+	}
+
+	c.req.Request.SetHeader(corehttp.HeaderXRequestId, id)
 }
 
 // Extra implements corehttp.Context.
@@ -260,7 +265,7 @@ func (c *Context) Context() context.Context {
 func (c *Context) JSON(statusCode int, body []byte) error {
 	c.req.SetContentType("application/json")
 	c.req.SetStatusCode(statusCode)
-	// c.SetServer(sentinez.Name)
+	c.SetServer(core.Name)
 
 	_, err := c.req.Write(body)
 	return err
@@ -278,7 +283,7 @@ func (c *Context) Path() string {
 func (c *Context) String(statusCode int, body string) error {
 	c.req.SetContentType(corehttp.ValueTextPlain)
 	c.req.SetStatusCode(statusCode)
-	// c.SetServer(sentinez.Name)
+	c.SetServer(core.Name)
 
 	_, err := c.req.WriteString(body)
 	return err
@@ -287,7 +292,7 @@ func (c *Context) String(statusCode int, body string) error {
 func (c *Context) Render(statusCode int, component templ.Component) error {
 	c.req.SetStatusCode(statusCode)
 	c.req.SetContentType(corehttp.ValueTextHTML)
-	// c.SetServer(sentinez.Name)
+	c.SetServer(core.Name)
 
 	return component.Render(c.Context(), c.req.Response.BodyWriter())
 }

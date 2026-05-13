@@ -26,6 +26,7 @@ func NewService(conf *confpb.Config) *Greeter {
 	return &Greeter{
 		Server:  netgrpc.NewDefault(conf),
 		handler: greeterhdl.New(),
+		conf:    conf,
 	}
 }
 

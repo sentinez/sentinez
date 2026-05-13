@@ -18,12 +18,14 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/contrib/httphz"
+	proxyhz "github.com/sentinez/contrib/httphz/proxy"
+	"github.com/sentinez/core"
+	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	"github.com/sentinez/sentinez/internal/edge/v1"
-	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -51,16 +53,22 @@ func init() {
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	app := runner.NewApp[*edge.Server](config.Config(), sentinez.Code)
+	app := runner.NewApp[*edge.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*edge.Server]) {
 		c.Inject(
 			config.Config,
 			edgeyaml.LoadSetting,
-			stdhttpx.NewServer,
+			httphz.NewServer,
 			edge.New,
 		)
 
 		c.OnStart(func(_ context.Context, server *edge.Server) error {
+			server.SetReverseProxyConstructor(
+				func(s string) (corehttp.ReverseProxy, error) {
+					return proxyhz.NewReverseProxy(s)
+				},
+			)
+
 			return server.Start()
 		})
 

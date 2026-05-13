@@ -35,3 +35,7 @@ func (s *Server) initialize(appConf *confpb.Config) error {
 
 	return nil
 }
+
+func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
+	mem.SetReverseProxyConstructor(fn)
+}

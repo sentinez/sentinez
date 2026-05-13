@@ -16,21 +16,44 @@
 package mem
 
 import (
+	"sync"
 	"time"
 
+	corehttp "github.com/sentinez/core/http"
 	corelimiter "github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	"github.com/sentinez/sentinez/internal/edge/v1/utils"
 	"github.com/sentinez/sentinez/internal/shared/mem/ratelimiter"
 	"github.com/sentinez/sentinez/internal/shared/mem/reverseproxy"
 	"github.com/sentinez/sentinez/internal/shared/mem/routes"
 	"github.com/sentinez/sentinez/internal/shared/mem/ruleengine"
 	"github.com/sentinez/sentinez/internal/shared/mem/settings"
 	"github.com/sentinez/sentinez/internal/shared/mem/wafengine"
-	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 	"github.com/sentinez/shared/zlog"
 )
+
+var (
+	reverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
+	lock                    sync.Mutex
+)
+
+func SetReverseProxyConstructor(
+	fn func(string) (corehttp.ReverseProxy, error)) {
+	if fn == nil {
+		return
+	}
+
+	lock.Lock()
+	defer lock.Unlock()
+
+	if reverseProxyConstructor != nil {
+		return
+	}
+
+	reverseProxyConstructor = fn
+}
 
 func LoadSetting(st *edgepb.Setting) {
 	if err := settings.Store(st); err != nil {
@@ -53,7 +76,18 @@ func LoadReverseProxy() {
 					continue
 				}
 
-				rproxy, err := stdproxy.NewReverseProxy(upstream)
+				target, err := utils.Upstream2Target(upstream)
+				if err != nil {
+					zlog.Warnf("reverse proxy: warn: %v", err)
+					continue
+				}
+
+				if reverseProxyConstructor == nil {
+					zlog.Errorf("reverse proxy: constructor is not set")
+					continue
+				}
+
+				rproxy, err := reverseProxyConstructor(target)
 				if err != nil {
 					continue
 				}

@@ -17,15 +17,15 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
 	"github.com/sentinez/sentinez/internal/realtime"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
 )
 
 func main() {
-	app := runner.NewApp[*realtime.Realtime](config.Config(), sentinez.Code)
+	app := runner.NewApp[*realtime.Realtime](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*realtime.Realtime]) {
 		c.Inject(config.Config, wscore.NewServer, realtime.New)
 

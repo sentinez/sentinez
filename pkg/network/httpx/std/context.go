@@ -28,8 +28,8 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
+	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/unsafe"
@@ -363,7 +363,7 @@ func (c *Context) RequestId() string {
 
 func (c *Context) JSON(statusCode int, body []byte) error {
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueAppJSON)
-	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderServer, core.Name)
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -373,7 +373,7 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 
 func (c *Context) String(statusCode int, msg string) error {
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextPlain)
-	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderServer, core.Name)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(unsafe.S2B(msg))
@@ -388,7 +388,7 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 	}
 
 	c.SetResponseHeader(corehttp.HeaderContentType, corehttp.ValueTextHTML)
-	c.SetResponseHeader(corehttp.HeaderServer, sentinez.Name)
+	c.SetResponseHeader(corehttp.HeaderServer, core.Name)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(buf.Bytes())

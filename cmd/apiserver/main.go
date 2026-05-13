@@ -18,8 +18,8 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
 	"github.com/sentinez/sentinez/internal/apiserver"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -38,7 +38,7 @@ import (
 //	make apiserver.run // start sentinez apiserver
 //	make <service>.run // start service
 func main() {
-	app := runner.NewApp[*apiserver.Server](config.Config(), sentinez.Code)
+	app := runner.NewApp[*apiserver.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*apiserver.Server]) {
 		c.Inject(config.Config, httpx.NewServer, apiserver.New)
 
