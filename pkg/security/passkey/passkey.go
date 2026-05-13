@@ -16,7 +16,7 @@ package passkey
 
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/sentinez"
+	"github.com/sentinez/core"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	"github.com/sentinez/shared/zlog"
@@ -35,7 +35,7 @@ type Store interface {
 func NewWebAuthn(config *confpb.Config) *webauthn.WebAuthn {
 	wconfig := &webauthn.Config{
 		// Display Name for your site
-		RPDisplayName: sentinez.Name,
+		RPDisplayName: core.Name,
 		// Generally the FQDN for your site
 		RPID: config.GetEnv().GetHostname(),
 		// The origin URLs allowed for WebAuthn

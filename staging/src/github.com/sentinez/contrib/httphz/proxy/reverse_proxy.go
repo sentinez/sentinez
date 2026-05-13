@@ -20,7 +20,9 @@ const (
 	hzHostClientName = "sentinez-edge-reverse-proxy"
 )
 
-func NewReverseProxy(target string, options ...Option) (*ReverseProxy, error) {
+func NewReverseProxy(target string,
+	options ...Option) (corehttp.ReverseProxy, error) {
+
 	option := defaultBuildOption()
 	for _, opt := range options {
 		opt.apply(option)

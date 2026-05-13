@@ -26,6 +26,8 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
+type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
+
 //
 // Package edge implements the core Edge Server component.
 //

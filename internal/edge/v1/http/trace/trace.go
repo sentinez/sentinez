@@ -15,9 +15,9 @@
 package trace
 
 import (
+	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/shared/ids"
 	"github.com/sentinez/shared/zlog"
 )
@@ -33,7 +33,7 @@ type Trace struct {
 }
 
 func (t *Trace) Handle(ctx corehttp.Context) error {
-	requestId := ids.NewXID(sentinez.PrefixXRequestIdBytes)
+	requestId := ids.NewXID(core.PrefixXRequestIdBytes)
 	ctx.SetRequestId(requestId)
 
 	return t.HandleNext(ctx)

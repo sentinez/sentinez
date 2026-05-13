@@ -16,30 +16,17 @@
 package stdproxy
 
 import (
-	"fmt"
 	"net/http/httputil"
 	"net/url"
 
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewReverseProxy(upstream *edgepb.Upstream) (*ReverseProxy, error) {
-	var target string
-	switch upstream.GetProtocol() {
-	case edgepb.ProxyProtocol_PROXY_PROTOCOL_HTTP:
-		target = "http://" + upstream.GetServer()
-	case edgepb.ProxyProtocol_PROXY_PROTOCOL_HTTPS:
-		target = "https://" + upstream.GetServer()
-	default:
-		return nil, fmt.Errorf(
-			"edge: unsupported protocol: %v", upstream.GetProtocol())
-	}
-
+func NewReverseProxy(target string) (corehttp.ReverseProxy, error) {
 	urlParsed, err := url.Parse(target)
 	if err != nil {
 		return nil, err

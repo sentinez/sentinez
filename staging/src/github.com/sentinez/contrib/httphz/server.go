@@ -14,7 +14,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
 
+	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	tlsx "github.com/sentinez/shared/tls"
 	"github.com/sentinez/shared/zlog"
 )
@@ -25,8 +27,8 @@ var (
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer() corehttp.Server {
-	return &XServer{}
+func NewServer(conf *confpb.Config) corehttp.Server {
+	return corehttp.DecoreServer(conf, &XServer{})
 }
 
 // XServer implements the Server interface.
@@ -126,14 +128,13 @@ func (s *XServer) initialize(addr string, certFile, keyFile string) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.handler)
-	// s.core.Name = sentinez.Name
+	s.core.Name = core.Name
 
 	return nil
 }
 
 // ListenAndServe implements platform.Server.
 func (s *XServer) ListenAndServe(addr string) error {
-	zlog.Infof("running on http %s", addr)
 	if err := s.initialize(addr, "", ""); err != nil {
 		return err
 	}
@@ -142,7 +143,6 @@ func (s *XServer) ListenAndServe(addr string) error {
 }
 
 func (s *XServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
-	zlog.Infof("running on https %s", addr)
 	if err := s.initialize(addr, certFile, keyFile); err != nil {
 		return err
 	}

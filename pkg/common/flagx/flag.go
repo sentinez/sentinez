@@ -20,9 +20,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sentinez/core/console"
 	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/protobuf"
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"

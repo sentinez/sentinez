@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/sentinez"
+	"github.com/sentinez/core"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/iam/v1"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 	"github.com/sentinez/sentinez/pkg/storage/cache/mem"
@@ -79,7 +79,7 @@ func (s *MemoryStorage) GetOrCreateAccount(
 
 // GenSessionID implements Store.
 func (s *MemoryStorage) GenSessionID() (string, error) {
-	return ids.NewNanoID(sentinez.Code + "SS"), nil
+	return ids.NewNanoID(core.Code + "SS"), nil
 }
 
 // DeleteSession implements Store.

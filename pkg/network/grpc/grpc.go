@@ -17,11 +17,9 @@ package netgrpc
 
 import (
 	"context"
-	"fmt"
 
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -66,9 +64,6 @@ func (s *Server) Serve(conf *confpb.Config) error {
 	if err != nil {
 		return err
 	}
-
-	console.INFO(s.meta.GetServiceName(),
-		s.meta.GetServiceKey(), fmt.Sprintf("running on http %s", addr))
 
 	go Register(s.meta.GetServiceKey(), conf.GetEnv())
 	return s.AsServer().Serve(listener)

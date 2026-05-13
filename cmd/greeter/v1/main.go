@@ -18,14 +18,14 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
 	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 )
 
 func main() {
-	app := runner.NewApp[*greeter.Greeter](config.Config(), sentinez.Code)
+	app := runner.NewApp[*greeter.Greeter](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*greeter.Greeter]) {
 		c.Inject(config.Config, greeter.NewService)
 

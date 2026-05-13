@@ -16,31 +16,24 @@ package stdhttpx
 
 import (
 	"context"
-	"fmt"
-	"net"
 	"net/http"
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/console"
-	"github.com/sentinez/sentinez/pkg/common/protobuf"
 )
 
 var _ corehttp.Server = (*Server)(nil)
 
 func NewServer(appConf *confpb.Config) corehttp.Server {
-	return &Server{
-		meta: appConf.GetMeta(),
+	return corehttp.DecoreServer(appConf, &Server{
 		core: &http.Server{},
 		mux:  http.NewServeMux(),
-	}
+	})
 }
 
 type Server struct {
 	mdw  []func(corehttp.RequestHandler) corehttp.RequestHandler
-	meta *typepb.XMeta
 	core *http.Server
 	mux  *http.ServeMux
 }
@@ -56,14 +49,6 @@ func (s *Server) Handle(fn corehttp.RequestHandler) {
 }
 
 func (s *Server) ListenAndServe(addr string) error {
-	if err := protobuf.Validate(s.meta); err != nil {
-		return err
-	}
-
-	host, port, _ := net.SplitHostPort(addr)
-	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-		fmt.Sprintf("running on http %s:%s", host, port))
-
 	s.core.Addr = addr
 	s.core.Handler = s.mux
 
@@ -71,14 +56,6 @@ func (s *Server) ListenAndServe(addr string) error {
 }
 
 func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
-	if err := protobuf.Validate(s.meta); err != nil {
-		return err
-	}
-
-	host, port, _ := net.SplitHostPort(addr)
-	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-		fmt.Sprintf("running on https %s:%s", host, port))
-
 	s.core.Addr = addr
 	s.core.Handler = s.mux
 	s.core.IdleTimeout = 120 * time.Second

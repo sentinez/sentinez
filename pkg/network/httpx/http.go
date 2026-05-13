@@ -17,15 +17,13 @@ package httpx
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/shared/console"
 	"github.com/sentinez/sentinez/pkg/common/errorx"
 )
 
@@ -108,9 +106,6 @@ func (h *XServer) ListenAndServe(address string) error {
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
 
-	console.INFO(h.meta.GetServiceName(),
-		h.meta.GetServiceKey(), fmt.Sprintf("running on http %s", address))
-
 	return h.server.ListenAndServe()
 }
 
@@ -141,6 +136,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set(corehttp.HeaderServer, sentinez.Name)
+		w.Header().Set(corehttp.HeaderServer, core.Name)
 	})
 }
