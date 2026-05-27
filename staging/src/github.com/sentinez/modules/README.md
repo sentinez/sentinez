@@ -6,4 +6,4 @@
 
 =======================================================================
 
-This package provides all common utility packages needed in the project
+This package provides all API package module needed in the project
