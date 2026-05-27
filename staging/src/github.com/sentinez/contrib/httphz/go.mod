@@ -14,21 +14,20 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/hertz-contrib/http2 v0.1.8
 	github.com/hertz-contrib/reverseproxy v1.0.6
-	github.com/sentinez/core v0.0.0-00010101000000-000000000000
+	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-00010101000000-000000000000
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.10-20251209175733-2a1774d88802.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
-	github.com/bytedance/sonic v1.15.0 // indirect
-	github.com/bytedance/sonic/loader v0.5.0 // indirect
+	github.com/bytedance/sonic v1.15.1 // indirect
+	github.com/bytedance/sonic/loader v0.5.1 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/gopkg v0.1.7 // indirect
 	github.com/cloudwego/netpoll v0.7.2 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
-	github.com/exaring/ja4plus v0.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/hertz-contrib/websocket v0.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect

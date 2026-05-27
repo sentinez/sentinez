@@ -15,8 +15,17 @@
 package rand
 
 import (
+	"bytes"
 	"crypto/rand"
+	"fmt"
 	"math/big"
+	"sync"
+
+	"github.com/cloudresty/ulid"
+	"github.com/google/uuid"
+	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/rs/xid"
+	"github.com/sentinez/shared/unsafe"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -33,4 +42,54 @@ func RandomString(n int) (string, error) {
 		result[i] = charset[idxBig.Int64()]
 	}
 	return string(result), nil
+}
+
+var bufPool = sync.Pool{
+	New: func() any {
+		buf := bytes.NewBuffer([]byte{})
+		buf.Grow(4096)
+		return buf
+	},
+}
+
+// NewID generates a new UUID and returns it as a string.
+func NewID(prefix string) string {
+	id := uuid.New()
+	return fmt.Sprintf("%s%s", prefix, id.String())
+}
+
+func NewNanoID(prefix string) string {
+	id, _ := gonanoid.New()
+	return fmt.Sprintf("%s%s", prefix, id)
+}
+
+func NewXID(prefix []byte) string {
+	guid := xid.New()
+	guid.Bytes()
+
+	buf := bufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+
+	buf.Write(prefix)
+	buf.Write(unsafe.S2B(guid.String()))
+
+	res := unsafe.B2S(buf.Bytes())
+	bufPool.Put(buf)
+
+	return res
+}
+
+func NewTimeID(prefix []byte, unixtime uint64) string {
+	ulidStr, _ := ulid.NewTime(unixtime)
+
+	buf := bufPool.Get().(*bytes.Buffer)
+	buf.Reset()
+
+	buf.Write(prefix)
+	buf.WriteString(ulidStr)
+
+	res := unsafe.B2S(buf.Bytes())
+	bufPool.Put(buf)
+
+	return res
 }

@@ -10,7 +10,9 @@ import (
 )
 
 func NewWSReverseProxy(target string) (*WSReverseProxy, error) {
-	proxy := &WSReverseProxy{}
+	proxy := &WSReverseProxy{
+		target: target,
+	}
 	return proxy, nil
 }
 

@@ -18,8 +18,8 @@ Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
 - Protobuf models from `api/gen/go/sentinez/...`
 - `github.com/sentinez/sentinez/internal/shared/tables` for table definitions
-- `github.com/sentinez/sentinez/pkg/storage/dbx` and `github.com/sentinez/sentinez/pkg/storage/dbx/postgres` for database interactions
-- `github.com/sentinez/sentinez/pkg/storage/utils/table`
+- `github.com/sentinez/core/storage/dbx` and `github.com/sentinez/core/storage/dbx/postgres` for database interactions
+- `github.com/sentinez/core/storage/utils/table`
 - `github.com/sentinez/shared/ids` for ID generation
 
 ## 2. Define the Interface

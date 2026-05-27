@@ -19,11 +19,11 @@ The package name should be `<domain>fac`.
 Use standard imports, especially:
 - Context from `context`
 - Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1` (aliased as `confpb`)
+- Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1` (aliased as `confpb`)
 - Repository interfaces from `github.com/sentinez/sentinez/internal/core/<domain>/v1/repos/<model>`
 - The service package from `github.com/sentinez/sentinez/internal/core/<domain>/v1/service` (aliased as `<domain>svc`)
 - The handler package from `github.com/sentinez/sentinez/internal/core/<domain>/v1/handler` (aliased as `<domain>hdl`)
-- Database context/transactions from `github.com/sentinez/sentinez/pkg/storage/dbx/postgres`
+- Database context/transactions from `github.com/sentinez/core/storage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/zlog`
 
 ## 2. Initialize the Service: `NewDefaultService`

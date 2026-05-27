@@ -20,6 +20,7 @@ const (
 	hzHostClientName = "sentinez-edge-reverse-proxy"
 )
 
+// nolint
 func NewReverseProxy(target string,
 	options ...Option) (corehttp.ReverseProxy, error) {
 

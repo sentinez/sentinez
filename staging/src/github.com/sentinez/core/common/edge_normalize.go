@@ -17,7 +17,7 @@ package corecmn
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/shared/ids"
+	"github.com/sentinez/shared/rand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -109,7 +109,7 @@ func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
 	}
 
 	return &ruleenginepb.Condition{
-		Id:       ids.NewNanoID(condPrefix),
+		Id:       rand.NewNanoID(condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -123,7 +123,7 @@ func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
 	}
 
 	return &ruleenginepb.Rule{
-		Id:        ids.NewNanoID(rulePrefix),
+		Id:        rand.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
 		Condition: toCondition(rule.GetCondition()),
 	}

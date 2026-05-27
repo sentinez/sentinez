@@ -16,8 +16,7 @@ import (
 
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
-	tlsx "github.com/sentinez/shared/tls"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -87,9 +86,7 @@ func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 
 	return &tls.Config{
 		GetConfigForClient: func(
-			chi *tls.ClientHelloInfo) (*tls.Config, error) {
-
-			zlog.Debugf("[httpxdmz][ja4] fingerprint=%s", tlsx.JA4(chi))
+			_ *tls.ClientHelloInfo) (*tls.Config, error) {
 
 			return &tls.Config{
 				Certificates: certificates,

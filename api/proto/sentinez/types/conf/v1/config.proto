@@ -1,0 +1,54 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.types.conf.v1;
+
+import "sentinez/types/flag/v1/flags.proto";
+import "sentinez/types/v1/options.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1;confpb";
+
+message EnvConfig {
+  // hostname of service.
+  // eg s6z.io.vn
+  string hostname = 1;
+
+  // http address, api, application ...
+  string http_address = 2;
+
+  // secret key base64 encoded
+  string secret_key = 3;
+
+  // address of api gateway
+  string gateway_address = 4;
+
+  // origin of client, used to gen passkey
+  string client_origin = 5;
+
+  string timescale_uri = 10;
+  string postgres_uri = 11;
+  string clickhouse_uri = 12;
+  string consul_uri = 13;
+
+  // The address where the gRPC service will listen when it starts.
+  string grpc_address = 20;
+}
+
+message Config {
+  sentinez.types.v1.XMeta meta = 1;
+  EnvConfig env = 2;
+  sentinez.types.flag.v1.Flag flag = 3;
+}
