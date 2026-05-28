@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "sentinez/core/analytic/v1/analytic.proto",
+    "title": "sentinez/modules/analytic/v1/analytic.proto",
     "version": "version not set"
   },
   "tags": [

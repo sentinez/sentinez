@@ -17,10 +17,10 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/config"
+	"github.com/sentinez/shared/config"
 
 	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/flags"
 )
 

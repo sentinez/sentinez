@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
-	"github.com/sentinez/sentinez/internal/edge/v1"
+	edge "github.com/sentinez/sentinez/pkg/dmz/edge"
 
 	"net/http"
 	_ "net/http/pprof"

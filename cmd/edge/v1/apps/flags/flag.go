@@ -18,12 +18,12 @@ package edgeflags
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/common/flagx"
+	"github.com/sentinez/shared/flagx"
 
 	"github.com/sentinez/shared/zlog"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
-	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
+	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
 	"github.com/spf13/pflag"
 )
 

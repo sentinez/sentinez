@@ -234,14 +234,33 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/coresecurityv1RuleBased"
+          "$ref": "#/definitions/modulessecurityv1RuleBased"
         },
         "updateMask": {
           "type": "string"
         }
       }
     },
-    "coresecurityv1Rule": {
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "modulessecurityv1Rule": {
       "type": "object",
       "properties": {
         "id": {
@@ -262,7 +281,7 @@
       },
       "title": "Single rule"
     },
-    "coresecurityv1RuleBased": {
+    "modulessecurityv1RuleBased": {
       "type": "object",
       "properties": {
         "metadata": {
@@ -292,25 +311,6 @@
         }
       }
     },
-    "googlerpcStatus": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -333,7 +333,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/coresecurityv1RuleBased"
+          "$ref": "#/definitions/modulessecurityv1RuleBased"
         }
       }
     },
@@ -369,7 +369,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/coresecurityv1RuleBased"
+          "$ref": "#/definitions/modulessecurityv1RuleBased"
         }
       }
     },
@@ -380,7 +380,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/coresecurityv1RuleBased"
+            "$ref": "#/definitions/modulessecurityv1RuleBased"
           }
         },
         "total": {
@@ -473,7 +473,7 @@
       "type": "object",
       "properties": {
         "rule": {
-          "$ref": "#/definitions/coresecurityv1Rule"
+          "$ref": "#/definitions/modulessecurityv1Rule"
         },
         "group": {
           "$ref": "#/definitions/v1RuleGroup"
@@ -493,7 +493,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/coresecurityv1RuleBased"
+          "$ref": "#/definitions/modulessecurityv1RuleBased"
         }
       }
     }

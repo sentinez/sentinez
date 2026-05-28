@@ -1,0 +1,94 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.modules.iam.v1;
+
+import "buf/validate/validate.proto";
+import "sentinez/types/v1/model.proto";
+import "sentinez/types/v1/options.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1;iampb";
+
+message Account {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  sentinez.types.v1.Metadata metadata = 1;
+
+  string id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.accounts." }
+  }];
+
+  string user_id = 3 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.users." }
+  }];
+
+  // username only support for local provider
+  string username = 10
+      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+
+  // password_hash only support for local provider
+  string password_hash = 11;
+
+  string email = 12 [(buf.validate.field).string.email = true];
+
+  repeated string credentials = 20;
+
+  string provider = 21 [(buf.validate.field) = {
+    required: true
+    string: { pattern: "^(local|google|github|sso|passkey)$" }
+  }];
+
+  string provider_user_id = 22;
+}
+
+message AccountResponse {
+  sentinez.types.v1.Metadata metadata = 1;
+
+  string id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.accounts." }
+  }];
+
+  string user_id = 3 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.users." }
+  }];
+
+  string username = 10
+      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+
+  string email = 11 [(buf.validate.field).string.email = true];
+
+  string provider = 12;
+}
+
+message User {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  sentinez.types.v1.Metadata metadata = 1;
+
+  string id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.users." }
+  }];
+
+  string full_name = 10 [(buf.validate.field).required = true];
+  string email_backup = 11 [(buf.validate.field).string.email = true];
+  string phone_number = 12
+      [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
+}

@@ -17,10 +17,10 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/config"
+	"github.com/sentinez/shared/config"
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/flags"
 )
 

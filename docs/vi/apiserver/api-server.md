@@ -3,7 +3,7 @@ Tài liệu kỹ thuật cho máy chủ API của dự án **Sentinez** đây đ
 backend cho toàn bộ hệ thống.
 
 > [!NOTE]
-> Ban đầu, tất cả các dịch vụ thuộc ```internal/core/*``` đều được nhúng trực
+> Ban đầu, tất cả các dịch vụ thuộc ```github.com/sentinez/modules/*``` đều được nhúng trực
 > tiếp vào ```apiserver```, và coi chúng như là một hệ thống monolithic truyền
 > thống. Khi cần mở rộng hệ thống, ta có thể dễ dàng tách các dịch vụ trong 
 > ```core``` ra thành 1 microservice với ```apiserver``` đóng vai trò là 

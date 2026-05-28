@@ -21,7 +21,6 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/network"
-	httpxcmn "github.com/sentinez/sentinez/pkg/network/httpx/common"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
@@ -48,14 +47,14 @@ type ReverseProxy struct {
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 	if p == nil {
-		_ = httpxcmn.NotFound(ctx)
+		_ = corehttp.NotFound(ctx)
 		zlog.Errorf("target not found in reverse proxy memory")
 		return
 	}
 
 	nctx, ok := ctx.Unwrap().(*stdhttpx.Context)
 	if !ok {
-		_ = httpxcmn.InternalServerError(ctx)
+		_ = corehttp.InternalServerError(ctx)
 		zlog.Fatal("request context not supported")
 		return
 	}

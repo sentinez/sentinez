@@ -18,9 +18,9 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/flags"
-	"github.com/sentinez/sentinez/pkg/config"
+	"github.com/sentinez/shared/config"
 )
 
 var (

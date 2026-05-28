@@ -19,10 +19,10 @@ import (
 	"context"
 
 	"github.com/sentinez/core"
+	grpcserver "github.com/sentinez/core/grpc/server"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/cmd/apiserver/apps/config"
-	"github.com/sentinez/sentinez/internal/apiserver"
-	"github.com/sentinez/sentinez/pkg/network/httpx"
+	"github.com/sentinez/sentinez/pkg/dmz/apiserver"
 )
 
 // This is the sentinez apiserver application, it will automatically
@@ -40,7 +40,7 @@ import (
 func main() {
 	app := runner.NewApp[*apiserver.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*apiserver.Server]) {
-		c.Inject(config.Config, httpx.NewServer, apiserver.New)
+		c.Inject(config.Config, grpcserver.NewServer, apiserver.New)
 
 		c.OnStart(func(ctx context.Context, server *apiserver.Server) error {
 			return server.Start(ctx)

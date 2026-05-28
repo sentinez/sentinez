@@ -1,0 +1,205 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.modules.security.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "sentinez/modules/security/v1/model.proto";
+import "sentinez/modules/security/v1/shared.proto";
+import "sentinez/types/v1/model.proto";
+import "sentinez/types/v1/options.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypb";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: { title: "Security Service" version: "1.0" }
+  schemes: HTTP
+  schemes: HTTPS
+  consumes: "application/json"
+  security_definitions: {
+    security: {
+      key: "ApiKeyAuth"
+      value: { type: TYPE_API_KEY in: IN_HEADER name: "Authorization" }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "ApiKeyAuth"
+      value: {}
+    }
+  }
+};
+option (sentinez.types.v1.x_meta) = {
+  service_name: "SENTINEZ // SECURITY"
+  service_kind: KIND_CORE
+  service_key: "sentinez.modules.security.v1"
+};
+
+// SecurityService handles CRUD operations for WAF rule expressions and rules
+service SecurityService {
+  // ── RuleBased ────────────────────────────────────────────────────────────
+
+  // CreateRuleBased creates a new WAF rule based
+  rpc CreateRuleBased(CreateRuleBasedRequest)
+      returns (CreateRuleBasedResponse) {
+    option (google.api.http) = {
+      post: "/security/rulebased"
+      body: "*"
+    };
+  }
+
+  // GetRuleBased retrieves a WAF rule based by ID
+  rpc GetRuleBased(GetRuleBasedRequest) returns (GetRuleBasedResponse) {
+    option (google.api.http) = {
+      get: "/security/rulebased/{id}"
+    };
+  }
+
+  // UpdateRuleBased updates an existing WAF rule based
+  rpc UpdateRuleBased(UpdateRuleBasedRequest)
+      returns (UpdateRuleBasedResponse) {
+    option (google.api.http) = {
+      put: "/security/rulebased/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteRuleBased removes a WAF rule based by ID
+  rpc DeleteRuleBased(DeleteRuleBasedRequest)
+      returns (DeleteRuleBasedResponse) {
+    option (google.api.http) = {
+      delete: "/security/rulebased/{id}"
+    };
+  }
+
+  // ListRuleBaseds lists WAF rule baseds with optional filters
+  rpc ListRuleBaseds(ListRuleBasedsRequest) returns (ListRuleBasedsResponse) {
+    option (google.api.http) = {
+      get: "/security/rulebaseds"
+    };
+  }
+
+  // ── Status ────────────────────────────────────────────────────────────────
+
+  // Status returns the health status of the security service
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {
+      get: "/security/status"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      ignore: true
+    };
+  }
+}
+
+// ── RuleBased Messages ─────────────────────────────────────────────────────
+
+message CreateRuleBasedRequest {
+  RuleBased rule_based = 1 [(buf.validate.field).required = true];
+}
+
+message CreateRuleBasedResponse {
+  string id = 1;
+}
+
+message GetRuleBasedRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetRuleBasedResponse {
+  RuleBased rule_based = 1;
+}
+
+message UpdateRuleBasedRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  RuleBased rule_based = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateRuleBasedResponse {
+  RuleBased rule_based = 1;
+}
+
+message DeleteRuleBasedRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteRuleBasedResponse {}
+
+message ListRuleBasedsRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+}
+
+message ListRuleBasedsResponse {
+  repeated RuleBased rule_baseds = 1;
+  int64 total = 2;
+}
+
+// ── Rule Messages ───────────────────────────────────────────────────────────
+
+message CreateRuleRequest {
+  RuleGroup rule = 1 [(buf.validate.field).required = true];
+}
+
+message CreateRuleResponse {
+  string id = 1;
+}
+
+message GetRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetRuleResponse {
+  RuleGroup rule = 1;
+}
+
+message UpdateRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  RuleGroup rule = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateRuleResponse {
+  RuleGroup rule = 1;
+}
+
+message DeleteRuleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteRuleResponse {}
+
+message ListRulesRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+}
+
+message ListRulesResponse {
+  repeated RuleGroup rules = 1;
+  int64 total = 2;
+}
+
+// ── Status Messages ─────────────────────────────────────────────────────────
+
+message StatusRequest {}
+
+message StatusResponse {
+  string msg = 1;
+}

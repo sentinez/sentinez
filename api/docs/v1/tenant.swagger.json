@@ -284,6 +284,83 @@
     }
   },
   "definitions": {
+    "RuleBasedLiteNodeLite": {
+      "type": "object",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "title": "AND, OR, NOT"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleLite"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/RuleBasedLiteNodeLite"
+          }
+        }
+      }
+    },
+    "RuleBasedNode": {
+      "type": "object",
+      "properties": {
+        "operator": {
+          "$ref": "#/definitions/v1Logic"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ruleenginev1Rule"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/RuleBasedNode"
+          }
+        }
+      }
+    },
+    "edgev1Location": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "string",
+          "title": "@gotags: yaml:\"location\""
+        },
+        "proxyRewrite": {
+          "type": "string",
+          "title": "@gotags: yaml:\"proxyRewrite\""
+        },
+        "proxyPass": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Upstream"
+          },
+          "title": "@gotags: yaml:\"proxyPass\""
+        },
+        "balanceStrategy": {
+          "$ref": "#/definitions/v1BalanceStrategy",
+          "title": "@gotags: yaml:\"balanceStrategy\""
+        },
+        "proxySetHeaders": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"proxySetHeaders\""
+        }
+      }
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -336,31 +413,6 @@
         "condition": {
           "$ref": "#/definitions/v1Condition",
           "title": "@gotags: yaml:\"condition\""
-        },
-        "actions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Action"
-          },
-          "title": "@gotags: yaml:\"actions\""
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32",
-          "title": "@gotags: yaml:\"priority\""
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       },
       "title": "A complete rule definition"
@@ -394,15 +446,14 @@
     "v1Action": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string"
-        },
         "type": {
           "$ref": "#/definitions/v1ActionType",
+          "description": "@gotags: yaml:\"type\"",
           "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
         },
         "params": {
           "type": "object",
+          "description": "@gotags: yaml:\"params\"",
           "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
         }
       },
@@ -421,11 +472,20 @@
       ],
       "default": "ACTION_TYPE_UNSPECIFIED"
     },
+    "v1BalanceStrategy": {
+      "type": "string",
+      "enum": [
+        "BALANCE_STRATEGY_UNSPECIFIED",
+        "BALANCE_STRATEGY_ROUND_ROBIN"
+      ],
+      "default": "BALANCE_STRATEGY_UNSPECIFIED"
+    },
     "v1Condition": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "title": "@gotags: yaml:\"-\""
         },
         "source": {
           "$ref": "#/definitions/v1FieldSource",
@@ -473,6 +533,10 @@
       },
       "title": "A logical condition expression"
     },
+    "v1Controller": {
+      "type": "object",
+      "title": "Controller for systems using a virtual waiting room or throttling:"
+    },
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
@@ -503,72 +567,6 @@
     },
     "v1DeleteResourceResponse": {
       "type": "object"
-    },
-    "v1Expr": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "description": {
-          "type": "string"
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/ruleenginev1Rule"
-          },
-          "title": "@gotags: yaml:\"rules\""
-        },
-        "logics": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Logic"
-          },
-          "title": "@gotags: yaml:\"logics\""
-        }
-      },
-      "title": "A collection of rules (e.g., grouped by tenant or domain)"
-    },
-    "v1ExprLite": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleLite"
-          },
-          "title": "@gotags: yaml:\"rules\""
-        },
-        "logics": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "@gotags: yaml:\"logics\""
-        }
-      }
     },
     "v1FieldSource": {
       "type": "string",
@@ -624,7 +622,8 @@
       "enum": [
         "LOGIC_UNSPECIFIED",
         "LOGIC_AND",
-        "LOGIC_OR"
+        "LOGIC_OR",
+        "LOGIC_NOT"
       ],
       "default": "LOGIC_UNSPECIFIED"
     },
@@ -647,41 +646,6 @@
       ],
       "default": "OPERATOR_UNSPECIFIED"
     },
-    "v1Origin": {
-      "type": "object",
-      "properties": {
-        "namespace": {
-          "type": "string",
-          "title": "@gotags: yaml:\"namespace\""
-        },
-        "routes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OriginRoute"
-          },
-          "title": "@gotags: yaml:\"routes\""
-        }
-      },
-      "title": "Origin defines where the request goes and how the edge processes it:"
-    },
-    "v1OriginRoute": {
-      "type": "object",
-      "properties": {
-        "matchPrefix": {
-          "type": "string",
-          "title": "@gotags: yaml:\"matchPrefix\""
-        },
-        "target": {
-          "type": "string",
-          "title": "@gotags: yaml:\"target\""
-        },
-        "rewrite": {
-          "type": "string",
-          "title": "@gotags: yaml:\"rewrite\""
-        }
-      }
-    },
     "v1Pages": {
       "type": "object",
       "properties": {
@@ -698,9 +662,9 @@
         }
       }
     },
-    "v1Personalization": {
+    "v1Personal": {
       "type": "object",
-      "title": "Personalization defines where the request goes and how the edge processes it"
+      "title": "Personal defines where the request goes and how the edge processes it"
     },
     "v1Plan": {
       "type": "string",
@@ -711,6 +675,15 @@
         "PLAN_PRO"
       ],
       "default": "PLAN_UNSPECIFIED"
+    },
+    "v1ProxyProtocol": {
+      "type": "string",
+      "enum": [
+        "PROXY_PROTOCOL_UNSPECIFIED",
+        "PROXY_PROTOCOL_HTTP",
+        "PROXY_PROTOCOL_HTTPS"
+      ],
+      "default": "PROXY_PROTOCOL_UNSPECIFIED"
     },
     "v1Resource": {
       "type": "object",
@@ -738,6 +711,61 @@
         }
       }
     },
+    "v1RuleBased": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/RuleBasedNode"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1RuleBasedLite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/definitions/RuleBasedLiteNodeLite"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        }
+      }
+    },
     "v1RuleLite": {
       "type": "object",
       "properties": {
@@ -758,15 +786,6 @@
             "type": "string"
           },
           "title": "@gotags: yaml:\"actions\""
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32",
-          "title": "@gotags: yaml:\"priority\""
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enabled\""
         }
       },
       "title": "A complete rule definition"
@@ -778,17 +797,13 @@
           "type": "boolean",
           "title": "@gotags: yaml:\"isWafEngineOn\""
         },
-        "expression": {
-          "$ref": "#/definitions/v1ExprLite",
-          "title": "@gotags: yaml:\"expression\""
+        "ruleBased": {
+          "$ref": "#/definitions/v1RuleBasedLite",
+          "title": "@gotags: yaml:\"ruleBased\""
         },
-        "rule": {
-          "$ref": "#/definitions/ruleenginev1Rule",
-          "title": "@gotags: yaml:\"rule\""
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expr",
-          "title": "@gotags: yaml:\"expr\""
+        "ruleBasedCompiled": {
+          "$ref": "#/definitions/v1RuleBased",
+          "title": "@gotags: yaml:\"-\""
         },
         "isRateLimitOn": {
           "type": "boolean",
@@ -810,6 +825,32 @@
       },
       "title": "Security user-specific WAF, rate limiting, or bot protection rules"
     },
+    "v1Server": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "@gotags: yaml:\"name\""
+        },
+        "listen": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "@gotags: yaml:\"listen\""
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/edgev1Location"
+          },
+          "title": "@gotags: yaml:\"locations\""
+        }
+      },
+      "title": "Server defines where the request goes and how the edge processes it:"
+    },
     "v1Setting": {
       "type": "object",
       "properties": {
@@ -817,20 +858,20 @@
           "$ref": "#/definitions/sentinezedgev1Metadata",
           "title": "@gotags: yaml:\"metadata\""
         },
-        "origin": {
-          "$ref": "#/definitions/v1Origin",
-          "title": "@gotags: yaml:\"origin\""
+        "server": {
+          "$ref": "#/definitions/v1Server",
+          "title": "@gotags: yaml:\"server\""
         },
         "security": {
           "$ref": "#/definitions/v1Security",
           "title": "@gotags: yaml:\"security\""
         },
-        "trafficControl": {
-          "$ref": "#/definitions/v1TrafficControl",
-          "title": "@gotags: yaml:\"trafficControl\""
+        "controller": {
+          "$ref": "#/definitions/v1Controller",
+          "title": "@gotags: yaml:\"controller\""
         },
         "personal": {
-          "$ref": "#/definitions/v1Personalization",
+          "$ref": "#/definitions/v1Personal",
           "title": "@gotags: yaml:\"personal\""
         }
       },
@@ -843,10 +884,6 @@
           "type": "string"
         }
       }
-    },
-    "v1TrafficControl": {
-      "type": "object",
-      "title": "TrafficControl for systems using a virtual waiting room or throttling:"
     },
     "v1UpdateResourceRequest": {
       "type": "object",
@@ -870,6 +907,19 @@
     },
     "v1UpdateResourceResponse": {
       "type": "object"
+    },
+    "v1Upstream": {
+      "type": "object",
+      "properties": {
+        "server": {
+          "type": "string",
+          "title": "@gotags: yaml:\"server\""
+        },
+        "protocol": {
+          "$ref": "#/definitions/v1ProxyProtocol",
+          "title": "@gotags: yaml:\"protocol\""
+        }
+      }
     }
   },
   "securityDefinitions": {

@@ -18,9 +18,9 @@ package flags
 import (
 	"sync"
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/core/greeter/v1"
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/flag/v1"
-	"github.com/sentinez/sentinez/pkg/common/flagx"
+	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
+	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
+	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
 )

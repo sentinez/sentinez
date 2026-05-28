@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/cmd/realtime/apps/config"
-	"github.com/sentinez/sentinez/internal/realtime"
+	"github.com/sentinez/sentinez/pkg/dmz/realtime"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
 )
 

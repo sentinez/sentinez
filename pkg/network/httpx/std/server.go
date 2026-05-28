@@ -20,7 +20,7 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/setting/conf/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 )
 
 var _ corehttp.Server = (*Server)(nil)

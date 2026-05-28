@@ -56,7 +56,7 @@ ping:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto lint.core lint.core lint.shared
+lint: lint.go lint.proto lint.core lint.core lint.shared lint.modules lint.contrib.httphz
 
 lint.go:
 	@echo "[LINT] sentinez is linting ..."
@@ -77,6 +77,10 @@ lint.core:
 lint.shared:
 	@echo "[LINT] shared is linting ..."
 	@cd ./staging/src/github.com/sentinez/shared && golangci-lint run
+
+lint.modules:
+	@echo "[LINT] modules is linting ..."
+	@cd ./staging/src/github.com/sentinez/modules && golangci-lint run
 
 lint.contrib.httphz:
 	@echo "[LINT] httphz is linting ..."

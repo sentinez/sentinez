@@ -20,8 +20,8 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
+	"github.com/sentinez/modules/greeter/v1"
 	"github.com/sentinez/sentinez/cmd/greeter/v1/apps/config"
-	"github.com/sentinez/sentinez/internal/core/greeter/v1"
 )
 
 func main() {
