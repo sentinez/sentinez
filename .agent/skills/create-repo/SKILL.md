@@ -9,7 +9,7 @@ description: Instructions for creating a database repository following the stand
 
 **DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
-When asked to create a new repository for a given protobuf model, you must follow the standard repository pattern established in the `sentinez` project (such as in `internal/core/iam/v1/repos/users/users.go`).
+When asked to create a new repository for a given protobuf model, you must follow the standard repository pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/repos/users/users.go`).
 
 ## 1. File Structure and Package
 

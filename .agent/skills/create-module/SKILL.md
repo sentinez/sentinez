@@ -9,19 +9,19 @@ description: Instructions for creating a base core module entrypoint file follow
 
 **DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
-When asked to create the base core service/module entrypoint for a given functional domain, you must follow the standard orchestrating pattern established in the `sentinez` project (such as in `internal/core/iam/v1/iam.go`). This file binds the gRPC handlers to a local buffer listener (used for internal/gateway communication).
+When asked to create the base core service/module entrypoint for a given functional domain, you must follow the standard orchestrating pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/iam.go`). This file binds the gRPC handlers to a local buffer listener (used for internal/gateway communication).
 
 ## 1. File Structure and Package
 
-The module entrypoint should be placed at the root of the domain version package: `internal/core/<domain>/v1/<domain>.go`.
+The module entrypoint should be placed at the root of the domain version package: `github.com/sentinez/modules/<domain>/v1/<domain>.go`.
 The package name should be `<domain>`.
 
 Use standard imports, especially:
 - Context from `context`
 - Local client buffer configurations from `github.com/sentinez/sentinez/api/client/local`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/core/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1` (aliased as `confpb`)
-- The factory package from `github.com/sentinez/sentinez/internal/core/<domain>/v1/factory` (aliased as `<domain>fac`)
+- The factory package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/factory` (aliased as `<domain>fac`)
 - Default gRPC server utilities from `github.com/sentinez/sentinez/pkg/network/grpc` (aliased as `netgrpc`)
 - Buffer connection from `google.golang.org/grpc/test/bufconn`
 

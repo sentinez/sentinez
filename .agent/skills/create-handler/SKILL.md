@@ -7,18 +7,18 @@ description: Instructions for creating a base handler package following the stan
 
 **CRITICAL PREREQUISITE:** Before generating or implementing the handler, you MUST read and apply the rules from the `go-style-guide` skill. All generated code must strictly follow the Uber Go Style Guide conventions.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/modules/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
-When asked to create a new handler for a given functional domain, you must follow the standard handler pattern established in the `sentinez` project (such as in `internal/core/iam/v1/handler/iam.go`). The handler acts as the gRPC server implementation that handles incoming requests, performs authorization checks, logs activities, and delegates business logic to the underlying service package.
+When asked to create a new handler for a given functional domain, you must follow the standard handler pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/handler/iam.go`). The handler acts as the gRPC server implementation that handles incoming requests, performs authorization checks, logs activities, and delegates business logic to the underlying service package.
 
 ## 1. File Structure and Package
 
-The handler should be placed in an appropriate package under `internal/core/<domain>/v1/handler`. The main file should typically be named `<domain>.go`.
+The handler should be placed in an appropriate package under `github.com/sentinez/modules/<domain>/v1/handler`. The main file should typically be named `<domain>.go`.
 The package name should be `<domain>hdl`.
 
 Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- The service package from `github.com/sentinez/sentinez/internal/core/<domain>/v1/service` (aliased as `<domain>svc`)
+- The service package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service` (aliased as `<domain>svc`)
 - Standard error handling from `github.com/sentinez/sentinez/pkg/common/errorx`
 - Request context headers and auth from `github.com/sentinez/sentinez/pkg/common/headers`
 - Logging from `github.com/sentinez/shared/zlog`
@@ -32,7 +32,7 @@ package <domain>hdl
 
 import (
 	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/<domain>/v1"
-	<domain>svc "github.com/sentinez/sentinez/internal/core/<domain>/v1/service"
+	<domain>svc "github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service"
 	// other imports...
 )
 

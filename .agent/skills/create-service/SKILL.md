@@ -9,15 +9,15 @@ description: Instructions for creating a base service package following the stan
 
 **DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
-When asked to create a new service for a given functional domain, you must follow the standard service pattern established in the `sentinez` project (such as in `internal/core/iam/v1/service/service.go`).
+When asked to create a new service for a given functional domain, you must follow the standard service pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/service/service.go`).
 
 ## 1. File Structure and Package
 
-The service should be placed in an appropriate package under `internal/core/<domain>/v1/service`.
+The service should be placed in an appropriate package under `github.com/sentinez/modules/<domain>/v1/service`.
 Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/<domain>/v1` (aliased as `pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1` (aliased as `confpb`)
-- Repository interfaces from `github.com/sentinez/sentinez/internal/core/<domain>/v1/repos/<model>`
+- Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/repos/<model>`
 - Standard error handling from `github.com/sentinez/sentinez/pkg/common/errorx`
 - Postgres transaction support from `github.com/sentinez/core/storage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/zlog`
