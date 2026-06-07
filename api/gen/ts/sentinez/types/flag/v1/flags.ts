@@ -2,12 +2,12 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/types/setting/flag/v1/flags.proto
+// source: sentinez/types/flag/v1/flags.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-export const protobufPackage = "sentinez.types.setting.flag.v1";
+export const protobufPackage = "sentinez.types.flag.v1";
 
 export interface Flag {
   /** base */

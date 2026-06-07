@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/tenant/v1/model.proto
+// source: sentinez/modules/tenant/v1/model.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -10,7 +10,7 @@ import { Setting } from "../../../edge/v1/setting";
 import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 
-export const protobufPackage = "sentinez.core.tenant.v1";
+export const protobufPackage = "sentinez.modules.tenant.v1";
 
 export interface Resource {
   metadata?: Metadata | undefined;

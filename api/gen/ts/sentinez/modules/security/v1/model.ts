@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/security/v1/model.proto
+// source: sentinez/modules/security/v1/model.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -10,7 +10,7 @@ import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 import { RuleGroup } from "./shared";
 
-export const protobufPackage = "sentinez.core.security.v1";
+export const protobufPackage = "sentinez.modules.security.v1";
 
 export interface RuleBased {
   metadata?: Metadata | undefined;

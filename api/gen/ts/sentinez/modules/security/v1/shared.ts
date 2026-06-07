@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/security/v1/shared.proto
+// source: sentinez/modules/security/v1/shared.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -18,7 +18,7 @@ import {
   operatorToJSON,
 } from "../../../types/secure/ruleengine/v1/ruleengine";
 
-export const protobufPackage = "sentinez.core.security.v1";
+export const protobufPackage = "sentinez.modules.security.v1";
 
 /** Single rule */
 export interface Rule {

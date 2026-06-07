@@ -2,12 +2,12 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/centraldata/v1/centraldata.proto
+// source: sentinez/modules/centraldata/v1/centraldata.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-export const protobufPackage = "sentinez.core.centraldata.v1";
+export const protobufPackage = "sentinez.modules.centraldata.v1";
 
 export interface StatusRequest {
 }

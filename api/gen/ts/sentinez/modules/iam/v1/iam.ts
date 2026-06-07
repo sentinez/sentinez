@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/iam/v1/iam.proto
+// source: sentinez/modules/iam/v1/iam.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -11,7 +11,7 @@ import { Context } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
 import { AccountResponse, User } from "./model";
 
-export const protobufPackage = "sentinez.core.iam.v1";
+export const protobufPackage = "sentinez.modules.iam.v1";
 
 export interface PasskeyLoginVerifyRequest {
   sessionId: string;

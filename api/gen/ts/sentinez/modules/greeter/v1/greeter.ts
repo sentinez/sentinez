@@ -2,13 +2,13 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/greeter/v1/greeter.proto
+// source: sentinez/modules/greeter/v1/greeter.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Pages } from "../../../types/v1/model";
 
-export const protobufPackage = "sentinez.core.greeter.v1";
+export const protobufPackage = "sentinez.modules.greeter.v1";
 
 export interface SayHelloRequest {
   page?: Pages | undefined;

@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.7.7
 //   protoc               unknown
-// source: sentinez/core/tenant/v1/tenant.proto
+// source: sentinez/modules/tenant/v1/tenant.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -11,7 +11,7 @@ import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } 
 import { Pages } from "../../../types/v1/model";
 import { Resource } from "./model";
 
-export const protobufPackage = "sentinez.core.tenant.v1";
+export const protobufPackage = "sentinez.modules.tenant.v1";
 
 export interface GetResourceRequest {
   id: string;
