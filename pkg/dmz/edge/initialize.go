@@ -18,7 +18,7 @@ import (
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/http"
 	"github.com/sentinez/sentinez/internal/stream"
-	"github.com/sentinez/sentinez/pkg/memory"
+	"github.com/sentinez/sentinez/pkg/dmz/memory"
 	"github.com/sentinez/shared/zlog"
 )
 

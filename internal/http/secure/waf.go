@@ -26,7 +26,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/pkg/memory/wafengine"
+	"github.com/sentinez/sentinez/pkg/dmz/memory/wafengine"
 	"github.com/sentinez/shared/zlog"
 )
 

@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/pkg/memory/ruleengine"
+	"github.com/sentinez/sentinez/pkg/dmz/memory/ruleengine"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )

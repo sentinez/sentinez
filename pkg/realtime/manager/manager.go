@@ -12,29 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package room
+package realtimemnt
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/pkg/utils/queue"
-	"github.com/sentinez/shared/zlog"
+	"sync"
+
+	"github.com/sentinez/sentinez/pkg/utils/network/wsz"
 )
 
-var _ corechains.ChainNode = (*WaitingRoom)(nil)
+var (
+	manager *wsz.Manager
+	once    sync.Once
+)
 
-func NewRoom(_ zlog.Level) corechains.ChainNode {
-	return &WaitingRoom{
-		Node: corechains.NewNode(),
-	}
-}
+func Manager() *wsz.Manager {
+	once.Do(func() {
+		manager = wsz.NewManager()
+	})
 
-type WaitingRoom struct {
-	*corechains.Node
-	_ *queue.Queue
-}
-
-func (wr *WaitingRoom) Handle(ctx corehttp.Context) error {
-
-	return wr.HandleNext(ctx)
+	return manager
 }

@@ -3,7 +3,7 @@ package coregrpc
 import (
 	"context"
 
-	grpcserver "github.com/sentinez/core/grpc/server"
+	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/grpc"
@@ -40,7 +40,7 @@ func (s *Server) AsServer() *grpc.Server {
 func (s *Server) Serve(conf *confpb.Config) error {
 
 	addr := conf.GetEnv().GetGrpcAddress()
-	listener, err := grpcserver.ListenNetworkTCP(addr)
+	listener, err := grpcgateway.ListenNetworkTCP(addr)
 	if err != nil {
 		return err
 	}

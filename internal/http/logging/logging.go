@@ -19,6 +19,7 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	streamebpf "github.com/sentinez/sentinez/internal/stream/ebpf"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -44,6 +45,10 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	requestResourceHost := string(ctx.Host())
 
 	err := l.HandleNext(ctx)
+
+	ip := ctx.RequestIP()
+	bw, _ := streamebpf.LookupBandwidth(ip)
+	zlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
 	if l.logger.V(zlog.LevelInfo.Int()) {
 		l.logger.Info("[http][request]", &typepb.RequestEvent{

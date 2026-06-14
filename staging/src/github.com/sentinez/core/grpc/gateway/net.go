@@ -12,29 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package room
+// Package grpcgateway provide functions extended of http/net
+package grpcgateway
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/pkg/utils/queue"
-	"github.com/sentinez/shared/zlog"
+	"net"
 )
 
-var _ corechains.ChainNode = (*WaitingRoom)(nil)
-
-func NewRoom(_ zlog.Level) corechains.ChainNode {
-	return &WaitingRoom{
-		Node: corechains.NewNode(),
-	}
-}
-
-type WaitingRoom struct {
-	*corechains.Node
-	_ *queue.Queue
-}
-
-func (wr *WaitingRoom) Handle(ctx corehttp.Context) error {
-
-	return wr.HandleNext(ctx)
+// ListenNetworkTCP listens on the TCP network address addr and
+// returns a net.Listener.
+func ListenNetworkTCP(addr string) (net.Listener, error) {
+	return net.Listen("tcp", addr)
 }

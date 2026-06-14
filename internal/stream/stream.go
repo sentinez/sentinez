@@ -15,14 +15,15 @@
 package stream
 
 import (
-	"github.com/sentinez/sentinez/pkg/network"
+	streamebpf "github.com/sentinez/sentinez/internal/stream/ebpf"
+	"github.com/sentinez/sentinez/pkg/utils/network"
 	"github.com/sentinez/shared/zlog"
 )
 
 const VETH0 = "veth0"
 
 func Init(networkInterface string) error {
-	ctx := newContext()
+	ctx := streamebpf.NewContext()
 
 	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
@@ -30,7 +31,7 @@ func Init(networkInterface string) error {
 		return err
 	}
 
-	if err := ctx.attachXDP(iface.Index); err != nil {
+	if err := ctx.AttachXDP(iface.Index); err != nil {
 		zlog.Errorf("stream: attaching xdp: %v", err)
 		return err
 	}
@@ -39,13 +40,5 @@ func Init(networkInterface string) error {
 }
 
 func Close() error {
-	if inst == nil {
-		return nil
-	}
-
-	return inst.close()
-}
-
-func getContext() *context {
-	return newContext()
+	return streamebpf.CloseContext()
 }
