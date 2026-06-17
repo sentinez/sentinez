@@ -18,14 +18,13 @@ package main
 import (
 	"context"
 
-	"github.com/sentinez/contrib/httphz"
-	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core"
-	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/cmd/edge/v1/apps/config"
 	edgeyaml "github.com/sentinez/sentinez/cmd/edge/v1/apps/yaml"
 	edge "github.com/sentinez/sentinez/pkg/dmz/edge"
+	stdhttpx "github.com/sentinez/sentinez/pkg/utils/network/httpx/std"
+	stdproxy "github.com/sentinez/sentinez/pkg/utils/network/httpx/std/proxy"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -58,16 +57,12 @@ func main() {
 		c.Inject(
 			config.Config,
 			edgeyaml.LoadSetting,
-			httphz.NewServer,
+			stdhttpx.NewServer,
 			edge.New,
 		)
 
 		c.OnStart(func(_ context.Context, server *edge.Server) error {
-			server.SetReverseProxyConstructor(
-				func(s string) (corehttp.ReverseProxy, error) {
-					return proxyhz.NewReverseProxy(s)
-				},
-			)
+			server.SetReverseProxyConstructor(stdproxy.NewReverseProxy)
 
 			return server.Start()
 		})

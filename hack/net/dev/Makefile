@@ -7,8 +7,9 @@ DMZ_IF := veth0
 DMZ_UPLINK := dmz-uplink
 HOST_UPLINK := host-uplink
 
-CLIENT_IP := 203.0.113.10/24
-DMZ_IP := 203.0.113.1/24
+CLIENT_IP := 203.0.113.2/24
+EDGE_IP := 203.0.113.1
+DMZ_IP := $(EDGE_IP)/24
 
 HOST_UPLINK_IP := 192.168.100.1/24
 DMZ_UPLINK_IP := 192.168.100.2/24
@@ -58,7 +59,7 @@ create:
 
 	@echo "Routes..."
 	ip netns exec $(CLIENT_NS) \
-		ip route add default via 203.0.113.1
+		ip route add default via $(EDGE_IP)
 
 	ip netns exec $(GATEWAY_NS) \
 		ip route add default via 192.168.100.1
@@ -105,7 +106,7 @@ shell-gateway:
 .PHONY: test-public
 test-public:
 	ip netns exec $(CLIENT_NS) \
-		curl http://203.0.113.1:7443
+		curl http://$(EDGE_IP):7443
 
 .PHONY: test-internet
 test-internet:
@@ -141,7 +142,7 @@ clean:
 
 
 curl:
-	sudo ip netns exec client curl -vk https://203.0.113.1:7443
+	sudo ip netns exec client curl -vk https://$(EDGE_IP):7443
 
 tracing:
 	cat /sys/kernel/tracing/trace_pipe

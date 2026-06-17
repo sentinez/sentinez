@@ -17,6 +17,7 @@ package edge
 
 import (
 	"context"
+	"crypto/tls"
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
@@ -120,5 +121,10 @@ func (s *Server) Start() error {
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
-	return s.core.ListenAndServeTLS(addr, certFile, keyFile)
+	return s.core.ListenAndServe(addr,
+		corehttp.WithCertificate(certFile, keyFile),
+		corehttp.WithTLSConfig(&tls.Config{
+			GetConfigForClient: stream.TLSConfig,
+		}),
+	)
 }

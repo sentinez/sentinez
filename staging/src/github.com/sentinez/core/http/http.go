@@ -14,14 +14,45 @@
 
 package corehttp
 
-import "context"
+import (
+	"context"
+	"crypto/tls"
+)
+
+type Option struct {
+	CertFile    string
+	CertKeyFile string
+	TLSConfig   *tls.Config
+}
+
+type ServerOption func(opt *Option)
+
+func WithCertificate(certFile, certKeyFile string) func(opt *Option) {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.CertFile = certFile
+		opt.CertKeyFile = certKeyFile
+	}
+}
+
+func WithTLSConfig(conf *tls.Config) func(opt *Option) {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.TLSConfig = conf
+	}
+}
 
 type Server interface {
 	Shutdown(ctx context.Context) error
-	ListenAndServe(addr string) error
+	ListenAndServe(addr string, opts ...ServerOption) error
 	Use(mdw ...func(next RequestHandler) RequestHandler)
 	Handle(fn RequestHandler)
-	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
 type ReverseProxy interface {
