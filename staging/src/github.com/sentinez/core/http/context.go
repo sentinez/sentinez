@@ -21,7 +21,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 )
 
 type RequestContext interface {

@@ -22,7 +22,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corelimiter "github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/utils"
 	"github.com/sentinez/sentinez/pkg/dmz/memory/ratelimiter"

@@ -30,7 +30,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/unsafe"
 	"github.com/sentinez/shared/zlog"

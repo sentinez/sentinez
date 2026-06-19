@@ -22,7 +22,7 @@ package tenantpb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -134,11 +134,11 @@ var File_sentinez_modules_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/modules/tenant/v1/model.proto\x12\x1asentinez.modules.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1esentinez/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xbd\x03\n" +
+	"&sentinez/modules/tenant/v1/model.proto\x12\x1asentinez.modules.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc1\x03\n" +
 	"\bResource\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x120\n" +
-	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12D\n" +
-	"\x10resource_setting\x18\x03 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
+	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12H\n" +
+	"\x10resource_setting\x18\x03 \x01(\v2\x1d.sentinez.dmz.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
@@ -160,13 +160,13 @@ var file_sentinez_modules_tenant_v1_model_proto_msgTypes = make([]protoimpl.Mess
 var file_sentinez_modules_tenant_v1_model_proto_goTypes = []any{
 	(*Resource)(nil),    // 0: sentinez.modules.tenant.v1.Resource
 	(*v1.Metadata)(nil), // 1: sentinez.types.v1.Metadata
-	(*v11.Setting)(nil), // 2: sentinez.edge.v1.Setting
+	(*v11.Setting)(nil), // 2: sentinez.dmz.edge.v1.Setting
 	(v1.Status)(0),      // 3: sentinez.types.v1.Status
 	(v1.Plan)(0),        // 4: sentinez.types.v1.Plan
 }
 var file_sentinez_modules_tenant_v1_model_proto_depIdxs = []int32{
 	1, // 0: sentinez.modules.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
-	2, // 1: sentinez.modules.tenant.v1.Resource.resource_setting:type_name -> sentinez.edge.v1.Setting
+	2, // 1: sentinez.modules.tenant.v1.Resource.resource_setting:type_name -> sentinez.dmz.edge.v1.Setting
 	3, // 2: sentinez.modules.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
 	4, // 3: sentinez.modules.tenant.v1.Resource.plan:type_name -> sentinez.types.v1.Plan
 	4, // [4:4] is the sub-list for method output_type

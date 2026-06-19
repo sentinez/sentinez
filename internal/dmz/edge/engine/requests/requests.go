@@ -18,7 +18,7 @@ import (
 	"context"
 
 	corehttpreq "github.com/sentinez/core/http/request"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/sync"
 )
 

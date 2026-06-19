@@ -18,7 +18,7 @@ import (
 	"context"
 
 	grpc "github.com/sentinez/core/grpc"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 )

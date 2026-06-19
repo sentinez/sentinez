@@ -18,7 +18,7 @@ package flags
 import (
 	"sync"
 
-	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/realtime/v1"
+	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/acz/realtime/v1"
 	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"

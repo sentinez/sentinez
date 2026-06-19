@@ -329,6 +329,10 @@
         }
       }
     },
+    "dmzedgev1Metadata": {
+      "type": "object",
+      "title": "Metadata used for observability and debugging:"
+    },
     "edgev1Location": {
       "type": "object",
       "properties": {
@@ -416,10 +420,6 @@
         }
       },
       "title": "A complete rule definition"
-    },
-    "sentinezedgev1Metadata": {
-      "type": "object",
-      "title": "Metadata used for observability and debugging:"
     },
     "sentineztypesv1Metadata": {
       "type": "object",
@@ -855,7 +855,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/sentinezedgev1Metadata",
+          "$ref": "#/definitions/dmzedgev1Metadata",
           "title": "@gotags: yaml:\"metadata\""
         },
         "server": {

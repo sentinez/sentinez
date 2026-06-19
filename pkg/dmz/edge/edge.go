@@ -21,7 +21,7 @@ import (
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/stream"
 	"github.com/sentinez/shared/zlog"

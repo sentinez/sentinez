@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 )
 
 func Upstream2Target(upstream *edgepb.Upstream) (string, error) {

@@ -23,7 +23,7 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
 	"github.com/sentinez/core/storage/cache/mem"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/pkg/dmz/memory/wafengine"

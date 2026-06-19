@@ -17,7 +17,7 @@ package logging
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/ebpf"
 	"github.com/sentinez/shared/zlog"

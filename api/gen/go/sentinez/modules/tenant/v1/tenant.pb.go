@@ -23,7 +23,7 @@ package tenantpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -748,7 +748,7 @@ var File_sentinez_modules_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"'sentinez/modules/tenant/v1/tenant.proto\x12\x1asentinez.modules.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a&sentinez/modules/tenant/v1/model.proto\x1a\x1esentinez/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
+	"'sentinez/modules/tenant/v1/tenant.proto\x12\x1asentinez.modules.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a&sentinez/modules/tenant/v1/model.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
 	"\x12GetResourceRequest\x120\n" +
 	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x00r\x18:\x16senz.tenant.resources.R\x02id\x12\x18\n" +
 	"\adefault\x18\x02 \x01(\bR\adefault\"k\n" +
@@ -767,9 +767,9 @@ const file_sentinez_modules_tenant_v1_tenant_proto_rawDesc = "" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
 	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan\"\x18\n" +
-	"\x16UpdateResourceResponse\"\xd7\x02\n" +
-	"\x15CreateResourceRequest\x12D\n" +
-	"\x10resource_setting\x18\x01 \x01(\v2\x19.sentinez.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
+	"\x16UpdateResourceResponse\"\xdb\x02\n" +
+	"\x15CreateResourceRequest\x12H\n" +
+	"\x10resource_setting\x18\x01 \x01(\v2\x1d.sentinez.dmz.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
@@ -836,7 +836,7 @@ var file_sentinez_modules_tenant_v1_tenant_proto_goTypes = []any{
 	(*Resource)(nil),                    // 14: sentinez.modules.tenant.v1.Resource
 	(v1.Status)(0),                      // 15: sentinez.types.v1.Status
 	(v1.Plan)(0),                        // 16: sentinez.types.v1.Plan
-	(*v11.Setting)(nil),                 // 17: sentinez.edge.v1.Setting
+	(*v11.Setting)(nil),                 // 17: sentinez.dmz.edge.v1.Setting
 	(*v1.Pages)(nil),                    // 18: sentinez.types.v1.Pages
 }
 var file_sentinez_modules_tenant_v1_tenant_proto_depIdxs = []int32{
@@ -844,7 +844,7 @@ var file_sentinez_modules_tenant_v1_tenant_proto_depIdxs = []int32{
 	14, // 1: sentinez.modules.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.modules.tenant.v1.Resource
 	15, // 2: sentinez.modules.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
 	16, // 3: sentinez.modules.tenant.v1.UpdateResourceRequest.plan:type_name -> sentinez.types.v1.Plan
-	17, // 4: sentinez.modules.tenant.v1.CreateResourceRequest.resource_setting:type_name -> sentinez.edge.v1.Setting
+	17, // 4: sentinez.modules.tenant.v1.CreateResourceRequest.resource_setting:type_name -> sentinez.dmz.edge.v1.Setting
 	15, // 5: sentinez.modules.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
 	16, // 6: sentinez.modules.tenant.v1.CreateResourceRequest.plan:type_name -> sentinez.types.v1.Plan
 	14, // 7: sentinez.modules.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.modules.tenant.v1.Resource

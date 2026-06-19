@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	resourcerepo "github.com/sentinez/modules/tenant/v1/repos/resources"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
