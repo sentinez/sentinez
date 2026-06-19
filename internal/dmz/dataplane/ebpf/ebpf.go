@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
+package ebpf
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http"
-	"github.com/sentinez/sentinez/pkg/dmz/memory"
+	"fmt"
+
+	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
 )
 
-func (s *Server) initialize(appConf *confpb.Config) error {
-	// init cache repository
-	memory.LoadConfiguration(s.setting, appConf)
+func Lookup[T any](fn func(*sentinezbpf.SenzObjects) (T, error)) (T, error) {
+	if context == nil || context.obj == nil {
+		return *new(T), fmt.Errorf("stream: context is nil or uninitialized")
+	}
 
-	income := http.Init(appConf)
-	s.core.Handle(income.Handle)
-
-	return nil
-}
-
-func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
-	memory.SetReverseProxyConstructor(fn)
+	return fn(context.obj)
 }

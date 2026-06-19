@@ -23,7 +23,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/stream"
+	"github.com/sentinez/sentinez/internal/dmz/edge/stream"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -87,10 +87,6 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-
-	if err := stream.Close(); err != nil {
-		zlog.Errorf("failed to close stream: %v", err)
-	}
 
 	return s.core.Shutdown(ctx)
 }

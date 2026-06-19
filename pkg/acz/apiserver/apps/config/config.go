@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,24 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package edge
+package config
 
 import (
+	"sync"
+
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/apiserver/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http"
-	"github.com/sentinez/sentinez/pkg/dmz/memory"
+	"github.com/sentinez/sentinez/pkg/acz/apiserver/apps/flags"
+	"github.com/sentinez/shared/config"
 )
 
-func (s *Server) initialize(appConf *confpb.Config) error {
-	// init cache repository
-	memory.LoadConfiguration(s.setting, appConf)
+var (
+	once    sync.Once
+	appConf *confpb.Config
+)
 
-	income := http.Init(appConf)
-	s.core.Handle(income.Handle)
+func Config() *confpb.Config {
+	once.Do(func() {
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &confpb.Config{
+			Meta: apiserver.GetMetaApiserver(),
+			Env:  envConf,
+			Flag: flag,
+		}
+	})
 
-	return nil
-}
-
-func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
-	memory.SetReverseProxyConstructor(fn)
+	return appConf
 }

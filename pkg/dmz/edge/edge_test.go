@@ -20,12 +20,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sentinez/sentinez/internal/http/logging"
-	"github.com/sentinez/sentinez/internal/http/room"
-	"github.com/sentinez/sentinez/internal/http/routing"
-	"github.com/sentinez/sentinez/internal/http/secure"
-	"github.com/sentinez/sentinez/internal/http/static"
-	"github.com/sentinez/sentinez/internal/http/trace"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/logging"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/room"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/routing"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/secure"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/static"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/trace"
 	stdhttpx "github.com/sentinez/sentinez/pkg/utils/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )

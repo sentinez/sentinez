@@ -15,10 +15,10 @@
 .PHONY: default
 
 default: default.print 	\
-	apiserver.build 	\
-	greeter.build 		\
-	edge.build			\
-	realtime.build
+	dmz.edge.build			\
+	acz.apiserver.build 	\
+	acz.realtime.build      \
+	mesh.greeter.build 		
 
 default.print:
 	@echo "[BUILD] senz: build sentinez and services"
@@ -65,72 +65,62 @@ lint.contrib.httphz:
 #####################################################################
 #####################################################################
 
-realtime.run: SENTINEZ_OUT ?= realtime
-realtime.run:
-	@go build -ldflags="-s -w" -o ./cmd/realtime/bin/$(SENTINEZ_OUT) ./cmd/realtime && \
- 	./cmd/realtime/bin/$(SENTINEZ_OUT)
+acz.realtime.run: SENTINEZ_OUT ?= realtime
+acz.realtime.run:
+	@go build -ldflags="-s -w" -o ./cmd/acz/realtime/bin/$(SENTINEZ_OUT) ./cmd/acz/realtime && \
+ 	./cmd/acz/realtime/bin/$(SENTINEZ_OUT)
 
-realtime.build: SENTINEZ_OUT ?= realtime
-realtime.build:
-	@go build -ldflags="-s -w" -o ./cmd/realtime/bin/$(SENTINEZ_OUT) ./cmd/realtime
-	@echo "[DONE]  senz: gateway.realtime ... ok"
+acz.realtime.build: SENTINEZ_OUT ?= realtime
+acz.realtime.build:
+	@go build -ldflags="-s -w" -o ./cmd/acz/realtime/bin/$(SENTINEZ_OUT) ./cmd/acz/realtime
+	@echo "[DONE]  senz: acz.realtime ... ok"
 
-apiserver.build: SENTINEZ_OUT ?= apiserver
-apiserver.build:
-	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver
-	@echo "[DONE]  senz: gateway.apiserver ... ok"
+acz.apiserver.build: SENTINEZ_OUT ?= apiserver
+acz.apiserver.build:
+	@go build -ldflags="-s -w" -o ./cmd/acz/apiserver/bin/$(SENTINEZ_OUT) ./cmd/acz/apiserver
+	@echo "[DONE]  senz: acz.apiserver ... ok"
 
-apiserver.run: SENTINEZ_OUT ?= apiserver
-apiserver.run:
-	@go build -ldflags="-s -w" -o ./cmd/apiserver/bin/$(SENTINEZ_OUT) ./cmd/apiserver && \
- 	./cmd/apiserver/bin/$(SENTINEZ_OUT) 
+acz.apiserver.run: SENTINEZ_OUT ?= apiserver
+acz.apiserver.run:
+	@go build -ldflags="-s -w" -o ./cmd/acz/apiserver/bin/$(SENTINEZ_OUT) ./cmd/acz/apiserver && \
+ 	./cmd/acz/apiserver/bin/$(SENTINEZ_OUT) 
 
-apiserver.image.build: TAG ?= sentinez/apiserver
-apiserver.image.build:
-	docker buildx build -f ./cmd/apiserver/Dockerfile -t $(TAG):latest .
+acz.apiserver.image.build: TAG ?= sentinez/acz/apiserver
+acz.apiserver.image.build:
+	docker buildx build -f ./cmd/acz/apiserver/Dockerfile -t $(TAG):latest .
 
-greeter.build: SENTINEZ_OUT ?= greeter
-greeter.build:
-	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1
-	@echo "[DONE]  senz: core.greeter.v1 ... ok"
+mesh.greeter.build: SENTINEZ_OUT ?= greeter
+mesh.greeter.build:
+	@go build -ldflags="-s -w" -o ./cmd/mesh/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/mesh/greeter/v1
+	@echo "[DONE]  senz: mesh.greeter.v1 ... ok"
 
-greeter.run: SENTINEZ_OUT ?= greeter
-greeter.run:
-	@go build -ldflags="-s -w" -o ./cmd/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/greeter/v1 && \
-	./cmd/greeter/v1/bin/$(SENTINEZ_OUT) --env_file=./cmd/greeter/v1/.env
+mesh.greeter.run: SENTINEZ_OUT ?= greeter
+mesh.greeter.run:
+	@go build -ldflags="-s -w" -o ./cmd/mesh/greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/mesh/greeter/v1 && \
+	./cmd/mesh/greeter/v1/bin/$(SENTINEZ_OUT) --env_file=./cmd/mesh/greeter/v1/.env
 
-greeter.image.build: TAG ?= sentinez/greeter
-greeter.image.build:
-	docker buildx build -f ./cmd/greeter/v1/Dockerfile -t $(TAG):latest .
+mesh.greeter.image.build: TAG ?= sentinez/greeter
+mesh.greeter.image.build:
+	docker buildx build -f ./cmd/mesh/greeter/v1/Dockerfile -t $(TAG):latest .
 
-edge.run: SENTINEZ_OUT ?= edge
-edge.run:
-	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
-	./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert_file=cmd/edge/v1/is.s6z.io.vn.cert \
-		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
+dmz.edge.run: SENTINEZ_OUT ?= edge
+dmz.edge.run:
+	@go build -ldflags="-s -w" -o ./cmd/dmz/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/edge/v1 && \
+	./cmd/dmz/edge/v1/bin/$(SENTINEZ_OUT) \
+		--cert_file=cmd/dmz/edge/v1/is.s6z.io.vn.cert \
+		--cert_key_file=cmd/dmz/edge/v1/is.s6z.io.vn.key \
 		--rule_path=./deploy/ruleroot/v4-16-0 \
-		--proxy_config=./cmd/edge/v1/proxy.yaml \
-		--env_file=./cmd/edge/v1/.env
+		--proxy_config=./cmd/dmz/edge/v1/proxy.yaml \
+		--env_file=./cmd/dmz/edge/v1/.env
 
-sudo.edge.run: SENTINEZ_OUT ?= edge
-sudo.edge.run:
-	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1 && \
-	sudo ip netns exec gateway ./cmd/edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert_file=cmd/edge/v1/is.s6z.io.vn.cert \
-		--cert_key_file=cmd/edge/v1/is.s6z.io.vn.key \
-		--rule_path=./deploy/ruleroot/v4-16-0 \
-		--proxy_config=./cmd/edge/v1/proxy.yaml \
-		--env_file=./cmd/edge/v1/.env
+dmz.edge.build: SENTINEZ_OUT ?= edge
+dmz.edge.build:
+	@go build -ldflags="-s -w" -o ./cmd/dmz/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/edge/v1
+	@echo "[DONE]  senz: dmz.edge.v1 ... ok"
 
-edge.build: SENTINEZ_OUT ?= edge
-edge.build:
-	@go build -ldflags="-s -w" -o ./cmd/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/edge/v1
-	@echo "[DONE]  senz: gateway.edge.v1 ... ok"
-
-edge.image.build: TAG ?= sentinez/edge
-edge.image.build:
-	@docker buildx build -f ./cmd/edge/v1/Dockerfile -t $(TAG):latest .
+dmz.edge.image.build: TAG ?= sentinez/edge
+dmz.edge.image.build:
+	@docker buildx build -f ./cmd/dmz/edge/v1/Dockerfile -t $(TAG):latest .
 
 image.clear:
 	@docker rmi hashicorp/consul
