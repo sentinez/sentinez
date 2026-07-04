@@ -21,11 +21,11 @@ import (
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/acz/realtime"
 	"github.com/sentinez/sentinez/pkg/acz/realtime/apps/config"
-	wscore "github.com/sentinez/sentinez/pkg/utils/network/wsz"
+	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
 )
 
 func main() {
-	app := runner.NewApp[*realtime.Realtime](config.Config(), core.Code)
+	app := runner.NewApp[realtime.Realtime](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*realtime.Realtime]) {
 		c.Inject(config.Config, wscore.NewServer, realtime.New)
 

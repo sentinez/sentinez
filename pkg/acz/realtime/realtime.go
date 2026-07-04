@@ -20,7 +20,7 @@ import (
 
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	realtimehdl "github.com/sentinez/sentinez/pkg/acz/realtime/handlers"
-	"github.com/sentinez/sentinez/pkg/utils/network/wsz"
+	"github.com/sentinez/sentinez/pkg/network/wsz"
 )
 
 func New(conf *confpb.Config, ws *wsz.WebSocket) *Realtime {

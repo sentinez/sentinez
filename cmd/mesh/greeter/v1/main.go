@@ -25,7 +25,7 @@ import (
 )
 
 func main() {
-	app := runner.NewApp[*greeter.Greeter](config.Config(), core.Code)
+	app := runner.NewApp[greeter.Greeter](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*greeter.Greeter]) {
 		c.Inject(config.Config, greeter.NewService)
 

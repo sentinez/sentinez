@@ -40,27 +40,22 @@ type Context[T any] struct {
 	opts []fx.Option
 }
 
-func (c *Context[T]) OnStart(start any) {
-	switch fn := start.(type) {
-	case func(context.Context, T) error:
-		function := func(lc fx.Lifecycle, server T) {
-			lc.Append(fx.Hook{
-				OnStart: func(ctx context.Context) error {
-					go func() {
-						if err := fn(ctx, server); err != nil {
-							if errors.Is(err, http.ErrServerClosed) {
-								zlog.Infof("[runner] %+v", err)
-							}
+func (c *Context[T]) OnStart(start func(context.Context, T) error) {
+	function := func(lc fx.Lifecycle, server T) {
+		lc.Append(fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go func() {
+					if err := start(ctx, server); err != nil {
+						if errors.Is(err, http.ErrServerClosed) {
+							zlog.Infof("[runner] %+v", err)
 						}
-					}()
-					return nil
-				},
-			})
-		}
-		c.Invoke(function)
-	default:
-		c.Invoke(start)
+					}
+				}()
+				return nil
+			},
+		})
 	}
+	c.Invoke(function)
 }
 
 func (c *Context[T]) OnStop(stop any) {

@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/secure"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/static"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/trace"
-	stdhttpx "github.com/sentinez/sentinez/pkg/utils/network/httpx/std"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
 

@@ -18,7 +18,6 @@ package flags
 import (
 	"sync"
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
 	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"
@@ -30,12 +29,10 @@ var onceGRPCService sync.Once
 // ParseFlag flag args for grpc service
 func Parse() *flagspb.Flag {
 	onceGRPCService.Do(func() {
-		flagx.Get().EnvFile = "./cmd/mesh/greeter/v1/.env"
+		flagx.Get().EnvFile = "./cmd/dmz/dataplane/v1/.env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
-
-		flagx.Parse(greeterpb.GetMetaGreeter())
 
 	})
 

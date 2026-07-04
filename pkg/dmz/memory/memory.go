@@ -24,7 +24,7 @@ import (
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/utils"
+	"github.com/sentinez/sentinez/internal/protocol"
 	"github.com/sentinez/sentinez/pkg/dmz/memory/ratelimiter"
 	"github.com/sentinez/sentinez/pkg/dmz/memory/reverseproxy"
 	"github.com/sentinez/sentinez/pkg/dmz/memory/routes"
@@ -76,7 +76,7 @@ func LoadReverseProxy() {
 					continue
 				}
 
-				target, err := utils.Upstream2Target(upstream)
+				target, err := protocol.Upstream2Target(upstream)
 				if err != nil {
 					zlog.Warnf("reverse proxy: warn: %v", err)
 					continue

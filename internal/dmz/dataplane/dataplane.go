@@ -15,17 +15,30 @@
 package dataplane
 
 import (
+	"context"
+
+	coregrpc "github.com/sentinez/core/grpc"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/ebpf"
-	"github.com/sentinez/sentinez/pkg/utils/network"
+	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
 
-type DataPlane struct {
+func New(conf *confpb.Config) *Server {
+	return &Server{
+		conf: conf,
+		grpc: coregrpc.NewDefault(conf),
+	}
+}
+
+type Server struct {
+	grpc *coregrpc.Server
+	conf *confpb.Config
 }
 
 const VETH0 = "veth0"
 
-func (d *DataPlane) Run(networkInterface string) error {
+func (s *Server) Start(networkInterface string) error {
 	ctx := ebpf.NewContext()
 
 	iface, err := network.GetInterface(networkInterface)
@@ -39,9 +52,12 @@ func (d *DataPlane) Run(networkInterface string) error {
 		return err
 	}
 
-	return nil
+	zlog.Infof("stream: attaching xdp successfully")
+
+	return s.grpc.Serve(s.conf)
 }
 
-func (d *DataPlane) Close() error {
-	return ebpf.CloseContext()
+func (s *Server) Stop(ctx context.Context) error {
+	_ = ebpf.CloseContext()
+	return s.grpc.Shutdown(ctx)
 }

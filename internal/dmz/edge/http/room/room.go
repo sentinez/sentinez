@@ -17,7 +17,7 @@ package room
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/pkg/utils/queue"
+	"github.com/sentinez/sentinez/pkg/queue"
 	"github.com/sentinez/shared/zlog"
 )
 

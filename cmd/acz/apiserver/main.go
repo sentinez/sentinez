@@ -35,10 +35,10 @@ import (
 //
 // Run the application using the Makefile command
 //
-//	make apiserver.run // start sentinez apiserver
-//	make <service>.run // start service
+//	make acz.apiserver.run // start sentinez apiserver
+//	make mesh.<service>.run // start service
 func main() {
-	app := runner.NewApp[*apiserver.Server](config.Config(), core.Code)
+	app := runner.NewApp[apiserver.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[*apiserver.Server]) {
 		c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
 

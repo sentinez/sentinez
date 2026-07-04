@@ -16,6 +16,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -53,7 +54,7 @@ func (ctn *container) onStart(ctx context.Context, errChan chan<- error) {
 
 	// if the error is not nil, return the error to err channel end goroutine 1
 	if err := ctn.engine.Start(ctx); err != nil {
-		errChan <- err
+		errChan <- fmt.Errorf("runner: start err: %v", err)
 	}
 }
 
@@ -66,7 +67,7 @@ func (ctn *container) onStop(
 
 	// if the error is not nil, return the error to err channel, end goroutine 2
 	if err := ctn.engine.Stop(ctx); err != nil {
-		errChan <- err
+		errChan <- fmt.Errorf("runner: stop err: %v", err)
 	}
 
 	// if stop the app successfully, return nil to err channel, end goroutine 2

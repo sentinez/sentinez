@@ -12,23 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package realtimemnt
+package config
 
 import (
 	"sync"
 
-	"github.com/sentinez/sentinez/pkg/network/wsz"
+	"github.com/sentinez/shared/config"
+
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"github.com/sentinez/sentinez/pkg/dmz/dataplane/apps/flags"
 )
 
 var (
-	manager *wsz.Manager
 	once    sync.Once
+	appConf *confpb.Config
 )
 
-func Manager() *wsz.Manager {
+func Config() *confpb.Config {
 	once.Do(func() {
-		manager = wsz.NewManager()
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &confpb.Config{
+			Env:  envConf,
+			Flag: flag,
+		}
 	})
 
-	return manager
+	return appConf
 }

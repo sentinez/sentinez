@@ -113,6 +113,11 @@ dmz.edge.run:
 		--proxy_config=./cmd/dmz/edge/v1/proxy.yaml \
 		--env_file=./cmd/dmz/edge/v1/.env
 
+dmz.dataplane.run: SENTINEZ_OUT ?= dataplane
+dmz.dataplane.run:
+	@go build -ldflags="-s -w" -o ./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/dataplane/v1 && \
+	./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT)
+
 dmz.edge.build: SENTINEZ_OUT ?= edge
 dmz.edge.build:
 	@go build -ldflags="-s -w" -o ./cmd/dmz/edge/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/edge/v1

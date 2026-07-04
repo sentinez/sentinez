@@ -29,7 +29,7 @@ func NewApp[T any](appConf *confpb.Config, scopeName string) *App[T] {
 
 	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
 	zlog.SetScopeLogLevel(scopeName, level)
-	ctx := NewContext[T](appConf)
+	ctx := NewContext[*T](appConf)
 
 	return &App[T]{
 		ctx: ctx,
@@ -37,10 +37,10 @@ func NewApp[T any](appConf *confpb.Config, scopeName string) *App[T] {
 }
 
 type App[T any] struct {
-	ctx *Context[T]
+	ctx *Context[*T]
 }
 
-func (a *App[T]) Main(main func(*Context[T])) {
+func (a *App[T]) Main(main func(*Context[*T])) {
 	main(a.ctx)
 
 	ctn := container{engine: fx.New(a.ctx.opts...)}

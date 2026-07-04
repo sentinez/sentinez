@@ -13,3 +13,27 @@
 // limitations under the License.
 
 package main
+
+import (
+	"context"
+
+	"github.com/sentinez/core"
+	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane"
+	"github.com/sentinez/sentinez/pkg/dmz/dataplane/apps/config"
+)
+
+func main() {
+	app := runner.NewApp[dataplane.Server](config.Config(), core.Code)
+	app.Main(func(c *runner.Context[*dataplane.Server]) {
+		c.Inject(config.Config, dataplane.New)
+
+		c.OnStart(func(_ context.Context, server *dataplane.Server) error {
+			return server.Start(dataplane.VETH0)
+		})
+
+		c.OnStop(func(ctx context.Context, server *dataplane.Server) error {
+			return server.Stop(ctx)
+		})
+	})
+}

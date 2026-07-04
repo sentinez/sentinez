@@ -20,8 +20,8 @@ import (
 	"net/url"
 
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/sentinez/pkg/utils/network"
-	stdhttpx "github.com/sentinez/sentinez/pkg/utils/network/httpx/std"
+	"github.com/sentinez/sentinez/pkg/network"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
 

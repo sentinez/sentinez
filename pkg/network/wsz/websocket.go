@@ -18,7 +18,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	stdhttpx "github.com/sentinez/sentinez/pkg/utils/network/httpx/std"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"
 )
 
