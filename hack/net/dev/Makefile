@@ -84,17 +84,6 @@ create:
 	iptables -C FORWARD -o $(HOST_UPLINK) -j ACCEPT 2>/dev/null || \
 	iptables -A FORWARD -o $(HOST_UPLINK) -j ACCEPT
 
-.PHONY: attach-xdp
-attach-xdp:
-	ip netns exec $(GATEWAY_NS) \
-		ip link set dev $(DMZ_IF) \
-		xdp obj xdp.o sec xdp
-
-.PHONY: detach-xdp
-detach-xdp:
-	ip netns exec $(GATEWAY_NS) \
-		ip link set dev $(DMZ_IF) xdp off
-
 .PHONY: shell-client
 shell-client:
 	ip netns exec $(CLIENT_NS) bash

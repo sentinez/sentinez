@@ -12,28 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
 import (
-	"context"
+	"sync"
 
-	"github.com/sentinez/core"
-	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane"
-	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
+	"github.com/sentinez/sentinez/api/gen/go/sentinez/acz/apiserver/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/flags"
+	"github.com/sentinez/shared/config"
 )
 
-func main() {
-	app := runner.NewApp[dataplane.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*dataplane.Server]) {
-		c.Inject(config.Config, dataplane.New)
+var (
+	once    sync.Once
+	appConf *confpb.Config
+)
 
-		c.OnStart(func(_ context.Context, server *dataplane.Server) error {
-			return server.Start(dataplane.VETH0)
-		})
-
-		c.OnStop(func(ctx context.Context, server *dataplane.Server) error {
-			return server.Stop(ctx)
-		})
+func Config() *confpb.Config {
+	once.Do(func() {
+		flag := flags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &confpb.Config{
+			Meta: apiserver.GetMetaApiserver(),
+			Env:  envConf,
+			Flag: flag,
+		}
 	})
+
+	return appConf
 }

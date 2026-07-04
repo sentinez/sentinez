@@ -19,6 +19,7 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/shared/zlog"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
@@ -31,7 +32,21 @@ func HandlerFunc(path string, handler corehttp.RequestHandler) {
 	})
 }
 
-func ListenAndServe(addr string) error {
+func ListenAndServe(addr string, opts ...corehttp.ServerOption) error {
+	var option corehttp.Option
+	for _, opt := range opts {
+		opt(&option)
+	}
+
+	if option.CertFile != "" && option.CertKeyFile != "" {
+		if option.TLSConfig != nil {
+			zlog.Warnf("network: http ignore TLS config")
+		}
+
+		return http.ListenAndServeTLS(addr,
+			option.CertFile, option.CertKeyFile, nil)
+	}
+
 	return http.ListenAndServe(addr, nil)
 }
 

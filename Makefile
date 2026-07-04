@@ -16,6 +16,7 @@
 
 default: default.print 	\
 	dmz.edge.build			\
+	dmz.dataplane.build		\
 	acz.apiserver.build 	\
 	acz.realtime.build      \
 	mesh.greeter.build 		
@@ -113,10 +114,15 @@ dmz.edge.run:
 		--proxy_config=./cmd/dmz/edge/v1/proxy.yaml \
 		--env_file=./cmd/dmz/edge/v1/.env
 
+dmz.dataplane.build: SENTINEZ_OUT ?= dataplane
+dmz.dataplane.build:
+	@go build -ldflags="-s -w" -o ./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/dataplane/v1
+	@echo "[DONE]  senz: dmz.dataplane ... ok"
+
+
 dmz.dataplane.run: SENTINEZ_OUT ?= dataplane
 dmz.dataplane.run:
-	@go build -ldflags="-s -w" -o ./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz/dataplane/v1 && \
-	./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT)
+	sudo ip netns exec gateway ./cmd/dmz/dataplane/v1/bin/$(SENTINEZ_OUT)
 
 dmz.edge.build: SENTINEZ_OUT ?= edge
 dmz.edge.build:
@@ -137,3 +143,5 @@ compose.up:
 
 compose.down:
 	@docker compose -f deploy/docker/docker-compose.yaml down
+
+include ./hack/net/dev/Makefile

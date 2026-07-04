@@ -27,7 +27,7 @@ import (
 func New(conf *confpb.Config) *Server {
 	return &Server{
 		conf: conf,
-		grpc: coregrpc.NewDefault(conf),
+		grpc: coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
 	}
 }
 

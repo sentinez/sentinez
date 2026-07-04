@@ -34,7 +34,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *confpb.Config) *IAM {
 	return &IAM{
-		Server: coregrpc.NewDefault(appConf),
+		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
 		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }

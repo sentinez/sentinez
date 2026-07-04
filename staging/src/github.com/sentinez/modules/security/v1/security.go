@@ -36,7 +36,7 @@ func GetListener() *bufconn.Listener {
 // NewService creates a new Security module instance.
 func NewService(ctx context.Context, appConf *confpb.Config) *Security {
 	return &Security{
-		Server: coregrpc.NewDefault(appConf),
+		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
 		hdl:    securityfac.NewDefaultHandler(ctx, appConf),
 	}
 }

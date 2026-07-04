@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/pkg/acz/realtime"
-	"github.com/sentinez/sentinez/pkg/acz/realtime/apps/config"
+	"github.com/sentinez/sentinez/pkg/apps/acz/realtime"
+	"github.com/sentinez/sentinez/pkg/apps/acz/realtime/config"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
 )
 

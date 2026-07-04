@@ -12,28 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
 import (
-	"context"
+	"sync"
 
-	"github.com/sentinez/core"
-	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane"
-	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
+	"github.com/sentinez/shared/config"
+
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	edgeflags "github.com/sentinez/sentinez/pkg/apps/dmz/edge/flags"
 )
 
-func main() {
-	app := runner.NewApp[dataplane.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*dataplane.Server]) {
-		c.Inject(config.Config, dataplane.New)
+var (
+	once    sync.Once
+	appConf *confpb.Config
+)
 
-		c.OnStart(func(_ context.Context, server *dataplane.Server) error {
-			return server.Start(dataplane.VETH0)
-		})
-
-		c.OnStop(func(ctx context.Context, server *dataplane.Server) error {
-			return server.Stop(ctx)
-		})
+func Config() *confpb.Config {
+	once.Do(func() {
+		flag := edgeflags.Parse()
+		envConf := config.LoadEnv(flag.GetEnvFile())
+		appConf = &confpb.Config{
+			Meta: edgepb.GetMetaEdge(),
+			Env:  envConf,
+			Flag: flag,
+		}
 	})
+
+	return appConf
 }

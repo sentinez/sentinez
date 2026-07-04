@@ -27,7 +27,7 @@ type Option struct {
 
 type ServerOption func(opt *Option)
 
-func WithCertificate(certFile, certKeyFile string) func(opt *Option) {
+func WithCertificate(certFile, certKeyFile string) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return
@@ -38,7 +38,7 @@ func WithCertificate(certFile, certKeyFile string) func(opt *Option) {
 	}
 }
 
-func WithTLSConfig(conf *tls.Config) func(opt *Option) {
+func WithTLSConfig(conf *tls.Config) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return

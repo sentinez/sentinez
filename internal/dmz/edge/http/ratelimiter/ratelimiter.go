@@ -17,7 +17,7 @@ package ratelimiter
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/pkg/dmz/memory/ratelimiter"
+	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/shared/zlog"
 )
 

@@ -20,9 +20,9 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	edge "github.com/sentinez/sentinez/pkg/dmz/edge"
-	"github.com/sentinez/sentinez/pkg/dmz/edge/apps/config"
-	edgeyaml "github.com/sentinez/sentinez/pkg/dmz/edge/apps/yaml"
+	edge "github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
+	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 

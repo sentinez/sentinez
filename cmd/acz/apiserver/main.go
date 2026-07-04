@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/core"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/pkg/acz/apiserver"
-	"github.com/sentinez/sentinez/pkg/acz/apiserver/apps/config"
+	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver"
+	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/config"
 )
 
 // This is the sentinez apiserver application, it will automatically

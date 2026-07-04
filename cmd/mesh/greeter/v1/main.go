@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/modules/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/mesh/greeter/apps/config"
+	"github.com/sentinez/sentinez/pkg/apps/mesh/greeter/config"
 )
 
 func main() {
