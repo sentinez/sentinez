@@ -16,3 +16,6 @@
 [submodule "_patches/xdp-tools"]
 	path = _patches/xdp-tools
 	url = https://github.com/xdp-project/xdp-tools
+[submodule "_patches/open-telemetry"]
+	path = _patches/open-telemetry
+	url = https://github.com/open-telemetry/opentelemetry-proto.git

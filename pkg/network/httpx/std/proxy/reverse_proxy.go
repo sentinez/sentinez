@@ -22,6 +22,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/network"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -36,13 +37,13 @@ func NewReverseProxy(target string) (corehttp.ReverseProxy, error) {
 
 	return &ReverseProxy{
 		client: client,
-		host:   urlParsed.Host,
+		host:   bytesconv.S2b(urlParsed.Host),
 	}, nil
 }
 
 type ReverseProxy struct {
 	client *httputil.ReverseProxy
-	host   string
+	host   []byte
 }
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context) {

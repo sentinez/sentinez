@@ -21,8 +21,8 @@
 package edgepb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -37,210 +37,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Context represents the essential information extracted from an HTTP request.
-type RequestContext struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Id            string                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Body          []byte                   `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`                                                                                 // Raw request body
-	Header        map[string]string        `protobuf:"bytes,3,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`   // HTTP headers
-	Host          string                   `protobuf:"bytes,4,opt,name=host,proto3" json:"host,omitempty"`                                                                                 // Hostname or domain
-	Ip            string                   `protobuf:"bytes,5,opt,name=ip,proto3" json:"ip,omitempty"`                                                                                     // Client IP address
-	Ja4           string                   `protobuf:"bytes,6,opt,name=ja4,proto3" json:"ja4,omitempty"`                                                                                   // JA4 fingerprint
-	Method        string                   `protobuf:"bytes,7,opt,name=method,proto3" json:"method,omitempty"`                                                                             // HTTP method (GET, POST, etc.)
-	Path          string                   `protobuf:"bytes,8,opt,name=path,proto3" json:"path,omitempty"`                                                                                 // Request path
-	Queries       map[string]*RequestQuery `protobuf:"bytes,9,rep,name=queries,proto3" json:"queries,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Query parameters
-	Tls           bool                     `protobuf:"varint,10,opt,name=tls,proto3" json:"tls,omitempty"`                                                                                 // Whether the connection used TLS
-	Protocol      string                   `protobuf:"bytes,11,opt,name=protocol,proto3" json:"protocol,omitempty"`
-	RemoteAddress string                   `protobuf:"bytes,12,opt,name=remote_address,json=remoteAddress,proto3" json:"remote_address,omitempty"`
-	StatusCode    int32                    `protobuf:"varint,13,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
-	Uri           string                   `protobuf:"bytes,14,opt,name=uri,proto3" json:"uri,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RequestContext) Reset() {
-	*x = RequestContext{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RequestContext) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestContext) ProtoMessage() {}
-
-func (x *RequestContext) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestContext.ProtoReflect.Descriptor instead.
-func (*RequestContext) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *RequestContext) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *RequestContext) GetBody() []byte {
-	if x != nil {
-		return x.Body
-	}
-	return nil
-}
-
-func (x *RequestContext) GetHeader() map[string]string {
-	if x != nil {
-		return x.Header
-	}
-	return nil
-}
-
-func (x *RequestContext) GetHost() string {
-	if x != nil {
-		return x.Host
-	}
-	return ""
-}
-
-func (x *RequestContext) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-func (x *RequestContext) GetJa4() string {
-	if x != nil {
-		return x.Ja4
-	}
-	return ""
-}
-
-func (x *RequestContext) GetMethod() string {
-	if x != nil {
-		return x.Method
-	}
-	return ""
-}
-
-func (x *RequestContext) GetPath() string {
-	if x != nil {
-		return x.Path
-	}
-	return ""
-}
-
-func (x *RequestContext) GetQueries() map[string]*RequestQuery {
-	if x != nil {
-		return x.Queries
-	}
-	return nil
-}
-
-func (x *RequestContext) GetTls() bool {
-	if x != nil {
-		return x.Tls
-	}
-	return false
-}
-
-func (x *RequestContext) GetProtocol() string {
-	if x != nil {
-		return x.Protocol
-	}
-	return ""
-}
-
-func (x *RequestContext) GetRemoteAddress() string {
-	if x != nil {
-		return x.RemoteAddress
-	}
-	return ""
-}
-
-func (x *RequestContext) GetStatusCode() int32 {
-	if x != nil {
-		return x.StatusCode
-	}
-	return 0
-}
-
-func (x *RequestContext) GetUri() string {
-	if x != nil {
-		return x.Uri
-	}
-	return ""
-}
-
-type RequestQuery struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         []string               `protobuf:"bytes,1,rep,name=value,proto3" json:"value,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RequestQuery) Reset() {
-	*x = RequestQuery{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RequestQuery) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestQuery) ProtoMessage() {}
-
-func (x *RequestQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestQuery.ProtoReflect.Descriptor instead.
-func (*RequestQuery) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *RequestQuery) GetValue() []string {
-	if x != nil {
-		return x.Value
-	}
-	return nil
-}
-
 type EvaluateIngressRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	RulesetId      string                 `protobuf:"bytes,1,opt,name=ruleset_id,json=rulesetId,proto3" json:"ruleset_id,omitempty"`
-	RequestContext *RequestContext        `protobuf:"bytes,2,opt,name=request_context,json=requestContext,proto3" json:"request_context,omitempty"`
+	RequestContext *v1.Request            `protobuf:"bytes,2,opt,name=request_context,json=requestContext,proto3" json:"request_context,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *EvaluateIngressRequest) Reset() {
 	*x = EvaluateIngressRequest{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -252,7 +59,7 @@ func (x *EvaluateIngressRequest) String() string {
 func (*EvaluateIngressRequest) ProtoMessage() {}
 
 func (x *EvaluateIngressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -265,7 +72,7 @@ func (x *EvaluateIngressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluateIngressRequest.ProtoReflect.Descriptor instead.
 func (*EvaluateIngressRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *EvaluateIngressRequest) GetRulesetId() string {
@@ -275,7 +82,7 @@ func (x *EvaluateIngressRequest) GetRulesetId() string {
 	return ""
 }
 
-func (x *EvaluateIngressRequest) GetRequestContext() *RequestContext {
+func (x *EvaluateIngressRequest) GetRequestContext() *v1.Request {
 	if x != nil {
 		return x.RequestContext
 	}
@@ -286,14 +93,14 @@ type EvaluationResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RuleId        string                 `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	Matched       bool                   `protobuf:"varint,2,opt,name=matched,proto3" json:"matched,omitempty"`
-	Actions       []*v1.Action           `protobuf:"bytes,3,rep,name=actions,proto3" json:"actions,omitempty"`
+	Actions       []*v11.Action          `protobuf:"bytes,3,rep,name=actions,proto3" json:"actions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EvaluationResult) Reset() {
 	*x = EvaluationResult{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -305,7 +112,7 @@ func (x *EvaluationResult) String() string {
 func (*EvaluationResult) ProtoMessage() {}
 
 func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -318,7 +125,7 @@ func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluationResult.ProtoReflect.Descriptor instead.
 func (*EvaluationResult) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *EvaluationResult) GetRuleId() string {
@@ -335,7 +142,7 @@ func (x *EvaluationResult) GetMatched() bool {
 	return false
 }
 
-func (x *EvaluationResult) GetActions() []*v1.Action {
+func (x *EvaluationResult) GetActions() []*v11.Action {
 	if x != nil {
 		return x.Actions
 	}
@@ -351,7 +158,7 @@ type EvaluateIngressResponse struct {
 
 func (x *EvaluateIngressResponse) Reset() {
 	*x = EvaluateIngressResponse{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[4]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -363,7 +170,7 @@ func (x *EvaluateIngressResponse) String() string {
 func (*EvaluateIngressResponse) ProtoMessage() {}
 
 func (x *EvaluateIngressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[4]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -376,7 +183,7 @@ func (x *EvaluateIngressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluateIngressResponse.ProtoReflect.Descriptor instead.
 func (*EvaluateIngressResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *EvaluateIngressResponse) GetResults() []*EvaluationResult {
@@ -400,7 +207,7 @@ type Context struct {
 
 func (x *Context) Reset() {
 	*x = Context{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[5]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -412,7 +219,7 @@ func (x *Context) String() string {
 func (*Context) ProtoMessage() {}
 
 func (x *Context) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[5]
+	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -425,7 +232,7 @@ func (x *Context) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Context.ProtoReflect.Descriptor instead.
 func (*Context) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Context) GetServerName() string {
@@ -439,36 +246,11 @@ var File_sentinez_dmz_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd0\x04\n" +
-	"\x0eRequestContext\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04body\x18\x02 \x01(\fR\x04body\x12H\n" +
-	"\x06header\x18\x03 \x03(\v20.sentinez.dmz.edge.v1.RequestContext.HeaderEntryR\x06header\x12\x12\n" +
-	"\x04host\x18\x04 \x01(\tR\x04host\x12\x0e\n" +
-	"\x02ip\x18\x05 \x01(\tR\x02ip\x12\x10\n" +
-	"\x03ja4\x18\x06 \x01(\tR\x03ja4\x12\x16\n" +
-	"\x06method\x18\a \x01(\tR\x06method\x12\x12\n" +
-	"\x04path\x18\b \x01(\tR\x04path\x12K\n" +
-	"\aqueries\x18\t \x03(\v21.sentinez.dmz.edge.v1.RequestContext.QueriesEntryR\aqueries\x12\x10\n" +
-	"\x03tls\x18\n" +
-	" \x01(\bR\x03tls\x12\x1a\n" +
-	"\bprotocol\x18\v \x01(\tR\bprotocol\x12%\n" +
-	"\x0eremote_address\x18\f \x01(\tR\rremoteAddress\x12\x1f\n" +
-	"\vstatus_code\x18\r \x01(\x05R\n" +
-	"statusCode\x12\x10\n" +
-	"\x03uri\x18\x0e \x01(\tR\x03uri\x1a9\n" +
-	"\vHeaderEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a^\n" +
-	"\fQueriesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x128\n" +
-	"\x05value\x18\x02 \x01(\v2\".sentinez.dmz.edge.v1.RequestQueryR\x05value:\x028\x01\"$\n" +
-	"\fRequestQuery\x12\x14\n" +
-	"\x05value\x18\x01 \x03(\tR\x05value\"\x86\x01\n" +
+	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/http.proto\"|\n" +
 	"\x16EvaluateIngressRequest\x12\x1d\n" +
 	"\n" +
-	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12M\n" +
-	"\x0frequest_context\x18\x02 \x01(\v2$.sentinez.dmz.edge.v1.RequestContextR\x0erequestContext\"\x8c\x01\n" +
+	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12C\n" +
+	"\x0frequest_context\x18\x02 \x01(\v2\x1a.sentinez.types.v1.RequestR\x0erequestContext\"\x8c\x01\n" +
 	"\x10EvaluationResult\x12\x17\n" +
 	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x18\n" +
 	"\amatched\x18\x02 \x01(\bR\amatched\x12E\n" +
@@ -494,32 +276,26 @@ func file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP() []byte {
 	return file_sentinez_dmz_edge_v1_edge_proto_rawDescData
 }
 
-var file_sentinez_dmz_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_sentinez_dmz_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
-	(*RequestContext)(nil),          // 0: sentinez.dmz.edge.v1.RequestContext
-	(*RequestQuery)(nil),            // 1: sentinez.dmz.edge.v1.RequestQuery
-	(*EvaluateIngressRequest)(nil),  // 2: sentinez.dmz.edge.v1.EvaluateIngressRequest
-	(*EvaluationResult)(nil),        // 3: sentinez.dmz.edge.v1.EvaluationResult
-	(*EvaluateIngressResponse)(nil), // 4: sentinez.dmz.edge.v1.EvaluateIngressResponse
-	(*Context)(nil),                 // 5: sentinez.dmz.edge.v1.Context
-	nil,                             // 6: sentinez.dmz.edge.v1.RequestContext.HeaderEntry
-	nil,                             // 7: sentinez.dmz.edge.v1.RequestContext.QueriesEntry
-	(*v1.Action)(nil),               // 8: sentinez.types.secure.ruleengine.v1.Action
+	(*EvaluateIngressRequest)(nil),  // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest
+	(*EvaluationResult)(nil),        // 1: sentinez.dmz.edge.v1.EvaluationResult
+	(*EvaluateIngressResponse)(nil), // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse
+	(*Context)(nil),                 // 3: sentinez.dmz.edge.v1.Context
+	(*v1.Request)(nil),              // 4: sentinez.types.v1.Request
+	(*v11.Action)(nil),              // 5: sentinez.types.secure.ruleengine.v1.Action
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	6, // 0: sentinez.dmz.edge.v1.RequestContext.header:type_name -> sentinez.dmz.edge.v1.RequestContext.HeaderEntry
-	7, // 1: sentinez.dmz.edge.v1.RequestContext.queries:type_name -> sentinez.dmz.edge.v1.RequestContext.QueriesEntry
-	0, // 2: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.dmz.edge.v1.RequestContext
-	8, // 3: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
-	3, // 4: sentinez.dmz.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
-	1, // 5: sentinez.dmz.edge.v1.RequestContext.QueriesEntry.value:type_name -> sentinez.dmz.edge.v1.RequestQuery
-	2, // 6: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
-	4, // 7: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse
-	7, // [7:8] is the sub-list for method output_type
-	6, // [6:7] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	4, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.types.v1.Request
+	5, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
+	1, // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
+	0, // 3: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
+	2, // 4: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_edge_proto_init() }
@@ -533,7 +309,7 @@ func file_sentinez_dmz_edge_v1_edge_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_edge_proto_rawDesc), len(file_sentinez_dmz_edge_v1_edge_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,36 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package requests
+package ruleevent
 
 import (
-	"context"
+	"io"
 
-	corehttpreq "github.com/sentinez/core/http/request"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	"github.com/sentinez/shared/sync"
 )
 
 var (
-	pool = sync.NewPool[corehttpreq.RequestContext]()
+	_ io.Closer = (*RuleEvent)(nil)
+
+	pool = sync.NewPoolCtr(func() *RuleEvent {
+		return &RuleEvent{Event: &ruleeventpb.Event{}}
+	})
 )
 
-func New(ctx context.Context,
-	req *edgepb.RequestContext) *corehttpreq.RequestContext {
-
-	rctx := pool.Get()
-
-	rctx.Req = req
-	rctx.Ctx = ctx
-
-	return rctx
+type RuleEvent struct {
+	*ruleeventpb.Event
 }
 
-func Free(rctx *corehttpreq.RequestContext) {
-	if rctx == nil {
-		return
-	}
+func (re *RuleEvent) Close() error {
+	Release(re)
 
-	rctx.Req = nil
-	pool.Put(rctx)
+	return nil
+}
+
+func Acquire() *RuleEvent {
+	return pool.Get()
+}
+
+func Release(obj *RuleEvent) {
+	obj.Reset()
+	pool.Put(obj)
 }

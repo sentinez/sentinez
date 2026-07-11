@@ -23,7 +23,10 @@ import (
 	"net/http"
 	"strings"
 
+	httpconst "github.com/sentinez/core/http/const"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	"github.com/sentinez/sentinez/pkg/pools/request"
+	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/color"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/grpc/grpclog"
@@ -61,18 +64,24 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		lw.Logger.Info("allow http request", &typepb.RequestEvent{
-			Scheme:        r.URL.Scheme,
-			Host:          r.Host,
-			Path:          r.URL.Path,
-			Method:        r.Method,
-			Status:        int32(lw.statusCode),
-			RemoteAddress: ip,
-			Protocol:      r.Proto,
-			Query:         r.URL.RawQuery,
-			UserAgent:     r.UserAgent(),
-			ContentType:   r.Header.Get("Content-Type"),
-		})
+		var queries map[string]*typepb.QueryValue
+		protocol.ParseQuery(r.URL.Query(), queries)
+
+		event := request.Acquire()
+		defer request.Release(event)
+
+		event.Scheme = r.URL.Scheme
+		event.Host = r.Host
+		event.Path = r.URL.Path
+		event.Method = r.Method
+		event.Status = int32(lw.statusCode)
+		event.RemoteAddress = ip
+		event.Protocol = r.Proto
+		event.Queries = queries
+		event.UserAgent = r.UserAgent()
+		event.ContentType = r.Header.Get(httpconst.HeaderContentType)
+
+		lw.Logger.Info("allow http request", event)
 	})
 }
 

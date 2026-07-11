@@ -20,6 +20,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 var _ corechains.ChainNode = (*DomainBased)(nil)
@@ -39,7 +40,8 @@ type DomainBased struct {
 func (d *DomainBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit domain")
 
-	ns, ok := d.isValidSingleLevelSubdomain(ctx.Host(), d.hostname)
+	ns, ok := d.isValidSingleLevelSubdomain(
+		bytesconv.B2s(ctx.Host()), d.hostname)
 	if !ok {
 		return corehttp.Forbidden(ctx)
 	}

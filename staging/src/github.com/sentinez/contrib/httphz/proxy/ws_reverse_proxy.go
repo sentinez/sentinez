@@ -5,6 +5,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/reverseproxy"
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/shared/zlog"
 )
@@ -32,7 +33,7 @@ func (p *WSReverseProxy) Serve(ctx corehttp.Context) {
 	rctx, ok := ctx.Unwrap().(*app.RequestContext)
 	if !ok {
 		_ = ctx.String(
-			http.StatusInternalServerError, "Internal server error")
+			http.StatusInternalServerError, bytestr.InternalServerError)
 
 		zlog.Fatal("request context not supported")
 

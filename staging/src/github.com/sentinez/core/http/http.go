@@ -23,6 +23,7 @@ type Option struct {
 	CertFile    string
 	CertKeyFile string
 	TLSConfig   *tls.Config
+	ServerName  []byte
 }
 
 type ServerOption func(opt *Option)
@@ -48,6 +49,16 @@ func WithTLSConfig(conf *tls.Config) ServerOption {
 	}
 }
 
+func WithServerName(name []byte) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.ServerName = name
+	}
+}
+
 type Server interface {
 	Shutdown(ctx context.Context) error
 	ListenAndServe(addr string, opts ...ServerOption) error
@@ -58,24 +69,3 @@ type Server interface {
 type ReverseProxy interface {
 	Serve(ctx Context)
 }
-
-const (
-	HeaderServer        = "Server"
-	HeaderXRequestId    = "X-Request-Id"
-	HeaderContentType   = "Content-Type"
-	HeaderUpgrade       = "Upgrade"
-	HeaderUserAgent     = "User-Agent"
-	HeaderXForwardedFor = "X-Forwarded-For"
-	HeaderXRealIP       = "X-Real-IP"
-	HeaderCacheControl  = "Cache-Control"
-
-	ValueNotFound            = "Not found"
-	ValueInternalServerError = "Internal server error"
-	ValueAccessDenied        = "Access denied"
-	ValueTextPlain           = "text/plain; charset=utf-8"
-	ValueTextHTML            = "text/html; charset=utf-8"
-	ValueAppJSON             = "application/json; charset=utf-8"
-
-	SchemeSecure   = "https"
-	SchemeInsecure = "http"
-)

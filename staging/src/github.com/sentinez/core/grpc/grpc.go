@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sentinez/core/console"
+	"github.com/sentinez/core/common/console"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	"google.golang.org/grpc"

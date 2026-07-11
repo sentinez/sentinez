@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
@@ -27,6 +28,8 @@ import (
 	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/wafengine"
+	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -95,14 +98,16 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		return
 	}
 
+	event := ruleevent.Acquire()
+	defer ruleevent.Release(event)
+
 	if data, ok := w.cached.Get(corehttp.GenContextKey(ctx)); ok {
-		var event ruleeventpb.Event
 		if err := event.UnmarshalVT(data); err != nil {
 			return
 		}
 
 		event.RequestTime = ctx.RequestTime().UnixMilli()
-		w.logger.Info("cache hit: rule engine ingress matched", &event)
+		w.logger.Info("cache hit: rule engine ingress matched", event)
 		return
 	}
 
@@ -128,21 +133,19 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		}
 	}
 
-	event := &ruleeventpb.Event{
-		RuleIds:       ruleIDs,
-		Severities:    severities,
-		Messages:      msgs,
-		Path:          ctx.URI(),
-		Score:         int32(score),
-		Ip:            ctx.RequestIP(),
-		RequestDomain: ctx.Host(),
-		TransactionId: ruleset.GetTxId(),
-		Service:       ruleeventpb.Service_SERVICE_RULE_CORE_RULESETS,
-		Action:        ruleeventpb.Action_ACTION_DENY,
-		RequestTime:   ctx.RequestTime().UnixMilli(),
-		HttpReqId:     ctx.RequestId(),
-		ContentType:   ctx.Header(corehttp.HeaderContentType),
-	}
+	event.RuleIds = ruleIDs
+	event.Severities = severities
+	event.Messages = msgs
+	event.Path = bytesconv.B2s(ctx.URI())
+	event.Score = int32(score)
+	event.Ip = bytesconv.B2s(ctx.RequestIP())
+	event.RequestDomain = bytesconv.B2s(ctx.Host())
+	event.TransactionId = ruleset.GetTxId()
+	event.Service = ruleeventpb.Service_SERVICE_RULE_CORE_RULESETS
+	event.Action = ruleeventpb.Action_ACTION_DENY
+	event.RequestTime = ctx.RequestTime().UnixMilli()
+	event.HttpReqId = ctx.RequestId()
+	event.ContentType = bytesconv.B2s(ctx.Header(bytestr.HeaderContentType))
 
 	w.logger.Info("[rulesets] [matched]", event)
 	data, _ := event.MarshalVT()

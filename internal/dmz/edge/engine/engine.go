@@ -17,10 +17,10 @@ package engine
 import (
 	"context"
 
+	corehttpreq "github.com/sentinez/core/http/request"
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/engine/requests"
 )
 
 var _ edgepb.EdgeEngineServiceServer = (*Engine)(nil)
@@ -35,8 +35,8 @@ func (e *Engine) EvaluateIngress(ctx context.Context,
 	request *edgepb.EvaluateIngressRequest,
 ) (*edgepb.EvaluateIngressResponse, error) {
 
-	enginectx := requests.New(ctx, request.GetRequestContext())
-	defer requests.Free(enginectx)
+	enginectx := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
+	// defer corehttpreq.(enginectx)
 
 	rule := corerules.NewIngress(&ruleenginepb.RuleBased{})
 	matched := &ruleenginepb.MatchedRules{}

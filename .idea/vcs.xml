@@ -5,10 +5,8 @@
     <mapping directory="$PROJECT_DIR$/_patches/coreruleset" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/googleapis" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/grpc-gateway" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/libbpf" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/protovalidate" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/staging/src/github.com/sentinez/quadrum" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/staging/src/github.com/sentinez/quadrum/bpf/lib/libbpf" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/staging/src/github.com/sentinez/quadrum/bpf/lib/xdp-tools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/staging/src/github.com/sentinez/quadrum/bpf/lib/xdp-tools/lib/libbpf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/xdp-tools" vcs="Git" />
   </component>
 </project>

@@ -22,7 +22,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/core"
-	corehttp "github.com/sentinez/core/http"
+	httpconst "github.com/sentinez/core/http/const"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
@@ -136,6 +136,6 @@ func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r)
 
-		w.Header().Set(corehttp.HeaderServer, core.Name)
+		w.Header().Set(httpconst.HeaderServer, core.Name)
 	})
 }

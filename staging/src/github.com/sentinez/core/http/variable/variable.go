@@ -15,10 +15,13 @@
 package variable
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 // ParseProxyVal evaluates standard Nginx-like string variables.
@@ -30,20 +33,26 @@ func ParseProxyVal(ctx corehttp.Context, val string) (string, error) {
 	// Fast path for exact matches
 	switch val {
 	case VarHost:
-		return ctx.Host(), nil
+		return bytesconv.B2s(ctx.Host()), nil
 	case VarRemoteAddr:
-		return ctx.RequestIP(), nil
+		return bytesconv.B2s(ctx.RequestIP()), nil
 	case VarScheme:
 		return ctx.Scheme(), nil
 	case VarRequestURI:
-		return ctx.URI(), nil
+		return bytesconv.B2s(ctx.URI()), nil
 	case VarProxyAddXForwardedFor:
-		xff := ctx.Header(corehttp.HeaderXForwardedFor)
+		xff := ctx.Header(bytestr.HeaderXForwardedFor)
 		ip := ctx.RequestIP()
-		if xff == "" {
-			return ip, nil
+		if xff == nil {
+			return bytesconv.B2s(ip), nil
 		}
-		return xff + ", " + ip, nil
+
+		var buf bytes.Buffer
+		buf.Write(xff)
+		buf.WriteString(", ")
+		buf.Write(ip)
+
+		return buf.String(), nil
 	}
 
 	return "", fmt.Errorf("unsupported variable: %s", val)

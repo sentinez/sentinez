@@ -54,7 +54,7 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 		if err := fn(inCtx); err != nil {
 			zlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = inCtx.String(
-				http.StatusInternalServerError, "Internal server error")
+				http.StatusInternalServerError, []byte("Internal server error"))
 		}
 
 		inCtx.Release()

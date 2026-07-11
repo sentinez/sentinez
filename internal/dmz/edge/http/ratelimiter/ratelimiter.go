@@ -34,8 +34,8 @@ type Limiter struct {
 func (l *Limiter) Handle(ctx corehttp.Context) error {
 	limiter := ratelimiter.GetEngine().LoadContext(ctx)
 
-	if !limiter.Allow(ctx.RequestIP()) {
-		totalCount := limiter.Count(ctx.RequestIP()) + limiter.Limit()
+	if !limiter.Allow(string(ctx.RequestIP())) {
+		totalCount := limiter.Count(string(ctx.RequestIP())) + limiter.Limit()
 		zlog.Debugf("limit exceeded %d - %s", totalCount, ctx.URI())
 		return corehttp.TooManyRequests(ctx)
 	}

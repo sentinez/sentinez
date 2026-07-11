@@ -11,7 +11,6 @@ replace (
 require (
 	github.com/a-h/templ v0.3.960
 	github.com/cloudwego/hertz v0.10.3
-	github.com/gorilla/websocket v1.5.3
 	github.com/hertz-contrib/http2 v0.1.8
 	github.com/hertz-contrib/reverseproxy v1.0.6
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
@@ -29,6 +28,7 @@ require (
 	github.com/cloudwego/netpoll v0.7.2 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hertz-contrib/websocket v0.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/nyaruka/phonenumbers v1.6.7 // indirect

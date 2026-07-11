@@ -2,7 +2,10 @@ module github.com/sentinez/shared
 
 go 1.26.1
 
-replace github.com/sentinez/sentinez/api => ../../../../../api
+replace (
+	github.com/sentinez/core => ../core
+	github.com/sentinez/sentinez/api => ../../../../../api
+)
 
 require (
 	buf.build/go/protovalidate v1.2.0

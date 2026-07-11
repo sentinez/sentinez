@@ -22,6 +22,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/sentinez/core/common/bytestr"
 	"github.com/sentinez/core/common/render"
 )
 
@@ -34,7 +35,7 @@ func Forbidden(ctx Context) error {
 	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusForbidden, "Access denied")
+		return ctx.String(http.StatusForbidden, bytestr.AccessDenied)
 	}
 
 	return nil
@@ -49,7 +50,7 @@ func InternalServerError(ctx Context) error {
 	if err != nil {
 		ctx.ResetResponse()
 		return ctx.String(
-			http.StatusInternalServerError, "Internal server error")
+			http.StatusInternalServerError, bytestr.InternalServerError)
 	}
 
 	return nil
@@ -62,7 +63,7 @@ func NotFound(ctx Context) error {
 	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusNotFound, "Not found")
+		return ctx.String(http.StatusNotFound, bytestr.NotFound)
 	}
 
 	return nil
@@ -76,7 +77,7 @@ func TooManyRequests(ctx Context) error {
 		render.TooManyRequests(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusTooManyRequests, "Too many requests")
+		return ctx.String(http.StatusTooManyRequests, bytestr.TooManyRequests)
 	}
 
 	return nil
@@ -106,7 +107,7 @@ func GenContextKey(ctx Context) string {
 		}
 	}
 
-	ct := ctx.Header(HeaderContentType)
+	ct := ctx.Header(bytestr.HeaderContentType)
 
 	body := ctx.Body()
 	if len(body) > 1024 {

@@ -15,22 +15,25 @@
 package routes
 
 import (
+	"bytes"
 	"sort"
-	"strings"
 	"sync"
 
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/core/http/variable"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/errorx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
 var (
-	inst *Router
-	once sync.Once
-	mu   sync.Mutex
+	inst   *Router
+	once   sync.Once
+	mu     sync.Mutex
+	buffer = ssync.NewPool[bytes.Buffer]()
 )
 
 func NewRouter() *Router {
@@ -116,7 +119,10 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	}
 
 	for _, route := range routes {
-		if strings.HasPrefix(path, route.GetLocation()) {
+		locationBytes := bytesconv.S2b(route.GetLocation())
+		rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
+
+		if bytes.HasPrefix(path, locationBytes) {
 			zlog.Debugf(
 				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
 				serverName, route.GetProxyRewrite(), route.GetProxyPass(),
@@ -125,12 +131,20 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 
 			// path = /api/v1/users, location = /api, rewrite = /v1
 			// remainingPath = /v1 + /v1/users = /v1/v1/users
-			remainingPath := route.GetProxyRewrite() +
-				strings.TrimPrefix(path, route.GetLocation())
-			ctx.SetPath(remainingPath)
+
+			remainingPath := buffer.Get()
+			defer func() {
+				remainingPath.Reset()
+				buffer.Put(remainingPath)
+			}()
+
+			remainingPath.Write(rewriteBytes)
+			remainingPath.Write(bytes.TrimPrefix(path, locationBytes))
+
+			ctx.SetPath(remainingPath.Bytes())
 
 			// Set default proxy routing headers
-			ctx.SetHeader("X-Forwarded-Prefix", route.GetLocation())
+			ctx.SetHeader(bytestr.HeaderXForwardedPrefix, locationBytes)
 
 			// Add custom headers from config
 			for hk, hv := range route.GetProxySetHeaders() {
@@ -139,7 +153,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 					return "", err
 				}
 
-				ctx.SetHeader(hk, val)
+				ctx.SetHeader(bytesconv.S2b(hk), bytesconv.S2b(val))
 			}
 
 			return route.GetProxyPass()[0].GetServer(), nil

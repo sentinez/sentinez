@@ -18,8 +18,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -46,9 +48,10 @@ func (s *Static) Handle(ctx corehttp.Context) error {
 
 	err := s.HandleNext(ctx)
 
-	if s.isStaticAsset(ctx.Path()) {
+	if s.isStaticAsset(bytesconv.B2s(ctx.Path())) {
 		ctx.SetResponseHeader(
-			corehttp.HeaderCacheControl, "public, max-age=3600, immutable",
+			bytestr.HeaderCacheControl,
+			[]byte("public, max-age=3600, immutable"),
 		)
 	}
 

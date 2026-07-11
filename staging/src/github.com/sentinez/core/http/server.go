@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sentinez/core/console"
+	"github.com/sentinez/core/common/console"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )

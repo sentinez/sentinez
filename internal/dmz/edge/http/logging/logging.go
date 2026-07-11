@@ -15,11 +15,15 @@
 package logging
 
 import (
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/ebpf"
+	"github.com/sentinez/sentinez/pkg/pools/request"
+	"github.com/sentinez/sentinez/pkg/protocol"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -41,28 +45,29 @@ type Logger struct {
 
 func (l *Logger) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit logger")
-
-	requestResourceHost := string(ctx.Host())
-
 	err := l.HandleNext(ctx)
 
 	ip := ctx.RequestIP()
-	bw, _ := ebpf.LookupBandwidth(ip)
+	bw, _ := ebpf.LookupBandwidth(bytesconv.B2s(ip))
 	zlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
+	event := request.Acquire()
+	defer request.Release(event)
+
+	event.Id = ctx.RequestId()
+	event.Scheme = ctx.Scheme()
+	event.Host = string(ctx.Host())
+	event.Path = string(ctx.Path())
+	event.Method = string(ctx.Method())
+	event.Status = int32(ctx.StatusCode())
+	event.Protocol = ctx.Protocol()
+	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
+
+	protocol.ParseQuery(ctx.Queries(), event.Queries)
+	protocol.ParseHeader(ctx.Headers(), event.Headers)
+
 	if l.logger.V(zlog.LevelInfo.Int()) {
-		l.logger.Info("[http][request]", &typepb.RequestEvent{
-			ReqId:         ctx.RequestId(),
-			Scheme:        ctx.Scheme(),
-			Host:          requestResourceHost,
-			Path:          ctx.Path(),
-			Method:        ctx.Method(),
-			Status:        int32(ctx.StatusCode()),
-			RemoteAddress: ctx.RemoteAddr(),
-			Protocol:      ctx.Protocol(),
-			Query:         ctx.QueryStr(),
-			UserAgent:     ctx.Header(corehttp.HeaderUserAgent),
-		})
+		l.logger.Info("http: request", event)
 	}
 
 	return err

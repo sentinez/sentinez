@@ -16,34 +16,69 @@ syntax = "proto3";
 
 package sentinez.types.v1;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1;typepb";
 
 message RequestHeader {
-  string key = 1;
-  string value = 2;
+  bytes key = 1;
+  repeated bytes values = 2;
 }
 
-message QueryValues {
+message RequestQuery {
+  bytes key = 1;
+  repeated bytes values = 2;
+}
+
+message Request {
+  string id = 1;
+  string method = 2;
+  string scheme = 3;
+  string host = 4;
+  bytes path = 5;
+  bytes uri = 6;
+  repeated RequestQuery queries = 7;
+  repeated RequestHeader headers = 8;
+  bytes body = 9;
+  string protocol = 10;
+  string remote_address = 11;
+  int32 status = 12;
+  bytes user_agent = 13;
+  string ray_id = 14;
+  int64 asn = 15;
+  string country = 16;
+  bytes content_type = 17;
+  google.protobuf.Timestamp timestamp = 18;
+  string fingerprint = 19;
+  string client_ip = 20;
+}
+
+message HeaderValue {
+  repeated string values = 1;
+}
+
+message QueryValue { 
   repeated string values = 1;
 }
 
 message RequestEvent {
-  string req_id = 1;
+  string id = 1;
   string method = 2;
   string scheme = 3;
   string host = 4;
   string path = 5;
-  string query = 6;
-  repeated RequestHeader headers = 7;
+  map<string, QueryValue> queries = 6;
+  map<string, HeaderValue> headers = 7;
+
   string protocol = 9;
   string remote_address = 10;
-
-  bytes resp_body = 8;
   int32 status = 11;
-
   string user_agent = 12;
   string ray_id = 13;
   int64 asn = 14;
   string country = 15;
   string content_type = 16;
+  int64 timestamp = 17;
+  string fingerprint = 18;
+  string client_ip = 19;
 }

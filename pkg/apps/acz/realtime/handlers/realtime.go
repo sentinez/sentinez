@@ -20,12 +20,20 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/acz/realtime/manager"
+	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )
 
 func Handler(ctx corehttp.Context) error {
-	conn, err := ctx.Upgrade()
+	stdCtx, ok := ctx.Unwrap().(*stdhttpx.Context)
+	if !ok {
+		zlog.Error("wshandlers.Handler: context protocol not supported")
+		return errorx.StatusInternalError
+	}
+
+	conn, err := stdCtx.Upgrade()
 	if err != nil {
 		zlog.Errorf("wshandlers.Handler upgrade error: %v", err)
 		return err
@@ -34,14 +42,14 @@ func Handler(ctx corehttp.Context) error {
 
 	zlog.Debugf("wshandlers.Handler full path %s", ctx.Path())
 
-	clientID := ctx.Query("id")
-	if clientID == "" {
+	clientID := ctx.Query([]byte("id"))
+	if len(clientID) == 0 {
 		zlog.Error("wshandlers.Handler missing client ID")
-		return errorx.ErrInvalidData
+		return errorx.StatusInvalidData
 	}
 
-	realtimemnt.Manager().AddClient(clientID, conn)
-	defer realtimemnt.Manager().RemoveClient(clientID)
+	realtimemnt.Manager().AddClient(bytesconv.B2s(clientID), conn)
+	defer realtimemnt.Manager().RemoveClient(bytesconv.B2s(clientID))
 
 	for {
 		_, msg, err := conn.ReadMessage()

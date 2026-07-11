@@ -135,11 +135,11 @@ func (ProxyProtocol) EnumDescriptor() ([]byte, []int) {
 // Setting edge setting per user
 type Setting struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`     // @gotags: yaml:"metadata"
-	Server        *Server                `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`         // @gotags: yaml:"server"
-	Security      *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty"`     // @gotags: yaml:"security"
-	Controller    *Controller            `protobuf:"bytes,4,opt,name=controller,proto3" json:"controller,omitempty"` // @gotags: yaml:"controller"
-	Personal      *Personal              `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty"`     // @gotags: yaml:"personal"
+	Metadata      *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty" yaml:"metadata"`     // @gotags: yaml:"metadata"
+	Server        *Server                `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`         // @gotags: yaml:"server"
+	Security      *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty" yaml:"security"`     // @gotags: yaml:"security"
+	Controller    *Controller            `protobuf:"bytes,4,opt,name=controller,proto3" json:"controller,omitempty" yaml:"controller"` // @gotags: yaml:"controller"
+	Personal      *Personal              `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty" yaml:"personal"`     // @gotags: yaml:"personal"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -249,9 +249,9 @@ func (*Metadata) Descriptor() ([]byte, []int) {
 // Server defines where the request goes and how the edge processes it:
 type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`             // @gotags: yaml:"name"
-	Listen        []uint32               `protobuf:"varint,2,rep,packed,name=listen,proto3" json:"listen,omitempty"` // @gotags: yaml:"listen"
-	Locations     []*Location            `protobuf:"bytes,3,rep,name=locations,proto3" json:"locations,omitempty"`   // @gotags: yaml:"locations"
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`             // @gotags: yaml:"name"
+	Listen        []uint32               `protobuf:"varint,2,rep,packed,name=listen,proto3" json:"listen,omitempty" yaml:"listen"` // @gotags: yaml:"listen"
+	Locations     []*Location            `protobuf:"bytes,3,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"`   // @gotags: yaml:"locations"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -309,11 +309,11 @@ func (x *Server) GetLocations() []*Location {
 
 type Location struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Location        string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty"`                                                                                                                  // @gotags: yaml:"location"
-	ProxyRewrite    string                 `protobuf:"bytes,2,opt,name=proxy_rewrite,json=proxyRewrite,proto3" json:"proxy_rewrite,omitempty"`                                                                                      // @gotags: yaml:"proxyRewrite"
-	ProxyPass       []*Upstream            `protobuf:"bytes,3,rep,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty"`                                                                                               // @gotags: yaml:"proxyPass"
-	BalanceStrategy BalanceStrategy        `protobuf:"varint,4,opt,name=balance_strategy,json=balanceStrategy,proto3,enum=sentinez.dmz.edge.v1.BalanceStrategy" json:"balance_strategy,omitempty"`                                  // @gotags: yaml:"balanceStrategy"
-	ProxySetHeaders map[string]string      `protobuf:"bytes,5,rep,name=proxy_set_headers,json=proxySetHeaders,proto3" json:"proxy_set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // @gotags: yaml:"proxySetHeaders"
+	Location        string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty" yaml:"location"`                                                                                                                  // @gotags: yaml:"location"
+	ProxyRewrite    string                 `protobuf:"bytes,2,opt,name=proxy_rewrite,json=proxyRewrite,proto3" json:"proxy_rewrite,omitempty" yaml:"proxyRewrite"`                                                                                      // @gotags: yaml:"proxyRewrite"
+	ProxyPass       []*Upstream            `protobuf:"bytes,3,rep,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty" yaml:"proxyPass"`                                                                                               // @gotags: yaml:"proxyPass"
+	BalanceStrategy BalanceStrategy        `protobuf:"varint,4,opt,name=balance_strategy,json=balanceStrategy,proto3,enum=sentinez.dmz.edge.v1.BalanceStrategy" json:"balance_strategy,omitempty" yaml:"balanceStrategy"`                                  // @gotags: yaml:"balanceStrategy"
+	ProxySetHeaders map[string]string      `protobuf:"bytes,5,rep,name=proxy_set_headers,json=proxySetHeaders,proto3" json:"proxy_set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" yaml:"proxySetHeaders"` // @gotags: yaml:"proxySetHeaders"
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -386,13 +386,13 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	IsWafEngineOn     bool                   `protobuf:"varint,1,opt,name=is_waf_engine_on,json=isWafEngineOn,proto3" json:"is_waf_engine_on,omitempty"`          // @gotags: yaml:"isWafEngineOn"
-	RuleBased         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty"`                           // @gotags: yaml:"ruleBased"
-	RuleBasedCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_based_compiled,json=ruleBasedCompiled,proto3" json:"rule_based_compiled,omitempty"` // @gotags: yaml:"-"
-	IsRateLimitOn     bool                   `protobuf:"varint,10,opt,name=is_rate_limit_on,json=isRateLimitOn,proto3" json:"is_rate_limit_on,omitempty"`         //@gotags: yaml:"isRateLimitOn"
-	TimeWindow        string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty"`                       //@gotags: yaml:"timeWindow"
-	Limit             int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty"`                                                  //@gotags: yaml:"limit"
-	Timeout           string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty"`                                               //@gotags: yaml:"timeout"
+	IsWafEngineOn     bool                   `protobuf:"varint,1,opt,name=is_waf_engine_on,json=isWafEngineOn,proto3" json:"is_waf_engine_on,omitempty" yaml:"isWafEngineOn"`          // @gotags: yaml:"isWafEngineOn"
+	RuleBased         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty" yaml:"ruleBased"`                           // @gotags: yaml:"ruleBased"
+	RuleBasedCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_based_compiled,json=ruleBasedCompiled,proto3" json:"rule_based_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	IsRateLimitOn     bool                   `protobuf:"varint,10,opt,name=is_rate_limit_on,json=isRateLimitOn,proto3" json:"is_rate_limit_on,omitempty" yaml:"isRateLimitOn"`         //@gotags: yaml:"isRateLimitOn"
+	TimeWindow        string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`                       //@gotags: yaml:"timeWindow"
+	Limit             int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                                  //@gotags: yaml:"limit"
+	Timeout           string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                               //@gotags: yaml:"timeout"
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -552,8 +552,8 @@ func (*Personal) Descriptor() ([]byte, []int) {
 
 type Upstream struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`                                              // @gotags: yaml:"server"
-	Protocol      ProxyProtocol          `protobuf:"varint,2,opt,name=protocol,proto3,enum=sentinez.dmz.edge.v1.ProxyProtocol" json:"protocol,omitempty"` // @gotags: yaml:"protocol"
+	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`                                              // @gotags: yaml:"server"
+	Protocol      ProxyProtocol          `protobuf:"varint,2,opt,name=protocol,proto3,enum=sentinez.dmz.edge.v1.ProxyProtocol" json:"protocol,omitempty" yaml:"protocol"` // @gotags: yaml:"protocol"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

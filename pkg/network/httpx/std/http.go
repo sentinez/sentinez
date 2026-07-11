@@ -16,10 +16,10 @@ package stdhttpx
 
 import (
 	"net/http"
-	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/shared/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
@@ -67,7 +67,7 @@ func StandardConverter(handler corehttp.RequestHandler,
 
 	ctx := NewContext(req, resp)
 
-	ctx.reqTime = time.Now().UTC()
+	ctx.request.Timestamp = timestamppb.Now()
 
 	if err := handler(ctx); err != nil {
 		http.Error(resp, err.Error(), ctx.StatusCode())

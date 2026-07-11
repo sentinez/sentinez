@@ -19,7 +19,7 @@
 
 ----
 
-**Main features** of *Sentinéz* WAF as a service:
+**Main features** of *Sentinéz*
 - Rule-based request filtering (based on OWASP CRS basics)
 - Rate limiter configuration
 - Provides a console interface for data visualization
