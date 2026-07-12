@@ -15,11 +15,13 @@
 package corerule
 
 import (
+	"bytes"
 	"net/netip"
 	"strings"
 
 	chttp "github.com/sentinez/core/http"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 const (
@@ -41,6 +43,25 @@ func matchString(op rulepb.Operator, src, des string) bool {
 	case rulepb.Operator_OPERATOR_SUFFIX:
 		return strings.HasSuffix(src, des)
 	case rulepb.Operator_OPERATOR_MATCHES:
+		return matchRegex(des, bytesconv.S2b(src))
+	default:
+		return unmatched
+	}
+}
+
+func matchBytes(op rulepb.Operator, src []byte, des string) bool {
+	switch op {
+	case rulepb.Operator_OPERATOR_EQ:
+		return bytesconv.B2s(src) == des
+	case rulepb.Operator_OPERATOR_NE:
+		return bytesconv.B2s(src) != des
+	case rulepb.Operator_OPERATOR_CONTAINS:
+		return bytes.Contains(src, bytesconv.S2b(des))
+	case rulepb.Operator_OPERATOR_PREFIX:
+		return bytes.HasPrefix(src, bytesconv.S2b(des))
+	case rulepb.Operator_OPERATOR_SUFFIX:
+		return bytes.HasSuffix(src, bytesconv.S2b(des))
+	case rulepb.Operator_OPERATOR_MATCHES:
 		return matchRegex(des, src)
 	default:
 		return unmatched
@@ -51,16 +72,14 @@ func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := ctx.Path()
 
-	// zlog.Debugf("rules: src: %s -> des: %s", src, des)
-	return matchString(cond.GetOperator(), src, des)
+	return matchBytes(cond.GetOperator(), src, des)
 }
 
 func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
-	src := string(ctx.Body())
+	src := ctx.Body()
 	des := cond.GetValue().GetStringValue()
 
-	// zlog.Debugf("rules body: srcLen: %d -> des: %s", len(src), des)
-	return matchString(cond.GetOperator(), src, des)
+	return matchBytes(cond.GetOperator(), src, des)
 }
 
 // nolint:funlen
@@ -75,7 +94,6 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list == nil {
 			// fallback to single key existence check
 			s := val.GetStringValue()
-			// zlog.Debugf("rules: header existence check (single): %s", s)
 			if s == "" {
 				return unmatched
 			}
@@ -85,7 +103,6 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 		des := list.GetValues()
 		src := ctx.Headers()
-		// zlog.Debugf("rules: header existence check (list): %v", des)
 		if len(src) == 0 {
 			return unmatched
 		}
@@ -112,15 +129,14 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 
 	// If a key is provided, we check its value
-	srcVal := ctx.Header(key)
+	srcVal := ctx.Header(bytesconv.S2b(key))
 	list := val.GetListValue()
-	// zlog.Debugf("rules: header value check key=%s src=%s", key, srcVal)
 
 	if list != nil {
 		// Membership check
 		found := false
 		for _, v := range list.GetValues() {
-			if srcVal == v.GetStringValue() {
+			if bytes.Equal(srcVal, bytesconv.S2b(v.GetStringValue())) {
 				found = true
 				break
 			}
@@ -130,14 +146,14 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 	// Single value check
 	desString := val.GetStringValue()
-	return matchString(op, srcVal, desString)
+	return matchBytes(op, srcVal, desString)
 }
 
 func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	src := ctx.Host()
 	des := cond.GetValue().GetStringValue()
 
-	return matchString(cond.GetOperator(), src, des)
+	return matchBytes(cond.GetOperator(), src, des)
 }
 
 // nolint:funlen
@@ -152,7 +168,6 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list == nil {
 			// fallback to single key existence check
 			s := val.GetStringValue()
-			// zlog.Debugf("rules: query existence check (single): %s", s)
 			if s == "" {
 				return unmatched
 			}
@@ -162,7 +177,6 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 		des := list.AsSlice()
 		src := ctx.Queries()
-		// zlog.Debugf("rules: query existence check (list): %v", des)
 		if len(src) == 0 {
 			return unmatched
 		}
@@ -172,7 +186,6 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
 					if _, exist := src[ds]; !exist {
-						// zlog.Debugf("rules: query key not found: %s", ds)
 						return unmatched
 					}
 				}
@@ -192,15 +205,14 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 
 	// If a key is provided, we check its value
-	srcVal := ctx.Query(key)
+	srcVal := ctx.Query(bytesconv.S2b(key))
 	list := val.GetListValue()
-	// zlog.Debugf("rules: query value check key=%s src=%s", key, srcVal)
 
 	if list != nil {
 		// Membership check
 		found := false
 		for _, v := range list.GetValues() {
-			if srcVal == v.GetStringValue() {
+			if bytes.Equal(srcVal, bytesconv.S2b(v.GetStringValue())) {
 				found = true
 				break
 			}
@@ -210,7 +222,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 
 	// Single value check
 	desString := val.GetStringValue()
-	return matchString(op, srcVal, desString)
+	return matchBytes(op, srcVal, desString)
 }
 
 func matchOperator(op rulepb.Operator, ok bool) bool {
@@ -228,13 +240,17 @@ func matchOperator(op rulepb.Operator, ok bool) bool {
 	}
 }
 
-func matchIP(src, des string) bool {
+func matchIP(src []byte, des string) bool {
 	prefix, err := netip.ParsePrefix(des)
 	if err != nil {
-		return src == des
+		return bytesconv.B2s(src) == des
 	}
 
-	return prefix.Contains(netip.MustParseAddr(src))
+	addr, err := netip.ParseAddr(bytesconv.B2s(src))
+	if err != nil {
+		return false
+	}
+	return prefix.Contains(addr)
 }
 
 func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
@@ -280,7 +296,7 @@ func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		list := cond.GetValue().GetListValue()
 		if list != nil {
 			for _, v := range list.GetValues() {
-				if src == v.GetStringValue() {
+				if bytes.Equal(src, bytesconv.S2b(v.GetStringValue())) {
 					return matched
 				}
 			}
@@ -290,7 +306,7 @@ func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		list := cond.GetValue().GetListValue()
 		if list != nil {
 			for _, v := range list.GetValues() {
-				if src == v.GetStringValue() {
+				if bytes.Equal(src, bytesconv.S2b(v.GetStringValue())) {
 					return unmatched
 				}
 			}
@@ -298,7 +314,7 @@ func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		return matched
 	default:
 		des := cond.GetValue().GetStringValue()
-		return matchString(cond.GetOperator(), src, des)
+		return matchBytes(cond.GetOperator(), src, des)
 	}
 }
 

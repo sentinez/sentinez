@@ -16,6 +16,7 @@ package stdhttpx
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"time"
 
@@ -48,21 +49,31 @@ func (s *Server) Handle(fn corehttp.RequestHandler) {
 	s.mux.Handle("/", Convert(chain(fn, s.mdw...)))
 }
 
-func (s *Server) ListenAndServe(addr string) error {
-	s.core.Addr = addr
-	s.core.Handler = s.mux
-
-	return s.core.ListenAndServe()
+func (s *Server) TLS(tlsFn func(*tls.ClientHelloInfo) (*tls.Config, error)) {
+	s.core.TLSConfig.GetConfigForClient = tlsFn
 }
 
-func (s *Server) ListenAndServeTLS(addr, certFile, keyFile string) error {
+func (s *Server) ListenAndServe(
+	addr string, opts ...corehttp.ServerOption) error {
+
+	var option corehttp.Option
+	for _, opt := range opts {
+		opt(&option)
+	}
+
 	s.core.Addr = addr
 	s.core.Handler = s.mux
-	s.core.IdleTimeout = 120 * time.Second
-	s.core.ReadTimeout = 15 * time.Second
-	s.core.WriteTimeout = 15 * time.Second
 
-	return s.core.ListenAndServeTLS(certFile, keyFile)
+	if option.CertFile != "" && option.CertKeyFile != "" {
+		s.core.IdleTimeout = 120 * time.Second
+		s.core.ReadTimeout = 15 * time.Second
+		s.core.WriteTimeout = 15 * time.Second
+		s.core.TLSConfig = option.TLSConfig
+
+		return s.core.ListenAndServeTLS(option.CertFile, option.CertKeyFile)
+	}
+
+	return s.core.ListenAndServe()
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

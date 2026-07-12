@@ -15,15 +15,18 @@
 package corers
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
+	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 func processRequestHandler(ctx corehttp.Context, tx types.Transaction) error {
@@ -72,15 +75,18 @@ func processRequestHeader(ctx corehttp.Context,
 
 	processRequestConnection(ctx, tx)
 
-	host := string(ctx.Host())
+	host := bytesconv.B2s(ctx.Host())
 	if host != "" {
 		tx.AddRequestHeader("Host", host)
 		tx.SetServerName(host)
 	}
 
-	transferEncoding := ctx.Header("Transfer-Encoding")
-	if transferEncoding != "" {
-		tx.AddRequestHeader("Transfer-Encoding", transferEncoding)
+	transferEncoding := ctx.Header(bytestr.HeaderTransferEncoding)
+	if transferEncoding != nil {
+		tx.AddRequestHeader(
+			httpconst.HeaderTransferEncoding,
+			bytesconv.B2s(transferEncoding),
+		)
 	}
 
 	in := tx.ProcessRequestHeaders()
@@ -96,20 +102,23 @@ func processRequestConnection(ctx corehttp.Context, tx types.Transaction) {
 	var client string
 	var cport int
 
-	idx := strings.LastIndexByte(ctx.RemoteAddr(), ':')
+	remoteAddr := ctx.RemoteAddr()
+	idx := bytes.LastIndexByte(remoteAddr, ':')
 	if idx != -1 {
-		client = ctx.RemoteAddr()[:idx]
-		cport, _ = strconv.Atoi(ctx.RemoteAddr()[idx+1:])
+		client = bytesconv.B2s(remoteAddr[:idx])
+		cport, _ = strconv.Atoi(bytesconv.B2s(remoteAddr[idx+1:]))
+	} else {
+		client = bytesconv.B2s(remoteAddr)
 	}
 
 	tx.ProcessConnection(client, cport, "", 0)
 	tx.ProcessURI(
-		ctx.URI(),
-		string(ctx.Method()),
+		bytesconv.B2s(ctx.URI()),
+		bytesconv.B2s(ctx.Method()),
 		ctx.Protocol(),
 	)
 	ctx.VisitRequestHeaders(func(k, v []byte) {
-		tx.AddRequestHeader(string(k), string(v))
+		tx.AddRequestHeader(bytesconv.B2s(k), bytesconv.B2s(v))
 	})
 }
 

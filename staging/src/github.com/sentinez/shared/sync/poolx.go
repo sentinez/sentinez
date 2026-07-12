@@ -14,7 +14,9 @@
 
 package sync
 
-import "sync"
+import (
+	"sync"
+)
 
 func NewPool[T any]() *Pool[T] {
 	return &Pool[T]{

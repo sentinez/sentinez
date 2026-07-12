@@ -43,8 +43,6 @@ func (m *RequestHeader) Validate() error {
 
 	// no validation rules for Key
 
-	// no validation rules for Value
-
 	return nil
 }
 
@@ -102,20 +100,22 @@ var _ interface {
 	ErrorName() string
 } = RequestHeaderValidationError{}
 
-// Validate checks the field values on QueryValues with the rules defined in
+// Validate checks the field values on RequestQuery with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
-func (m *QueryValues) Validate() error {
+func (m *RequestQuery) Validate() error {
 	if m == nil {
 		return nil
 	}
 
+	// no validation rules for Key
+
 	return nil
 }
 
-// QueryValuesValidationError is the validation error returned by
-// QueryValues.Validate if the designated constraints aren't met.
-type QueryValuesValidationError struct {
+// RequestQueryValidationError is the validation error returned by
+// RequestQuery.Validate if the designated constraints aren't met.
+type RequestQueryValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -123,22 +123,22 @@ type QueryValuesValidationError struct {
 }
 
 // Field function returns field value.
-func (e QueryValuesValidationError) Field() string { return e.field }
+func (e RequestQueryValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e QueryValuesValidationError) Reason() string { return e.reason }
+func (e RequestQueryValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e QueryValuesValidationError) Cause() error { return e.cause }
+func (e RequestQueryValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e QueryValuesValidationError) Key() bool { return e.key }
+func (e RequestQueryValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e QueryValuesValidationError) ErrorName() string { return "QueryValuesValidationError" }
+func (e RequestQueryValidationError) ErrorName() string { return "RequestQueryValidationError" }
 
 // Error satisfies the builtin error interface
-func (e QueryValuesValidationError) Error() string {
+func (e RequestQueryValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -150,14 +150,14 @@ func (e QueryValuesValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sQueryValues.%s: %s%s",
+		"invalid %sRequestQuery.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = QueryValuesValidationError{}
+var _ error = RequestQueryValidationError{}
 
 var _ interface {
 	Field() string
@@ -165,17 +165,16 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = QueryValuesValidationError{}
+} = RequestQueryValidationError{}
 
-// Validate checks the field values on RequestEvent with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *RequestEvent) Validate() error {
+// Validate checks the field values on Request with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Request) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for ReqId
+	// no validation rules for Id
 
 	// no validation rules for Method
 
@@ -185,14 +184,29 @@ func (m *RequestEvent) Validate() error {
 
 	// no validation rules for Path
 
-	// no validation rules for Query
+	// no validation rules for Uri
+
+	for idx, item := range m.GetQueries() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RequestValidationError{
+					field:  fmt.Sprintf("Queries[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	for idx, item := range m.GetHeaders() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RequestEventValidationError{
+				return RequestValidationError{
 					field:  fmt.Sprintf("Headers[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -202,11 +216,11 @@ func (m *RequestEvent) Validate() error {
 
 	}
 
+	// no validation rules for Body
+
 	// no validation rules for Protocol
 
 	// no validation rules for RemoteAddress
-
-	// no validation rules for RespBody
 
 	// no validation rules for Status
 
@@ -219,6 +233,280 @@ func (m *RequestEvent) Validate() error {
 	// no validation rules for Country
 
 	// no validation rules for ContentType
+
+	if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RequestValidationError{
+				field:  "Timestamp",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Fingerprint
+
+	// no validation rules for ClientIp
+
+	return nil
+}
+
+// RequestValidationError is the validation error returned by Request.Validate
+// if the designated constraints aren't met.
+type RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RequestValidationError) ErrorName() string { return "RequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RequestValidationError{}
+
+// Validate checks the field values on HeaderValue with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *HeaderValue) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// HeaderValueValidationError is the validation error returned by
+// HeaderValue.Validate if the designated constraints aren't met.
+type HeaderValueValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e HeaderValueValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e HeaderValueValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e HeaderValueValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e HeaderValueValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e HeaderValueValidationError) ErrorName() string { return "HeaderValueValidationError" }
+
+// Error satisfies the builtin error interface
+func (e HeaderValueValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sHeaderValue.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = HeaderValueValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = HeaderValueValidationError{}
+
+// Validate checks the field values on QueryValue with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *QueryValue) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// QueryValueValidationError is the validation error returned by
+// QueryValue.Validate if the designated constraints aren't met.
+type QueryValueValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryValueValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryValueValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryValueValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryValueValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryValueValidationError) ErrorName() string { return "QueryValueValidationError" }
+
+// Error satisfies the builtin error interface
+func (e QueryValueValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryValue.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryValueValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryValueValidationError{}
+
+// Validate checks the field values on RequestEvent with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RequestEvent) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Method
+
+	// no validation rules for Scheme
+
+	// no validation rules for Host
+
+	// no validation rules for Path
+
+	for key, val := range m.GetQueries() {
+		_ = val
+
+		// no validation rules for Queries[key]
+
+		if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RequestEventValidationError{
+					field:  fmt.Sprintf("Queries[%v]", key),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for key, val := range m.GetHeaders() {
+		_ = val
+
+		// no validation rules for Headers[key]
+
+		if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RequestEventValidationError{
+					field:  fmt.Sprintf("Headers[%v]", key),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Protocol
+
+	// no validation rules for RemoteAddress
+
+	// no validation rules for Status
+
+	// no validation rules for UserAgent
+
+	// no validation rules for RayId
+
+	// no validation rules for Asn
+
+	// no validation rules for Country
+
+	// no validation rules for ContentType
+
+	// no validation rules for Timestamp
+
+	// no validation rules for Fingerprint
+
+	// no validation rules for ClientIp
 
 	return nil
 }

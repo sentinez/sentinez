@@ -20,28 +20,29 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
+// nolint
 func newTestContext() corehttp.RequestContext {
-	reqCtx := &edgepb.RequestContext{
+	reqCtx := &typepb.Request{
 		Body: []byte(`{"message":"hello world"}`),
-		Header: map[string]string{
-			"Host":       "example.com",
-			"User-Agent": "test-agent/1.0",
+		Headers: []*typepb.RequestHeader{
+			{Key: []byte("Host"), Values: [][]byte{[]byte("example.com")}},
+			{Key: []byte("User-Agent"), Values: [][]byte{[]byte("test-agent/1.0")}},
 		},
-		Host:   "example.com",
-		Ip:     "192.168.1.100",
-		Ja4:    "t13d1516h2_8daaf1195655_e49aeecd9438",
-		Method: "PUT",
-		Path:   "/api/test",
-		Queries: map[string]*edgepb.RequestQuery{
-			"search": {Value: []string{"golang"}},
-			"page":   {Value: []string{"1"}},
+		Host:        "example.com",
+		ClientIp:    "192.168.1.100",
+		Fingerprint: "t13d1516h2_8daaf1195655_e49aeecd9438",
+		Method:      "PUT",
+		Path:        []byte("/api/test"),
+		Queries: []*typepb.RequestQuery{
+			{Key: []byte("search"), Values: [][]byte{[]byte("golang")}},
+			{Key: []byte("page"), Values: [][]byte{[]byte("1")}},
 		},
-		Tls: true,
+		Scheme: "https",
 	}
 	return corehttpreq.NewRequestContext(context.Background(), reqCtx)
 }

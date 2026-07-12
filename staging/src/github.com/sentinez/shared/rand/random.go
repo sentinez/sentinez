@@ -25,7 +25,7 @@ import (
 	"github.com/google/uuid"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/rs/xid"
-	"github.com/sentinez/shared/unsafe"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -71,9 +71,9 @@ func NewXID(prefix []byte) string {
 	buf.Reset()
 
 	buf.Write(prefix)
-	buf.Write(unsafe.S2B(guid.String()))
+	buf.Write(bytesconv.S2b(guid.String()))
 
-	res := unsafe.B2S(buf.Bytes())
+	res := bytesconv.B2s(buf.Bytes())
 	bufPool.Put(buf)
 
 	return res
@@ -88,7 +88,7 @@ func NewTimeID(prefix []byte, unixtime uint64) string {
 	buf.Write(prefix)
 	buf.WriteString(ulidStr)
 
-	res := unsafe.B2S(buf.Bytes())
+	res := bytesconv.B2s(buf.Bytes())
 	bufPool.Put(buf)
 
 	return res

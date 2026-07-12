@@ -22,36 +22,36 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
 	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // nolint
-func newBaseContext() *edgepb.RequestContext {
-	return &edgepb.RequestContext{
+func newBaseContext() *typepb.Request {
+	return &typepb.Request{
 		Body: []byte(`{"username":"hung","password":"123456"}`),
-		Header: map[string]string{
-			"Content-Type":  "application/json",
-			"User-Agent":    "curl/8.0.1",
-			"Accept":        "*/*",
-			"Authorization": "Bearer abc.def.ghi",
+		Headers: []*typepb.RequestHeader{
+			{Key: []byte("Content-Type"), Values: [][]byte{[]byte("application/json")}},
+			{Key: []byte("User-Agent"), Values: [][]byte{[]byte("curl/8.0.1")}},
+			{Key: []byte("Accept"), Values: [][]byte{[]byte("*/*")}},
+			{Key: []byte("Authorization"), Values: [][]byte{[]byte("Bearer abc.def.ghi")}},
 		},
-		Host:   "api.example.com",
-		Ip:     "203.0.113.42",
-		Ja4:    "ja4:abcd1234efgh5678ijkl9012mnop3456",
-		Method: "POST",
-		Path:   "/v1/login",
-		Queries: map[string]*edgepb.RequestQuery{
-			"lang":  {Value: []string{"vi"}},
-			"lang2": {Value: []string{"vi"}},
+		Host:        "api.example.com",
+		ClientIp:    "203.0.113.42",
+		Fingerprint: "ja4:abcd1234efgh5678ijkl9012mnop3456",
+		Method:      "POST",
+		Path:        []byte("/v1/login"),
+		Queries: []*typepb.RequestQuery{
+			{Key: []byte("lang"), Values: [][]byte{[]byte("vi")}},
+			{Key: []byte("lang2"), Values: [][]byte{[]byte("vi")}},
 		},
-		Tls:           true,
+		Scheme:        "https",
 		Protocol:      "HTTP/1.1",
 		RemoteAddress: "203.0.113.42:52341",
-		StatusCode:    200,
-		Uri:           "https://api.example.com/v1/login?redirect=/home&lang=en",
+		Status:        200,
+		Uri:           []byte("https://api.example.com/v1/login?redirect=/home&lang=en"),
 	}
 }
 

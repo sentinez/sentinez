@@ -18,11 +18,11 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/core/common/tables"
 	"github.com/sentinez/core/storage/dbx"
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/core/storage/utils/table"
-	"github.com/sentinez/core/tables"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"

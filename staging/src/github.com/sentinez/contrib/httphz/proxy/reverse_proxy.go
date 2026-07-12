@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/shared/sync"
 
@@ -74,7 +75,7 @@ type ReverseProxy struct {
 
 func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 
-	upgrade := ctx.Header(corehttp.HeaderUpgrade)
+	upgrade := string(ctx.Header(bytestr.HeaderUpgrade))
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		p.ws.Serve(ctx)
 		return

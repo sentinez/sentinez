@@ -23,7 +23,7 @@ var (
 	regexCache sync.Map
 )
 
-func matchRegex(pattern, value string) bool {
+func matchRegex(pattern string, value []byte) bool {
 	if pattern == "" {
 		return false
 	}
@@ -31,7 +31,7 @@ func matchRegex(pattern, value string) bool {
 	// Try to get from cache
 	if v, ok := regexCache.Load(pattern); ok {
 		if re, ok := v.(*regexp.Regexp); ok {
-			return re.MatchString(value)
+			return re.Match(value)
 		}
 	}
 
@@ -42,5 +42,5 @@ func matchRegex(pattern, value string) bool {
 	}
 
 	regexCache.Store(pattern, re)
-	return re.MatchString(value)
+	return re.Match(value)
 }

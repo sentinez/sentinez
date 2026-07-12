@@ -20,56 +20,71 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
-	"github.com/gorilla/websocket"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 )
 
 type RequestContext interface {
 	Context() context.Context
-	Headers() map[string]string
-	Queries() map[string][]string
-	Query(k string) string
-	QueryStr() string
-	Header(k string) string
-	Path() string
-	URI() string
+
+	Headers() map[string][][]byte
+	Queries() map[string][][]byte
+
+	Query(k []byte) []byte
+	QueryStr() []byte
+
+	Header(k []byte) []byte
+
+	Path() []byte
+	URI() []byte
+
 	Body() []byte
 	JA4() string
 	TLS() bool
-	Method() string
-	Host() string
+
+	Method() []byte
+	Host() []byte
+
 	StatusCode() int
 	Protocol() string
 	Scheme() string
-	RemoteAddr() string
-	RequestIP() string
+
+	RemoteAddr() []byte
+	RequestIP() []byte
+
 	RequestId() string
 	RequestTime() time.Time
 
-	SetHeader(key, value string)
-	SetQuery(key string, values ...string)
-	SetPath(p string)
-	SetURI(u string)
+	SetHeader(key, value []byte)
+	SetQuery(key []byte, values ...[]byte)
+
+	SetPath(p []byte)
+	SetURI(u []byte)
+
 	SetBody(b []byte)
 	SetRequestId(id string)
-	SetRequestIP(ip string)
+
+	SetRequestIP(ip []byte)
+
 	SetJA4(fingerprint string)
-	SetMethod(m string)
-	SetHost(h string)
+
+	SetMethod(m []byte)
+	SetHost(h []byte)
+
 	SetStatusCode(code int)
 	SetProtocol(p string)
-	SetRemoteAddr(addr string)
+
+	SetRemoteAddr(addr []byte)
 }
 
 type ResponseWriter interface {
-	ResponseHeader() map[string]string
+	ResponseHeader() map[string][][]byte
 	ResponseBody() []byte
 
-	SetResponseHeader(key, value string)
-	AddResponseHeader(key, value string)
+	SetResponseHeader(key, value []byte)
+	AddResponseHeader(key, value []byte)
 	ResetResponse()
 
-	String(statusCode int, msg string) error
+	String(statusCode int, msg []byte) error
 	JSON(statusCode int, body []byte) error
 	File(path string) error
 	Flush() error
@@ -84,7 +99,6 @@ type Context interface {
 	Extra() *edgepb.Context
 	SetExtra(x *edgepb.Context)
 
-	Upgrade() (*websocket.Conn, error)
 	Render(statusCode int, component templ.Component) error
 	RequestBodyStream() io.Reader
 	VisitRequestHeaders(visitor func(k, v []byte))

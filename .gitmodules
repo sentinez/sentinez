@@ -10,12 +10,12 @@
 [submodule "_patches/googleapis"]
 	path = _patches/googleapis
 	url = https://github.com/googleapis/googleapis.git
-[submodule "staging/src/github.com/sentinez/quadrum"]
-	path = staging/src/github.com/sentinez/quadrum
-	url = https://github.com/sentinez/quadrum.git
 [submodule "_patches/libbpf"]
 	path = _patches/libbpf
 	url = https://github.com/libbpf/libbpf.git
 [submodule "_patches/xdp-tools"]
 	path = _patches/xdp-tools
 	url = https://github.com/xdp-project/xdp-tools
+[submodule "_patches/open-telemetry"]
+	path = _patches/open-telemetry
+	url = https://github.com/open-telemetry/opentelemetry-proto.git

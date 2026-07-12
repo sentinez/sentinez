@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sentinez/core/console"
+	"github.com/sentinez/core/common/console"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
@@ -44,23 +44,23 @@ func (s *server) Handle(fn RequestHandler) {
 }
 
 // ListenAndServe implements [Server].
-func (s *server) ListenAndServe(addr string) error {
-	host, port, _ := net.SplitHostPort(addr)
-	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-		fmt.Sprintf("running on http %s:%s", host, port))
+func (s *server) ListenAndServe(addr string, opts ...ServerOption) error {
+	var option Option
+	for _, opt := range opts {
+		opt(&option)
+	}
 
-	return s.s.ListenAndServe(addr)
-}
+	if option.CertFile != "" && option.CertKeyFile != "" {
+		host, port, _ := net.SplitHostPort(addr)
+		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+			fmt.Sprintf("running on https %s:%s", host, port))
+	} else {
+		host, port, _ := net.SplitHostPort(addr)
+		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+			fmt.Sprintf("running on http %s:%s", host, port))
+	}
 
-// ListenAndServeTLS implements [Server].
-func (s *server) ListenAndServeTLS(addr string,
-	certFile string, keyFile string) error {
-
-	host, port, _ := net.SplitHostPort(addr)
-	console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-		fmt.Sprintf("running on https %s:%s", host, port))
-
-	return s.s.ListenAndServeTLS(addr, certFile, keyFile)
+	return s.s.ListenAndServe(addr, opts...)
 }
 
 // Shutdown implements [Server].

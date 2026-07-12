@@ -15,190 +15,246 @@
 package corehttpreq
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/edge/v1"
+	httpconst "github.com/sentinez/core/http/const"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	"github.com/sentinez/shared/bytesconv"
 )
 
 func NewRequestContext(
-	ctx context.Context, req *edgepb.RequestContext) corehttp.RequestContext {
+	ctx context.Context, req *typepb.Request) corehttp.RequestContext {
 	return &RequestContext{
-		Req: req,
-		Ctx: ctx,
+		req: req,
+		ctx: ctx,
 	}
 }
 
 type RequestContext struct {
-	Req *edgepb.RequestContext
-	Ctx context.Context
+	req *typepb.Request
+	ctx context.Context
 }
 
 // SetRequestId implements corehttp.RequestContext.
 func (c *RequestContext) SetRequestId(id string) {
-	c.Req.Id = id
+	c.req.Id = id
 }
 
 func (c *RequestContext) RequestTime() time.Time {
-	return time.Now().UTC()
+	return c.req.GetTimestamp().AsTime()
 }
 
-func (c *RequestContext) Header(k string) string {
-	if h := c.Req.GetHeader(); h != nil {
-		return h[k]
-	}
+func (c *RequestContext) Header(k []byte) []byte {
+	for _, header := range c.req.GetHeaders() {
+		if bytes.Equal(header.GetKey(), k) {
+			if len(header.GetValues()) == 0 {
+				return nil
+			}
 
-	return ""
-}
-
-func (c *RequestContext) Query(k string) string {
-	if q := c.Req.GetQueries(); q != nil {
-		values := q[k]
-		if values.GetValue() != nil {
-			return values.GetValue()[0]
+			return header.GetValues()[0]
 		}
 	}
 
-	return ""
+	return nil
 }
 
-func (c *RequestContext) QueryStr() string {
-	result := ""
-	for k, vs := range c.Req.GetQueries() {
-		for _, value := range vs.GetValue() {
-			result += fmt.Sprintf("%v=%v?", k, value)
+func (c *RequestContext) Query(k []byte) []byte {
+	for _, query := range c.req.GetQueries() {
+		if bytes.Equal(query.GetKey(), k) {
+			if len(query.GetValues()) == 0 {
+				return nil
+			}
+
+			return query.GetValues()[0]
 		}
 	}
 
-	return strings.TrimSuffix(result, "?")
+	return nil
 }
 
-func (c *RequestContext) RemoteAddr() string {
-	return c.Req.GetRemoteAddress()
+func (c *RequestContext) QueryStr() []byte {
+	var builder strings.Builder
+	for _, query := range c.req.GetQueries() {
+		for _, value := range query.GetValues() {
+			if builder.Len() > 0 {
+				builder.WriteByte('&')
+			}
+			builder.Write(query.GetKey())
+			builder.WriteByte('=')
+			builder.Write(value)
+		}
+	}
+	return bytesconv.S2b(builder.String())
+}
+
+func (c *RequestContext) RemoteAddr() []byte {
+	return bytesconv.S2b(c.req.GetRemoteAddress())
 }
 
 func (c *RequestContext) RequestId() string {
-	return c.Req.GetId()
+	return c.req.GetId()
 }
 
 func (c *RequestContext) SetBody(b []byte) {
-	c.Req.Body = b
+	c.req.Body = b
 }
 
-func (c *RequestContext) SetRequestIP(ip string) {
-	c.Req.Ip = ip
+func (c *RequestContext) SetRequestIP(ip []byte) {
+	c.req.ClientIp = bytesconv.B2s(ip)
 }
 
-func (c *RequestContext) SetHeader(key string, value string) {
-	if c.Req.Header == nil {
-		c.Req.Header = make(map[string]string)
+func (c *RequestContext) SetHeader(key, value []byte) {
+	var current *typepb.RequestHeader
+
+	for _, header := range c.req.GetHeaders() {
+		if bytes.Equal(header.Key, key) {
+			current = header
+			break
+		}
 	}
 
-	c.Req.Header[key] = value
+	if current == nil {
+		current = &typepb.RequestHeader{
+			Key: key,
+		}
+		c.req.Headers = append(c.req.Headers, current)
+	}
+
+	current.Values = current.Values[:0]
+	current.Values = append(current.Values, value)
 }
 
-func (c *RequestContext) SetHost(h string) {
-	c.Req.Host = h
+func (c *RequestContext) SetHost(h []byte) {
+	c.req.Host = bytesconv.B2s(h)
 }
 
 func (c *RequestContext) SetJA4(fingerprint string) {
-	c.Req.Ja4 = fingerprint
+	c.req.Fingerprint = fingerprint
 }
 
-func (c *RequestContext) SetMethod(m string) {
-	c.Req.Method = m
+func (c *RequestContext) SetMethod(m []byte) {
+	c.req.Method = bytesconv.B2s(m)
 }
 
-func (c *RequestContext) SetPath(p string) {
-	c.Req.Path = p
+func (c *RequestContext) SetPath(p []byte) {
+	c.req.Path = p
 }
 
 func (c *RequestContext) SetProtocol(p string) {
-	c.Req.Protocol = p
+	c.req.Protocol = p
 }
 
-func (c *RequestContext) SetQuery(key string, values ...string) {
-	c.Req.Queries[key].Value = append(c.Req.Queries[key].Value, values...)
+func (c *RequestContext) SetQuery(key []byte, values ...[]byte) {
+	var current *typepb.RequestQuery
+
+	for _, query := range c.req.GetQueries() {
+		if bytes.Equal(query.GetKey(), key) {
+			current = query
+			break
+		}
+	}
+
+	if current == nil {
+		current = &typepb.RequestQuery{
+			Key: key,
+		}
+		c.req.Queries = append(c.req.Queries, current)
+	}
+
+	current.Values = current.Values[:0]
+	current.Values = append(current.Values, values...)
 }
 
-func (c *RequestContext) SetRemoteAddr(addr string) {
-	c.Req.RemoteAddress = addr
+func (c *RequestContext) SetRemoteAddr(addr []byte) {
+	c.req.RemoteAddress = bytesconv.B2s(addr)
 }
 
 func (c *RequestContext) SetStatusCode(code int) {
-	c.Req.StatusCode = int32(code)
+	c.req.Status = int32(code)
 }
 
-func (c *RequestContext) SetURI(u string) {
-	c.Req.Uri = u
+func (c *RequestContext) SetURI(u []byte) {
+	pURL, err := url.Parse(bytesconv.B2s(u))
+	if err != nil {
+		return
+	}
+
+	c.req.Uri = bytesconv.S2b(pURL.String())
 }
 
 func (c *RequestContext) Protocol() string {
-	return c.Req.GetProtocol()
+	return c.req.GetProtocol()
 }
 
 func (c *RequestContext) StatusCode() int {
-	return int(c.Req.GetStatusCode())
+	return int(c.req.GetStatus())
 }
 
-func (c *RequestContext) URI() string {
-	return c.Req.GetUri()
+func (c *RequestContext) URI() []byte {
+	return c.req.GetUri()
 }
 
-func (c *RequestContext) Headers() map[string]string {
-	return c.Req.GetHeader()
+func (c *RequestContext) Headers() map[string][][]byte {
+	headers := make(map[string][][]byte)
+	for _, header := range c.req.GetHeaders() {
+		for _, value := range header.GetValues() {
+			headers[bytesconv.B2s(header.GetKey())] =
+				append(headers[bytesconv.B2s(header.GetKey())], value)
+		}
+	}
+
+	return headers
 }
 
-func (c *RequestContext) Host() string {
-	return c.Req.GetHost()
+func (c *RequestContext) Host() []byte {
+	return bytesconv.S2b(c.req.GetHost())
 }
 
 func (c *RequestContext) JA4() string {
-	return c.Req.GetJa4()
+	return c.req.GetFingerprint()
 }
 
-func (c *RequestContext) Method() string {
-	return c.Req.GetMethod()
+func (c *RequestContext) Method() []byte {
+	return bytesconv.S2b(c.req.GetMethod())
 }
 
-func (c *RequestContext) Path() string {
-	return c.Req.GetPath()
+func (c *RequestContext) Path() []byte {
+	return c.req.GetPath()
 }
 
-func (c *RequestContext) Queries() map[string][]string {
-	params := make(map[string][]string)
-	for k, v := range c.Req.GetQueries() {
-		params[k] = v.GetValue()
+func (c *RequestContext) Queries() map[string][][]byte {
+	queries := make(map[string][][]byte)
+	for _, query := range c.req.GetQueries() {
+		for _, value := range query.GetValues() {
+			queries[bytesconv.B2s(query.GetKey())] =
+				append(queries[bytesconv.B2s(query.GetKey())], value)
+		}
 	}
 
-	return params
+	return queries
 }
 
 func (c *RequestContext) TLS() bool {
-	return c.Req.GetTls()
+	return c.Scheme() == httpconst.SchemeSecure
 }
 
 func (c *RequestContext) Body() []byte {
-	return c.Req.GetBody()
+	return c.req.GetBody()
 }
 
 func (c *RequestContext) Context() context.Context {
-	return c.Ctx
+	return c.ctx
 }
 
-func (c *RequestContext) RequestIP() string {
-	return c.Req.GetIp()
+func (c *RequestContext) RequestIP() []byte {
+	return bytesconv.S2b(c.req.GetClientIp())
 }
 
 func (c *RequestContext) Scheme() string {
-	u, err := url.Parse(c.Req.GetUri())
-	if err != nil {
-		panic(err)
-	}
-
-	return u.Scheme
+	return c.req.GetScheme()
 }

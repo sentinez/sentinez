@@ -17,7 +17,7 @@ syntax = "proto3";
 package sentinez.modules.tenant.v1;
 
 import "buf/validate/validate.proto";
-import "sentinez/edge/v1/setting.proto";
+import "sentinez/dmz/edge/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -32,7 +32,7 @@ message Resource {
     required: true
     string: { prefix: "senz.tenant.resources." }
   }];
-  sentinez.edge.v1.Setting resource_setting = 3;
+  sentinez.dmz.edge.v1.Setting resource_setting = 3;
   string resource_domain = 4
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string resource_name = 5

@@ -24,7 +24,7 @@ import (
 
 func NewService(conf *confpb.Config) *Greeter {
 	return &Greeter{
-		Server:  coregrpc.NewDefault(conf),
+		Server:  coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
 		handler: greeterhdl.New(),
 		conf:    conf,
 	}

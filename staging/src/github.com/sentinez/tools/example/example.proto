@@ -11,7 +11,7 @@ option go_package = "github.com/sentinez/sentinez/staging/src/github.com/sentine
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // EDGE"
   service_kind: KIND_GATEWAY_EDGE
-  service_key: "sentinez.edge.v1"
+  service_key: "sentinez.dmz.edge.v1"
 };
 
 message Hello {
@@ -23,20 +23,19 @@ message Hello {
 service ExampleService {
   rpc Create(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      consoles: [CONSOLE_PORTAL]
+      consoles: [ CONSOLE_PORTAL ]
     };
   }
 
   rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      consoles: [
-        CONSOLE_PORTAL,
-        CONSOLE_ADMIN
-      ]
+      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
     };
   }
 
   rpc Ignored(google.protobuf.Empty) returns (google.protobuf.Empty) {
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      ignore: true
+    };
   }
 }

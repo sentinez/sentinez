@@ -14,37 +14,58 @@
 
 package corehttp
 
-import "context"
+import (
+	"context"
+	"crypto/tls"
+)
+
+type Option struct {
+	CertFile    string
+	CertKeyFile string
+	TLSConfig   *tls.Config
+	ServerName  []byte
+}
+
+type ServerOption func(opt *Option)
+
+func WithCertificate(certFile, certKeyFile string) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.CertFile = certFile
+		opt.CertKeyFile = certKeyFile
+	}
+}
+
+func WithTLSConfig(conf *tls.Config) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.TLSConfig = conf
+	}
+}
+
+func WithServerName(name []byte) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.ServerName = name
+	}
+}
 
 type Server interface {
 	Shutdown(ctx context.Context) error
-	ListenAndServe(addr string) error
+	ListenAndServe(addr string, opts ...ServerOption) error
 	Use(mdw ...func(next RequestHandler) RequestHandler)
 	Handle(fn RequestHandler)
-	ListenAndServeTLS(addr, certFile, keyFile string) error
 }
 
 type ReverseProxy interface {
 	Serve(ctx Context)
 }
-
-const (
-	HeaderServer        = "Server"
-	HeaderXRequestId    = "X-Request-Id"
-	HeaderContentType   = "Content-Type"
-	HeaderUpgrade       = "Upgrade"
-	HeaderUserAgent     = "User-Agent"
-	HeaderXForwardedFor = "X-Forwarded-For"
-	HeaderXRealIP       = "X-Real-IP"
-	HeaderCacheControl  = "Cache-Control"
-
-	ValueNotFound            = "Not found"
-	ValueInternalServerError = "Internal server error"
-	ValueAccessDenied        = "Access denied"
-	ValueTextPlain           = "text/plain; charset=utf-8"
-	ValueTextHTML            = "text/html; charset=utf-8"
-	ValueAppJSON             = "application/json; charset=utf-8"
-
-	SchemeSecure   = "https"
-	SchemeInsecure = "http"
-)

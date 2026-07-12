@@ -20,7 +20,7 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/modules/tenant/v1/model.proto";
-import "sentinez/edge/v1/setting.proto";
+import "sentinez/dmz/edge/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -176,7 +176,7 @@ message UpdateResourceRequest {
 message UpdateResourceResponse {}
 
 message CreateResourceRequest {
-  sentinez.edge.v1.Setting resource_setting = 1;
+  sentinez.dmz.edge.v1.Setting resource_setting = 1;
   string resource_domain = 2
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string resource_name = 3

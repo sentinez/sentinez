@@ -45,7 +45,9 @@ func (ws *WebSocket) HandlerFunc(
 	ws.routers.Store(path, handler)
 }
 
-func (ws *WebSocket) ListenAndServe(addr string) error {
+func (ws *WebSocket) ListenAndServe(
+	addr string, options ...corehttp.ServerOption) error {
+
 	ws.routers.Range(
 		func(path string, handler func(corehttp.Context) error) bool {
 			stdhttpx.HandlerFunc(path, handler)
@@ -54,7 +56,7 @@ func (ws *WebSocket) ListenAndServe(addr string) error {
 
 	ws.routers.Clear()
 
-	return stdhttpx.ListenAndServe(addr)
+	return stdhttpx.ListenAndServe(addr, options...)
 }
 
 func (ws *WebSocket) Shutdown() error {

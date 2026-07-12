@@ -54,7 +54,7 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 		if err := fn(inCtx); err != nil {
 			zlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = inCtx.String(
-				http.StatusInternalServerError, "Internal server error")
+				http.StatusInternalServerError, []byte("Internal server error"))
 		}
 
 		inCtx.Release()
@@ -73,7 +73,9 @@ func (s *XServer) Shutdown(ctx context.Context) error {
 	return s.core.Shutdown(ctx)
 }
 
-func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
+func (s *XServer) TLS(
+	certFile, keyFile string, tlsConfig *tls.Config) (*tls.Config, error) {
+
 	var certificates []tls.Certificate
 	if certFile != "" && keyFile != "" {
 		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
@@ -84,26 +86,26 @@ func (s *XServer) TLS(certFile, keyFile string) (*tls.Config, error) {
 		certificates = []tls.Certificate{cert}
 	}
 
-	return &tls.Config{
-		GetConfigForClient: func(
-			_ *tls.ClientHelloInfo) (*tls.Config, error) {
+	if len(tlsConfig.Certificates) == 0 {
+		tlsConfig.Certificates = certificates
+	}
 
-			return &tls.Config{
-				Certificates: certificates,
-				MinVersion:   tls.VersionTLS12,
-				NextProtos:   []string{"h2", "http/1.1"},
-			}, nil
-		},
-		Certificates: certificates,
-		MinVersion:   tls.VersionTLS12,
-		NextProtos:   []string{"h2", "http/1.1"},
-	}, nil
+	if tlsConfig.MinVersion == 0 {
+		tlsConfig.MinVersion = tls.VersionTLS12
+	}
+
+	if len(tlsConfig.NextProtos) == 0 {
+		tlsConfig.NextProtos = []string{"h2", "http/1.1"}
+	}
+
+	return tlsConfig, nil
 }
 
-func (s *XServer) initialize(addr string, certFile, keyFile string) error {
+func (s *XServer) initialize(addr string,
+	certFile, keyFile string, tlsConfig *tls.Config) error {
 	hlog.SetLevel(hlog.LevelError)
 
-	tlsConf, err := s.TLS(certFile, keyFile)
+	tlsConf, err := s.TLS(certFile, keyFile, tlsConfig)
 	if err != nil {
 		return err
 	}
@@ -131,16 +133,19 @@ func (s *XServer) initialize(addr string, certFile, keyFile string) error {
 }
 
 // ListenAndServe implements platform.Server.
-func (s *XServer) ListenAndServe(addr string) error {
-	if err := s.initialize(addr, "", ""); err != nil {
-		return err
+func (s *XServer) ListenAndServe(
+	addr string, opts ...corehttp.ServerOption) error {
+
+	var option corehttp.Option
+	for _, opt := range opts {
+		opt(&option)
 	}
 
-	return s.core.Run()
-}
-
-func (s *XServer) ListenAndServeTLS(addr, certFile, keyFile string) error {
-	if err := s.initialize(addr, certFile, keyFile); err != nil {
+	if err := s.initialize(addr,
+		option.CertFile,
+		option.CertKeyFile,
+		option.TLSConfig,
+	); err != nil {
 		return err
 	}
 
