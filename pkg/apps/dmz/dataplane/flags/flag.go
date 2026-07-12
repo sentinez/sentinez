@@ -30,7 +30,7 @@ var onceGRPCService sync.Once
 // ParseFlag flag args for grpc service
 func Parse() *flagspb.Flag {
 	onceGRPCService.Do(func() {
-		flagx.Get().EnvFile = "./cmd/dmz/dataplane/v1/.env"
+		flagx.Get().EnvFile = ".env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")

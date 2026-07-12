@@ -12,4 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stream
+package security
+
+import (
+	"crypto/tls"
+
+	"github.com/sentinez/shared/zlog"
+)
+
+func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+	zlog.Infof("SNI: %s", chi.ServerName)
+
+	return nil, nil
+}

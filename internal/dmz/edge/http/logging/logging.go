@@ -20,7 +20,7 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/ebpf"
+	"github.com/sentinez/sentinez/internal/bpf"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/bytesconv"
@@ -48,7 +48,7 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	err := l.HandleNext(ctx)
 
 	ip := ctx.RequestIP()
-	bw, _ := ebpf.LookupBandwidth(bytesconv.B2s(ip))
+	bw, _ := bpf.LookupBandwidth(bytesconv.B2s(ip))
 	zlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
 	event := request.Acquire()

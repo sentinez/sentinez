@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ebpf
+package bpf
 
 import (
 	"encoding/binary"
@@ -22,6 +22,7 @@ import (
 
 	"github.com/cilium/ebpf"
 	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 )
 
 func ipToUint32(ipStr string) (uint32, error) {
@@ -33,26 +34,29 @@ func ipToUint32(ipStr string) (uint32, error) {
 }
 
 func LookupBandwidth(ip string) (uint64, error) {
-	return Lookup(func(eo *sentinezbpf.SenzObjects) (uint64, error) {
+	var total uint64
+
+	err := driver.Exec(func(so *sentinezbpf.SenzObjects) error {
 		ipUint, err := ipToUint32(ip)
 		if err != nil {
-			return 0, err
+			return err
 		}
 
 		values := make([]uint64, runtime.NumCPU())
 
-		if errbw := eo.IpBandwidth.Lookup(&ipUint, &values); errbw != nil {
+		if errbw := so.IpBandwidth.Lookup(&ipUint, &values); errbw != nil {
 			if errbw == ebpf.ErrKeyNotExist {
-				return 0, nil
+				return nil
 			}
-			return 0, errbw
+			return errbw
 		}
 
-		var total uint64
 		for _, v := range values {
 			total += v
 		}
 
-		return total, nil
+		return nil
 	})
+
+	return total, err
 }

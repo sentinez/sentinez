@@ -12,18 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ebpf
+package bpf
 
 import (
+	"encoding/binary"
 	"fmt"
+	"net"
 
 	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 )
 
-func Lookup[T any](fn func(*sentinezbpf.SenzObjects) (T, error)) (T, error) {
-	if context == nil || context.obj == nil {
-		return *new(T), fmt.Errorf("stream: context is nil or uninitialized")
+func BlockCIDR(cidr string) error {
+	ip, network, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return err
 	}
 
-	return fn(context.obj)
+	ip4 := ip.To4()
+	if ip4 == nil {
+		return fmt.Errorf("only IPv4 CIDR is supported")
+	}
+
+	ones, _ := network.Mask.Size()
+
+	return driver.Exec(func(so *sentinezbpf.SenzObjects) error {
+		key := sentinezbpf.SenzIpLpmKey{
+			Prefixlen: uint32(ones),
+			Ip:        binary.BigEndian.Uint32(ip4),
+		}
+
+		return so.Blocklist.Put(key, uint8(1))
+	})
 }

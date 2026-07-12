@@ -19,7 +19,7 @@ import (
 
 	coregrpc "github.com/sentinez/core/grpc"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/ebpf"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
@@ -39,7 +39,7 @@ type Server struct {
 const VETH0 = "veth0"
 
 func (s *Server) Start(networkInterface string) error {
-	ctx := ebpf.NewContext()
+	ctx := driver.NewContext()
 
 	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
@@ -58,6 +58,6 @@ func (s *Server) Start(networkInterface string) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	_ = ebpf.CloseContext()
+	_ = driver.CloseContext()
 	return s.grpc.Shutdown(ctx)
 }

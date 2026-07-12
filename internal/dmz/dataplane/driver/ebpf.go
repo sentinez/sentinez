@@ -12,10 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ebpf
+package driver
 
-import "github.com/cilium/ebpf/rlimit"
+import (
+	"fmt"
 
-func setupRlimit() error {
-	return rlimit.RemoveMemlock()
+	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+)
+
+func Exec(fn func(*sentinezbpf.SenzObjects) error) error {
+	if context == nil || context.obj == nil {
+		return fmt.Errorf("stream: context is nil or uninitialized")
+	}
+
+	return fn(context.obj)
 }

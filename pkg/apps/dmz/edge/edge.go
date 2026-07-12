@@ -23,7 +23,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/stream"
+	"github.com/sentinez/sentinez/internal/dmz/edge/security"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -120,7 +120,7 @@ func (s *Server) Start() error {
 	return s.core.ListenAndServe(addr,
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
-			GetConfigForClient: stream.TLSConfig,
+			GetConfigForClient: security.TLSConfig,
 		}),
 	)
 }
