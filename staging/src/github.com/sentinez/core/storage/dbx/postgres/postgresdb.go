@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/core/storage/dbx/query"
 	storageutils "github.com/sentinez/core/storage/utils"
 	"github.com/sentinez/core/storage/utils/table"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/zlog"
 )
@@ -39,7 +39,7 @@ var (
 	lock sync.Mutex
 )
 
-func getConnPool(conf *confpb.EnvConfig) (*pgxpool.Pool, error) {
+func getConnPool(conf *settingpb.EnvConfig) (*pgxpool.Pool, error) {
 	if pool == nil {
 		var err error
 		lock.Lock()
@@ -55,7 +55,7 @@ func getConnPool(conf *confpb.EnvConfig) (*pgxpool.Pool, error) {
 }
 
 //nolint:funlen
-func New[T any](ctx context.Context, conf *confpb.Config,
+func New[T any](ctx context.Context, conf *settingpb.Config,
 	opts ...dbx.Option) (dbx.Database[T], error) {
 	tb := dbx.Table{}
 	for _, opt := range opts {

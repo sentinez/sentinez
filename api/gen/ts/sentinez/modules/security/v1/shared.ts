@@ -16,7 +16,7 @@ import {
   Operator,
   operatorFromJSON,
   operatorToJSON,
-} from "../../../types/secure/ruleengine/v1/ruleengine";
+} from "../../../secure/rule/v1/engine";
 
 export const protobufPackage = "sentinez.modules.security.v1";
 

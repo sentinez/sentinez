@@ -20,7 +20,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/core/storage/dbx"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	ssync "github.com/sentinez/shared/sync"
 )
 
@@ -30,7 +30,7 @@ var (
 	txSSPool *ssync.Pool[TxSession]
 )
 
-func NewTX(conf *confpb.Config) *Tx {
+func NewTX(conf *settingpb.Config) *Tx {
 	return &Tx{conf: conf.GetEnv()}
 }
 
@@ -39,7 +39,7 @@ func WithTx[T any](ss *TxSession, db dbx.Database[T]) dbx.Database[T] {
 }
 
 type Tx struct {
-	conf *confpb.EnvConfig
+	conf *settingpb.EnvConfig
 	mock pgx.Tx
 }
 

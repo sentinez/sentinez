@@ -7,18 +7,18 @@ import (
 	centraldatahdl "github.com/sentinez/modules/centraldata/v1/handler"
 	centraldatasvc "github.com/sentinez/modules/centraldata/v1/service"
 	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/centraldata/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 func NewDefaultService(_ context.Context,
-	appConf *confpb.Config) *centraldatasvc.CentralDataService {
+	appConf *settingpb.Config) *centraldatasvc.CentralDataService {
 
 	tx := postgres.NewTX(appConf)
 
 	return centraldatasvc.New(appConf, tx)
 }
 
-func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
+func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 ) pb.CentralDataServiceServer {
 
 	service := NewDefaultService(ctx, appConf)

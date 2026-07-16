@@ -21,7 +21,7 @@
 package securitypb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -40,8 +40,8 @@ const (
 type Rule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Field         v1.FieldSource         `protobuf:"varint,2,opt,name=field,proto3,enum=sentinez.types.secure.ruleengine.v1.FieldSource" json:"field,omitempty"`
-	Operator      v1.Operator            `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.types.secure.ruleengine.v1.Operator" json:"operator,omitempty"`
+	Field         v1.FieldSource         `protobuf:"varint,2,opt,name=field,proto3,enum=sentinez.secure.rule.v1.FieldSource" json:"field,omitempty"`
+	Operator      v1.Operator            `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.secure.rule.v1.Operator" json:"operator,omitempty"`
 	Value         string                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -200,7 +200,7 @@ func (*RuleNode_Group) isRuleNode_Node() {}
 type RuleGroup struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Combinator    v1.Logic               `protobuf:"varint,2,opt,name=combinator,proto3,enum=sentinez.types.secure.ruleengine.v1.Logic" json:"combinator,omitempty"`
+	Combinator    v1.Logic               `protobuf:"varint,2,opt,name=combinator,proto3,enum=sentinez.secure.rule.v1.Logic" json:"combinator,omitempty"`
 	Rules         []*RuleNode            `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
 	Not           bool                   `protobuf:"varint,4,opt,name=not,proto3" json:"not,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -269,21 +269,21 @@ var File_sentinez_modules_security_v1_shared_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_security_v1_shared_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/modules/security/v1/shared.proto\x12\x1csentinez.modules.security.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"\xd1\x01\n" +
+	")sentinez/modules/security/v1/shared.proto\x12\x1csentinez.modules.security.v1\x1a$sentinez/secure/rule/v1/engine.proto\"\xb9\x01\n" +
 	"\x04Rule\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12F\n" +
-	"\x05field\x18\x02 \x01(\x0e20.sentinez.types.secure.ruleengine.v1.FieldSourceR\x05field\x12I\n" +
-	"\boperator\x18\x03 \x01(\x0e2-.sentinez.types.secure.ruleengine.v1.OperatorR\boperator\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
+	"\x05field\x18\x02 \x01(\x0e2$.sentinez.secure.rule.v1.FieldSourceR\x05field\x12=\n" +
+	"\boperator\x18\x03 \x01(\x0e2!.sentinez.secure.rule.v1.OperatorR\boperator\x12\x14\n" +
 	"\x05value\x18\x04 \x01(\tR\x05value\x12\x10\n" +
 	"\x03key\x18\x05 \x01(\tR\x03key\"\x8d\x01\n" +
 	"\bRuleNode\x128\n" +
 	"\x04rule\x18\x01 \x01(\v2\".sentinez.modules.security.v1.RuleH\x00R\x04rule\x12?\n" +
 	"\x05group\x18\x02 \x01(\v2'.sentinez.modules.security.v1.RuleGroupH\x00R\x05groupB\x06\n" +
-	"\x04node\"\xb7\x01\n" +
+	"\x04node\"\xab\x01\n" +
 	"\tRuleGroup\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12J\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12>\n" +
 	"\n" +
-	"combinator\x18\x02 \x01(\x0e2*.sentinez.types.secure.ruleengine.v1.LogicR\n" +
+	"combinator\x18\x02 \x01(\x0e2\x1e.sentinez.secure.rule.v1.LogicR\n" +
 	"combinator\x12<\n" +
 	"\x05rules\x18\x03 \x03(\v2&.sentinez.modules.security.v1.RuleNodeR\x05rules\x12\x10\n" +
 	"\x03not\x18\x04 \x01(\bR\x03notBQZOgithub.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypbb\x06proto3"
@@ -305,16 +305,16 @@ var file_sentinez_modules_security_v1_shared_proto_goTypes = []any{
 	(*Rule)(nil),        // 0: sentinez.modules.security.v1.Rule
 	(*RuleNode)(nil),    // 1: sentinez.modules.security.v1.RuleNode
 	(*RuleGroup)(nil),   // 2: sentinez.modules.security.v1.RuleGroup
-	(v1.FieldSource)(0), // 3: sentinez.types.secure.ruleengine.v1.FieldSource
-	(v1.Operator)(0),    // 4: sentinez.types.secure.ruleengine.v1.Operator
-	(v1.Logic)(0),       // 5: sentinez.types.secure.ruleengine.v1.Logic
+	(v1.FieldSource)(0), // 3: sentinez.secure.rule.v1.FieldSource
+	(v1.Operator)(0),    // 4: sentinez.secure.rule.v1.Operator
+	(v1.Logic)(0),       // 5: sentinez.secure.rule.v1.Logic
 }
 var file_sentinez_modules_security_v1_shared_proto_depIdxs = []int32{
-	3, // 0: sentinez.modules.security.v1.Rule.field:type_name -> sentinez.types.secure.ruleengine.v1.FieldSource
-	4, // 1: sentinez.modules.security.v1.Rule.operator:type_name -> sentinez.types.secure.ruleengine.v1.Operator
+	3, // 0: sentinez.modules.security.v1.Rule.field:type_name -> sentinez.secure.rule.v1.FieldSource
+	4, // 1: sentinez.modules.security.v1.Rule.operator:type_name -> sentinez.secure.rule.v1.Operator
 	0, // 2: sentinez.modules.security.v1.RuleNode.rule:type_name -> sentinez.modules.security.v1.Rule
 	2, // 3: sentinez.modules.security.v1.RuleNode.group:type_name -> sentinez.modules.security.v1.RuleGroup
-	5, // 4: sentinez.modules.security.v1.RuleGroup.combinator:type_name -> sentinez.types.secure.ruleengine.v1.Logic
+	5, // 4: sentinez.modules.security.v1.RuleGroup.combinator:type_name -> sentinez.secure.rule.v1.Logic
 	1, // 5: sentinez.modules.security.v1.RuleGroup.rules:type_name -> sentinez.modules.security.v1.RuleNode
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type

@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/core/storage/utils/table"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -43,7 +43,7 @@ type IRuleBased interface {
 	List(ctx context.Context, req *securitypb.ListRuleBasedsRequest) ([]*securitypb.RuleBased, int64, error)
 }
 
-func New(ctx context.Context, appConf *confpb.Config) (IRuleBased, error) {
+func New(ctx context.Context, appConf *settingpb.Config) (IRuleBased, error) {
 	storage, err := postgres.New[securitypb.RuleBased](ctx, appConf,
 		dbx.WithTable(tables.SecurityRuleBaseds),
 		dbx.WithColumns(dbx.ColumnM{

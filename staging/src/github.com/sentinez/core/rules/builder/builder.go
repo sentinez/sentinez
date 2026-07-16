@@ -17,23 +17,23 @@ package builder
 import (
 	"fmt"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // GroupBuilder provides a fluent API for building RuleBaseds.
 type GroupBuilder struct {
-	group *ruleenginepb.RuleBased
+	group *rulepb.RuleBased
 }
 
 // NewGroup starts a new RuleBased builder with the given logical operator.
-func NewGroup(op ruleenginepb.Logic) *GroupBuilder {
+func NewGroup(op rulepb.Logic) *GroupBuilder {
 	return &GroupBuilder{
-		group: &ruleenginepb.RuleBased{
-			Node: &ruleenginepb.RuleBased_Node{
+		group: &rulepb.RuleBased{
+			Node: &rulepb.RuleBased_Node{
 				Operator: op,
-				Rules:    []*ruleenginepb.Rule{},
-				Groups:   []*ruleenginepb.RuleBased_Node{},
+				Rules:    []*rulepb.Rule{},
+				Groups:   []*rulepb.RuleBased_Node{},
 			},
 		},
 	}
@@ -54,13 +54,13 @@ func (b *GroupBuilder) WithDescription(desc string) *GroupBuilder {
 	return b
 }
 
-func (b *GroupBuilder) AddRule(r *ruleenginepb.Rule) *GroupBuilder {
+func (b *GroupBuilder) AddRule(r *rulepb.Rule) *GroupBuilder {
 	node := b.group.GetNode()
 	node.Rules = append(node.GetRules(), r)
 	return b
 }
 
-func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleBased) *GroupBuilder {
+func (b *GroupBuilder) AddGroup(g *rulepb.RuleBased) *GroupBuilder {
 	if g != nil && g.GetNode() != nil {
 		node := b.group.GetNode()
 		node.Groups = append(node.GetGroups(), g.GetNode())
@@ -68,19 +68,19 @@ func (b *GroupBuilder) AddGroup(g *ruleenginepb.RuleBased) *GroupBuilder {
 	return b
 }
 
-func (b *GroupBuilder) Build() *ruleenginepb.RuleBased {
+func (b *GroupBuilder) Build() *rulepb.RuleBased {
 	return b.group
 }
 
 // RuleBuilder provides a fluent API for building individual Rules.
 type RuleBuilder struct {
-	rule *ruleenginepb.Rule
+	rule *rulepb.Rule
 }
 
 // NewRule starts a new Rule builder.
 func NewRule() *RuleBuilder {
 	return &RuleBuilder{
-		rule: &ruleenginepb.Rule{},
+		rule: &rulepb.Rule{},
 	}
 }
 
@@ -95,8 +95,8 @@ func (b *RuleBuilder) WithName(name string) *RuleBuilder {
 }
 
 func (b *RuleBuilder) WithCondition(
-	src ruleenginepb.FieldSource,
-	op ruleenginepb.Operator,
+	src rulepb.FieldSource,
+	op rulepb.Operator,
 	val any,
 	key ...string,
 ) *RuleBuilder {
@@ -125,7 +125,7 @@ func (b *RuleBuilder) WithCondition(
 		k = key[0]
 	}
 
-	b.rule.Condition = &ruleenginepb.Condition{
+	b.rule.Condition = &rulepb.Condition{
 		Source:   src,
 		Operator: op,
 		Value:    v,
@@ -134,21 +134,21 @@ func (b *RuleBuilder) WithCondition(
 	return b
 }
 
-func (b *RuleBuilder) Build() *ruleenginepb.Rule {
+func (b *RuleBuilder) Build() *rulepb.Rule {
 	return b.rule
 }
 
 // Helper functions for easy access
-func And(rules ...*ruleenginepb.Rule) *GroupBuilder {
-	g := NewGroup(ruleenginepb.Logic_LOGIC_AND)
+func And(rules ...*rulepb.Rule) *GroupBuilder {
+	g := NewGroup(rulepb.Logic_LOGIC_AND)
 	for _, r := range rules {
 		g.AddRule(r)
 	}
 	return g
 }
 
-func Or(rules ...*ruleenginepb.Rule) *GroupBuilder {
-	g := NewGroup(ruleenginepb.Logic_LOGIC_OR)
+func Or(rules ...*rulepb.Rule) *GroupBuilder {
+	g := NewGroup(rulepb.Logic_LOGIC_OR)
 	for _, r := range rules {
 		g.AddRule(r)
 	}
@@ -156,11 +156,11 @@ func Or(rules ...*ruleenginepb.Rule) *GroupBuilder {
 }
 
 func Not(node any) *GroupBuilder {
-	g := NewGroup(ruleenginepb.Logic_LOGIC_NOT)
+	g := NewGroup(rulepb.Logic_LOGIC_NOT)
 	switch v := node.(type) {
-	case *ruleenginepb.Rule:
+	case *rulepb.Rule:
 		g.AddRule(v)
-	case *ruleenginepb.RuleBased:
+	case *rulepb.RuleBased:
 		g.AddGroup(v)
 	}
 	return g

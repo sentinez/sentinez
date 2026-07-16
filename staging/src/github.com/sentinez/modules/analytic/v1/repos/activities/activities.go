@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/core/storage/utils/table"
 	analyticpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -47,7 +47,7 @@ type IActivity interface {
 	List(ctx context.Context, req *analyticpb.ListActivitiesRequest) (*analyticpb.ListActivitiesResponse, error)
 }
 
-func New(ctx context.Context, appConf *confpb.Config) (IActivity, error) {
+func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
 	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
 		dbx.WithTable(tables.AnalyticActivities),
 		dbx.WithColumns(dbx.ColumnM{

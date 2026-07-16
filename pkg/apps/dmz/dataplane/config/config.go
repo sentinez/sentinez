@@ -20,20 +20,20 @@ import (
 	"github.com/sentinez/shared/config"
 
 	dataplanepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/dataplane/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/flags"
 )
 
 var (
 	once    sync.Once
-	appConf *confpb.Config
+	appConf *settingpb.Config
 )
 
-func Config() *confpb.Config {
+func Config() *settingpb.Config {
 	once.Do(func() {
 		flag := flags.Parse()
 		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &confpb.Config{
+		appConf = &settingpb.Config{
 			Env:  envConf,
 			Flag: flag,
 			Meta: dataplanepb.GetMetaDataplane(),

@@ -6,18 +6,18 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	activitiesrepo "github.com/sentinez/modules/analytic/v1/repos/activities"
 	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticService)(nil)
 
 type AnalyticService struct {
-	config     *confpb.Config
+	config     *settingpb.Config
 	tx         *postgres.Tx
 	activities activitiesrepo.IActivity
 }
 
-func New(config *confpb.Config,
+func New(config *settingpb.Config,
 	tx *postgres.Tx,
 	activities activitiesrepo.IActivity,
 ) *AnalyticService {

@@ -20,12 +20,12 @@ import (
 	"errors"
 	"net/http"
 
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
 )
 
-func NewContext[T any](appConf *confpb.Config) *Context[T] {
+func NewContext[T any](appConf *settingpb.Config) *Context[T] {
 	options := []fx.Option{}
 	if appConf.GetFlag().GetEnvMode() != "dev" {
 		options = append(options, fx.NopLogger)

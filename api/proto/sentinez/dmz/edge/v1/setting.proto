@@ -17,7 +17,7 @@ syntax = "proto3";
 package sentinez.dmz.edge.v1;
 
 import "buf/validate/validate.proto";
-import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
+import "sentinez/secure/rule/v1/engine.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
 
@@ -63,10 +63,10 @@ message Location {
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
-  sentinez.types.secure.ruleengine.v1.RuleBasedLite rule_based =
+  sentinez.secure.rule.v1.RuleBasedLite rule_based =
       2;  // @gotags: yaml:"ruleBased"
 
-  sentinez.types.secure.ruleengine.v1.RuleBased rule_based_compiled =
+  sentinez.secure.rule.v1.RuleBased rule_based_compiled =
       3;  // @gotags: yaml:"-"
 
   bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"

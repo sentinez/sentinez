@@ -21,12 +21,12 @@ import (
 	resourcerepo "github.com/sentinez/modules/tenant/v1/repos/resources"
 	tenantsvc "github.com/sentinez/modules/tenant/v1/service"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
 func NewDefaultHandler(ctx context.Context,
-	conf *confpb.Config) tenantpb.TenantServiceServer {
+	conf *settingpb.Config) tenantpb.TenantServiceServer {
 
 	rscrepo, err := resourcerepo.New(ctx, conf)
 	if err != nil {

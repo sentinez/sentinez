@@ -19,7 +19,7 @@ import (
 
 	coregrpc "github.com/sentinez/core/grpc"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 )
 
@@ -39,7 +39,7 @@ import (
 // across the entire edge system.
 //
 
-func NewEngine(conf *confpb.Config) *Engine {
+func NewEngine(conf *settingpb.Config) *Engine {
 	return &Engine{
 		Server: coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
 		Engine: engine.New(),
@@ -51,7 +51,7 @@ type Engine struct {
 	*engine.Engine
 }
 
-func (e *Engine) Start(_ context.Context, conf *confpb.Config) error {
+func (e *Engine) Start(_ context.Context, conf *settingpb.Config) error {
 	edgepb.RegisterEdgeEngineServiceServer(e.AsServer(), e)
 
 	return e.Serve(conf)

@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { RuleBased, RuleBasedLite } from "../../../types/secure/ruleengine/v1/ruleengine";
+import { RuleBased, RuleBasedLite } from "../../../secure/rule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 

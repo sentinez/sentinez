@@ -18,21 +18,21 @@ import (
 	"sync"
 
 	"github.com/sentinez/sentinez/api/gen/go/sentinez/acz/apiserver/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/flags"
 	"github.com/sentinez/shared/config"
 )
 
 var (
 	once    sync.Once
-	appConf *confpb.Config
+	appConf *settingpb.Config
 )
 
-func Config() *confpb.Config {
+func Config() *settingpb.Config {
 	once.Do(func() {
 		flag := flags.Parse()
 		envConf := config.LoadEnv(flag.GetEnvFile())
-		appConf = &confpb.Config{
+		appConf = &settingpb.Config{
 			Meta: apiserver.GetMetaApiserver(),
 			Env:  envConf,
 			Flag: flag,

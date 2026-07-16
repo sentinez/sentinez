@@ -27,12 +27,12 @@ import (
 	"github.com/sentinez/modules/pkg/passkey"
 	"github.com/sentinez/sentinez/api/client"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
 // nolint:funlen
-func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
+func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 ) iampb.IdentityAccessManagementServiceServer {
 
 	service := NewDefaultService(ctx, appConf)
@@ -48,7 +48,7 @@ func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
 }
 
 func NewDefaultService(
-	ctx context.Context, appConf *confpb.Config) *iamsvc.IAMService {
+	ctx context.Context, appConf *settingpb.Config) *iamsvc.IAMService {
 	userrepos, err := usersrepo.New(ctx, appConf)
 	if err != nil {
 		zlog.Errorf("iamfactory: init user repo err=%v", err)

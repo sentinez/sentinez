@@ -16,7 +16,7 @@ import (
 
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -26,7 +26,7 @@ var (
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer(conf *confpb.Config) corehttp.Server {
+func NewServer(conf *settingpb.Config) corehttp.Server {
 	return corehttp.DecoreServer(conf, &XServer{})
 }
 

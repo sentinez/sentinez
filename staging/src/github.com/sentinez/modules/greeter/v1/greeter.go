@@ -19,10 +19,10 @@ import (
 	coregrpc "github.com/sentinez/core/grpc"
 	greeterhdl "github.com/sentinez/modules/greeter/v1/handler"
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
-func NewService(conf *confpb.Config) *Greeter {
+func NewService(conf *settingpb.Config) *Greeter {
 	return &Greeter{
 		Server:  coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
 		handler: greeterhdl.New(),
@@ -34,7 +34,7 @@ func NewService(conf *confpb.Config) *Greeter {
 type Greeter struct {
 	*coregrpc.Server
 	handler greeterpb.GreeterServiceServer
-	conf    *confpb.Config
+	conf    *settingpb.Config
 }
 
 func (g *Greeter) Start() error {

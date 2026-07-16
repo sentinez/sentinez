@@ -8,12 +8,12 @@ import (
 	activitiesrepo "github.com/sentinez/modules/analytic/v1/repos/activities"
 	analyticsvc "github.com/sentinez/modules/analytic/v1/service"
 	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewDefaultService(
-	ctx context.Context, appConf *confpb.Config) *analyticsvc.AnalyticService {
+func NewDefaultService(ctx context.Context,
+	appConf *settingpb.Config) *analyticsvc.AnalyticService {
 
 	activitiesrepos, err := activitiesrepo.New(ctx, appConf)
 	if err != nil {
@@ -25,7 +25,7 @@ func NewDefaultService(
 	return analyticsvc.New(appConf, tx, activitiesrepos)
 }
 
-func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
+func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 ) pb.AnalyticServiceServer {
 
 	service := NewDefaultService(ctx, appConf)

@@ -16,7 +16,7 @@ package http
 
 import (
 	corechains "github.com/sentinez/core/http/chains"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/logging"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/ratelimiter"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/room"
@@ -27,7 +27,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func Init(appConf *confpb.Config) corechains.ChainNode {
+func Init(appConf *settingpb.Config) corechains.ChainNode {
 	var (
 		hostname = appConf.GetEnv().GetHostname()
 		ll       = zlog.LevelInfo

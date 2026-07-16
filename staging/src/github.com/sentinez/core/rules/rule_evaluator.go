@@ -16,39 +16,39 @@ package corerule
 
 import (
 	corehttp "github.com/sentinez/core/http"
-	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
-func visit(ctx corehttp.RequestContext, cond *ruleengpb.Condition) bool {
+func visit(ctx corehttp.RequestContext, cond *rulepb.Condition) bool {
 	// zlog.Debugf("ev: visit with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_PATH:
+	case rulepb.FieldSource_FIELD_SOURCE_PATH:
 		return matchSourcePath(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_QUERY:
+	case rulepb.FieldSource_FIELD_SOURCE_QUERY:
 		return matchSourceQuery(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_BODY:
+	case rulepb.FieldSource_FIELD_SOURCE_BODY:
 		return matchSourceBody(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_HEADER:
+	case rulepb.FieldSource_FIELD_SOURCE_HEADER:
 		return matchSourceHeader(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_METHOD:
+	case rulepb.FieldSource_FIELD_SOURCE_METHOD:
 		return matchSourceMethod(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_HOST:
+	case rulepb.FieldSource_FIELD_SOURCE_HOST:
 		return matchSourceHost(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_IP:
+	case rulepb.FieldSource_FIELD_SOURCE_IP:
 		return matchSourceIP(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_TLS:
+	case rulepb.FieldSource_FIELD_SOURCE_TLS:
 		return matchSourceTLS(ctx, cond)
 
-	case ruleengpb.FieldSource_FIELD_SOURCE_JA4:
+	case rulepb.FieldSource_FIELD_SOURCE_JA4:
 		return matchSourceJA4(ctx, cond)
 
 	default:

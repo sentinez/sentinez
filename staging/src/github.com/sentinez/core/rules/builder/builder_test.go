@@ -17,7 +17,7 @@ package builder
 import (
 	"testing"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
 // nolint
@@ -25,25 +25,25 @@ func TestBuilder(t *testing.T) {
 	r1 := NewRule().
 		WithID("r1").
 		WithName("Path Rule").
-		WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login").
+		WithCondition(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login").
 		Build()
 
 	r2 := NewRule().
 		WithID("r2").
 		WithName("Method Rule").
-		WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_IN, []string{"GET", "POST"}).
+		WithCondition(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_IN, []string{"GET", "POST"}).
 		Build()
 
-	subGroup := NewGroup(ruleenginepb.Logic_LOGIC_OR).
+	subGroup := NewGroup(rulepb.Logic_LOGIC_OR).
 		WithName("Sub Group").
 		AddRule(r1).
 		AddRule(r2).
 		Build()
 
-	root := NewGroup(ruleenginepb.Logic_LOGIC_AND).
+	root := NewGroup(rulepb.Logic_LOGIC_AND).
 		WithID("root").
 		WithName("Root Group").
-		AddRule(NewRule().WithCondition(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "127.0.0.1").Build()).
+		AddRule(NewRule().WithCondition(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "127.0.0.1").Build()).
 		AddGroup(subGroup).
 		Build()
 
@@ -59,7 +59,7 @@ func TestBuilder(t *testing.T) {
 		t.Errorf("expected 1 group in root, got %d", len(root.Node.Groups))
 	}
 
-	if root.Node.Groups[0].Operator != ruleenginepb.Logic_LOGIC_OR {
+	if root.Node.Groups[0].Operator != rulepb.Logic_LOGIC_OR {
 		t.Errorf("expected subgroup operator to be OR, got %v", root.Node.Groups[0].Operator)
 	}
 
@@ -74,22 +74,22 @@ func TestConvenienceHelpers(t *testing.T) {
 	r2 := NewRule().WithID("2").Build()
 
 	andGroup := And(r1, r2).Build()
-	if andGroup.Node.Operator != ruleenginepb.Logic_LOGIC_AND || len(andGroup.Node.Rules) != 2 {
+	if andGroup.Node.Operator != rulepb.Logic_LOGIC_AND || len(andGroup.Node.Rules) != 2 {
 		t.Error("And helper failed")
 	}
 
 	orGroup := Or(r1, r2).Build()
-	if orGroup.Node.Operator != ruleenginepb.Logic_LOGIC_OR || len(orGroup.Node.Rules) != 2 {
+	if orGroup.Node.Operator != rulepb.Logic_LOGIC_OR || len(orGroup.Node.Rules) != 2 {
 		t.Error("Or helper failed")
 	}
 
 	notGroup := Not(r1).Build()
-	if notGroup.Node.Operator != ruleenginepb.Logic_LOGIC_NOT || len(notGroup.Node.Rules) != 1 {
+	if notGroup.Node.Operator != rulepb.Logic_LOGIC_NOT || len(notGroup.Node.Rules) != 1 {
 		t.Error("Not helper failed for rule")
 	}
 
 	notSubGroup := Not(andGroup).Build()
-	if notSubGroup.Node.Operator != ruleenginepb.Logic_LOGIC_NOT || len(notSubGroup.Node.Groups) != 1 {
+	if notSubGroup.Node.Operator != rulepb.Logic_LOGIC_NOT || len(notSubGroup.Node.Groups) != 1 {
 		t.Error("Not helper failed for group")
 	}
 }

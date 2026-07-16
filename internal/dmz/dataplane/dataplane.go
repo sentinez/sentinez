@@ -18,13 +18,13 @@ import (
 	"context"
 
 	coregrpc "github.com/sentinez/core/grpc"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
 
-func New(conf *confpb.Config) *Server {
+func New(conf *settingpb.Config) *Server {
 	return &Server{
 		conf: conf,
 		grpc: coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
@@ -33,7 +33,7 @@ func New(conf *confpb.Config) *Server {
 
 type Server struct {
 	grpc *coregrpc.Server
-	conf *confpb.Config
+	conf *settingpb.Config
 }
 
 const VETH0 = "veth0"

@@ -20,7 +20,7 @@ import (
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*Greeter)(nil)
@@ -37,7 +37,7 @@ type Greeter struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
-	server grpcgateway.Server, appConf *confpb.Config) error {
+	server grpcgateway.Server, appConf *settingpb.Config) error {
 
 	return grpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,

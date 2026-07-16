@@ -17,7 +17,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
 // ensure the imports are used
@@ -34,11 +34,11 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
-	_ = ruleenginepb.FieldSource(0)
+	_ = rulepb.FieldSource(0)
 
-	_ = ruleenginepb.Operator(0)
+	_ = rulepb.Operator(0)
 
-	_ = ruleenginepb.Logic(0)
+	_ = rulepb.Logic(0)
 )
 
 // Validate checks the field values on Rule with the rules defined in the proto

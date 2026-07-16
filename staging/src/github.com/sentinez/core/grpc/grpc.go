@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/core/common/console"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
@@ -29,7 +29,7 @@ import (
 // ServiceServer is a gRPC service server.
 type ServiceServer interface {
 	AsServer() *grpc.Server
-	Serve(conf *confpb.Config) error
+	Serve(conf *settingpb.Config) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -53,7 +53,7 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *confpb.Config) error {
+func (s *Server) Serve(conf *settingpb.Config) error {
 
 	addr := conf.GetEnv().GetGrpcAddress()
 	listener, err := grpcgateway.ListenNetworkTCP(addr)

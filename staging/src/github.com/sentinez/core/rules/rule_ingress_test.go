@@ -22,17 +22,17 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // nolint
-func newBaseContext() *typepb.Request {
-	return &typepb.Request{
+func newBaseContext() *httppb.Request {
+	return &httppb.Request{
 		Body: []byte(`{"username":"hung","password":"123456"}`),
-		Headers: []*typepb.RequestHeader{
+		Headers: []*httppb.RequestHeader{
 			{Key: []byte("Content-Type"), Values: [][]byte{[]byte("application/json")}},
 			{Key: []byte("User-Agent"), Values: [][]byte{[]byte("curl/8.0.1")}},
 			{Key: []byte("Accept"), Values: [][]byte{[]byte("*/*")}},
@@ -43,7 +43,7 @@ func newBaseContext() *typepb.Request {
 		Fingerprint: "ja4:abcd1234efgh5678ijkl9012mnop3456",
 		Method:      "POST",
 		Path:        []byte("/v1/login"),
-		Queries: []*typepb.RequestQuery{
+		Queries: []*httppb.RequestQuery{
 			{Key: []byte("lang"), Values: [][]byte{[]byte("vi")}},
 			{Key: []byte("lang2"), Values: [][]byte{[]byte("vi")}},
 		},
@@ -62,10 +62,10 @@ func newContext() corehttp.RequestContext {
 }
 
 func TestRulePath(t *testing.T) {
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: rulepb.Operator_OPERATOR_EQ,
 			Value:    structpb.NewStringValue("/v1/login"),
 			Key:      "path",
 		},
@@ -84,10 +84,10 @@ func TestRulePath(t *testing.T) {
 }
 
 func TestRuleQuery(t *testing.T) {
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_QUERY,
-			Operator: ruleenginepb.Operator_OPERATOR_IN,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_QUERY,
+			Operator: rulepb.Operator_OPERATOR_IN,
 			Value: structpb.NewListValue(&structpb.ListValue{
 				Values: []*structpb.Value{
 					structpb.NewStringValue("lang"),
@@ -112,10 +112,10 @@ func TestRuleQuery(t *testing.T) {
 }
 
 func TestRuleClientIP(t *testing.T) {
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: rulepb.Operator_OPERATOR_EQ,
 			Value:    structpb.NewStringValue("203.0.113.42"),
 			Key:      "ip",
 		},
@@ -135,10 +135,10 @@ func TestRuleClientIP(t *testing.T) {
 }
 
 func TestRuleClientIPRange(t *testing.T) {
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: rulepb.Operator_OPERATOR_EQ,
 			Value:    structpb.NewStringValue("203.0.113.0/24"),
 			Key:      "ip",
 		},
@@ -159,10 +159,10 @@ func TestRuleClientIPRange(t *testing.T) {
 
 func TestRuleClientIPRangeNotEQ(t *testing.T) {
 
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_IP,
-			Operator: ruleenginepb.Operator_OPERATOR_NE,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_IP,
+			Operator: rulepb.Operator_OPERATOR_NE,
 			Value:    structpb.NewStringValue("203.1.113.0/24"),
 			Key:      "ip",
 		},
@@ -184,19 +184,19 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 // nolint
 func TestChain(t *testing.T) {
 	// Directly build RuleBased using newRule helper
-	rg := &ruleenginepb.RuleBased{
-		Node: &ruleenginepb.RuleBased_Node{
-			Operator: ruleenginepb.Logic_LOGIC_AND,
-			Rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_QUERY, ruleenginepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+	rg := &rulepb.RuleBased{
+		Node: &rulepb.RuleBased_Node{
+			Operator: rulepb.Logic_LOGIC_AND,
+			Rules: []*rulepb.Rule{
+				newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(rulepb.FieldSource_FIELD_SOURCE_QUERY, rulepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
+				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 			},
 		},
 	}
 
 	ig := NewIngress(rg)
-	matched := &ruleenginepb.MatchedRules{}
+	matched := &rulepb.MatchedRules{}
 	if ok := ig.Eval(newContext(), matched); ok {
 		t.Logf("rule engine matched !!!")
 		return
@@ -211,18 +211,18 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		rg     *ruleenginepb.RuleBased
+		rg     *rulepb.RuleBased
 		expect bool
 	}{
 		{
 			name: "AND: path, method, ip all match",
-			rg: &ruleenginepb.RuleBased{
-				Node: &ruleenginepb.RuleBased_Node{
-					Operator: ruleenginepb.Logic_LOGIC_AND,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			rg: &rulepb.RuleBased{
+				Node: &rulepb.RuleBased_Node{
+					Operator: rulepb.Logic_LOGIC_AND,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 					},
 				},
 			},
@@ -230,12 +230,12 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 		{
 			name: "OR: host mismatch but IP match",
-			rg: &ruleenginepb.RuleBased{
-				Node: &ruleenginepb.RuleBased_Node{
-					Operator: ruleenginepb.Logic_LOGIC_OR,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_HOST, ruleenginepb.Operator_OPERATOR_EQ, "fake.example.com"),
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+			rg: &rulepb.RuleBased{
+				Node: &rulepb.RuleBased_Node{
+					Operator: rulepb.Logic_LOGIC_OR,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_HOST, rulepb.Operator_OPERATOR_EQ, "fake.example.com"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 					},
 				},
 			},
@@ -244,18 +244,18 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NESTED: A AND (B OR C)",
 			// A (IP match), B (Path mismatch), C (Method match) -> True
-			rg: &ruleenginepb.RuleBased{
-				Node: &ruleenginepb.RuleBased_Node{
-					Operator: ruleenginepb.Logic_LOGIC_AND,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
+			rg: &rulepb.RuleBased{
+				Node: &rulepb.RuleBased_Node{
+					Operator: rulepb.Logic_LOGIC_AND,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
 					},
-					Groups: []*ruleenginepb.RuleBased_Node{
+					Groups: []*rulepb.RuleBased_Node{
 						{
-							Operator: ruleenginepb.Logic_LOGIC_OR,
-							Rules: []*ruleenginepb.Rule{
-								newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"), // B
-								newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"), // C
+							Operator: rulepb.Logic_LOGIC_OR,
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"), // B
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"), // C
 							},
 						},
 					},
@@ -266,11 +266,11 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NOT: NOT (Method GET)",
 			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
-			rg: &ruleenginepb.RuleBased{
-				Node: &ruleenginepb.RuleBased_Node{
-					Operator: ruleenginepb.Logic_LOGIC_NOT,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+			rg: &rulepb.RuleBased{
+				Node: &rulepb.RuleBased_Node{
+					Operator: rulepb.Logic_LOGIC_NOT,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
 					},
 				},
 			},
@@ -278,7 +278,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 	}
 
-	matched := &ruleenginepb.MatchedRules{}
+	matched := &rulepb.MatchedRules{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -293,7 +293,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 }
 
 // nolint
-func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *ruleenginepb.Rule {
+func newRule(src rulepb.FieldSource, op rulepb.Operator, val any) *rulepb.Rule {
 	// structpb.NewValue handles []interface{} as ListValue.
 	// We convert common slice types to []interface{} to ensure correct behavior.
 	var finalVal any = val
@@ -312,12 +312,12 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 	}
 
 	key := ""
-	if src != ruleenginepb.FieldSource_FIELD_SOURCE_QUERY && src != ruleenginepb.FieldSource_FIELD_SOURCE_HEADER {
+	if src != rulepb.FieldSource_FIELD_SOURCE_QUERY && src != rulepb.FieldSource_FIELD_SOURCE_HEADER {
 		key = fmt.Sprintf("%v", val)
 	}
 
-	return &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
+	return &rulepb.Rule{
+		Condition: &rulepb.Condition{
 			Source:   src,
 			Operator: op,
 			Value:    v,
@@ -327,9 +327,9 @@ func newRule(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val any) *r
 }
 
 // nolint
-func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *structpb.Value) *ruleenginepb.Rule {
-	return &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
+func newRuleValue(src rulepb.FieldSource, op rulepb.Operator, val *structpb.Value) *rulepb.Rule {
+	return &rulepb.Rule{
+		Condition: &rulepb.Condition{
 			Source:   src,
 			Operator: op,
 			Value:    val,
@@ -341,10 +341,10 @@ func newRuleValue(src ruleenginepb.FieldSource, op ruleenginepb.Operator, val *s
 func BenchmarkEvalRule(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	req := &ruleenginepb.Rule{
-		Condition: &ruleenginepb.Condition{
-			Source:   ruleenginepb.FieldSource_FIELD_SOURCE_PATH,
-			Operator: ruleenginepb.Operator_OPERATOR_EQ,
+	req := &rulepb.Rule{
+		Condition: &rulepb.Condition{
+			Source:   rulepb.FieldSource_FIELD_SOURCE_PATH,
+			Operator: rulepb.Operator_OPERATOR_EQ,
 			Value:    structpb.NewStringValue("/v1/login"),
 			Key:      "path",
 		},
@@ -362,20 +362,20 @@ func BenchmarkEvalRule(b *testing.B) {
 func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &ruleenginepb.RuleBased{
-		Node: &ruleenginepb.RuleBased_Node{
-			Operator: ruleenginepb.Logic_LOGIC_AND,
-			Rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/v1/login"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+	rg := &rulepb.RuleBased{
+		Node: &rulepb.RuleBased_Node{
+			Operator: rulepb.Logic_LOGIC_AND,
+			Rules: []*rulepb.Rule{
+				newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+				newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 			},
 		},
 	}
 	ig := NewIngress(rg)
 
 	ctx := newContext()
-	matched := &ruleenginepb.MatchedRules{}
+	matched := &rulepb.MatchedRules{}
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -388,24 +388,24 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &ruleenginepb.RuleBased{
-		Node: &ruleenginepb.RuleBased_Node{
-			Operator: ruleenginepb.Logic_LOGIC_AND,
-			Rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+	rg := &rulepb.RuleBased{
+		Node: &rulepb.RuleBased_Node{
+			Operator: rulepb.Logic_LOGIC_AND,
+			Rules: []*rulepb.Rule{
+				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 			},
-			Groups: []*ruleenginepb.RuleBased_Node{
+			Groups: []*rulepb.RuleBased_Node{
 				{
-					Operator: ruleenginepb.Logic_LOGIC_OR,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					Operator: rulepb.Logic_LOGIC_OR,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
 					},
 				},
 				{
-					Operator: ruleenginepb.Logic_LOGIC_NOT,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					Operator: rulepb.Logic_LOGIC_NOT,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
 					},
 				},
 			},
@@ -414,7 +414,7 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 
 	ig := NewIngress(rg)
 	ctx := newContext()
-	matched := &ruleenginepb.MatchedRules{}
+	matched := &rulepb.MatchedRules{}
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -427,24 +427,24 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &ruleenginepb.RuleBased{
-		Node: &ruleenginepb.RuleBased_Node{
-			Operator: ruleenginepb.Logic_LOGIC_AND,
-			Rules: []*ruleenginepb.Rule{
-				newRule(ruleenginepb.FieldSource_FIELD_SOURCE_IP, ruleenginepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+	rg := &rulepb.RuleBased{
+		Node: &rulepb.RuleBased_Node{
+			Operator: rulepb.Logic_LOGIC_AND,
+			Rules: []*rulepb.Rule{
+				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 			},
-			Groups: []*ruleenginepb.RuleBased_Node{
+			Groups: []*rulepb.RuleBased_Node{
 				{
-					Operator: ruleenginepb.Logic_LOGIC_OR,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_PATH, ruleenginepb.Operator_OPERATOR_EQ, "/wrong"),
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "POST"),
+					Operator: rulepb.Logic_LOGIC_OR,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
 					},
 				},
 				{
-					Operator: ruleenginepb.Logic_LOGIC_NOT,
-					Rules: []*ruleenginepb.Rule{
-						newRule(ruleenginepb.FieldSource_FIELD_SOURCE_METHOD, ruleenginepb.Operator_OPERATOR_EQ, "GET"),
+					Operator: rulepb.Logic_LOGIC_NOT,
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
 					},
 				},
 			},

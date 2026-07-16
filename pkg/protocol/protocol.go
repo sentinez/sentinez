@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 )
 
 func Upstream2Target(upstream *edgepb.Upstream) (string, error) {
@@ -23,7 +23,7 @@ func Upstream2Target(upstream *edgepb.Upstream) (string, error) {
 }
 
 func ParseQuery[S []string | [][]byte](
-	src map[string]S, dst map[string]*typepb.QueryValue) {
+	src map[string]S, dst map[string]*httppb.QueryValue) {
 
 	if dst == nil {
 		return
@@ -32,7 +32,7 @@ func ParseQuery[S []string | [][]byte](
 	for k, v := range src {
 		q, ok := dst[k]
 		if !ok {
-			q = &typepb.QueryValue{
+			q = &httppb.QueryValue{
 				Values: make([]string, 0, len(v)),
 			}
 		}
@@ -53,7 +53,7 @@ func ParseQuery[S []string | [][]byte](
 }
 
 func ParseHeader[S []string | [][]byte](
-	src map[string]S, dst map[string]*typepb.HeaderValue) {
+	src map[string]S, dst map[string]*httppb.HeaderValue) {
 
 	if dst == nil {
 		return
@@ -62,7 +62,7 @@ func ParseHeader[S []string | [][]byte](
 	for k, v := range src {
 		q, ok := dst[k]
 		if !ok {
-			q = &typepb.HeaderValue{
+			q = &httppb.HeaderValue{
 				Values: make([]string, 0, len(v)),
 			}
 		}

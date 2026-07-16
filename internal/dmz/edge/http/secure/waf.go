@@ -25,7 +25,7 @@ import (
 	corers "github.com/sentinez/core/rulesets"
 	"github.com/sentinez/core/storage/cache/mem"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/wafengine"
 	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
@@ -141,8 +141,8 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 	event.Ip = bytesconv.B2s(ctx.RequestIP())
 	event.RequestDomain = bytesconv.B2s(ctx.Host())
 	event.TransactionId = ruleset.GetTxId()
-	event.Service = ruleeventpb.Service_SERVICE_RULE_CORE_RULESETS
-	event.Action = ruleeventpb.Action_ACTION_DENY
+	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
+	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	event.RequestTime = ctx.RequestTime().UnixMilli()
 	event.HttpReqId = ctx.RequestId()
 	event.ContentType = bytesconv.B2s(ctx.Header(bytestr.HeaderContentType))

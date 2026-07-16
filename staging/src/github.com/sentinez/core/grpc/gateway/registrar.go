@@ -21,7 +21,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/cron"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/grpc"
@@ -31,7 +31,7 @@ import (
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
 	Accept(context.Context, Server) error
-	AcceptFromEndpoint(context.Context, Server, *confpb.Config) error
+	AcceptFromEndpoint(context.Context, Server, *settingpb.Config) error
 }
 
 type (
@@ -58,7 +58,7 @@ func RegisterServiceHandlerServer[T any](
 
 func RegisterServiceFromEndpoint(
 	ctx context.Context,
-	appConf *confpb.Config,
+	appConf *settingpb.Config,
 	mux *runtime.ServeMux,
 	serviceKey string,
 	fn RegisterEndpointFn,

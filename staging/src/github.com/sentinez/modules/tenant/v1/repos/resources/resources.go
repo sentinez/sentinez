@@ -24,13 +24,13 @@ import (
 	"github.com/sentinez/core/storage/utils/table"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/protobuf/protox"
 	"github.com/sentinez/shared/rand"
 )
 
-func New(ctx context.Context, appConf *confpb.Config) (*Resources, error) {
+func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
 	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
 		dbx.WithTable(tables.TenantResources),
 		dbx.WithColumns(dbx.ColumnM{

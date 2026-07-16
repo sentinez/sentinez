@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/core/storage/utils/table"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -49,7 +49,7 @@ type IUser interface {
 	List(ctx context.Context, req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error)
 }
 
-func New(ctx context.Context, appConf *confpb.Config) (IUser, error) {
+func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
 		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{

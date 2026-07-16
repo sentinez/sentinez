@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	httpconst "github.com/sentinez/core/http/const"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/color"
@@ -64,7 +64,7 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		var queries map[string]*typepb.QueryValue
+		var queries map[string]*httppb.QueryValue
 		protocol.ParseQuery(r.URL.Query(), queries)
 
 		event := request.Acquire()

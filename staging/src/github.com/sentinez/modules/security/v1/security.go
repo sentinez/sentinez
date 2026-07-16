@@ -22,7 +22,7 @@ import (
 	securityfac "github.com/sentinez/modules/security/v1/factory"
 	"github.com/sentinez/sentinez/api/client/local"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -34,7 +34,7 @@ func GetListener() *bufconn.Listener {
 }
 
 // NewService creates a new Security module instance.
-func NewService(ctx context.Context, appConf *confpb.Config) *Security {
+func NewService(ctx context.Context, appConf *settingpb.Config) *Security {
 	return &Security{
 		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
 		hdl:    securityfac.NewDefaultHandler(ctx, appConf),

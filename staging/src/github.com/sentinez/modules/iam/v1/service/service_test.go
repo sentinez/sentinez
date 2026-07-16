@@ -27,7 +27,7 @@ import (
 	usersrepo "github.com/sentinez/modules/iam/v1/repos/users/mock"
 	"github.com/sentinez/modules/pkg/crypto"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/config"
 	"github.com/stretchr/testify/assert"
@@ -72,7 +72,7 @@ func TestLogin(t *testing.T) {
 
 	tx, _ := pgxMock.Begin(context.Background())
 	txss := postgres.NewTXMock(tx)
-	conf := &confpb.Config{Env: &confpb.EnvConfig{
+	conf := &settingpb.Config{Env: &settingpb.EnvConfig{
 		SecretKey: secBase64,
 	}}
 
