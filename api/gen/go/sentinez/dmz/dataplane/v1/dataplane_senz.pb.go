@@ -18,7 +18,7 @@ var (
 
 var metadata_dataplane = &typepb.XMeta{
 	ServiceName: "SENTINEZ // DATAPLANE",
-	ServiceKind: typepb.Kind_KIND_GATEWAY_EDGE,
+	ServiceKind: typepb.Kind_KIND_DEMILITARIZED_ZONE,
 	ServiceKey:  "sentinez.dmz.dataplane.v1",
 }
 

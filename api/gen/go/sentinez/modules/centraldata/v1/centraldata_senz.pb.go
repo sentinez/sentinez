@@ -18,7 +18,7 @@ var (
 
 var metadata_centraldata = &typepb.XMeta{
 	ServiceName: "SENTINEZ // CENTRALDATA",
-	ServiceKind: typepb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_MESH,
 	ServiceKey:  "sentinez.modules.centraldata.v1",
 }
 

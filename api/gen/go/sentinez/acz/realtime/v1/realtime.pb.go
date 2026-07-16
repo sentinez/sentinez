@@ -40,7 +40,7 @@ var File_sentinez_acz_realtime_v1_realtime_proto protoreflect.FileDescriptor
 const file_sentinez_acz_realtime_v1_realtime_proto_rawDesc = "" +
 	"\n" +
 	"'sentinez/acz/realtime/v1/realtime.proto\x12\x18sentinez.acz.realtime.v1\x1a\x1fsentinez/types/v1/options.protoB\x83\x01\x8a\xb2\x192\n" +
-	"\x14SENTINEZ // REALTIME\x10\x03\x1a\x18sentinez.acz.realtime.v1ZKgithub.com/sentinez/sentinez/api/gen/go/sentinez/acz/realtime/v1;realtimepbb\x06proto3"
+	"\x14SENTINEZ // REALTIME\x10\x01\x1a\x18sentinez.acz.realtime.v1ZKgithub.com/sentinez/sentinez/api/gen/go/sentinez/acz/realtime/v1;realtimepbb\x06proto3"
 
 var file_sentinez_acz_realtime_v1_realtime_proto_goTypes = []any{}
 var file_sentinez_acz_realtime_v1_realtime_proto_depIdxs = []int32{

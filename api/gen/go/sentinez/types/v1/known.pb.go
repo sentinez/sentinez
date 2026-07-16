@@ -39,28 +39,25 @@ const (
 type Kind int32
 
 const (
-	Kind_KIND_UNSPECIFIED       Kind = 0
-	Kind_KIND_GATEWAY_API       Kind = 1
-	Kind_KIND_GATEWAY_EDGE      Kind = 2
-	Kind_KIND_GATEWAY_WEBSOCKET Kind = 3
-	Kind_KIND_CORE              Kind = 4
+	Kind_KIND_UNSPECIFIED        Kind = 0
+	Kind_KIND_ACCESS_ZONE        Kind = 1
+	Kind_KIND_DEMILITARIZED_ZONE Kind = 2
+	Kind_KIND_MESH               Kind = 4
 )
 
 // Enum value maps for Kind.
 var (
 	Kind_name = map[int32]string{
 		0: "KIND_UNSPECIFIED",
-		1: "KIND_GATEWAY_API",
-		2: "KIND_GATEWAY_EDGE",
-		3: "KIND_GATEWAY_WEBSOCKET",
-		4: "KIND_CORE",
+		1: "KIND_ACCESS_ZONE",
+		2: "KIND_DEMILITARIZED_ZONE",
+		4: "KIND_MESH",
 	}
 	Kind_value = map[string]int32{
-		"KIND_UNSPECIFIED":       0,
-		"KIND_GATEWAY_API":       1,
-		"KIND_GATEWAY_EDGE":      2,
-		"KIND_GATEWAY_WEBSOCKET": 3,
-		"KIND_CORE":              4,
+		"KIND_UNSPECIFIED":        0,
+		"KIND_ACCESS_ZONE":        1,
+		"KIND_DEMILITARIZED_ZONE": 2,
+		"KIND_MESH":               4,
 	}
 )
 
@@ -468,13 +465,12 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x124\n" +
-	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*t\n" +
+	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*^\n" +
 	"\x04Kind\x12\x14\n" +
 	"\x10KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
-	"\x10KIND_GATEWAY_API\x10\x01\x12\x15\n" +
-	"\x11KIND_GATEWAY_EDGE\x10\x02\x12\x1a\n" +
-	"\x16KIND_GATEWAY_WEBSOCKET\x10\x03\x12\r\n" +
-	"\tKIND_CORE\x10\x04*I\n" +
+	"\x10KIND_ACCESS_ZONE\x10\x01\x12\x1b\n" +
+	"\x17KIND_DEMILITARIZED_ZONE\x10\x02\x12\r\n" +
+	"\tKIND_MESH\x10\x04*I\n" +
 	"\aConsole\x12\x17\n" +
 	"\x13CONSOLE_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eCONSOLE_PORTAL\x10\x01\x12\x11\n" +

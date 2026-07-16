@@ -18,7 +18,7 @@ var (
 
 var metadata_greeter = &typepb.XMeta{
 	ServiceName: "SENTINEZ // GREETER",
-	ServiceKind: typepb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_MESH,
 	ServiceKey:  "sentinez.modules.greeter.v1",
 }
 

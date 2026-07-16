@@ -18,7 +18,7 @@ var (
 
 var metadata_realtime = &typepb.XMeta{
 	ServiceName: "SENTINEZ // REALTIME",
-	ServiceKind: typepb.Kind_KIND_GATEWAY_WEBSOCKET,
+	ServiceKind: typepb.Kind_KIND_ACCESS_ZONE,
 	ServiceKey:  "sentinez.acz.realtime.v1",
 }
 

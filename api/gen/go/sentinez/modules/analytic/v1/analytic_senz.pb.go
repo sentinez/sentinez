@@ -18,7 +18,7 @@ var (
 
 var metadata_analytic = &typepb.XMeta{
 	ServiceName: "SENTINEZ // ANALYTICS",
-	ServiceKind: typepb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_MESH,
 	ServiceKey:  "sentinez.modules.analytic.v1",
 }
 

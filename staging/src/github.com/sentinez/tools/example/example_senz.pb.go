@@ -18,8 +18,8 @@ var (
 
 var metadata_example = &typepb.XMeta{
 	ServiceName: "SENTINEZ // EDGE",
-	ServiceKind: typepb.Kind_KIND_GATEWAY_EDGE,
-	ServiceKey:  "sentinez.edge.v1",
+	ServiceKind: typepb.Kind_KIND_DEMILITARIZED_ZONE,
+	ServiceKey:  "sentinez.dmz.edge.v1",
 }
 
 func GetMetaExample() *typepb.XMeta {
