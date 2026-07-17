@@ -18,7 +18,7 @@ var (
 
 var metadata_edge = &typepb.XMeta{
 	ServiceName: "SENTINEZ // EDGE",
-	ServiceKind: typepb.Kind_KIND_GATEWAY_EDGE,
+	ServiceKind: typepb.Kind_KIND_DEMILITARIZED_ZONE,
 	ServiceKey:  "sentinez.dmz.edge.v1",
 }
 

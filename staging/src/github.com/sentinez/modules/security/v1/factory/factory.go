@@ -21,13 +21,13 @@ import (
 	"github.com/sentinez/modules/security/v1/repos/rulebased"
 	securitysvc "github.com/sentinez/modules/security/v1/service"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
 // NewDefaultHandler initializes the Security handler with its dependencies.
 func NewDefaultHandler(ctx context.Context,
-	appConf *confpb.Config,
+	appConf *settingpb.Config,
 ) securitypb.SecurityServiceServer {
 	service := NewDefaultService(ctx, appConf)
 	return securityhdl.New(service)
@@ -35,7 +35,7 @@ func NewDefaultHandler(ctx context.Context,
 
 // NewDefaultService initializes the Security service.
 func NewDefaultService(ctx context.Context,
-	appConf *confpb.Config,
+	appConf *settingpb.Config,
 ) *securitysvc.SecurityService {
 
 	ruleBasedRepo, err := rulebased.New(ctx, appConf)

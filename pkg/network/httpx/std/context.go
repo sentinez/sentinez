@@ -32,7 +32,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 	ssync "github.com/sentinez/shared/sync"
 )
 
@@ -43,7 +43,7 @@ var (
 var (
 	ctxPool = ssync.NewPoolCtr(func() *Context {
 		return &Context{
-			request: &typepb.Request{Status: http.StatusOK},
+			request: &httppb.Request{Status: http.StatusOK},
 			x:       &edgepb.Context{},
 		}
 	})
@@ -76,7 +76,7 @@ type Context struct {
 	resp        http.ResponseWriter
 	respBodyBuf bytes.Buffer
 
-	request *typepb.Request
+	request *httppb.Request
 	x       *edgepb.Context
 }
 
@@ -315,7 +315,7 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	c.req.URL.RawQuery = q.Encode()
 
 	// sync protobuf
-	var current *typepb.RequestQuery
+	var current *httppb.RequestQuery
 
 	for _, query := range c.request.GetQueries() {
 		if bytes.Equal(query.Key, []byte(k)) {
@@ -325,7 +325,7 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	}
 
 	if current == nil {
-		current = &typepb.RequestQuery{
+		current = &httppb.RequestQuery{
 			Key: []byte(k),
 		}
 		c.request.Queries = append(c.request.Queries, current)
@@ -367,7 +367,7 @@ func (c *Context) SetURI(u []byte) {
 func (c *Context) SetHeader(k, v []byte) {
 	c.req.Header.Set(string(k), string(v))
 
-	var current *typepb.RequestHeader
+	var current *httppb.RequestHeader
 	for _, h := range c.request.Headers {
 		if bytes.Equal(h.Key, []byte(k)) {
 			current = h
@@ -376,7 +376,7 @@ func (c *Context) SetHeader(k, v []byte) {
 	}
 
 	if current == nil {
-		current = &typepb.RequestHeader{
+		current = &httppb.RequestHeader{
 			Key: []byte(k),
 		}
 		c.request.Headers = append(c.request.Headers, current)

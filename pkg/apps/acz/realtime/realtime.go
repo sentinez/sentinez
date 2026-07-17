@@ -18,12 +18,12 @@ package realtime
 import (
 	"context"
 
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	realtimehdl "github.com/sentinez/sentinez/pkg/apps/acz/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 )
 
-func New(conf *confpb.Config, ws *wsz.WebSocket) *Realtime {
+func New(conf *settingpb.Config, ws *wsz.WebSocket) *Realtime {
 	return &Realtime{
 		core: ws,
 		conf: conf,
@@ -32,7 +32,7 @@ func New(conf *confpb.Config, ws *wsz.WebSocket) *Realtime {
 
 type Realtime struct {
 	core *wsz.WebSocket
-	conf *confpb.Config
+	conf *settingpb.Config
 }
 
 func (r *Realtime) router() {

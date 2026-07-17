@@ -3,11 +3,11 @@
 package rules
 
 import (
-	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
 const AuditVersion = ""
 
-var AuditOrder = []func() *ruleeventpb.Rule{}
+var AuditOrder = []func() *rulepb.CoreRule{}
 
-var Audit = map[string]*ruleeventpb.Rule{}
+var Audit = map[string]*rulepb.CoreRule{}

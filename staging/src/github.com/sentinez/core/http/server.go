@@ -20,13 +20,13 @@ import (
 	"net"
 
 	"github.com/sentinez/core/common/console"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 )
 
 var _ Server = (*server)(nil)
 
-func DecoreServer(conf *confpb.Config, s Server) Server {
+func DecoreServer(conf *settingpb.Config, s Server) Server {
 	return &server{
 		meta: conf.GetMeta(),
 		s:    s,

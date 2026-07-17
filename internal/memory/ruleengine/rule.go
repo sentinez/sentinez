@@ -19,7 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -49,7 +49,7 @@ type RuleCache struct {
 	space *ssync.Map[string, corerule.Rules]
 }
 
-func (rc *RuleCache) Store(namespace string, gr *ruleenginepb.RuleBased) {
+func (rc *RuleCache) Store(namespace string, gr *rulepb.RuleBased) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
@@ -81,7 +81,7 @@ func (rc *RuleCache) LoadContext(ctx corehttp.Context) corerule.Rules {
 	return rc.Load(hCtx.GetServerName())
 }
 
-func Store(serverName string, gr *ruleenginepb.RuleBased) {
+func Store(serverName string, gr *rulepb.RuleBased) {
 	mu.Lock()
 	defer mu.Unlock()
 

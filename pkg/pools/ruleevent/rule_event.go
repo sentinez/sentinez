@@ -17,7 +17,7 @@ package ruleevent
 import (
 	"io"
 
-	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/sync"
 )
 
@@ -25,12 +25,12 @@ var (
 	_ io.Closer = (*RuleEvent)(nil)
 
 	pool = sync.NewPoolCtr(func() *RuleEvent {
-		return &RuleEvent{Event: &ruleeventpb.Event{}}
+		return &RuleEvent{Event: &rulepb.Event{}}
 	})
 )
 
 type RuleEvent struct {
-	*ruleeventpb.Event
+	*rulepb.Event
 }
 
 func (re *RuleEvent) Close() error {

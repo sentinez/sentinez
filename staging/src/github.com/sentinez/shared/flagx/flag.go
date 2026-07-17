@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	"github.com/sentinez/core/common/console"
-	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/protobuf"
 	"github.com/spf13/pflag"
@@ -33,7 +33,7 @@ var (
 )
 
 // flags global variable
-var flags = &flagpb.Flag{
+var flags = &settingpb.Flag{
 	EnvMode:  "dev",
 	LogLevel: "debug",
 }
@@ -64,7 +64,7 @@ func Parse(meta *typepb.XMeta) {
 	})
 }
 
-func Get() *flagpb.Flag {
+func Get() *settingpb.Flag {
 	return flags
 }
 

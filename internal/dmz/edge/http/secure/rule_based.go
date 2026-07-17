@@ -18,7 +18,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/ruleengine"
 	"github.com/sentinez/shared/sync"
@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	matchedPool = sync.NewPool[ruleenginepb.MatchedRules]()
+	matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
 func NewRuleBased(ll zlog.Level) corechains.ChainNode {
@@ -62,7 +62,7 @@ func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	zlog.Debugf("edge: action = %v", rule.Action().GetType())
 
 	switch rule.Action().GetType() {
-	case ruleenginepb.ActionType_ACTION_TYPE_BLOCK:
+	case rulepb.ActionType_ACTION_TYPE_BLOCK:
 		zlog.Debugf("[edge] matched rule %v", matched)
 		return corehttp.Forbidden(ctx)
 	}

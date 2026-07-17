@@ -22,7 +22,7 @@ package edgepb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -606,7 +606,7 @@ var File_sentinez_dmz_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\"\xb5\x02\n" +
+	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a$sentinez/secure/rule/v1/engine.proto\"\xb5\x02\n" +
 	"\aSetting\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x124\n" +
 	"\x06server\x18\x02 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\x12:\n" +
@@ -630,12 +630,12 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x11proxy_set_headers\x18\x05 \x03(\v23.sentinez.dmz.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd0\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x03\n" +
 	"\bSecurity\x12'\n" +
-	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12Q\n" +
+	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12E\n" +
 	"\n" +
-	"rule_based\x18\x02 \x01(\v22.sentinez.types.secure.ruleengine.v1.RuleBasedLiteR\truleBased\x12^\n" +
-	"\x13rule_based_compiled\x18\x03 \x01(\v2..sentinez.types.secure.ruleengine.v1.RuleBasedR\x11ruleBasedCompiled\x12'\n" +
+	"rule_based\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\truleBased\x12R\n" +
+	"\x13rule_based_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x11ruleBasedCompiled\x12'\n" +
 	"\x10is_rate_limit_on\x18\n" +
 	" \x01(\bR\risRateLimitOn\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
@@ -683,8 +683,8 @@ var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
 	(*Personal)(nil),         // 8: sentinez.dmz.edge.v1.Personal
 	(*Upstream)(nil),         // 9: sentinez.dmz.edge.v1.Upstream
 	nil,                      // 10: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	(*v1.RuleBasedLite)(nil), // 11: sentinez.types.secure.ruleengine.v1.RuleBasedLite
-	(*v1.RuleBased)(nil),     // 12: sentinez.types.secure.ruleengine.v1.RuleBased
+	(*v1.RuleBasedLite)(nil), // 11: sentinez.secure.rule.v1.RuleBasedLite
+	(*v1.RuleBased)(nil),     // 12: sentinez.secure.rule.v1.RuleBased
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
@@ -696,8 +696,8 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	9,  // 6: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
 	0,  // 7: sentinez.dmz.edge.v1.Location.balance_strategy:type_name -> sentinez.dmz.edge.v1.BalanceStrategy
 	10, // 8: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	11, // 9: sentinez.dmz.edge.v1.Security.rule_based:type_name -> sentinez.types.secure.ruleengine.v1.RuleBasedLite
-	12, // 10: sentinez.dmz.edge.v1.Security.rule_based_compiled:type_name -> sentinez.types.secure.ruleengine.v1.RuleBased
+	11, // 9: sentinez.dmz.edge.v1.Security.rule_based:type_name -> sentinez.secure.rule.v1.RuleBasedLite
+	12, // 10: sentinez.dmz.edge.v1.Security.rule_based_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
 	1,  // 11: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
 	12, // [12:12] is the sub-list for method output_type
 	12, // [12:12] is the sub-list for method input_type

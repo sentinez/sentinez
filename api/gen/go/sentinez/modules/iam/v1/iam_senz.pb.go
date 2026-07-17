@@ -18,7 +18,7 @@ var (
 
 var metadata_iam = &typepb.XMeta{
 	ServiceName: "SENTINEZ // IAM",
-	ServiceKind: typepb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_MESH,
 	ServiceKey:  "sentinez.modules.iam.v1",
 }
 

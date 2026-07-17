@@ -21,7 +21,7 @@ import (
 	centraldatafac "github.com/sentinez/modules/centraldata/v1/factory"
 	"github.com/sentinez/sentinez/api/client/local"
 	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/centraldata/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -31,7 +31,7 @@ func GetListener() *bufconn.Listener {
 	return bufLis
 }
 
-func NewService(ctx context.Context, appConf *confpb.Config) *CentralData {
+func NewService(ctx context.Context, appConf *settingpb.Config) *CentralData {
 	return &CentralData{
 		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
 		hdl:    centraldatafac.NewDefaultHandler(ctx, appConf),

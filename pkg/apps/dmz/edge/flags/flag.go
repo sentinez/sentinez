@@ -23,14 +23,14 @@ import (
 	"github.com/sentinez/shared/zlog"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	flagpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/spf13/pflag"
 )
 
 var onceEdge sync.Once
 
 // Parse flag args for grpc service
-func Parse() *flagpb.Flag {
+func Parse() *settingpb.Flag {
 	onceEdge.Do(func() {
 		flagx.Get().RulePath = "./crs/v4-16-0"
 		flagx.Get().ProxyConfig = "./proxy.yaml"
@@ -38,19 +38,19 @@ func Parse() *flagpb.Flag {
 		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
 		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
 
-		pflag.StringVar(&flagx.Get().EnvFile, flagpb.XFlag_EnvFile,
+		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&flagx.Get().RulePath, flagpb.XFlag_RulePath,
+		pflag.StringVar(&flagx.Get().RulePath, settingpb.XFlag_RulePath,
 			flagx.Get().GetRulePath(), "core rulesets root path for rules")
 
-		pflag.StringVar(&flagx.Get().ProxyConfig, flagpb.XFlag_ProxyConfig,
+		pflag.StringVar(&flagx.Get().ProxyConfig, settingpb.XFlag_ProxyConfig,
 			flagx.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		pflag.StringVar(&flagx.Get().CertFile, flagpb.XFlag_CertFile,
+		pflag.StringVar(&flagx.Get().CertFile, settingpb.XFlag_CertFile,
 			flagx.Get().GetCertFile(), "TLS certificate file")
 
-		pflag.StringVar(&flagx.Get().CertKeyFile, flagpb.XFlag_CertKeyFile,
+		pflag.StringVar(&flagx.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
 			flagx.Get().GetCertKeyFile(), "TLS certificate key")
 
 		flagx.Parse(edgepb.GetMetaEdge())

@@ -18,7 +18,7 @@ var (
 
 var metadata_apiserver = &typepb.XMeta{
 	ServiceName: "SENTINEZ // APISERVER",
-	ServiceKind: typepb.Kind_KIND_GATEWAY_API,
+	ServiceKind: typepb.Kind_KIND_ACCESS_ZONE,
 	ServiceKey:  "sentinez.acz.apiserver.v1",
 }
 

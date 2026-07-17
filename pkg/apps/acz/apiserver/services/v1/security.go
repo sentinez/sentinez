@@ -19,7 +19,7 @@ import (
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*security)(nil)
@@ -37,7 +37,7 @@ type security struct {
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
 func (s *security) AcceptFromEndpoint(ctx context.Context,
-	server grpcgateway.Server, appConf *confpb.Config) error {
+	server grpcgateway.Server, appConf *settingpb.Config) error {
 
 	return grpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,

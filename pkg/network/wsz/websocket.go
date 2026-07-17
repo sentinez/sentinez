@@ -16,13 +16,13 @@ package wsz
 
 import (
 	corehttp "github.com/sentinez/core/http"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"
 )
 
-func NewServer(appConf *confpb.Config) *WebSocket {
+func NewServer(appConf *settingpb.Config) *WebSocket {
 	return &WebSocket{
 		routers: sync.Map[string, func(corehttp.Context) error]{},
 		meta:    appConf.GetMeta(),

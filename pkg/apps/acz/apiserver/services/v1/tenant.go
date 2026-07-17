@@ -19,7 +19,7 @@ import (
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*tenant)(nil)
@@ -36,7 +36,7 @@ type tenant struct {
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
 func (t *tenant) AcceptFromEndpoint(ctx context.Context,
-	server grpcgateway.Server, appConf *confpb.Config) error {
+	server grpcgateway.Server, appConf *settingpb.Config) error {
 
 	return grpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,

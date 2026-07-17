@@ -23,12 +23,12 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 	"github.com/sentinez/shared/bytesconv"
 )
 
 func NewRequestContext(
-	ctx context.Context, req *typepb.Request) corehttp.RequestContext {
+	ctx context.Context, req *httppb.Request) corehttp.RequestContext {
 	return &RequestContext{
 		req: req,
 		ctx: ctx,
@@ -36,7 +36,7 @@ func NewRequestContext(
 }
 
 type RequestContext struct {
-	req *typepb.Request
+	req *httppb.Request
 	ctx context.Context
 }
 
@@ -109,7 +109,7 @@ func (c *RequestContext) SetRequestIP(ip []byte) {
 }
 
 func (c *RequestContext) SetHeader(key, value []byte) {
-	var current *typepb.RequestHeader
+	var current *httppb.RequestHeader
 
 	for _, header := range c.req.GetHeaders() {
 		if bytes.Equal(header.Key, key) {
@@ -119,7 +119,7 @@ func (c *RequestContext) SetHeader(key, value []byte) {
 	}
 
 	if current == nil {
-		current = &typepb.RequestHeader{
+		current = &httppb.RequestHeader{
 			Key: key,
 		}
 		c.req.Headers = append(c.req.Headers, current)
@@ -150,7 +150,7 @@ func (c *RequestContext) SetProtocol(p string) {
 }
 
 func (c *RequestContext) SetQuery(key []byte, values ...[]byte) {
-	var current *typepb.RequestQuery
+	var current *httppb.RequestQuery
 
 	for _, query := range c.req.GetQueries() {
 		if bytes.Equal(query.GetKey(), key) {
@@ -160,7 +160,7 @@ func (c *RequestContext) SetQuery(key []byte, values ...[]byte) {
 	}
 
 	if current == nil {
-		current = &typepb.RequestQuery{
+		current = &httppb.RequestQuery{
 			Key: key,
 		}
 		c.req.Queries = append(c.req.Queries, current)

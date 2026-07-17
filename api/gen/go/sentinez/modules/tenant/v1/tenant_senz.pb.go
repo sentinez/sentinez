@@ -18,7 +18,7 @@ var (
 
 var metadata_tenant = &typepb.XMeta{
 	ServiceName: "SENTINEZ // TENANT",
-	ServiceKind: typepb.Kind_KIND_CORE,
+	ServiceKind: typepb.Kind_KIND_MESH,
 	ServiceKey:  "sentinez.modules.tenant.v1",
 }
 

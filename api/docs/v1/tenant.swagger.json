@@ -317,7 +317,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/ruleenginev1Rule"
+            "$ref": "#/definitions/rulev1Rule"
           }
         },
         "groups": {
@@ -401,7 +401,7 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "ruleenginev1Rule": {
+    "rulev1Rule": {
       "type": "object",
       "properties": {
         "id": {

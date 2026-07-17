@@ -10,7 +10,7 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/example";
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // EDGE"
-  service_kind: KIND_GATEWAY_EDGE
+  service_kind: KIND_DEMILITARIZED_ZONE
   service_key: "sentinez.dmz.edge.v1"
 };
 

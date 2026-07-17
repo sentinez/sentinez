@@ -20,8 +20,8 @@ import (
 	"github.com/sentinez/core/rules/builder"
 	"github.com/sentinez/modules/security/v1/repos/rulebased"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/errorx"
 )
 
@@ -29,7 +29,7 @@ var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
 
 // New creates a new SecurityService.
 func New(
-	config *confpb.Config,
+	config *settingpb.Config,
 	ruleBasedRepo rulebased.IRuleBased,
 ) *SecurityService {
 	return &SecurityService{
@@ -40,32 +40,32 @@ func New(
 
 // SecurityService handles security operations.
 type SecurityService struct {
-	config        *confpb.Config
+	config        *settingpb.Config
 	ruleBasedRepo rulebased.IRuleBased
 }
 
 // toSystemNode converts a shared RuleGroup into a system rule node.
 func (srv *SecurityService) toSystemNode(
-	group *securitypb.RuleGroup) *ruleenginepb.RuleBased_Node {
+	group *securitypb.RuleGroup) *rulepb.RuleBased_Node {
 	if group == nil {
 		return nil
 	}
 
 	var b *builder.GroupBuilder
 	switch group.GetCombinator() {
-	case ruleenginepb.Logic_LOGIC_OR:
-		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_OR)
-	case ruleenginepb.Logic_LOGIC_NOT:
-		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_NOT)
+	case rulepb.Logic_LOGIC_OR:
+		b = builder.NewGroup(rulepb.Logic_LOGIC_OR)
+	case rulepb.Logic_LOGIC_NOT:
+		b = builder.NewGroup(rulepb.Logic_LOGIC_NOT)
 	default:
-		b = builder.NewGroup(ruleenginepb.Logic_LOGIC_AND)
+		b = builder.NewGroup(rulepb.Logic_LOGIC_AND)
 	}
 
 	for _, node := range group.GetRules() {
 		if node.GetGroup() != nil {
 			subNode := srv.toSystemNode(node.GetGroup())
 			if subNode != nil {
-				b.AddGroup(&ruleenginepb.RuleBased{Node: subNode})
+				b.AddGroup(&rulepb.RuleBased{Node: subNode})
 			}
 		} else if node.GetRule() != nil {
 			r := node.GetRule()

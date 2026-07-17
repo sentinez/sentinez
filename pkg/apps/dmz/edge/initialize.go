@@ -15,12 +15,12 @@
 package edge
 
 import (
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
 	"github.com/sentinez/sentinez/internal/memory"
 )
 
-func (s *Server) initialize(appConf *confpb.Config) error {
+func (s *Server) initialize(appConf *settingpb.Config) error {
 	// init cache repository
 	memory.LoadConfiguration(s.setting, appConf)
 

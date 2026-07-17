@@ -16,9 +16,9 @@ package corerule
 
 import (
 	chttp "github.com/sentinez/core/http"
-	ruleengpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
-func accept(ctx chttp.RequestContext, c *ruleengpb.Condition) bool {
+func accept(ctx chttp.RequestContext, c *rulepb.Condition) bool {
 	return visit(ctx, c)
 }

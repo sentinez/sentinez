@@ -10,7 +10,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 	"github.com/sentinez/shared/sync"
 )
 
@@ -19,7 +19,7 @@ var (
 	ctxPool                  = sync.NewPoolCtr(func() *Context {
 		return &Context{
 			x:       &edgepb.Context{},
-			request: &typepb.Request{},
+			request: &httppb.Request{},
 		}
 	})
 )
@@ -37,7 +37,7 @@ type Context struct {
 	req *app.RequestContext
 	ctx context.Context
 
-	request *typepb.Request
+	request *httppb.Request
 	x       *edgepb.Context
 }
 

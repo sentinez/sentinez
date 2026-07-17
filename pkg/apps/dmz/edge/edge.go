@@ -22,7 +22,7 @@ import (
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/security"
 	"github.com/sentinez/shared/zlog"
 )
@@ -53,7 +53,7 @@ type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
 //
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
-func New(conf *confpb.Config,
+func New(conf *settingpb.Config,
 	setting *edgepb.Setting,
 	server corehttp.Server,
 ) *Server {
@@ -73,7 +73,7 @@ func New(conf *confpb.Config,
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	conf    *confpb.Config
+	conf    *settingpb.Config
 	core    corehttp.Server
 	setting *edgepb.Setting
 }

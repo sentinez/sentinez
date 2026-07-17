@@ -17,7 +17,7 @@ package request
 import (
 	"io"
 
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
 	"github.com/sentinez/shared/sync"
 )
 
@@ -25,12 +25,12 @@ var (
 	_ io.Closer = (*RequestEvent)(nil)
 
 	pool = sync.NewPoolCtr(func() *RequestEvent {
-		return &RequestEvent{RequestEvent: &typepb.RequestEvent{}}
+		return &RequestEvent{RequestEvent: &httppb.RequestEvent{}}
 	})
 )
 
 type RequestEvent struct {
-	*typepb.RequestEvent
+	*httppb.RequestEvent
 }
 
 func (re *RequestEvent) Close() error {

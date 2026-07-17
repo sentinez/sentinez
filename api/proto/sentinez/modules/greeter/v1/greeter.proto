@@ -43,7 +43,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // GREETER"
-  service_kind: KIND_CORE
+  service_kind: KIND_MESH
   service_key: "sentinez.modules.greeter.v1"
 };
 

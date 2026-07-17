@@ -16,14 +16,14 @@ syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
 
-import "sentinez/types/secure/ruleengine/v1/ruleengine.proto";
+import "sentinez/secure/rule/v1/engine.proto";
 import "sentinez/types/v1/options.proto";
-import "sentinez/types/v1/http.proto";
+import "sentinez/network/http/v1/http.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // EDGE"
-  service_kind: KIND_GATEWAY_EDGE
+  service_kind: KIND_DEMILITARIZED_ZONE
   service_key: "sentinez.dmz.edge.v1"
 };
 
@@ -33,13 +33,13 @@ service EdgeEngineService {
 
 message EvaluateIngressRequest {
   string ruleset_id = 1;
-  sentinez.types.v1.Request request_context = 2;
+  sentinez.network.http.v1.Request request_context = 2;
 }
 
 message EvaluationResult {
   string rule_id = 1;
   bool matched = 2;
-  repeated sentinez.types.secure.ruleengine.v1.Action actions = 3;
+  repeated sentinez.secure.rule.v1.Action actions = 3;
 }
 
 message EvaluateIngressResponse {

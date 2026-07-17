@@ -29,7 +29,7 @@ import (
 	"github.com/sentinez/modules/pkg/crypto"
 	"github.com/sentinez/modules/pkg/passkey"
 	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/protobuf/protox"
@@ -40,7 +40,7 @@ import (
 
 var _ iampb.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
-func New(config *confpb.Config,
+func New(config *settingpb.Config,
 	tx *postgres.Tx,
 	store passkey.Store,
 	users usersrepo.IUser,
@@ -60,7 +60,7 @@ func New(config *confpb.Config,
 }
 
 type IAMService struct {
-	config   *confpb.Config
+	config   *settingpb.Config
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accrepos.IAccount
@@ -295,10 +295,6 @@ func (srv *IAMService) createAccountExtend(
 	}
 
 	return acc, nil
-}
-
-func (srv *IAMService) Config() *confpb.EnvConfig {
-	return srv.config.GetEnv()
 }
 
 func (srv *IAMService) ListAccounts(ctx context.Context,

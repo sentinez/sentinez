@@ -16,7 +16,7 @@ package corecmn
 
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	ruleenginepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/rand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -40,12 +40,12 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	edgeSec.RuleBasedCompiled = toRuleBased(rgLite)
 }
 
-func toRuleBased(rgLite *ruleenginepb.RuleBasedLite) *ruleenginepb.RuleBased {
+func toRuleBased(rgLite *rulepb.RuleBasedLite) *rulepb.RuleBased {
 	if rgLite == nil {
 		return nil
 	}
 
-	return &ruleenginepb.RuleBased{
+	return &rulepb.RuleBased{
 		Id:          rgLite.GetId(),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
@@ -55,13 +55,13 @@ func toRuleBased(rgLite *ruleenginepb.RuleBasedLite) *ruleenginepb.RuleBased {
 }
 
 func toNode(
-	nodeLite *ruleenginepb.RuleBasedLite_NodeLite,
-) *ruleenginepb.RuleBased_Node {
+	nodeLite *rulepb.RuleBasedLite_NodeLite,
+) *rulepb.RuleBased_Node {
 	if nodeLite == nil {
 		return nil
 	}
 
-	node := &ruleenginepb.RuleBased_Node{
+	node := &rulepb.RuleBased_Node{
 		Operator: toLogic(nodeLite.GetOperator()),
 	}
 
@@ -76,39 +76,39 @@ func toNode(
 	return node
 }
 
-func toLogic(logic string) ruleenginepb.Logic {
-	l, ok := ruleenginepb.Logic_value[logic]
+func toLogic(logic string) rulepb.Logic {
+	l, ok := rulepb.Logic_value[logic]
 	if !ok {
-		return ruleenginepb.Logic_LOGIC_UNSPECIFIED
+		return rulepb.Logic_LOGIC_UNSPECIFIED
 	}
 
-	return ruleenginepb.Logic(l)
+	return rulepb.Logic(l)
 }
 
-func toOperator(operator string) ruleenginepb.Operator {
-	op, ok := ruleenginepb.Operator_value[operator]
+func toOperator(operator string) rulepb.Operator {
+	op, ok := rulepb.Operator_value[operator]
 	if !ok {
-		return ruleenginepb.Operator_OPERATOR_UNSPECIFIED
+		return rulepb.Operator_OPERATOR_UNSPECIFIED
 	}
 
-	return ruleenginepb.Operator(op)
+	return rulepb.Operator(op)
 }
 
-func toSource(source string) ruleenginepb.FieldSource {
-	src, ok := ruleenginepb.FieldSource_value[source]
+func toSource(source string) rulepb.FieldSource {
+	src, ok := rulepb.FieldSource_value[source]
 	if !ok {
-		return ruleenginepb.FieldSource_FIELD_SOURCE_UNSPECIFIED
+		return rulepb.FieldSource_FIELD_SOURCE_UNSPECIFIED
 	}
 
-	return ruleenginepb.FieldSource(src)
+	return rulepb.FieldSource(src)
 }
 
-func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
+func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	if cond == nil {
 		return nil
 	}
 
-	return &ruleenginepb.Condition{
+	return &rulepb.Condition{
 		Id:       rand.NewNanoID(condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
@@ -117,12 +117,12 @@ func toCondition(cond *ruleenginepb.ConditionLite) *ruleenginepb.Condition {
 	}
 }
 
-func toRule(rule *ruleenginepb.RuleLite) *ruleenginepb.Rule {
+func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 	if rule == nil {
 		return nil
 	}
 
-	return &ruleenginepb.Rule{
+	return &rulepb.Rule{
 		Id:        rand.NewNanoID(rulePrefix),
 		Name:      rule.GetName(),
 		Condition: toCondition(rule.GetCondition()),

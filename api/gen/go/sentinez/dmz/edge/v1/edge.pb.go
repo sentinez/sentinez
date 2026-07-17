@@ -21,8 +21,9 @@
 package edgepb
 
 import (
-	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1"
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -246,15 +247,15 @@ var File_sentinez_dmz_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a4sentinez/types/secure/ruleengine/v1/ruleengine.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1csentinez/types/v1/http.proto\"|\n" +
+	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a$sentinez/secure/rule/v1/engine.proto\x1a\x1fsentinez/types/v1/options.proto\x1a#sentinez/network/http/v1/http.proto\"\x83\x01\n" +
 	"\x16EvaluateIngressRequest\x12\x1d\n" +
 	"\n" +
-	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12C\n" +
-	"\x0frequest_context\x18\x02 \x01(\v2\x1a.sentinez.types.v1.RequestR\x0erequestContext\"\x8c\x01\n" +
+	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12J\n" +
+	"\x0frequest_context\x18\x02 \x01(\v2!.sentinez.network.http.v1.RequestR\x0erequestContext\"\x80\x01\n" +
 	"\x10EvaluationResult\x12\x17\n" +
 	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x18\n" +
-	"\amatched\x18\x02 \x01(\bR\amatched\x12E\n" +
-	"\aactions\x18\x03 \x03(\v2+.sentinez.types.secure.ruleengine.v1.ActionR\aactions\"[\n" +
+	"\amatched\x18\x02 \x01(\bR\amatched\x129\n" +
+	"\aactions\x18\x03 \x03(\v2\x1f.sentinez.secure.rule.v1.ActionR\aactions\"[\n" +
 	"\x17EvaluateIngressResponse\x12@\n" +
 	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults\"*\n" +
 	"\aContext\x12\x1f\n" +
@@ -282,12 +283,12 @@ var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
 	(*EvaluationResult)(nil),        // 1: sentinez.dmz.edge.v1.EvaluationResult
 	(*EvaluateIngressResponse)(nil), // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse
 	(*Context)(nil),                 // 3: sentinez.dmz.edge.v1.Context
-	(*v1.Request)(nil),              // 4: sentinez.types.v1.Request
-	(*v11.Action)(nil),              // 5: sentinez.types.secure.ruleengine.v1.Action
+	(*v1.Request)(nil),              // 4: sentinez.network.http.v1.Request
+	(*v11.Action)(nil),              // 5: sentinez.secure.rule.v1.Action
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	4, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.types.v1.Request
-	5, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.secure.ruleengine.v1.Action
+	4, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.network.http.v1.Request
+	5, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.secure.rule.v1.Action
 	1, // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
 	0, // 3: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
 	2, // 4: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse

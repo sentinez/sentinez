@@ -3,12 +3,12 @@
 package rules
 
 import (
-	ruleeventpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleevent/v1"
+	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
 const SetupVersion = ""
 
-var SetupOrder = []func() *ruleeventpb.Rule{
+var SetupOrder = []func() *rulepb.CoreRule{
 	SetupMaker_0,
 	SetupMaker_1,
 	SetupMaker_2,
@@ -40,7 +40,7 @@ var SetupOrder = []func() *ruleeventpb.Rule{
 	R900990,
 }
 
-var Setup = map[string]*ruleeventpb.Rule{
+var Setup = map[string]*rulepb.CoreRule{
 	"SetupMaker_0": SetupMaker_0(),
 
 	"SetupMaker_1": SetupMaker_1(),
@@ -101,11 +101,11 @@ var Setup = map[string]*ruleeventpb.Rule{
 }
 
 // SetupMaker_0 returns rule without ID
-func SetupMaker_0() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func SetupMaker_0() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZUVuZ2luZSBPbg==",
-			Fields:    &ruleeventpb.RuleActionField{},
+			Fields:    &rulepb.RuleActionField{},
 		},
 		Configuration: "U2VjUnVsZUVuZ2luZSBPbg==",
 		Level:         "",
@@ -113,11 +113,11 @@ func SetupMaker_0() *ruleeventpb.Rule {
 }
 
 // SetupMaker_1 returns rule without ID
-func SetupMaker_1() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func SetupMaker_1() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT2Zm",
-			Fields:    &ruleeventpb.RuleActionField{},
+			Fields:    &rulepb.RuleActionField{},
 		},
 		Configuration: "U2VjUmVxdWVzdEJvZHlBY2Nlc3MgT2Zm",
 		Level:         "",
@@ -125,11 +125,11 @@ func SetupMaker_1() *ruleeventpb.Rule {
 }
 
 // SetupMaker_2 returns rule without ID
-func SetupMaker_2() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func SetupMaker_2() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6MSxsb2csYXVkaXRsb2cscGFzcyI=",
-			Fields:    &ruleeventpb.RuleActionField{Phase: []string{"1"}},
+			Fields:    &rulepb.RuleActionField{Phase: []string{"1"}},
 		},
 		Configuration: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6MSxsb2csYXVkaXRsb2cscGFzcyI=",
 		Level:         "",
@@ -137,11 +137,11 @@ func SetupMaker_2() *ruleeventpb.Rule {
 }
 
 // SetupMaker_3 returns rule without ID
-func SetupMaker_3() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func SetupMaker_3() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6Mixsb2csYXVkaXRsb2cscGFzcyI=",
-			Fields:    &ruleeventpb.RuleActionField{Phase: []string{"2"}},
+			Fields:    &rulepb.RuleActionField{Phase: []string{"2"}},
 		},
 		Configuration: "U2VjRGVmYXVsdEFjdGlvbiAicGhhc2U6Mixsb2csYXVkaXRsb2cscGFzcyI=",
 		Level:         "",
@@ -149,11 +149,11 @@ func SetupMaker_3() *ruleeventpb.Rule {
 }
 
 // R900000 returns rule with ID 900000
-func R900000() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900000() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYmxvY2tpbmdfcGFyYW5vaWFfbGV2ZWw9NCI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900000"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.blocking_paranoia_level=4"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900000"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.blocking_paranoia_level=4"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYmxvY2tpbmdfcGFyYW5vaWFfbGV2ZWw9NCI=",
 		Level:         "",
@@ -161,11 +161,11 @@ func R900000() *ruleeventpb.Rule {
 }
 
 // R900001 returns rule with ID 900001
-func R900001() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900001() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZGV0ZWN0aW9uX3BhcmFub2lhX2xldmVsPTQi",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900001"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.detection_paranoia_level=4"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900001"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.detection_paranoia_level=4"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAwMSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZGV0ZWN0aW9uX3BhcmFub2lhX2xldmVsPTQi",
 		Level:         "",
@@ -173,11 +173,11 @@ func R900001() *ruleeventpb.Rule {
 }
 
 // R900010 returns rule with ID 900010
-func R900010() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900010() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5mb3JjZV9ib2R5cHJvY191cmxlbmNvZGVkPTEi",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900010"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enforce_bodyproc_urlencoded=1"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900010"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enforce_bodyproc_urlencoded=1"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDAxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5mb3JjZV9ib2R5cHJvY191cmxlbmNvZGVkPTEi",
 		Level:         "",
@@ -185,11 +185,11 @@ func R900010() *ruleeventpb.Rule {
 }
 
 // R900100 returns rule with ID 900100
-func R900100() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900100() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JpdGljYWxfYW5vbWFseV9zY29yZT01LFwKICAgc2V0dmFyOnR4LmVycm9yX2Fub21hbHlfc2NvcmU9NCxcCiAgIHNldHZhcjp0eC53YXJuaW5nX2Fub21hbHlfc2NvcmU9MyxcCiAgIHNldHZhcjp0eC5ub3RpY2VfYW5vbWFseV9zY29yZT0yIg==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900100"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.critical_anomaly_score=5", "tx.error_anomaly_score=4", "tx.warning_anomaly_score=3", "tx.notice_anomaly_score=2"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900100"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.critical_anomaly_score=5", "tx.error_anomaly_score=4", "tx.warning_anomaly_score=3", "tx.notice_anomaly_score=2"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JpdGljYWxfYW5vbWFseV9zY29yZT01LFwKICAgc2V0dmFyOnR4LmVycm9yX2Fub21hbHlfc2NvcmU9NCxcCiAgIHNldHZhcjp0eC53YXJuaW5nX2Fub21hbHlfc2NvcmU9MyxcCiAgIHNldHZhcjp0eC5ub3RpY2VfYW5vbWFseV9zY29yZT0yIg==",
 		Level:         "",
@@ -197,11 +197,11 @@ func R900100() *ruleeventpb.Rule {
 }
 
 // R900110 returns rule with ID 900110
-func R900110() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900110() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD0xMCxcCiAgIHNldHZhcjp0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01Ig==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900110"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.inbound_anomaly_score_threshold=10", "tx.outbound_anomaly_score_threshold=5"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900110"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.inbound_anomaly_score_threshold=10", "tx.outbound_anomaly_score_threshold=5"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD0xMCxcCiAgIHNldHZhcjp0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3RocmVzaG9sZD01Ig==",
 		Level:         "",
@@ -209,11 +209,11 @@ func R900110() *ruleeventpb.Rule {
 }
 
 // R900115 returns rule with ID 900115
-func R900115() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900115() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExNSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgucmVwb3J0aW5nX2xldmVsPTQi",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900115"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.reporting_level=4"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900115"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.reporting_level=4"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDExNSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgucmVwb3J0aW5nX2xldmVsPTQi",
 		Level:         "",
@@ -221,11 +221,11 @@ func R900115() *ruleeventpb.Rule {
 }
 
 // R900120 returns rule with ID 900120
-func R900120() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900120() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZWFybHlfYmxvY2tpbmc9MSI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900120"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.early_blocking=1"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900120"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.early_blocking=1"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZWFybHlfYmxvY2tpbmc9MSI=",
 		Level:         "",
@@ -233,11 +233,11 @@ func R900120() *ruleeventpb.Rule {
 }
 
 // R900130 returns rule with ID 900130
-func R900130() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900130() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5hYmxlX2RlZmF1bHRfY29sbGVjdGlvbnM9MSI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900130"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enable_default_collections=1"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900130"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.enable_default_collections=1"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDEzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguZW5hYmxlX2RlZmF1bHRfY29sbGVjdGlvbnM9MSI=",
 		Level:         "",
@@ -245,11 +245,11 @@ func R900130() *ruleeventpb.Rule {
 }
 
 // R900200 returns rule with ID 900200
-func R900200() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900200() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900200"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_methods=GET HEAD POST OPTIONS'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900200"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_methods=GET HEAD POST OPTIONS'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
 		Level:         "",
@@ -257,11 +257,11 @@ func R900200() *ruleeventpb.Rule {
 }
 
 // R900220 returns rule with ID 900220
-func R900220() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900220() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900220"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json|'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900220"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json|'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
 		Level:         "",
@@ -269,11 +269,11 @@ func R900220() *ruleeventpb.Rule {
 }
 
 // R900230 returns rule with ID 900230
-func R900230() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900230() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900230"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_http_versions=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0 HTTP/3 HTTP/3.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900230"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_http_versions=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0 HTTP/3 HTTP/3.0'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
 		Level:         "",
@@ -281,11 +281,11 @@ func R900230() *ruleeventpb.Rule {
 }
 
 // R900240 returns rule with ID 900240
-func R900240() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900240() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900240"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_extensions=.asa/ .asax/ .ascx/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .rdb/ .resources/ .resx/ .sql/ .swp/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900240"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_extensions=.asa/ .asax/ .ascx/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .rdb/ .resources/ .resx/ .sql/ .swp/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
 		Level:         "",
@@ -293,11 +293,11 @@ func R900240() *ruleeventpb.Rule {
 }
 
 // R900250 returns rule with ID 900250
-func R900250() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900250() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900250"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_basic=/content-encoding/ /proxy/ /lock-token/ /content-range/ /if/ /x-http-method-override/ /x-http-method/ /x-method-override/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900250"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_basic=/content-encoding/ /proxy/ /lock-token/ /content-range/ /if/ /x-http-method-override/ /x-http-method/ /x-method-override/'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
 		Level:         "",
@@ -305,11 +305,11 @@ func R900250() *ruleeventpb.Rule {
 }
 
 // R900255 returns rule with ID 900255
-func R900255() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900255() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900255"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_extended=/accept-charset/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900255"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_extended=/accept-charset/'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
 		Level:         "",
@@ -317,11 +317,11 @@ func R900255() *ruleeventpb.Rule {
 }
 
 // R900280 returns rule with ID 900280
-func R900280() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900280() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900280"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1| |iso-8859-15| |windows-1252|'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900280"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1| |iso-8859-15| |windows-1252|'"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
 		Level:         "",
@@ -329,11 +329,11 @@ func R900280() *ruleeventpb.Rule {
 }
 
 // R900300 returns rule with ID 900300
-func R900300() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900300() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X251bV9hcmdzPTI1NSI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900300"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_num_args=255"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900300"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_num_args=255"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X251bV9hcmdzPTI1NSI=",
 		Level:         "",
@@ -341,11 +341,11 @@ func R900300() *ruleeventpb.Rule {
 }
 
 // R900310 returns rule with ID 900310
-func R900310() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900310() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX25hbWVfbGVuZ3RoPTEwMCI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900310"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_name_length=100"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900310"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_name_length=100"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMxMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX25hbWVfbGVuZ3RoPTEwMCI=",
 		Level:         "",
@@ -353,11 +353,11 @@ func R900310() *ruleeventpb.Rule {
 }
 
 // R900320 returns rule with ID 900320
-func R900320() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900320() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX2xlbmd0aD00MDAi",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900320"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_length=400"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900320"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.arg_length=400"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguYXJnX2xlbmd0aD00MDAi",
 		Level:         "",
@@ -365,11 +365,11 @@ func R900320() *ruleeventpb.Rule {
 }
 
 // R900330 returns rule with ID 900330
-func R900330() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900330() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgudG90YWxfYXJnX2xlbmd0aD02NDAwMCI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900330"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.total_arg_length=64000"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900330"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.total_arg_length=64000"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDMzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgudG90YWxfYXJnX2xlbmd0aD02NDAwMCI=",
 		Level:         "",
@@ -377,11 +377,11 @@ func R900330() *ruleeventpb.Rule {
 }
 
 // R900340 returns rule with ID 900340
-func R900340() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900340() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X2ZpbGVfc2l6ZT0xMDQ4NTc2Ig==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900340"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_file_size=1048576"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900340"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.max_file_size=1048576"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHgubWF4X2ZpbGVfc2l6ZT0xMDQ4NTc2Ig==",
 		Level:         "",
@@ -389,11 +389,11 @@ func R900340() *ruleeventpb.Rule {
 }
 
 // R900350 returns rule with ID 900350
-func R900350() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900350() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY29tYmluZWRfZmlsZV9zaXplcz0xMDQ4NTc2Ig==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900350"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.combined_file_sizes=1048576"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900350"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.combined_file_sizes=1048576"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDM1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY29tYmluZWRfZmlsZV9zaXplcz0xMDQ4NTc2Ig==",
 		Level:         "",
@@ -401,11 +401,11 @@ func R900350() *ruleeventpb.Rule {
 }
 
 // R900400 returns rule with ID 900400
-func R900400() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900400() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDQwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguc2FtcGxpbmdfcGVyY2VudGFnZT0xMDAi",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900400"}, Phase: []string{"1"}, Setvar: []string{"tx.sampling_percentage=100"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900400"}, Phase: []string{"1"}, Setvar: []string{"tx.sampling_percentage=100"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDQwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguc2FtcGxpbmdfcGVyY2VudGFnZT0xMDAi",
 		Level:         "",
@@ -413,11 +413,11 @@ func R900400() *ruleeventpb.Rule {
 }
 
 // R900950 returns rule with ID 900950
-func R900950() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900950() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3ZhbGlkYXRlX3V0ZjhfZW5jb2Rpbmc9MSI=",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900950"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_validate_utf8_encoding=1"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900950"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_validate_utf8_encoding=1"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3ZhbGlkYXRlX3V0ZjhfZW5jb2Rpbmc9MSI=",
 		Level:         "",
@@ -425,11 +425,11 @@ func R900950() *ruleeventpb.Rule {
 }
 
 // SetupMaker_27 returns rule without ID
-func SetupMaker_27() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func SetupMaker_27() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQ29sbGVjdGlvblRpbWVvdXQgNjAw",
-			Fields:    &ruleeventpb.RuleActionField{},
+			Fields:    &rulepb.RuleActionField{},
 		},
 		Configuration: "U2VjQ29sbGVjdGlvblRpbWVvdXQgNjAw",
 		Level:         "",
@@ -437,11 +437,11 @@ func SetupMaker_27() *ruleeventpb.Rule {
 }
 
 // R900990 returns rule with ID 900990
-func R900990() *ruleeventpb.Rule {
-	return &ruleeventpb.Rule{
-		Actions: &ruleeventpb.RuleAction{
+func R900990() *rulepb.CoreRule {
+	return &rulepb.CoreRule{
+		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk5MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
-			Fields:    &ruleeventpb.RuleActionField{Id: []string{"900990"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_setup_version=400"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900990"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.crs_setup_version=400"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDk5MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6dHguY3JzX3NldHVwX3ZlcnNpb249NDAwIg==",
 		Level:         "",

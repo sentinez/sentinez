@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	dataplanepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/dataplane/v1"
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
@@ -28,11 +28,11 @@ import (
 var onceGRPCService sync.Once
 
 // ParseFlag flag args for grpc service
-func Parse() *flagspb.Flag {
+func Parse() *settingpb.Flag {
 	onceGRPCService.Do(func() {
 		flagx.Get().EnvFile = ".env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, flagspb.XFlag_EnvFile,
+		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
 
 		flagx.Parse(dataplanepb.GetMetaDataplane())

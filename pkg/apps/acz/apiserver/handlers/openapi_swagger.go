@@ -19,11 +19,11 @@ import (
 	"net/http"
 	"strings"
 
-	flagspb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/flag/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 // RegisterSwaggerRoutes return api json and swagger ui
-func RegisterSwaggerRoutes(mux *http.ServeMux, flag *flagspb.Flag) {
+func RegisterSwaggerRoutes(mux *http.ServeMux, flag *settingpb.Flag) {
 
 	apifs := http.FileServer(http.Dir(flag.GetApiSpecsPath()))
 	mux.Handle("/api/", http.StripPrefix("/api/", apifs))

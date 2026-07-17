@@ -23,7 +23,7 @@ import (
 	corelimiter "github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -131,7 +131,7 @@ func LoadRateLimiter() {
 	})
 }
 
-func LoadWAF(appConf *confpb.Config) {
+func LoadWAF(appConf *settingpb.Config) {
 	var (
 		flag = corers.ReqAppAttackRCE
 	)

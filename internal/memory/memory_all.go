@@ -16,10 +16,10 @@ package memory
 
 import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
-func LoadConfiguration(st *edgepb.Setting, appConf *confpb.Config) {
+func LoadConfiguration(st *edgepb.Setting, appConf *settingpb.Config) {
 	// save all setting for each tenant
 	LoadSetting(st)
 

@@ -21,12 +21,12 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	confpb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
 var _ corehttp.Server = (*Server)(nil)
 
-func NewServer(appConf *confpb.Config) corehttp.Server {
+func NewServer(appConf *settingpb.Config) corehttp.Server {
 	return corehttp.DecoreServer(appConf, &Server{
 		core: &http.Server{},
 		mux:  http.NewServeMux(),
