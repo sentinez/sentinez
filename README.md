@@ -48,12 +48,12 @@ git submodule update --init --recursive
 
 **Run** the project with `apiserver`
 ```sh
-make apiserver.run
+make acz.apiserver.run
 ```
 
 **Run** edge proxy
 ```sh
-make edge.run
+make dmz.edge.run
 ```
 
 ### License
