@@ -25,7 +25,7 @@ import (
 
 func main() {
 	app := runner.NewApp[dataplane.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*dataplane.Server]) {
+	app.Main(func(c *runner.Context[dataplane.Server]) {
 		c.Inject(config.Config, dataplane.New)
 
 		c.OnStart(func(_ context.Context, server *dataplane.Server) error {

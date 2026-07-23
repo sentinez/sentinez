@@ -40,7 +40,7 @@ func New() *WAFCache {
 	return wafInst
 }
 
-func GetEngine() *WAFCache {
+func Get() *WAFCache {
 	return wafInst
 }
 

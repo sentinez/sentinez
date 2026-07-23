@@ -39,7 +39,7 @@ import (
 //	make mesh.<service>.run // start service
 func main() {
 	app := runner.NewApp[apiserver.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*apiserver.Server]) {
+	app.Main(func(c *runner.Context[apiserver.Server]) {
 		c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
 
 		c.OnStart(func(ctx context.Context, server *apiserver.Server) error {

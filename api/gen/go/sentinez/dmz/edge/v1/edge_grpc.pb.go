@@ -33,99 +33,99 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EdgeEngineService_EvaluateIngress_FullMethodName = "/sentinez.dmz.edge.v1.EdgeEngineService/EvaluateIngress"
+	EdgeService_EvaluateIngress_FullMethodName = "/sentinez.dmz.edge.v1.EdgeService/EvaluateIngress"
 )
 
-// EdgeEngineServiceClient is the client API for EdgeEngineService service.
+// EdgeServiceClient is the client API for EdgeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type EdgeEngineServiceClient interface {
+type EdgeServiceClient interface {
 	EvaluateIngress(ctx context.Context, in *EvaluateIngressRequest, opts ...grpc.CallOption) (*EvaluateIngressResponse, error)
 }
 
-type edgeEngineServiceClient struct {
+type edgeServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewEdgeEngineServiceClient(cc grpc.ClientConnInterface) EdgeEngineServiceClient {
-	return &edgeEngineServiceClient{cc}
+func NewEdgeServiceClient(cc grpc.ClientConnInterface) EdgeServiceClient {
+	return &edgeServiceClient{cc}
 }
 
-func (c *edgeEngineServiceClient) EvaluateIngress(ctx context.Context, in *EvaluateIngressRequest, opts ...grpc.CallOption) (*EvaluateIngressResponse, error) {
+func (c *edgeServiceClient) EvaluateIngress(ctx context.Context, in *EvaluateIngressRequest, opts ...grpc.CallOption) (*EvaluateIngressResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(EvaluateIngressResponse)
-	err := c.cc.Invoke(ctx, EdgeEngineService_EvaluateIngress_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, EdgeService_EvaluateIngress_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// EdgeEngineServiceServer is the server API for EdgeEngineService service.
-// All implementations should embed UnimplementedEdgeEngineServiceServer
+// EdgeServiceServer is the server API for EdgeService service.
+// All implementations should embed UnimplementedEdgeServiceServer
 // for forward compatibility.
-type EdgeEngineServiceServer interface {
+type EdgeServiceServer interface {
 	EvaluateIngress(context.Context, *EvaluateIngressRequest) (*EvaluateIngressResponse, error)
 }
 
-// UnimplementedEdgeEngineServiceServer should be embedded to have
+// UnimplementedEdgeServiceServer should be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedEdgeEngineServiceServer struct{}
+type UnimplementedEdgeServiceServer struct{}
 
-func (UnimplementedEdgeEngineServiceServer) EvaluateIngress(context.Context, *EvaluateIngressRequest) (*EvaluateIngressResponse, error) {
+func (UnimplementedEdgeServiceServer) EvaluateIngress(context.Context, *EvaluateIngressRequest) (*EvaluateIngressResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method EvaluateIngress not implemented")
 }
-func (UnimplementedEdgeEngineServiceServer) testEmbeddedByValue() {}
+func (UnimplementedEdgeServiceServer) testEmbeddedByValue() {}
 
-// UnsafeEdgeEngineServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to EdgeEngineServiceServer will
+// UnsafeEdgeServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to EdgeServiceServer will
 // result in compilation errors.
-type UnsafeEdgeEngineServiceServer interface {
-	mustEmbedUnimplementedEdgeEngineServiceServer()
+type UnsafeEdgeServiceServer interface {
+	mustEmbedUnimplementedEdgeServiceServer()
 }
 
-func RegisterEdgeEngineServiceServer(s grpc.ServiceRegistrar, srv EdgeEngineServiceServer) {
-	// If the following call panics, it indicates UnimplementedEdgeEngineServiceServer was
+func RegisterEdgeServiceServer(s grpc.ServiceRegistrar, srv EdgeServiceServer) {
+	// If the following call panics, it indicates UnimplementedEdgeServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&EdgeEngineService_ServiceDesc, srv)
+	s.RegisterService(&EdgeService_ServiceDesc, srv)
 }
 
-func _EdgeEngineService_EvaluateIngress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _EdgeService_EvaluateIngress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EvaluateIngressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EdgeEngineServiceServer).EvaluateIngress(ctx, in)
+		return srv.(EdgeServiceServer).EvaluateIngress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EdgeEngineService_EvaluateIngress_FullMethodName,
+		FullMethod: EdgeService_EvaluateIngress_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EdgeEngineServiceServer).EvaluateIngress(ctx, req.(*EvaluateIngressRequest))
+		return srv.(EdgeServiceServer).EvaluateIngress(ctx, req.(*EvaluateIngressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// EdgeEngineService_ServiceDesc is the grpc.ServiceDesc for EdgeEngineService service.
+// EdgeService_ServiceDesc is the grpc.ServiceDesc for EdgeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var EdgeEngineService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "sentinez.dmz.edge.v1.EdgeEngineService",
-	HandlerType: (*EdgeEngineServiceServer)(nil),
+var EdgeService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "sentinez.dmz.edge.v1.EdgeService",
+	HandlerType: (*EdgeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "EvaluateIngress",
-			Handler:    _EdgeEngineService_EvaluateIngress_Handler,
+			Handler:    _EdgeService_EvaluateIngress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

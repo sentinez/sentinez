@@ -26,7 +26,7 @@ func NewStandardRouter() corechains.ChainNode {
 	return &StandardRouter{
 		Node:         corechains.NewNode(),
 		router:       routes.GetRouter(),
-		reverseProxy: reverseproxy.GetEngine(),
+		reverseProxy: reverseproxy.Get(),
 	}
 }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package engine
+package edgeapi
 
 import (
 	"context"
@@ -23,15 +23,15 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
-var _ edgepb.EdgeEngineServiceServer = (*Engine)(nil)
+var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)
 
-func New() *Engine {
-	return &Engine{}
+func New() *EdgeService {
+	return &EdgeService{}
 }
 
-type Engine struct{}
+type EdgeService struct{}
 
-func (e *Engine) EvaluateIngress(ctx context.Context,
+func (e *EdgeService) EvaluateIngress(ctx context.Context,
 	request *edgepb.EvaluateIngressRequest,
 ) (*edgepb.EvaluateIngressResponse, error) {
 

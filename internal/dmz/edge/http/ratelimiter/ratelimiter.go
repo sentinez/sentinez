@@ -32,7 +32,7 @@ type Limiter struct {
 }
 
 func (l *Limiter) Handle(ctx corehttp.Context) error {
-	limiter := ratelimiter.GetEngine().LoadContext(ctx)
+	limiter := ratelimiter.Get().LoadContext(ctx)
 
 	if !limiter.Allow(string(ctx.RequestIP())) {
 		totalCount := limiter.Count(string(ctx.RequestIP())) + limiter.Limit()

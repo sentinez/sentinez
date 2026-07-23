@@ -41,7 +41,7 @@ func New() *RuleCache {
 	return ruleInst
 }
 
-func GetEngine() *RuleCache {
+func Get() *RuleCache {
 	return ruleInst
 }
 

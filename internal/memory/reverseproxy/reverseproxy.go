@@ -37,7 +37,7 @@ func New() *ReverseProxy {
 	return reverseProxyInst
 }
 
-func GetEngine() *ReverseProxy {
+func Get() *ReverseProxy {
 	return reverseProxyInst
 }
 

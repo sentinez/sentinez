@@ -47,7 +47,7 @@ type RuleBased struct {
 func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
-	rule := ruleengine.GetEngine().LoadContext(ctx)
+	rule := ruleengine.Get().LoadContext(ctx)
 	if rule == nil {
 		return r.HandleNext(ctx)
 	}

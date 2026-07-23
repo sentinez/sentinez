@@ -53,7 +53,7 @@ type WAF struct {
 func (w *WAF) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit WAF")
 
-	waf := wafengine.GetEngine().LoadContext(ctx)
+	waf := wafengine.Get().LoadContext(ctx)
 	if waf == nil {
 		return w.HandleNext(ctx)
 	}

@@ -260,8 +260,8 @@ const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults\"*\n" +
 	"\aContext\x12\x1f\n" +
 	"\vserver_name\x18\x01 \x01(\tR\n" +
-	"serverName2\x83\x01\n" +
-	"\x11EdgeEngineService\x12n\n" +
+	"serverName2}\n" +
+	"\vEdgeService\x12n\n" +
 	"\x0fEvaluateIngress\x12,.sentinez.dmz.edge.v1.EvaluateIngressRequest\x1a-.sentinez.dmz.edge.v1.EvaluateIngressResponseBs\x8a\xb2\x19*\n" +
 	"\x10SENTINEZ // EDGE\x10\x02\x1a\x14sentinez.dmz.edge.v1ZCgithub.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepbb\x06proto3"
 
@@ -290,8 +290,8 @@ var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
 	4, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.network.http.v1.Request
 	5, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.secure.rule.v1.Action
 	1, // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
-	0, // 3: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
-	2, // 4: sentinez.dmz.edge.v1.EdgeEngineService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse
+	0, // 3: sentinez.dmz.edge.v1.EdgeService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
+	2, // 4: sentinez.dmz.edge.v1.EdgeService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
