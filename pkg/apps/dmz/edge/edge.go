@@ -23,7 +23,8 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/security"
+	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
+	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -87,6 +88,7 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
+	_ = cluster.Shutdown()
 
 	return s.core.Shutdown(ctx)
 }
@@ -99,13 +101,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // This method should always be invoked through the `runner` lifecycle manager.
 //
-// Parameters:
-//   - ctx: The lifecycle context provided by the runner.
-//   - conf: application configuration
-//
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
+	_ = cluster.Start()
+
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
@@ -120,7 +120,8 @@ func (s *Server) Start() error {
 	return s.core.ListenAndServe(addr,
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
-			GetConfigForClient: security.TLSConfig,
+			GetConfigForClient: transport.TLSConfig,
 		}),
+		corehttp.WithOnAccept(transport.OnAccept),
 	)
 }

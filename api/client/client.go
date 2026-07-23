@@ -56,18 +56,18 @@ func NewLocalIAM(hdl iampb.IdentityAccessManagementServiceServer,
 	return iampb.NewIdentityAccessManagementServiceClient(conn), nil
 }
 
-func NewLocalEdgeEngine(hdl edgepb.EdgeEngineServiceServer,
-) (edgepb.EdgeEngineServiceClient, error) {
+func NewLocalEdgeEngine(hdl edgepb.EdgeServiceServer,
+) (edgepb.EdgeServiceClient, error) {
 	bufLis := local.RegisterServiceServer(
 		edgepb.GetMetaEdgeServiceKey(), hdl,
-		edgepb.RegisterEdgeEngineServiceServer)
+		edgepb.RegisterEdgeServiceServer)
 
 	conn, err := connection.BufConn(bufLis)
 	if err != nil {
 		return nil, err
 	}
 
-	return edgepb.NewEdgeEngineServiceClient(conn), nil
+	return edgepb.NewEdgeServiceClient(conn), nil
 }
 
 func NewLocalGreeter(hdl greeterpb.GreeterServiceServer,

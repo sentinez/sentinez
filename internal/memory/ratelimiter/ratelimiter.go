@@ -39,7 +39,7 @@ func New() *Limiter {
 	return limiterInst
 }
 
-func GetEngine() *Limiter {
+func Get() *Limiter {
 	return limiterInst
 }
 

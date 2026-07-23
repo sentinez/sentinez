@@ -26,7 +26,7 @@ import (
 
 func main() {
 	app := runner.NewApp[realtime.Realtime](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*realtime.Realtime]) {
+	app.Main(func(c *runner.Context[realtime.Realtime]) {
 		c.Inject(config.Config, wscore.NewServer, realtime.New)
 
 		c.OnStart(func(_ context.Context, server *realtime.Realtime) error {

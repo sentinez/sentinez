@@ -17,11 +17,13 @@ package stdhttpx
 import (
 	"context"
 	"crypto/tls"
+	"net"
 	"net/http"
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/pkg/network"
 )
 
 var _ corehttp.Server = (*Server)(nil)
@@ -37,6 +39,7 @@ type Server struct {
 	mdw  []func(corehttp.RequestHandler) corehttp.RequestHandler
 	core *http.Server
 	mux  *http.ServeMux
+	opt  corehttp.Option
 }
 
 func (s *Server) Use(
@@ -55,25 +58,63 @@ func (s *Server) TLS(tlsFn func(*tls.ClientHelloInfo) (*tls.Config, error)) {
 
 func (s *Server) ListenAndServe(
 	addr string, opts ...corehttp.ServerOption) error {
-
-	var option corehttp.Option
 	for _, opt := range opts {
-		opt(&option)
+		opt(&s.opt)
 	}
 
 	s.core.Addr = addr
 	s.core.Handler = s.mux
 
-	if option.CertFile != "" && option.CertKeyFile != "" {
+	s.onAcceptConn(s.opt.OnAccept)
+
+	if s.opt.CertFile != "" && s.opt.CertKeyFile != "" {
 		s.core.IdleTimeout = 120 * time.Second
 		s.core.ReadTimeout = 15 * time.Second
 		s.core.WriteTimeout = 15 * time.Second
-		s.core.TLSConfig = option.TLSConfig
+		s.core.TLSConfig = s.opt.TLSConfig
 
-		return s.core.ListenAndServeTLS(option.CertFile, option.CertKeyFile)
+		return s.listenAndServeTLS(s.opt.CertFile, s.opt.CertKeyFile)
 	}
 
-	return s.core.ListenAndServe()
+	return s.listenAndServe()
+}
+
+func (s *Server) onAcceptConn(func(conn net.Conn) context.Context) {
+	if s.opt.OnAccept == nil {
+		return
+	}
+
+	s.core.ConnContext = func(_ context.Context, c net.Conn) context.Context {
+		return s.opt.OnAccept(c)
+	}
+}
+
+func (s *Server) listenAndServe() error {
+	if s.core.Addr == "" {
+		s.core.Addr = ":http"
+	}
+
+	l, err := network.Listen(s.core.Addr, network.WithTCP())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = l.Close() }()
+
+	return s.core.Serve(l)
+}
+
+func (s *Server) listenAndServeTLS(certFile, keyFile string) error {
+	if s.core.Addr == "" {
+		s.core.Addr = ":https"
+	}
+
+	l, err := network.Listen(s.core.Addr, network.WithTCP())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = l.Close() }()
+
+	return s.core.ServeTLS(l, certFile, keyFile)
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

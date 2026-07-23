@@ -40,8 +40,8 @@ type Context[T any] struct {
 	opts []fx.Option
 }
 
-func (c *Context[T]) OnStart(start func(context.Context, T) error) {
-	function := func(lc fx.Lifecycle, server T) {
+func (c *Context[T]) OnStart(start func(context.Context, *T) error) {
+	function := func(lc fx.Lifecycle, server *T) {
 		lc.Append(fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
@@ -61,8 +61,8 @@ func (c *Context[T]) OnStart(start func(context.Context, T) error) {
 func (c *Context[T]) OnStop(stop any) {
 
 	switch fn := stop.(type) {
-	case func(context.Context, T) error:
-		function := func(lc fx.Lifecycle, server T) {
+	case func(context.Context, *T) error:
+		function := func(lc fx.Lifecycle, server *T) {
 			lc.Append(fx.Hook{
 				OnStop: func(ctx context.Context) error {
 					return fn(ctx, server)
@@ -71,7 +71,7 @@ func (c *Context[T]) OnStop(stop any) {
 		}
 		c.Invoke(function)
 	case func(context.Context) error:
-		function := func(lc fx.Lifecycle, _ T) {
+		function := func(lc fx.Lifecycle, _ *T) {
 			lc.Append(fx.Hook{
 				OnStop: fn,
 			})

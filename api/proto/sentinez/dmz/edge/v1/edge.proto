@@ -27,7 +27,7 @@ option (sentinez.types.v1.x_meta) = {
   service_key: "sentinez.dmz.edge.v1"
 };
 
-service EdgeEngineService {
+service EdgeService {
   rpc EvaluateIngress(EvaluateIngressRequest) returns (EvaluateIngressResponse);
 }
 

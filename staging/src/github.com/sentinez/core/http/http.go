@@ -17,6 +17,7 @@ package corehttp
 import (
 	"context"
 	"crypto/tls"
+	"net"
 )
 
 type Option struct {
@@ -24,6 +25,7 @@ type Option struct {
 	CertKeyFile string
 	TLSConfig   *tls.Config
 	ServerName  []byte
+	OnAccept    func(conn net.Conn) context.Context
 }
 
 type ServerOption func(opt *Option)
@@ -56,6 +58,16 @@ func WithServerName(name []byte) ServerOption {
 		}
 
 		opt.ServerName = name
+	}
+}
+
+func WithOnAccept(fn func(conn net.Conn) context.Context) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.OnAccept = fn
 	}
 }
 

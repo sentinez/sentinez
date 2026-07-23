@@ -53,7 +53,7 @@ func init() {
 // and registers their start/stop hooks with the runner framework.
 func main() {
 	app := runner.NewApp[edge.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[*edge.Server]) {
+	app.Main(func(c *runner.Context[edge.Server]) {
 		c.Inject(
 			config.Config,
 			edgeyaml.LoadSetting,
@@ -63,7 +63,6 @@ func main() {
 
 		c.OnStart(func(_ context.Context, server *edge.Server) error {
 			server.SetReverseProxyConstructor(stdproxy.NewReverseProxy)
-
 			return server.Start()
 		})
 
