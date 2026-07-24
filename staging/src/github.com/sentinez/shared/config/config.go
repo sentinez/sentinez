@@ -48,16 +48,14 @@ func LoadEnv(envFile string) *settingpb.EnvConfig {
 
 	once.Do(func() {
 		envConf = &settingpb.EnvConfig{
-			TimescaleUri:   os.Getenv("SENZ_TIMESCALE_URI"),
-			PostgresUri:    os.Getenv("SENZ_POSTGRES_URI"),
-			ClickhouseUri:  os.Getenv("SENZ_CLICKHOUSE_URI"),
-			ConsulUri:      os.Getenv("SENZ_CONSUL_URI"),
-			SecretKey:      os.Getenv("SENZ_SECRET_KEY"),
-			GatewayAddress: os.Getenv("SENZ_GATEWAY_ADDRESS"),
-			Hostname:       os.Getenv("SENZ_HOSTNAME"),
-			HttpAddress:    os.Getenv("SENZ_HTTP_ADDRESS"),
-			ClientOrigin:   os.Getenv("SENZ_CLIENT_ORIGIN"),
-			GrpcAddress:    os.Getenv("SENZ_GRPC_ADDRESS"),
+			TimescaleUri:  os.Getenv("SENZ_TIMESCALE_URI"),
+			PostgresUri:   os.Getenv("SENZ_POSTGRES_URI"),
+			ClickhouseUri: os.Getenv("SENZ_CLICKHOUSE_URI"),
+			ConsulUri:     os.Getenv("SENZ_CONSUL_URI"),
+			SecretKey:     os.Getenv("SENZ_SECRET_KEY"),
+			Hostname:      os.Getenv("SENZ_HOSTNAME"),
+			Address:       os.Getenv("SENZ_ADDRESS"),
+			ClientOrigin:  os.Getenv("SENZ_CLIENT_ORIGIN"),
 		}
 	})
 

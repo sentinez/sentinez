@@ -15,9 +15,13 @@
 package cluster
 
 import (
+	"fmt"
+	"net"
+	"strconv"
 	"sync"
 
 	"github.com/hashicorp/memberlist"
+	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -26,13 +30,20 @@ var (
 	once    sync.Once
 )
 
-func Start() *Cluster {
+func Start(meta *typepb.XMeta, address string) *Cluster {
 	once.Do(func() {
-		conf := memberlist.DefaultLANConfig()
+		host, port, err := net.SplitHostPort(address)
+		if err != nil {
+			zlog.Errorf("cluster: address invalid %s", address)
+		}
+		bindPort, _ := strconv.Atoi(port)
 
-		conf.Name = "node-1"
-		conf.BindAddr = "0.0.0.0"
-		conf.BindPort = 7946
+		name := fmt.Sprintf("%s-%s", meta.GetServiceKey(), address)
+
+		conf := memberlist.DefaultLANConfig()
+		conf.Name = name
+		conf.BindAddr = host
+		conf.BindPort = bindPort
 
 		list, err := memberlist.Create(conf)
 		if err != nil {
@@ -40,7 +51,12 @@ func Start() *Cluster {
 			return
 		}
 
-		cluster = &Cluster{memlist: list}
+		cluster = &Cluster{
+			memlist: list,
+			Name:    name,
+			Addr:    host,
+			Port:    bindPort,
+		}
 	})
 
 	return cluster
@@ -52,6 +68,9 @@ func Shutdown() error {
 
 type Cluster struct {
 	memlist *memberlist.Memberlist
+	Name    string
+	Addr    string
+	Port    int
 }
 
 func (c *Cluster) Shutdown() error {

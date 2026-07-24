@@ -30,7 +30,7 @@ import (
 
 // nolint:funlen
 func Register(name string, conf *settingpb.EnvConfig) {
-	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
+	addr, port, err := net.SplitHostPort(conf.GetAddress())
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
 		return

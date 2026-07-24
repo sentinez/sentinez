@@ -27,13 +27,10 @@ message EnvConfig {
   string hostname = 1;
 
   // http address, api, application ...
-  string http_address = 2;
+  string address = 2;
 
   // secret key base64 encoded
   string secret_key = 3;
-
-  // address of api gateway
-  string gateway_address = 4;
 
   // origin of client, used to gen passkey
   string client_origin = 5;
@@ -42,9 +39,6 @@ message EnvConfig {
   string postgres_uri = 11;
   string clickhouse_uri = 12;
   string consul_uri = 13;
-
-  // The address where the gRPC service will listen when it starts.
-  string grpc_address = 20;
 }
 
 message Config {

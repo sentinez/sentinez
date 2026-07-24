@@ -42,19 +42,15 @@ type EnvConfig struct {
 	// eg s6z.io.vn
 	Hostname string `protobuf:"bytes,1,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	// http address, api, application ...
-	HttpAddress string `protobuf:"bytes,2,opt,name=http_address,json=httpAddress,proto3" json:"http_address,omitempty"`
+	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// secret key base64 encoded
 	SecretKey string `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
-	// address of api gateway
-	GatewayAddress string `protobuf:"bytes,4,opt,name=gateway_address,json=gatewayAddress,proto3" json:"gateway_address,omitempty"`
 	// origin of client, used to gen passkey
 	ClientOrigin  string `protobuf:"bytes,5,opt,name=client_origin,json=clientOrigin,proto3" json:"client_origin,omitempty"`
 	TimescaleUri  string `protobuf:"bytes,10,opt,name=timescale_uri,json=timescaleUri,proto3" json:"timescale_uri,omitempty"`
 	PostgresUri   string `protobuf:"bytes,11,opt,name=postgres_uri,json=postgresUri,proto3" json:"postgres_uri,omitempty"`
 	ClickhouseUri string `protobuf:"bytes,12,opt,name=clickhouse_uri,json=clickhouseUri,proto3" json:"clickhouse_uri,omitempty"`
 	ConsulUri     string `protobuf:"bytes,13,opt,name=consul_uri,json=consulUri,proto3" json:"consul_uri,omitempty"`
-	// The address where the gRPC service will listen when it starts.
-	GrpcAddress   string `protobuf:"bytes,20,opt,name=grpc_address,json=grpcAddress,proto3" json:"grpc_address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,9 +92,9 @@ func (x *EnvConfig) GetHostname() string {
 	return ""
 }
 
-func (x *EnvConfig) GetHttpAddress() string {
+func (x *EnvConfig) GetAddress() string {
 	if x != nil {
-		return x.HttpAddress
+		return x.Address
 	}
 	return ""
 }
@@ -106,13 +102,6 @@ func (x *EnvConfig) GetHttpAddress() string {
 func (x *EnvConfig) GetSecretKey() string {
 	if x != nil {
 		return x.SecretKey
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetGatewayAddress() string {
-	if x != nil {
-		return x.GatewayAddress
 	}
 	return ""
 }
@@ -148,13 +137,6 @@ func (x *EnvConfig) GetClickhouseUri() string {
 func (x *EnvConfig) GetConsulUri() string {
 	if x != nil {
 		return x.ConsulUri
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetGrpcAddress() string {
-	if x != nil {
-		return x.GrpcAddress
 	}
 	return ""
 }
@@ -223,21 +205,19 @@ var File_sentinez_setting_v1_config_proto protoreflect.FileDescriptor
 
 const file_sentinez_setting_v1_config_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/setting/v1/config.proto\x12\x13sentinez.setting.v1\x1a\x1fsentinez/setting/v1/flags.proto\x1a\x1fsentinez/types/v1/options.proto\"\xe8\x02\n" +
+	" sentinez/setting/v1/config.proto\x12\x13sentinez.setting.v1\x1a\x1fsentinez/setting/v1/flags.proto\x1a\x1fsentinez/types/v1/options.proto\"\x93\x02\n" +
 	"\tEnvConfig\x12\x1a\n" +
-	"\bhostname\x18\x01 \x01(\tR\bhostname\x12!\n" +
-	"\fhttp_address\x18\x02 \x01(\tR\vhttpAddress\x12\x1d\n" +
+	"\bhostname\x18\x01 \x01(\tR\bhostname\x12\x18\n" +
+	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x1d\n" +
 	"\n" +
-	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12'\n" +
-	"\x0fgateway_address\x18\x04 \x01(\tR\x0egatewayAddress\x12#\n" +
+	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12#\n" +
 	"\rclient_origin\x18\x05 \x01(\tR\fclientOrigin\x12#\n" +
 	"\rtimescale_uri\x18\n" +
 	" \x01(\tR\ftimescaleUri\x12!\n" +
 	"\fpostgres_uri\x18\v \x01(\tR\vpostgresUri\x12%\n" +
 	"\x0eclickhouse_uri\x18\f \x01(\tR\rclickhouseUri\x12\x1d\n" +
 	"\n" +
-	"consul_uri\x18\r \x01(\tR\tconsulUri\x12!\n" +
-	"\fgrpc_address\x18\x14 \x01(\tR\vgrpcAddress\"\x97\x01\n" +
+	"consul_uri\x18\r \x01(\tR\tconsulUri\"\x97\x01\n" +
 	"\x06Config\x12,\n" +
 	"\x04meta\x18\x01 \x01(\v2\x18.sentinez.types.v1.XMetaR\x04meta\x120\n" +
 	"\x03env\x18\x02 \x01(\v2\x1e.sentinez.setting.v1.EnvConfigR\x03env\x12-\n" +

@@ -42,7 +42,7 @@ func (r *Realtime) router() {
 func (r *Realtime) Start() error {
 	// register the route with websocket handler
 	r.router()
-	return r.core.ListenAndServe(r.conf.GetEnv().GetHttpAddress())
+	return r.core.ListenAndServe(r.conf.GetEnv().GetAddress())
 }
 
 func (r *Realtime) Shutdown(_ context.Context) error {

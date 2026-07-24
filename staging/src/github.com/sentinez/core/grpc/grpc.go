@@ -55,7 +55,7 @@ func (s *Server) AsServer() *grpc.Server {
 // return error if the http server fails to start.
 func (s *Server) Serve(conf *settingpb.Config) error {
 
-	addr := conf.GetEnv().GetGrpcAddress()
+	addr := conf.GetEnv().GetAddress()
 	listener, err := grpcgateway.ListenNetworkTCP(addr)
 	if err != nil {
 		return err

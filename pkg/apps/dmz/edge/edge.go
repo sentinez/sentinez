@@ -104,7 +104,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	_ = cluster.Start()
+	_ = cluster.Start(edgepb.GetMetaEdge(), "0.0.0.0:7946")
 
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
@@ -112,7 +112,7 @@ func (s *Server) Start() error {
 	}
 
 	var (
-		addr     = s.conf.GetEnv().GetHttpAddress()
+		addr     = s.conf.GetEnv().GetAddress()
 		certFile = s.conf.GetFlag().GetCertFile()
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
