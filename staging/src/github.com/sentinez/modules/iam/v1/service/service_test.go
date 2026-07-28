@@ -72,11 +72,11 @@ func TestLogin(t *testing.T) {
 
 	tx, _ := pgxMock.Begin(context.Background())
 	txss := postgres.NewTXMock(tx)
-	conf := &settingpb.Config{Env: &settingpb.EnvConfig{
-		SecretKey: secBase64,
+	conf := &settingpb.Config{Env: map[string]string{
+		settingpb.Senz_SENZ_SECRET_KEY.String(): secBase64,
 	}}
 
-	config.SetEnv(conf.GetEnv())
+	config.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
 
 	svc := New(conf, txss, nil, userRepo, accountRepo)
 

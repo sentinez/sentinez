@@ -68,7 +68,7 @@ func RegisterServiceFromEndpoint(
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: appConf.GetEnv().GetConsulUri(),
+		ConsulURL: appConf.Get(settingpb.Senz_SENZ_CONSUL_URI),
 	})
 
 	cron.Start(ctx, time.Second*10, func() {

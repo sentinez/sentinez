@@ -25,13 +25,14 @@ import (
 )
 
 // NewPgxPool create new pool connection for multiple query
-func NewPgxPool(conf *settingpb.EnvConfig) (*pgxpool.Pool, error) {
-	return pgxpool.New(context.Background(), conf.GetPostgresUri())
+func NewPgxPool(conf *settingpb.Config) (*pgxpool.Pool, error) {
+	return pgxpool.New(
+		context.Background(), conf.Get(settingpb.Senz_SENZ_POSTGRES_URI))
 }
 
 // NewPgxConn create new connection for single query
 func NewPgxConn(
-	ctx context.Context, conf *settingpb.EnvConfig) (*pgx.Conn, error) {
+	ctx context.Context, conf *settingpb.Config) (*pgx.Conn, error) {
 
 	_ = conf
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",

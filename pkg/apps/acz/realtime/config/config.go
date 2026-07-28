@@ -32,11 +32,14 @@ var (
 func Config() *settingpb.Config {
 	once.Do(func() {
 		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
 		appConf = &settingpb.Config{
 			Meta: realtimepb.GetMetaRealtime(),
-			Env:  envConf,
 			Flag: flag,
+			Env: config.LoadEnv(flag.GetEnvFile(),
+				settingpb.Senz_SENZ_HOSTNAME,
+				settingpb.Senz_SENZ_ADDRESS,
+				settingpb.Senz_SENZ_SECRET_KEY,
+			),
 		}
 	})
 

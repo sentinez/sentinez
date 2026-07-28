@@ -17,11 +17,10 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/shared/config"
-
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	edgeflags "github.com/sentinez/sentinez/pkg/apps/dmz/edge/flags"
+	"github.com/sentinez/shared/config"
 )
 
 var (
@@ -32,11 +31,16 @@ var (
 func Config() *settingpb.Config {
 	once.Do(func() {
 		flag := edgeflags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
+
 		appConf = &settingpb.Config{
 			Meta: edgepb.GetMetaEdge(),
-			Env:  envConf,
 			Flag: flag,
+			Env: config.LoadEnv(flag.GetEnvFile(),
+				settingpb.Senz_SENZ_HOSTNAME,
+				settingpb.Senz_SENZ_ADDRESS,
+				settingpb.Senz_SENZ_SECRET_KEY,
+				settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
+			),
 		}
 	})
 

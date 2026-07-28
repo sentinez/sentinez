@@ -36,123 +36,88 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type EnvConfig struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// hostname of service.
-	// eg s6z.io.vn
-	Hostname string `protobuf:"bytes,1,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	// http address, api, application ...
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
-	// secret key base64 encoded
-	SecretKey string `protobuf:"bytes,3,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
-	// origin of client, used to gen passkey
-	ClientOrigin  string `protobuf:"bytes,5,opt,name=client_origin,json=clientOrigin,proto3" json:"client_origin,omitempty"`
-	TimescaleUri  string `protobuf:"bytes,10,opt,name=timescale_uri,json=timescaleUri,proto3" json:"timescale_uri,omitempty"`
-	PostgresUri   string `protobuf:"bytes,11,opt,name=postgres_uri,json=postgresUri,proto3" json:"postgres_uri,omitempty"`
-	ClickhouseUri string `protobuf:"bytes,12,opt,name=clickhouse_uri,json=clickhouseUri,proto3" json:"clickhouse_uri,omitempty"`
-	ConsulUri     string `protobuf:"bytes,13,opt,name=consul_uri,json=consulUri,proto3" json:"consul_uri,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
+type Senz int32
 
-func (x *EnvConfig) Reset() {
-	*x = EnvConfig{}
-	mi := &file_sentinez_setting_v1_config_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
+const (
+	Senz_SENZ_UNSPECIFIED        Senz = 0
+	Senz_SENZ_HOSTNAME           Senz = 1 // hostname of service. eg s6z.io.vn
+	Senz_SENZ_ADDRESS            Senz = 2 // http address, api, application ...
+	Senz_SENZ_SECRET_KEY         Senz = 3 // secret key base64 encoded
+	Senz_SENZ_CLIENT_ORIGIN      Senz = 4 // origin of client, used to gen passkey
+	Senz_SENZ_TIMESCALE_URI      Senz = 5
+	Senz_SENZ_POSTGRES_URI       Senz = 6
+	Senz_SENZ_CLICKHOUSE_URI     Senz = 7
+	Senz_SENZ_CONSUL_URI         Senz = 8
+	Senz_SENZ_MEMBERSHIP_ADDRESS Senz = 9
+)
 
-func (x *EnvConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EnvConfig) ProtoMessage() {}
-
-func (x *EnvConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_setting_v1_config_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+// Enum value maps for Senz.
+var (
+	Senz_name = map[int32]string{
+		0: "SENZ_UNSPECIFIED",
+		1: "SENZ_HOSTNAME",
+		2: "SENZ_ADDRESS",
+		3: "SENZ_SECRET_KEY",
+		4: "SENZ_CLIENT_ORIGIN",
+		5: "SENZ_TIMESCALE_URI",
+		6: "SENZ_POSTGRES_URI",
+		7: "SENZ_CLICKHOUSE_URI",
+		8: "SENZ_CONSUL_URI",
+		9: "SENZ_MEMBERSHIP_ADDRESS",
 	}
-	return mi.MessageOf(x)
+	Senz_value = map[string]int32{
+		"SENZ_UNSPECIFIED":        0,
+		"SENZ_HOSTNAME":           1,
+		"SENZ_ADDRESS":            2,
+		"SENZ_SECRET_KEY":         3,
+		"SENZ_CLIENT_ORIGIN":      4,
+		"SENZ_TIMESCALE_URI":      5,
+		"SENZ_POSTGRES_URI":       6,
+		"SENZ_CLICKHOUSE_URI":     7,
+		"SENZ_CONSUL_URI":         8,
+		"SENZ_MEMBERSHIP_ADDRESS": 9,
+	}
+)
+
+func (x Senz) Enum() *Senz {
+	p := new(Senz)
+	*p = x
+	return p
 }
 
-// Deprecated: Use EnvConfig.ProtoReflect.Descriptor instead.
-func (*EnvConfig) Descriptor() ([]byte, []int) {
+func (x Senz) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Senz) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_setting_v1_config_proto_enumTypes[0].Descriptor()
+}
+
+func (Senz) Type() protoreflect.EnumType {
+	return &file_sentinez_setting_v1_config_proto_enumTypes[0]
+}
+
+func (x Senz) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Senz.Descriptor instead.
+func (Senz) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_setting_v1_config_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *EnvConfig) GetHostname() string {
-	if x != nil {
-		return x.Hostname
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetAddress() string {
-	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetSecretKey() string {
-	if x != nil {
-		return x.SecretKey
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetClientOrigin() string {
-	if x != nil {
-		return x.ClientOrigin
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetTimescaleUri() string {
-	if x != nil {
-		return x.TimescaleUri
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetPostgresUri() string {
-	if x != nil {
-		return x.PostgresUri
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetClickhouseUri() string {
-	if x != nil {
-		return x.ClickhouseUri
-	}
-	return ""
-}
-
-func (x *EnvConfig) GetConsulUri() string {
-	if x != nil {
-		return x.ConsulUri
-	}
-	return ""
 }
 
 type Config struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Meta          *v1.XMeta              `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`
-	Env           *EnvConfig             `protobuf:"bytes,2,opt,name=env,proto3" json:"env,omitempty"`
-	Flag          *Flag                  `protobuf:"bytes,3,opt,name=flag,proto3" json:"flag,omitempty"`
+	Flag          *Flag                  `protobuf:"bytes,2,opt,name=flag,proto3" json:"flag,omitempty"`
+	Env           map[string]string      `protobuf:"bytes,3,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Config) Reset() {
 	*x = Config{}
-	mi := &file_sentinez_setting_v1_config_proto_msgTypes[1]
+	mi := &file_sentinez_setting_v1_config_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -164,7 +129,7 @@ func (x *Config) String() string {
 func (*Config) ProtoMessage() {}
 
 func (x *Config) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_setting_v1_config_proto_msgTypes[1]
+	mi := &file_sentinez_setting_v1_config_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -177,19 +142,12 @@ func (x *Config) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Config.ProtoReflect.Descriptor instead.
 func (*Config) Descriptor() ([]byte, []int) {
-	return file_sentinez_setting_v1_config_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_setting_v1_config_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Config) GetMeta() *v1.XMeta {
 	if x != nil {
 		return x.Meta
-	}
-	return nil
-}
-
-func (x *Config) GetEnv() *EnvConfig {
-	if x != nil {
-		return x.Env
 	}
 	return nil
 }
@@ -201,27 +159,36 @@ func (x *Config) GetFlag() *Flag {
 	return nil
 }
 
+func (x *Config) GetEnv() map[string]string {
+	if x != nil {
+		return x.Env
+	}
+	return nil
+}
+
 var File_sentinez_setting_v1_config_proto protoreflect.FileDescriptor
 
 const file_sentinez_setting_v1_config_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/setting/v1/config.proto\x12\x13sentinez.setting.v1\x1a\x1fsentinez/setting/v1/flags.proto\x1a\x1fsentinez/types/v1/options.proto\"\x93\x02\n" +
-	"\tEnvConfig\x12\x1a\n" +
-	"\bhostname\x18\x01 \x01(\tR\bhostname\x12\x18\n" +
-	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x1d\n" +
-	"\n" +
-	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12#\n" +
-	"\rclient_origin\x18\x05 \x01(\tR\fclientOrigin\x12#\n" +
-	"\rtimescale_uri\x18\n" +
-	" \x01(\tR\ftimescaleUri\x12!\n" +
-	"\fpostgres_uri\x18\v \x01(\tR\vpostgresUri\x12%\n" +
-	"\x0eclickhouse_uri\x18\f \x01(\tR\rclickhouseUri\x12\x1d\n" +
-	"\n" +
-	"consul_uri\x18\r \x01(\tR\tconsulUri\"\x97\x01\n" +
+	" sentinez/setting/v1/config.proto\x12\x13sentinez.setting.v1\x1a\x1fsentinez/setting/v1/flags.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd5\x01\n" +
 	"\x06Config\x12,\n" +
-	"\x04meta\x18\x01 \x01(\v2\x18.sentinez.types.v1.XMetaR\x04meta\x120\n" +
-	"\x03env\x18\x02 \x01(\v2\x1e.sentinez.setting.v1.EnvConfigR\x03env\x12-\n" +
-	"\x04flag\x18\x03 \x01(\v2\x19.sentinez.setting.v1.FlagR\x04flagBGZEgithub.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1;settingpbb\x06proto3"
+	"\x04meta\x18\x01 \x01(\v2\x18.sentinez.types.v1.XMetaR\x04meta\x12-\n" +
+	"\x04flag\x18\x02 \x01(\v2\x19.sentinez.setting.v1.FlagR\x04flag\x126\n" +
+	"\x03env\x18\x03 \x03(\v2$.sentinez.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xe8\x01\n" +
+	"\x04Senz\x12\x14\n" +
+	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
+	"\fSENZ_ADDRESS\x10\x02\x12\x13\n" +
+	"\x0fSENZ_SECRET_KEY\x10\x03\x12\x16\n" +
+	"\x12SENZ_CLIENT_ORIGIN\x10\x04\x12\x16\n" +
+	"\x12SENZ_TIMESCALE_URI\x10\x05\x12\x15\n" +
+	"\x11SENZ_POSTGRES_URI\x10\x06\x12\x17\n" +
+	"\x13SENZ_CLICKHOUSE_URI\x10\a\x12\x13\n" +
+	"\x0fSENZ_CONSUL_URI\x10\b\x12\x1b\n" +
+	"\x17SENZ_MEMBERSHIP_ADDRESS\x10\tBGZEgithub.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_setting_v1_config_proto_rawDescOnce sync.Once
@@ -235,17 +202,19 @@ func file_sentinez_setting_v1_config_proto_rawDescGZIP() []byte {
 	return file_sentinez_setting_v1_config_proto_rawDescData
 }
 
+var file_sentinez_setting_v1_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_sentinez_setting_v1_config_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_setting_v1_config_proto_goTypes = []any{
-	(*EnvConfig)(nil), // 0: sentinez.setting.v1.EnvConfig
-	(*Config)(nil),    // 1: sentinez.setting.v1.Config
-	(*v1.XMeta)(nil),  // 2: sentinez.types.v1.XMeta
-	(*Flag)(nil),      // 3: sentinez.setting.v1.Flag
+	(Senz)(0),        // 0: sentinez.setting.v1.Senz
+	(*Config)(nil),   // 1: sentinez.setting.v1.Config
+	nil,              // 2: sentinez.setting.v1.Config.EnvEntry
+	(*v1.XMeta)(nil), // 3: sentinez.types.v1.XMeta
+	(*Flag)(nil),     // 4: sentinez.setting.v1.Flag
 }
 var file_sentinez_setting_v1_config_proto_depIdxs = []int32{
-	2, // 0: sentinez.setting.v1.Config.meta:type_name -> sentinez.types.v1.XMeta
-	0, // 1: sentinez.setting.v1.Config.env:type_name -> sentinez.setting.v1.EnvConfig
-	3, // 2: sentinez.setting.v1.Config.flag:type_name -> sentinez.setting.v1.Flag
+	3, // 0: sentinez.setting.v1.Config.meta:type_name -> sentinez.types.v1.XMeta
+	4, // 1: sentinez.setting.v1.Config.flag:type_name -> sentinez.setting.v1.Flag
+	2, // 2: sentinez.setting.v1.Config.env:type_name -> sentinez.setting.v1.Config.EnvEntry
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -264,13 +233,14 @@ func file_sentinez_setting_v1_config_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_setting_v1_config_proto_rawDesc), len(file_sentinez_setting_v1_config_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_setting_v1_config_proto_goTypes,
 		DependencyIndexes: file_sentinez_setting_v1_config_proto_depIdxs,
+		EnumInfos:         file_sentinez_setting_v1_config_proto_enumTypes,
 		MessageInfos:      file_sentinez_setting_v1_config_proto_msgTypes,
 	}.Build()
 	File_sentinez_setting_v1_config_proto = out.File

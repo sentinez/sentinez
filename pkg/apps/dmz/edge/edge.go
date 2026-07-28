@@ -23,6 +23,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/zlog"
@@ -42,11 +43,7 @@ type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
 //
 
 // New initializes and returns a new Edge Server instance.
-//
-// The Edge Server is responsible for handling all external HTTP traffic,
-// using the provided `stdhttp.Server` as its underlying HTTP layer,
-// and a given proxy `setting` configuration to determine routing,
-// security, and behavior policies.
+// The Edge Server is responsible for handling all external HTTP traffic
 //
 // Parameters:
 //   - server: The HTTP DMZ server implementation handling request I/O.
@@ -104,7 +101,10 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	_ = cluster.Start(edgepb.GetMetaEdge(), "0.0.0.0:7946")
+	membership := s.conf.GetDefault(
+		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS, defaults.MembershipAddress)
+
+	_ = cluster.Start(edgepb.GetMetaEdge(), membership)
 
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
@@ -112,7 +112,9 @@ func (s *Server) Start() error {
 	}
 
 	var (
-		addr     = s.conf.GetEnv().GetAddress()
+		addr = s.conf.GetDefault(
+			settingpb.Senz_SENZ_ADDRESS, defaults.HTTPSAddress)
+
 		certFile = s.conf.GetFlag().GetCertFile()
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)

@@ -37,9 +37,9 @@ func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 		// Display Name for your site
 		RPDisplayName: core.Name,
 		// Generally the FQDN for your site
-		RPID: config.GetEnv().GetHostname(),
+		RPID: config.Get(settingpb.Senz_SENZ_HOSTNAME),
 		// The origin URLs allowed for WebAuthn
-		RPOrigins: []string{config.GetEnv().GetClientOrigin()},
+		RPOrigins: []string{config.Get(settingpb.Senz_SENZ_CLIENT_ORIGIN)},
 	}
 
 	wauth, err := webauthn.New(wconfig)

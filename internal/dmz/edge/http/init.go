@@ -29,7 +29,7 @@ import (
 
 func Init(appConf *settingpb.Config) corechains.ChainNode {
 	var (
-		hostname = appConf.GetEnv().GetHostname()
+		hostname = appConf.Get(settingpb.Senz_SENZ_HOSTNAME)
 		ll       = zlog.LevelInfo
 		curr     corechains.ChainNode
 		income   corechains.ChainNode

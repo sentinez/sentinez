@@ -12,32 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package settingpb
 
-import (
-	"sync"
+func (x *Config) Get(key Senz) string {
+	if x.GetEnv() == nil {
+		return ""
+	}
 
-	"github.com/sentinez/shared/config"
+	value, ok := x.GetEnv()[key.String()]
+	if !ok {
+		return ""
+	}
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
-	"github.com/sentinez/sentinez/pkg/apps/mesh/greeter/flags"
-)
+	return value
+}
 
-var (
-	once    sync.Once
-	appConf *settingpb.Config
-)
+func (x *Config) GetDefault(key Senz, defaultValue string) string {
+	val := x.Get(key)
 
-func Config() *settingpb.Config {
-	once.Do(func() {
-		flag := flags.Parse()
-		appConf = &settingpb.Config{
-			Meta: greeterpb.GetMetaGreeter(),
-			Flag: flag,
-			Env:  config.LoadEnv(flag.GetEnvFile()),
-		}
-	})
+	if val == "" {
+		return defaultValue
+	}
 
-	return appConf
+	return val
 }

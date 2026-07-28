@@ -39,7 +39,7 @@ var (
 	lock sync.Mutex
 )
 
-func getConnPool(conf *settingpb.EnvConfig) (*pgxpool.Pool, error) {
+func getConnPool(conf *settingpb.Config) (*pgxpool.Pool, error) {
 	if pool == nil {
 		var err error
 		lock.Lock()
@@ -64,7 +64,7 @@ func New[T any](ctx context.Context, conf *settingpb.Config,
 
 	tb.Table = table.NewTable(conf, tb.Table)
 
-	conn, err := getConnPool(conf.GetEnv())
+	conn, err := getConnPool(conf)
 	if err != nil {
 		return nil, err
 	}
