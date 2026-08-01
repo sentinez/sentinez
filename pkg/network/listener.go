@@ -16,6 +16,8 @@ package network
 
 import (
 	"net"
+
+	"github.com/sentinez/shared/zlog"
 )
 
 type Network string
@@ -71,11 +73,15 @@ func (l *Listener) Accept() (net.Conn, error) {
 		return nil, err
 	}
 
+	connWrapper := newConn(conn)
+
 	if l.opt.onAccept != nil {
-		if err := l.opt.onAccept(conn); err != nil {
+		if err := l.opt.onAccept(connWrapper); err != nil {
 			return nil, err
 		}
 	}
 
-	return conn, nil
+	zlog.Debugf("network: new conn: %s", connWrapper.Id)
+
+	return connWrapper, nil
 }

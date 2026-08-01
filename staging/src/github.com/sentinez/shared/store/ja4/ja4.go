@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package memory
+package ja4
 
 import (
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"time"
+
+	"github.com/sentinez/core/storage/cache/mem"
 )
 
-func LoadConfiguration(st *edgepb.Setting, appConf *settingpb.Config) {
-	// save all setting for each tenant
-	LoadSetting(st)
+var (
+	ja4plus = mem.New[string](time.Hour*24, time.Hour*24)
+)
 
-	// routing for each tenant
-	LoadRouter()
+func Set(connId, fingerprint string) {
+	ja4plus.Set(connId, fingerprint)
+}
 
-	// load all reverse proxy for target origin
-	LoadReverseProxy()
+func Get(connId string) string {
+	fp, ok := ja4plus.Get(connId)
+	if !ok {
+		return ""
+	}
 
-	// rule config
-	LoadRuleBased()
+	return fp
+}
 
-	// rate limiter rule config
-	LoadRateLimiter()
-
-	// waf rulesets config
-	LoadWAF(appConf)
+func Delete(connId string) {
+	ja4plus.Del(connId)
 }

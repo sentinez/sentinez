@@ -51,6 +51,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - net
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

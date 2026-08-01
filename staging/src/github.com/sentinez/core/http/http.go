@@ -25,7 +25,8 @@ type Option struct {
 	CertKeyFile string
 	TLSConfig   *tls.Config
 	ServerName  []byte
-	OnAccept    func(conn net.Conn) context.Context
+	OnConnect   func(context.Context, net.Conn) context.Context
+	Listener    net.Listener
 }
 
 type ServerOption func(opt *Option)
@@ -61,13 +62,24 @@ func WithServerName(name []byte) ServerOption {
 	}
 }
 
-func WithOnAccept(fn func(conn net.Conn) context.Context) ServerOption {
+func WithOnConnect(
+	fn func(context.Context, net.Conn) context.Context) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return
 		}
 
-		opt.OnAccept = fn
+		opt.OnConnect = fn
+	}
+}
+
+func WithListener(ln net.Listener) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.Listener = ln
 	}
 }
 

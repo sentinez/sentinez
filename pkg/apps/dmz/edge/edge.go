@@ -18,6 +18,7 @@ package edge
 import (
 	"context"
 	"crypto/tls"
+	"net"
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
@@ -26,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/pkg/cluster"
+	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -71,9 +73,10 @@ func New(conf *settingpb.Config,
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	conf    *settingpb.Config
-	core    corehttp.Server
-	setting *edgepb.Setting
+	conf      *settingpb.Config
+	core      corehttp.Server
+	setting   *edgepb.Setting
+	onConnect func(ctx context.Context, conn net.Conn) context.Context
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -119,11 +122,18 @@ func (s *Server) Start() error {
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
+	l, err := network.Listen(addr, network.WithTCP())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = l.Close() }()
+
 	return s.core.ListenAndServe(addr,
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
 			GetConfigForClient: transport.TLSConfig,
 		}),
-		corehttp.WithOnAccept(transport.OnAccept),
+		corehttp.WithOnConnect(s.onConnect),
+		corehttp.WithListener(l),
 	)
 }

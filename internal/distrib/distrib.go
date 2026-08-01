@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package memory
+package distrib
 
 import (
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/olric-data/olric"
 )
 
-func LoadConfiguration(st *edgepb.Setting, appConf *settingpb.Config) {
-	// save all setting for each tenant
-	LoadSetting(st)
+func NewDistributedMemory() {
 
-	// routing for each tenant
-	LoadRouter()
+}
 
-	// load all reverse proxy for target origin
-	LoadReverseProxy()
-
-	// rule config
-	LoadRuleBased()
-
-	// rate limiter rule config
-	LoadRateLimiter()
-
-	// waf rulesets config
-	LoadWAF(appConf)
+type DistributedMemory struct {
+	db *olric.Olric
 }

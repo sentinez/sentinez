@@ -15,6 +15,9 @@
 package edge
 
 import (
+	"context"
+	"net"
+
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
 	"github.com/sentinez/sentinez/internal/memory"
@@ -32,4 +35,8 @@ func (s *Server) initialize(appConf *settingpb.Config) error {
 
 func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
 	memory.SetReverseProxyConstructor(fn)
+}
+
+func (s *Server) SetOnConnect(fn func(ctx context.Context, conn net.Conn) context.Context) {
+	s.onConnect = fn
 }

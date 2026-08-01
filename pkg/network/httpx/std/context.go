@@ -33,7 +33,10 @@ import (
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/shared/store/ja4"
 	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (
@@ -65,6 +68,12 @@ func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 
 	httpCtx.req = req
 	httpCtx.request.Status = http.StatusOK
+
+	connId, ok := req.Context().Value(network.ConnectionId).(string)
+	if ok {
+		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
+		httpCtx.request.Fingerprint = ja4.Get(connId)
+	}
 
 	httpCtx.resp = resp
 

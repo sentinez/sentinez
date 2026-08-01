@@ -17,11 +17,24 @@ package transport
 import (
 	"crypto/tls"
 
+	"github.com/exaring/ja4plus"
+	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/shared/store/ja4"
 	"github.com/sentinez/shared/zlog"
 )
 
 func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
 	zlog.Infof("SNI: %s", chi.ServerName)
+
+	conn, ok := chi.Conn.(*network.Conn)
+	if ok {
+		fingerprint := ja4plus.JA4(chi)
+		zlog.Debugf("transport: generate fingerprint %s", fingerprint)
+
+		ja4.Set(conn.Id, fingerprint)
+
+		zlog.Infof("transport: found fingerprint %s", fingerprint)
+	}
 
 	return nil, nil
 }
