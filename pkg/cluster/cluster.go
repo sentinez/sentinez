@@ -30,7 +30,7 @@ var (
 	once    sync.Once
 )
 
-func Start(meta *typepb.XMeta, address string) *Cluster {
+func New(meta *typepb.XMeta, address string) *Cluster {
 	once.Do(func() {
 		host, port, err := net.SplitHostPort(address)
 		if err != nil {
@@ -60,10 +60,6 @@ func Start(meta *typepb.XMeta, address string) *Cluster {
 	})
 
 	return cluster
-}
-
-func Shutdown() error {
-	return cluster.Shutdown()
 }
 
 type Cluster struct {

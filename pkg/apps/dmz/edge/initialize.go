@@ -25,16 +25,12 @@ import (
 
 func (s *Server) initialize(appConf *settingpb.Config) error {
 	// init cache repository
-	memory.LoadConfiguration(s.setting, appConf)
+	memory.LoadConfiguration(s.core, s.setting, appConf)
 
 	income := http.Init(appConf)
 	s.core.Handle(income.Handle)
 
 	return nil
-}
-
-func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
-	memory.SetReverseProxyConstructor(fn)
 }
 
 func (s *Server) SetOnConnect(fn func(ctx context.Context, conn net.Conn) context.Context) {

@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package corers
+package sentinez
 
 import (
+	"embed"
 	"io/fs"
 
-	"github.com/corazawaf/coraza/v3"
+	corers "github.com/sentinez/core/rulesets"
 )
 
-func NewWAF(version Version, rootFs fs.FS, flag Flag) (coraza.WAF, error) {
-	rule := GenerateRulesets(version, flag)
+var (
+	//go:embed deploy/ruleroot/v4-16-0/*.data
+	fsWAF4160 embed.FS
 
-	conf := coraza.NewWAFConfig().WithRootFS(rootFs).WithDirectives(rule)
+	//go:embed deploy/ruleroot/v4-17-0/*.data
+	fsWAF4170 embed.FS
+)
 
-	return coraza.NewWAF(conf)
+func WAF4160() (corers.Version, fs.FS) {
+	sub, _ := fs.Sub(fsWAF4160, "deploy/ruleroot/v4-16-0")
+	return corers.WAF4160, sub
+}
+
+func WAF4170() (corers.Version, fs.FS) {
+	sub, _ := fs.Sub(fsWAF4160, "deploy/ruleroot/v4-17-0")
+	return corers.WAF4170, sub
 }

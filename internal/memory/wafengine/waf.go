@@ -20,6 +20,7 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
+	"github.com/sentinez/sentinez"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -52,14 +53,15 @@ type WAFCache struct {
 	space *ssync.Map[string, coraza.WAF]
 }
 
-func (w *WAFCache) Store(rulePath string, namespace string,
-	version corers.Version, flag corers.Flag) error {
+func (w *WAFCache) Store(namespace string, flag corers.Flag) error {
 
 	if w == nil {
 		return nil
 	}
 
-	waf, err := corers.NewWAF(version, rulePath, flag)
+	version, fs := sentinez.WAF4160()
+
+	waf, err := corers.NewWAF(version, fs, flag)
 	if err != nil {
 		return err
 	}
@@ -99,8 +101,7 @@ func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
 	return w.Load(hCtx.GetServerName())
 }
 
-func Store(rulePath string,
-	namespace string, version corers.Version, flag corers.Flag) error {
+func Store(namespace string, flag corers.Flag) error {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -108,5 +109,5 @@ func Store(rulePath string,
 		wafInst = New()
 	}
 
-	return wafInst.Store(rulePath, namespace, version, flag)
+	return wafInst.Store(namespace, flag)
 }

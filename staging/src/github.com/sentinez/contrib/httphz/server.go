@@ -15,6 +15,7 @@ import (
 
 	httphznet "github.com/sentinez/contrib/httphz/net"
 	netstd "github.com/sentinez/contrib/httphz/net/std"
+	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
@@ -36,6 +37,11 @@ type XServer struct {
 	chains  []func(corehttp.RequestHandler) corehttp.RequestHandler
 	handler app.HandlerFunc
 	core    *server.Hertz
+}
+
+// AcceptReverse implements [corehttp.Server].
+func (s *XServer) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+	return proxyhz.NewReverseProxy(target)
 }
 
 // Use implements Server.

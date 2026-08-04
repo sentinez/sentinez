@@ -122,7 +122,7 @@ func (RuleBehavior) EnumDescriptor() ([]byte, []int) {
 type CoreRulesets struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	CoreRules     []*CoreRule            `protobuf:"bytes,2,rep,name=core_rules,json=coreRules,proto3" json:"core_rules,omitempty"`
+	Rules         []*CoreRule            `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
 	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -165,9 +165,9 @@ func (x *CoreRulesets) GetName() string {
 	return ""
 }
 
-func (x *CoreRulesets) GetCoreRules() []*CoreRule {
+func (x *CoreRulesets) GetRules() []*CoreRule {
 	if x != nil {
-		return x.CoreRules
+		return x.Rules
 	}
 	return nil
 }
@@ -411,11 +411,10 @@ var File_sentinez_secure_rule_v1_rule_proto protoreflect.FileDescriptor
 
 const file_sentinez_secure_rule_v1_rule_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/secure/rule/v1/rule.proto\x12\x17sentinez.secure.rule.v1\"~\n" +
+	"\"sentinez/secure/rule/v1/rule.proto\x12\x17sentinez.secure.rule.v1\"u\n" +
 	"\fCoreRulesets\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12@\n" +
-	"\n" +
-	"core_rules\x18\x02 \x03(\v2!.sentinez.secure.rule.v1.CoreRuleR\tcoreRules\x12\x18\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
+	"\x05rules\x18\x02 \x03(\v2!.sentinez.secure.rule.v1.CoreRuleR\x05rules\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\"\x85\x01\n" +
 	"\bCoreRule\x12=\n" +
 	"\aactions\x18\x01 \x01(\v2#.sentinez.secure.rule.v1.RuleActionR\aactions\x12$\n" +
@@ -468,7 +467,7 @@ var file_sentinez_secure_rule_v1_rule_proto_goTypes = []any{
 	(*RuleActionField)(nil), // 5: sentinez.secure.rule.v1.RuleActionField
 }
 var file_sentinez_secure_rule_v1_rule_proto_depIdxs = []int32{
-	3, // 0: sentinez.secure.rule.v1.CoreRulesets.core_rules:type_name -> sentinez.secure.rule.v1.CoreRule
+	3, // 0: sentinez.secure.rule.v1.CoreRulesets.rules:type_name -> sentinez.secure.rule.v1.CoreRule
 	4, // 1: sentinez.secure.rule.v1.CoreRule.actions:type_name -> sentinez.secure.rule.v1.RuleAction
 	4, // 2: sentinez.secure.rule.v1.RuleAction.children:type_name -> sentinez.secure.rule.v1.RuleAction
 	5, // 3: sentinez.secure.rule.v1.RuleAction.fields:type_name -> sentinez.secure.rule.v1.RuleActionField

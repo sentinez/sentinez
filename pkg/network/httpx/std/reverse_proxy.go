@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stdproxy
+package stdhttpx
 
 import (
 	"net/http/httputil"
@@ -21,7 +21,6 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/sentinez/pkg/network"
-	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
@@ -53,7 +52,7 @@ func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 		return
 	}
 
-	nctx, ok := ctx.Unwrap().(*stdhttpx.Context)
+	nctx, ok := ctx.Unwrap().(*Context)
 	if !ok {
 		_ = corehttp.InternalServerError(ctx)
 		zlog.Fatal("request context not supported")

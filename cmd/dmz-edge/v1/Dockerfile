@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.25.0-alpine AS builder
+FROM golang:1.26.1-alpine AS builder
 
 # Move to working directory (/src).
 WORKDIR /src
@@ -30,18 +30,16 @@ WORKDIR /src
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 RUN go mod tidy
-RUN go build -ldflags="-s -w" -o /bin/main ./cmd/edge/v1
+RUN go build -ldflags="-s -w" -o /bin/main ./cmd/dmz-edge/v1
 
 # Clean up
 RUN go clean -modcache
 
-COPY deploy/ruleroot/ /sentinez/ruleroot/
+COPY cmd/dmz-edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
+COPY cmd/dmz-edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
 
-COPY cmd/edge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
-COPY cmd/edge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
-
-COPY cmd/edge/v1/is.s6z.io.vn.cert /etc/senz/ssl/certs/
-COPY cmd/edge/v1/is.s6z.io.vn.key /etc/senz/ssl/private/
+COPY cmd/dmz-edge/v1/is.s6z.io.vn.cert /etc/senz/ssl/certs/
+COPY cmd/dmz-edge/v1/is.s6z.io.vn.key /etc/senz/ssl/private/
 
 
 # Stage run
@@ -53,7 +51,6 @@ RUN apk --no-cache add ca-certificates tzdata
 WORKDIR /app
 
 COPY --from=builder /bin/main ./senz
-COPY --from=builder /sentinez/ruleroot/ ./ruleroot/
 COPY --from=builder /sentinez/edge/v1/proxy.yaml ./proxy.yaml
 COPY --from=builder /sentinez/edge/v1/docker-entrypoint.sh ./docker-entrypoint.sh
 

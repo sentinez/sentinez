@@ -20,7 +20,7 @@ import (
 	rulev4170 "github.com/sentinez/core/modsec/gen/v4-17-0"
 )
 
-func getRulesets(version Version, flag Flag) string {
+func GenerateRulesets(version Version, flag Flag) string {
 	var rulesets = &RulesetsLoader{}
 
 	// load setup rules

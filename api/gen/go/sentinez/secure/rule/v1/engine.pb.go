@@ -290,16 +290,16 @@ func (ActionType) EnumDescriptor() ([]byte, []int) {
 // A logical condition expression
 type Condition struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"` // @gotags: yaml:"-"
+	Id    string                 `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty" yaml:"-"` // @gotags: yaml:"-"
 	// The source of the field
 	// Example: "User-Agent" or "country"
-	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.secure.rule.v1.FieldSource" json:"source,omitempty"` // @gotags: yaml:"source"
-	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`                                                 // @gotags: yaml:"key"
+	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.secure.rule.v1.FieldSource" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
+	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                 // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
-	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.secure.rule.v1.Operator" json:"operator,omitempty"` // @gotags: yaml:"operator"
+	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.secure.rule.v1.Operator" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
 	// The value to compare against
-	Value         *structpb.Value `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"` // @gotags: yaml:"value"
+	Value         *structpb.Value `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty" yaml:"value"` // @gotags: yaml:"value"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -374,9 +374,9 @@ type Action struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Example types: "block", "log", "modify_header",
 	// "redirect", "set_tag", "route_to"
-	Type ActionType `protobuf:"varint,1,opt,name=type,proto3,enum=sentinez.secure.rule.v1.ActionType" json:"type,omitempty"` // @gotags: yaml:"type"
+	Type ActionType `protobuf:"varint,1,opt,name=type,proto3,enum=sentinez.secure.rule.v1.ActionType" json:"type,omitempty" yaml:"type"` // @gotags: yaml:"type"
 	// Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
-	Params        *structpb.Struct `protobuf:"bytes,2,opt,name=params,proto3" json:"params,omitempty"` // @gotags: yaml:"params"
+	Params        *structpb.Struct `protobuf:"bytes,2,opt,name=params,proto3" json:"params,omitempty" yaml:"params"` // @gotags: yaml:"params"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,9 +429,9 @@ func (x *Action) GetParams() *structpb.Struct {
 type Rule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // @gotags: yaml:"name"
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"` // @gotags: yaml:"name"
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Condition     *Condition             `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty"` // @gotags: yaml:"condition"
+	Condition     *Condition             `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -498,9 +498,9 @@ func (x *Rule) GetCondition() *Condition {
 type RuleLite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`           // @gotags: yaml:"name"
-	Condition     *ConditionLite         `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty"` // @gotags: yaml:"condition"
-	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty"`     // @gotags: yaml:"actions"
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
+	Condition     *ConditionLite         `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
+	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`     // @gotags: yaml:"actions"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -568,13 +568,13 @@ type ConditionLite struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The source of the field
 	// Example: "User-Agent" or "country"
-	Source string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"` // @gotags: yaml:"source"
-	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`       // @gotags: yaml:"key"
+	Source string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
+	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`       // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
-	Operator string `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty"` // @gotags: yaml:"operator"
+	Operator string `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
 	// The value to compare against
-	Value         string `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"` // @gotags: yaml:"value"
+	Value         string `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty" yaml:"value"` // @gotags: yaml:"value"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

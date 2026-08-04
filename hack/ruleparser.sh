@@ -50,7 +50,6 @@ ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen \
     -file deploy/ruleroot/audit.conf
 
-
 ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen/v4-17-0 \
     -file deploy/ruleroot/v4-17-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf

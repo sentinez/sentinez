@@ -15,13 +15,60 @@
 package distrib
 
 import (
+	"context"
+	"sync"
+
 	"github.com/olric-data/olric"
+	"github.com/olric-data/olric/config"
+	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
+	"github.com/sentinez/sentinez/pkg/cluster"
+	"github.com/sentinez/shared/zlog"
 )
 
-func NewDistributedMemory() {
+var (
+	dict *Dictionary
+	once sync.Once
+)
 
+func NewDictionary(confpb *settingpb.Config) *Dictionary {
+	once.Do(func() {
+		conf := config.New("local")
+
+		db, err := olric.New(conf)
+		if err != nil {
+			zlog.Fatal(err)
+		}
+
+		membership := confpb.GetDefault(
+			settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
+			defaults.MembershipAddress,
+		)
+
+		dict = &Dictionary{
+			db:      db,
+			cluster: cluster.New(edgepb.GetMetaEdge(), membership),
+		}
+	})
+
+	return dict
 }
 
-type DistributedMemory struct {
-	db *olric.Olric
+type Dictionary struct {
+	cluster *cluster.Cluster
+	db      *olric.Olric
+}
+
+func (d *Dictionary) Start() {
+	go func() {
+		if err := d.db.Start(); err != nil {
+			zlog.Fatal(err)
+		}
+	}()
+}
+
+func (d *Dictionary) Shutdown(ctx context.Context) {
+	_ = d.db.Shutdown(ctx)
+	_ = d.cluster.Shutdown()
 }

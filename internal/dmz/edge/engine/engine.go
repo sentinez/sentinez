@@ -18,19 +18,16 @@ import (
 	"context"
 
 	"github.com/sentinez/contrib/httphz"
-	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 )
 
 func Hertz(c *runner.Context[edge.Server]) {
 	c.Inject(httphz.NewServer)
 
 	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetReverseProxyConstructor(proxyhz.NewReverseProxyDefault)
 		server.SetOnConnect(transport.OnHertzConnect)
 
 		return nil
@@ -41,7 +38,6 @@ func Standard(c *runner.Context[edge.Server]) {
 	c.Inject(stdhttpx.NewServer)
 
 	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetReverseProxyConstructor(stdproxy.NewReverseProxy)
 		server.SetOnConnect(transport.OnStandardConnect)
 
 		return nil

@@ -19,3 +19,6 @@
 [submodule "_patches/open-telemetry"]
 	path = _patches/open-telemetry
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
+[submodule "_patches/crslang"]
+	path = _patches/crslang
+	url = https://github.com/coreruleset/crslang.git

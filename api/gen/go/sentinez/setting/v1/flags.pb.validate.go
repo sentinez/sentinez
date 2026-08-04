@@ -50,8 +50,6 @@ func (m *Flag) Validate() error {
 
 	// no validation rules for ApiSpecsPath
 
-	// no validation rules for RulePath
-
 	// no validation rules for ProxyConfig
 
 	// no validation rules for CertFile

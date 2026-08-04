@@ -88,6 +88,7 @@ type Server interface {
 	ListenAndServe(addr string, opts ...ServerOption) error
 	Use(mdw ...func(next RequestHandler) RequestHandler)
 	Handle(fn RequestHandler)
+	AcceptReverse(target string) (ReverseProxy, error)
 }
 
 type ReverseProxy interface {

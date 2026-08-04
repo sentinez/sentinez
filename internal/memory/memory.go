@@ -35,25 +35,8 @@ import (
 )
 
 var (
-	reverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
-	lock                    sync.Mutex
+	lock sync.Mutex
 )
-
-func SetReverseProxyConstructor(
-	fn func(string) (corehttp.ReverseProxy, error)) {
-	if fn == nil {
-		return
-	}
-
-	lock.Lock()
-	defer lock.Unlock()
-
-	if reverseProxyConstructor != nil {
-		return
-	}
-
-	reverseProxyConstructor = fn
-}
 
 func LoadSetting(st *edgepb.Setting) {
 	if err := settings.Store(st); err != nil {
@@ -68,7 +51,7 @@ func LoadRouter() {
 	})
 }
 
-func LoadReverseProxy() {
+func LoadReverseProxy(server corehttp.Server) {
 	settings.Visit(func(s *edgepb.Setting) bool {
 		for _, routeConfig := range s.GetServer().GetLocations() {
 			for _, upstream := range routeConfig.GetProxyPass() {
@@ -82,13 +65,9 @@ func LoadReverseProxy() {
 					continue
 				}
 
-				if reverseProxyConstructor == nil {
-					zlog.Errorf("reverse proxy: constructor is not set")
-					continue
-				}
-
-				rproxy, err := reverseProxyConstructor(target)
+				rproxy, err := server.AcceptReverse(target)
 				if err != nil {
+					zlog.Errorf("reverse proxy create err: %s", err)
 					continue
 				}
 
@@ -144,8 +123,7 @@ func LoadWAF(appConf *settingpb.Config) {
 
 		ns := s.GetServer().GetName()
 
-		rulePath := appConf.GetFlag().GetRulePath()
-		err := wafengine.Store(rulePath, ns, corers.WAF4160, flag)
+		err := wafengine.Store(ns, flag)
 		if err != nil {
 			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
 		}

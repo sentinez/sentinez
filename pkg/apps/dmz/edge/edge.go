@@ -25,13 +25,11 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
+	"github.com/sentinez/sentinez/internal/distrib"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
-	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
-
-type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
 
 //
 // Package edge implements the core Edge Server component.
@@ -63,6 +61,7 @@ func New(conf *settingpb.Config,
 		conf:    conf,
 		core:    server,
 		setting: setting,
+		dict:    distrib.NewDictionary(conf),
 	}
 }
 
@@ -73,6 +72,7 @@ func New(conf *settingpb.Config,
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
+	dict      *distrib.Dictionary
 	conf      *settingpb.Config
 	core      corehttp.Server
 	setting   *edgepb.Setting
@@ -88,7 +88,7 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-	_ = cluster.Shutdown()
+	s.dict.Shutdown(ctx)
 
 	return s.core.Shutdown(ctx)
 }
@@ -104,10 +104,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	membership := s.conf.GetDefault(
-		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS, defaults.MembershipAddress)
-
-	_ = cluster.Start(edgepb.GetMetaEdge(), membership)
+	s.dict.Start()
 
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)

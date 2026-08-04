@@ -110,7 +110,6 @@ dmz.edge.run:
 	./cmd/dmz-edge/v1/bin/$(SENTINEZ_OUT) \
 		--cert_file=cmd/dmz-edge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/dmz-edge/v1/is.s6z.io.vn.key \
-		--rule_path=./deploy/ruleroot/v4-16-0 \
 		--proxy_config=./cmd/dmz-edge/v1/proxy.yaml \
 		--env_file=./cmd/dmz-edge/v1/.env
 

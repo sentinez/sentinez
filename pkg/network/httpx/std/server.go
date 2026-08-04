@@ -42,6 +42,11 @@ type Server struct {
 	opt  corehttp.Option
 }
 
+// AcceptReverse implements [corehttp.Server].
+func (s *Server) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+	return NewReverseProxy(target)
+}
+
 func (s *Server) Use(
 	mdw ...func(next corehttp.RequestHandler) corehttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)

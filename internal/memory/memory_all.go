@@ -15,11 +15,14 @@
 package memory
 
 import (
+	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 )
 
-func LoadConfiguration(st *edgepb.Setting, appConf *settingpb.Config) {
+func LoadConfiguration(
+	server corehttp.Server, st *edgepb.Setting, appConf *settingpb.Config) {
+
 	// save all setting for each tenant
 	LoadSetting(st)
 
@@ -27,7 +30,7 @@ func LoadConfiguration(st *edgepb.Setting, appConf *settingpb.Config) {
 	LoadRouter()
 
 	// load all reverse proxy for target origin
-	LoadReverseProxy()
+	LoadReverseProxy(server)
 
 	// rule config
 	LoadRuleBased()

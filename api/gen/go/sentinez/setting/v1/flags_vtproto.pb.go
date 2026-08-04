@@ -53,26 +53,19 @@ func (m *Flag) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.CertKeyFile)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertKeyFile)))
 		i--
-		dAtA[i] = 0x4a
+		dAtA[i] = 0x42
 	}
 	if len(m.CertFile) > 0 {
 		i -= len(m.CertFile)
 		copy(dAtA[i:], m.CertFile)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertFile)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x3a
 	}
 	if len(m.ProxyConfig) > 0 {
 		i -= len(m.ProxyConfig)
 		copy(dAtA[i:], m.ProxyConfig)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ProxyConfig)))
-		i--
-		dAtA[i] = 0x3a
-	}
-	if len(m.RulePath) > 0 {
-		i -= len(m.RulePath)
-		copy(dAtA[i:], m.RulePath)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RulePath)))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -137,10 +130,6 @@ func (m *Flag) SizeVT() (n int) {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	l = len(m.ApiSpecsPath)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	l = len(m.RulePath)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -351,38 +340,6 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RulePath", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.RulePath = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ProxyConfig", wireType)
 			}
 			var stringLen uint64
@@ -413,7 +370,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			}
 			m.ProxyConfig = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CertFile", wireType)
 			}
@@ -445,7 +402,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			}
 			m.CertFile = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CertKeyFile", wireType)
 			}
