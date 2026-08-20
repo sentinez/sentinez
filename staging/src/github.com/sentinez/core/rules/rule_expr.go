@@ -77,8 +77,11 @@ func execAndCond(
 	}
 
 	if isMatchAnd {
-		mr.Ids = append(mr.Ids, ids...)
-		mr.Names = append(mr.Names, names...)
+		if mr != nil {
+			mr.Ids = append(mr.Ids, ids...)
+			mr.Names = append(mr.Names, names...)
+		}
+
 		return true
 	}
 

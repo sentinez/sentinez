@@ -409,82 +409,92 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	}
 }
 
-//// nolint
-//func BenchmarkEvalRuleBased_Complex(b *testing.B) {
-//	zlog.SetLogLevel(zlog.LevelFatal)
-//
-//	rg := &rulepb.RuleBased{
-//		Node: &rulepb.RuleBased_Node{
-//			Operator: rulepb.Logic_LOGIC_AND,
-//			Rules: []*rulepb.Rule{
-//				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-//			},
-//			Groups: []*rulepb.RuleBased_Node{
-//				{
-//					Operator: rulepb.Logic_LOGIC_OR,
-//					Rules: []*rulepb.Rule{
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
-//					},
-//				},
-//				{
-//					Operator: rulepb.Logic_LOGIC_NOT,
-//					Rules: []*rulepb.Rule{
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
-//					},
-//				},
-//			},
-//		},
-//	}
-//
-//	ig := NewIngress(rg)
-//	ctx := newContext()
-//	matched := &rulepb.MatchedRules{}
-//
-//	b.ResetTimer()
-//	b.ReportAllocs()
-//	for i := 0; i < b.N; i++ {
-//		_ = ig.Eval(ctx, matched)
-//	}
-//}
+// nolint
+func BenchmarkEvalRuleBased_Complex(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
 
-//// nolint
-//func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
-//	zlog.SetLogLevel(zlog.LevelFatal)
-//
-//	rg := &rulepb.RuleBased{
-//		Node: &rulepb.RuleBased_Node{
-//			Operator: rulepb.Logic_LOGIC_AND,
-//			Rules: []*rulepb.Rule{
-//				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-//			},
-//			Groups: []*rulepb.RuleBased_Node{
-//				{
-//					Operator: rulepb.Logic_LOGIC_OR,
-//					Rules: []*rulepb.Rule{
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
-//					},
-//				},
-//				{
-//					Operator: rulepb.Logic_LOGIC_NOT,
-//					Rules: []*rulepb.Rule{
-//						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
-//					},
-//				},
-//			},
-//		},
-//	}
-//
-//	ig := NewIngress(rg)
-//
-//	ctx := newContext()
-//
-//	b.ResetTimer()
-//	b.ReportAllocs()
-//	b.RunParallel(func(pb *testing.PB) {
-//		for pb.Next() {
-//			_ = ig.Eval(ctx, nil)
-//		}
-//	})
-//}
+	rg := &rulepb.RuleBased{
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
+				{
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_NE, "GET"),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	ig := NewIngress(rg)
+	ctx := newContext()
+	matched := &rulepb.MatchedRules{}
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_ = ig.Eval(ctx, matched)
+	}
+}
+
+// nolint
+func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
+	zlog.SetLogLevel(zlog.LevelFatal)
+
+	rg := &rulepb.RuleBased{
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
+				{
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_NE, "GET"),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	ig := NewIngress(rg)
+
+	ctx := newContext()
+
+	b.ResetTimer()
+	b.ReportAllocs()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_ = ig.Eval(ctx, nil)
+		}
+	})
+}
