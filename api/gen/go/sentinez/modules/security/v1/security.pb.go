@@ -504,470 +504,6 @@ func (x *ListRuleBasedsResponse) GetTotal() int64 {
 	return 0
 }
 
-type CreateRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateRuleRequest) Reset() {
-	*x = CreateRuleRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateRuleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateRuleRequest) ProtoMessage() {}
-
-func (x *CreateRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateRuleRequest.ProtoReflect.Descriptor instead.
-func (*CreateRuleRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CreateRuleRequest) GetRule() *RuleGroup {
-	if x != nil {
-		return x.Rule
-	}
-	return nil
-}
-
-type CreateRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateRuleResponse) Reset() {
-	*x = CreateRuleResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateRuleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateRuleResponse) ProtoMessage() {}
-
-func (x *CreateRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateRuleResponse.ProtoReflect.Descriptor instead.
-func (*CreateRuleResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *CreateRuleResponse) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type GetRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetRuleRequest) Reset() {
-	*x = GetRuleRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetRuleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetRuleRequest) ProtoMessage() {}
-
-func (x *GetRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetRuleRequest.ProtoReflect.Descriptor instead.
-func (*GetRuleRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *GetRuleRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type GetRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetRuleResponse) Reset() {
-	*x = GetRuleResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetRuleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetRuleResponse) ProtoMessage() {}
-
-func (x *GetRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetRuleResponse.ProtoReflect.Descriptor instead.
-func (*GetRuleResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *GetRuleResponse) GetRule() *RuleGroup {
-	if x != nil {
-		return x.Rule
-	}
-	return nil
-}
-
-type UpdateRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Rule          *RuleGroup             `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateRuleRequest) Reset() {
-	*x = UpdateRuleRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateRuleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateRuleRequest) ProtoMessage() {}
-
-func (x *UpdateRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateRuleRequest.ProtoReflect.Descriptor instead.
-func (*UpdateRuleRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *UpdateRuleRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *UpdateRuleRequest) GetRule() *RuleGroup {
-	if x != nil {
-		return x.Rule
-	}
-	return nil
-}
-
-func (x *UpdateRuleRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
-	if x != nil {
-		return x.UpdateMask
-	}
-	return nil
-}
-
-type UpdateRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rule          *RuleGroup             `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateRuleResponse) Reset() {
-	*x = UpdateRuleResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateRuleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateRuleResponse) ProtoMessage() {}
-
-func (x *UpdateRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateRuleResponse.ProtoReflect.Descriptor instead.
-func (*UpdateRuleResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *UpdateRuleResponse) GetRule() *RuleGroup {
-	if x != nil {
-		return x.Rule
-	}
-	return nil
-}
-
-type DeleteRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteRuleRequest) Reset() {
-	*x = DeleteRuleRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteRuleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteRuleRequest) ProtoMessage() {}
-
-func (x *DeleteRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteRuleRequest.ProtoReflect.Descriptor instead.
-func (*DeleteRuleRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *DeleteRuleRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type DeleteRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteRuleResponse) Reset() {
-	*x = DeleteRuleResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteRuleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteRuleResponse) ProtoMessage() {}
-
-func (x *DeleteRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteRuleResponse.ProtoReflect.Descriptor instead.
-func (*DeleteRuleResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{17}
-}
-
-type ListRulesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRulesRequest) Reset() {
-	*x = ListRulesRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRulesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRulesRequest) ProtoMessage() {}
-
-func (x *ListRulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRulesRequest.ProtoReflect.Descriptor instead.
-func (*ListRulesRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *ListRulesRequest) GetPage() *v1.Pages {
-	if x != nil {
-		return x.Page
-	}
-	return nil
-}
-
-func (x *ListRulesRequest) GetIds() []string {
-	if x != nil {
-		return x.Ids
-	}
-	return nil
-}
-
-type ListRulesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rules         []*RuleGroup           `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
-	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRulesResponse) Reset() {
-	*x = ListRulesResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRulesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRulesResponse) ProtoMessage() {}
-
-func (x *ListRulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRulesResponse.ProtoReflect.Descriptor instead.
-func (*ListRulesResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *ListRulesResponse) GetRules() []*RuleGroup {
-	if x != nil {
-		return x.Rules
-	}
-	return nil
-}
-
-func (x *ListRulesResponse) GetTotal() int64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
 type StatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -976,7 +512,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[20]
+	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -988,7 +524,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[20]
+	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1001,7 +537,7 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{20}
+	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{10}
 }
 
 type StatusResponse struct {
@@ -1013,7 +549,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[21]
+	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1025,7 +561,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[21]
+	mi := &file_sentinez_modules_security_v1_security_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1038,7 +574,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{21}
+	return file_sentinez_modules_security_v1_security_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *StatusResponse) GetMsg() string {
@@ -1052,7 +588,7 @@ var File_sentinez_modules_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"+sentinez/modules/security/v1/security.proto\x12\x1csentinez.modules.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a(sentinez/modules/security/v1/model.proto\x1a)sentinez/modules/security/v1/shared.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"h\n" +
+	"+sentinez/modules/security/v1/security.proto\x12\x1csentinez.modules.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a(sentinez/modules/security/v1/model.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"h\n" +
 	"\x16CreateRuleBasedRequest\x12N\n" +
 	"\n" +
 	"rule_based\x18\x01 \x01(\v2'.sentinez.modules.security.v1.RuleBasedB\x06\xbaH\x03\xc8\x01\x01R\truleBased\")\n" +
@@ -1082,31 +618,6 @@ const file_sentinez_modules_security_v1_security_proto_rawDesc = "" +
 	"\x16ListRuleBasedsResponse\x12H\n" +
 	"\vrule_baseds\x18\x01 \x03(\v2'.sentinez.modules.security.v1.RuleBasedR\n" +
 	"ruleBaseds\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"X\n" +
-	"\x11CreateRuleRequest\x12C\n" +
-	"\x04rule\x18\x01 \x01(\v2'.sentinez.modules.security.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\x04rule\"$\n" +
-	"\x12CreateRuleResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
-	"\x0eGetRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"N\n" +
-	"\x0fGetRuleResponse\x12;\n" +
-	"\x04rule\x18\x01 \x01(\v2'.sentinez.modules.security.v1.RuleGroupR\x04rule\"\xae\x01\n" +
-	"\x11UpdateRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12C\n" +
-	"\x04rule\x18\x02 \x01(\v2'.sentinez.modules.security.v1.RuleGroupB\x06\xbaH\x03\xc8\x01\x01R\x04rule\x12;\n" +
-	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"Q\n" +
-	"\x12UpdateRuleResponse\x12;\n" +
-	"\x04rule\x18\x01 \x01(\v2'.sentinez.modules.security.v1.RuleGroupR\x04rule\",\n" +
-	"\x11DeleteRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x14\n" +
-	"\x12DeleteRuleResponse\"R\n" +
-	"\x10ListRulesRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
-	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\"h\n" +
-	"\x11ListRulesResponse\x12=\n" +
-	"\x05rules\x18\x01 \x03(\v2'.sentinez.modules.security.v1.RuleGroupR\x05rules\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
@@ -1139,7 +650,7 @@ func file_sentinez_modules_security_v1_security_proto_rawDescGZIP() []byte {
 	return file_sentinez_modules_security_v1_security_proto_rawDescData
 }
 
-var file_sentinez_modules_security_v1_security_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_sentinez_modules_security_v1_security_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_modules_security_v1_security_proto_goTypes = []any{
 	(*CreateRuleBasedRequest)(nil),  // 0: sentinez.modules.security.v1.CreateRuleBasedRequest
 	(*CreateRuleBasedResponse)(nil), // 1: sentinez.modules.security.v1.CreateRuleBasedResponse
@@ -1151,55 +662,37 @@ var file_sentinez_modules_security_v1_security_proto_goTypes = []any{
 	(*DeleteRuleBasedResponse)(nil), // 7: sentinez.modules.security.v1.DeleteRuleBasedResponse
 	(*ListRuleBasedsRequest)(nil),   // 8: sentinez.modules.security.v1.ListRuleBasedsRequest
 	(*ListRuleBasedsResponse)(nil),  // 9: sentinez.modules.security.v1.ListRuleBasedsResponse
-	(*CreateRuleRequest)(nil),       // 10: sentinez.modules.security.v1.CreateRuleRequest
-	(*CreateRuleResponse)(nil),      // 11: sentinez.modules.security.v1.CreateRuleResponse
-	(*GetRuleRequest)(nil),          // 12: sentinez.modules.security.v1.GetRuleRequest
-	(*GetRuleResponse)(nil),         // 13: sentinez.modules.security.v1.GetRuleResponse
-	(*UpdateRuleRequest)(nil),       // 14: sentinez.modules.security.v1.UpdateRuleRequest
-	(*UpdateRuleResponse)(nil),      // 15: sentinez.modules.security.v1.UpdateRuleResponse
-	(*DeleteRuleRequest)(nil),       // 16: sentinez.modules.security.v1.DeleteRuleRequest
-	(*DeleteRuleResponse)(nil),      // 17: sentinez.modules.security.v1.DeleteRuleResponse
-	(*ListRulesRequest)(nil),        // 18: sentinez.modules.security.v1.ListRulesRequest
-	(*ListRulesResponse)(nil),       // 19: sentinez.modules.security.v1.ListRulesResponse
-	(*StatusRequest)(nil),           // 20: sentinez.modules.security.v1.StatusRequest
-	(*StatusResponse)(nil),          // 21: sentinez.modules.security.v1.StatusResponse
-	(*RuleBased)(nil),               // 22: sentinez.modules.security.v1.RuleBased
-	(*fieldmaskpb.FieldMask)(nil),   // 23: google.protobuf.FieldMask
-	(*v1.Pages)(nil),                // 24: sentinez.types.v1.Pages
-	(*RuleGroup)(nil),               // 25: sentinez.modules.security.v1.RuleGroup
+	(*StatusRequest)(nil),           // 10: sentinez.modules.security.v1.StatusRequest
+	(*StatusResponse)(nil),          // 11: sentinez.modules.security.v1.StatusResponse
+	(*RuleBased)(nil),               // 12: sentinez.modules.security.v1.RuleBased
+	(*fieldmaskpb.FieldMask)(nil),   // 13: google.protobuf.FieldMask
+	(*v1.Pages)(nil),                // 14: sentinez.types.v1.Pages
 }
 var file_sentinez_modules_security_v1_security_proto_depIdxs = []int32{
-	22, // 0: sentinez.modules.security.v1.CreateRuleBasedRequest.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
-	22, // 1: sentinez.modules.security.v1.GetRuleBasedResponse.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
-	22, // 2: sentinez.modules.security.v1.UpdateRuleBasedRequest.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
-	23, // 3: sentinez.modules.security.v1.UpdateRuleBasedRequest.update_mask:type_name -> google.protobuf.FieldMask
-	22, // 4: sentinez.modules.security.v1.UpdateRuleBasedResponse.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
-	24, // 5: sentinez.modules.security.v1.ListRuleBasedsRequest.page:type_name -> sentinez.types.v1.Pages
-	22, // 6: sentinez.modules.security.v1.ListRuleBasedsResponse.rule_baseds:type_name -> sentinez.modules.security.v1.RuleBased
-	25, // 7: sentinez.modules.security.v1.CreateRuleRequest.rule:type_name -> sentinez.modules.security.v1.RuleGroup
-	25, // 8: sentinez.modules.security.v1.GetRuleResponse.rule:type_name -> sentinez.modules.security.v1.RuleGroup
-	25, // 9: sentinez.modules.security.v1.UpdateRuleRequest.rule:type_name -> sentinez.modules.security.v1.RuleGroup
-	23, // 10: sentinez.modules.security.v1.UpdateRuleRequest.update_mask:type_name -> google.protobuf.FieldMask
-	25, // 11: sentinez.modules.security.v1.UpdateRuleResponse.rule:type_name -> sentinez.modules.security.v1.RuleGroup
-	24, // 12: sentinez.modules.security.v1.ListRulesRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 13: sentinez.modules.security.v1.ListRulesResponse.rules:type_name -> sentinez.modules.security.v1.RuleGroup
-	0,  // 14: sentinez.modules.security.v1.SecurityService.CreateRuleBased:input_type -> sentinez.modules.security.v1.CreateRuleBasedRequest
-	2,  // 15: sentinez.modules.security.v1.SecurityService.GetRuleBased:input_type -> sentinez.modules.security.v1.GetRuleBasedRequest
-	4,  // 16: sentinez.modules.security.v1.SecurityService.UpdateRuleBased:input_type -> sentinez.modules.security.v1.UpdateRuleBasedRequest
-	6,  // 17: sentinez.modules.security.v1.SecurityService.DeleteRuleBased:input_type -> sentinez.modules.security.v1.DeleteRuleBasedRequest
-	8,  // 18: sentinez.modules.security.v1.SecurityService.ListRuleBaseds:input_type -> sentinez.modules.security.v1.ListRuleBasedsRequest
-	20, // 19: sentinez.modules.security.v1.SecurityService.Status:input_type -> sentinez.modules.security.v1.StatusRequest
-	1,  // 20: sentinez.modules.security.v1.SecurityService.CreateRuleBased:output_type -> sentinez.modules.security.v1.CreateRuleBasedResponse
-	3,  // 21: sentinez.modules.security.v1.SecurityService.GetRuleBased:output_type -> sentinez.modules.security.v1.GetRuleBasedResponse
-	5,  // 22: sentinez.modules.security.v1.SecurityService.UpdateRuleBased:output_type -> sentinez.modules.security.v1.UpdateRuleBasedResponse
-	7,  // 23: sentinez.modules.security.v1.SecurityService.DeleteRuleBased:output_type -> sentinez.modules.security.v1.DeleteRuleBasedResponse
-	9,  // 24: sentinez.modules.security.v1.SecurityService.ListRuleBaseds:output_type -> sentinez.modules.security.v1.ListRuleBasedsResponse
-	21, // 25: sentinez.modules.security.v1.SecurityService.Status:output_type -> sentinez.modules.security.v1.StatusResponse
-	20, // [20:26] is the sub-list for method output_type
-	14, // [14:20] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	12, // 0: sentinez.modules.security.v1.CreateRuleBasedRequest.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
+	12, // 1: sentinez.modules.security.v1.GetRuleBasedResponse.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
+	12, // 2: sentinez.modules.security.v1.UpdateRuleBasedRequest.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
+	13, // 3: sentinez.modules.security.v1.UpdateRuleBasedRequest.update_mask:type_name -> google.protobuf.FieldMask
+	12, // 4: sentinez.modules.security.v1.UpdateRuleBasedResponse.rule_based:type_name -> sentinez.modules.security.v1.RuleBased
+	14, // 5: sentinez.modules.security.v1.ListRuleBasedsRequest.page:type_name -> sentinez.types.v1.Pages
+	12, // 6: sentinez.modules.security.v1.ListRuleBasedsResponse.rule_baseds:type_name -> sentinez.modules.security.v1.RuleBased
+	0,  // 7: sentinez.modules.security.v1.SecurityService.CreateRuleBased:input_type -> sentinez.modules.security.v1.CreateRuleBasedRequest
+	2,  // 8: sentinez.modules.security.v1.SecurityService.GetRuleBased:input_type -> sentinez.modules.security.v1.GetRuleBasedRequest
+	4,  // 9: sentinez.modules.security.v1.SecurityService.UpdateRuleBased:input_type -> sentinez.modules.security.v1.UpdateRuleBasedRequest
+	6,  // 10: sentinez.modules.security.v1.SecurityService.DeleteRuleBased:input_type -> sentinez.modules.security.v1.DeleteRuleBasedRequest
+	8,  // 11: sentinez.modules.security.v1.SecurityService.ListRuleBaseds:input_type -> sentinez.modules.security.v1.ListRuleBasedsRequest
+	10, // 12: sentinez.modules.security.v1.SecurityService.Status:input_type -> sentinez.modules.security.v1.StatusRequest
+	1,  // 13: sentinez.modules.security.v1.SecurityService.CreateRuleBased:output_type -> sentinez.modules.security.v1.CreateRuleBasedResponse
+	3,  // 14: sentinez.modules.security.v1.SecurityService.GetRuleBased:output_type -> sentinez.modules.security.v1.GetRuleBasedResponse
+	5,  // 15: sentinez.modules.security.v1.SecurityService.UpdateRuleBased:output_type -> sentinez.modules.security.v1.UpdateRuleBasedResponse
+	7,  // 16: sentinez.modules.security.v1.SecurityService.DeleteRuleBased:output_type -> sentinez.modules.security.v1.DeleteRuleBasedResponse
+	9,  // 17: sentinez.modules.security.v1.SecurityService.ListRuleBaseds:output_type -> sentinez.modules.security.v1.ListRuleBasedsResponse
+	11, // 18: sentinez.modules.security.v1.SecurityService.Status:output_type -> sentinez.modules.security.v1.StatusResponse
+	13, // [13:19] is the sub-list for method output_type
+	7,  // [7:13] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_modules_security_v1_security_proto_init() }
@@ -1208,14 +701,13 @@ func file_sentinez_modules_security_v1_security_proto_init() {
 		return
 	}
 	file_sentinez_modules_security_v1_model_proto_init()
-	file_sentinez_modules_security_v1_shared_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_modules_security_v1_security_proto_rawDesc), len(file_sentinez_modules_security_v1_security_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

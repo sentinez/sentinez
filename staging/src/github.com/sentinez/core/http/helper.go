@@ -19,6 +19,7 @@ import (
 	"time"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	"github.com/sentinez/shared/zlog"
 )
 
 // SentinezContextKey is the key type for the context.
@@ -47,6 +48,7 @@ func SetRequestContext(ctx Context, msg *edgepb.Context) Context {
 // GetRequestContext returns the context value.
 func GetRequestContext(rctx Context) (*edgepb.Context, bool) {
 	msg := rctx.Extra()
+	zlog.Debugf("edge: xtra: %v", msg)
 	if msg == nil {
 		return nil, false
 	}

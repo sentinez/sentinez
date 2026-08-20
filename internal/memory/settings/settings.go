@@ -15,9 +15,12 @@
 package settings
 
 import (
+	"context"
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
+	"github.com/sentinez/sentinez/internal/distrib"
 	"github.com/sentinez/shared/errorx"
 	ssync "github.com/sentinez/shared/sync"
 )
@@ -25,35 +28,33 @@ import (
 var (
 	once sync.Once
 	inst *Setting
-	mu   sync.Mutex
 )
 
 func New() *Setting {
 	once.Do(func() {
 		inst = &Setting{
 			setting: ssync.NewMap[string, *edgepb.Setting](),
+			dmap:    distrib.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
 		}
 	})
 
 	return inst
 }
 
-func Get() *Setting {
-	return New()
-}
-
 type Setting struct {
+	dmap    *distrib.DMap[edgepb.Setting]
 	setting *ssync.Map[string, *edgepb.Setting]
 }
 
 func (s *Setting) Store(st *edgepb.Setting) error {
 	ns := st.GetServer().GetName()
 	if _, ok := s.setting.Load(ns); ok {
-		return errorx.F("[mem][setting][store]:namespace %s already exists", ns)
+		return errorx.F("mem:setting:store:namespace %s already exists", ns)
 	}
 
 	s.setting.Store(ns, st)
-	return nil
+
+	return s.dmap.Put(context.Background(), ns, st)
 }
 
 func (s *Setting) Load(namespace string) (*edgepb.Setting, error) {
@@ -77,15 +78,4 @@ func Visit(fn func(*edgepb.Setting) bool) {
 	}
 
 	inst.Visit(fn)
-}
-
-func Store(st *edgepb.Setting) error {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if inst == nil {
-		inst = New()
-	}
-
-	return inst.Store(st)
 }

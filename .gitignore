@@ -82,3 +82,4 @@ volume/
 _volume/
 
 .vscode/
+cmd/dmz-edge/v1/cluster/*

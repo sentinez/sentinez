@@ -3,9 +3,11 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/coreruleset" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/crslang" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/googleapis" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/grpc-gateway" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/libbpf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_patches/open-telemetry" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/protovalidate" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/_patches/xdp-tools" vcs="Git" />
   </component>

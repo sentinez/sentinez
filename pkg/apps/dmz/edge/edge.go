@@ -18,15 +18,14 @@ package edge
 import (
 	"context"
 	"crypto/tls"
-	"net"
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/internal/distrib"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
@@ -56,12 +55,13 @@ func New(conf *settingpb.Config,
 	server corehttp.Server,
 ) *Server {
 	corecmn.NormalizeEdgeSetting(setting)
+	mem := memory.NewMemStore(setting)
 
 	return &Server{
 		conf:    conf,
 		core:    server,
 		setting: setting,
-		dict:    distrib.NewDictionary(conf),
+		mem:     mem,
 	}
 }
 
@@ -72,11 +72,11 @@ func New(conf *settingpb.Config,
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	dict      *distrib.Dictionary
-	conf      *settingpb.Config
-	core      corehttp.Server
-	setting   *edgepb.Setting
-	onConnect func(ctx context.Context, conn net.Conn) context.Context
+	core    corehttp.Server
+	conf    *settingpb.Config
+	setting *edgepb.Setting
+	mem     *memory.MemStore
+	options []corehttp.ServerOption
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -88,7 +88,7 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-	s.dict.Shutdown(ctx)
+	s.mem.Shutdown(ctx)
 
 	return s.core.Shutdown(ctx)
 }
@@ -104,8 +104,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	s.dict.Start()
-
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
@@ -125,12 +123,13 @@ func (s *Server) Start() error {
 	}
 	defer func() { _ = l.Close() }()
 
-	return s.core.ListenAndServe(addr,
+	opts := []corehttp.ServerOption{
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
 			GetConfigForClient: transport.TLSConfig,
 		}),
-		corehttp.WithOnConnect(s.onConnect),
 		corehttp.WithListener(l),
-	)
+	}
+
+	return s.core.ListenAndServe(addr, append(opts, s.options...)...)
 }

@@ -20,12 +20,13 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
 var _ corechains.ChainNode = (*DomainBased)(nil)
 
-func NewDomainBased(hostname string) corechains.ChainNode {
+func NewDomainBased(hostname string, _ *memory.MemStore) corechains.ChainNode {
 	return &DomainBased{
 		Node:     corechains.NewNode(),
 		hostname: hostname,

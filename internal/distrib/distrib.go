@@ -28,39 +28,55 @@ import (
 )
 
 var (
-	dict *Dictionary
-	once sync.Once
+	dict      *Cluster
+	once      sync.Once
+	dictReady = make(chan bool, 1)
 )
 
-func NewDictionary(confpb *settingpb.Config) *Dictionary {
+func StartCluster(conf *settingpb.Config) {
+	_ = NewCluster(conf)
+	dict.Start()
+}
+
+func ShutdownCluster(ctx context.Context) {
+	dict.Shutdown(ctx)
+}
+
+func NewCluster(appConf *settingpb.Config) *Cluster {
 	once.Do(func() {
 		conf := config.New("local")
+		conf.Started = func() {
+			dictReady <- true
+			zlog.Infof("cluster:olric: ready to accept connection")
+		}
 
 		db, err := olric.New(conf)
 		if err != nil {
 			zlog.Fatal(err)
 		}
 
-		membership := confpb.GetDefault(
+		membership := appConf.GetDefault(
 			settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
 			defaults.MembershipAddress,
 		)
 
-		dict = &Dictionary{
+		dict = &Cluster{
 			db:      db,
 			cluster: cluster.New(edgepb.GetMetaEdge(), membership),
+			client:  db.NewEmbeddedClient(),
 		}
 	})
 
 	return dict
 }
 
-type Dictionary struct {
+type Cluster struct {
 	cluster *cluster.Cluster
 	db      *olric.Olric
+	client  *olric.EmbeddedClient
 }
 
-func (d *Dictionary) Start() {
+func (d *Cluster) Start() {
 	go func() {
 		if err := d.db.Start(); err != nil {
 			zlog.Fatal(err)
@@ -68,7 +84,7 @@ func (d *Dictionary) Start() {
 	}()
 }
 
-func (d *Dictionary) Shutdown(ctx context.Context) {
+func (d *Cluster) Shutdown(ctx context.Context) {
 	_ = d.db.Shutdown(ctx)
 	_ = d.cluster.Shutdown()
 }

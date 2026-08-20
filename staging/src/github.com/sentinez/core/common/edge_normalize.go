@@ -18,6 +18,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/rand"
+	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -45,44 +46,58 @@ func toRuleBased(rgLite *rulepb.RuleBasedLite) *rulepb.RuleBased {
 		return nil
 	}
 
+	zlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
+
 	return &rulepb.RuleBased{
 		Id:          rgLite.GetId(),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
-		Node:        toNode(rgLite.GetNode()),
+		Expr:        toExpr(rgLite.GetExpr()),
 		Action:      rgLite.GetAction(),
 	}
 }
 
-func toNode(
-	nodeLite *rulepb.RuleBasedLite_NodeLite,
-) *rulepb.RuleBased_Node {
-	if nodeLite == nil {
+func toExpr(expr *rulepb.ExpressionLite) *rulepb.Expression {
+	e := &rulepb.Expression{
+		OrCondition: parsOrCond(expr.GetOrCondition()),
+	}
+
+	return e
+}
+
+func parsOrCond(orCond []*rulepb.AndConditionLite) []*rulepb.AndCondition {
+	if orCond == nil {
 		return nil
 	}
 
-	node := &rulepb.RuleBased_Node{
-		Operator: toLogic(nodeLite.GetOperator()),
+	andCond := []*rulepb.AndCondition{}
+
+	for _, and := range orCond {
+		a := parseAndCond(and)
+		if a == nil {
+			continue
+		}
+
+		andCond = append(andCond, a)
 	}
 
-	for _, rLite := range nodeLite.GetRules() {
-		node.Rules = append(node.Rules, toRule(rLite))
-	}
-
-	for _, gLite := range nodeLite.GetGroups() {
-		node.Groups = append(node.Groups, toNode(gLite))
-	}
-
-	return node
+	return andCond
 }
 
-func toLogic(logic string) rulepb.Logic {
-	l, ok := rulepb.Logic_value[logic]
-	if !ok {
-		return rulepb.Logic_LOGIC_UNSPECIFIED
+func parseAndCond(andCond *rulepb.AndConditionLite) *rulepb.AndCondition {
+	if andCond == nil {
+		return nil
 	}
 
-	return rulepb.Logic(l)
+	and := &rulepb.AndCondition{}
+
+	for _, rule := range andCond.GetRules() {
+		and.Rules = append(and.Rules, toRule(rule))
+	}
+
+	and.OrCondition = parsOrCond(andCond.GetOrCondition())
+
+	return and
 }
 
 func toOperator(operator string) rulepb.Operator {

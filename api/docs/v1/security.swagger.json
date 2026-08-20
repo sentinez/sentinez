@@ -260,27 +260,6 @@
         }
       }
     },
-    "modulessecurityv1Rule": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "field": {
-          "$ref": "#/definitions/v1FieldSource"
-        },
-        "operator": {
-          "$ref": "#/definitions/v1Operator"
-        },
-        "value": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        }
-      },
-      "title": "Single rule"
-    },
     "modulessecurityv1RuleBased": {
       "type": "object",
       "properties": {
@@ -296,8 +275,8 @@
         "description": {
           "type": "string"
         },
-        "node": {
-          "$ref": "#/definitions/v1RuleGroup"
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
         },
         "action": {
           "type": "string"
@@ -320,6 +299,34 @@
       },
       "additionalProperties": {}
     },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rulev1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "title": "@gotags: yaml:\"name\""
+        },
+        "description": {
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/definitions/v1Condition",
+          "title": "@gotags: yaml:\"condition\""
+        }
+      },
+      "title": "A complete rule definition"
+    },
     "typesv1Status": {
       "type": "string",
       "enum": [
@@ -328,6 +335,53 @@
         "STATUS_DISABLE"
       ],
       "default": "STATUS_UNSPECIFIED"
+    },
+    "v1AndCondition": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rulev1Rule"
+          }
+        },
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndCondition"
+          }
+        }
+      }
+    },
+    "v1Condition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "@gotags: yaml:\"-\""
+        },
+        "source": {
+          "$ref": "#/definitions/v1FieldSource",
+          "description": "@gotags: yaml:\"source\"",
+          "title": "The source of the field\nExample: \"User-Agent\" or \"country\""
+        },
+        "key": {
+          "type": "string",
+          "title": "@gotags: yaml:\"key\""
+        },
+        "operator": {
+          "$ref": "#/definitions/v1Operator",
+          "description": "@gotags: yaml:\"operator\"",
+          "title": "Supported operators: \"eq\", \"ne\", \"contains\",\n\"matches\", \"in\", \"prefix\", \"suffix\", \"gt\", \"lt\""
+        },
+        "value": {
+          "description": "@gotags: yaml:\"value\"",
+          "title": "The value to compare against"
+        }
+      },
+      "title": "A logical condition expression"
     },
     "v1CreateRuleBasedRequest": {
       "type": "object",
@@ -347,6 +401,18 @@
     },
     "v1DeleteRuleBasedResponse": {
       "type": "object"
+    },
+    "v1Expression": {
+      "type": "object",
+      "properties": {
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndCondition"
+          }
+        }
+      }
     },
     "v1FieldSource": {
       "type": "string",
@@ -388,16 +454,6 @@
           "format": "int64"
         }
       }
-    },
-    "v1Logic": {
-      "type": "string",
-      "enum": [
-        "LOGIC_UNSPECIFIED",
-        "LOGIC_AND",
-        "LOGIC_OR",
-        "LOGIC_NOT"
-      ],
-      "default": "LOGIC_UNSPECIFIED"
     },
     "v1Metadata": {
       "type": "object",
@@ -446,40 +502,6 @@
           "type": "boolean"
         }
       }
-    },
-    "v1RuleGroup": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "combinator": {
-          "$ref": "#/definitions/v1Logic"
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleNode"
-          }
-        },
-        "not": {
-          "type": "boolean"
-        }
-      },
-      "title": "Group of rules"
-    },
-    "v1RuleNode": {
-      "type": "object",
-      "properties": {
-        "rule": {
-          "$ref": "#/definitions/modulessecurityv1Rule"
-        },
-        "group": {
-          "$ref": "#/definitions/v1RuleGroup"
-        }
-      },
-      "title": "Rule group item (recursive structure)"
     },
     "v1StatusResponse": {
       "type": "object",

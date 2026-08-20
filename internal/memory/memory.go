@@ -16,6 +16,7 @@
 package memory
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/internal/distrib"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -34,110 +36,206 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var (
-	lock sync.Mutex
-)
+var store *MemStore
+var once sync.Once
 
-func LoadSetting(st *edgepb.Setting) {
-	if err := settings.Store(st); err != nil {
-		zlog.Errorf("[edge] %v", err)
+func NewMemStore(st *edgepb.Setting) *MemStore {
+	once.Do(func() {
+		store = &MemStore{
+			setting:      settings.New(),
+			limiter:      ratelimiter.New(),
+			reverseProxy: reverseproxy.New(),
+			route:        routes.New(),
+			ruleBased:    ruleengine.New(),
+			rulesetsWAF:  wafengine.New(),
+		}
+
+		if err := store.setting.Store(st); err != nil {
+			zlog.Errorf("memory: save distribute setting err: %v", err)
+		}
+	})
+
+	return store
+}
+
+type MemStore struct {
+	setting      *settings.Setting
+	limiter      *ratelimiter.Limiter
+	reverseProxy *reverseproxy.ReverseProxy
+	route        *routes.Router
+	ruleBased    *ruleengine.RuleBased
+	rulesetsWAF  *wafengine.WAFRulesets
+}
+
+func (m *MemStore) Start(conf *settingpb.Config) {
+	distrib.StartCluster(conf)
+}
+
+func (m *MemStore) Shutdown(ctx context.Context) {
+	distrib.ShutdownCluster(ctx)
+}
+
+func (m *MemStore) WAFRulesets() *wafengine.WAFRulesets {
+	if m == nil {
+		return nil
+	}
+
+	return m.rulesetsWAF
+}
+
+func (m *MemStore) RuleBased() *ruleengine.RuleBased {
+	if m == nil {
+		return nil
+	}
+
+	return m.ruleBased
+}
+
+func (m *MemStore) Route() *routes.Router {
+	if m == nil {
+		return nil
+	}
+
+	return m.route
+}
+
+func (m *MemStore) ReverseProxy() *reverseproxy.ReverseProxy {
+	if m == nil {
+		return nil
+	}
+
+	return m.reverseProxy
+}
+
+func (m *MemStore) Limiter() *ratelimiter.Limiter {
+	if m == nil {
+		return nil
+	}
+
+	return m.limiter
+}
+
+func (m *MemStore) Setting() *settings.Setting {
+	if m == nil {
+		return nil
+	}
+
+	return m.setting
+}
+
+func (m *MemStore) LoadServer(server corehttp.Server) {
+	m.setting.Visit(func(s *edgepb.Setting) bool {
+		// routing for each tenant
+		_ = m.LoadRouter(s)
+
+		// load all reverse proxy for target origin
+		_ = m.LoadReverseProxy(server, s)
+
+		// rule config
+		_ = m.LoadRuleBased(s)
+
+		// rate limiter rule config
+		_ = m.LoadRateLimiter(s)
+
+		// waf rulesets config
+		_ = m.LoadRulesWAF(s)
+
+		return true
+	})
+}
+
+func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {
+	for _, s := range st {
+		if err := m.setting.Store(s); err != nil {
+			zlog.Errorf("[edge] %v", err)
+		}
 	}
 }
 
-func LoadRouter() {
-	settings.Visit(func(s *edgepb.Setting) bool {
-		routes.Store(s.GetServer())
-		return true
-	})
+func (m *MemStore) LoadRouter(s *edgepb.Setting) error {
+	m.route.Store(s.GetServer())
+	return nil
 }
 
-func LoadReverseProxy(server corehttp.Server) {
-	settings.Visit(func(s *edgepb.Setting) bool {
-		for _, routeConfig := range s.GetServer().GetLocations() {
-			for _, upstream := range routeConfig.GetProxyPass() {
-				if _, ok := reverseproxy.Load(upstream.GetServer()); ok {
-					continue
-				}
+func (m *MemStore) LoadReverseProxy(
+	server corehttp.Server, s *edgepb.Setting) error {
 
-				target, err := protocol.Upstream2Target(upstream)
-				if err != nil {
-					zlog.Warnf("reverse proxy: warn: %v", err)
-					continue
-				}
-
-				rproxy, err := server.AcceptReverse(target)
-				if err != nil {
-					zlog.Errorf("reverse proxy create err: %s", err)
-					continue
-				}
-
-				reverseproxy.Store(upstream.GetServer(), rproxy)
+	for _, routeConfig := range s.GetServer().GetLocations() {
+		for _, upstream := range routeConfig.GetProxyPass() {
+			if _, ok := m.reverseProxy.Load(upstream.GetServer()); ok {
+				continue
 			}
-		}
 
-		return true
-	})
+			target, err := protocol.Upstream2Target(upstream)
+			if err != nil {
+				zlog.Warnf("reverse proxy: warn: %v", err)
+				return err
+			}
+
+			rproxy, err := server.AcceptReverse(target)
+			if err != nil {
+				zlog.Errorf("reverse proxy create err: %s", err)
+				return err
+			}
+
+			m.reverseProxy.Store(upstream.GetServer(), rproxy)
+		}
+	}
+
+	return nil
 }
 
-func LoadRateLimiter() {
-	settings.Visit(func(s *edgepb.Setting) bool {
-		if !s.GetSecurity().GetIsRateLimitOn() {
-			zlog.Infof("[edge][limiter] ignore '%s'",
-				s.GetServer().GetName())
-			return true
-		}
+func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
+	if !s.GetSecurity().GetIsRateLimitOn() {
+		zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
+		return nil
+	}
 
-		size, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
-		if err != nil {
-			zlog.Fatalf("[edge] rate limiter, parse err: %v", err)
-			return true
-		}
+	size, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
+	if err != nil {
+		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
+		return err
+	}
 
-		timeout, err := time.ParseDuration(s.GetSecurity().GetTimeout())
-		if err != nil {
-			zlog.Fatalf("[edge] rate limiter, parse err: %v", err)
-			return true
-		}
+	timeout, err := time.ParseDuration(s.GetSecurity().GetTimeout())
+	if err != nil {
+		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
+		return err
+	}
 
-		lim := corelimiter.NewRateLimiter(
-			timeout,
-			size,
-			s.GetSecurity().GetLimit(),
-		)
-		ratelimiter.Store(s.GetServer().GetName(), lim)
+	lim := corelimiter.NewRateLimiter(
+		timeout,
+		size,
+		s.GetSecurity().GetLimit(),
+	)
+	m.limiter.Store(s.GetServer().GetName(), lim)
 
-		return true
-	})
+	return nil
 }
 
-func LoadWAF(appConf *settingpb.Config) {
+func (m *MemStore) LoadRulesWAF(s *edgepb.Setting) error {
 	var (
 		flag = corers.ReqAppAttackRCE
 	)
 
-	settings.Visit(func(s *edgepb.Setting) bool {
-		if !s.GetSecurity().GetIsWafEngineOn() {
-			zlog.Infof("[edge][waf] ignore '%s'", s.GetServer().GetName())
-			return true
-		}
+	if !s.GetSecurity().GetIsWafEngineOn() {
+		zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
+		return nil
+	}
 
-		ns := s.GetServer().GetName()
+	ns := s.GetServer().GetName()
 
-		err := wafengine.Store(ns, flag)
-		if err != nil {
-			zlog.Errorf("[edge] init coraza.WAF error: %v", err)
-		}
+	err := m.rulesetsWAF.Store(ns, flag)
+	if err != nil {
+		zlog.Errorf("edge: init coraza.WAF error: %v", err)
+		return err
+	}
 
-		return true
-	})
+	return nil
 }
 
-func LoadRuleBased() {
-	settings.Visit(func(s *edgepb.Setting) bool {
-		ruleengine.Store(
-			s.GetServer().GetName(),
-			s.GetSecurity().GetRuleBasedCompiled())
-
-		return true
-	})
+func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
+	m.ruleBased.Store(s.GetServer().GetName(),
+		s.GetSecurity().GetRuleBasedCompiled())
+	return nil
 }

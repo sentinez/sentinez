@@ -18,3 +18,7 @@ const (
 	MembershipAddress = "0.0.0.0:7946"
 	HTTPSAddress      = "0.0.0.0:443"
 )
+
+const (
+	NamespaceSetting = "sentinez.dmz.edge.setting"
+)

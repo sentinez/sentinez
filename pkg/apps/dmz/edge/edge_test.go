@@ -65,12 +65,12 @@ func BenchmarkStandardConverter(b *testing.B) {
 
 	begin := trace.NewTracer(zlog.LevelError)
 	begin.
-		SetNext(room.NewRoom(zlog.LevelError)).
-		SetNext(static.NewStatic(zlog.LevelError)).
-		SetNext(logging.NewLogger(zlog.LevelError)).
-		SetNext(secure.NewDomainBased("is.s6z.io.vn")).
-		SetNext(secure.NewRuleBased(zlog.LevelError)).
-		SetNext(secure.NewWAF(zlog.LevelError)).
+		SetNext(room.NewRoom(zlog.LevelError, nil)).
+		SetNext(static.NewStatic(zlog.LevelError, nil)).
+		SetNext(logging.NewLogger(zlog.LevelError, nil)).
+		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
+		SetNext(secure.NewRuleBased(zlog.LevelError, nil)).
+		SetNext(secure.NewWAF(zlog.LevelError, nil)).
 		SetNext(routing.NewMockRouter())
 
 	b.ReportAllocs()
@@ -98,12 +98,12 @@ func TestHandleChain(t *testing.T) {
 
 	begin := trace.NewTracer(zlog.LevelError)
 	begin.
-		SetNext(room.NewRoom(zlog.LevelError)).
-		SetNext(static.NewStatic(zlog.LevelError)).
-		SetNext(logging.NewLogger(zlog.LevelError)).
-		SetNext(secure.NewDomainBased("is.s6z.io.vn")).
-		SetNext(secure.NewRuleBased(zlog.LevelError)).
-		SetNext(secure.NewWAF(zlog.LevelError)).
+		SetNext(room.NewRoom(zlog.LevelError, nil)).
+		SetNext(static.NewStatic(zlog.LevelError, nil)).
+		SetNext(logging.NewLogger(zlog.LevelError, nil)).
+		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
+		SetNext(secure.NewRuleBased(zlog.LevelError, nil)).
+		SetNext(secure.NewWAF(zlog.LevelError, nil)).
 		SetNext(routing.NewMockRouter())
 
 	if err := begin.Handle(ctx); err != nil {

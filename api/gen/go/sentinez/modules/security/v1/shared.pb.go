@@ -21,11 +21,9 @@
 package securitypb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -36,291 +34,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Single rule
-type Rule struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Field         v1.FieldSource         `protobuf:"varint,2,opt,name=field,proto3,enum=sentinez.secure.rule.v1.FieldSource" json:"field,omitempty"`
-	Operator      v1.Operator            `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.secure.rule.v1.Operator" json:"operator,omitempty"`
-	Value         string                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
-	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Rule) Reset() {
-	*x = Rule{}
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Rule) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Rule) ProtoMessage() {}
-
-func (x *Rule) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Rule.ProtoReflect.Descriptor instead.
-func (*Rule) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_shared_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Rule) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *Rule) GetField() v1.FieldSource {
-	if x != nil {
-		return x.Field
-	}
-	return v1.FieldSource(0)
-}
-
-func (x *Rule) GetOperator() v1.Operator {
-	if x != nil {
-		return x.Operator
-	}
-	return v1.Operator(0)
-}
-
-func (x *Rule) GetValue() string {
-	if x != nil {
-		return x.Value
-	}
-	return ""
-}
-
-func (x *Rule) GetKey() string {
-	if x != nil {
-		return x.Key
-	}
-	return ""
-}
-
-// Rule group item (recursive structure)
-type RuleNode struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Node:
-	//
-	//	*RuleNode_Rule
-	//	*RuleNode_Group
-	Node          isRuleNode_Node `protobuf_oneof:"node"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RuleNode) Reset() {
-	*x = RuleNode{}
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RuleNode) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RuleNode) ProtoMessage() {}
-
-func (x *RuleNode) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RuleNode.ProtoReflect.Descriptor instead.
-func (*RuleNode) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_shared_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *RuleNode) GetNode() isRuleNode_Node {
-	if x != nil {
-		return x.Node
-	}
-	return nil
-}
-
-func (x *RuleNode) GetRule() *Rule {
-	if x != nil {
-		if x, ok := x.Node.(*RuleNode_Rule); ok {
-			return x.Rule
-		}
-	}
-	return nil
-}
-
-func (x *RuleNode) GetGroup() *RuleGroup {
-	if x != nil {
-		if x, ok := x.Node.(*RuleNode_Group); ok {
-			return x.Group
-		}
-	}
-	return nil
-}
-
-type isRuleNode_Node interface {
-	isRuleNode_Node()
-}
-
-type RuleNode_Rule struct {
-	Rule *Rule `protobuf:"bytes,1,opt,name=rule,proto3,oneof"`
-}
-
-type RuleNode_Group struct {
-	Group *RuleGroup `protobuf:"bytes,2,opt,name=group,proto3,oneof"`
-}
-
-func (*RuleNode_Rule) isRuleNode_Node() {}
-
-func (*RuleNode_Group) isRuleNode_Node() {}
-
-// Group of rules
-type RuleGroup struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Combinator    v1.Logic               `protobuf:"varint,2,opt,name=combinator,proto3,enum=sentinez.secure.rule.v1.Logic" json:"combinator,omitempty"`
-	Rules         []*RuleNode            `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
-	Not           bool                   `protobuf:"varint,4,opt,name=not,proto3" json:"not,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RuleGroup) Reset() {
-	*x = RuleGroup{}
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RuleGroup) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RuleGroup) ProtoMessage() {}
-
-func (x *RuleGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_modules_security_v1_shared_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RuleGroup.ProtoReflect.Descriptor instead.
-func (*RuleGroup) Descriptor() ([]byte, []int) {
-	return file_sentinez_modules_security_v1_shared_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *RuleGroup) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *RuleGroup) GetCombinator() v1.Logic {
-	if x != nil {
-		return x.Combinator
-	}
-	return v1.Logic(0)
-}
-
-func (x *RuleGroup) GetRules() []*RuleNode {
-	if x != nil {
-		return x.Rules
-	}
-	return nil
-}
-
-func (x *RuleGroup) GetNot() bool {
-	if x != nil {
-		return x.Not
-	}
-	return false
-}
-
 var File_sentinez_modules_security_v1_shared_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_security_v1_shared_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/modules/security/v1/shared.proto\x12\x1csentinez.modules.security.v1\x1a$sentinez/secure/rule/v1/engine.proto\"\xb9\x01\n" +
-	"\x04Rule\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
-	"\x05field\x18\x02 \x01(\x0e2$.sentinez.secure.rule.v1.FieldSourceR\x05field\x12=\n" +
-	"\boperator\x18\x03 \x01(\x0e2!.sentinez.secure.rule.v1.OperatorR\boperator\x12\x14\n" +
-	"\x05value\x18\x04 \x01(\tR\x05value\x12\x10\n" +
-	"\x03key\x18\x05 \x01(\tR\x03key\"\x8d\x01\n" +
-	"\bRuleNode\x128\n" +
-	"\x04rule\x18\x01 \x01(\v2\".sentinez.modules.security.v1.RuleH\x00R\x04rule\x12?\n" +
-	"\x05group\x18\x02 \x01(\v2'.sentinez.modules.security.v1.RuleGroupH\x00R\x05groupB\x06\n" +
-	"\x04node\"\xab\x01\n" +
-	"\tRuleGroup\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12>\n" +
-	"\n" +
-	"combinator\x18\x02 \x01(\x0e2\x1e.sentinez.secure.rule.v1.LogicR\n" +
-	"combinator\x12<\n" +
-	"\x05rules\x18\x03 \x03(\v2&.sentinez.modules.security.v1.RuleNodeR\x05rules\x12\x10\n" +
-	"\x03not\x18\x04 \x01(\bR\x03notBQZOgithub.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypbb\x06proto3"
+	")sentinez/modules/security/v1/shared.proto\x12\x1csentinez.modules.security.v1BQZOgithub.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypbb\x06proto3"
 
-var (
-	file_sentinez_modules_security_v1_shared_proto_rawDescOnce sync.Once
-	file_sentinez_modules_security_v1_shared_proto_rawDescData []byte
-)
-
-func file_sentinez_modules_security_v1_shared_proto_rawDescGZIP() []byte {
-	file_sentinez_modules_security_v1_shared_proto_rawDescOnce.Do(func() {
-		file_sentinez_modules_security_v1_shared_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_modules_security_v1_shared_proto_rawDesc), len(file_sentinez_modules_security_v1_shared_proto_rawDesc)))
-	})
-	return file_sentinez_modules_security_v1_shared_proto_rawDescData
-}
-
-var file_sentinez_modules_security_v1_shared_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_sentinez_modules_security_v1_shared_proto_goTypes = []any{
-	(*Rule)(nil),        // 0: sentinez.modules.security.v1.Rule
-	(*RuleNode)(nil),    // 1: sentinez.modules.security.v1.RuleNode
-	(*RuleGroup)(nil),   // 2: sentinez.modules.security.v1.RuleGroup
-	(v1.FieldSource)(0), // 3: sentinez.secure.rule.v1.FieldSource
-	(v1.Operator)(0),    // 4: sentinez.secure.rule.v1.Operator
-	(v1.Logic)(0),       // 5: sentinez.secure.rule.v1.Logic
-}
+var file_sentinez_modules_security_v1_shared_proto_goTypes = []any{}
 var file_sentinez_modules_security_v1_shared_proto_depIdxs = []int32{
-	3, // 0: sentinez.modules.security.v1.Rule.field:type_name -> sentinez.secure.rule.v1.FieldSource
-	4, // 1: sentinez.modules.security.v1.Rule.operator:type_name -> sentinez.secure.rule.v1.Operator
-	0, // 2: sentinez.modules.security.v1.RuleNode.rule:type_name -> sentinez.modules.security.v1.Rule
-	2, // 3: sentinez.modules.security.v1.RuleNode.group:type_name -> sentinez.modules.security.v1.RuleGroup
-	5, // 4: sentinez.modules.security.v1.RuleGroup.combinator:type_name -> sentinez.secure.rule.v1.Logic
-	1, // 5: sentinez.modules.security.v1.RuleGroup.rules:type_name -> sentinez.modules.security.v1.RuleNode
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	0, // [0:0] is the sub-list for method output_type
+	0, // [0:0] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_modules_security_v1_shared_proto_init() }
@@ -328,23 +54,18 @@ func file_sentinez_modules_security_v1_shared_proto_init() {
 	if File_sentinez_modules_security_v1_shared_proto != nil {
 		return
 	}
-	file_sentinez_modules_security_v1_shared_proto_msgTypes[1].OneofWrappers = []any{
-		(*RuleNode_Rule)(nil),
-		(*RuleNode_Group)(nil),
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_modules_security_v1_shared_proto_rawDesc), len(file_sentinez_modules_security_v1_shared_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_modules_security_v1_shared_proto_goTypes,
 		DependencyIndexes: file_sentinez_modules_security_v1_shared_proto_depIdxs,
-		MessageInfos:      file_sentinez_modules_security_v1_shared_proto_msgTypes,
 	}.Build()
 	File_sentinez_modules_security_v1_shared_proto = out.File
 	file_sentinez_modules_security_v1_shared_proto_goTypes = nil

@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/memory/ruleengine"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -29,9 +29,10 @@ var (
 	matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
-func NewRuleBased(ll zlog.Level) corechains.ChainNode {
+func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &RuleBased{
-		Node: corechains.NewNode(),
+		Node:  corechains.NewNode(),
+		store: store,
 		logger: zlog.NewJSONLogger(
 			edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_RULE, ll,
@@ -42,13 +43,14 @@ func NewRuleBased(ll zlog.Level) corechains.ChainNode {
 type RuleBased struct {
 	*corechains.Node
 	logger zlog.Logger
+	store  *memory.MemStore
 }
 
 func (r *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
-	rule := ruleengine.Get().LoadContext(ctx)
-	if rule == nil {
+	rule, ok := r.store.RuleBased().LoadContext(ctx)
+	if !ok {
 		return r.HandleNext(ctx)
 	}
 
@@ -63,7 +65,7 @@ func (r *RuleBased) Handle(ctx corehttp.Context) error {
 
 	switch rule.Action().GetType() {
 	case rulepb.ActionType_ACTION_TYPE_BLOCK:
-		zlog.Debugf("[edge] matched rule %v", matched)
+		zlog.Debugf("edge: matched rule %v", matched)
 		return corehttp.Forbidden(ctx)
 	}
 

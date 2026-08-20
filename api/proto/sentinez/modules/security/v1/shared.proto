@@ -16,31 +16,4 @@ syntax = "proto3";
 
 package sentinez.modules.security.v1;
 
-import "sentinez/secure/rule/v1/engine.proto";
-
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypb";
-
-// Single rule
-message Rule {
-  string id = 1;
-  sentinez.secure.rule.v1.FieldSource field = 2;
-  sentinez.secure.rule.v1.Operator operator = 3;
-  string value = 4;
-  string key = 5;
-}
-
-// Rule group item (recursive structure)
-message RuleNode {
-  oneof node {
-    Rule rule = 1;
-    RuleGroup group = 2;
-  }
-}
-
-// Group of rules
-message RuleGroup {
-  string id = 1;
-   sentinez.secure.rule.v1.Logic combinator = 2;
-  repeated RuleNode rules = 3;
-  bool not = 4;
-}

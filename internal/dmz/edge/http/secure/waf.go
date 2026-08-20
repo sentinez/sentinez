@@ -27,25 +27,27 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/memory/wafengine"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewWAF(logLevel zlog.Level) corechains.ChainNode {
+func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &WAF{
 		Node: corechains.NewNode(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_WAF, logLevel,
 		),
 		cached: mem.New[[]byte](time.Second*30, time.Second*31),
+		store:  store,
 	}
 }
 
 type WAF struct {
 	*corechains.Node
 	logger zlog.Logger
+	store  *memory.MemStore
 	cached *mem.Cache[[]byte]
 }
 
@@ -53,8 +55,8 @@ type WAF struct {
 func (w *WAF) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit WAF")
 
-	waf := wafengine.Get().LoadContext(ctx)
-	if waf == nil {
+	waf, ok := w.store.WAFRulesets().LoadContext(ctx)
+	if !ok {
 		return w.HandleNext(ctx)
 	}
 
