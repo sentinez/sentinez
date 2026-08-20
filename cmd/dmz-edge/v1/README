@@ -4,13 +4,20 @@
 
 =======================================================================
 
-cmd/edge/v1 directory is where you start the edge version 1
+cmd/dmz-edge/v1 directory is where you start the edge version 1
 
 ```bash
-go run cmd/edge/v1/main.go
+go run cmd/dmz-edge/v1/main.go \
+    --cert_file=cmd/dmz-edge/v1/<your>.cert \
+	--cert_key_file=cmd/dmz-edge/v1/<your>.key \
+	--proxy_config=./cmd/dmz-edge/v1/proxy.yaml \
+	--env_file=./cmd/dmz-edge/v1/.env
 ```
 
-You need TLS certificate to start the app.
+**You need TLS certificate to start the app.**
+
+If you don't have certificate, you can install local certificate according to
+the instructions bellow. 
 
 For developer, run edge in local, run this command to generate local TLS
 certificate with domain `*.sentinez.vn` and `sentinez.vn`, run command at root
