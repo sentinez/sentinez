@@ -81,7 +81,6 @@ func execAndCond(
 			mr.Ids = append(mr.Ids, ids...)
 			mr.Names = append(mr.Names, names...)
 		}
-
 		return true
 	}
 
