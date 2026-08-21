@@ -6,9 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Expression } from "../../../secure/rule/v1/engine";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
-import { RuleGroup } from "./shared";
 
 export const protobufPackage = "sentinez.modules.security.v1";
 
@@ -17,7 +17,7 @@ export interface RuleBased {
   id: string;
   name: string;
   description: string;
-  node?: RuleGroup | undefined;
+  expr?: Expression | undefined;
   action: string;
   status: Status;
   priority: number;
@@ -29,7 +29,7 @@ function createBaseRuleBased(): RuleBased {
     id: "",
     name: "",
     description: "",
-    node: undefined,
+    expr: undefined,
     action: "",
     status: 0,
     priority: 0,
@@ -50,8 +50,8 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.description !== "") {
       writer.uint32(34).string(message.description);
     }
-    if (message.node !== undefined) {
-      RuleGroup.encode(message.node, writer.uint32(42).fork()).join();
+    if (message.expr !== undefined) {
+      Expression.encode(message.expr, writer.uint32(42).fork()).join();
     }
     if (message.action !== "") {
       writer.uint32(50).string(message.action);
@@ -109,7 +109,7 @@ export const RuleBased: MessageFns<RuleBased> = {
             break;
           }
 
-          message.node = RuleGroup.decode(reader, reader.uint32());
+          message.expr = Expression.decode(reader, reader.uint32());
           continue;
         }
         case 6: {
@@ -151,7 +151,7 @@ export const RuleBased: MessageFns<RuleBased> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      node: isSet(object.node) ? RuleGroup.fromJSON(object.node) : undefined,
+      expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
       action: isSet(object.action) ? globalThis.String(object.action) : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
@@ -172,8 +172,8 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.node !== undefined) {
-      obj.node = RuleGroup.toJSON(message.node);
+    if (message.expr !== undefined) {
+      obj.expr = Expression.toJSON(message.expr);
     }
     if (message.action !== "") {
       obj.action = message.action;
@@ -198,7 +198,9 @@ export const RuleBased: MessageFns<RuleBased> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.node = (object.node !== undefined && object.node !== null) ? RuleGroup.fromPartial(object.node) : undefined;
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? Expression.fromPartial(object.expr)
+      : undefined;
     message.action = object.action ?? "";
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
