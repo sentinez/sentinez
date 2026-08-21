@@ -11,251 +11,110 @@ import { Flag } from "./flags";
 
 export const protobufPackage = "sentinez.setting.v1";
 
-export interface EnvConfig {
-  /**
-   * hostname of service.
-   * eg s6z.io.vn
-   */
-  hostname: string;
-  /** http address, api, application ... */
-  httpAddress: string;
-  /** secret key base64 encoded */
-  secretKey: string;
-  /** address of api gateway */
-  gatewayAddress: string;
-  /** origin of client, used to gen passkey */
-  clientOrigin: string;
-  timescaleUri: string;
-  postgresUri: string;
-  clickhouseUri: string;
-  consulUri: string;
-  /** The address where the gRPC service will listen when it starts. */
-  grpcAddress: string;
+export enum Senz {
+  SENZ_UNSPECIFIED = 0,
+  /** SENZ_HOSTNAME - hostname of service. eg s6z.io.vn */
+  SENZ_HOSTNAME = 1,
+  /** SENZ_ADDRESS - http address, api, application ... */
+  SENZ_ADDRESS = 2,
+  /** SENZ_SECRET_KEY - secret key base64 encoded */
+  SENZ_SECRET_KEY = 3,
+  /** SENZ_CLIENT_ORIGIN - origin of client, used to gen passkey */
+  SENZ_CLIENT_ORIGIN = 4,
+  SENZ_TIMESCALE_URI = 5,
+  SENZ_POSTGRES_URI = 6,
+  SENZ_CLICKHOUSE_URI = 7,
+  SENZ_CONSUL_URI = 8,
+  SENZ_MEMBERSHIP_ADDRESS = 9,
+  SENZ_DISCOVERY_ADDRESS = 10,
+  UNRECOGNIZED = -1,
+}
+
+export function senzFromJSON(object: any): Senz {
+  switch (object) {
+    case 0:
+    case "SENZ_UNSPECIFIED":
+      return Senz.SENZ_UNSPECIFIED;
+    case 1:
+    case "SENZ_HOSTNAME":
+      return Senz.SENZ_HOSTNAME;
+    case 2:
+    case "SENZ_ADDRESS":
+      return Senz.SENZ_ADDRESS;
+    case 3:
+    case "SENZ_SECRET_KEY":
+      return Senz.SENZ_SECRET_KEY;
+    case 4:
+    case "SENZ_CLIENT_ORIGIN":
+      return Senz.SENZ_CLIENT_ORIGIN;
+    case 5:
+    case "SENZ_TIMESCALE_URI":
+      return Senz.SENZ_TIMESCALE_URI;
+    case 6:
+    case "SENZ_POSTGRES_URI":
+      return Senz.SENZ_POSTGRES_URI;
+    case 7:
+    case "SENZ_CLICKHOUSE_URI":
+      return Senz.SENZ_CLICKHOUSE_URI;
+    case 8:
+    case "SENZ_CONSUL_URI":
+      return Senz.SENZ_CONSUL_URI;
+    case 9:
+    case "SENZ_MEMBERSHIP_ADDRESS":
+      return Senz.SENZ_MEMBERSHIP_ADDRESS;
+    case 10:
+    case "SENZ_DISCOVERY_ADDRESS":
+      return Senz.SENZ_DISCOVERY_ADDRESS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Senz.UNRECOGNIZED;
+  }
+}
+
+export function senzToJSON(object: Senz): string {
+  switch (object) {
+    case Senz.SENZ_UNSPECIFIED:
+      return "SENZ_UNSPECIFIED";
+    case Senz.SENZ_HOSTNAME:
+      return "SENZ_HOSTNAME";
+    case Senz.SENZ_ADDRESS:
+      return "SENZ_ADDRESS";
+    case Senz.SENZ_SECRET_KEY:
+      return "SENZ_SECRET_KEY";
+    case Senz.SENZ_CLIENT_ORIGIN:
+      return "SENZ_CLIENT_ORIGIN";
+    case Senz.SENZ_TIMESCALE_URI:
+      return "SENZ_TIMESCALE_URI";
+    case Senz.SENZ_POSTGRES_URI:
+      return "SENZ_POSTGRES_URI";
+    case Senz.SENZ_CLICKHOUSE_URI:
+      return "SENZ_CLICKHOUSE_URI";
+    case Senz.SENZ_CONSUL_URI:
+      return "SENZ_CONSUL_URI";
+    case Senz.SENZ_MEMBERSHIP_ADDRESS:
+      return "SENZ_MEMBERSHIP_ADDRESS";
+    case Senz.SENZ_DISCOVERY_ADDRESS:
+      return "SENZ_DISCOVERY_ADDRESS";
+    case Senz.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
 }
 
 export interface Config {
   meta?: XMeta | undefined;
-  env?: EnvConfig | undefined;
   flag?: Flag | undefined;
+  env: { [key: string]: string };
 }
 
-function createBaseEnvConfig(): EnvConfig {
-  return {
-    hostname: "",
-    httpAddress: "",
-    secretKey: "",
-    gatewayAddress: "",
-    clientOrigin: "",
-    timescaleUri: "",
-    postgresUri: "",
-    clickhouseUri: "",
-    consulUri: "",
-    grpcAddress: "",
-  };
+export interface Config_EnvEntry {
+  key: string;
+  value: string;
 }
-
-export const EnvConfig: MessageFns<EnvConfig> = {
-  encode(message: EnvConfig, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.hostname !== "") {
-      writer.uint32(10).string(message.hostname);
-    }
-    if (message.httpAddress !== "") {
-      writer.uint32(18).string(message.httpAddress);
-    }
-    if (message.secretKey !== "") {
-      writer.uint32(26).string(message.secretKey);
-    }
-    if (message.gatewayAddress !== "") {
-      writer.uint32(34).string(message.gatewayAddress);
-    }
-    if (message.clientOrigin !== "") {
-      writer.uint32(42).string(message.clientOrigin);
-    }
-    if (message.timescaleUri !== "") {
-      writer.uint32(82).string(message.timescaleUri);
-    }
-    if (message.postgresUri !== "") {
-      writer.uint32(90).string(message.postgresUri);
-    }
-    if (message.clickhouseUri !== "") {
-      writer.uint32(98).string(message.clickhouseUri);
-    }
-    if (message.consulUri !== "") {
-      writer.uint32(106).string(message.consulUri);
-    }
-    if (message.grpcAddress !== "") {
-      writer.uint32(162).string(message.grpcAddress);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): EnvConfig {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEnvConfig();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.hostname = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.httpAddress = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.secretKey = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.gatewayAddress = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.clientOrigin = reader.string();
-          continue;
-        }
-        case 10: {
-          if (tag !== 82) {
-            break;
-          }
-
-          message.timescaleUri = reader.string();
-          continue;
-        }
-        case 11: {
-          if (tag !== 90) {
-            break;
-          }
-
-          message.postgresUri = reader.string();
-          continue;
-        }
-        case 12: {
-          if (tag !== 98) {
-            break;
-          }
-
-          message.clickhouseUri = reader.string();
-          continue;
-        }
-        case 13: {
-          if (tag !== 106) {
-            break;
-          }
-
-          message.consulUri = reader.string();
-          continue;
-        }
-        case 20: {
-          if (tag !== 162) {
-            break;
-          }
-
-          message.grpcAddress = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): EnvConfig {
-    return {
-      hostname: isSet(object.hostname) ? globalThis.String(object.hostname) : "",
-      httpAddress: isSet(object.httpAddress) ? globalThis.String(object.httpAddress) : "",
-      secretKey: isSet(object.secretKey) ? globalThis.String(object.secretKey) : "",
-      gatewayAddress: isSet(object.gatewayAddress) ? globalThis.String(object.gatewayAddress) : "",
-      clientOrigin: isSet(object.clientOrigin) ? globalThis.String(object.clientOrigin) : "",
-      timescaleUri: isSet(object.timescaleUri) ? globalThis.String(object.timescaleUri) : "",
-      postgresUri: isSet(object.postgresUri) ? globalThis.String(object.postgresUri) : "",
-      clickhouseUri: isSet(object.clickhouseUri) ? globalThis.String(object.clickhouseUri) : "",
-      consulUri: isSet(object.consulUri) ? globalThis.String(object.consulUri) : "",
-      grpcAddress: isSet(object.grpcAddress) ? globalThis.String(object.grpcAddress) : "",
-    };
-  },
-
-  toJSON(message: EnvConfig): unknown {
-    const obj: any = {};
-    if (message.hostname !== "") {
-      obj.hostname = message.hostname;
-    }
-    if (message.httpAddress !== "") {
-      obj.httpAddress = message.httpAddress;
-    }
-    if (message.secretKey !== "") {
-      obj.secretKey = message.secretKey;
-    }
-    if (message.gatewayAddress !== "") {
-      obj.gatewayAddress = message.gatewayAddress;
-    }
-    if (message.clientOrigin !== "") {
-      obj.clientOrigin = message.clientOrigin;
-    }
-    if (message.timescaleUri !== "") {
-      obj.timescaleUri = message.timescaleUri;
-    }
-    if (message.postgresUri !== "") {
-      obj.postgresUri = message.postgresUri;
-    }
-    if (message.clickhouseUri !== "") {
-      obj.clickhouseUri = message.clickhouseUri;
-    }
-    if (message.consulUri !== "") {
-      obj.consulUri = message.consulUri;
-    }
-    if (message.grpcAddress !== "") {
-      obj.grpcAddress = message.grpcAddress;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<EnvConfig>, I>>(base?: I): EnvConfig {
-    return EnvConfig.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<EnvConfig>, I>>(object: I): EnvConfig {
-    const message = createBaseEnvConfig();
-    message.hostname = object.hostname ?? "";
-    message.httpAddress = object.httpAddress ?? "";
-    message.secretKey = object.secretKey ?? "";
-    message.gatewayAddress = object.gatewayAddress ?? "";
-    message.clientOrigin = object.clientOrigin ?? "";
-    message.timescaleUri = object.timescaleUri ?? "";
-    message.postgresUri = object.postgresUri ?? "";
-    message.clickhouseUri = object.clickhouseUri ?? "";
-    message.consulUri = object.consulUri ?? "";
-    message.grpcAddress = object.grpcAddress ?? "";
-    return message;
-  },
-};
 
 function createBaseConfig(): Config {
-  return { meta: undefined, env: undefined, flag: undefined };
+  return { meta: undefined, flag: undefined, env: {} };
 }
 
 export const Config: MessageFns<Config> = {
@@ -263,12 +122,12 @@ export const Config: MessageFns<Config> = {
     if (message.meta !== undefined) {
       XMeta.encode(message.meta, writer.uint32(10).fork()).join();
     }
-    if (message.env !== undefined) {
-      EnvConfig.encode(message.env, writer.uint32(18).fork()).join();
-    }
     if (message.flag !== undefined) {
-      Flag.encode(message.flag, writer.uint32(26).fork()).join();
+      Flag.encode(message.flag, writer.uint32(18).fork()).join();
     }
+    Object.entries(message.env).forEach(([key, value]) => {
+      Config_EnvEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
+    });
     return writer;
   },
 
@@ -292,7 +151,7 @@ export const Config: MessageFns<Config> = {
             break;
           }
 
-          message.env = EnvConfig.decode(reader, reader.uint32());
+          message.flag = Flag.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -300,7 +159,10 @@ export const Config: MessageFns<Config> = {
             break;
           }
 
-          message.flag = Flag.decode(reader, reader.uint32());
+          const entry3 = Config_EnvEntry.decode(reader, reader.uint32());
+          if (entry3.value !== undefined) {
+            message.env[entry3.key] = entry3.value;
+          }
           continue;
         }
       }
@@ -315,8 +177,13 @@ export const Config: MessageFns<Config> = {
   fromJSON(object: any): Config {
     return {
       meta: isSet(object.meta) ? XMeta.fromJSON(object.meta) : undefined,
-      env: isSet(object.env) ? EnvConfig.fromJSON(object.env) : undefined,
       flag: isSet(object.flag) ? Flag.fromJSON(object.flag) : undefined,
+      env: isObject(object.env)
+        ? Object.entries(object.env).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {})
+        : {},
     };
   },
 
@@ -325,11 +192,17 @@ export const Config: MessageFns<Config> = {
     if (message.meta !== undefined) {
       obj.meta = XMeta.toJSON(message.meta);
     }
-    if (message.env !== undefined) {
-      obj.env = EnvConfig.toJSON(message.env);
-    }
     if (message.flag !== undefined) {
       obj.flag = Flag.toJSON(message.flag);
+    }
+    if (message.env) {
+      const entries = Object.entries(message.env);
+      if (entries.length > 0) {
+        obj.env = {};
+        entries.forEach(([k, v]) => {
+          obj.env[k] = v;
+        });
+      }
     }
     return obj;
   },
@@ -340,8 +213,89 @@ export const Config: MessageFns<Config> = {
   fromPartial<I extends Exact<DeepPartial<Config>, I>>(object: I): Config {
     const message = createBaseConfig();
     message.meta = (object.meta !== undefined && object.meta !== null) ? XMeta.fromPartial(object.meta) : undefined;
-    message.env = (object.env !== undefined && object.env !== null) ? EnvConfig.fromPartial(object.env) : undefined;
     message.flag = (object.flag !== undefined && object.flag !== null) ? Flag.fromPartial(object.flag) : undefined;
+    message.env = Object.entries(object.env ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
+    return message;
+  },
+};
+
+function createBaseConfig_EnvEntry(): Config_EnvEntry {
+  return { key: "", value: "" };
+}
+
+export const Config_EnvEntry: MessageFns<Config_EnvEntry> = {
+  encode(message: Config_EnvEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Config_EnvEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseConfig_EnvEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Config_EnvEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: Config_EnvEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Config_EnvEntry>, I>>(base?: I): Config_EnvEntry {
+    return Config_EnvEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Config_EnvEntry>, I>>(object: I): Config_EnvEntry {
+    const message = createBaseConfig_EnvEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -357,6 +311,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

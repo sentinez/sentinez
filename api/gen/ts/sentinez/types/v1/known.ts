@@ -12,10 +12,9 @@ export const protobufPackage = "sentinez.types.v1";
 
 export enum Kind {
   KIND_UNSPECIFIED = 0,
-  KIND_GATEWAY_API = 1,
-  KIND_GATEWAY_EDGE = 2,
-  KIND_GATEWAY_WEBSOCKET = 3,
-  KIND_CORE = 4,
+  KIND_ACCESS_ZONE = 1,
+  KIND_DEMILITARIZED_ZONE = 2,
+  KIND_MESH = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -25,17 +24,14 @@ export function kindFromJSON(object: any): Kind {
     case "KIND_UNSPECIFIED":
       return Kind.KIND_UNSPECIFIED;
     case 1:
-    case "KIND_GATEWAY_API":
-      return Kind.KIND_GATEWAY_API;
+    case "KIND_ACCESS_ZONE":
+      return Kind.KIND_ACCESS_ZONE;
     case 2:
-    case "KIND_GATEWAY_EDGE":
-      return Kind.KIND_GATEWAY_EDGE;
-    case 3:
-    case "KIND_GATEWAY_WEBSOCKET":
-      return Kind.KIND_GATEWAY_WEBSOCKET;
+    case "KIND_DEMILITARIZED_ZONE":
+      return Kind.KIND_DEMILITARIZED_ZONE;
     case 4:
-    case "KIND_CORE":
-      return Kind.KIND_CORE;
+    case "KIND_MESH":
+      return Kind.KIND_MESH;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -47,14 +43,12 @@ export function kindToJSON(object: Kind): string {
   switch (object) {
     case Kind.KIND_UNSPECIFIED:
       return "KIND_UNSPECIFIED";
-    case Kind.KIND_GATEWAY_API:
-      return "KIND_GATEWAY_API";
-    case Kind.KIND_GATEWAY_EDGE:
-      return "KIND_GATEWAY_EDGE";
-    case Kind.KIND_GATEWAY_WEBSOCKET:
-      return "KIND_GATEWAY_WEBSOCKET";
-    case Kind.KIND_CORE:
-      return "KIND_CORE";
+    case Kind.KIND_ACCESS_ZONE:
+      return "KIND_ACCESS_ZONE";
+    case Kind.KIND_DEMILITARIZED_ZONE:
+      return "KIND_DEMILITARIZED_ZONE";
+    case Kind.KIND_MESH:
+      return "KIND_MESH";
     case Kind.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

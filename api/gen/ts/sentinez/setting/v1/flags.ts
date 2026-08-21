@@ -17,7 +17,6 @@ export interface Flag {
   envFile: string;
   swaggerPath: string;
   apiSpecsPath: string;
-  rulePath: string;
   proxyConfig: string;
   certFile: string;
   certKeyFile: string;
@@ -30,7 +29,6 @@ function createBaseFlag(): Flag {
     envFile: "",
     swaggerPath: "",
     apiSpecsPath: "",
-    rulePath: "",
     proxyConfig: "",
     certFile: "",
     certKeyFile: "",
@@ -54,17 +52,14 @@ export const Flag: MessageFns<Flag> = {
     if (message.apiSpecsPath !== "") {
       writer.uint32(42).string(message.apiSpecsPath);
     }
-    if (message.rulePath !== "") {
-      writer.uint32(50).string(message.rulePath);
-    }
     if (message.proxyConfig !== "") {
-      writer.uint32(58).string(message.proxyConfig);
+      writer.uint32(50).string(message.proxyConfig);
     }
     if (message.certFile !== "") {
-      writer.uint32(66).string(message.certFile);
+      writer.uint32(58).string(message.certFile);
     }
     if (message.certKeyFile !== "") {
-      writer.uint32(74).string(message.certKeyFile);
+      writer.uint32(66).string(message.certKeyFile);
     }
     return writer;
   },
@@ -121,7 +116,7 @@ export const Flag: MessageFns<Flag> = {
             break;
           }
 
-          message.rulePath = reader.string();
+          message.proxyConfig = reader.string();
           continue;
         }
         case 7: {
@@ -129,19 +124,11 @@ export const Flag: MessageFns<Flag> = {
             break;
           }
 
-          message.proxyConfig = reader.string();
+          message.certFile = reader.string();
           continue;
         }
         case 8: {
           if (tag !== 66) {
-            break;
-          }
-
-          message.certFile = reader.string();
-          continue;
-        }
-        case 9: {
-          if (tag !== 74) {
             break;
           }
 
@@ -164,7 +151,6 @@ export const Flag: MessageFns<Flag> = {
       envFile: isSet(object.envFile) ? globalThis.String(object.envFile) : "",
       swaggerPath: isSet(object.swaggerPath) ? globalThis.String(object.swaggerPath) : "",
       apiSpecsPath: isSet(object.apiSpecsPath) ? globalThis.String(object.apiSpecsPath) : "",
-      rulePath: isSet(object.rulePath) ? globalThis.String(object.rulePath) : "",
       proxyConfig: isSet(object.proxyConfig) ? globalThis.String(object.proxyConfig) : "",
       certFile: isSet(object.certFile) ? globalThis.String(object.certFile) : "",
       certKeyFile: isSet(object.certKeyFile) ? globalThis.String(object.certKeyFile) : "",
@@ -188,9 +174,6 @@ export const Flag: MessageFns<Flag> = {
     if (message.apiSpecsPath !== "") {
       obj.apiSpecsPath = message.apiSpecsPath;
     }
-    if (message.rulePath !== "") {
-      obj.rulePath = message.rulePath;
-    }
     if (message.proxyConfig !== "") {
       obj.proxyConfig = message.proxyConfig;
     }
@@ -213,7 +196,6 @@ export const Flag: MessageFns<Flag> = {
     message.envFile = object.envFile ?? "";
     message.swaggerPath = object.swaggerPath ?? "";
     message.apiSpecsPath = object.apiSpecsPath ?? "";
-    message.rulePath = object.rulePath ?? "";
     message.proxyConfig = object.proxyConfig ?? "";
     message.certFile = object.certFile ?? "";
     message.certKeyFile = object.certKeyFile ?? "";

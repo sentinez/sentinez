@@ -89,7 +89,7 @@ export function ruleBehaviorToJSON(object: RuleBehavior): string {
 
 export interface CoreRulesets {
   name: string;
-  coreRules: CoreRule[];
+  rules: CoreRule[];
   version: string;
 }
 
@@ -118,7 +118,7 @@ export interface RuleActionField {
 }
 
 function createBaseCoreRulesets(): CoreRulesets {
-  return { name: "", coreRules: [], version: "" };
+  return { name: "", rules: [], version: "" };
 }
 
 export const CoreRulesets: MessageFns<CoreRulesets> = {
@@ -126,7 +126,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
-    for (const v of message.coreRules) {
+    for (const v of message.rules) {
       CoreRule.encode(v!, writer.uint32(18).fork()).join();
     }
     if (message.version !== "") {
@@ -155,7 +155,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
             break;
           }
 
-          message.coreRules.push(CoreRule.decode(reader, reader.uint32()));
+          message.rules.push(CoreRule.decode(reader, reader.uint32()));
           continue;
         }
         case 3: {
@@ -178,9 +178,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
   fromJSON(object: any): CoreRulesets {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      coreRules: globalThis.Array.isArray(object?.coreRules)
-        ? object.coreRules.map((e: any) => CoreRule.fromJSON(e))
-        : [],
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => CoreRule.fromJSON(e)) : [],
       version: isSet(object.version) ? globalThis.String(object.version) : "",
     };
   },
@@ -190,8 +188,8 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     if (message.name !== "") {
       obj.name = message.name;
     }
-    if (message.coreRules?.length) {
-      obj.coreRules = message.coreRules.map((e) => CoreRule.toJSON(e));
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => CoreRule.toJSON(e));
     }
     if (message.version !== "") {
       obj.version = message.version;
@@ -205,7 +203,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
   fromPartial<I extends Exact<DeepPartial<CoreRulesets>, I>>(object: I): CoreRulesets {
     const message = createBaseCoreRulesets();
     message.name = object.name ?? "";
-    message.coreRules = object.coreRules?.map((e) => CoreRule.fromPartial(e)) || [];
+    message.rules = object.rules?.map((e) => CoreRule.fromPartial(e)) || [];
     message.version = object.version ?? "";
     return message;
   },

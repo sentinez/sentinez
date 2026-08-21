@@ -193,51 +193,6 @@ export function operatorToJSON(object: Operator): string {
   }
 }
 
-export enum Logic {
-  LOGIC_UNSPECIFIED = 0,
-  LOGIC_AND = 1,
-  LOGIC_OR = 2,
-  LOGIC_NOT = 3,
-  UNRECOGNIZED = -1,
-}
-
-export function logicFromJSON(object: any): Logic {
-  switch (object) {
-    case 0:
-    case "LOGIC_UNSPECIFIED":
-      return Logic.LOGIC_UNSPECIFIED;
-    case 1:
-    case "LOGIC_AND":
-      return Logic.LOGIC_AND;
-    case 2:
-    case "LOGIC_OR":
-      return Logic.LOGIC_OR;
-    case 3:
-    case "LOGIC_NOT":
-      return Logic.LOGIC_NOT;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return Logic.UNRECOGNIZED;
-  }
-}
-
-export function logicToJSON(object: Logic): string {
-  switch (object) {
-    case Logic.LOGIC_UNSPECIFIED:
-      return "LOGIC_UNSPECIFIED";
-    case Logic.LOGIC_AND:
-      return "LOGIC_AND";
-    case Logic.LOGIC_OR:
-      return "LOGIC_OR";
-    case Logic.LOGIC_NOT:
-      return "LOGIC_NOT";
-    case Logic.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
 export enum ActionType {
   ACTION_TYPE_UNSPECIFIED = 0,
   ACTION_TYPE_BLOCK = 1,
@@ -342,6 +297,16 @@ export interface Rule {
   condition?: Condition | undefined;
 }
 
+export interface AndCondition {
+  rules: Rule[];
+  orCondition: AndCondition[];
+}
+
+export interface AndConditionLite {
+  rules: RuleLite[];
+  orCondition: AndConditionLite[];
+}
+
 /** A complete rule definition */
 export interface RuleLite {
   id: string;
@@ -373,6 +338,14 @@ export interface ConditionLite {
   value: string;
 }
 
+export interface Expression {
+  orCondition: AndCondition[];
+}
+
+export interface ExpressionLite {
+  orCondition: AndConditionLite[];
+}
+
 export interface MatchedRules {
   ids: string[];
   names: string[];
@@ -382,7 +355,7 @@ export interface RuleBased {
   id: string;
   name: string;
   description: string;
-  node?: RuleBased_Node | undefined;
+  expr?: Expression | undefined;
   action?: Action | undefined;
   status: Status;
   priority: number;
@@ -390,25 +363,12 @@ export interface RuleBased {
   updatedAt?: Date | undefined;
 }
 
-export interface RuleBased_Node {
-  operator: Logic;
-  rules: Rule[];
-  groups: RuleBased_Node[];
-}
-
 export interface RuleBasedLite {
   id: string;
   name: string;
   description: string;
-  node?: RuleBasedLite_NodeLite | undefined;
+  expr?: ExpressionLite | undefined;
   action?: Action | undefined;
-}
-
-export interface RuleBasedLite_NodeLite {
-  /** AND, OR, NOT */
-  operator: string;
-  rules: RuleLite[];
-  groups: RuleBasedLite_NodeLite[];
 }
 
 function createBaseCondition(): Condition {
@@ -721,6 +681,162 @@ export const Rule: MessageFns<Rule> = {
   },
 };
 
+function createBaseAndCondition(): AndCondition {
+  return { rules: [], orCondition: [] };
+}
+
+export const AndCondition: MessageFns<AndCondition> = {
+  encode(message: AndCondition, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      Rule.encode(v!, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.orCondition) {
+      AndCondition.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AndCondition {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAndCondition();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rules.push(Rule.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.orCondition.push(AndCondition.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AndCondition {
+    return {
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
+      orCondition: globalThis.Array.isArray(object?.orCondition)
+        ? object.orCondition.map((e: any) => AndCondition.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: AndCondition): unknown {
+    const obj: any = {};
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => Rule.toJSON(e));
+    }
+    if (message.orCondition?.length) {
+      obj.orCondition = message.orCondition.map((e) => AndCondition.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AndCondition>, I>>(base?: I): AndCondition {
+    return AndCondition.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AndCondition>, I>>(object: I): AndCondition {
+    const message = createBaseAndCondition();
+    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
+    message.orCondition = object.orCondition?.map((e) => AndCondition.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseAndConditionLite(): AndConditionLite {
+  return { rules: [], orCondition: [] };
+}
+
+export const AndConditionLite: MessageFns<AndConditionLite> = {
+  encode(message: AndConditionLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      RuleLite.encode(v!, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.orCondition) {
+      AndConditionLite.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AndConditionLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAndConditionLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rules.push(RuleLite.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.orCondition.push(AndConditionLite.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AndConditionLite {
+    return {
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleLite.fromJSON(e)) : [],
+      orCondition: globalThis.Array.isArray(object?.orCondition)
+        ? object.orCondition.map((e: any) => AndConditionLite.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: AndConditionLite): unknown {
+    const obj: any = {};
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => RuleLite.toJSON(e));
+    }
+    if (message.orCondition?.length) {
+      obj.orCondition = message.orCondition.map((e) => AndConditionLite.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AndConditionLite>, I>>(base?: I): AndConditionLite {
+    return AndConditionLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AndConditionLite>, I>>(object: I): AndConditionLite {
+    const message = createBaseAndConditionLite();
+    message.rules = object.rules?.map((e) => RuleLite.fromPartial(e)) || [];
+    message.orCondition = object.orCondition?.map((e) => AndConditionLite.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseRuleLite(): RuleLite {
   return { id: "", name: "", condition: undefined, actions: [] };
 }
@@ -939,6 +1055,130 @@ export const ConditionLite: MessageFns<ConditionLite> = {
   },
 };
 
+function createBaseExpression(): Expression {
+  return { orCondition: [] };
+}
+
+export const Expression: MessageFns<Expression> = {
+  encode(message: Expression, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.orCondition) {
+      AndCondition.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Expression {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseExpression();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.orCondition.push(AndCondition.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Expression {
+    return {
+      orCondition: globalThis.Array.isArray(object?.orCondition)
+        ? object.orCondition.map((e: any) => AndCondition.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: Expression): unknown {
+    const obj: any = {};
+    if (message.orCondition?.length) {
+      obj.orCondition = message.orCondition.map((e) => AndCondition.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Expression>, I>>(base?: I): Expression {
+    return Expression.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Expression>, I>>(object: I): Expression {
+    const message = createBaseExpression();
+    message.orCondition = object.orCondition?.map((e) => AndCondition.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseExpressionLite(): ExpressionLite {
+  return { orCondition: [] };
+}
+
+export const ExpressionLite: MessageFns<ExpressionLite> = {
+  encode(message: ExpressionLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.orCondition) {
+      AndConditionLite.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ExpressionLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseExpressionLite();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.orCondition.push(AndConditionLite.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ExpressionLite {
+    return {
+      orCondition: globalThis.Array.isArray(object?.orCondition)
+        ? object.orCondition.map((e: any) => AndConditionLite.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: ExpressionLite): unknown {
+    const obj: any = {};
+    if (message.orCondition?.length) {
+      obj.orCondition = message.orCondition.map((e) => AndConditionLite.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ExpressionLite>, I>>(base?: I): ExpressionLite {
+    return ExpressionLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ExpressionLite>, I>>(object: I): ExpressionLite {
+    const message = createBaseExpressionLite();
+    message.orCondition = object.orCondition?.map((e) => AndConditionLite.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseMatchedRules(): MatchedRules {
   return { ids: [], names: [] };
 }
@@ -1020,7 +1260,7 @@ function createBaseRuleBased(): RuleBased {
     id: "",
     name: "",
     description: "",
-    node: undefined,
+    expr: undefined,
     action: undefined,
     status: 0,
     priority: 0,
@@ -1040,8 +1280,8 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.description !== "") {
       writer.uint32(26).string(message.description);
     }
-    if (message.node !== undefined) {
-      RuleBased_Node.encode(message.node, writer.uint32(34).fork()).join();
+    if (message.expr !== undefined) {
+      Expression.encode(message.expr, writer.uint32(34).fork()).join();
     }
     if (message.action !== undefined) {
       Action.encode(message.action, writer.uint32(42).fork()).join();
@@ -1097,7 +1337,7 @@ export const RuleBased: MessageFns<RuleBased> = {
             break;
           }
 
-          message.node = RuleBased_Node.decode(reader, reader.uint32());
+          message.expr = Expression.decode(reader, reader.uint32());
           continue;
         }
         case 5: {
@@ -1154,7 +1394,7 @@ export const RuleBased: MessageFns<RuleBased> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      node: isSet(object.node) ? RuleBased_Node.fromJSON(object.node) : undefined,
+      expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
       action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
@@ -1174,8 +1414,8 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.node !== undefined) {
-      obj.node = RuleBased_Node.toJSON(message.node);
+    if (message.expr !== undefined) {
+      obj.expr = Expression.toJSON(message.expr);
     }
     if (message.action !== undefined) {
       obj.action = Action.toJSON(message.action);
@@ -1203,8 +1443,8 @@ export const RuleBased: MessageFns<RuleBased> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.node = (object.node !== undefined && object.node !== null)
-      ? RuleBased_Node.fromPartial(object.node)
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? Expression.fromPartial(object.expr)
       : undefined;
     message.action = (object.action !== undefined && object.action !== null)
       ? Action.fromPartial(object.action)
@@ -1217,100 +1457,8 @@ export const RuleBased: MessageFns<RuleBased> = {
   },
 };
 
-function createBaseRuleBased_Node(): RuleBased_Node {
-  return { operator: 0, rules: [], groups: [] };
-}
-
-export const RuleBased_Node: MessageFns<RuleBased_Node> = {
-  encode(message: RuleBased_Node, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.operator !== 0) {
-      writer.uint32(8).int32(message.operator);
-    }
-    for (const v of message.rules) {
-      Rule.encode(v!, writer.uint32(18).fork()).join();
-    }
-    for (const v of message.groups) {
-      RuleBased_Node.encode(v!, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased_Node {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRuleBased_Node();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.operator = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.rules.push(Rule.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.groups.push(RuleBased_Node.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): RuleBased_Node {
-    return {
-      operator: isSet(object.operator) ? logicFromJSON(object.operator) : 0,
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
-      groups: globalThis.Array.isArray(object?.groups) ? object.groups.map((e: any) => RuleBased_Node.fromJSON(e)) : [],
-    };
-  },
-
-  toJSON(message: RuleBased_Node): unknown {
-    const obj: any = {};
-    if (message.operator !== 0) {
-      obj.operator = logicToJSON(message.operator);
-    }
-    if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => Rule.toJSON(e));
-    }
-    if (message.groups?.length) {
-      obj.groups = message.groups.map((e) => RuleBased_Node.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<RuleBased_Node>, I>>(base?: I): RuleBased_Node {
-    return RuleBased_Node.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<RuleBased_Node>, I>>(object: I): RuleBased_Node {
-    const message = createBaseRuleBased_Node();
-    message.operator = object.operator ?? 0;
-    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
-    message.groups = object.groups?.map((e) => RuleBased_Node.fromPartial(e)) || [];
-    return message;
-  },
-};
-
 function createBaseRuleBasedLite(): RuleBasedLite {
-  return { id: "", name: "", description: "", node: undefined, action: undefined };
+  return { id: "", name: "", description: "", expr: undefined, action: undefined };
 }
 
 export const RuleBasedLite: MessageFns<RuleBasedLite> = {
@@ -1324,8 +1472,8 @@ export const RuleBasedLite: MessageFns<RuleBasedLite> = {
     if (message.description !== "") {
       writer.uint32(26).string(message.description);
     }
-    if (message.node !== undefined) {
-      RuleBasedLite_NodeLite.encode(message.node, writer.uint32(34).fork()).join();
+    if (message.expr !== undefined) {
+      ExpressionLite.encode(message.expr, writer.uint32(34).fork()).join();
     }
     if (message.action !== undefined) {
       Action.encode(message.action, writer.uint32(42).fork()).join();
@@ -1369,7 +1517,7 @@ export const RuleBasedLite: MessageFns<RuleBasedLite> = {
             break;
           }
 
-          message.node = RuleBasedLite_NodeLite.decode(reader, reader.uint32());
+          message.expr = ExpressionLite.decode(reader, reader.uint32());
           continue;
         }
         case 5: {
@@ -1394,7 +1542,7 @@ export const RuleBasedLite: MessageFns<RuleBasedLite> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      node: isSet(object.node) ? RuleBasedLite_NodeLite.fromJSON(object.node) : undefined,
+      expr: isSet(object.expr) ? ExpressionLite.fromJSON(object.expr) : undefined,
       action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
     };
   },
@@ -1410,8 +1558,8 @@ export const RuleBasedLite: MessageFns<RuleBasedLite> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.node !== undefined) {
-      obj.node = RuleBasedLite_NodeLite.toJSON(message.node);
+    if (message.expr !== undefined) {
+      obj.expr = ExpressionLite.toJSON(message.expr);
     }
     if (message.action !== undefined) {
       obj.action = Action.toJSON(message.action);
@@ -1427,106 +1575,12 @@ export const RuleBasedLite: MessageFns<RuleBasedLite> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.node = (object.node !== undefined && object.node !== null)
-      ? RuleBasedLite_NodeLite.fromPartial(object.node)
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? ExpressionLite.fromPartial(object.expr)
       : undefined;
     message.action = (object.action !== undefined && object.action !== null)
       ? Action.fromPartial(object.action)
       : undefined;
-    return message;
-  },
-};
-
-function createBaseRuleBasedLite_NodeLite(): RuleBasedLite_NodeLite {
-  return { operator: "", rules: [], groups: [] };
-}
-
-export const RuleBasedLite_NodeLite: MessageFns<RuleBasedLite_NodeLite> = {
-  encode(message: RuleBasedLite_NodeLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.operator !== "") {
-      writer.uint32(10).string(message.operator);
-    }
-    for (const v of message.rules) {
-      RuleLite.encode(v!, writer.uint32(18).fork()).join();
-    }
-    for (const v of message.groups) {
-      RuleBasedLite_NodeLite.encode(v!, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleBasedLite_NodeLite {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRuleBasedLite_NodeLite();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.operator = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.rules.push(RuleLite.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.groups.push(RuleBasedLite_NodeLite.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): RuleBasedLite_NodeLite {
-    return {
-      operator: isSet(object.operator) ? globalThis.String(object.operator) : "",
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleLite.fromJSON(e)) : [],
-      groups: globalThis.Array.isArray(object?.groups)
-        ? object.groups.map((e: any) => RuleBasedLite_NodeLite.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: RuleBasedLite_NodeLite): unknown {
-    const obj: any = {};
-    if (message.operator !== "") {
-      obj.operator = message.operator;
-    }
-    if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => RuleLite.toJSON(e));
-    }
-    if (message.groups?.length) {
-      obj.groups = message.groups.map((e) => RuleBasedLite_NodeLite.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<RuleBasedLite_NodeLite>, I>>(base?: I): RuleBasedLite_NodeLite {
-    return RuleBasedLite_NodeLite.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<RuleBasedLite_NodeLite>, I>>(object: I): RuleBasedLite_NodeLite {
-    const message = createBaseRuleBasedLite_NodeLite();
-    message.operator = object.operator ?? "";
-    message.rules = object.rules?.map((e) => RuleLite.fromPartial(e)) || [];
-    message.groups = object.groups?.map((e) => RuleBasedLite_NodeLite.fromPartial(e)) || [];
     return message;
   },
 };
