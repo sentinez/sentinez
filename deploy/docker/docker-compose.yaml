@@ -78,7 +78,7 @@ services:
     networks:
       - sentinez-network
     env_file:
-      - ../../cmd/apiserver/.env
+      - ../../cmd/acz-apiserver/.env
     depends_on:
       - sentinez.postgres
   
@@ -94,7 +94,7 @@ services:
     networks:
       - sentinez-network
     env_file:
-      - ../../cmd/edge/v1/.env
+      - ../../cmd/dmz-edge/v1/.env
 
 volumes:
   _volume:

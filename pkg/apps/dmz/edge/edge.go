@@ -23,12 +23,12 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
-	"github.com/sentinez/sentinez/pkg/cluster"
+	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
-
-type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
 
 //
 // Package edge implements the core Edge Server component.
@@ -42,11 +42,7 @@ type ReverseProxyConstructor func(string) (corehttp.ReverseProxy, error)
 //
 
 // New initializes and returns a new Edge Server instance.
-//
-// The Edge Server is responsible for handling all external HTTP traffic,
-// using the provided `stdhttp.Server` as its underlying HTTP layer,
-// and a given proxy `setting` configuration to determine routing,
-// security, and behavior policies.
+// The Edge Server is responsible for handling all external HTTP traffic
 //
 // Parameters:
 //   - server: The HTTP DMZ server implementation handling request I/O.
@@ -59,11 +55,13 @@ func New(conf *settingpb.Config,
 	server corehttp.Server,
 ) *Server {
 	corecmn.NormalizeEdgeSetting(setting)
+	mem := memory.NewMemStore(setting)
 
 	return &Server{
 		conf:    conf,
 		core:    server,
 		setting: setting,
+		mem:     mem,
 	}
 }
 
@@ -74,9 +72,11 @@ func New(conf *settingpb.Config,
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	conf    *settingpb.Config
 	core    corehttp.Server
+	conf    *settingpb.Config
 	setting *edgepb.Setting
+	mem     *memory.MemStore
+	options []corehttp.ServerOption
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -88,7 +88,7 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-	_ = cluster.Shutdown()
+	s.mem.Shutdown(ctx)
 
 	return s.core.Shutdown(ctx)
 }
@@ -104,24 +104,32 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	_ = cluster.Start()
-
 	if err := s.initialize(s.conf); err != nil {
 		zlog.Errorf("failed to initialize: %v", err)
 		return err
 	}
 
 	var (
-		addr     = s.conf.GetEnv().GetHttpAddress()
+		addr = s.conf.GetDefault(
+			settingpb.Senz_SENZ_ADDRESS, defaults.HTTPSAddress)
+
 		certFile = s.conf.GetFlag().GetCertFile()
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
-	return s.core.ListenAndServe(addr,
+	l, err := network.Listen(addr, network.WithTCP())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = l.Close() }()
+
+	opts := []corehttp.ServerOption{
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
 			GetConfigForClient: transport.TLSConfig,
 		}),
-		corehttp.WithOnAccept(transport.OnAccept),
-	)
+		corehttp.WithListener(l),
+	}
+
+	return s.core.ListenAndServe(addr, append(opts, s.options...)...)
 }

@@ -17,22 +17,24 @@ package ratelimiter
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewLimiter(_ zlog.Level) corechains.ChainNode {
+func NewLimiter(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &Limiter{
-		Node: corechains.NewNode(),
+		Node:  corechains.NewNode(),
+		store: store,
 	}
 }
 
 type Limiter struct {
 	*corechains.Node
+	store *memory.MemStore
 }
 
 func (l *Limiter) Handle(ctx corehttp.Context) error {
-	limiter := ratelimiter.Get().LoadContext(ctx)
+	limiter := l.store.Limiter().LoadContext(ctx)
 
 	if !limiter.Allow(string(ctx.RequestIP())) {
 		totalCount := limiter.Count(string(ctx.RequestIP())) + limiter.Limit()

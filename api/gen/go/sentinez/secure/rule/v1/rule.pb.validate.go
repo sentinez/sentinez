@@ -43,13 +43,13 @@ func (m *CoreRulesets) Validate() error {
 
 	// no validation rules for Name
 
-	for idx, item := range m.GetCoreRules() {
+	for idx, item := range m.GetRules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CoreRulesetsValidationError{
-					field:  fmt.Sprintf("CoreRules[%v]", idx),
+					field:  fmt.Sprintf("Rules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

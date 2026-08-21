@@ -32,11 +32,10 @@ var (
 func Config() *settingpb.Config {
 	once.Do(func() {
 		flag := flags.Parse()
-		envConf := config.LoadEnv(flag.GetEnvFile())
 		appConf = &settingpb.Config{
 			Meta: greeterpb.GetMetaGreeter(),
-			Env:  envConf,
 			Flag: flag,
+			Env:  config.LoadEnv(flag.GetEnvFile()),
 		}
 	})
 

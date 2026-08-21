@@ -17,38 +17,33 @@ package routing
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
-	"github.com/sentinez/sentinez/internal/memory/routes"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewStandardRouter() corechains.ChainNode {
+func NewStandardRouter(store *memory.MemStore) corechains.ChainNode {
 	return &StandardRouter{
-		Node:         corechains.NewNode(),
-		router:       routes.GetRouter(),
-		reverseProxy: reverseproxy.Get(),
+		Node:  corechains.NewNode(),
+		store: store,
 	}
 }
 
 type StandardRouter struct {
 	*corechains.Node
-	reverseProxy *reverseproxy.ReverseProxy
-	router       *routes.Router
+	store *memory.MemStore
 }
 
 func (r *StandardRouter) Handle(ctx corehttp.Context) error {
-	if r.reverseProxy == nil {
-		zlog.Error("[edge][routing]: proxy not initialized")
-		return corehttp.InternalServerError(ctx)
-	}
-
-	target, err := r.router.Match(ctx)
+	target, err := r.store.Route().Match(ctx)
 	if err != nil {
 		zlog.Error("[edge] routing match error: ", err)
 		return corehttp.NotFound(ctx)
 	}
 
-	r.reverseProxy.Load(target).Serve(ctx)
+	rprx, ok := r.store.ReverseProxy().Load(target)
+	if ok {
+		rprx.Serve(ctx)
+	}
 
 	return nil
 }

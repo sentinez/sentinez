@@ -60,10 +60,10 @@ func (m *RuleBased) Validate() error {
 
 	// no validation rules for Description
 
-	if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
-				field:  "Node",
+				field:  "Expr",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

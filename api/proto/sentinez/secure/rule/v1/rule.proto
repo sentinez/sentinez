@@ -6,7 +6,7 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rul
 
 message CoreRulesets {
   string name = 1;
-  repeated CoreRule core_rules = 2;
+  repeated CoreRule rules = 2;
   string version = 3;
 }
 

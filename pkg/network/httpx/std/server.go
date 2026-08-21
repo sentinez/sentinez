@@ -42,6 +42,11 @@ type Server struct {
 	opt  corehttp.Option
 }
 
+// AcceptReverse implements [corehttp.Server].
+func (s *Server) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+	return NewReverseProxy(target)
+}
+
 func (s *Server) Use(
 	mdw ...func(next corehttp.RequestHandler) corehttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)
@@ -65,7 +70,7 @@ func (s *Server) ListenAndServe(
 	s.core.Addr = addr
 	s.core.Handler = s.mux
 
-	s.onAcceptConn(s.opt.OnAccept)
+	s.onAcceptConn(s.opt.OnConnect)
 
 	if s.opt.CertFile != "" && s.opt.CertKeyFile != "" {
 		s.core.IdleTimeout = 120 * time.Second
@@ -79,13 +84,13 @@ func (s *Server) ListenAndServe(
 	return s.listenAndServe()
 }
 
-func (s *Server) onAcceptConn(func(conn net.Conn) context.Context) {
-	if s.opt.OnAccept == nil {
+func (s *Server) onAcceptConn(func(context.Context, net.Conn) context.Context) {
+	if s.opt.OnConnect == nil {
 		return
 	}
 
-	s.core.ConnContext = func(_ context.Context, c net.Conn) context.Context {
-		return s.opt.OnAccept(c)
+	s.core.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
+		return s.opt.OnConnect(ctx, c)
 	}
 }
 
@@ -94,13 +99,17 @@ func (s *Server) listenAndServe() error {
 		s.core.Addr = ":http"
 	}
 
-	l, err := network.Listen(s.core.Addr, network.WithTCP())
-	if err != nil {
-		return err
-	}
-	defer func() { _ = l.Close() }()
+	if s.opt.Listener == nil {
+		l, err := network.Listen(s.core.Addr, network.WithTCP())
+		if err != nil {
+			return err
+		}
+		defer func() { _ = l.Close() }()
 
-	return s.core.Serve(l)
+		s.opt.Listener = l
+	}
+
+	return s.core.Serve(s.opt.Listener)
 }
 
 func (s *Server) listenAndServeTLS(certFile, keyFile string) error {
@@ -108,13 +117,17 @@ func (s *Server) listenAndServeTLS(certFile, keyFile string) error {
 		s.core.Addr = ":https"
 	}
 
-	l, err := network.Listen(s.core.Addr, network.WithTCP())
-	if err != nil {
-		return err
-	}
-	defer func() { _ = l.Close() }()
+	if s.opt.Listener == nil {
+		l, err := network.Listen(s.core.Addr, network.WithTCP())
+		if err != nil {
+			return err
+		}
+		defer func() { _ = l.Close() }()
 
-	return s.core.ServeTLS(l, certFile, keyFile)
+		s.opt.Listener = l
+	}
+
+	return s.core.ServeTLS(s.opt.Listener, certFile, keyFile)
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

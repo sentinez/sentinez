@@ -46,10 +46,9 @@ type Flag struct {
 	EnvFile       string `protobuf:"bytes,3,opt,name=env_file,json=envFile,proto3" json:"env_file,omitempty"`
 	SwaggerPath   string `protobuf:"bytes,4,opt,name=swagger_path,json=swaggerPath,proto3" json:"swagger_path,omitempty"`
 	ApiSpecsPath  string `protobuf:"bytes,5,opt,name=api_specs_path,json=apiSpecsPath,proto3" json:"api_specs_path,omitempty"`
-	RulePath      string `protobuf:"bytes,6,opt,name=rule_path,json=rulePath,proto3" json:"rule_path,omitempty"`
-	ProxyConfig   string `protobuf:"bytes,7,opt,name=proxy_config,json=proxyConfig,proto3" json:"proxy_config,omitempty"`
-	CertFile      string `protobuf:"bytes,8,opt,name=cert_file,json=certFile,proto3" json:"cert_file,omitempty"`
-	CertKeyFile   string `protobuf:"bytes,9,opt,name=cert_key_file,json=certKeyFile,proto3" json:"cert_key_file,omitempty"`
+	ProxyConfig   string `protobuf:"bytes,6,opt,name=proxy_config,json=proxyConfig,proto3" json:"proxy_config,omitempty"`
+	CertFile      string `protobuf:"bytes,7,opt,name=cert_file,json=certFile,proto3" json:"cert_file,omitempty"`
+	CertKeyFile   string `protobuf:"bytes,8,opt,name=cert_key_file,json=certKeyFile,proto3" json:"cert_key_file,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,13 +118,6 @@ func (x *Flag) GetApiSpecsPath() string {
 	return ""
 }
 
-func (x *Flag) GetRulePath() string {
-	if x != nil {
-		return x.RulePath
-	}
-	return ""
-}
-
 func (x *Flag) GetProxyConfig() string {
 	if x != nil {
 		return x.ProxyConfig
@@ -151,17 +143,16 @@ var File_sentinez_setting_v1_flags_proto protoreflect.FileDescriptor
 
 const file_sentinez_setting_v1_flags_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/setting/v1/flags.proto\x12\x13sentinez.setting.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xea\x02\n" +
+	"\x1fsentinez/setting/v1/flags.proto\x12\x13sentinez.setting.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xcd\x02\n" +
 	"\x04Flag\x126\n" +
 	"\benv_mode\x18\x01 \x01(\tB\x1b\xbaH\x18r\x162\x14^(dev|prod|sandbox)$R\aenvMode\x12=\n" +
 	"\tlog_level\x18\x02 \x01(\tB \xbaH\x1dr\x1b2\x19^(debug|info|warn|error)$R\blogLevel\x12\x19\n" +
 	"\benv_file\x18\x03 \x01(\tR\aenvFile\x12!\n" +
 	"\fswagger_path\x18\x04 \x01(\tR\vswaggerPath\x12$\n" +
-	"\x0eapi_specs_path\x18\x05 \x01(\tR\fapiSpecsPath\x12\x1b\n" +
-	"\trule_path\x18\x06 \x01(\tR\brulePath\x12!\n" +
-	"\fproxy_config\x18\a \x01(\tR\vproxyConfig\x12\x1b\n" +
-	"\tcert_file\x18\b \x01(\tR\bcertFile\x12\"\n" +
-	"\rcert_key_file\x18\t \x01(\tR\vcertKeyFile:\x06\xca\xf3\x18\x02\x10\x01BGZEgithub.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1;settingpbb\x06proto3"
+	"\x0eapi_specs_path\x18\x05 \x01(\tR\fapiSpecsPath\x12!\n" +
+	"\fproxy_config\x18\x06 \x01(\tR\vproxyConfig\x12\x1b\n" +
+	"\tcert_file\x18\a \x01(\tR\bcertFile\x12\"\n" +
+	"\rcert_key_file\x18\b \x01(\tR\vcertKeyFile:\x06\xca\xf3\x18\x02\x10\x01BGZEgithub.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_setting_v1_flags_proto_rawDescOnce sync.Once

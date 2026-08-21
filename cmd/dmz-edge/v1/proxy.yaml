@@ -98,30 +98,30 @@ setting:
     isWafEngineOn: true
     ruleBased:
       name: "Complex Logic: (Path AND Method) OR IP"
-      node:
-        operator: LOGIC_OR
-        rules:
-          - name: "block path"
-            condition:
-              source: FIELD_SOURCE_PATH
-              key: "/block"
-              operator: OPERATOR_EQ
-              value: "/block"
-        groups:
-          - operator: LOGIC_AND
-            rules:
-              - name: "block ip"
-                condition:
-                  source: FIELD_SOURCE_IP
-                  key: "1.1.1.1"
-                  operator: OPERATOR_EQ
-                  value: "1.1.1.1"
-              - name: "block method"
-                condition:
-                  source: FIELD_SOURCE_METHOD
-                  key: "POST"
-                  operator: OPERATOR_EQ
-                  value: "POST"
+      expr:
+        orCondition:
+          - rules:
+            - name: "block path"
+              condition:
+                source: FIELD_SOURCE_PATH
+                key: "/block"
+                operator: OPERATOR_EQ
+                value: "/block"
+
+            - name: "block method"
+              condition:
+                source: FIELD_SOURCE_METHOD
+                key: "POST"
+                operator: OPERATOR_NE
+                value: "POST"
+                
+          - rules:
+            - name: "block ip"
+              condition:
+                source: FIELD_SOURCE_IP
+                key: "1.1.1.1"
+                operator: OPERATOR_EQ
+                value: "1.1.1.1"
       action:
         type: ACTION_TYPE_BLOCK
 

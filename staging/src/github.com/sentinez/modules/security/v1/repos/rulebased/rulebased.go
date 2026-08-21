@@ -50,7 +50,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IRuleBased, error) {
 			securitypb.RuleBased_Id:          postgres.String,
 			securitypb.RuleBased_Name:        postgres.String,
 			securitypb.RuleBased_Description: postgres.String,
-			securitypb.RuleBased_Node:        postgres.JSONB,
+			securitypb.RuleBased_Expr:        postgres.JSONB,
 			securitypb.RuleBased_Status:      postgres.Int4,
 			securitypb.RuleBased_Priority:    postgres.Int4,
 			securitypb.RuleBased_Action:      postgres.JSONB,
@@ -118,7 +118,7 @@ func (r *RuleBased) Create(ctx context.Context,
 		securitypb.RuleBased_Id:          model.GetId(),
 		securitypb.RuleBased_Name:        model.GetName(),
 		securitypb.RuleBased_Description: model.GetDescription(),
-		securitypb.RuleBased_Node:        model.GetNode(),
+		securitypb.RuleBased_Expr:        model.GetExpr(),
 		securitypb.RuleBased_Status:      model.GetStatus(),
 		securitypb.RuleBased_Priority:    model.GetPriority(),
 		securitypb.RuleBased_Action:      model.GetAction(),
@@ -158,8 +158,8 @@ func (r *RuleBased) Update(
 			model.GetDescription(),
 		)
 	}
-	if model.GetNode() != nil {
-		query = query.Set(securitypb.RuleBased_Node, model.GetNode())
+	if model.GetExpr() != nil {
+		query = query.Set(securitypb.RuleBased_Expr, model.GetExpr())
 	}
 
 	query = query.Set(securitypb.RuleBased_Status, model.GetStatus())
@@ -173,7 +173,7 @@ func (r *RuleBased) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.RuleBased_Id,
 		securitypb.RuleBased_Name,
 		securitypb.RuleBased_Description,
-		securitypb.RuleBased_Node,
+		securitypb.RuleBased_Expr,
 		securitypb.RuleBased_Status,
 		securitypb.RuleBased_Priority,
 		securitypb.RuleBased_Action,
@@ -204,7 +204,7 @@ func scanOne(row dbx.Row) (*securitypb.RuleBased, error) {
 		&model.Id,
 		&model.Name,
 		&model.Description,
-		&model.Node,
+		&model.Expr,
 		&model.Status,
 		&model.Priority,
 		&model.Action,

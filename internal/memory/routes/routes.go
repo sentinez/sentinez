@@ -36,17 +36,13 @@ var (
 	buffer = ssync.NewPool[bytes.Buffer]()
 )
 
-func NewRouter() *Router {
+func New() *Router {
 	once.Do(func() {
 		inst = &Router{
 			routes: ssync.NewMap[string, []*edgepb.Location](),
 		}
 	})
 
-	return inst
-}
-
-func GetRouter() *Router {
 	return inst
 }
 
@@ -161,15 +157,4 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	}
 
 	return "", errorx.F("not found: %s", path)
-}
-
-func Store(server *edgepb.Server) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if inst == nil {
-		inst = NewRouter()
-	}
-
-	inst.Store(server)
 }

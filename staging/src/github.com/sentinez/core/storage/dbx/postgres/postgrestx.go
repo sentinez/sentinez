@@ -31,7 +31,7 @@ var (
 )
 
 func NewTX(conf *settingpb.Config) *Tx {
-	return &Tx{conf: conf.GetEnv()}
+	return &Tx{conf: conf}
 }
 
 func WithTx[T any](ss *TxSession, db dbx.Database[T]) dbx.Database[T] {
@@ -39,7 +39,7 @@ func WithTx[T any](ss *TxSession, db dbx.Database[T]) dbx.Database[T] {
 }
 
 type Tx struct {
-	conf *settingpb.EnvConfig
+	conf *settingpb.Config
 	mock pgx.Tx
 }
 

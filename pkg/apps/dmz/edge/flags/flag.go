@@ -32,7 +32,6 @@ var onceEdge sync.Once
 // Parse flag args for grpc service
 func Parse() *settingpb.Flag {
 	onceEdge.Do(func() {
-		flagx.Get().RulePath = "./crs/v4-16-0"
 		flagx.Get().ProxyConfig = "./proxy.yaml"
 		flagx.Get().EnvFile = "./.env"
 		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
@@ -40,9 +39,6 @@ func Parse() *settingpb.Flag {
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
-
-		pflag.StringVar(&flagx.Get().RulePath, settingpb.XFlag_RulePath,
-			flagx.Get().GetRulePath(), "core rulesets root path for rules")
 
 		pflag.StringVar(&flagx.Get().ProxyConfig, settingpb.XFlag_ProxyConfig,
 			flagx.Get().GetProxyConfig(), "origin config yaml configuration")

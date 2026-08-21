@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,14 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transport
+package settingpb
 
-import (
-	"context"
-	"net"
-)
+func (x *Config) Get(key Senz) string {
+	if x.GetEnv() == nil {
+		return ""
+	}
 
-func OnAccept(conn net.Conn) context.Context {
-	_ = conn
-	return context.Background()
+	value, ok := x.GetEnv()[key.String()]
+	if !ok {
+		return ""
+	}
+
+	return value
+}
+
+func (x *Config) GetDefault(key Senz, defaultValue string) string {
+	val := x.Get(key)
+
+	if val == "" {
+		return defaultValue
+	}
+
+	return val
 }

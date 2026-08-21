@@ -25,7 +25,8 @@ type Option struct {
 	CertKeyFile string
 	TLSConfig   *tls.Config
 	ServerName  []byte
-	OnAccept    func(conn net.Conn) context.Context
+	OnConnect   func(context.Context, net.Conn) context.Context
+	Listener    net.Listener
 }
 
 type ServerOption func(opt *Option)
@@ -61,13 +62,24 @@ func WithServerName(name []byte) ServerOption {
 	}
 }
 
-func WithOnAccept(fn func(conn net.Conn) context.Context) ServerOption {
+func WithOnConnect(
+	fn func(context.Context, net.Conn) context.Context) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return
 		}
 
-		opt.OnAccept = fn
+		opt.OnConnect = fn
+	}
+}
+
+func WithListener(ln net.Listener) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.Listener = ln
 	}
 }
 
@@ -76,6 +88,7 @@ type Server interface {
 	ListenAndServe(addr string, opts ...ServerOption) error
 	Use(mdw ...func(next RequestHandler) RequestHandler)
 	Handle(fn RequestHandler)
+	AcceptReverse(target string) (ReverseProxy, error)
 }
 
 type ReverseProxy interface {

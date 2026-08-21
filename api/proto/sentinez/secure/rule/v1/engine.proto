@@ -24,16 +24,16 @@ enum FieldSource {
 
 // A logical condition expression
 message Condition {
-  string id = 5; // @gotags: yaml:"-"
+  string id = 5;  // @gotags: yaml:"-"
   // The source of the field
   // Example: "User-Agent" or "country"
-  FieldSource source = 1; // @gotags: yaml:"source"
-  string key = 2; // @gotags: yaml:"key"
+  FieldSource source = 1;  // @gotags: yaml:"source"
+  string key = 2;          // @gotags: yaml:"key"
   // Supported operators: "eq", "ne", "contains",
   // "matches", "in", "prefix", "suffix", "gt", "lt"
-  Operator operator = 3; // @gotags: yaml:"operator"
+  Operator operator = 3;  // @gotags: yaml:"operator"
   // The value to compare against
-  google.protobuf.Value value = 4; // @gotags: yaml:"value"
+  google.protobuf.Value value = 4;  // @gotags: yaml:"value"
 }
 
 enum Operator {
@@ -52,21 +52,14 @@ enum Operator {
   OPERATOR_NOT_IN = 12;
 }
 
-enum Logic {
-  LOGIC_UNSPECIFIED = 0;
-  LOGIC_AND = 1;
-  LOGIC_OR = 2;
-  LOGIC_NOT = 3;
-}
-
 // An action to execute when a rule matches
 message Action {
   // Example types: "block", "log", "modify_header",
   // "redirect", "set_tag", "route_to"
-  ActionType type = 1; // @gotags: yaml:"type"
+  ActionType type = 1;  // @gotags: yaml:"type"
 
   // Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
-  google.protobuf.Struct params = 2; // @gotags: yaml:"params"
+  google.protobuf.Struct params = 2;  // @gotags: yaml:"params"
 }
 
 enum ActionType {
@@ -82,30 +75,48 @@ enum ActionType {
 // A complete rule definition
 message Rule {
   string id = 1;
-  string name = 2; // @gotags: yaml:"name"
+  string name = 2;  // @gotags: yaml:"name"
   string description = 3;
-  Condition condition = 4; // @gotags: yaml:"condition"
+  Condition condition = 4;  // @gotags: yaml:"condition"
+}
+
+message AndCondition {
+  repeated Rule rules = 1;
+  repeated AndCondition or_condition = 2;
+}
+
+message AndConditionLite {
+  repeated RuleLite rules = 1;
+  repeated AndConditionLite or_condition = 2;
 }
 
 // A complete rule definition
 message RuleLite {
   string id = 1;
-  string name = 2; // @gotags: yaml:"name"
-  ConditionLite condition = 4; // @gotags: yaml:"condition"
-  repeated string actions = 5; // @gotags: yaml:"actions"
+  string name = 2;              // @gotags: yaml:"name"
+  ConditionLite condition = 4;  // @gotags: yaml:"condition"
+  repeated string actions = 5;  // @gotags: yaml:"actions"
 }
 
 // A logical condition expression
 message ConditionLite {
   // The source of the field
   // Example: "User-Agent" or "country"
-  string source = 1; // @gotags: yaml:"source"
-  string key = 2; // @gotags: yaml:"key"
+  string source = 1;  // @gotags: yaml:"source"
+  string key = 2;     // @gotags: yaml:"key"
   // Supported operators: "eq", "ne", "contains",
   // "matches", "in", "prefix", "suffix", "gt", "lt"
-  string operator = 3; // @gotags: yaml:"operator"
+  string operator = 3;  // @gotags: yaml:"operator"
   // The value to compare against
-  string value = 4; // @gotags: yaml:"value"
+  string value = 4;  // @gotags: yaml:"value"
+}
+
+message Expression {
+  repeated AndCondition or_condition = 1;
+}
+
+message ExpressionLite {
+  repeated AndConditionLite or_condition = 1;
 }
 
 message MatchedRules {
@@ -118,13 +129,7 @@ message RuleBased {
   string name = 2;
   string description = 3;
 
-  message Node {
-    Logic operator = 1;
-    repeated Rule rules = 2;
-    repeated Node groups = 3;
-  }
-
-  Node node = 4;
+  Expression expr = 4;
   Action action = 5;
   sentinez.types.v1.Status status = 6;
   int32 priority = 7;
@@ -137,12 +142,6 @@ message RuleBasedLite {
   string name = 2;
   string description = 3;
 
-  message NodeLite {
-    string operator = 1; // AND, OR, NOT
-    repeated RuleLite rules = 2;
-    repeated NodeLite groups = 3;
-  }
-
-  NodeLite node = 4;
+  ExpressionLite expr = 4;
   Action action = 5;
 }

@@ -55,14 +55,14 @@ func (s *Server) AsServer() *grpc.Server {
 // return error if the http server fails to start.
 func (s *Server) Serve(conf *settingpb.Config) error {
 
-	addr := conf.GetEnv().GetGrpcAddress()
+	addr := conf.Get(settingpb.Senz_SENZ_ADDRESS)
 	listener, err := grpcgateway.ListenNetworkTCP(addr)
 	if err != nil {
 		return err
 	}
 
 	if s.option.consul {
-		go Register(s.option.meta.GetServiceKey(), conf.GetEnv())
+		go Register(s.option.meta.GetServiceKey(), conf)
 	}
 
 	host, port, _ := net.SplitHostPort(addr)

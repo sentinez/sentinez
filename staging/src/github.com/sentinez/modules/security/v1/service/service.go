@@ -17,10 +17,8 @@ package securitysvc
 import (
 	"context"
 
-	"github.com/sentinez/core/rules/builder"
 	"github.com/sentinez/modules/security/v1/repos/rulebased"
 	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/shared/errorx"
 )
@@ -44,45 +42,6 @@ type SecurityService struct {
 	ruleBasedRepo rulebased.IRuleBased
 }
 
-// toSystemNode converts a shared RuleGroup into a system rule node.
-func (srv *SecurityService) toSystemNode(
-	group *securitypb.RuleGroup) *rulepb.RuleBased_Node {
-	if group == nil {
-		return nil
-	}
-
-	var b *builder.GroupBuilder
-	switch group.GetCombinator() {
-	case rulepb.Logic_LOGIC_OR:
-		b = builder.NewGroup(rulepb.Logic_LOGIC_OR)
-	case rulepb.Logic_LOGIC_NOT:
-		b = builder.NewGroup(rulepb.Logic_LOGIC_NOT)
-	default:
-		b = builder.NewGroup(rulepb.Logic_LOGIC_AND)
-	}
-
-	for _, node := range group.GetRules() {
-		if node.GetGroup() != nil {
-			subNode := srv.toSystemNode(node.GetGroup())
-			if subNode != nil {
-				b.AddGroup(&rulepb.RuleBased{Node: subNode})
-			}
-		} else if node.GetRule() != nil {
-			r := node.GetRule()
-			rb := builder.NewRule().WithCondition(
-				r.GetField(), r.GetOperator(), r.GetValue(), r.GetKey())
-			b.AddRule(rb.Build())
-		}
-	}
-
-	res := b.Build()
-	if group.GetNot() {
-		return builder.Not(res).Build().GetNode()
-	}
-
-	return res.GetNode()
-}
-
 // mapRuleBased converts a DB RuleBased into an API RuleBased response.
 func (srv *SecurityService) mapRuleBased(_ context.Context,
 	dbRB *securitypb.RuleBased,
@@ -95,12 +54,11 @@ func (srv *SecurityService) mapRuleBased(_ context.Context,
 		Id:          dbRB.GetId(),
 		Name:        dbRB.GetName(),
 		Description: dbRB.GetDescription(),
-		// This is now a RuleGroup pointer in the proto
-		Node:     dbRB.GetNode(),
-		Action:   dbRB.GetAction(),
-		Status:   dbRB.GetStatus(),
-		Priority: dbRB.GetPriority(),
-		Metadata: dbRB.GetMetadata(),
+		Expr:        dbRB.GetExpr(),
+		Action:      dbRB.GetAction(),
+		Status:      dbRB.GetStatus(),
+		Priority:    dbRB.GetPriority(),
+		Metadata:    dbRB.GetMetadata(),
 	}
 }
 
@@ -113,9 +71,6 @@ func (srv *SecurityService) CreateRuleBased(ctx context.Context,
 	if req.GetRuleBased() == nil {
 		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
 	}
-
-	// Validate rule structure using the builder
-	_ = srv.toSystemNode(req.GetRuleBased().GetNode())
 
 	created, err := srv.ruleBasedRepo.Create(ctx, req.GetRuleBased())
 	if err != nil {
@@ -151,11 +106,10 @@ func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
 	}
 
 	// Validate rule structure
-	_ = srv.toSystemNode(req.GetRuleBased().GetNode())
 
 	dbRB.Name = req.GetRuleBased().GetName()
 	dbRB.Description = req.GetRuleBased().GetDescription()
-	dbRB.Node = req.GetRuleBased().GetNode()
+	dbRB.Expr = req.GetRuleBased().GetExpr()
 	dbRB.Status = req.GetRuleBased().GetStatus()
 	dbRB.Priority = req.GetRuleBased().GetPriority()
 	dbRB.Action = req.GetRuleBased().GetAction()

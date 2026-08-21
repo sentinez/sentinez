@@ -55,9 +55,9 @@ func (m *CoreRulesets) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.CoreRules) > 0 {
-		for iNdEx := len(m.CoreRules) - 1; iNdEx >= 0; iNdEx-- {
-			size, err := m.CoreRules[iNdEx].MarshalToSizedBufferVT(dAtA[:i])
+	if len(m.Rules) > 0 {
+		for iNdEx := len(m.Rules) - 1; iNdEx >= 0; iNdEx-- {
+			size, err := m.Rules[iNdEx].MarshalToSizedBufferVT(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -318,8 +318,8 @@ func (m *CoreRulesets) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if len(m.CoreRules) > 0 {
-		for _, e := range m.CoreRules {
+	if len(m.Rules) > 0 {
+		for _, e := range m.Rules {
 			l = e.SizeVT()
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
@@ -503,7 +503,7 @@ func (m *CoreRulesets) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CoreRules", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Rules", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -530,8 +530,8 @@ func (m *CoreRulesets) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CoreRules = append(m.CoreRules, &CoreRule{})
-			if err := m.CoreRules[len(m.CoreRules)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			m.Rules = append(m.Rules, &CoreRule{})
+			if err := m.Rules[len(m.Rules)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

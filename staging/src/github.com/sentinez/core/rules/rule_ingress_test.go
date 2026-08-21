@@ -185,12 +185,15 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 func TestChain(t *testing.T) {
 	// Directly build RuleBased using newRule helper
 	rg := &rulepb.RuleBased{
-		Node: &rulepb.RuleBased_Node{
-			Operator: rulepb.Logic_LOGIC_AND,
-			Rules: []*rulepb.Rule{
-				newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
-				newRule(rulepb.FieldSource_FIELD_SOURCE_QUERY, rulepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
-				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
+				{
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_QUERY, rulepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+				},
 			},
 		},
 	}
@@ -217,12 +220,15 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "AND: path, method, ip all match",
 			rg: &rulepb.RuleBased{
-				Node: &rulepb.RuleBased_Node{
-					Operator: rulepb.Logic_LOGIC_AND,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
-						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+				Expr: &rulepb.Expression{
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+								newRule(rulepb.FieldSource_FIELD_SOURCE_QUERY, rulepb.Operator_OPERATOR_IN, []any{"lang"}), // Corrected for existence check
+								newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+							},
+						},
 					},
 				},
 			},
@@ -231,11 +237,18 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "OR: host mismatch but IP match",
 			rg: &rulepb.RuleBased{
-				Node: &rulepb.RuleBased_Node{
-					Operator: rulepb.Logic_LOGIC_OR,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_HOST, rulepb.Operator_OPERATOR_EQ, "fake.example.com"),
-						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+				Expr: &rulepb.Expression{
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_HOST, rulepb.Operator_OPERATOR_EQ, "fake.example.com"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+							},
+						},
 					},
 				},
 			},
@@ -245,17 +258,23 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 			name: "NESTED: A AND (B OR C)",
 			// A (IP match), B (Path mismatch), C (Method match) -> True
 			rg: &rulepb.RuleBased{
-				Node: &rulepb.RuleBased_Node{
-					Operator: rulepb.Logic_LOGIC_AND,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
-					},
-					Groups: []*rulepb.RuleBased_Node{
+				Expr: &rulepb.Expression{
+					OrCondition: []*rulepb.AndCondition{
 						{
-							Operator: rulepb.Logic_LOGIC_OR,
 							Rules: []*rulepb.Rule{
-								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"), // B
-								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"), // C
+								newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"), // A
+							},
+							OrCondition: []*rulepb.AndCondition{
+								{
+									Rules: []*rulepb.Rule{
+										newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"), // B
+									},
+								},
+								{
+									Rules: []*rulepb.Rule{
+										newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"), // C
+									},
+								},
 							},
 						},
 					},
@@ -267,10 +286,13 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 			name: "NOT: NOT (Method GET)",
 			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
 			rg: &rulepb.RuleBased{
-				Node: &rulepb.RuleBased_Node{
-					Operator: rulepb.Logic_LOGIC_NOT,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
+				Expr: &rulepb.Expression{
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_NE, "GET"),
+							},
+						},
 					},
 				},
 			},
@@ -363,12 +385,15 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
 	rg := &rulepb.RuleBased{
-		Node: &rulepb.RuleBased_Node{
-			Operator: rulepb.Logic_LOGIC_AND,
-			Rules: []*rulepb.Rule{
-				newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
-				newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
-				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
+				{
+					Rules: []*rulepb.Rule{
+						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/v1/login"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
+					},
+				},
 			},
 		},
 	}
@@ -389,23 +414,28 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
 	rg := &rulepb.RuleBased{
-		Node: &rulepb.RuleBased_Node{
-			Operator: rulepb.Logic_LOGIC_AND,
-			Rules: []*rulepb.Rule{
-				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-			},
-			Groups: []*rulepb.RuleBased_Node{
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
 				{
-					Operator: rulepb.Logic_LOGIC_OR,
 					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 					},
-				},
-				{
-					Operator: rulepb.Logic_LOGIC_NOT,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_NE, "GET"),
+							},
+						},
 					},
 				},
 			},
@@ -428,23 +458,28 @@ func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
 	rg := &rulepb.RuleBased{
-		Node: &rulepb.RuleBased_Node{
-			Operator: rulepb.Logic_LOGIC_AND,
-			Rules: []*rulepb.Rule{
-				newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
-			},
-			Groups: []*rulepb.RuleBased_Node{
+		Expr: &rulepb.Expression{
+			OrCondition: []*rulepb.AndCondition{
 				{
-					Operator: rulepb.Logic_LOGIC_OR,
 					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+						newRule(rulepb.FieldSource_FIELD_SOURCE_IP, rulepb.Operator_OPERATOR_EQ, "203.0.113.42"),
 					},
-				},
-				{
-					Operator: rulepb.Logic_LOGIC_NOT,
-					Rules: []*rulepb.Rule{
-						newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "GET"),
+					OrCondition: []*rulepb.AndCondition{
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_PATH, rulepb.Operator_OPERATOR_EQ, "/wrong"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_EQ, "POST"),
+							},
+						},
+						{
+							Rules: []*rulepb.Rule{
+								newRule(rulepb.FieldSource_FIELD_SOURCE_METHOD, rulepb.Operator_OPERATOR_NE, "GET"),
+							},
+						},
 					},
 				},
 			},

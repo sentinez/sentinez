@@ -39,10 +39,6 @@ func New() *Limiter {
 	return limiterInst
 }
 
-func Get() *Limiter {
-	return limiterInst
-}
-
 type Limiter struct {
 	space *ssync.Map[string, *corelimiter.RateLimiter]
 }
@@ -72,15 +68,4 @@ func (lim *Limiter) LoadContext(ctx corehttp.Context) *corelimiter.RateLimiter {
 
 	zlog.Debugf("[edge] hit limiter cached %s", hCtx.GetServerName())
 	return lim.Load(hCtx.GetServerName())
-}
-
-func Store(namespace string, l *corelimiter.RateLimiter) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if limiterInst == nil {
-		limiterInst = New()
-	}
-
-	limiterInst.Store(namespace, l)
 }

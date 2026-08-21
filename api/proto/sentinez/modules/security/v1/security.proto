@@ -21,7 +21,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/modules/security/v1/model.proto";
-import "sentinez/modules/security/v1/shared.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
@@ -151,51 +150,6 @@ message ListRuleBasedsResponse {
   repeated RuleBased rule_baseds = 1;
   int64 total = 2;
 }
-
-// ── Rule Messages ───────────────────────────────────────────────────────────
-
-message CreateRuleRequest {
-  RuleGroup rule = 1 [(buf.validate.field).required = true];
-}
-
-message CreateRuleResponse {
-  string id = 1;
-}
-
-message GetRuleRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
-}
-
-message GetRuleResponse {
-  RuleGroup rule = 1;
-}
-
-message UpdateRuleRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
-  RuleGroup rule = 2 [(buf.validate.field).required = true];
-  google.protobuf.FieldMask update_mask = 3;
-}
-
-message UpdateRuleResponse {
-  RuleGroup rule = 1;
-}
-
-message DeleteRuleRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
-}
-
-message DeleteRuleResponse {}
-
-message ListRulesRequest {
-  sentinez.types.v1.Pages page = 1;
-  repeated string ids = 10;
-}
-
-message ListRulesResponse {
-  repeated RuleGroup rules = 1;
-  int64 total = 2;
-}
-
 // ── Status Messages ─────────────────────────────────────────────────────────
 
 message StatusRequest {}

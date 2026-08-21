@@ -20,11 +20,10 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
+	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 	edge "github.com/sentinez/sentinez/pkg/apps/dmz/edge"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
-	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	stdproxy "github.com/sentinez/sentinez/pkg/network/httpx/std/proxy"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -54,15 +53,15 @@ func init() {
 func main() {
 	app := runner.NewApp[edge.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[edge.Server]) {
+		engine.Standard(c)
+
 		c.Inject(
 			config.Config,
 			edgeyaml.LoadSetting,
-			stdhttpx.NewServer,
 			edge.New,
 		)
 
 		c.OnStart(func(_ context.Context, server *edge.Server) error {
-			server.SetReverseProxyConstructor(stdproxy.NewReverseProxy)
 			return server.Start()
 		})
 

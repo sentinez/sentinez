@@ -15,18 +15,15 @@
 package corers
 
 import (
-	"os"
+	"io/fs"
 
 	"github.com/corazawaf/coraza/v3"
 )
 
-func NewWAF(version Version,
-	srcDataset string, flag Flag) (coraza.WAF, error) {
+func NewWAF(version Version, rootFs fs.FS, flag Flag) (coraza.WAF, error) {
+	rule := GenerateRulesets(version, flag)
 
-	rule := getRulesets(version, flag)
-
-	rootFS := os.DirFS(srcDataset)
-	conf := coraza.NewWAFConfig().WithRootFS(rootFS).WithDirectives(rule)
+	conf := coraza.NewWAFConfig().WithRootFS(rootFs).WithDirectives(rule)
 
 	return coraza.NewWAF(conf)
 }

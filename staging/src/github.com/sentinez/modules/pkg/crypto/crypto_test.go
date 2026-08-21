@@ -28,8 +28,7 @@ import (
 func TestGenAndVerifyToken(t *testing.T) {
 	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-	conf := &settingpb.EnvConfig{SecretKey: secBase64}
-	config.SetEnv(conf)
+	config.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
 
 	token, err := TokenGenerator(&typepb.Context{
 		Name:     "test gen & verify",

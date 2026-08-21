@@ -24,21 +24,14 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var envConf *settingpb.EnvConfig
-var once sync.Once
-
-func Env() *settingpb.EnvConfig {
-	return envConf
-}
-
-func SetEnv(env *settingpb.EnvConfig) {
-	once.Do(func() {
-		envConf = env
-	})
-}
+var (
+	envConf = make(map[string]string)
+	once    sync.Once
+	lock    sync.Mutex
+)
 
 // LoadEnv returns the environment.
-func LoadEnv(envFile string) *settingpb.EnvConfig {
+func LoadEnv(envFile string, keys ...settingpb.Senz) map[string]string {
 	if envFile != "" {
 		err := godotenv.Load(envFile)
 		if err != nil {
@@ -47,19 +40,37 @@ func LoadEnv(envFile string) *settingpb.EnvConfig {
 	}
 
 	once.Do(func() {
-		envConf = &settingpb.EnvConfig{
-			TimescaleUri:   os.Getenv("SENZ_TIMESCALE_URI"),
-			PostgresUri:    os.Getenv("SENZ_POSTGRES_URI"),
-			ClickhouseUri:  os.Getenv("SENZ_CLICKHOUSE_URI"),
-			ConsulUri:      os.Getenv("SENZ_CONSUL_URI"),
-			SecretKey:      os.Getenv("SENZ_SECRET_KEY"),
-			GatewayAddress: os.Getenv("SENZ_GATEWAY_ADDRESS"),
-			Hostname:       os.Getenv("SENZ_HOSTNAME"),
-			HttpAddress:    os.Getenv("SENZ_HTTP_ADDRESS"),
-			ClientOrigin:   os.Getenv("SENZ_CLIENT_ORIGIN"),
-			GrpcAddress:    os.Getenv("SENZ_GRPC_ADDRESS"),
+		if len(keys) > 0 {
+			for _, k := range keys {
+				envConf[k.String()] = os.Getenv(k.String())
+			}
+
+			return
+		}
+
+		for key := range settingpb.Senz_value {
+			envConf[key] = os.Getenv(key)
 		}
 	})
 
 	return envConf
+}
+
+func GetEnv(key settingpb.Senz) string {
+	lock.Lock()
+	defer lock.Unlock()
+
+	value, ok := envConf[key.String()]
+	if ok {
+		return value
+	}
+
+	return ""
+}
+
+func SetEnv(key settingpb.Senz, value string) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	envConf[key.String()] = value
 }

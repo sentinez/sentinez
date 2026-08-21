@@ -11,9 +11,11 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
 	"github.com/cloudwego/hertz/pkg/network"
-	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/hertz-contrib/http2/factory"
 
+	httphznet "github.com/sentinez/contrib/httphz/net"
+	netstd "github.com/sentinez/contrib/httphz/net/std"
+	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
@@ -35,6 +37,11 @@ type XServer struct {
 	chains  []func(corehttp.RequestHandler) corehttp.RequestHandler
 	handler app.HandlerFunc
 	core    *server.Hertz
+}
+
+// AcceptReverse implements [corehttp.Server].
+func (s *XServer) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+	return proxyhz.NewReverseProxy(target)
 }
 
 // Use implements Server.
@@ -101,11 +108,10 @@ func (s *XServer) TLS(
 	return tlsConfig, nil
 }
 
-func (s *XServer) initialize(addr string,
-	certFile, keyFile string, tlsConfig *tls.Config) error {
+func (s *XServer) initialize(addr string, opt *corehttp.Option) error {
 	hlog.SetLevel(hlog.LevelError)
 
-	tlsConf, err := s.TLS(certFile, keyFile, tlsConfig)
+	tlsConf, err := s.TLS(opt.CertFile, opt.CertKeyFile, opt.TLSConfig)
 	if err != nil {
 		return err
 	}
@@ -117,9 +123,15 @@ func (s *XServer) initialize(addr string,
 		server.WithTraceLevel(stats.LevelDisabled),
 		server.WithALPN(true),
 		server.WithH2C(true),
+		server.WithListener(opt.Listener),
+		server.WithOnConnect(
+			func(ctx context.Context, conn network.Conn) context.Context {
+				return opt.OnConnect(ctx, conn)
+			},
+		),
 		server.WithTransport(func(options *config.Options) network.Transporter {
-			base := standard.NewTransporter(options)
-			return &Transporter{Transporter: base}
+			base := netstd.NewTransporter(options)
+			return &httphznet.Transporter{Transporter: base}
 		}),
 	)
 
@@ -141,11 +153,7 @@ func (s *XServer) ListenAndServe(
 		opt(&option)
 	}
 
-	if err := s.initialize(addr,
-		option.CertFile,
-		option.CertKeyFile,
-		option.TLSConfig,
-	); err != nil {
+	if err := s.initialize(addr, &option); err != nil {
 		return err
 	}
 

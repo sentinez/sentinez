@@ -21,7 +21,7 @@ const (
 	RuleBased_Id          = "id"
 	RuleBased_Name        = "name"
 	RuleBased_Description = "description"
-	RuleBased_Node        = "node"
+	RuleBased_Expr        = "expr"
 	RuleBased_Action      = "action"
 	RuleBased_Status      = "status"
 	RuleBased_Priority    = "priority"

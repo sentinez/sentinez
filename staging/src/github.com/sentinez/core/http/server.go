@@ -38,6 +38,11 @@ type server struct {
 	s    Server
 }
 
+// AcceptReverse implements [Server].
+func (s *server) AcceptReverse(target string) (ReverseProxy, error) {
+	return s.s.AcceptReverse(target)
+}
+
 // Handle implements [Server].
 func (s *server) Handle(fn RequestHandler) {
 	s.s.Handle(fn)

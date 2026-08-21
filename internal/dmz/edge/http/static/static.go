@@ -21,13 +21,14 @@ import (
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
 var _ corechains.ChainNode = (*Static)(nil)
 
-func NewStatic(_ zlog.Level) corechains.ChainNode {
+func NewStatic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 	return &Static{
 		Node: corechains.NewNode(),
 		staticExits: map[string]struct{}{

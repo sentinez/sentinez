@@ -1,0 +1,28 @@
+services:
+  sentinez-dmz-edge-01:
+    image: sentinez/edge:latest
+    container_name: sentinez.dmz.edge.01
+    env_file:
+      - ../../../cmd/dmz-edge/v1/.env
+    environment:
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez-dmz-edge-02:7777
+      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
+    networks:
+      - sentinez-net
+
+  sentinez-dmz-edge-02:
+    image: sentinez/edge:latest
+    container_name: sentinez.dmz.edge.02
+    env_file:
+      - ../../../cmd/dmz-edge/v1/.env
+    networks:
+      - sentinez-net
+    environment:
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez-dmz-edge-01:7777
+      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
+    depends_on:
+      - sentinez-dmz-edge-01
+
+networks:
+  sentinez-net:
+    driver: bridge

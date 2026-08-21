@@ -11,7 +11,9 @@ import (
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	"github.com/sentinez/shared/store/ja4"
 	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (
@@ -29,6 +31,12 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 
 	httpCtx.req = c
 	httpCtx.ctx = ctx
+
+	connId, ok := ctx.Value("connId").(string)
+	if ok {
+		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
+		httpCtx.request.Fingerprint = ja4.Get(connId)
+	}
 
 	return httpCtx
 }

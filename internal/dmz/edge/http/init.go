@@ -24,12 +24,14 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/secure"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/static"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/trace"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
 
-func Init(appConf *settingpb.Config) corechains.ChainNode {
+func Init(appConf *settingpb.Config,
+	memStore *memory.MemStore) corechains.ChainNode {
 	var (
-		hostname = appConf.GetEnv().GetHostname()
+		hostname = appConf.Get(settingpb.Senz_SENZ_HOSTNAME)
 		ll       = zlog.LevelInfo
 		curr     corechains.ChainNode
 		income   corechains.ChainNode
@@ -40,21 +42,21 @@ func Init(appConf *settingpb.Config) corechains.ChainNode {
 	// current middleware
 	curr = income
 
-	curr = curr.SetNext(logging.NewLogger(ll))
+	curr = curr.SetNext(logging.NewLogger(ll, memStore))
 
-	curr = curr.SetNext(secure.NewDomainBased(hostname))
+	curr = curr.SetNext(secure.NewDomainBased(hostname, memStore))
 
-	curr = curr.SetNext(ratelimiter.NewLimiter(ll))
+	curr = curr.SetNext(ratelimiter.NewLimiter(ll, memStore))
 
-	curr = curr.SetNext(room.NewRoom(ll))
+	curr = curr.SetNext(room.NewRoom(ll, memStore))
 
-	curr = curr.SetNext(static.NewStatic(ll))
+	curr = curr.SetNext(static.NewStatic(ll, memStore))
 
-	curr = curr.SetNext(secure.NewRuleBased(ll))
+	curr = curr.SetNext(secure.NewRuleBased(ll, memStore))
 
-	curr = curr.SetNext(secure.NewWAF(ll))
+	curr = curr.SetNext(secure.NewWAF(ll, memStore))
 
-	_ = curr.SetNext(routing.NewStandardRouter())
+	_ = curr.SetNext(routing.NewStandardRouter(memStore))
 
 	return income
 }

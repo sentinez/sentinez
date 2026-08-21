@@ -44,4 +44,4 @@ protoc \
   --go-vtproto_opt=features=marshal+unmarshal+size \
   "$(pwd)"/*.proto || exit 1
 
-protoc-go-inject-tag -input="$SENTINEZ_GEN_OUT"/github.com/sentinez/sentinez/api/gen/go/sentinez/types/secure/ruleengine/v1/*.pb.go
+protoc-go-inject-tag -input="$SENTINEZ_GEN_OUT"/github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1/*.pb.go

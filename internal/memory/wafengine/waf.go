@@ -20,19 +20,19 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
+	"github.com/sentinez/sentinez"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
 var (
 	once    sync.Once
-	wafInst *WAFCache
-	mu      sync.Mutex
+	wafInst *WAFRulesets
 )
 
-func New() *WAFCache {
+func New() *WAFRulesets {
 	once.Do(func() {
-		wafInst = &WAFCache{
+		wafInst = &WAFRulesets{
 			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
@@ -40,11 +40,7 @@ func New() *WAFCache {
 	return wafInst
 }
 
-func Get() *WAFCache {
-	return wafInst
-}
-
-type WAFCache struct {
+type WAFRulesets struct {
 	// key: namespace
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
@@ -52,61 +48,50 @@ type WAFCache struct {
 	space *ssync.Map[string, coraza.WAF]
 }
 
-func (w *WAFCache) Store(rulePath string, namespace string,
-	version corers.Version, flag corers.Flag) error {
+func (w *WAFRulesets) Store(namespace string, flag corers.Flag) error {
 
 	if w == nil {
 		return nil
 	}
 
-	waf, err := corers.NewWAF(version, rulePath, flag)
+	version, fs := sentinez.WAF4160()
+
+	waf, err := corers.NewWAF(version, fs, flag)
 	if err != nil {
 		return err
 	}
 
 	w.space.Store(namespace, waf)
 	if waf != nil {
-		zlog.Infof("[edge] WAF initialized successfully, ns=%s", namespace)
+		zlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
 	}
 
 	return nil
 }
 
-func (w *WAFCache) Load(namespace string) coraza.WAF {
+func (w *WAFRulesets) Load(namespace string) (coraza.WAF, bool) {
 	if w == nil {
-		return nil
+		return nil, false
 	}
 
 	value, ok := w.space.Load(namespace)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
-	return value
+	return value, true
 }
 
-func (w *WAFCache) LoadContext(ctx corehttp.Context) coraza.WAF {
+func (w *WAFRulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 	if w == nil {
-		return nil
+		return nil, false
 	}
 
 	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
 	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetServerName())
 	return w.Load(hCtx.GetServerName())
-}
-
-func Store(rulePath string,
-	namespace string, version corers.Version, flag corers.Flag) error {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if wafInst == nil {
-		wafInst = New()
-	}
-
-	return wafInst.Store(rulePath, namespace, version, flag)
 }

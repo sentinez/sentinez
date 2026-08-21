@@ -21,6 +21,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/bpf"
+	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/bytesconv"
@@ -29,7 +30,7 @@ import (
 
 var _ corechains.ChainNode = (*Logger)(nil)
 
-func NewLogger(logLevel zlog.Level) corechains.ChainNode {
+func NewLogger(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 	return &Logger{
 		Node: corechains.NewNode(),
 		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),

@@ -15,21 +15,23 @@
 package edge
 
 import (
+	corehttp "github.com/sentinez/core/http"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
-	"github.com/sentinez/sentinez/internal/memory"
 )
 
 func (s *Server) initialize(appConf *settingpb.Config) error {
-	// init cache repository
-	memory.LoadConfiguration(s.setting, appConf)
+	s.mem.Start(appConf)
 
-	income := http.Init(appConf)
+	// init cache repository
+	s.mem.LoadServer(s.core)
+
+	income := http.Init(appConf, s.mem)
 	s.core.Handle(income.Handle)
 
 	return nil
 }
 
-func (s *Server) SetReverseProxyConstructor(fn ReverseProxyConstructor) {
-	memory.SetReverseProxyConstructor(fn)
+func (s *Server) SetOptions(opts ...corehttp.ServerOption) {
+	s.options = append(s.options, opts...)
 }

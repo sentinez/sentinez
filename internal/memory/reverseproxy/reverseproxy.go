@@ -37,10 +37,6 @@ func New() *ReverseProxy {
 	return reverseProxyInst
 }
 
-func Get() *ReverseProxy {
-	return reverseProxyInst
-}
-
 type ReverseProxy struct {
 	space *ssync.Map[string, corehttp.ReverseProxy]
 }
@@ -49,30 +45,11 @@ func (rp *ReverseProxy) Store(target string, rproxy corehttp.ReverseProxy) {
 	rp.space.Store(target, rproxy)
 }
 
-func (rp *ReverseProxy) Load(target string) corehttp.ReverseProxy {
+func (rp *ReverseProxy) Load(target string) (corehttp.ReverseProxy, bool) {
 	expr, ok := rp.space.Load(target)
 	if !ok {
-		return nil
-	}
-
-	return expr
-}
-
-func Store(target string, rproxy corehttp.ReverseProxy) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if reverseProxyInst == nil {
-		reverseProxyInst = New()
-	}
-
-	reverseProxyInst.Store(target, rproxy)
-}
-
-func Load(target string) (corehttp.ReverseProxy, bool) {
-	if reverseProxyInst == nil {
 		return nil, false
 	}
 
-	return reverseProxyInst.Load(target), true
+	return expr, true
 }

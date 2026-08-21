@@ -27,13 +27,13 @@ import (
 
 var (
 	once     sync.Once
-	ruleInst *RuleCache
+	ruleInst *RuleBased
 	mu       sync.Mutex
 )
 
-func New() *RuleCache {
+func New() *RuleBased {
 	once.Do(func() {
-		ruleInst = &RuleCache{
+		ruleInst = &RuleBased{
 			space: ssync.NewMap[string, corerule.Rules](),
 		}
 	})
@@ -41,15 +41,11 @@ func New() *RuleCache {
 	return ruleInst
 }
 
-func Get() *RuleCache {
-	return ruleInst
-}
-
-type RuleCache struct {
+type RuleBased struct {
 	space *ssync.Map[string, corerule.Rules]
 }
 
-func (rc *RuleCache) Store(namespace string, gr *rulepb.RuleBased) {
+func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleBased) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
@@ -58,36 +54,25 @@ func (rc *RuleCache) Store(namespace string, gr *rulepb.RuleBased) {
 	rc.space.Store(namespace, rule)
 }
 
-func (rc *RuleCache) Load(namespace string) corerule.Rules {
+func (rc *RuleBased) Load(namespace string) (corerule.Rules, bool) {
 	rule, ok := rc.space.Load(namespace)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
-	return rule
+	return rule, true
 }
 
-func (rc *RuleCache) LoadContext(ctx corehttp.Context) corerule.Rules {
+func (rc *RuleBased) LoadContext(ctx corehttp.Context) (corerule.Rules, bool) {
 	if rc == nil {
-		return nil
+		return nil, false
 	}
 
 	hCtx, ok := corehttp.GetRequestContext(ctx)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
 	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetServerName())
 	return rc.Load(hCtx.GetServerName())
-}
-
-func Store(serverName string, gr *rulepb.RuleBased) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	if ruleInst == nil {
-		ruleInst = New()
-	}
-
-	ruleInst.Store(serverName, gr)
 }

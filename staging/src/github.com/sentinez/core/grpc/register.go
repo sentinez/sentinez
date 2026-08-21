@@ -29,8 +29,8 @@ import (
 )
 
 // nolint:funlen
-func Register(name string, conf *settingpb.EnvConfig) {
-	addr, port, err := net.SplitHostPort(conf.GetGrpcAddress())
+func Register(name string, conf *settingpb.Config) {
+	addr, port, err := net.SplitHostPort(conf.Get(settingpb.Senz_SENZ_ADDRESS))
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
 		return
@@ -38,7 +38,7 @@ func Register(name string, conf *settingpb.EnvConfig) {
 
 	portInt, _ := strconv.Atoi(port)
 	dcvr := discovery.GetDiscovery(
-		&options.Options{ConsulURL: conf.GetConsulUri()})
+		&options.Options{ConsulURL: conf.Get(settingpb.Senz_SENZ_CONSUL_URI)})
 
 	var (
 		serviceId = ""
