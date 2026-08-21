@@ -17,7 +17,6 @@ require (
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
-	github.com/hashicorp/memberlist v0.6.0
 	github.com/olric-data/olric v0.7.4
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
@@ -77,6 +76,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
+	github.com/hashicorp/memberlist v0.6.0 // indirect
 	github.com/hashicorp/serf v0.10.2 // indirect
 	github.com/hertz-contrib/http2 v0.1.8 // indirect
 	github.com/hertz-contrib/reverseproxy v1.0.6 // indirect

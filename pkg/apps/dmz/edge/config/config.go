@@ -40,6 +40,7 @@ func Config() *settingpb.Config {
 				settingpb.Senz_SENZ_ADDRESS,
 				settingpb.Senz_SENZ_SECRET_KEY,
 				settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
+				settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
 			),
 		}
 	})

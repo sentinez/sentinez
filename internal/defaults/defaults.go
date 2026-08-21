@@ -15,8 +15,9 @@
 package defaults
 
 const (
-	MembershipAddress = "0.0.0.0:7946"
-	HTTPSAddress      = "0.0.0.0:443"
+	HTTPSAddress     = "0.0.0.0:443"
+	DiscoveryAddress = "0.0.0.0"
+	DiscoveryPort    = 3322
 )
 
 const (

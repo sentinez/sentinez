@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package distrib
+package cluster
 
 import (
 	"context"
+	"net"
+	"strconv"
 	"sync"
 
 	"github.com/olric-data/olric"
 	"github.com/olric-data/olric/config"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -33,37 +33,56 @@ var (
 	dictReady = make(chan bool, 1)
 )
 
-func StartCluster(conf *settingpb.Config) {
+func Start(conf *settingpb.Config) {
 	_ = NewCluster(conf)
 	dict.Start()
 }
 
-func ShutdownCluster(ctx context.Context) {
+func Shutdown(ctx context.Context) {
 	dict.Shutdown(ctx)
+}
+
+func newConfig(appConf *settingpb.Config) *config.Config {
+	membership := appConf.Get(settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS)
+	discovery := appConf.Get(settingpb.Senz_SENZ_DISCOVERY_ADDRESS)
+
+	conf := config.New("local")
+	if len(membership) != 0 && len(discovery) != 0 {
+		conf.Peers = []string{membership}
+
+		host, port, err := net.SplitHostPort(discovery)
+		if err == nil {
+			nport, _ := strconv.Atoi(port)
+
+			conf.MemberlistConfig.BindAddr = host
+			conf.MemberlistConfig.BindPort = nport
+			return conf
+		}
+
+		zlog.Warnf("cluster: discovery address invalid, use default")
+		conf.MemberlistConfig.BindAddr = defaults.DiscoveryAddress
+		conf.MemberlistConfig.BindPort = defaults.DiscoveryPort
+	}
+
+	conf.Started = func() {
+		dictReady <- true
+		zlog.Infof("cluster:olric: ready to accept connection")
+	}
+
+	return conf
 }
 
 func NewCluster(appConf *settingpb.Config) *Cluster {
 	once.Do(func() {
-		conf := config.New("local")
-		conf.Started = func() {
-			dictReady <- true
-			zlog.Infof("cluster:olric: ready to accept connection")
-		}
-
+		conf := newConfig(appConf)
 		db, err := olric.New(conf)
 		if err != nil {
 			zlog.Fatal(err)
 		}
 
-		membership := appConf.GetDefault(
-			settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
-			defaults.MembershipAddress,
-		)
-
 		dict = &Cluster{
-			db:      db,
-			cluster: cluster.New(edgepb.GetMetaEdge(), membership),
-			client:  db.NewEmbeddedClient(),
+			db:     db,
+			client: db.NewEmbeddedClient(),
 		}
 	})
 
@@ -71,9 +90,8 @@ func NewCluster(appConf *settingpb.Config) *Cluster {
 }
 
 type Cluster struct {
-	cluster *cluster.Cluster
-	db      *olric.Olric
-	client  *olric.EmbeddedClient
+	db     *olric.Olric
+	client *olric.EmbeddedClient
 }
 
 func (d *Cluster) Start() {
@@ -86,5 +104,4 @@ func (d *Cluster) Start() {
 
 func (d *Cluster) Shutdown(ctx context.Context) {
 	_ = d.db.Shutdown(ctx)
-	_ = d.cluster.Shutdown()
 }

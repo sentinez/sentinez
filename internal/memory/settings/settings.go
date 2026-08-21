@@ -20,7 +20,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/internal/distrib"
+	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/shared/errorx"
 	ssync "github.com/sentinez/shared/sync"
 )
@@ -34,7 +34,7 @@ func New() *Setting {
 	once.Do(func() {
 		inst = &Setting{
 			setting: ssync.NewMap[string, *edgepb.Setting](),
-			dmap:    distrib.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
+			dmap:    cluster.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
 		}
 	})
 
@@ -42,7 +42,7 @@ func New() *Setting {
 }
 
 type Setting struct {
-	dmap    *distrib.DMap[edgepb.Setting]
+	dmap    *cluster.DMap[edgepb.Setting]
 	setting *ssync.Map[string, *edgepb.Setting]
 }
 

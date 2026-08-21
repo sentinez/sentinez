@@ -25,7 +25,7 @@ import (
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
-	"github.com/sentinez/sentinez/internal/distrib"
+	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -68,11 +68,11 @@ type MemStore struct {
 }
 
 func (m *MemStore) Start(conf *settingpb.Config) {
-	distrib.StartCluster(conf)
+	cluster.Start(conf)
 }
 
 func (m *MemStore) Shutdown(ctx context.Context) {
-	distrib.ShutdownCluster(ctx)
+	cluster.Shutdown(ctx)
 }
 
 func (m *MemStore) WAFRulesets() *wafengine.WAFRulesets {

@@ -23,15 +23,16 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1
 
 enum Senz {
   SENZ_UNSPECIFIED = 0;
-  SENZ_HOSTNAME = 1; // hostname of service. eg s6z.io.vn
-  SENZ_ADDRESS = 2; // http address, api, application ...
-  SENZ_SECRET_KEY = 3; // secret key base64 encoded
-  SENZ_CLIENT_ORIGIN = 4; // origin of client, used to gen passkey
+  SENZ_HOSTNAME = 1;       // hostname of service. eg s6z.io.vn
+  SENZ_ADDRESS = 2;        // http address, api, application ...
+  SENZ_SECRET_KEY = 3;     // secret key base64 encoded
+  SENZ_CLIENT_ORIGIN = 4;  // origin of client, used to gen passkey
   SENZ_TIMESCALE_URI = 5;
   SENZ_POSTGRES_URI = 6;
   SENZ_CLICKHOUSE_URI = 7;
   SENZ_CONSUL_URI = 8;
   SENZ_MEMBERSHIP_ADDRESS = 9;
+  SENZ_DISCOVERY_ADDRESS = 10;
 }
 
 message Config {
