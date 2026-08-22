@@ -59,7 +59,7 @@ func (r *Router) Store(server *edgepb.Server) {
 	var validRoutes []*edgepb.Location
 	for _, routeConfig := range server.GetLocations() {
 		zlog.Debugf(
-			"[edge] ns=%s %s -> %s (rewrite: %s)",
+			"edge: ns=%s %s -> %s (rewrite: %s)",
 			server.GetName(), routeConfig.GetLocation(),
 			routeConfig.GetProxyPass(), routeConfig.GetProxyRewrite(),
 		)
@@ -120,7 +120,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 
 		if bytes.HasPrefix(path, locationBytes) {
 			zlog.Debugf(
-				"[edge] routing match: ns=%s prefix=%s -> %s (prefix: %s)",
+				"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
 				serverName, route.GetProxyRewrite(), route.GetProxyPass(),
 				route.GetLocation(),
 			)
