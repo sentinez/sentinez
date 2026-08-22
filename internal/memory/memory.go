@@ -29,9 +29,9 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/ruleengine"
+	"github.com/sentinez/sentinez/internal/memory/rules"
+	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/internal/memory/settings"
-	"github.com/sentinez/sentinez/internal/memory/wafengine"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/zlog"
 )
@@ -46,8 +46,8 @@ func NewMemStore(st *edgepb.Setting) *MemStore {
 			limiter:      ratelimiter.New(),
 			reverseProxy: reverseproxy.New(),
 			route:        routes.New(),
-			ruleBased:    ruleengine.New(),
-			rulesetsWAF:  wafengine.New(),
+			ruleBased:    rules.New(),
+			rulesets:     rulesets.New(),
 		}
 
 		if err := store.setting.Store(st); err != nil {
@@ -63,8 +63,8 @@ type MemStore struct {
 	limiter      *ratelimiter.Limiter
 	reverseProxy *reverseproxy.ReverseProxy
 	route        *routes.Router
-	ruleBased    *ruleengine.RuleBased
-	rulesetsWAF  *wafengine.WAFRulesets
+	ruleBased    *rules.RuleBased
+	rulesets     *rulesets.RuleSets
 }
 
 func (m *MemStore) Start(conf *settingpb.Config) {
@@ -75,15 +75,15 @@ func (m *MemStore) Shutdown(ctx context.Context) {
 	cluster.Shutdown(ctx)
 }
 
-func (m *MemStore) WAFRulesets() *wafengine.WAFRulesets {
+func (m *MemStore) WAFRulesets() *rulesets.RuleSets {
 	if m == nil {
 		return nil
 	}
 
-	return m.rulesetsWAF
+	return m.rulesets
 }
 
-func (m *MemStore) RuleBased() *ruleengine.RuleBased {
+func (m *MemStore) RuleBased() *rules.RuleBased {
 	if m == nil {
 		return nil
 	}
@@ -147,7 +147,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {
 	for _, s := range st {
 		if err := m.setting.Store(s); err != nil {
-			zlog.Errorf("[edge] %v", err)
+			zlog.Errorf("edge: %v", err)
 		}
 	}
 }
@@ -225,7 +225,7 @@ func (m *MemStore) LoadRulesWAF(s *edgepb.Setting) error {
 
 	ns := s.GetServer().GetName()
 
-	err := m.rulesetsWAF.Store(ns, flag)
+	err := m.rulesets.Store(ns, flag)
 	if err != nil {
 		zlog.Errorf("edge: init coraza.WAF error: %v", err)
 		return err

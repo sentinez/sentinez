@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleengine
+package rules
 
 import (
 	"sync"
@@ -73,6 +73,6 @@ func (rc *RuleBased) LoadContext(ctx corehttp.Context) (corerule.Rules, bool) {
 		return nil, false
 	}
 
-	zlog.Debugf("[edge] hit rule cached %s", hCtx.GetServerName())
+	zlog.Debugf("edge: hit rule cached %s", hCtx.GetServerName())
 	return rc.Load(hCtx.GetServerName())
 }
