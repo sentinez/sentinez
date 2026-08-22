@@ -20,7 +20,6 @@ import (
 	"net"
 
 	"github.com/sentinez/shared/store/ja4"
-	"github.com/sentinez/shared/sync"
 )
 
 type ConnState string
@@ -29,19 +28,14 @@ const (
 	ConnectionId ConnState = "connId"
 )
 
-var connPool = sync.NewPoolCtr(func() *Conn {
+func newConn(conn net.Conn) *Conn {
 	id := make([]byte, 8)
 	_, _ = rand.Read(id)
 
-	return &Conn{Id: hex.EncodeToString(id)}
-})
-
-func newConn(conn net.Conn) *Conn {
-	c := connPool.Get()
-
-	c.Conn = conn
-
-	return c
+	return &Conn{
+		Id:   hex.EncodeToString(id),
+		Conn: conn,
+	}
 }
 
 type Conn struct {
@@ -50,16 +44,15 @@ type Conn struct {
 }
 
 func (c *Conn) Close() error {
+	if c == nil || c.Conn == nil {
+		return nil
+	}
+
 	if err := c.Conn.Close(); err != nil {
 		return err
 	}
 
 	ja4.Delete(c.Id)
-
-	c.Id = ""
-	c.Conn = nil
-
-	connPool.Put(c)
 
 	return nil
 }

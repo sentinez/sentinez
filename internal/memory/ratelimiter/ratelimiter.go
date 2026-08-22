@@ -66,6 +66,6 @@ func (lim *Limiter) LoadContext(ctx corehttp.Context) *corelimiter.RateLimiter {
 		return nil
 	}
 
-	zlog.Debugf("[edge] hit limiter cached %s", hCtx.GetServerName())
+	zlog.Debugf("edge: hit limiter cached %s", hCtx.GetServerName())
 	return lim.Load(hCtx.GetServerName())
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package wafengine
+package rulesets
 
 import (
 	"sync"
@@ -27,12 +27,12 @@ import (
 
 var (
 	once    sync.Once
-	wafInst *WAFRulesets
+	wafInst *RuleSets
 )
 
-func New() *WAFRulesets {
+func New() *RuleSets {
 	once.Do(func() {
-		wafInst = &WAFRulesets{
+		wafInst = &RuleSets{
 			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
@@ -40,7 +40,7 @@ func New() *WAFRulesets {
 	return wafInst
 }
 
-type WAFRulesets struct {
+type RuleSets struct {
 	// key: namespace
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
@@ -48,9 +48,9 @@ type WAFRulesets struct {
 	space *ssync.Map[string, coraza.WAF]
 }
 
-func (w *WAFRulesets) Store(namespace string, flag corers.Flag) error {
+func (rs *RuleSets) Store(namespace string, flag corers.Flag) error {
 
-	if w == nil {
+	if rs == nil {
 		return nil
 	}
 
@@ -61,7 +61,7 @@ func (w *WAFRulesets) Store(namespace string, flag corers.Flag) error {
 		return err
 	}
 
-	w.space.Store(namespace, waf)
+	rs.space.Store(namespace, waf)
 	if waf != nil {
 		zlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
 	}
@@ -69,12 +69,12 @@ func (w *WAFRulesets) Store(namespace string, flag corers.Flag) error {
 	return nil
 }
 
-func (w *WAFRulesets) Load(namespace string) (coraza.WAF, bool) {
-	if w == nil {
+func (rs *RuleSets) Load(namespace string) (coraza.WAF, bool) {
+	if rs == nil {
 		return nil, false
 	}
 
-	value, ok := w.space.Load(namespace)
+	value, ok := rs.space.Load(namespace)
 	if !ok {
 		return nil, false
 	}
@@ -82,8 +82,8 @@ func (w *WAFRulesets) Load(namespace string) (coraza.WAF, bool) {
 	return value, true
 }
 
-func (w *WAFRulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
-	if w == nil {
+func (rs *RuleSets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
+	if rs == nil {
 		return nil, false
 	}
 
@@ -92,6 +92,6 @@ func (w *WAFRulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 		return nil, false
 	}
 
-	zlog.Debugf("[edge][namespace] hit waf cached %s", hCtx.GetServerName())
-	return w.Load(hCtx.GetServerName())
+	zlog.Debugf("edge: namespace: hit waf cached %s", hCtx.GetServerName())
+	return rs.Load(hCtx.GetServerName())
 }
