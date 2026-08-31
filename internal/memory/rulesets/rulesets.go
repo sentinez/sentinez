@@ -26,21 +26,21 @@ import (
 )
 
 var (
-	once    sync.Once
-	wafInst *RuleSets
+	once         sync.Once
+	rulesetsInst *Rulesets
 )
 
-func New() *RuleSets {
+func New() *Rulesets {
 	once.Do(func() {
-		wafInst = &RuleSets{
+		rulesetsInst = &Rulesets{
 			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
 
-	return wafInst
+	return rulesetsInst
 }
 
-type RuleSets struct {
+type Rulesets struct {
 	// key: namespace
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
@@ -48,7 +48,7 @@ type RuleSets struct {
 	space *ssync.Map[string, coraza.WAF]
 }
 
-func (rs *RuleSets) Store(namespace string, flag corers.Flag) error {
+func (rs *Rulesets) Store(namespace string, flag corers.Flag) error {
 
 	if rs == nil {
 		return nil
@@ -69,7 +69,7 @@ func (rs *RuleSets) Store(namespace string, flag corers.Flag) error {
 	return nil
 }
 
-func (rs *RuleSets) Load(namespace string) (coraza.WAF, bool) {
+func (rs *Rulesets) Load(namespace string) (coraza.WAF, bool) {
 	if rs == nil {
 		return nil, false
 	}
@@ -82,7 +82,7 @@ func (rs *RuleSets) Load(namespace string) (coraza.WAF, bool) {
 	return value, true
 }
 
-func (rs *RuleSets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
+func (rs *Rulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 	if rs == nil {
 		return nil, false
 	}

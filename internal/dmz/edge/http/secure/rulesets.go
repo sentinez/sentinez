@@ -55,7 +55,7 @@ type WAF struct {
 func (w *WAF) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit WAF")
 
-	waf, ok := w.store.WAFRulesets().LoadContext(ctx)
+	waf, ok := w.store.Rulesets().LoadContext(ctx)
 	if !ok {
 		return w.HandleNext(ctx)
 	}

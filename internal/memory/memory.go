@@ -64,7 +64,7 @@ type MemStore struct {
 	reverseProxy *reverseproxy.ReverseProxy
 	route        *routes.Router
 	ruleBased    *rules.RuleBased
-	rulesets     *rulesets.RuleSets
+	rulesets     *rulesets.Rulesets
 }
 
 func (m *MemStore) Start(conf *settingpb.Config) {
@@ -75,7 +75,7 @@ func (m *MemStore) Shutdown(ctx context.Context) {
 	cluster.Shutdown(ctx)
 }
 
-func (m *MemStore) WAFRulesets() *rulesets.RuleSets {
+func (m *MemStore) Rulesets() *rulesets.Rulesets {
 	if m == nil {
 		return nil
 	}
@@ -138,7 +138,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 		_ = m.LoadRateLimiter(s)
 
 		// waf rulesets config
-		_ = m.LoadRulesWAF(s)
+		_ = m.LoadRulesets(s)
 
 		return true
 	})
@@ -186,18 +186,20 @@ func (m *MemStore) LoadReverseProxy(
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
-	if !s.GetSecurity().GetIsRateLimitOn() {
+	limiter := s.GetSecurity().GetLimiter()
+	if !limiter.GetEnable() {
 		zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 		return nil
 	}
 
-	size, err := time.ParseDuration(s.GetSecurity().GetTimeWindow())
+	size, err := time.
+		ParseDuration(s.GetSecurity().GetLimiter().GetTimeWindow())
 	if err != nil {
 		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
 		return err
 	}
 
-	timeout, err := time.ParseDuration(s.GetSecurity().GetTimeout())
+	timeout, err := time.ParseDuration(limiter.GetTimeout())
 	if err != nil {
 		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
 		return err
@@ -206,19 +208,20 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 	lim := corelimiter.NewRateLimiter(
 		timeout,
 		size,
-		s.GetSecurity().GetLimit(),
+		limiter.GetLimit(),
 	)
 	m.limiter.Store(s.GetServer().GetName(), lim)
 
 	return nil
 }
 
-func (m *MemStore) LoadRulesWAF(s *edgepb.Setting) error {
+func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	var (
-		flag = corers.ReqAppAttackRCE
+		flag    = corers.ReqAppAttackRCE
+		ruleset = s.GetSecurity().GetRulesets()
 	)
 
-	if !s.GetSecurity().GetIsWafEngineOn() {
+	if !ruleset.GetEnable() {
 		zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
 		return nil
 	}
@@ -235,7 +238,12 @@ func (m *MemStore) LoadRulesWAF(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
-	m.ruleBased.Store(s.GetServer().GetName(),
-		s.GetSecurity().GetRuleBasedCompiled())
+	rule := s.GetSecurity().GetRuleBased()
+	if !rule.GetEnable() {
+		zlog.Infof("edge:rule: ignore '%s'", s.GetServer().GetName())
+		return nil
+	}
+
+	m.ruleBased.Store(s.GetServer().GetName(), rule.GetRuleExprCompiled())
 	return nil
 }

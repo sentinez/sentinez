@@ -62,14 +62,23 @@ message Location {
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-  bool is_waf_engine_on = 1; // @gotags: yaml:"isWafEngineOn"
-  sentinez.secure.rule.v1.RuleBasedLite rule_based =
-      2;  // @gotags: yaml:"ruleBased"
+  Rulesets rulesets = 1; // @gotags: yaml:"rulesets"
+  RuleBased rule_based = 2; // @gotags: yaml:"ruleBased"
+  RateLimit limiter = 3; // @gotags: yaml:"limiter"
+}
 
-  sentinez.secure.rule.v1.RuleBased rule_based_compiled =
-      3;  // @gotags: yaml:"-"
+message Rulesets {
+  bool enable = 1;
+}
 
-  bool is_rate_limit_on = 10; //@gotags: yaml:"isRateLimitOn"
+message RuleBased {
+  bool enable = 1;
+  sentinez.secure.rule.v1.RuleBasedLite rule_expr = 2;  // @gotags: yaml:"ruleExpr"
+  sentinez.secure.rule.v1.RuleBased rule_expr_compiled = 3;  // @gotags: yaml:"-"
+}
+
+message RateLimit {
+  bool enable = 10; //@gotags: yaml:"isRateLimitOn"
 
   string time_window = 11 [(buf.validate.field) = {
     required: false
@@ -85,10 +94,14 @@ message Security {
 }
 
 // Controller for systems using a virtual waiting room or throttling:
-message Controller {}
+message Controller {
+
+}
 
 // Personal defines where the request goes and how the edge processes it
-message Personal {}
+message Personal {
+
+}
 
 message Upstream {
   string server = 1 [(buf.validate.field) = {
