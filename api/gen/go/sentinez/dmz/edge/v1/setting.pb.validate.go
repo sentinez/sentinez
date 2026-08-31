@@ -386,7 +386,15 @@ func (m *Security) Validate() error {
 		return nil
 	}
 
-	// no validation rules for IsWafEngineOn
+	if v, ok := interface{}(m.GetRulesets()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SecurityValidationError{
+				field:  "Rulesets",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
@@ -398,23 +406,15 @@ func (m *Security) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetRuleBasedCompiled()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetLimiter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SecurityValidationError{
-				field:  "RuleBasedCompiled",
+				field:  "Limiter",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
-
-	// no validation rules for IsRateLimitOn
-
-	// no validation rules for TimeWindow
-
-	// no validation rules for Limit
-
-	// no validation rules for Timeout
 
 	return nil
 }
@@ -472,6 +472,230 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SecurityValidationError{}
+
+// Validate checks the field values on Rulesets with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Rulesets) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Enable
+
+	return nil
+}
+
+// RulesetsValidationError is the validation error returned by
+// Rulesets.Validate if the designated constraints aren't met.
+type RulesetsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RulesetsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RulesetsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RulesetsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RulesetsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RulesetsValidationError) ErrorName() string { return "RulesetsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RulesetsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRulesets.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RulesetsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RulesetsValidationError{}
+
+// Validate checks the field values on RuleBased with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RuleBased) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Enable
+
+	if v, ok := interface{}(m.GetRuleExpr()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedValidationError{
+				field:  "RuleExpr",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetRuleExprCompiled()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleBasedValidationError{
+				field:  "RuleExprCompiled",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// RuleBasedValidationError is the validation error returned by
+// RuleBased.Validate if the designated constraints aren't met.
+type RuleBasedValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RuleBasedValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RuleBasedValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RuleBasedValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RuleBasedValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RuleBasedValidationError) ErrorName() string { return "RuleBasedValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RuleBasedValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRuleBased.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RuleBasedValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RuleBasedValidationError{}
+
+// Validate checks the field values on RateLimit with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RateLimit) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Enable
+
+	// no validation rules for TimeWindow
+
+	// no validation rules for Limit
+
+	// no validation rules for Timeout
+
+	return nil
+}
+
+// RateLimitValidationError is the validation error returned by
+// RateLimit.Validate if the designated constraints aren't met.
+type RateLimitValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RateLimitValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RateLimitValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RateLimitValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RateLimitValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RateLimitValidationError) ErrorName() string { return "RateLimitValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RateLimitValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRateLimit.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RateLimitValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RateLimitValidationError{}
 
 // Validate checks the field values on Controller with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

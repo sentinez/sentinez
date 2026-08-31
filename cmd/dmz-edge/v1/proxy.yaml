@@ -95,40 +95,45 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    isWafEngineOn: true
+    rulesets:
+      enable: true
+
     ruleBased:
-      name: "Complex Logic: (Path AND Method) OR IP"
-      expr:
-        orCondition:
-          - rules:
-            - name: "block path"
-              condition:
-                source: FIELD_SOURCE_PATH
-                key: "/block"
-                operator: OPERATOR_EQ
-                value: "/block"
+      enable: true
+      ruleExpr:
+        name: "Complex Logic: (Path AND Method) OR IP"
+        expr:
+          orCondition:
+            - rules:
+                - name: "block path"
+                  condition:
+                    source: FIELD_SOURCE_PATH
+                    key: "/block"
+                    operator: OPERATOR_EQ
+                    value: "/block"
 
-            - name: "block method"
-              condition:
-                source: FIELD_SOURCE_METHOD
-                key: "POST"
-                operator: OPERATOR_NE
-                value: "POST"
-                
-          - rules:
-            - name: "block ip"
-              condition:
-                source: FIELD_SOURCE_IP
-                key: "1.1.1.1"
-                operator: OPERATOR_EQ
-                value: "1.1.1.1"
-      action:
-        type: ACTION_TYPE_BLOCK
+                - name: "block method"
+                  condition:
+                    source: FIELD_SOURCE_METHOD
+                    key: "POST"
+                    operator: OPERATOR_NE
+                    value: "POST"
 
-    isRateLimitOn: true
-    timeWindow: 5s
-    limit: 50
-    timeout: 5s
+            - rules:
+                - name: "block ip"
+                  condition:
+                    source: FIELD_SOURCE_IP
+                    key: "1.1.1.1"
+                    operator: OPERATOR_EQ
+                    value: "1.1.1.1"
+        action:
+          type: ACTION_TYPE_BLOCK
+
+    limiter:
+      enable: true
+      timeWindow: 5s
+      limit: 50
+      timeout: 5s
 
   # ----------------------------------------------------------
   # CONTROLLER — THROTTLING, WAITING ROOM

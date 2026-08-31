@@ -385,16 +385,12 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	IsWafEngineOn     bool                   `protobuf:"varint,1,opt,name=is_waf_engine_on,json=isWafEngineOn,proto3" json:"is_waf_engine_on,omitempty" yaml:"isWafEngineOn"`          // @gotags: yaml:"isWafEngineOn"
-	RuleBased         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty" yaml:"ruleBased"`                           // @gotags: yaml:"ruleBased"
-	RuleBasedCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_based_compiled,json=ruleBasedCompiled,proto3" json:"rule_based_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
-	IsRateLimitOn     bool                   `protobuf:"varint,10,opt,name=is_rate_limit_on,json=isRateLimitOn,proto3" json:"is_rate_limit_on,omitempty" yaml:"isRateLimitOn"`         //@gotags: yaml:"isRateLimitOn"
-	TimeWindow        string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`                       //@gotags: yaml:"timeWindow"
-	Limit             int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                                  //@gotags: yaml:"limit"
-	Timeout           string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                               //@gotags: yaml:"timeout"
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Rulesets      *Rulesets              `protobuf:"bytes,1,opt,name=rulesets,proto3" json:"rulesets,omitempty" yaml:"rulesets"`                    // @gotags: yaml:"rulesets"
+	RuleBased     *RuleBased             `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty" yaml:"ruleBased"` // @gotags: yaml:"ruleBased"
+	Limiter       *RateLimit             `protobuf:"bytes,3,opt,name=limiter,proto3" json:"limiter,omitempty" yaml:"limiter"`                      // @gotags: yaml:"limiter"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Security) Reset() {
@@ -427,49 +423,193 @@ func (*Security) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Security) GetIsWafEngineOn() bool {
+func (x *Security) GetRulesets() *Rulesets {
 	if x != nil {
-		return x.IsWafEngineOn
+		return x.Rulesets
 	}
-	return false
+	return nil
 }
 
-func (x *Security) GetRuleBased() *v1.RuleBasedLite {
+func (x *Security) GetRuleBased() *RuleBased {
 	if x != nil {
 		return x.RuleBased
 	}
 	return nil
 }
 
-func (x *Security) GetRuleBasedCompiled() *v1.RuleBased {
+func (x *Security) GetLimiter() *RateLimit {
 	if x != nil {
-		return x.RuleBasedCompiled
+		return x.Limiter
 	}
 	return nil
 }
 
-func (x *Security) GetIsRateLimitOn() bool {
+type Rulesets struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Rulesets) Reset() {
+	*x = Rulesets{}
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Rulesets) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Rulesets) ProtoMessage() {}
+
+func (x *Rulesets) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
 	if x != nil {
-		return x.IsRateLimitOn
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Rulesets.ProtoReflect.Descriptor instead.
+func (*Rulesets) Descriptor() ([]byte, []int) {
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Rulesets) GetEnable() bool {
+	if x != nil {
+		return x.Enable
 	}
 	return false
 }
 
-func (x *Security) GetTimeWindow() string {
+type RuleBased struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Enable           bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	RuleExpr         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_expr,json=ruleExpr,proto3" json:"rule_expr,omitempty" yaml:"ruleExpr"`                           // @gotags: yaml:"ruleExpr"
+	RuleExprCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_expr_compiled,json=ruleExprCompiled,proto3" json:"rule_expr_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RuleBased) Reset() {
+	*x = RuleBased{}
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RuleBased) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RuleBased) ProtoMessage() {}
+
+func (x *RuleBased) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RuleBased.ProtoReflect.Descriptor instead.
+func (*RuleBased) Descriptor() ([]byte, []int) {
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RuleBased) GetEnable() bool {
+	if x != nil {
+		return x.Enable
+	}
+	return false
+}
+
+func (x *RuleBased) GetRuleExpr() *v1.RuleBasedLite {
+	if x != nil {
+		return x.RuleExpr
+	}
+	return nil
+}
+
+func (x *RuleBased) GetRuleExprCompiled() *v1.RuleBased {
+	if x != nil {
+		return x.RuleExprCompiled
+	}
+	return nil
+}
+
+type RateLimit struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Enable        bool                   `protobuf:"varint,10,opt,name=enable,proto3" json:"enable,omitempty" yaml:"isRateLimitOn"`                          //@gotags: yaml:"isRateLimitOn"
+	TimeWindow    string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"` //@gotags: yaml:"timeWindow"
+	Limit         int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                            //@gotags: yaml:"limit"
+	Timeout       string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                         //@gotags: yaml:"timeout"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RateLimit) Reset() {
+	*x = RateLimit{}
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RateLimit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RateLimit) ProtoMessage() {}
+
+func (x *RateLimit) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RateLimit.ProtoReflect.Descriptor instead.
+func (*RateLimit) Descriptor() ([]byte, []int) {
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RateLimit) GetEnable() bool {
+	if x != nil {
+		return x.Enable
+	}
+	return false
+}
+
+func (x *RateLimit) GetTimeWindow() string {
 	if x != nil {
 		return x.TimeWindow
 	}
 	return ""
 }
 
-func (x *Security) GetLimit() int64 {
+func (x *RateLimit) GetLimit() int64 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *Security) GetTimeout() string {
+func (x *RateLimit) GetTimeout() string {
 	if x != nil {
 		return x.Timeout
 	}
@@ -485,7 +625,7 @@ type Controller struct {
 
 func (x *Controller) Reset() {
 	*x = Controller{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -497,7 +637,7 @@ func (x *Controller) String() string {
 func (*Controller) ProtoMessage() {}
 
 func (x *Controller) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,7 +650,7 @@ func (x *Controller) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Controller.ProtoReflect.Descriptor instead.
 func (*Controller) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{8}
 }
 
 // Personal defines where the request goes and how the edge processes it
@@ -522,7 +662,7 @@ type Personal struct {
 
 func (x *Personal) Reset() {
 	*x = Personal{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -534,7 +674,7 @@ func (x *Personal) String() string {
 func (*Personal) ProtoMessage() {}
 
 func (x *Personal) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -547,7 +687,7 @@ func (x *Personal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Personal.ProtoReflect.Descriptor instead.
 func (*Personal) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{9}
 }
 
 type Upstream struct {
@@ -560,7 +700,7 @@ type Upstream struct {
 
 func (x *Upstream) Reset() {
 	*x = Upstream{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -572,7 +712,7 @@ func (x *Upstream) String() string {
 func (*Upstream) ProtoMessage() {}
 
 func (x *Upstream) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -585,7 +725,7 @@ func (x *Upstream) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Upstream.ProtoReflect.Descriptor instead.
 func (*Upstream) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Upstream) GetServer() string {
@@ -630,14 +770,21 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x11proxy_set_headers\x18\x05 \x03(\v23.sentinez.dmz.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x03\n" +
-	"\bSecurity\x12'\n" +
-	"\x10is_waf_engine_on\x18\x01 \x01(\bR\risWafEngineOn\x12E\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x01\n" +
+	"\bSecurity\x12:\n" +
+	"\brulesets\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.RulesetsR\brulesets\x12>\n" +
 	"\n" +
-	"rule_based\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\truleBased\x12R\n" +
-	"\x13rule_based_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x11ruleBasedCompiled\x12'\n" +
-	"\x10is_rate_limit_on\x18\n" +
-	" \x01(\bR\risRateLimitOn\x12W\n" +
+	"rule_based\x18\x02 \x01(\v2\x1f.sentinez.dmz.edge.v1.RuleBasedR\truleBased\x129\n" +
+	"\alimiter\x18\x03 \x01(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\alimiter\"\"\n" +
+	"\bRulesets\x12\x16\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xba\x01\n" +
+	"\tRuleBased\x12\x16\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\x12C\n" +
+	"\trule_expr\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\bruleExpr\x12P\n" +
+	"\x12rule_expr_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x10ruleExprCompiled\"\xe4\x01\n" +
+	"\tRateLimit\x12\x16\n" +
+	"\x06enable\x18\n" +
+	" \x01(\bR\x06enable\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12\x14\n" +
 	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
@@ -670,7 +817,7 @@ func file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP() []byte {
 }
 
 var file_sentinez_dmz_edge_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
 	(BalanceStrategy)(0),     // 0: sentinez.dmz.edge.v1.BalanceStrategy
 	(ProxyProtocol)(0),       // 1: sentinez.dmz.edge.v1.ProxyProtocol
@@ -679,31 +826,37 @@ var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
 	(*Server)(nil),           // 4: sentinez.dmz.edge.v1.Server
 	(*Location)(nil),         // 5: sentinez.dmz.edge.v1.Location
 	(*Security)(nil),         // 6: sentinez.dmz.edge.v1.Security
-	(*Controller)(nil),       // 7: sentinez.dmz.edge.v1.Controller
-	(*Personal)(nil),         // 8: sentinez.dmz.edge.v1.Personal
-	(*Upstream)(nil),         // 9: sentinez.dmz.edge.v1.Upstream
-	nil,                      // 10: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	(*v1.RuleBasedLite)(nil), // 11: sentinez.secure.rule.v1.RuleBasedLite
-	(*v1.RuleBased)(nil),     // 12: sentinez.secure.rule.v1.RuleBased
+	(*Rulesets)(nil),         // 7: sentinez.dmz.edge.v1.Rulesets
+	(*RuleBased)(nil),        // 8: sentinez.dmz.edge.v1.RuleBased
+	(*RateLimit)(nil),        // 9: sentinez.dmz.edge.v1.RateLimit
+	(*Controller)(nil),       // 10: sentinez.dmz.edge.v1.Controller
+	(*Personal)(nil),         // 11: sentinez.dmz.edge.v1.Personal
+	(*Upstream)(nil),         // 12: sentinez.dmz.edge.v1.Upstream
+	nil,                      // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	(*v1.RuleBasedLite)(nil), // 14: sentinez.secure.rule.v1.RuleBasedLite
+	(*v1.RuleBased)(nil),     // 15: sentinez.secure.rule.v1.RuleBased
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
 	4,  // 1: sentinez.dmz.edge.v1.Setting.server:type_name -> sentinez.dmz.edge.v1.Server
 	6,  // 2: sentinez.dmz.edge.v1.Setting.security:type_name -> sentinez.dmz.edge.v1.Security
-	7,  // 3: sentinez.dmz.edge.v1.Setting.controller:type_name -> sentinez.dmz.edge.v1.Controller
-	8,  // 4: sentinez.dmz.edge.v1.Setting.personal:type_name -> sentinez.dmz.edge.v1.Personal
+	10, // 3: sentinez.dmz.edge.v1.Setting.controller:type_name -> sentinez.dmz.edge.v1.Controller
+	11, // 4: sentinez.dmz.edge.v1.Setting.personal:type_name -> sentinez.dmz.edge.v1.Personal
 	5,  // 5: sentinez.dmz.edge.v1.Server.locations:type_name -> sentinez.dmz.edge.v1.Location
-	9,  // 6: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
+	12, // 6: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
 	0,  // 7: sentinez.dmz.edge.v1.Location.balance_strategy:type_name -> sentinez.dmz.edge.v1.BalanceStrategy
-	10, // 8: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	11, // 9: sentinez.dmz.edge.v1.Security.rule_based:type_name -> sentinez.secure.rule.v1.RuleBasedLite
-	12, // 10: sentinez.dmz.edge.v1.Security.rule_based_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
-	1,  // 11: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	13, // 8: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	7,  // 9: sentinez.dmz.edge.v1.Security.rulesets:type_name -> sentinez.dmz.edge.v1.Rulesets
+	8,  // 10: sentinez.dmz.edge.v1.Security.rule_based:type_name -> sentinez.dmz.edge.v1.RuleBased
+	9,  // 11: sentinez.dmz.edge.v1.Security.limiter:type_name -> sentinez.dmz.edge.v1.RateLimit
+	14, // 12: sentinez.dmz.edge.v1.RuleBased.rule_expr:type_name -> sentinez.secure.rule.v1.RuleBasedLite
+	15, // 13: sentinez.dmz.edge.v1.RuleBased.rule_expr_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
+	1,  // 14: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_setting_proto_init() }
@@ -717,7 +870,7 @@ func file_sentinez_dmz_edge_v1_setting_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_setting_proto_rawDesc), len(file_sentinez_dmz_edge_v1_setting_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -127,6 +127,7 @@ func (s *Server) Start() error {
 		corehttp.WithCertificate(certFile, keyFile),
 		corehttp.WithTLSConfig(&tls.Config{
 			GetConfigForClient: transport.TLSConfig,
+			MinVersion:         tls.VersionTLS13,
 		}),
 		corehttp.WithListener(l),
 	}

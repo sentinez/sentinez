@@ -33,12 +33,12 @@ func NormalizeEdgeSetting(edge *edgepb.Setting) {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	rgLite := edgeSec.GetRuleBased()
+	rgLite := edgeSec.GetRuleBased().GetRuleExpr()
 	if rgLite == nil {
 		return
 	}
 
-	edgeSec.RuleBasedCompiled = toRuleBased(rgLite)
+	edgeSec.RuleBased.RuleExprCompiled = toRuleBased(rgLite)
 }
 
 func toRuleBased(rgLite *rulepb.RuleBasedLite) *rulepb.RuleBased {
