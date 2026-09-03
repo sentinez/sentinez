@@ -40,9 +40,6 @@ setting:
   # ----------------------------------------------------------
   server:
     name: badcheese # Logical namespace grouping related routes
-    listen:
-      - 80
-      - 443
     locations:
       - location: / # URL prefix to match incoming requests
         proxyRewrite: / # (Optional) rewrite prefix before forwarding
@@ -96,15 +93,15 @@ setting:
   # ----------------------------------------------------------
   security:
     rulesets:
-      enable: true
+      - enable: true
 
-    ruleBased:
-      enable: true
-      ruleExpr:
-        name: "Complex Logic: (Path AND Method) OR IP"
-        expr:
-          orCondition:
-            - rules:
+    rules:
+      - enable: true
+        ingress:
+          name: "Complex Logic: (Path AND Method) OR IP"
+          expr:
+            orCondition:
+              - rules:
                 - name: "block path"
                   condition:
                     source: FIELD_SOURCE_PATH
@@ -119,21 +116,21 @@ setting:
                     operator: OPERATOR_NE
                     value: "POST"
 
-            - rules:
+              - rules:
                 - name: "block ip"
                   condition:
                     source: FIELD_SOURCE_IP
                     key: "1.1.1.1"
                     operator: OPERATOR_EQ
                     value: "1.1.1.1"
-        action:
-          type: ACTION_TYPE_BLOCK
+          action:
+            type: ACTION_TYPE_BLOCK
 
-    limiter:
-      enable: true
-      timeWindow: 5s
-      limit: 50
-      timeout: 5s
+    limiters:
+      - enable: true
+        timeWindow: 5s
+        limit: 50
+        timeout: 5s
 
   # ----------------------------------------------------------
   # CONTROLLER — THROTTLING, WAITING ROOM
@@ -146,7 +143,11 @@ setting:
     # waitingRoom:
     #   enabled: true
     #   message: "Server is busy, please wait..."  # Message shown to waiting users
+    # CDN:
+    #   enable: true
+    #   rules:
     {}
+
 
   # ----------------------------------------------------------
   # PERSONALIZATION — USER CUSTOMIZATION

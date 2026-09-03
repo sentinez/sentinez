@@ -249,9 +249,8 @@ func (*Metadata) Descriptor() ([]byte, []int) {
 // Server defines where the request goes and how the edge processes it:
 type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`             // @gotags: yaml:"name"
-	Listen        []uint32               `protobuf:"varint,2,rep,packed,name=listen,proto3" json:"listen,omitempty" yaml:"listen"` // @gotags: yaml:"listen"
-	Locations     []*Location            `protobuf:"bytes,3,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"`   // @gotags: yaml:"locations"
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
+	Locations     []*Location            `protobuf:"bytes,2,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"` // @gotags: yaml:"locations"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,13 +290,6 @@ func (x *Server) GetName() string {
 		return x.Name
 	}
 	return ""
-}
-
-func (x *Server) GetListen() []uint32 {
-	if x != nil {
-		return x.Listen
-	}
-	return nil
 }
 
 func (x *Server) GetLocations() []*Location {
@@ -386,9 +378,9 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rulesets      *Rulesets              `protobuf:"bytes,1,opt,name=rulesets,proto3" json:"rulesets,omitempty" yaml:"rulesets"`                    // @gotags: yaml:"rulesets"
-	RuleBased     *RuleBased             `protobuf:"bytes,2,opt,name=rule_based,json=ruleBased,proto3" json:"rule_based,omitempty" yaml:"ruleBased"` // @gotags: yaml:"ruleBased"
-	Limiter       *RateLimit             `protobuf:"bytes,3,opt,name=limiter,proto3" json:"limiter,omitempty" yaml:"limiter"`                      // @gotags: yaml:"limiter"
+	Rulesets      []*Rulesets            `protobuf:"bytes,1,rep,name=rulesets,proto3" json:"rulesets,omitempty" yaml:"rulesets"` // @gotags: yaml:"rulesets"
+	Rules         []*RuleBased           `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty" yaml:"rules"`       // @gotags: yaml:"rules"
+	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"` // @gotags: yaml:"limiters"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -423,23 +415,23 @@ func (*Security) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Security) GetRulesets() *Rulesets {
+func (x *Security) GetRulesets() []*Rulesets {
 	if x != nil {
 		return x.Rulesets
 	}
 	return nil
 }
 
-func (x *Security) GetRuleBased() *RuleBased {
+func (x *Security) GetRules() []*RuleBased {
 	if x != nil {
-		return x.RuleBased
+		return x.Rules
 	}
 	return nil
 }
 
-func (x *Security) GetLimiter() *RateLimit {
+func (x *Security) GetLimiters() []*RateLimit {
 	if x != nil {
-		return x.Limiter
+		return x.Limiters
 	}
 	return nil
 }
@@ -489,12 +481,12 @@ func (x *Rulesets) GetEnable() bool {
 }
 
 type RuleBased struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Enable           bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
-	RuleExpr         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=rule_expr,json=ruleExpr,proto3" json:"rule_expr,omitempty" yaml:"ruleExpr"`                           // @gotags: yaml:"ruleExpr"
-	RuleExprCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=rule_expr_compiled,json=ruleExprCompiled,proto3" json:"rule_expr_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Enable          bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	Ingress         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                        // @gotags: yaml:"ingress"
+	IngressCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=ingress_compiled,json=ingressCompiled,proto3" json:"ingress_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RuleBased) Reset() {
@@ -534,16 +526,16 @@ func (x *RuleBased) GetEnable() bool {
 	return false
 }
 
-func (x *RuleBased) GetRuleExpr() *v1.RuleBasedLite {
+func (x *RuleBased) GetIngress() *v1.RuleBasedLite {
 	if x != nil {
-		return x.RuleExpr
+		return x.Ingress
 	}
 	return nil
 }
 
-func (x *RuleBased) GetRuleExprCompiled() *v1.RuleBased {
+func (x *RuleBased) GetIngressCompiled() *v1.RuleBased {
 	if x != nil {
-		return x.RuleExprCompiled
+		return x.IngressCompiled
 	}
 	return nil
 }
@@ -756,11 +748,10 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"controller\x12:\n" +
 	"\bpersonal\x18\x05 \x01(\v2\x1e.sentinez.dmz.edge.v1.PersonalR\bpersonal\"\n" +
 	"\n" +
-	"\bMetadata\"\x89\x01\n" +
+	"\bMetadata\"q\n" +
 	"\x06Server\x12)\n" +
-	"\x04name\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12\x16\n" +
-	"\x06listen\x18\x02 \x03(\rR\x06listen\x12<\n" +
-	"\tlocations\x18\x03 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\"\x9d\x03\n" +
+	"\x04name\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12<\n" +
+	"\tlocations\x18\x02 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\"\x9d\x03\n" +
 	"\bLocation\x12(\n" +
 	"\blocation\x18\x01 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\blocation\x121\n" +
 	"\rproxy_rewrite\x18\x02 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\fproxyRewrite\x12=\n" +
@@ -770,18 +761,17 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x11proxy_set_headers\x18\x05 \x03(\v23.sentinez.dmz.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xba\x01\n" +
 	"\bSecurity\x12:\n" +
-	"\brulesets\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.RulesetsR\brulesets\x12>\n" +
-	"\n" +
-	"rule_based\x18\x02 \x01(\v2\x1f.sentinez.dmz.edge.v1.RuleBasedR\truleBased\x129\n" +
-	"\alimiter\x18\x03 \x01(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\alimiter\"\"\n" +
+	"\brulesets\x18\x01 \x03(\v2\x1e.sentinez.dmz.edge.v1.RulesetsR\brulesets\x125\n" +
+	"\x05rules\x18\x02 \x03(\v2\x1f.sentinez.dmz.edge.v1.RuleBasedR\x05rules\x12;\n" +
+	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\"\n" +
 	"\bRulesets\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xba\x01\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xb4\x01\n" +
 	"\tRuleBased\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\x12C\n" +
-	"\trule_expr\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\bruleExpr\x12P\n" +
-	"\x12rule_expr_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x10ruleExprCompiled\"\xe4\x01\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\x12@\n" +
+	"\aingress\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\aingress\x12M\n" +
+	"\x10ingress_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x0fingressCompiled\"\xe4\x01\n" +
 	"\tRateLimit\x12\x16\n" +
 	"\x06enable\x18\n" +
 	" \x01(\bR\x06enable\x12W\n" +
@@ -847,10 +837,10 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	0,  // 7: sentinez.dmz.edge.v1.Location.balance_strategy:type_name -> sentinez.dmz.edge.v1.BalanceStrategy
 	13, // 8: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
 	7,  // 9: sentinez.dmz.edge.v1.Security.rulesets:type_name -> sentinez.dmz.edge.v1.Rulesets
-	8,  // 10: sentinez.dmz.edge.v1.Security.rule_based:type_name -> sentinez.dmz.edge.v1.RuleBased
-	9,  // 11: sentinez.dmz.edge.v1.Security.limiter:type_name -> sentinez.dmz.edge.v1.RateLimit
-	14, // 12: sentinez.dmz.edge.v1.RuleBased.rule_expr:type_name -> sentinez.secure.rule.v1.RuleBasedLite
-	15, // 13: sentinez.dmz.edge.v1.RuleBased.rule_expr_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
+	8,  // 10: sentinez.dmz.edge.v1.Security.rules:type_name -> sentinez.dmz.edge.v1.RuleBased
+	9,  // 11: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
+	14, // 12: sentinez.dmz.edge.v1.RuleBased.ingress:type_name -> sentinez.secure.rule.v1.RuleBasedLite
+	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
 	1,  // 14: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
 	15, // [15:15] is the sub-list for method output_type
 	15, // [15:15] is the sub-list for method input_type

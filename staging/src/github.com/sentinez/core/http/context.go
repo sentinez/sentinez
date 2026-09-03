@@ -61,19 +61,9 @@ type RequestContext interface {
 	SetURI(u []byte)
 
 	SetBody(b []byte)
-	SetRequestId(id string)
-
-	SetRequestIP(ip []byte)
-
-	SetJA4(fingerprint string)
-
-	SetMethod(m []byte)
-	SetHost(h []byte)
-
 	SetStatusCode(code int)
-	SetProtocol(p string)
-
-	SetRemoteAddr(addr []byte)
+	SetRequestId(id string)
+	SetHost(h []byte)
 }
 
 type ResponseWriter interface {
@@ -95,9 +85,7 @@ type Context interface {
 	RequestContext
 	ResponseWriter
 	Unwrap() any
-
-	Extra() *edgepb.Context
-	SetExtra(x *edgepb.Context)
+	X() *edgepb.ContextExtra
 
 	Render(statusCode int, component templ.Component) error
 	RequestBodyStream() io.Reader

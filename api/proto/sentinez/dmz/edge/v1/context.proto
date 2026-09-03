@@ -1,0 +1,40 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.dmz.edge.v1;
+option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
+
+import "sentinez/dmz/edge/v1/setting.proto";
+import "sentinez/network/http/v1/http.proto";
+import "sentinez/network/v1/conn.proto";
+
+// Context helps the edge identify which user is connected
+message Context {
+  Metadata metadata = 1;
+  sentinez.network.v1.Transport transport = 2;
+  sentinez.network.http.v1.Request request = 3;
+  ContextExtra x = 10;
+}
+
+message ContextExtra {
+  string namespace = 1;
+  
+  repeated string rule_based_matched_ids = 10;
+  repeated string rule_based_matched_names = 11;
+  repeated string rulesets_matched_ids = 12;
+  repeated string rulesets_matched_names = 13;
+  repeated string rulesets_matched_severity = 14;
+}

@@ -53,7 +53,7 @@ func init() {
 func main() {
 	app := runner.NewApp[edge.Server](config.Config(), core.Code)
 	app.Main(func(c *runner.Context[edge.Server]) {
-		engine.Standard(c)
+		engine.Hertz(c)
 
 		c.Inject(
 			config.Config,

@@ -17,13 +17,11 @@ package secure
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
-	"github.com/sentinez/core/storage/cache/mem"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
@@ -36,19 +34,17 @@ import (
 func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &WAF{
 		Node: corechains.NewNode(),
-		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
+		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_WAF, logLevel,
 		),
-		cached: mem.New[[]byte](time.Second*30, time.Second*31),
-		store:  store,
+		store: store,
 	}
 }
 
 type WAF struct {
 	*corechains.Node
-	logger zlog.Logger
-	store  *memory.MemStore
-	cached *mem.Cache[[]byte]
+	log   zlog.LogCloser
+	store *memory.MemStore
 }
 
 // nolint:funlen
@@ -101,17 +97,6 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 	}
 
 	event := ruleevent.Acquire()
-	defer ruleevent.Release(event)
-
-	if data, ok := w.cached.Get(corehttp.GenContextKey(ctx)); ok {
-		if err := event.UnmarshalVT(data); err != nil {
-			return
-		}
-
-		event.RequestTime = ctx.RequestTime().UnixMilli()
-		w.logger.Info("cache hit: rule engine ingress matched", event)
-		return
-	}
 
 	var (
 		ruleIDs    []int32
@@ -149,7 +134,5 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 	event.HttpReqId = ctx.RequestId()
 	event.ContentType = bytesconv.B2s(ctx.Header(bytestr.HeaderContentType))
 
-	w.logger.Info("[rulesets] [matched]", event)
-	data, _ := event.MarshalVT()
-	w.cached.Set(corehttp.GenContextKey(ctx), data)
+	w.log.Info("rulesets: matched", event, event)
 }

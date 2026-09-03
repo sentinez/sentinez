@@ -19,7 +19,6 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/shared/zlog"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
@@ -28,7 +27,7 @@ func HandlerFunc(path string, handler corehttp.RequestHandler) {
 
 		_ = handler(ctx)
 
-		Release(ctx)
+		_ = ctx.Close()
 	})
 }
 
@@ -67,11 +66,9 @@ func StandardConverter(handler corehttp.RequestHandler,
 
 	ctx := NewContext(req, resp)
 
-	ctx.request.Timestamp = timestamppb.Now()
-
 	if err := handler(ctx); err != nil {
 		http.Error(resp, err.Error(), ctx.StatusCode())
 	}
 
-	Release(ctx)
+	_ = ctx.Close()
 }

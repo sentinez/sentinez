@@ -23,11 +23,11 @@ option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v
 
 // Setting edge setting per user
 message Setting {
-  Metadata metadata = 1; // @gotags: yaml:"metadata"
-  Server server = 2; // @gotags: yaml:"server"
-  Security security = 3; // @gotags: yaml:"security"
-  Controller controller = 4; // @gotags: yaml:"controller"
-  Personal personal = 5; // @gotags: yaml:"personal"
+  Metadata metadata = 1;      // @gotags: yaml:"metadata"
+  Server server = 2;          // @gotags: yaml:"server"
+  Security security = 3;      // @gotags: yaml:"security"
+  Controller controller = 4;  // @gotags: yaml:"controller"
+  Personal personal = 5;      // @gotags: yaml:"personal"
 }
 
 // Metadata used for observability and debugging:
@@ -39,9 +39,7 @@ message Server {
     (buf.validate.field) = { string: { pattern: "^[a-zA-Z0-9-]+" } }
   ];  // @gotags: yaml:"name"
 
-  repeated uint32 listen = 2; // @gotags: yaml:"listen"
-
-  repeated Location locations = 3; // @gotags: yaml:"locations"
+  repeated Location locations = 2;  // @gotags: yaml:"locations"
 }
 
 message Location {
@@ -53,18 +51,16 @@ message Location {
     (buf.validate.field) = { string: { pattern: "^/.*$" } }
   ];  // @gotags: yaml:"proxyRewrite"
 
-  repeated Upstream proxy_pass = 3; // @gotags: yaml:"proxyPass"
-
-  BalanceStrategy balance_strategy = 4; // @gotags: yaml:"balanceStrategy"
-
-  map<string, string> proxy_set_headers = 5; // @gotags: yaml:"proxySetHeaders"
+  repeated Upstream proxy_pass = 3;  // @gotags: yaml:"proxyPass"
+  BalanceStrategy balance_strategy = 4;  // @gotags: yaml:"balanceStrategy"
+  map<string, string> proxy_set_headers = 5;  // @gotags: yaml:"proxySetHeaders"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-  Rulesets rulesets = 1; // @gotags: yaml:"rulesets"
-  RuleBased rule_based = 2; // @gotags: yaml:"ruleBased"
-  RateLimit limiter = 3; // @gotags: yaml:"limiter"
+  repeated Rulesets rulesets = 1;            // @gotags: yaml:"rulesets"
+  repeated RuleBased rules = 2;         // @gotags: yaml:"rules"
+  repeated RateLimit limiters = 3;  // @gotags: yaml:"limiters"
 }
 
 message Rulesets {
@@ -73,19 +69,19 @@ message Rulesets {
 
 message RuleBased {
   bool enable = 1;
-  sentinez.secure.rule.v1.RuleBasedLite rule_expr = 2;  // @gotags: yaml:"ruleExpr"
-  sentinez.secure.rule.v1.RuleBased rule_expr_compiled = 3;  // @gotags: yaml:"-"
+  sentinez.secure.rule.v1.RuleBasedLite ingress = 2;  // @gotags: yaml:"ingress"
+  sentinez.secure.rule.v1.RuleBased ingress_compiled = 3;  // @gotags: yaml:"-"
 }
 
 message RateLimit {
-  bool enable = 10; //@gotags: yaml:"isRateLimitOn"
+  bool enable = 10;  //@gotags: yaml:"isRateLimitOn"
 
   string time_window = 11 [(buf.validate.field) = {
     required: false
     string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
   }];  //@gotags: yaml:"timeWindow"
 
-  int64 limit = 12; //@gotags: yaml:"limit"
+  int64 limit = 12;  //@gotags: yaml:"limit"
 
   string timeout = 13 [(buf.validate.field) = {
     required: false
@@ -94,14 +90,10 @@ message RateLimit {
 }
 
 // Controller for systems using a virtual waiting room or throttling:
-message Controller {
-
-}
+message Controller {}
 
 // Personal defines where the request goes and how the edge processes it
-message Personal {
-
-}
+message Personal {}
 
 message Upstream {
   string server = 1 [(buf.validate.field) = {
@@ -110,7 +102,7 @@ message Upstream {
     }
   }];  // @gotags: yaml:"server"
 
-  ProxyProtocol protocol = 2; // @gotags: yaml:"protocol"
+  ProxyProtocol protocol = 2;  // @gotags: yaml:"protocol"
 }
 
 enum BalanceStrategy {

@@ -15,6 +15,8 @@
 package zlog
 
 import (
+	"io"
+
 	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -25,9 +27,12 @@ const (
 	loggerKind  = "kind"
 )
 
-var _ Logger = (*logger)(nil)
+var (
+	_ Log       = (*logger)(nil)
+	_ LogCloser = (*logCloser)(nil)
+)
 
-type Logger interface {
+type Log interface {
 	Info(msg string, event proto.Message)
 	Debug(msg string, event proto.Message)
 	Warn(msg string, event proto.Message)
@@ -36,13 +41,30 @@ type Logger interface {
 	Sync() error
 }
 
-func NewJSONLogger(named string, logKind typepb.LogKind, level Level) Logger {
+type LogCloser interface {
+	Info(msg string, event proto.Message, closer io.Closer)
+	Debug(msg string, event proto.Message, closer io.Closer)
+	Warn(msg string, event proto.Message, closer io.Closer)
+	Error(msg string, event proto.Message, closer io.Closer)
+	V(l int) bool
+	Sync() error
+}
+
+func NewLog(named string, logKind typepb.LogKind, level Level) Log {
 	logger := configJSONLogger(named)
 	return createLogger(logger, logKind, ToLevel(level.String()).Int())
 }
 
+func NewLogCloser(named string, logKind typepb.LogKind, level Level) LogCloser {
+	logger := configJSONLogger(named)
+	return &logCloser{
+		logger: createLogger(logger, logKind, ToLevel(level.String()).Int()),
+	}
+
+}
+
 func createLogger(log *zap.Logger,
-	kind typepb.LogKind, verbosity int) Logger {
+	kind typepb.LogKind, verbosity int) *logger {
 	return &logger{log: log, verbosity: verbosity, kind: kind}
 }
 
@@ -92,4 +114,48 @@ func (l *logger) Warn(msg string, event proto.Message) {
 		l.log.Warn(msg,
 			zap.Object(loggerEvent, marshaler(event)))
 	}
+}
+
+type logCloser struct {
+	*logger
+}
+
+// Debug implements [LogCloser].
+// Subtle: this method shadows the method (*logger).Debug of logCloser.logger.
+func (l *logCloser) Debug(msg string, event proto.Message, closer io.Closer) {
+	l.logger.Debug(msg, event)
+	_ = closer.Close()
+}
+
+// Error implements [LogCloser].
+// Subtle: this method shadows the method (*logger).Error of logCloser.logger.
+func (l *logCloser) Error(msg string, event proto.Message, closer io.Closer) {
+	l.logger.Error(msg, event)
+	_ = closer.Close()
+}
+
+// Info implements [LogCloser].
+// Subtle: this method shadows the method (*logger).Info of logCloser.logger.
+func (l *logCloser) Info(msg string, event proto.Message, closer io.Closer) {
+	l.logger.Info(msg, event)
+	_ = closer.Close()
+}
+
+// Sync implements [LogCloser].
+// Subtle: this method shadows the method (*logger).Sync of logCloser.logger.
+func (l *logCloser) Sync() error {
+	return l.logger.Sync()
+}
+
+// V implements [LogCloser].
+// Subtle: this method shadows the method (*logger).V of logCloser.logger.
+func (l *logCloser) V(level int) bool {
+	return l.logger.V(level)
+}
+
+// Warn implements [LogCloser].
+// Subtle: this method shadows the method (*logger).Warn of logCloser.logger.
+func (l *logCloser) Warn(msg string, event proto.Message, closer io.Closer) {
+	l.logger.Warn(msg, event)
+	_ = closer.Close()
 }

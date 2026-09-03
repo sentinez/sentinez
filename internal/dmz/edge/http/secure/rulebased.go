@@ -33,7 +33,7 @@ func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &RuleBased{
 		Node:  corechains.NewNode(),
 		store: store,
-		logger: zlog.NewJSONLogger(
+		logger: zlog.NewLog(
 			edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_RULE, ll,
 		),
@@ -42,7 +42,7 @@ func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
 
 type RuleBased struct {
 	*corechains.Node
-	logger zlog.Logger
+	logger zlog.Log
 	store  *memory.MemStore
 }
 

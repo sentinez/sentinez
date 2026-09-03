@@ -194,55 +194,6 @@ func (x *EvaluateIngressResponse) GetResults() []*EvaluationResult {
 	return nil
 }
 
-// Context helps the edge identify which user is connected
-type Context struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// server_name server name of tenant
-	// example: dev.sentinez.test
-	//   - namespace: dev
-	//   - root: sentinez.test
-	ServerName    string `protobuf:"bytes,1,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Context) Reset() {
-	*x = Context{}
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Context) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Context) ProtoMessage() {}
-
-func (x *Context) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Context.ProtoReflect.Descriptor instead.
-func (*Context) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *Context) GetServerName() string {
-	if x != nil {
-		return x.ServerName
-	}
-	return ""
-}
-
 var File_sentinez_dmz_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
@@ -257,10 +208,7 @@ const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\amatched\x18\x02 \x01(\bR\amatched\x129\n" +
 	"\aactions\x18\x03 \x03(\v2\x1f.sentinez.secure.rule.v1.ActionR\aactions\"[\n" +
 	"\x17EvaluateIngressResponse\x12@\n" +
-	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults\"*\n" +
-	"\aContext\x12\x1f\n" +
-	"\vserver_name\x18\x01 \x01(\tR\n" +
-	"serverName2}\n" +
+	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults2}\n" +
 	"\vEdgeService\x12n\n" +
 	"\x0fEvaluateIngress\x12,.sentinez.dmz.edge.v1.EvaluateIngressRequest\x1a-.sentinez.dmz.edge.v1.EvaluateIngressResponseBs\x8a\xb2\x19*\n" +
 	"\x10SENTINEZ // EDGE\x10\x02\x1a\x14sentinez.dmz.edge.v1ZCgithub.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepbb\x06proto3"
@@ -277,18 +225,17 @@ func file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP() []byte {
 	return file_sentinez_dmz_edge_v1_edge_proto_rawDescData
 }
 
-var file_sentinez_dmz_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sentinez_dmz_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
 	(*EvaluateIngressRequest)(nil),  // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest
 	(*EvaluationResult)(nil),        // 1: sentinez.dmz.edge.v1.EvaluationResult
 	(*EvaluateIngressResponse)(nil), // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse
-	(*Context)(nil),                 // 3: sentinez.dmz.edge.v1.Context
-	(*v1.Request)(nil),              // 4: sentinez.network.http.v1.Request
-	(*v11.Action)(nil),              // 5: sentinez.secure.rule.v1.Action
+	(*v1.Request)(nil),              // 3: sentinez.network.http.v1.Request
+	(*v11.Action)(nil),              // 4: sentinez.secure.rule.v1.Action
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	4, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.network.http.v1.Request
-	5, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.secure.rule.v1.Action
+	3, // 0: sentinez.dmz.edge.v1.EvaluateIngressRequest.request_context:type_name -> sentinez.network.http.v1.Request
+	4, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.secure.rule.v1.Action
 	1, // 2: sentinez.dmz.edge.v1.EvaluateIngressResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
 	0, // 3: sentinez.dmz.edge.v1.EdgeService.EvaluateIngress:input_type -> sentinez.dmz.edge.v1.EvaluateIngressRequest
 	2, // 4: sentinez.dmz.edge.v1.EdgeService.EvaluateIngress:output_type -> sentinez.dmz.edge.v1.EvaluateIngressResponse
@@ -310,7 +257,7 @@ func file_sentinez_dmz_edge_v1_edge_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_edge_proto_rawDesc), len(file_sentinez_dmz_edge_v1_edge_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

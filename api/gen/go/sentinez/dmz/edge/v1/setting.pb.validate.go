@@ -386,34 +386,49 @@ func (m *Security) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRulesets()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "Rulesets",
-				reason: "embedded message failed validation",
-				cause:  err,
+	for idx, item := range m.GetRulesets() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SecurityValidationError{
+					field:  fmt.Sprintf("Rulesets[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
 
-	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "RuleBased",
-				reason: "embedded message failed validation",
-				cause:  err,
+	for idx, item := range m.GetRules() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SecurityValidationError{
+					field:  fmt.Sprintf("Rules[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
 
-	if v, ok := interface{}(m.GetLimiter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecurityValidationError{
-				field:  "Limiter",
-				reason: "embedded message failed validation",
-				cause:  err,
+	for idx, item := range m.GetLimiters() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SecurityValidationError{
+					field:  fmt.Sprintf("Limiters[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
 
 	return nil
@@ -548,20 +563,20 @@ func (m *RuleBased) Validate() error {
 
 	// no validation rules for Enable
 
-	if v, ok := interface{}(m.GetRuleExpr()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetIngress()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
-				field:  "RuleExpr",
+				field:  "Ingress",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	if v, ok := interface{}(m.GetRuleExprCompiled()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetIngressCompiled()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
-				field:  "RuleExprCompiled",
+				field:  "IngressCompiled",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

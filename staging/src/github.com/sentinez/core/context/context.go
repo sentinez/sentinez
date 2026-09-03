@@ -1,4 +1,4 @@
-// Copyright 2025 Duc-Hung Ho.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,4 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package corehttp
+package corecontext
+
+import (
+	"context"
+
+	networkpb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/v1"
+)
+
+type contextKey string
+
+const (
+	transport contextKey = "senz.transport"
+)
+
+func WithTransportValue(
+	parent context.Context, value *networkpb.Transport) context.Context {
+	return context.WithValue(parent, transport, value)
+}
+
+func GetTransport(ctx context.Context) *networkpb.Transport {
+	v, ok := ctx.Value(transport).(*networkpb.Transport)
+	if !ok {
+		return nil
+	}
+
+	return v
+}

@@ -45,12 +45,3 @@ message EvaluationResult {
 message EvaluateIngressResponse {
   repeated EvaluationResult results = 1;
 }
-
-// Context helps the edge identify which user is connected
-message Context {
-  // server_name server name of tenant
-  // example: dev.sentinez.test
-  //  - namespace: dev
-  //  - root: sentinez.test
-  string server_name = 1;
-}

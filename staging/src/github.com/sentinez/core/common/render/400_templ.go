@@ -8,7 +8,7 @@ package render
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func forbidden(requestId string) templ.Component {
+func badRequest(requestId string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,14 +29,14 @@ func forbidden(requestId string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display: flex; align-items: center; padding: 2rem;\"><img src=\"https://i.imgur.com/GXItvHZ.png\" alt=\"Logo\" style=\"max-width: 120px; margin-right: 2rem;\"><div><h1>403 Forbidden</h1><p>You do not have permission to access this resource.</p><pre>X-Request-ID ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display: flex; align-items: center; padding: 2rem;\"><img src=\"https://i.imgur.com/GXItvHZ.png\" alt=\"Logo\" style=\"max-width: 120px; margin-right: 2rem;\"><div><h1>400 Bad Request</h1><p>Your browser sent a request that this server could not understand</p><pre>X-Request-ID ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(requestId)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `403.templ`, Line: 9, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `400.templ`, Line: 9, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -50,7 +50,7 @@ func forbidden(requestId string) templ.Component {
 	})
 }
 
-func Forbidden(requestId string) templ.Component {
+func BadRequest(requestId string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -71,7 +71,7 @@ func Forbidden(requestId string) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = View("403 | sentinez", forbidden(requestId)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = View("403 | sentinez", badRequest(requestId)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

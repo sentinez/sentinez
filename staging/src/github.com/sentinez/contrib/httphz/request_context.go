@@ -3,10 +3,12 @@ package httphz
 import (
 	"context"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
+	corecontext "github.com/sentinez/core/context"
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
@@ -14,14 +16,19 @@ import (
 	"github.com/sentinez/shared/store/ja4"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
-	_       corehttp.Context = (*Context)(nil)
-	ctxPool                  = sync.NewPoolCtr(func() *Context {
+	_ corehttp.Context = (*Context)(nil)
+	_ io.Closer        = (*Context)(nil)
+
+	ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
-			x:       &edgepb.Context{},
-			request: &httppb.Request{},
+			ectx: &edgepb.Context{
+				X:       &edgepb.ContextExtra{},
+				Request: &httppb.Request{},
+			},
 		}
 	})
 )
@@ -32,11 +39,17 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 	httpCtx.req = c
 	httpCtx.ctx = ctx
 
-	connId, ok := ctx.Value("connId").(string)
-	if ok {
+	transport := corecontext.GetTransport(ctx)
+	if transport != nil {
+		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
-		httpCtx.request.Fingerprint = ja4.Get(connId)
+		httpCtx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
+
+	httpCtx.ectx.Transport = transport
+
+	httpCtx.ectx.Request.Status = http.StatusOK
+	httpCtx.ectx.Request.Timestamp = timestamppb.Now()
 
 	return httpCtx
 }
@@ -45,28 +58,25 @@ type Context struct {
 	req *app.RequestContext
 	ctx context.Context
 
-	request *httppb.Request
-	x       *edgepb.Context
+	ectx *edgepb.Context
 }
 
-// SetRequestId implements corehttp.Context.
+// X implements [corehttp.Context].
+func (c *Context) X() *edgepb.ContextExtra {
+	return c.ectx.GetX()
+}
+
+func (c *Context) SetHost(h []byte) {
+	c.req.Request.SetHost(bytesToString(h))
+}
+
 func (c *Context) SetRequestId(id string) {
 	if id == "" {
 		return
 	}
 
-	c.request.Id = id
+	c.ectx.Request.Id = id
 	c.req.Request.SetHeader(httpconst.HeaderXRequestId, id)
-}
-
-// Extra implements corehttp.Context.
-func (c *Context) Extra() *edgepb.Context {
-	return c.x
-}
-
-// SetExtra implements corehttp.Context.
-func (c *Context) SetExtra(x *edgepb.Context) {
-	c.x = x
 }
 
 func (c *Context) AddResponseHeader(key, value []byte) {
@@ -90,7 +100,7 @@ func (c *Context) RemoteAddr() []byte {
 }
 
 func (c *Context) RequestId() string {
-	return c.request.GetId()
+	return c.ectx.Request.GetId()
 }
 
 func (c *Context) ResponseBody() []byte {
@@ -106,36 +116,12 @@ func (c *Context) ResponseHeader() map[string][][]byte {
 	return headers
 }
 
-func (c *Context) ResponseStatus() int {
-	return c.req.Response.StatusCode()
-}
-
 func (c *Context) Scheme() string {
 	return bytesToString(c.req.Request.Scheme())
 }
 
-func (c *Context) SetRequestIP(ip []byte) {
-	c.request.ClientIp = bytesToString(ip)
-}
-
 func (c *Context) SetHeader(key, value []byte) {
 	c.req.Request.Header.Set(bytesToString(key), bytesToString(value))
-}
-
-func (c *Context) SetHost(h []byte) {
-	c.req.Request.SetHost(bytesToString(h))
-}
-
-func (c *Context) SetJA4(fingerprint string) {
-	c.request.Fingerprint = fingerprint
-}
-
-func (c *Context) SetMethod(method []byte) {
-	c.req.Request.SetMethod(bytesToString(method))
-}
-
-func (c *Context) SetProtocol(proto string) {
-	c.req.Request.Header.SetProtocol(proto)
 }
 
 func (c *Context) SetQuery(key []byte, values ...[]byte) {
@@ -145,16 +131,8 @@ func (c *Context) SetQuery(key []byte, values ...[]byte) {
 	}
 }
 
-func (c *Context) SetRemoteAddr(_ []byte) {
-	c.req.RemoteAddr()
-}
-
 func (c *Context) SetResponseHeader(key, value []byte) {
 	c.req.Response.Header.Set(bytesToString(key), bytesToString(value))
-}
-
-func (c *Context) SetResponseStatus(code int) {
-	c.req.SetStatusCode(code)
 }
 
 func (c *Context) SetURI(u []byte) {
@@ -240,7 +218,7 @@ func (c *Context) RequestIP() []byte {
 }
 
 func (c *Context) JA4() string {
-	return c.request.GetFingerprint()
+	return c.ectx.GetRequest().GetFingerprint()
 }
 
 func (c *Context) Method() []byte {
@@ -263,7 +241,7 @@ func (c *Context) TLS() bool {
 }
 
 func (c *Context) RequestTime() time.Time {
-	return corehttp.GetRequestTime(c.ctx)
+	return c.ectx.GetRequest().GetTimestamp().AsTime()
 }
 
 func (c *Context) Context() context.Context {
@@ -307,12 +285,16 @@ func (c *Context) Unwrap() any {
 	return c.req
 }
 
-func (c *Context) Release() {
+func (c *Context) Close() error {
 	c.req = nil
 	c.ctx = nil
+	c.ectx.Metadata = nil
+	c.ectx.Transport = nil
 
-	c.x.Reset()
-	c.request.Reset()
+	c.ectx.X.Reset()
+	c.ectx.Request.Reset()
 
 	ctxPool.Put(c)
+
+	return nil
 }

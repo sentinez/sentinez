@@ -101,15 +101,11 @@ func (r *Router) Store(server *edgepb.Server) {
 
 // nolint:funlen
 func (r *Router) Match(ctx corehttp.Context) (string, error) {
-	hCtx, ok := corehttp.GetRequestContext(ctx)
-	if !ok || hCtx.GetServerName() == "" {
-		return "", errorx.F("unknown server name of request")
-	}
 
-	serverName := hCtx.GetServerName()
+	namespace := ctx.X().GetNamespace()
 	path := ctx.Path()
 
-	routes, ok := r.routes.Load(serverName)
+	routes, ok := r.routes.Load(namespace)
 	if !ok {
 		return "", errorx.F("not found: %s", path)
 	}
@@ -121,7 +117,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 		if bytes.HasPrefix(path, locationBytes) {
 			zlog.Debugf(
 				"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-				serverName, route.GetProxyRewrite(), route.GetProxyPass(),
+				namespace, route.GetProxyRewrite(), route.GetProxyPass(),
 				route.GetLocation(),
 			)
 
