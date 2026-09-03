@@ -186,64 +186,67 @@ func (m *MemStore) LoadReverseProxy(
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
-	limiter := s.GetSecurity().GetLimiter()
-	if !limiter.GetEnable() {
-		zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
-		return nil
-	}
+	for _, limiter := range s.GetSecurity().GetLimiters() {
+		if !limiter.GetEnable() {
+			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
+			return nil
+		}
 
-	size, err := time.
-		ParseDuration(s.GetSecurity().GetLimiter().GetTimeWindow())
-	if err != nil {
-		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
-		return err
-	}
+		size, err := time.ParseDuration(limiter.GetTimeWindow())
+		if err != nil {
+			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
+			return err
+		}
 
-	timeout, err := time.ParseDuration(limiter.GetTimeout())
-	if err != nil {
-		zlog.Fatalf("edge: rate limiter, parse err: %v", err)
-		return err
-	}
+		timeout, err := time.ParseDuration(limiter.GetTimeout())
+		if err != nil {
+			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
+			return err
+		}
 
-	lim := corelimiter.NewRateLimiter(
-		timeout,
-		size,
-		limiter.GetLimit(),
-	)
-	m.limiter.Store(s.GetServer().GetName(), lim)
+		lim := corelimiter.NewRateLimiter(
+			timeout,
+			size,
+			limiter.GetLimit(),
+		)
+		m.limiter.Store(s.GetServer().GetName(), lim)
+	}
 
 	return nil
 }
 
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	var (
-		flag    = corers.ReqAppAttackRCE
-		ruleset = s.GetSecurity().GetRulesets()
+		flag = corers.ReqAppAttackRCE
 	)
 
-	if !ruleset.GetEnable() {
-		zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
-		return nil
-	}
+	for _, ruleset := range s.GetSecurity().GetRulesets() {
+		if !ruleset.GetEnable() {
+			zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
+			continue
+		}
 
-	ns := s.GetServer().GetName()
+		ns := s.GetServer().GetName()
 
-	err := m.rulesets.Store(ns, flag)
-	if err != nil {
-		zlog.Errorf("edge: init coraza.WAF error: %v", err)
-		return err
+		err := m.rulesets.Store(ns, flag)
+		if err != nil {
+			zlog.Errorf("edge: init coraza.WAF error: %v", err)
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
-	rule := s.GetSecurity().GetRuleBased()
-	if !rule.GetEnable() {
-		zlog.Infof("edge:rule: ignore '%s'", s.GetServer().GetName())
-		return nil
+	for _, rule := range s.GetSecurity().GetRules() {
+		if !rule.GetEnable() {
+			zlog.Infof("edge:rule: ignore '%s'", s.GetServer().GetName())
+			continue
+		}
+
+		m.ruleBased.Store(s.GetServer().GetName(), rule.GetIngressCompiled())
 	}
 
-	m.ruleBased.Store(s.GetServer().GetName(), rule.GetRuleExprCompiled())
 	return nil
 }

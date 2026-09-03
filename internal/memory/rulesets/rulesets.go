@@ -87,11 +87,6 @@ func (rs *Rulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 		return nil, false
 	}
 
-	hCtx, ok := corehttp.GetRequestContext(ctx)
-	if !ok {
-		return nil, false
-	}
-
-	zlog.Debugf("edge: namespace: hit waf cached %s", hCtx.GetServerName())
-	return rs.Load(hCtx.GetServerName())
+	zlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
+	return rs.Load(ctx.X().GetNamespace())
 }

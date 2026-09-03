@@ -29,25 +29,30 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core/common/bytestr"
+	corecontext "github.com/sentinez/core/context"
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
-	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/store/ja4"
-	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
 	_ corehttp.Context = (*Context)(nil)
+	_ io.Closer        = (*Context)(nil)
 )
 
 var (
-	ctxPool = ssync.NewPoolCtr(func() *Context {
+	ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
-			request: &httppb.Request{Status: http.StatusOK},
-			x:       &edgepb.Context{},
+			ectx: &edgepb.Context{
+				X:       &edgepb.ContextExtra{},
+				Request: &httppb.Request{},
+			},
 		}
 	})
 )
@@ -59,23 +64,24 @@ var upgrade = websocket.Upgrader{
 	},
 }
 
-func GetContext() *Context {
-	return ctxPool.Get()
-}
-
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
+	zlog.Debug("http context: connection: new context")
 	httpCtx := ctxPool.Get()
 
 	httpCtx.req = req
-	httpCtx.request.Status = http.StatusOK
+	httpCtx.resp = resp
 
-	connId, ok := req.Context().Value(network.ConnectionId).(string)
-	if ok {
+	transport := corecontext.GetTransport(req.Context())
+	if transport != nil {
+		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
-		httpCtx.request.Fingerprint = ja4.Get(connId)
+		httpCtx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
-	httpCtx.resp = resp
+	httpCtx.ectx.Transport = transport
+
+	httpCtx.ectx.Request.Status = http.StatusOK
+	httpCtx.ectx.Request.Timestamp = timestamppb.Now()
 
 	return httpCtx
 }
@@ -84,25 +90,18 @@ type Context struct {
 	req         *http.Request
 	resp        http.ResponseWriter
 	respBodyBuf bytes.Buffer
+	ectx        *edgepb.Context
+}
 
-	request *httppb.Request
-	x       *edgepb.Context
+// X implements [corehttp.Context].
+func (c *Context) X() *edgepb.ContextExtra {
+	return c.ectx.GetX()
 }
 
 // SetRequestId implements corehttp.Context.
 func (c *Context) SetRequestId(id string) {
-	c.request.Id = id
+	c.ectx.Request.Id = id
 	c.req.Header.Set(httpconst.HeaderXRequestId, id)
-}
-
-// Extra implements corehttp.Context.
-func (c *Context) Extra() *edgepb.Context {
-	return c.x
-}
-
-// SetExtra implements corehttp.Context.
-func (c *Context) SetExtra(x *edgepb.Context) {
-	c.x = x
 }
 
 // Copy implements corehttp.Context.
@@ -216,7 +215,7 @@ func (c *Context) Host() []byte {
 
 // JA4 implements corehttp.Context.
 func (c *Context) JA4() string {
-	return c.request.GetFingerprint()
+	return c.ectx.GetRequest().GetFingerprint()
 }
 
 // Protocol implements corehttp.Context.
@@ -274,41 +273,22 @@ func (c *Context) SetBody(b []byte) {
 	_, _ = c.resp.Write(b)
 }
 
-// SetRequestIP implements corehttp.Context.
-func (c *Context) SetRequestIP(ip []byte) {
-	c.request.ClientIp = string(ip)
-}
-
-func (c *Context) SetHost(host []byte) {
-	c.req.Host = string(host)
-
-	if c.req.URL != nil {
-		c.req.URL.Host = string(host)
-	}
-
-	c.request.Host = string(host)
-}
-
-// SetJA4 implements corehttp.Context.
-func (c *Context) SetJA4(fingerprint string) {
-	c.request.Fingerprint = fingerprint
-}
-
-// SetMethod implements corehttp.Context.
-func (c *Context) SetMethod(method []byte) {
-	c.req.Method = string(method)
-}
-
 func (c *Context) SetPath(path []byte) {
 	c.req.URL.Path = string(path)
 	c.req.URL.RawPath = string(path)
 
-	c.request.Path = path
+	c.ectx.Request.Path = path
 }
 
-// SetProtocol implements corehttp.Context.
-func (c *Context) SetProtocol(p string) {
-	c.req.Proto = p
+func (c *Context) SetHost(host []byte) {
+	sHost := bytesconv.B2s(host)
+	c.req.Host = sHost
+
+	if c.req.URL != nil {
+		c.req.URL.Host = sHost
+	}
+
+	c.ectx.Request.Host = sHost
 }
 
 // SetQuery implements corehttp.Context.
@@ -326,7 +306,7 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	// sync protobuf
 	var current *httppb.RequestQuery
 
-	for _, query := range c.request.GetQueries() {
+	for _, query := range c.ectx.GetRequest().GetQueries() {
 		if bytes.Equal(query.Key, []byte(k)) {
 			current = query
 			break
@@ -337,7 +317,7 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 		current = &httppb.RequestQuery{
 			Key: []byte(k),
 		}
-		c.request.Queries = append(c.request.Queries, current)
+		c.ectx.Request.Queries = append(c.ectx.Request.Queries, current)
 	}
 
 	current.Values = current.Values[:0]
@@ -347,11 +327,6 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	}
 }
 
-// SetRemoteAddr implements corehttp.Context.
-func (c *Context) SetRemoteAddr(addr []byte) {
-	c.req.RemoteAddr = string(addr)
-}
-
 // SetResponseHeader implements corehttp.Context.
 func (c *Context) SetResponseHeader(key []byte, value []byte) {
 	c.resp.Header().Set(string(key), string(value))
@@ -359,7 +334,7 @@ func (c *Context) SetResponseHeader(key []byte, value []byte) {
 
 // SetStatusCode implements corehttp.Context.
 func (c *Context) SetStatusCode(code int) {
-	c.request.Status = int32(code)
+	c.ectx.Request.Status = int32(code)
 	c.resp.WriteHeader(code)
 }
 
@@ -370,14 +345,14 @@ func (c *Context) SetURI(u []byte) {
 	}
 
 	c.req.URL = pURL
-	c.request.Uri = []byte(pURL.String())
+	c.ectx.Request.Uri = []byte(pURL.String())
 }
 
 func (c *Context) SetHeader(k, v []byte) {
 	c.req.Header.Set(string(k), string(v))
 
 	var current *httppb.RequestHeader
-	for _, h := range c.request.Headers {
+	for _, h := range c.ectx.GetRequest().GetHeaders() {
 		if bytes.Equal(h.Key, []byte(k)) {
 			current = h
 			break
@@ -388,7 +363,7 @@ func (c *Context) SetHeader(k, v []byte) {
 		current = &httppb.RequestHeader{
 			Key: []byte(k),
 		}
-		c.request.Headers = append(c.request.Headers, current)
+		c.ectx.Request.Headers = append(c.ectx.Request.Headers, current)
 	}
 
 	current.Values = current.Values[:0]
@@ -397,7 +372,7 @@ func (c *Context) SetHeader(k, v []byte) {
 
 // StatusCode implements corehttp.Context.
 func (c *Context) StatusCode() int {
-	return int(c.request.Status)
+	return int(c.ectx.GetRequest().GetStatus())
 }
 
 // TLS implements corehttp.Context.
@@ -424,7 +399,7 @@ func (c *Context) Context() context.Context {
 }
 
 func (c *Context) RequestTime() time.Time {
-	return c.request.GetTimestamp().AsTime()
+	return c.ectx.GetRequest().GetTimestamp().AsTime()
 }
 
 func (c *Context) Method() []byte {
@@ -436,7 +411,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) RequestId() string {
-	return c.request.GetId()
+	return c.ectx.GetRequest().GetId()
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
@@ -496,14 +471,18 @@ func (c *Context) Response() http.ResponseWriter {
 	return c.resp
 }
 
-func Release(c *Context) {
+func (c *Context) Close() error {
 	c.req = nil
-
 	c.resp = nil
+	c.ectx.Transport = nil
+	c.ectx.Metadata = nil
+
+	c.ectx.X.Reset()
+	c.ectx.Request.Reset()
+
 	c.respBodyBuf.Reset()
 
-	c.request.Reset()
-	c.x.Reset()
-
 	ctxPool.Put(c)
+
+	return nil
 }

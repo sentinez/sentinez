@@ -29,6 +29,7 @@ var (
 	InternalServerError = []byte("Internal server error")
 	NotFound            = []byte("Not found")
 	TooManyRequests     = []byte("Too many requests")
+	BadRequest          = []byte("Bad request")
 )
 
 var (

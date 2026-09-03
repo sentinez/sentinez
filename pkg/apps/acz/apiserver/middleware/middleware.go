@@ -68,7 +68,6 @@ func Logging(h http.Handler) http.Handler {
 		protocol.ParseQuery(r.URL.Query(), queries)
 
 		event := request.Acquire()
-		defer request.Release(event)
 
 		event.Scheme = r.URL.Scheme
 		event.Host = r.Host
@@ -81,7 +80,7 @@ func Logging(h http.Handler) http.Handler {
 		event.UserAgent = r.UserAgent()
 		event.ContentType = r.Header.Get(httpconst.HeaderContentType)
 
-		lw.Logger.Info("allow http request", event)
+		lw.Logger.Info("allow http request", event, event)
 	})
 }
 

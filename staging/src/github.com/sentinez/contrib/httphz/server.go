@@ -64,7 +64,7 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 				http.StatusInternalServerError, []byte("Internal server error"))
 		}
 
-		inCtx.Release()
+		_ = inCtx.Close()
 	}
 
 	s.handler = WrapHandler(handler)

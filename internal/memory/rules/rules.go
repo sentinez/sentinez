@@ -68,11 +68,6 @@ func (rc *RuleBased) LoadContext(ctx corehttp.Context) (corerule.Rules, bool) {
 		return nil, false
 	}
 
-	hCtx, ok := corehttp.GetRequestContext(ctx)
-	if !ok {
-		return nil, false
-	}
-
-	zlog.Debugf("edge: hit rule cached %s", hCtx.GetServerName())
-	return rc.Load(hCtx.GetServerName())
+	zlog.Debugf("edge: hit rule cached %s", ctx.X().GetNamespace())
+	return rc.Load(ctx.X().GetNamespace())
 }

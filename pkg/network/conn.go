@@ -22,12 +22,6 @@ import (
 	"github.com/sentinez/shared/store/ja4"
 )
 
-type ConnState string
-
-const (
-	ConnectionId ConnState = "connId"
-)
-
 func newConn(conn net.Conn) *Conn {
 	id := make([]byte, 8)
 	_, _ = rand.Read(id)

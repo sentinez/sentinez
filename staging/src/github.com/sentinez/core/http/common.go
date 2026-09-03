@@ -15,11 +15,7 @@
 package corehttp
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
 	"net/http"
-	"sort"
 	"sync"
 
 	"github.com/sentinez/core/common/bytestr"
@@ -36,6 +32,19 @@ func Forbidden(ctx Context) error {
 	if err != nil {
 		ctx.ResetResponse()
 		return ctx.String(http.StatusForbidden, bytestr.AccessDenied)
+	}
+
+	return nil
+}
+
+func BadRequest(ctx Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	err := ctx.Render(http.StatusBadRequest, render.BadRequest(ctx.RequestId()))
+	if err != nil {
+		ctx.ResetResponse()
+		return ctx.String(http.StatusBadRequest, bytestr.BadRequest)
 	}
 
 	return nil
@@ -81,48 +90,4 @@ func TooManyRequests(ctx Context) error {
 	}
 
 	return nil
-}
-
-// GenContextKey .
-// nolint:funlen
-func GenContextKey(ctx Context) string {
-	var (
-		method      = ctx.Method()
-		host        = ctx.Host()
-		path        = ctx.Path()
-		args        = ctx.Queries()
-		sortedQuery string
-		keys        []string
-	)
-
-	for k := range args {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		vals := args[k]
-		if len(vals) > 0 {
-			sortedQuery += fmt.Sprintf("%s=%s&", k, vals[0])
-		}
-	}
-
-	ct := ctx.Header(bytestr.HeaderContentType)
-
-	body := ctx.Body()
-	if len(body) > 1024 {
-		body = body[:1024]
-	}
-	bodyHash := ""
-	if len(body) > 0 {
-		sum := sha256.Sum256(body)
-		bodyHash = hex.EncodeToString(sum[:])
-	}
-
-	rawKey := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
-		method, host, path, sortedQuery, ct, bodyHash,
-	)
-
-	sum := sha256.Sum256([]byte(rawKey))
-	return hex.EncodeToString(sum[:])
 }

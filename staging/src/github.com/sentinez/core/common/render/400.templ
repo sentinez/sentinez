@@ -1,0 +1,16 @@
+package render
+
+templ badRequest(requestId string) {
+	<div style="display: flex; align-items: center; padding: 2rem;">
+		<img src="https://i.imgur.com/GXItvHZ.png" alt="Logo" style="max-width: 120px; margin-right: 2rem;" />
+		<div>
+			<h1>400 Bad Request</h1>
+			<p>Your browser sent a request that this server could not understand</p>
+			<pre>X-Request-ID { requestId } </pre>
+		</div>
+	</div>
+}
+
+templ BadRequest(requestId string) {
+	@View("403 | sentinez", badRequest(requestId))
+}

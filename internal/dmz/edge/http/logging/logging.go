@@ -33,7 +33,7 @@ var _ corechains.ChainNode = (*Logger)(nil)
 func NewLogger(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 	return &Logger{
 		Node: corechains.NewNode(),
-		logger: zlog.NewJSONLogger(edgepb.GetMetaEdgeServiceKey(),
+		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
 			typepb.LogKind_LOG_KIND_HTTP, logLevel,
 		),
 	}
@@ -41,7 +41,7 @@ func NewLogger(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 
 type Logger struct {
 	*corechains.Node
-	logger zlog.Logger
+	log zlog.LogCloser
 }
 
 func (l *Logger) Handle(ctx corehttp.Context) error {
@@ -53,7 +53,6 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	zlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
 	event := request.Acquire()
-	defer request.Release(event)
 
 	event.Id = ctx.RequestId()
 	event.Scheme = ctx.Scheme()
@@ -67,8 +66,8 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	protocol.ParseQuery(ctx.Queries(), event.Queries)
 	protocol.ParseHeader(ctx.Headers(), event.Headers)
 
-	if l.logger.V(zlog.LevelInfo.Int()) {
-		l.logger.Info("http: request", event)
+	if l.log.V(zlog.LevelInfo.Int()) {
+		l.log.Info("http: request", event, event)
 	}
 
 	return err
