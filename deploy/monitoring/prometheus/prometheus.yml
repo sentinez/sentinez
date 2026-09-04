@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  # Prometheus monitor
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  # Docker container metrics
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - cadvisor:8080

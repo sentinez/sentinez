@@ -9,6 +9,8 @@ services:
       - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
     networks:
       - sentinez-net
+    ports:
+      - "7443:7443"
 
   sentinez-dmz-edge-02:
     image: sentinez/edge:latest
@@ -22,6 +24,8 @@ services:
       - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
     depends_on:
       - sentinez-dmz-edge-01
+    ports:
+      - "8443:8443"
 
 networks:
   sentinez-net:
