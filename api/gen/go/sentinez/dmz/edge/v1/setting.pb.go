@@ -22,6 +22,7 @@ package edgepb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	v11 "github.com/sentinez/sentinez/api/gen/go/sentinez/cdn/rule/v1"
 	v1 "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -611,6 +612,7 @@ func (x *RateLimit) GetTimeout() string {
 // Controller for systems using a virtual waiting room or throttling:
 type Controller struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cdn           []*v11.CDN             `protobuf:"bytes,1,rep,name=cdn,proto3" json:"cdn,omitempty" yaml:"CDN"` // @gotags: yaml:"CDN"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -643,6 +645,13 @@ func (x *Controller) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Controller.ProtoReflect.Descriptor instead.
 func (*Controller) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Controller) GetCdn() []*v11.CDN {
+	if x != nil {
+		return x.Cdn
+	}
+	return nil
 }
 
 // Personal defines where the request goes and how the edge processes it
@@ -738,7 +747,7 @@ var File_sentinez_dmz_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a$sentinez/secure/rule/v1/engine.proto\"\xb5\x02\n" +
+	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a$sentinez/secure/rule/v1/engine.proto\x1a\x1esentinez/cdn/rule/v1/cdn.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
 	"\aSetting\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x124\n" +
 	"\x06server\x18\x02 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\x12:\n" +
@@ -778,9 +787,10 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12\x14\n" +
 	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
-	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"\f\n" +
+	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"9\n" +
 	"\n" +
-	"Controller\"\n" +
+	"Controller\x12+\n" +
+	"\x03cdn\x18\x01 \x03(\v2\x19.sentinez.cdn.rule.v1.CDNR\x03cdn\"\n" +
 	"\n" +
 	"\bPersonal\"\xe8\x01\n" +
 	"\bUpstream\x12\x9a\x01\n" +
@@ -825,6 +835,7 @@ var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
 	nil,                      // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
 	(*v1.RuleBasedLite)(nil), // 14: sentinez.secure.rule.v1.RuleBasedLite
 	(*v1.RuleBased)(nil),     // 15: sentinez.secure.rule.v1.RuleBased
+	(*v11.CDN)(nil),          // 16: sentinez.cdn.rule.v1.CDN
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
@@ -841,12 +852,13 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	9,  // 11: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
 	14, // 12: sentinez.dmz.edge.v1.RuleBased.ingress:type_name -> sentinez.secure.rule.v1.RuleBasedLite
 	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
-	1,  // 14: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	16, // 14: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.cdn.rule.v1.CDN
+	1,  // 15: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_setting_proto_init() }

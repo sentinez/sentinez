@@ -16,8 +16,10 @@ syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
 
-import "buf/validate/validate.proto";
 import "sentinez/secure/rule/v1/engine.proto";
+import "sentinez/cdn/rule/v1/cdn.proto";
+
+import "buf/validate/validate.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
 
@@ -51,15 +53,15 @@ message Location {
     (buf.validate.field) = { string: { pattern: "^/.*$" } }
   ];  // @gotags: yaml:"proxyRewrite"
 
-  repeated Upstream proxy_pass = 3;  // @gotags: yaml:"proxyPass"
-  BalanceStrategy balance_strategy = 4;  // @gotags: yaml:"balanceStrategy"
+  repeated Upstream proxy_pass = 3;           // @gotags: yaml:"proxyPass"
+  BalanceStrategy balance_strategy = 4;       // @gotags: yaml:"balanceStrategy"
   map<string, string> proxy_set_headers = 5;  // @gotags: yaml:"proxySetHeaders"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-  repeated Rulesets rulesets = 1;            // @gotags: yaml:"rulesets"
-  repeated RuleBased rules = 2;         // @gotags: yaml:"rules"
+  repeated Rulesets rulesets = 1;   // @gotags: yaml:"rulesets"
+  repeated RuleBased rules = 2;     // @gotags: yaml:"rules"
   repeated RateLimit limiters = 3;  // @gotags: yaml:"limiters"
 }
 
@@ -90,7 +92,9 @@ message RateLimit {
 }
 
 // Controller for systems using a virtual waiting room or throttling:
-message Controller {}
+message Controller {
+  repeated sentinez.cdn.rule.v1.CDN cdn = 1;  // @gotags: yaml:"CDN"
+}
 
 // Personal defines where the request goes and how the edge processes it
 message Personal {}

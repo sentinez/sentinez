@@ -719,6 +719,21 @@ func (m *Controller) Validate() error {
 		return nil
 	}
 
+	for idx, item := range m.GetCdn() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ControllerValidationError{
+					field:  fmt.Sprintf("Cdn[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	return nil
 }
 

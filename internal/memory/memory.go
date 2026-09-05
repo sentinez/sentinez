@@ -26,10 +26,11 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/cluster"
+	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/rules"
+	"github.com/sentinez/sentinez/internal/memory/rulebased"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/protocol"
@@ -46,8 +47,9 @@ func NewMemStore(st *edgepb.Setting) *MemStore {
 			limiter:      ratelimiter.New(),
 			reverseProxy: reverseproxy.New(),
 			route:        routes.New(),
-			ruleBased:    rules.New(),
+			ruleBased:    rulebased.New(),
 			rulesets:     rulesets.New(),
+			cdnRules:     cdnrules.New(),
 		}
 
 		if err := store.setting.Store(st); err != nil {
@@ -63,8 +65,9 @@ type MemStore struct {
 	limiter      *ratelimiter.Limiter
 	reverseProxy *reverseproxy.ReverseProxy
 	route        *routes.Router
-	ruleBased    *rules.RuleBased
+	ruleBased    *rulebased.RuleBased
 	rulesets     *rulesets.Rulesets
+	cdnRules     *cdnrules.Rule
 }
 
 func (m *MemStore) Start(conf *settingpb.Config) {
@@ -83,7 +86,7 @@ func (m *MemStore) Rulesets() *rulesets.Rulesets {
 	return m.rulesets
 }
 
-func (m *MemStore) RuleBased() *rules.RuleBased {
+func (m *MemStore) RuleBased() *rulebased.RuleBased {
 	if m == nil {
 		return nil
 	}
@@ -123,6 +126,14 @@ func (m *MemStore) Setting() *settings.Setting {
 	return m.setting
 }
 
+func (m *MemStore) CDNRules() *cdnrules.Rule {
+	if m == nil {
+		return nil
+	}
+
+	return m.cdnRules
+}
+
 func (m *MemStore) LoadServer(server corehttp.Server) {
 	m.setting.Visit(func(s *edgepb.Setting) bool {
 		// routing for each tenant
@@ -130,6 +141,8 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 
 		// load all reverse proxy for target origin
 		_ = m.LoadReverseProxy(server, s)
+
+		_ = m.LoadCDNRule(s)
 
 		// rule config
 		_ = m.LoadRuleBased(s)
@@ -142,6 +155,20 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 
 		return true
 	})
+}
+
+func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
+	for _, s := range st {
+		for _, cdn := range s.GetController().GetCdn() {
+			if !cdn.GetEnable() {
+				continue
+			}
+
+			m.cdnRules.Store(s.GetServer().GetName(), cdn)
+		}
+	}
+
+	return nil
 }
 
 func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {

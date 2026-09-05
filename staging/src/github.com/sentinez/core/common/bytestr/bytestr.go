@@ -30,6 +30,7 @@ var (
 	NotFound            = []byte("Not found")
 	TooManyRequests     = []byte("Too many requests")
 	BadRequest          = []byte("Bad request")
+	HitCache            = []byte("HIT")
 )
 
 var (
@@ -42,6 +43,7 @@ var (
 	HeaderUserAgent        = []byte(httpconst.HeaderUserAgent)
 	HeaderCacheControl     = []byte(httpconst.HeaderCacheControl)
 	HeaderUpgrade          = []byte(httpconst.HeaderUpgrade)
+	HeaderXCache           = []byte(httpconst.HeaderXCache)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)
 	ValueTextPlain = []byte(httpconst.ValueTextPlain)
