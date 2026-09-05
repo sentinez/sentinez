@@ -23,6 +23,7 @@ const (
 	HeaderUserAgent        = "User-Agent"
 	HeaderXForwardedFor    = "X-Forwarded-For"
 	HeaderXRealIP          = "X-Real-IP"
+	HeaderXCache           = "X-Cache"
 	HeaderCacheControl     = "Cache-Control"
 	HeaderTransferEncoding = "Transfer-Encoding"
 

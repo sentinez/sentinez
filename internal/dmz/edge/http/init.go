@@ -17,6 +17,7 @@ package http
 import (
 	corechains "github.com/sentinez/core/http/chains"
 	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/cdn"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/logging"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/ratelimiter"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/room"
@@ -45,6 +46,8 @@ func Init(appConf *settingpb.Config,
 	curr = curr.SetNext(logging.NewLogger(ll, memStore))
 
 	curr = curr.SetNext(secure.NewDomainBased(hostname, memStore))
+
+	curr = curr.SetNext(cdn.NewCache(ll, memStore))
 
 	curr = curr.SetNext(ratelimiter.NewLimiter(ll, memStore))
 

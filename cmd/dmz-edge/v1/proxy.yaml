@@ -143,10 +143,19 @@ setting:
     # waitingRoom:
     #   enabled: true
     #   message: "Server is busy, please wait..."  # Message shown to waiting users
-    # CDN:
-    #   enable: true
-    #   rules:
-    {}
+     CDN:
+       - enable: true
+         rule:
+           name: cache request with condition
+           expr:
+             orCondition:
+               - rules:
+                 - name: "cache when method is GET"
+                   condition:
+                     source: FIELD_SOURCE_METHOD
+                     key: "GET"
+                     operator: OPERATOR_EQ
+                     value: "GET"
 
 
   # ----------------------------------------------------------

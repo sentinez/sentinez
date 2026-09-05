@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rules
+package rulebased
 
 import (
 	"sync"
@@ -28,13 +28,13 @@ import (
 var (
 	once     sync.Once
 	ruleInst *RuleBased
-	mu       sync.Mutex
 )
 
 func New() *RuleBased {
 	once.Do(func() {
 		ruleInst = &RuleBased{
-			space: ssync.NewMap[string, corerule.Rules](),
+			space: ssync.NewMap[string, corerule.EvalFunc](),
+			rules: ssync.NewMap[string, *rulepb.RuleBased](),
 		}
 	})
 
@@ -42,30 +42,40 @@ func New() *RuleBased {
 }
 
 type RuleBased struct {
-	space *ssync.Map[string, corerule.Rules]
+	space *ssync.Map[string, corerule.EvalFunc]
+	rules *ssync.Map[string, *rulepb.RuleBased]
 }
 
 func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleBased) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
-	rule := corerule.NewIngress(gr)
+	rule := corerule.NewEval(gr.GetExpr())
 
 	rc.space.Store(namespace, rule)
 }
 
-func (rc *RuleBased) Load(namespace string) (corerule.Rules, bool) {
-	rule, ok := rc.space.Load(namespace)
+func (rc *RuleBased) Load(
+	namespace string) (corerule.EvalFunc, *rulepb.RuleBased) {
+
+	ev, ok := rc.space.Load(namespace)
 	if !ok {
-		return nil, false
+		return nil, nil
 	}
 
-	return rule, true
+	rule, ok := rc.rules.Load(namespace)
+	if !ok {
+		return ev, nil
+	}
+
+	return ev, rule
 }
 
-func (rc *RuleBased) LoadContext(ctx corehttp.Context) (corerule.Rules, bool) {
+func (rc *RuleBased) LoadContext(
+	ctx corehttp.Context) (corerule.EvalFunc, *rulepb.RuleBased) {
+
 	if rc == nil {
-		return nil, false
+		return nil, nil
 	}
 
 	zlog.Debugf("edge: hit rule cached %s", ctx.X().GetNamespace())

@@ -46,28 +46,28 @@ type RuleBased struct {
 	store  *memory.MemStore
 }
 
-func (r *RuleBased) Handle(ctx corehttp.Context) error {
+func (rb *RuleBased) Handle(ctx corehttp.Context) error {
 	// zlog.Debug("[edge] >>> visit rule")
 
-	rule, ok := r.store.RuleBased().LoadContext(ctx)
-	if !ok {
-		return r.HandleNext(ctx)
+	eval, rule := rb.store.RuleBased().LoadContext(ctx)
+	if eval == nil || rule == nil {
+		return rb.HandleNext(ctx)
 	}
 
 	matched := matchedPool.Get()
 	defer matchedPool.Put(matched)
 
-	if ok := rule.Eval(ctx, matched); !ok {
-		return r.HandleNext(ctx)
+	if ok := eval(ctx, matched); !ok {
+		return rb.HandleNext(ctx)
 	}
 
-	zlog.Debugf("edge: action = %v", rule.Action().GetType())
+	zlog.Debugf("edge: action = %v", rule.GetAction().GetType())
 
-	switch rule.Action().GetType() {
+	switch rule.GetAction().GetType() {
 	case rulepb.ActionType_ACTION_TYPE_BLOCK:
 		zlog.Debugf("edge: matched rule %v", matched)
 		return corehttp.Forbidden(ctx)
 	}
 
-	return r.HandleNext(ctx)
+	return rb.HandleNext(ctx)
 }

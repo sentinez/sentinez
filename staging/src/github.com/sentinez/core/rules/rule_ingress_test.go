@@ -198,9 +198,9 @@ func TestChain(t *testing.T) {
 		},
 	}
 
-	ig := NewIngress(rg)
+	eval := NewEval(rg.GetExpr())
 	matched := &rulepb.MatchedRules{}
-	if ok := ig.Eval(newContext(), matched); ok {
+	if ok := eval(newContext(), matched); ok {
 		t.Logf("rule engine matched !!!")
 		return
 	}
@@ -304,8 +304,8 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ig := NewIngress(tt.rg)
-			if ok := ig.Eval(ctx, matched); ok != tt.expect {
+			eval := NewEval(tt.rg.GetExpr())
+			if ok := eval(ctx, matched); ok != tt.expect {
 				t.Errorf("expected %v, got %v", tt.expect, ok)
 			} else {
 				t.Logf("%s: passed", tt.name)
@@ -397,7 +397,7 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 			},
 		},
 	}
-	ig := NewIngress(rg)
+	eval := NewEval(rg.GetExpr())
 
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
@@ -405,7 +405,7 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = ig.Eval(ctx, matched)
+		_ = eval(ctx, matched)
 	}
 }
 
@@ -442,14 +442,14 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 		},
 	}
 
-	ig := NewIngress(rg)
+	eval := NewEval(rg.GetExpr())
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
 
 	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_ = ig.Eval(ctx, matched)
+		_ = eval(ctx, matched)
 	}
 }
 
@@ -486,7 +486,7 @@ func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
 		},
 	}
 
-	ig := NewIngress(rg)
+	eval := NewEval(rg.GetExpr())
 
 	ctx := newContext()
 
@@ -494,7 +494,7 @@ func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_ = ig.Eval(ctx, nil)
+			_ = eval(ctx, nil)
 		}
 	})
 }

@@ -19,35 +19,13 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
 )
 
-var _ Rules = (*ingress)(nil)
-
 type MatchedFunc func(ctx chttp.RequestContext,
 	rule *rulepb.Rule) (id string, name string, ok bool)
 
-type Rules interface {
-	Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool
-	Action() *rulepb.Action
-}
+type EvalFunc func(ctx chttp.RequestContext, mr *rulepb.MatchedRules) bool
 
-func NewIngress(rg *rulepb.RuleBased) Rules {
-	return &ingress{
-		action: rg.GetAction(),
-		eval:   buildEval(rg.GetExpr(), match),
-	}
-}
-
-type ingress struct {
-	action *rulepb.Action
-	eval   func(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool
-}
-
-// Eval a nested group of rules, return isValid ?
-func (in *ingress) Eval(ctx chttp.RequestContext, m *rulepb.MatchedRules) bool {
-	return in.eval(ctx, m)
-}
-
-func (in *ingress) Action() *rulepb.Action {
-	return in.action
+func NewEval(expr *rulepb.Expression) EvalFunc {
+	return buildEval(expr, match)
 }
 
 func eval(ctx chttp.RequestContext, rule *rulepb.Rule) bool {

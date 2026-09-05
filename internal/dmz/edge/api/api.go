@@ -38,9 +38,9 @@ func (e *EdgeService) EvaluateIngress(ctx context.Context,
 	enginectx := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
 	// defer corehttpreq.(enginectx)
 
-	rule := corerules.NewIngress(&rulepb.RuleBased{})
+	eval := corerules.NewEval(&rulepb.Expression{})
 	matched := &rulepb.MatchedRules{}
-	ok := rule.Eval(enginectx, matched)
+	ok := eval(enginectx, matched)
 	if !ok {
 		return &edgepb.EvaluateIngressResponse{}, nil
 	}
