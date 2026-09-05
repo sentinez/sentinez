@@ -143,7 +143,7 @@ setting:
     # waitingRoom:
     #   enabled: true
     #   message: "Server is busy, please wait..."  # Message shown to waiting users
-     CDN:
+      cdn:
        - enable: true
          rule:
            name: cache request with condition
