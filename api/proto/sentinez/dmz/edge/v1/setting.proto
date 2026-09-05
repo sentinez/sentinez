@@ -93,7 +93,7 @@ message RateLimit {
 
 // Controller for systems using a virtual waiting room or throttling:
 message Controller {
-  repeated sentinez.cdn.rule.v1.CDN cdn = 1;  // @gotags: yaml:"CDN"
+  repeated sentinez.cdn.rule.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
 }
 
 // Personal defines where the request goes and how the edge processes it

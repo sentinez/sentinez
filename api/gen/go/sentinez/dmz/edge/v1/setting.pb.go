@@ -612,7 +612,7 @@ func (x *RateLimit) GetTimeout() string {
 // Controller for systems using a virtual waiting room or throttling:
 type Controller struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cdn           []*v11.CDN             `protobuf:"bytes,1,rep,name=cdn,proto3" json:"cdn,omitempty" yaml:"CDN"` // @gotags: yaml:"CDN"
+	Cdn           []*v11.CDN             `protobuf:"bytes,1,rep,name=cdn,proto3" json:"cdn,omitempty" yaml:"Cdn"` // @gotags: yaml:"Cdn"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
