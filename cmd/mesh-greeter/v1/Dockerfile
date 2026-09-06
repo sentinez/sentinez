@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.25.0-alpine AS builder
+FROM golang:1.27.1-alpine AS builder
 
 # Move to working directory (/src).
 WORKDIR /src

@@ -1,6 +1,6 @@
 module github.com/sentinez/modules
 
-go 1.26.1
+go 1.27.1
 
 replace (
 	github.com/sentinez/core => ../core
@@ -12,14 +12,14 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-webauthn/webauthn v0.17.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/jackc/pgx/v5 v5.9.2
+	github.com/jackc/pgx/v5 v5.10.0
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/crypto v0.52.0
-	google.golang.org/grpc v1.79.3
+	golang.org/x/crypto v0.54.0
+	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -39,7 +39,7 @@ require (
 	github.com/go-webauthn/x v0.2.6 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
 	github.com/hashicorp/consul/api v1.32.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -75,11 +75,11 @@ require (
 	go.uber.org/zap v1.27.1 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
-	golang.org/x/net v0.54.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260319201613-d00831a3d3e7 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
