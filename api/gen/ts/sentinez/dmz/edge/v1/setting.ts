@@ -6,7 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { RuleBased, RuleBasedLite } from "../../../secure/rule/v1/engine";
+import { CDN } from "../../../cdn/rule/v1/cdn";
+import { RuleBased as RuleBased1, RuleBasedLite } from "../../../secure/rule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 
@@ -112,8 +113,6 @@ export interface Metadata {
 export interface Server {
   /** @gotags: yaml:"name" */
   name: string;
-  /** @gotags: yaml:"listen" */
-  listen: number[];
   /** @gotags: yaml:"locations" */
   locations: Location[];
 }
@@ -138,18 +137,31 @@ export interface Location_ProxySetHeadersEntry {
 
 /** Security user-specific WAF, rate limiting, or bot protection rules */
 export interface Security {
-  /** @gotags: yaml:"isWafEngineOn" */
-  isWafEngineOn: boolean;
-  /** @gotags: yaml:"ruleBased" */
-  ruleBased?:
+  /** @gotags: yaml:"rulesets" */
+  rulesets: Rulesets[];
+  /** @gotags: yaml:"rules" */
+  rules: RuleBased[];
+  /** @gotags: yaml:"limiters" */
+  limiters: RateLimit[];
+}
+
+export interface Rulesets {
+  enable: boolean;
+}
+
+export interface RuleBased {
+  enable: boolean;
+  /** @gotags: yaml:"ingress" */
+  ingress?:
     | RuleBasedLite
     | undefined;
   /** @gotags: yaml:"-" */
-  ruleBasedCompiled?:
-    | RuleBased
-    | undefined;
+  ingressCompiled?: RuleBased1 | undefined;
+}
+
+export interface RateLimit {
   /** @gotags: yaml:"isRateLimitOn" */
-  isRateLimitOn: boolean;
+  enable: boolean;
   /** @gotags: yaml:"timeWindow" */
   timeWindow: string;
   /** @gotags: yaml:"limit" */
@@ -160,6 +172,8 @@ export interface Security {
 
 /** Controller for systems using a virtual waiting room or throttling: */
 export interface Controller {
+  /** @gotags: yaml:"cdn" */
+  cdn: CDN[];
 }
 
 /** Personal defines where the request goes and how the edge processes it */
@@ -351,7 +365,7 @@ export const Metadata: MessageFns<Metadata> = {
 };
 
 function createBaseServer(): Server {
-  return { name: "", listen: [], locations: [] };
+  return { name: "", locations: [] };
 }
 
 export const Server: MessageFns<Server> = {
@@ -359,13 +373,8 @@ export const Server: MessageFns<Server> = {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
-    writer.uint32(18).fork();
-    for (const v of message.listen) {
-      writer.uint32(v);
-    }
-    writer.join();
     for (const v of message.locations) {
-      Location.encode(v!, writer.uint32(26).fork()).join();
+      Location.encode(v!, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -386,25 +395,7 @@ export const Server: MessageFns<Server> = {
           continue;
         }
         case 2: {
-          if (tag === 16) {
-            message.listen.push(reader.uint32());
-
-            continue;
-          }
-
-          if (tag === 18) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.listen.push(reader.uint32());
-            }
-
-            continue;
-          }
-
-          break;
-        }
-        case 3: {
-          if (tag !== 26) {
+          if (tag !== 18) {
             break;
           }
 
@@ -423,7 +414,6 @@ export const Server: MessageFns<Server> = {
   fromJSON(object: any): Server {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      listen: globalThis.Array.isArray(object?.listen) ? object.listen.map((e: any) => globalThis.Number(e)) : [],
       locations: globalThis.Array.isArray(object?.locations)
         ? object.locations.map((e: any) => Location.fromJSON(e))
         : [],
@@ -434,9 +424,6 @@ export const Server: MessageFns<Server> = {
     const obj: any = {};
     if (message.name !== "") {
       obj.name = message.name;
-    }
-    if (message.listen?.length) {
-      obj.listen = message.listen.map((e) => Math.round(e));
     }
     if (message.locations?.length) {
       obj.locations = message.locations.map((e) => Location.toJSON(e));
@@ -450,7 +437,6 @@ export const Server: MessageFns<Server> = {
   fromPartial<I extends Exact<DeepPartial<Server>, I>>(object: I): Server {
     const message = createBaseServer();
     message.name = object.name ?? "";
-    message.listen = object.listen?.map((e) => e) || [];
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     return message;
   },
@@ -683,30 +669,261 @@ export const Location_ProxySetHeadersEntry: MessageFns<Location_ProxySetHeadersE
 };
 
 function createBaseSecurity(): Security {
-  return {
-    isWafEngineOn: false,
-    ruleBased: undefined,
-    ruleBasedCompiled: undefined,
-    isRateLimitOn: false,
-    timeWindow: "",
-    limit: 0,
-    timeout: "",
-  };
+  return { rulesets: [], rules: [], limiters: [] };
 }
 
 export const Security: MessageFns<Security> = {
   encode(message: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.isWafEngineOn !== false) {
-      writer.uint32(8).bool(message.isWafEngineOn);
+    for (const v of message.rulesets) {
+      Rulesets.encode(v!, writer.uint32(10).fork()).join();
     }
-    if (message.ruleBased !== undefined) {
-      RuleBasedLite.encode(message.ruleBased, writer.uint32(18).fork()).join();
+    for (const v of message.rules) {
+      RuleBased.encode(v!, writer.uint32(18).fork()).join();
     }
-    if (message.ruleBasedCompiled !== undefined) {
-      RuleBased.encode(message.ruleBasedCompiled, writer.uint32(26).fork()).join();
+    for (const v of message.limiters) {
+      RateLimit.encode(v!, writer.uint32(26).fork()).join();
     }
-    if (message.isRateLimitOn !== false) {
-      writer.uint32(80).bool(message.isRateLimitOn);
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Security {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSecurity();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.rulesets.push(Rulesets.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.rules.push(RuleBased.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.limiters.push(RateLimit.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Security {
+    return {
+      rulesets: globalThis.Array.isArray(object?.rulesets) ? object.rulesets.map((e: any) => Rulesets.fromJSON(e)) : [],
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleBased.fromJSON(e)) : [],
+      limiters: globalThis.Array.isArray(object?.limiters)
+        ? object.limiters.map((e: any) => RateLimit.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: Security): unknown {
+    const obj: any = {};
+    if (message.rulesets?.length) {
+      obj.rulesets = message.rulesets.map((e) => Rulesets.toJSON(e));
+    }
+    if (message.rules?.length) {
+      obj.rules = message.rules.map((e) => RuleBased.toJSON(e));
+    }
+    if (message.limiters?.length) {
+      obj.limiters = message.limiters.map((e) => RateLimit.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Security>, I>>(base?: I): Security {
+    return Security.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
+    const message = createBaseSecurity();
+    message.rulesets = object.rulesets?.map((e) => Rulesets.fromPartial(e)) || [];
+    message.rules = object.rules?.map((e) => RuleBased.fromPartial(e)) || [];
+    message.limiters = object.limiters?.map((e) => RateLimit.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseRulesets(): Rulesets {
+  return { enable: false };
+}
+
+export const Rulesets: MessageFns<Rulesets> = {
+  encode(message: Rulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.enable !== false) {
+      writer.uint32(8).bool(message.enable);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Rulesets {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRulesets();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.enable = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Rulesets {
+    return { enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false };
+  },
+
+  toJSON(message: Rulesets): unknown {
+    const obj: any = {};
+    if (message.enable !== false) {
+      obj.enable = message.enable;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Rulesets>, I>>(base?: I): Rulesets {
+    return Rulesets.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Rulesets>, I>>(object: I): Rulesets {
+    const message = createBaseRulesets();
+    message.enable = object.enable ?? false;
+    return message;
+  },
+};
+
+function createBaseRuleBased(): RuleBased {
+  return { enable: false, ingress: undefined, ingressCompiled: undefined };
+}
+
+export const RuleBased: MessageFns<RuleBased> = {
+  encode(message: RuleBased, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.enable !== false) {
+      writer.uint32(8).bool(message.enable);
+    }
+    if (message.ingress !== undefined) {
+      RuleBasedLite.encode(message.ingress, writer.uint32(18).fork()).join();
+    }
+    if (message.ingressCompiled !== undefined) {
+      RuleBased1.encode(message.ingressCompiled, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRuleBased();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.enable = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.ingress = RuleBasedLite.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.ingressCompiled = RuleBased1.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RuleBased {
+    return {
+      enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
+      ingress: isSet(object.ingress) ? RuleBasedLite.fromJSON(object.ingress) : undefined,
+      ingressCompiled: isSet(object.ingressCompiled) ? RuleBased1.fromJSON(object.ingressCompiled) : undefined,
+    };
+  },
+
+  toJSON(message: RuleBased): unknown {
+    const obj: any = {};
+    if (message.enable !== false) {
+      obj.enable = message.enable;
+    }
+    if (message.ingress !== undefined) {
+      obj.ingress = RuleBasedLite.toJSON(message.ingress);
+    }
+    if (message.ingressCompiled !== undefined) {
+      obj.ingressCompiled = RuleBased1.toJSON(message.ingressCompiled);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleBased>, I>>(base?: I): RuleBased {
+    return RuleBased.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleBased>, I>>(object: I): RuleBased {
+    const message = createBaseRuleBased();
+    message.enable = object.enable ?? false;
+    message.ingress = (object.ingress !== undefined && object.ingress !== null)
+      ? RuleBasedLite.fromPartial(object.ingress)
+      : undefined;
+    message.ingressCompiled = (object.ingressCompiled !== undefined && object.ingressCompiled !== null)
+      ? RuleBased1.fromPartial(object.ingressCompiled)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseRateLimit(): RateLimit {
+  return { enable: false, timeWindow: "", limit: 0, timeout: "" };
+}
+
+export const RateLimit: MessageFns<RateLimit> = {
+  encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.enable !== false) {
+      writer.uint32(80).bool(message.enable);
     }
     if (message.timeWindow !== "") {
       writer.uint32(90).string(message.timeWindow);
@@ -720,43 +937,19 @@ export const Security: MessageFns<Security> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Security {
+  decode(input: BinaryReader | Uint8Array, length?: number): RateLimit {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSecurity();
+    const message = createBaseRateLimit();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.isWafEngineOn = reader.bool();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.ruleBased = RuleBasedLite.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.ruleBasedCompiled = RuleBased.decode(reader, reader.uint32());
-          continue;
-        }
         case 10: {
           if (tag !== 80) {
             break;
           }
 
-          message.isRateLimitOn = reader.bool();
+          message.enable = reader.bool();
           continue;
         }
         case 11: {
@@ -792,31 +985,19 @@ export const Security: MessageFns<Security> = {
     return message;
   },
 
-  fromJSON(object: any): Security {
+  fromJSON(object: any): RateLimit {
     return {
-      isWafEngineOn: isSet(object.isWafEngineOn) ? globalThis.Boolean(object.isWafEngineOn) : false,
-      ruleBased: isSet(object.ruleBased) ? RuleBasedLite.fromJSON(object.ruleBased) : undefined,
-      ruleBasedCompiled: isSet(object.ruleBasedCompiled) ? RuleBased.fromJSON(object.ruleBasedCompiled) : undefined,
-      isRateLimitOn: isSet(object.isRateLimitOn) ? globalThis.Boolean(object.isRateLimitOn) : false,
+      enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
       timeWindow: isSet(object.timeWindow) ? globalThis.String(object.timeWindow) : "",
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
       timeout: isSet(object.timeout) ? globalThis.String(object.timeout) : "",
     };
   },
 
-  toJSON(message: Security): unknown {
+  toJSON(message: RateLimit): unknown {
     const obj: any = {};
-    if (message.isWafEngineOn !== false) {
-      obj.isWafEngineOn = message.isWafEngineOn;
-    }
-    if (message.ruleBased !== undefined) {
-      obj.ruleBased = RuleBasedLite.toJSON(message.ruleBased);
-    }
-    if (message.ruleBasedCompiled !== undefined) {
-      obj.ruleBasedCompiled = RuleBased.toJSON(message.ruleBasedCompiled);
-    }
-    if (message.isRateLimitOn !== false) {
-      obj.isRateLimitOn = message.isRateLimitOn;
+    if (message.enable !== false) {
+      obj.enable = message.enable;
     }
     if (message.timeWindow !== "") {
       obj.timeWindow = message.timeWindow;
@@ -830,19 +1011,12 @@ export const Security: MessageFns<Security> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Security>, I>>(base?: I): Security {
-    return Security.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RateLimit>, I>>(base?: I): RateLimit {
+    return RateLimit.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
-    const message = createBaseSecurity();
-    message.isWafEngineOn = object.isWafEngineOn ?? false;
-    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
-      ? RuleBasedLite.fromPartial(object.ruleBased)
-      : undefined;
-    message.ruleBasedCompiled = (object.ruleBasedCompiled !== undefined && object.ruleBasedCompiled !== null)
-      ? RuleBased.fromPartial(object.ruleBasedCompiled)
-      : undefined;
-    message.isRateLimitOn = object.isRateLimitOn ?? false;
+  fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
+    const message = createBaseRateLimit();
+    message.enable = object.enable ?? false;
     message.timeWindow = object.timeWindow ?? "";
     message.limit = object.limit ?? 0;
     message.timeout = object.timeout ?? "";
@@ -851,11 +1025,14 @@ export const Security: MessageFns<Security> = {
 };
 
 function createBaseController(): Controller {
-  return {};
+  return { cdn: [] };
 }
 
 export const Controller: MessageFns<Controller> = {
-  encode(_: Controller, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: Controller, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.cdn) {
+      CDN.encode(v!, writer.uint32(10).fork()).join();
+    }
     return writer;
   },
 
@@ -866,6 +1043,14 @@ export const Controller: MessageFns<Controller> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.cdn.push(CDN.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -875,20 +1060,24 @@ export const Controller: MessageFns<Controller> = {
     return message;
   },
 
-  fromJSON(_: any): Controller {
-    return {};
+  fromJSON(object: any): Controller {
+    return { cdn: globalThis.Array.isArray(object?.cdn) ? object.cdn.map((e: any) => CDN.fromJSON(e)) : [] };
   },
 
-  toJSON(_: Controller): unknown {
+  toJSON(message: Controller): unknown {
     const obj: any = {};
+    if (message.cdn?.length) {
+      obj.cdn = message.cdn.map((e) => CDN.toJSON(e));
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<Controller>, I>>(base?: I): Controller {
     return Controller.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Controller>, I>>(_: I): Controller {
+  fromPartial<I extends Exact<DeepPartial<Controller>, I>>(object: I): Controller {
     const message = createBaseController();
+    message.cdn = object.cdn?.map((e) => CDN.fromPartial(e)) || [];
     return message;
   },
 };

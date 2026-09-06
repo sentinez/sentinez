@@ -1,0 +1,1 @@
+import{_ as n,c as a,o as p,ah as e}from"./chunks/framework.MgE-7MWY.js";const g=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"edge-stats.md","filePath":"edge-stats.md"}'),i={name:"edge-stats.md"};function t(l,s,c,o,d,h){return p(),a("div",null,[...s[0]||(s[0]=[e("",3)])])}const x=n(i,[["render",t]]);export{g as __pageData,x as default};
