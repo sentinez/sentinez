@@ -26,17 +26,6 @@ export interface EvaluateIngressResponse {
   results: EvaluationResult[];
 }
 
-/** Context helps the edge identify which user is connected */
-export interface Context {
-  /**
-   * server_name server name of tenant
-   * example: dev.sentinez.test
-   *  - namespace: dev
-   *  - root: sentinez.test
-   */
-  serverName: string;
-}
-
 function createBaseEvaluateIngressRequest(): EvaluateIngressRequest {
   return { rulesetId: "", requestContext: undefined };
 }
@@ -265,64 +254,6 @@ export const EvaluateIngressResponse: MessageFns<EvaluateIngressResponse> = {
   fromPartial<I extends Exact<DeepPartial<EvaluateIngressResponse>, I>>(object: I): EvaluateIngressResponse {
     const message = createBaseEvaluateIngressResponse();
     message.results = object.results?.map((e) => EvaluationResult.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseContext(): Context {
-  return { serverName: "" };
-}
-
-export const Context: MessageFns<Context> = {
-  encode(message: Context, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.serverName !== "") {
-      writer.uint32(10).string(message.serverName);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Context {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseContext();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.serverName = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): Context {
-    return { serverName: isSet(object.serverName) ? globalThis.String(object.serverName) : "" };
-  },
-
-  toJSON(message: Context): unknown {
-    const obj: any = {};
-    if (message.serverName !== "") {
-      obj.serverName = message.serverName;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<Context>, I>>(base?: I): Context {
-    return Context.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<Context>, I>>(object: I): Context {
-    const message = createBaseContext();
-    message.serverName = object.serverName ?? "";
     return message;
   },
 };

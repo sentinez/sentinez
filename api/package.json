@@ -18,11 +18,14 @@
     "@bufbuild/protobuf": "^2.9.0"
   },
   "files": [
-    "gen/ts",
+    "dist",
     "package.json",
     "README.md"
   ],
   "exports": {
-    "./*": "./gen/ts/*.js"
+    "./*":  {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
   }
 }
