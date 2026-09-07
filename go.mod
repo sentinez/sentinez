@@ -12,7 +12,7 @@ replace (
 
 require (
 	github.com/a-h/templ v0.3.1020
-	github.com/cilium/ebpf v0.21.0
+	github.com/cilium/ebpf v0.22.0
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
