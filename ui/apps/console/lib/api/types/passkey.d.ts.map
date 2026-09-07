@@ -1,0 +1,1 @@
+{"version":3,"file":"passkey.d.ts","sourceRoot":"","sources":["passkey.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,4BAA4B;IAC3C,SAAS,EAAE,MAAM,CAAC;IAClB,0BAA0B,EAAE,MAAM,CAAC;CACpC;AAED,MAAM,WAAW,yBAAyB;IACxC,SAAS,EAAE,MAAM,CAAC;IAClB,uBAAuB,EAAE,MAAM,CAAC;CACjC"}

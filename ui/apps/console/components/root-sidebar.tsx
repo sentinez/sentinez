@@ -30,6 +30,7 @@ import {
 } from '@sentinez/ui/components/breadcrumb';
 import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
+import PreviewHeader from './preview-header';
 
 export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
@@ -234,6 +235,7 @@ export function RootSidebarInset({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarInset>
+      <PreviewHeader />
       <header className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-4">
         <SidebarTrigger className="-ml-1 cursor-pointer" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
