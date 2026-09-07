@@ -17,17 +17,7 @@ import { transformUiToApi } from '@/lib/api/security';
 
 export type Combinator = 'and' | 'or';
 export type Operator =
-  | '=='
-  | '!='
-  | '>'
-  | '<'
-  | '>='
-  | '<='
-  | 'contains'
-  | 'startsWith'
-  | 'endsWith'
-  | 'matches'
-  | 'in';
+  '==' | '!=' | '>' | '<' | '>=' | '<=' | 'contains' | 'startsWith' | 'endsWith' | 'matches' | 'in';
 
 export interface Rule {
   id: string;
