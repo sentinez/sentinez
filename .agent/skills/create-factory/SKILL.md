@@ -7,7 +7,7 @@ description: Instructions for creating a base factory package following the stan
 
 **CRITICAL PREREQUISITE:** Before generating or implementing the factory, you MUST read and apply the rules from the `go-style-guide` skill. All generated code must strictly follow the Uber Go Style Guide conventions.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/modules/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
 When asked to create a new factory for a given functional domain, you must follow the standard Dependency Injection (DI) factory pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/factory/factory.go`). This factory acts as a composition root that wires up repositories, third-party clients, the business service, and the gRPC handler.
 
@@ -18,8 +18,8 @@ The package name should be `<domain>fac`.
 
 Use standard imports, especially:
 - Context from `context`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- Configuration types from `github.com/sentinez/sentinez/api/types/conf/v1` (aliased as `confpb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Configuration types from `github.com/sentinez/sentinez/api/types/setting/v1` (aliased as `settingpb`)
 - Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/repos/<model>`
 - The service package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service` (aliased as `<domain>svc`)
 - The handler package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/handler` (aliased as `<domain>hdl`)
@@ -32,7 +32,7 @@ Define `NewDefaultService` to initialize repositories, database transactions, an
 
 ```go
 func NewDefaultService(
-	ctx context.Context, appConf *confpb.Config) *<domain>svc.<Domain>Service {
+	ctx context.Context, appConf *settingpb.Config) *<domain>svc.<Domain>Service {
 	
 	// 1. Initialize all necessary repositories
 	<model>repos, err := <model>repo.New(ctx, appConf)
@@ -55,7 +55,7 @@ func NewDefaultService(
 Define `NewDefaultHandler` that returns the gRPC server interface (`pb.<Domain>ServiceServer`). It constructs the service using `NewDefaultService` and initializes any external clients.
 
 ```go
-func NewDefaultHandler(ctx context.Context, appConf *confpb.Config,
+func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 ) pb.<Domain>ServiceServer {
 
 	// 1. Initialize the Service using the factory method above

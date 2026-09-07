@@ -4,10 +4,10 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@sentinez/proto/*": ["dist/sentinez/*"]
+      "@sentinez/proto/*": ["dist/*"]
     },
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
     "declaration": true,
@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["gen/ts"]
+  "include": ["ts-proto"]
 }

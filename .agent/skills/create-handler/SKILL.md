@@ -17,7 +17,7 @@ The handler should be placed in an appropriate package under `github.com/sentine
 The package name should be `<domain>hdl`.
 
 Use standard imports, especially:
-- Protobuf generated code from `github.com/sentinez/sentinez/api/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
 - The service package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service` (aliased as `<domain>svc`)
 - Standard error handling from `github.com/sentinez/sentinez/pkg/common/errorx`
 - Request context headers and auth from `github.com/sentinez/sentinez/pkg/common/headers`
@@ -31,7 +31,7 @@ Ensure the handler struct implements the gRPC server interface generated from Pr
 package <domain>hdl
 
 import (
-	pb "github.com/sentinez/sentinez/api/<domain>/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/<domain>/v1"
 	<domain>svc "github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service"
 	// other imports...
 )

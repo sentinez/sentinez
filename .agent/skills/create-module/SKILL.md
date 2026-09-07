@@ -7,7 +7,7 @@ description: Instructions for creating a base core module entrypoint file follow
 
 **CRITICAL PREREQUISITE:** Before generating or implementing the module entrypoint, you MUST read and apply the rules from the `go-style-guide` skill. All generated code must strictly follow the Uber Go Style Guide conventions.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/modules/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
 When asked to create the base core service/module entrypoint for a given functional domain, you must follow the standard orchestrating pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/iam.go`). This file binds the gRPC handlers to a local buffer listener (used for internal/gateway communication).
 
@@ -19,8 +19,8 @@ The package name should be `<domain>`.
 Use standard imports, especially:
 - Context from `context`
 - Local client buffer configurations from `github.com/sentinez/sentinez/api/client/local`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- Configuration types from `github.com/sentinez/sentinez/api/types/conf/v1` (aliased as `confpb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Configuration types from `github.com/sentinez/sentinez/api/types/setting/v1` (aliased as `settingpb`)
 - The factory package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/factory` (aliased as `<domain>fac`)
 - Default gRPC server utilities from `github.com/sentinez/sentinez/pkg/network/grpc` (aliased as `netgrpc`)
 - Buffer connection from `google.golang.org/grpc/test/bufconn`
@@ -60,7 +60,7 @@ type <Domain> struct {
 Define the constructor `NewService` which orchestrates setting up the network server and the domain handlers using the factory.
 
 ```go
-func NewService(ctx context.Context, appConf *confpb.Config) *<Domain> {
+func NewService(ctx context.Context, appConf *settingpb.Config) *<Domain> {
 	return &<Domain>{
 		Server: netgrpc.NewDefault(appConf.GetMeta()),
 		hdl:    <domain>fac.NewDefaultHandler(ctx, appConf),

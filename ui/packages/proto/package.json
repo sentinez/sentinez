@@ -6,9 +6,11 @@
   "keywords": [],
   "author": "Duc-Hung Ho and Sentinez Authors",
   "license": "ISC",
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
     "@types/node": "^24.7.2",
-    "ts-proto": "^2.7.7",
     "typescript": "^5.9.3"
   },
   "dependencies": {

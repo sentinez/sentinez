@@ -7,7 +7,7 @@ description: Instructions for creating a database repository following the stand
 
 **CRITICAL PREREQUISITE:** Before generating or implementing the repository, you MUST read and apply the rules from the `go-style-guide` skill. All generated code must strictly follow the Uber Go Style Guide conventions.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/core/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/modules/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
 When asked to create a new repository for a given protobuf model, you must follow the standard repository pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/repos/users/users.go`).
 
