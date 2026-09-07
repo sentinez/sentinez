@@ -284,54 +284,25 @@
     }
   },
   "definitions": {
-    "RuleBasedLiteNodeLite": {
-      "type": "object",
-      "properties": {
-        "operator": {
-          "type": "string",
-          "title": "AND, OR, NOT"
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleLite"
-          }
-        },
-        "groups": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/RuleBasedLiteNodeLite"
-          }
-        }
-      }
-    },
-    "RuleBasedNode": {
-      "type": "object",
-      "properties": {
-        "operator": {
-          "$ref": "#/definitions/v1Logic"
-        },
-        "rules": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/rulev1Rule"
-          }
-        },
-        "groups": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/RuleBasedNode"
-          }
-        }
-      }
-    },
     "dmzedgev1Metadata": {
       "type": "object",
       "title": "Metadata used for observability and debugging:"
+    },
+    "dmzedgev1RuleBased": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean"
+        },
+        "ingress": {
+          "$ref": "#/definitions/v1RuleBasedLite",
+          "title": "@gotags: yaml:\"ingress\""
+        },
+        "ingressCompiled": {
+          "$ref": "#/definitions/securerulev1RuleBased",
+          "title": "@gotags: yaml:\"-\""
+        }
+      }
     },
     "edgev1Location": {
       "type": "object",
@@ -401,7 +372,74 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "rulev1Rule": {
+    "securerulev1RuleBased": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "sentinezcdnrulev1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "sentinezsecurerulev1Rule": {
       "type": "object",
       "properties": {
         "id": {
@@ -472,6 +510,44 @@
       ],
       "default": "ACTION_TYPE_UNSPECIFIED"
     },
+    "v1AndCondition": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sentinezsecurerulev1Rule"
+          }
+        },
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndCondition"
+          }
+        }
+      }
+    },
+    "v1AndConditionLite": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleLite"
+          }
+        },
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndConditionLite"
+          }
+        }
+      }
+    },
     "v1BalanceStrategy": {
       "type": "string",
       "enum": [
@@ -479,6 +555,19 @@
         "BALANCE_STRATEGY_ROUND_ROBIN"
       ],
       "default": "BALANCE_STRATEGY_UNSPECIFIED"
+    },
+    "v1CDN": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"enable\""
+        },
+        "rule": {
+          "$ref": "#/definitions/sentinezcdnrulev1Rule",
+          "title": "@gotags: yaml:\"rule\""
+        }
+      }
     },
     "v1Condition": {
       "type": "object",
@@ -535,6 +624,16 @@
     },
     "v1Controller": {
       "type": "object",
+      "properties": {
+        "cdn": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CDN"
+          },
+          "title": "@gotags: yaml:\"cdn\""
+        }
+      },
       "title": "Controller for systems using a virtual waiting room or throttling:"
     },
     "v1CreateResourceRequest": {
@@ -567,6 +666,30 @@
     },
     "v1DeleteResourceResponse": {
       "type": "object"
+    },
+    "v1Expression": {
+      "type": "object",
+      "properties": {
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndCondition"
+          }
+        }
+      }
+    },
+    "v1ExpressionLite": {
+      "type": "object",
+      "properties": {
+        "orCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndConditionLite"
+          }
+        }
+      }
     },
     "v1FieldSource": {
       "type": "string",
@@ -616,16 +739,6 @@
           }
         }
       }
-    },
-    "v1Logic": {
-      "type": "string",
-      "enum": [
-        "LOGIC_UNSPECIFIED",
-        "LOGIC_AND",
-        "LOGIC_OR",
-        "LOGIC_NOT"
-      ],
-      "default": "LOGIC_UNSPECIFIED"
     },
     "v1Operator": {
       "type": "string",
@@ -685,6 +798,28 @@
       ],
       "default": "PROXY_PROTOCOL_UNSPECIFIED"
     },
+    "v1RateLimit": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"isRateLimitOn\""
+        },
+        "timeWindow": {
+          "type": "string",
+          "title": "@gotags: yaml:\"timeWindow\""
+        },
+        "limit": {
+          "type": "string",
+          "format": "int64",
+          "title": "@gotags: yaml:\"limit\""
+        },
+        "timeout": {
+          "type": "string",
+          "title": "@gotags: yaml:\"timeout\""
+        }
+      }
+    },
     "v1Resource": {
       "type": "object",
       "properties": {
@@ -711,41 +846,6 @@
         }
       }
     },
-    "v1RuleBased": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "node": {
-          "$ref": "#/definitions/RuleBasedNode"
-        },
-        "action": {
-          "$ref": "#/definitions/v1Action"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
     "v1RuleBasedLite": {
       "type": "object",
       "properties": {
@@ -758,8 +858,8 @@
         "description": {
           "type": "string"
         },
-        "node": {
-          "$ref": "#/definitions/RuleBasedLiteNodeLite"
+        "expr": {
+          "$ref": "#/definitions/v1ExpressionLite"
         },
         "action": {
           "$ref": "#/definitions/v1Action"
@@ -790,37 +890,40 @@
       },
       "title": "A complete rule definition"
     },
+    "v1Rulesets": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean"
+        }
+      }
+    },
     "v1Security": {
       "type": "object",
       "properties": {
-        "isWafEngineOn": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"isWafEngineOn\""
+        "rulesets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Rulesets"
+          },
+          "title": "@gotags: yaml:\"rulesets\""
         },
-        "ruleBased": {
-          "$ref": "#/definitions/v1RuleBasedLite",
-          "title": "@gotags: yaml:\"ruleBased\""
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/dmzedgev1RuleBased"
+          },
+          "title": "@gotags: yaml:\"rules\""
         },
-        "ruleBasedCompiled": {
-          "$ref": "#/definitions/v1RuleBased",
-          "title": "@gotags: yaml:\"-\""
-        },
-        "isRateLimitOn": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"isRateLimitOn\""
-        },
-        "timeWindow": {
-          "type": "string",
-          "title": "@gotags: yaml:\"timeWindow\""
-        },
-        "limit": {
-          "type": "string",
-          "format": "int64",
-          "title": "@gotags: yaml:\"limit\""
-        },
-        "timeout": {
-          "type": "string",
-          "title": "@gotags: yaml:\"timeout\""
+        "limiters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RateLimit"
+          },
+          "title": "@gotags: yaml:\"limiters\""
         }
       },
       "title": "Security user-specific WAF, rate limiting, or bot protection rules"
@@ -831,14 +934,6 @@
         "name": {
           "type": "string",
           "title": "@gotags: yaml:\"name\""
-        },
-        "listen": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "title": "@gotags: yaml:\"listen\""
         },
         "locations": {
           "type": "array",

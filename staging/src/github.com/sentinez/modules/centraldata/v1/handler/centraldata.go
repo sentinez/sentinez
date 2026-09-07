@@ -4,7 +4,7 @@ import (
 	"context"
 
 	centraldatasvc "github.com/sentinez/modules/centraldata/v1/service"
-	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/centraldata/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/centraldata/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

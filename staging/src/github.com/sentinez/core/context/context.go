@@ -17,7 +17,7 @@ package corecontext
 import (
 	"context"
 
-	networkpb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/v1"
+	networkpb "github.com/sentinez/sentinez/api/proto/sentinez/network/v1"
 )
 
 type contextKey string

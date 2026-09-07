@@ -20,8 +20,8 @@ import (
 	tenanthandler "github.com/sentinez/modules/tenant/v1/handler"
 	resourcerepo "github.com/sentinez/modules/tenant/v1/repos/resources"
 	tenantsvc "github.com/sentinez/modules/tenant/v1/service"
-	tenantpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/tenant/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

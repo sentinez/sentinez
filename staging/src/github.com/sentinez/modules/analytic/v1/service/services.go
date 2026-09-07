@@ -5,8 +5,8 @@ import (
 
 	"github.com/sentinez/core/storage/dbx/postgres"
 	activitiesrepo "github.com/sentinez/modules/analytic/v1/repos/activities"
-	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/analytic/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticService)(nil)

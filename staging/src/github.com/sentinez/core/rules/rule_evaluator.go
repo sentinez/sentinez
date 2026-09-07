@@ -16,7 +16,7 @@ package corerule
 
 import (
 	corehttp "github.com/sentinez/core/http"
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 )
 
 func visit(ctx corehttp.RequestContext, cond *rulepb.Condition) bool {

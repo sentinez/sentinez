@@ -3,7 +3,7 @@ package perms_test
 import (
 	"fmt"
 
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/perms"
 )
 

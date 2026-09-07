@@ -10,7 +10,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core/storage/dbx/postgres"
 	accrepos "github.com/sentinez/modules/iam/v1/repos/accounts"
-	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )

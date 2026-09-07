@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package sentinez.secure.rule.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1;rulepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1;rulepb";
 
 message CoreRulesets {
   string name = 1;

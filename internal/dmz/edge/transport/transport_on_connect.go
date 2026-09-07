@@ -22,7 +22,7 @@ import (
 
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	corecontext "github.com/sentinez/core/context"
-	networkpb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/v1"
+	networkpb "github.com/sentinez/sentinez/api/proto/sentinez/network/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )

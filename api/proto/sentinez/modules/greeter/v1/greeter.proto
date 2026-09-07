@@ -22,7 +22,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1;greeterpb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1;greeterpb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: { title: "Greeter Service" version: "1.0" }
   schemes: HTTP

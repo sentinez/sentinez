@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/tools/internal/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -56,7 +56,7 @@ func writeImports(g *protogen.GeneratedFile) {
 	g.P("import (")
 	g.P(`	"fmt"`)
 	g.P()
-	g.P(`	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"`)
+	g.P(`	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`)
 	g.P(`	"google.golang.org/protobuf/proto"`)
 	g.P(")")
 	g.P()

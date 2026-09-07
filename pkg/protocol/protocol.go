@@ -3,8 +3,8 @@ package protocol
 import (
 	"fmt"
 
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
 )
 
 func Upstream2Target(upstream *edgepb.Upstream) (string, error) {

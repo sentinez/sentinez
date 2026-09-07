@@ -18,8 +18,8 @@ package greeter
 import (
 	coregrpc "github.com/sentinez/core/grpc"
 	greeterhdl "github.com/sentinez/modules/greeter/v1/handler"
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 func NewService(conf *settingpb.Config) *Greeter {

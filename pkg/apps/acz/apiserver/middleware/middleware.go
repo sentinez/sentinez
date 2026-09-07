@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	httpconst "github.com/sentinez/core/http/const"
-	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/color"

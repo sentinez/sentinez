@@ -21,7 +21,7 @@ import "sentinez/modules/analytic/v1/model.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1;analyticpb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/modules/analytic/v1;analyticpb";
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // ANALYTICS"
   service_kind: KIND_MESH

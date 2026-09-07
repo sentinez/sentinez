@@ -27,8 +27,8 @@ import (
 	"github.com/sentinez/core/storage/dbx/query"
 	storageutils "github.com/sentinez/core/storage/utils"
 	"github.com/sentinez/core/storage/utils/table"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

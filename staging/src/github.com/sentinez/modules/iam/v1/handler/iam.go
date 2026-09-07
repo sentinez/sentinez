@@ -20,8 +20,8 @@ import (
 
 	iamsvc "github.com/sentinez/modules/iam/v1/service"
 	"github.com/sentinez/modules/pkg/headers"
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )

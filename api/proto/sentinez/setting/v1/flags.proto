@@ -19,7 +19,7 @@ package sentinez.setting.v1;
 import "buf/validate/validate.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1;settingpb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1;settingpb";
 
 message Flag {
   option (sentinez.types.v1.x_message).export_field = true;

@@ -7,14 +7,15 @@
 package example
 
 import (
-	_ "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
+	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/descriptorpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (

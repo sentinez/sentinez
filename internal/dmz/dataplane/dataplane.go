@@ -18,7 +18,7 @@ import (
 	"context"
 
 	coregrpc "github.com/sentinez/core/grpc"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"

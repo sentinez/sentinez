@@ -22,7 +22,7 @@ import (
 
 	"github.com/olric-data/olric"
 	"github.com/olric-data/olric/config"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/zlog"
 )

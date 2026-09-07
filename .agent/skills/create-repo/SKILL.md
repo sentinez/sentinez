@@ -16,7 +16,7 @@ When asked to create a new repository for a given protobuf model, you must follo
 The repository should be placed in an appropriate package under `repos/<model_plural>`.
 Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
-- Protobuf models from `api/gen/go/sentinez/...`
+- Protobuf models from `api/proto/sentinez/...`
 - `github.com/sentinez/sentinez/internal/shared/tables` for table definitions
 - `github.com/sentinez/core/storage/dbx` and `github.com/sentinez/core/storage/dbx/postgres` for database interactions
 - `github.com/sentinez/core/storage/utils/table`

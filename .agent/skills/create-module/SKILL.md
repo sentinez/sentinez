@@ -19,8 +19,8 @@ The package name should be `<domain>`.
 Use standard imports, especially:
 - Context from `context`
 - Local client buffer configurations from `github.com/sentinez/sentinez/api/client/local`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1` (aliased as `confpb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Configuration types from `github.com/sentinez/sentinez/api/types/conf/v1` (aliased as `confpb`)
 - The factory package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/factory` (aliased as `<domain>fac`)
 - Default gRPC server utilities from `github.com/sentinez/sentinez/pkg/network/grpc` (aliased as `netgrpc`)
 - Buffer connection from `google.golang.org/grpc/test/bufconn`

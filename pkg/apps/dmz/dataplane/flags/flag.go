@@ -18,8 +18,8 @@ package flags
 import (
 	"sync"
 
-	dataplanepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/dataplane/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"

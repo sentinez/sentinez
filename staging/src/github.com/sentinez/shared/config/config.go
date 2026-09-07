@@ -20,7 +20,7 @@ import (
 
 	"github.com/joho/godotenv"
 
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

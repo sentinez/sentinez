@@ -20,7 +20,7 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/known.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1;rulepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1;rulepb";
 
 // The possible sources from which a field can be extracted in a request
 enum FieldSource {

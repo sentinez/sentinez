@@ -19,8 +19,8 @@ import (
 
 	corehttpreq "github.com/sentinez/core/http/request"
 	corerules "github.com/sentinez/core/rules"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 )
 
 var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)

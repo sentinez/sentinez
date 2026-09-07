@@ -4,6 +4,7 @@ const nextConfig = {
   basePath: "",
   assetPrefix: "",
   sassOptions: {},
+  distDir: 'dist',
 }
 
 export default nextConfig

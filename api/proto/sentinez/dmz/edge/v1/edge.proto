@@ -20,7 +20,7 @@ import "sentinez/secure/rule/v1/engine.proto";
 import "sentinez/types/v1/options.proto";
 import "sentinez/network/http/v1/http.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // EDGE"
   service_kind: KIND_DEMILITARIZED_ZONE

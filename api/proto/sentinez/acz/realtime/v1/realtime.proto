@@ -18,7 +18,7 @@ package sentinez.acz.realtime.v1;
 
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/acz/realtime/v1;realtimepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/acz/realtime/v1;realtimepb";
 option (sentinez.types.v1.x_meta) = {
   service_name: "SENTINEZ // REALTIME"
   service_kind: KIND_ACCESS_ZONE

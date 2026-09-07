@@ -17,7 +17,7 @@ package request
 import (
 	"io"
 
-	httppb "github.com/sentinez/sentinez/api/gen/go/sentinez/network/http/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
 	"github.com/sentinez/shared/sync"
 )
 

@@ -22,7 +22,7 @@ import (
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 )
 

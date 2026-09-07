@@ -18,8 +18,8 @@ The package name should be `<domain>fac`.
 
 Use standard imports, especially:
 - Context from `context`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/gen/go/sentinez/<domain>/v1` (aliased as `pb` or `<domain>pb`)
-- Configuration types from `github.com/sentinez/sentinez/api/gen/go/sentinez/types/conf/v1` (aliased as `confpb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Configuration types from `github.com/sentinez/sentinez/api/types/conf/v1` (aliased as `confpb`)
 - Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/repos/<model>`
 - The service package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service` (aliased as `<domain>svc`)
 - The handler package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/handler` (aliased as `<domain>hdl`)
