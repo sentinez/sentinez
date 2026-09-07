@@ -24,7 +24,7 @@ import "sentinez/modules/security/v1/model.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/modules/security/v1;securitypb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: { title: "Security Service" version: "1.0" }
   schemes: HTTP

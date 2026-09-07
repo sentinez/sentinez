@@ -18,8 +18,8 @@ package flags
 import (
 	"sync"
 
-	realtimepb "github.com/sentinez/sentinez/api/gen/go/sentinez/acz/realtime/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/acz/realtime/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"

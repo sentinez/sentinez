@@ -9,7 +9,7 @@ inputs:
 
 plugins:
   - local: ./node_modules/.bin/protoc-gen-ts_proto
-    out: gen/ts
+    out: ../ui/packages/proto/ts-proto
     opt:
       - esModuleInterop=true
       - useOptionals=messages

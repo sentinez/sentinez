@@ -21,7 +21,7 @@ import "sentinez/cdn/rule/v1/cdn.proto";
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1;edgepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 
 // Setting edge setting per user
 message Setting {

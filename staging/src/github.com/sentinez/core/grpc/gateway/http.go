@@ -23,8 +23,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/core"
 	httpconst "github.com/sentinez/core/http/const"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 var (

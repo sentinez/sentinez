@@ -19,7 +19,7 @@ package sentinez.secure.rule.v1;
 import "sentinez/secure/rule/v1/rule.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1;rulepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1;rulepb";
 
 message Event {
   option (sentinez.types.v1.x_message).database_model = true;

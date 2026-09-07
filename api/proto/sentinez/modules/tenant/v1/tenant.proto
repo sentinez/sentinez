@@ -25,7 +25,7 @@ import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/tenant/v1;tenantpb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/modules/tenant/v1;tenantpb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: { title: "Tenant Service" version: "1.0" }
   schemes: HTTP

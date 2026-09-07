@@ -18,7 +18,7 @@ package realtime
 import (
 	"context"
 
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	realtimehdl "github.com/sentinez/sentinez/pkg/apps/acz/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 )

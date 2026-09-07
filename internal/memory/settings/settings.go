@@ -18,7 +18,7 @@ import (
 	"context"
 	"sync"
 
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/errorx"

@@ -19,8 +19,8 @@ import (
 	"context"
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*Greeter)(nil)

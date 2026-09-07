@@ -17,8 +17,8 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
-	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

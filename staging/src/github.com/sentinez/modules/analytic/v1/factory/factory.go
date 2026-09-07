@@ -7,8 +7,8 @@ import (
 	analytichdl "github.com/sentinez/modules/analytic/v1/handler"
 	activitiesrepo "github.com/sentinez/modules/analytic/v1/repos/activities"
 	analyticsvc "github.com/sentinez/modules/analytic/v1/service"
-	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/analytic/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

@@ -18,7 +18,7 @@ import (
 	"context"
 
 	securitysvc "github.com/sentinez/modules/security/v1/service"
-	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/modules/security/v1"
 )
 
 var _ securitypb.SecurityServiceServer = (*Security)(nil)

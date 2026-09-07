@@ -21,7 +21,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/core"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

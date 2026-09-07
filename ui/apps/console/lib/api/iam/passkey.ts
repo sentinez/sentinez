@@ -1,15 +1,15 @@
-import {
-  PasskeyLoginVerifyResponse,
-  PasskeyLoginChallengeRequest,
-  PasskeyLoginChallengeResponse,
-  PasskeyRegisterVerifyResponse,
-  PasskeyRegisterChallengeRequest,
-  PasskeyRegisterChallengeResponse,
-} from '@sentinez/proto/sentinez/core/iam/v1/iam';
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
 
 import axios from 'axios';
 import { PasskeyLoginVerifyRequest, PasskeyRegisterVerifyRequest } from '@/lib/api/types/passkey';
+import {
+  PasskeyLoginChallengeRequest,
+  PasskeyLoginChallengeResponse,
+  PasskeyLoginVerifyResponse,
+  PasskeyRegisterChallengeRequest,
+  PasskeyRegisterChallengeResponse,
+  PasskeyRegisterVerifyResponse,
+} from '@sentinez/proto/sentinez/modules/iam/v1/iam';
 
 const API_BASE_PATH = process.env.SNTZ_BASE_PATH || 'http://localhost:8080';
 

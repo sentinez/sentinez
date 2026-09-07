@@ -9,7 +9,7 @@ import (
 
 	"github.com/sentinez/core/storage/dbx/postgres"
 	usersrepo "github.com/sentinez/modules/iam/v1/repos/users"
-	iampb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/iam/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 

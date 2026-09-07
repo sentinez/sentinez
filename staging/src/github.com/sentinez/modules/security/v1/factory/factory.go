@@ -20,8 +20,8 @@ import (
 	securityhdl "github.com/sentinez/modules/security/v1/handler"
 	"github.com/sentinez/modules/security/v1/repos/rulebased"
 	securitysvc "github.com/sentinez/modules/security/v1/service"
-	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/modules/security/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

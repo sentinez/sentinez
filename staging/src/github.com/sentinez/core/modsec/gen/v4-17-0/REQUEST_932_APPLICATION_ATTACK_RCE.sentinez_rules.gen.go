@@ -3,7 +3,7 @@
 package rules
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 )
 
 const Request932ApplicationAttackRceVersion = "OWASP_CRS/4.17.0"

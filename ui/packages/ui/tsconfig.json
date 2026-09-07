@@ -3,9 +3,18 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@sentinez/ui/*": ["./src/*"]
-    }
+      "@sentinez/ui/*": [
+        "./src/*"
+      ]
+    },
+    "outDir": "dist",
+    "rootDir": "."
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

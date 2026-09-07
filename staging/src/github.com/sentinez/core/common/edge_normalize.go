@@ -15,8 +15,8 @@
 package corecmn
 
 import (
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/gen/go/sentinez/secure/rule/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"

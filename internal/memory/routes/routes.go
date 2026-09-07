@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	"github.com/sentinez/core/http/variable"
-	edgepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/errorx"
 	ssync "github.com/sentinez/shared/sync"

@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/core/common/console"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )

@@ -24,7 +24,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sentinez/core/storage/dbx"
 	"github.com/sentinez/core/storage/dbx/query"
-	typepb "github.com/sentinez/sentinez/api/gen/go/sentinez/types/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 type M map[string]any

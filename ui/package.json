@@ -11,14 +11,15 @@
   "devDependencies": {
     "@sentinez/eslint-config": "workspace:*",
     "@sentinez/tsconfig": "workspace:*",
+    "@sentinez/proto": "workspace:*",
     "eslint": "^9.20.1",
     "prettier": "^3.5.1",
     "turbo": "^2.9.3",
     "typescript": "5.7.3"
   },
-  "packageManager": "pnpm@10.4.1",
+  "packageManager": "pnpm@12.3.4",
   "engines": {
-    "node": ">=20"
+    "node": "26.8.1"
   },
   "dependencies": {
     "tailwindcss": "^4.0.8"

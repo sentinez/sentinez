@@ -1,0 +1,30 @@
+{
+  "name": "@sentinez/proto",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "sentinez proto api",
+  "keywords": [],
+  "author": "Duc-Hung Ho and Sentinez Authors",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.9.0"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "exports": {
+    "./*":  {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  }
+}

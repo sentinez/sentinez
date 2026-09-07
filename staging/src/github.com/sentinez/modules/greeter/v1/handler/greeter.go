@@ -22,7 +22,7 @@ import (
 
 	"github.com/sentinez/shared/zlog"
 
-	greeterpb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/greeter/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1"
 )
 
 // New creates a new Greeter module.

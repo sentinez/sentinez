@@ -21,7 +21,7 @@ import (
 	iamfac "github.com/sentinez/modules/iam/v1/factory"
 	securityfac "github.com/sentinez/modules/security/v1/factory"
 	tenantfac "github.com/sentinez/modules/tenant/v1/factory"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/handlers"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/middleware"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/services/v1"

@@ -22,7 +22,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/cron"
 	"github.com/sentinez/shared/zlog"
 	"github.com/sony/gobreaker"

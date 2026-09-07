@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/shared/config"
 
-	dataplanepb "github.com/sentinez/sentinez/api/gen/go/sentinez/dmz/dataplane/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/flags"
 )
 

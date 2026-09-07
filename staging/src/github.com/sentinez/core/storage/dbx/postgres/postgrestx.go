@@ -20,7 +20,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/sentinez/core/storage/dbx"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	ssync "github.com/sentinez/shared/sync"
 )
 

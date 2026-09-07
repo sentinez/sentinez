@@ -18,8 +18,8 @@ import (
 	"context"
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	securitypb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/modules/security/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*security)(nil)

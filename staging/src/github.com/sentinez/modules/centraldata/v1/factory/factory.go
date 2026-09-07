@@ -6,8 +6,8 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	centraldatahdl "github.com/sentinez/modules/centraldata/v1/handler"
 	centraldatasvc "github.com/sentinez/modules/centraldata/v1/service"
-	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/centraldata/v1"
-	settingpb "github.com/sentinez/sentinez/api/gen/go/sentinez/setting/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/centraldata/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 func NewDefaultService(_ context.Context,

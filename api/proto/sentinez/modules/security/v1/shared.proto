@@ -16,4 +16,4 @@ syntax = "proto3";
 
 package sentinez.modules.security.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/security/v1;securitypb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/modules/security/v1;securitypb";

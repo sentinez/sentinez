@@ -5,7 +5,7 @@ import (
 
 	analyticsvc "github.com/sentinez/modules/analytic/v1/service"
 	"github.com/sentinez/modules/pkg/headers"
-	pb "github.com/sentinez/sentinez/api/gen/go/sentinez/modules/analytic/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/modules/analytic/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
