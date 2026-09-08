@@ -9,6 +9,9 @@ import {
   SquareActivity,
   Users,
   Gamepad2,
+  Gamepad,
+  BrickWallFire,
+  Signal,
 } from 'lucide-react';
 
 // This is sample data
@@ -33,12 +36,12 @@ export const dashboard = {
       isActive: true,
       items: [
         {
-          title: 'resource',
+          title: 'Resource',
           url: '/console/resource',
           icon: Server,
         },
         {
-          title: 'member',
+          title: 'Member',
           url: '/console/member',
           icon: Building2,
         },
@@ -47,44 +50,67 @@ export const dashboard = {
   ],
   domainNavMain: [
     {
-      title: 'Tenants',
+      title: 'Tenant',
       url: '/console/tenant/resource',
       icon: User,
       isActive: true,
       items: [
         {
-          title: 'resource',
+          title: 'Resource',
           url: '/console/tenant/resource',
           icon: Server,
         },
       ],
     },
     {
-      title: 'Securities',
-      url: '/console/security/rulebased',
-      icon: Shield,
+      title: 'Controller',
+      url: '/console/controller/cdn',
+      icon: Gamepad,
       isActive: false,
       items: [
         {
-          title: 'rule based',
-          url: '/console/security/rulebased',
+          title: 'CDN',
+          url: '/console/controller/cdn',
           icon: ShieldCheck,
         },
       ],
     },
     {
-      title: 'Analytics',
+      title: 'Security',
+      url: '/console/security/rate-limiter',
+      icon: Shield,
+      isActive: false,
+      items: [
+        {
+          title: 'Rate limiter',
+          url: '/console/security/rate-limiter',
+          icon: Signal,
+        },
+        {
+          title: 'Rule based',
+          url: '/console/security/rule-based',
+          icon: ShieldCheck,
+        },
+        {
+          title: 'Rulesets',
+          url: '/console/security/rulesets',
+          icon: BrickWallFire,
+        },
+      ],
+    },
+    {
+      title: 'Analytic',
       url: '/console/analytic/logs',
       icon: Activity,
       isActive: false,
       items: [
         {
-          title: 'logs',
+          title: 'Logs',
           url: '/console/analytic/logs',
           icon: SquareActivity,
         },
         {
-          title: 'activity',
+          title: 'Activity',
           url: '/console/analytic/activity',
           icon: ShieldAlert,
         },

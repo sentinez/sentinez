@@ -32,6 +32,8 @@ import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
+import { Search } from 'lucide-react';
+import SidebarLoading from './sidebar-loading';
 
 export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
@@ -59,6 +61,7 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
   const [, startTransitionNavMain] = React.useTransition();
   const [, startTransitionChildren] = React.useTransition();
 
+  const [loading, setLoading] = React.useState(true);
   const [activeItem, setActiveItem] = React.useState(navMain[0]);
   const [childItems, setChildItems] = React.useState(navMain[0]?.items);
   const [navIndex, setNavIndex] = React.useState(0);
@@ -93,6 +96,7 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
         if (matchedChild) {
           const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
           setTabIndex(subIndex);
+          setLoading(false);
         }
 
         break;
@@ -136,7 +140,13 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
                 <Link href="/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Image src="/assets/sntz.png" alt="logo" width={100} height={100} />
+                    <Image
+                      src="/assets/sntz.png"
+                      alt="logo"
+                      width={100}
+                      height={100}
+                      loading="eager"
+                    />
                   </div>
                 </Link>
               </SidebarMenuButton>
@@ -177,36 +187,51 @@ export function DomainSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <TeamSwitcher teams={dashboard.tenant} />
-          <div className="flex w-full items-center justify-between">
+          {loading ? (
+            <SidebarLoading />
+          ) : (
             <div className="text-foreground text-base font-medium">{activeItem?.title}</div>
-          </div>
-          <SidebarInput
-            placeholder="type to search..."
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-          />
+          )}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
+
+                <SidebarInput
+                  placeholder="Search..."
+                  className="pl-8"
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                />
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent className="px-1.5 md:px-0 flex justify-center">
               <SidebarMenu className="w-11/12">
-                {childItems?.map((item: any, index: number) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      size="default"
-                      onClick={() => handlerSidebarChildrenClick(item, index)}
-                      className="px-2.5 md:px-2 cursor-pointer"
-                      isActive={tabIndex === index}
-                    >
-                      <div>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </div>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {loading ? (
+                  <SidebarLoading />
+                ) : (
+                  childItems?.map((item: any, index: number) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        size="default"
+                        onClick={() => handlerSidebarChildrenClick(item, index)}
+                        className="px-2.5 md:px-2 cursor-pointer"
+                        isActive={tabIndex === index}
+                      >
+                        <span className="flex items-center gap-2">
+                          <item.icon strokeWidth={1} />
+                          <span>{item.title}</span>
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -243,8 +268,8 @@ export function DomainSidebarInset({ children }: { children: React.ReactNode }) 
 
   return (
     <SidebarInset>
-      <PreviewHeader />
-      <header className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2">
+      <PreviewHeader username={dashboard.user.name} />
+      <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2">
         <SidebarTrigger className="-ml-1 cursor-pointer" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
         <Breadcrumb>
@@ -254,7 +279,7 @@ export function DomainSidebarInset({ children }: { children: React.ReactNode }) 
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-      </header>
+      </div>
       <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
       <PreviewFooter />
     </SidebarInset>

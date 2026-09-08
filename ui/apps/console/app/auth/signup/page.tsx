@@ -8,7 +8,7 @@ export default function SignUpPage() {
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
             <div className="flex size-6 items-center justify-center rounded-md text-primary-foreground">
-              <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
+              <Image width={600} height={600} src="/assets/sntz.png" alt="Image" loading="eager" />
             </div>
             Sentinéz
           </a>

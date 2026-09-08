@@ -1,6 +1,10 @@
 import Language from './language';
 
-export default function PreviewHeader() {
+type PreviewHeaderProps = {
+  username: string;
+};
+
+export default function PreviewHeader(props: PreviewHeaderProps) {
   return (
     <div
       className="flex w-full items-start bg-background text-foreground"
@@ -14,7 +18,9 @@ export default function PreviewHeader() {
 
             <span className="hidden text-muted-foreground sm:inline">·</span>
 
-            <p className="hidden text-xs text-muted-foreground sm:block">Hi, Welcome back !!!</p>
+            <p className="hidden text-xs text-muted-foreground sm:block">
+              Welcome back, {props.username}
+            </p>
           </div>
 
           <div className="flex items-center gap-5">

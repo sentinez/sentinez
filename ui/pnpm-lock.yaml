@@ -153,8 +153,8 @@ importers:
         specifier: ^1.11.0
         version: 1.20.0(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
       lucide-react:
-        specifier: ^0.479.0
-        version: 0.479.0(react@19.2.8)
+        specifier: ^0.539.0
+        version: 0.539.0(react@19.2.8)
       next:
         specifier: ^16.0.1
         version: 16.3.4(@types/node@20.19.43)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.104.0)
@@ -2871,8 +2871,8 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  lucide-react@0.479.0:
-    resolution: {integrity: sha512-aBhNnveRhorBOK7uA4gDjgaf+YlHMdMhQ/3cupk6exM10hWlEU+2QtWYOfhXhjAsmdb6LeKR+NZnow4UxRRiTQ==}
+  lucide-react@0.539.0:
+    resolution: {integrity: sha512-VVISr+VF2krO91FeuCrm1rSOLACQUYVy7NQkzrOty52Y8TlTPcXcMdQFj9bYzBgXbWCiywlwSZ3Z8u6a+6bMlg==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -5930,7 +5930,7 @@ snapshots:
     dependencies:
       react: 19.2.8
 
-  lucide-react@0.479.0(react@19.2.8):
+  lucide-react@0.539.0(react@19.2.8):
     dependencies:
       react: 19.2.8
 

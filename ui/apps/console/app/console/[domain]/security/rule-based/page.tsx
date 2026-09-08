@@ -37,8 +37,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
 import { Button } from '@sentinez/ui/components/button';
@@ -199,71 +197,73 @@ export default function RuleBasedPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-xl font-bold tracking-tight">Rules Engine</h3>
-          <p className="text-muted-foreground">Manage active security rules.</p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <PlusIcon className="w-4 h-4 mr-2" />
-              Create Rule
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create Rule Based</DialogTitle>
-              <DialogDescription>Define a new Web Application Firewall rule.</DialogDescription>
-            </DialogHeader>
-            <div className="py-6 flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Rule Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Input
-                  id="priority"
-                  type="number"
-                  placeholder="1"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2 mt-2">
-                <Label>Condition Logic</Label>
-                <div className="-mx-1">
-                  <QueryBuilder
-                    key={open ? 'open' : 'closed'}
-                    initialQuery={query}
-                    onChange={setQuery}
+      <div className="flex justify-between flex-col">
+        <div className="flex justify-between">
+          <h3 className="text-lg font-semibold tracking-tight sm:text-2xl">Rule</h3>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <PlusIcon className="w-4 h-4 mr-2" />
+                Create Rule
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create Rule Based</DialogTitle>
+                <DialogDescription>Define a new Web Application Firewall rule.</DialogDescription>
+              </DialogHeader>
+              <div className="py-6 flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Rule Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    placeholder="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="priority">Priority</Label>
+                  <Input
+                    id="priority"
+                    type="number"
+                    placeholder="1"
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2 mt-2">
+                  <Label>Condition Logic</Label>
+                  <div className="-mx-1">
+                    <QueryBuilder
+                      key={open ? 'open' : 'closed'}
+                      initialQuery={query}
+                      onChange={setQuery}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="secondary">Cancel</Button>
-              </DialogClose>
-              <Button onClick={handleCreate}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="secondary">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleCreate}>Save</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <p className="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance md:max-w-[80%]">
+          Manage active security rules.
+        </p>
       </div>
 
       <div className="w-full">
