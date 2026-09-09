@@ -840,9 +840,10 @@ var _ interface {
 	ErrorName() string
 } = MatchedRulesValidationError{}
 
-// Validate checks the field values on RuleBased with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *RuleBased) Validate() error {
+// Validate checks the field values on RuleIngress with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *RuleIngress) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -855,7 +856,7 @@ func (m *RuleBased) Validate() error {
 
 	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return RuleIngressValidationError{
 				field:  "Expr",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -865,7 +866,7 @@ func (m *RuleBased) Validate() error {
 
 	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return RuleIngressValidationError{
 				field:  "Action",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -879,7 +880,7 @@ func (m *RuleBased) Validate() error {
 
 	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return RuleIngressValidationError{
 				field:  "CreatedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -889,7 +890,7 @@ func (m *RuleBased) Validate() error {
 
 	if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return RuleIngressValidationError{
 				field:  "UpdatedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -900,9 +901,9 @@ func (m *RuleBased) Validate() error {
 	return nil
 }
 
-// RuleBasedValidationError is the validation error returned by
-// RuleBased.Validate if the designated constraints aren't met.
-type RuleBasedValidationError struct {
+// RuleIngressValidationError is the validation error returned by
+// RuleIngress.Validate if the designated constraints aren't met.
+type RuleIngressValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -910,22 +911,22 @@ type RuleBasedValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleBasedValidationError) Field() string { return e.field }
+func (e RuleIngressValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleBasedValidationError) Reason() string { return e.reason }
+func (e RuleIngressValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleBasedValidationError) Cause() error { return e.cause }
+func (e RuleIngressValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleBasedValidationError) Key() bool { return e.key }
+func (e RuleIngressValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleBasedValidationError) ErrorName() string { return "RuleBasedValidationError" }
+func (e RuleIngressValidationError) ErrorName() string { return "RuleIngressValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleBasedValidationError) Error() string {
+func (e RuleIngressValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -937,14 +938,14 @@ func (e RuleBasedValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleBased.%s: %s%s",
+		"invalid %sRuleIngress.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleBasedValidationError{}
+var _ error = RuleIngressValidationError{}
 
 var _ interface {
 	Field() string
@@ -952,12 +953,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleBasedValidationError{}
+} = RuleIngressValidationError{}
 
-// Validate checks the field values on RuleBasedLite with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *RuleBasedLite) Validate() error {
+// Validate checks the field values on RuleIngressLite with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *RuleIngressLite) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -970,7 +971,7 @@ func (m *RuleBasedLite) Validate() error {
 
 	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedLiteValidationError{
+			return RuleIngressLiteValidationError{
 				field:  "Expr",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -980,7 +981,7 @@ func (m *RuleBasedLite) Validate() error {
 
 	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedLiteValidationError{
+			return RuleIngressLiteValidationError{
 				field:  "Action",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -991,9 +992,9 @@ func (m *RuleBasedLite) Validate() error {
 	return nil
 }
 
-// RuleBasedLiteValidationError is the validation error returned by
-// RuleBasedLite.Validate if the designated constraints aren't met.
-type RuleBasedLiteValidationError struct {
+// RuleIngressLiteValidationError is the validation error returned by
+// RuleIngressLite.Validate if the designated constraints aren't met.
+type RuleIngressLiteValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1001,22 +1002,22 @@ type RuleBasedLiteValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleBasedLiteValidationError) Field() string { return e.field }
+func (e RuleIngressLiteValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleBasedLiteValidationError) Reason() string { return e.reason }
+func (e RuleIngressLiteValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleBasedLiteValidationError) Cause() error { return e.cause }
+func (e RuleIngressLiteValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleBasedLiteValidationError) Key() bool { return e.key }
+func (e RuleIngressLiteValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleBasedLiteValidationError) ErrorName() string { return "RuleBasedLiteValidationError" }
+func (e RuleIngressLiteValidationError) ErrorName() string { return "RuleIngressLiteValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleBasedLiteValidationError) Error() string {
+func (e RuleIngressLiteValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1028,14 +1029,14 @@ func (e RuleBasedLiteValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleBasedLite.%s: %s%s",
+		"invalid %sRuleIngressLite.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleBasedLiteValidationError{}
+var _ error = RuleIngressLiteValidationError{}
 
 var _ interface {
 	Field() string
@@ -1043,4 +1044,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleBasedLiteValidationError{}
+} = RuleIngressLiteValidationError{}

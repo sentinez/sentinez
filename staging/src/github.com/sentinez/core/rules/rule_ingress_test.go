@@ -183,8 +183,8 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 
 // nolint
 func TestChain(t *testing.T) {
-	// Directly build RuleBased using newRule helper
-	rg := &rulepb.RuleBased{
+	// Directly build RuleIngress using newRule helper
+	rg := &rulepb.RuleIngress{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -214,12 +214,12 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		rg     *rulepb.RuleBased
+		rg     *rulepb.RuleIngress
 		expect bool
 	}{
 		{
 			name: "AND: path, method, ip all match",
-			rg: &rulepb.RuleBased{
+			rg: &rulepb.RuleIngress{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -236,7 +236,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 		{
 			name: "OR: host mismatch but IP match",
-			rg: &rulepb.RuleBased{
+			rg: &rulepb.RuleIngress{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -257,7 +257,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NESTED: A AND (B OR C)",
 			// A (IP match), B (Path mismatch), C (Method match) -> True
-			rg: &rulepb.RuleBased{
+			rg: &rulepb.RuleIngress{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -285,7 +285,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NOT: NOT (Method GET)",
 			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
-			rg: &rulepb.RuleBased{
+			rg: &rulepb.RuleIngress{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -374,17 +374,17 @@ func BenchmarkEvalRule(b *testing.B) {
 	ctx := newContext()
 
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	
+	for b.Loop() {
 		_ = eval(ctx, req)
 	}
 }
 
 // nolint
-func BenchmarkEvalRuleBased_Simple(b *testing.B) {
+func BenchmarkEvalRuleIngress_Simple(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleBased{
+	rg := &rulepb.RuleIngress{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -403,17 +403,17 @@ func BenchmarkEvalRuleBased_Simple(b *testing.B) {
 	matched := &rulepb.MatchedRules{}
 
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	
+	for b.Loop() {
 		_ = eval(ctx, matched)
 	}
 }
 
 // nolint
-func BenchmarkEvalRuleBased_Complex(b *testing.B) {
+func BenchmarkEvalRuleIngress_Complex(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleBased{
+	rg := &rulepb.RuleIngress{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -446,18 +446,18 @@ func BenchmarkEvalRuleBased_Complex(b *testing.B) {
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
 
-	b.ResetTimer()
+	
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = eval(ctx, matched)
 	}
 }
 
 // nolint
-func BenchmarkEvalRuleBased_Complex_Parallel(b *testing.B) {
+func BenchmarkEvalRuleIngress_Complex_Parallel(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleBased{
+	rg := &rulepb.RuleIngress{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{

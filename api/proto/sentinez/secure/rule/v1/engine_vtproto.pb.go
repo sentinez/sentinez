@@ -584,7 +584,7 @@ func (m *MatchedRules) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *RuleBased) MarshalVT() (dAtA []byte, err error) {
+func (m *RuleIngress) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -597,12 +597,12 @@ func (m *RuleBased) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *RuleBased) MarshalToVT(dAtA []byte) (int, error) {
+func (m *RuleIngress) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *RuleBased) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *RuleIngress) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -688,7 +688,7 @@ func (m *RuleBased) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *RuleBasedLite) MarshalVT() (dAtA []byte, err error) {
+func (m *RuleIngressLite) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -701,12 +701,12 @@ func (m *RuleBasedLite) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *RuleBasedLite) MarshalToVT(dAtA []byte) (int, error) {
+func (m *RuleIngressLite) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *RuleBasedLite) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *RuleIngressLite) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -985,7 +985,7 @@ func (m *MatchedRules) SizeVT() (n int) {
 	return n
 }
 
-func (m *RuleBased) SizeVT() (n int) {
+func (m *RuleIngress) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1029,7 +1029,7 @@ func (m *RuleBased) SizeVT() (n int) {
 	return n
 }
 
-func (m *RuleBasedLite) SizeVT() (n int) {
+func (m *RuleIngressLite) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2422,7 +2422,7 @@ func (m *MatchedRules) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *RuleBased) UnmarshalVT(dAtA []byte) error {
+func (m *RuleIngress) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2445,10 +2445,10 @@ func (m *RuleBased) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: RuleBased: wiretype end group for non-group")
+			return fmt.Errorf("proto: RuleIngress: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RuleBased: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: RuleIngress: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2751,7 +2751,7 @@ func (m *RuleBased) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *RuleBasedLite) UnmarshalVT(dAtA []byte) error {
+func (m *RuleIngressLite) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2774,10 +2774,10 @@ func (m *RuleBasedLite) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: RuleBasedLite: wiretype end group for non-group")
+			return fmt.Errorf("proto: RuleIngressLite: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RuleBasedLite: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: RuleIngressLite: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

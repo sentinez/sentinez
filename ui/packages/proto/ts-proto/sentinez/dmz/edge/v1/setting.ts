@@ -153,10 +153,10 @@ export interface RuleBased {
   enable: boolean;
   /** @gotags: yaml:"ingress" */
   ingress?:
-    | RuleBasedLite
+    | RuleBased1
     | undefined;
   /** @gotags: yaml:"-" */
-  ingressCompiled?: RuleBased1 | undefined;
+  ingressCompiled?: RuleBasedLite | undefined;
 }
 
 export interface RateLimit {
@@ -924,10 +924,10 @@ export const RuleBased: MessageFns<RuleBased> = {
       writer.uint32(8).bool(message.enable);
     }
     if (message.ingress !== undefined) {
-      RuleBasedLite.encode(message.ingress, writer.uint32(18).fork()).join();
+      RuleBased1.encode(message.ingress, writer.uint32(18).fork()).join();
     }
     if (message.ingressCompiled !== undefined) {
-      RuleBased1.encode(message.ingressCompiled, writer.uint32(26).fork()).join();
+      RuleBasedLite.encode(message.ingressCompiled, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -958,7 +958,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingress = RuleBasedLite.decode(reader, reader.uint32());
+            message.ingress = RuleBased1.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -966,7 +966,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingressCompiled = RuleBased1.decode(reader, reader.uint32());
+            message.ingressCompiled = RuleBasedLite.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -984,11 +984,11 @@ export const RuleBased: MessageFns<RuleBased> = {
   fromJSON(object: any): RuleBased {
     return {
       enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
-      ingress: isSet(object.ingress) ? RuleBasedLite.fromJSON(object.ingress) : undefined,
+      ingress: isSet(object.ingress) ? RuleBased1.fromJSON(object.ingress) : undefined,
       ingressCompiled: isSet(object.ingressCompiled)
-        ? RuleBased1.fromJSON(object.ingressCompiled)
+        ? RuleBasedLite.fromJSON(object.ingressCompiled)
         : isSet(object.ingress_compiled)
-        ? RuleBased1.fromJSON(object.ingress_compiled)
+        ? RuleBasedLite.fromJSON(object.ingress_compiled)
         : undefined,
     };
   },
@@ -999,10 +999,10 @@ export const RuleBased: MessageFns<RuleBased> = {
       obj.enable = message.enable;
     }
     if (message.ingress !== undefined) {
-      obj.ingress = RuleBasedLite.toJSON(message.ingress);
+      obj.ingress = RuleBased1.toJSON(message.ingress);
     }
     if (message.ingressCompiled !== undefined) {
-      obj.ingressCompiled = RuleBased1.toJSON(message.ingressCompiled);
+      obj.ingressCompiled = RuleBasedLite.toJSON(message.ingressCompiled);
     }
     return obj;
   },
@@ -1014,10 +1014,10 @@ export const RuleBased: MessageFns<RuleBased> = {
     const message = createBaseRuleBased();
     message.enable = object.enable ?? false;
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? RuleBasedLite.fromPartial(object.ingress)
+      ? RuleBased1.fromPartial(object.ingress)
       : undefined;
     message.ingressCompiled = (object.ingressCompiled !== undefined && object.ingressCompiled !== null)
-      ? RuleBased1.fromPartial(object.ingressCompiled)
+      ? RuleBasedLite.fromPartial(object.ingressCompiled)
       : undefined;
     return message;
   },

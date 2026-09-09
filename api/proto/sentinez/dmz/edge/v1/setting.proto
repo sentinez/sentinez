@@ -71,8 +71,8 @@ message Rulesets {
 
 message RuleBased {
   bool enable = 1;
-  sentinez.secure.rule.v1.RuleBasedLite ingress = 2;  // @gotags: yaml:"ingress"
-  sentinez.secure.rule.v1.RuleBased ingress_compiled = 3;  // @gotags: yaml:"-"
+  sentinez.secure.rule.v1.RuleIngressLite ingress = 2;  // @gotags: yaml:"ingress"
+  sentinez.secure.rule.v1.RuleIngress ingress_full = 3;  // @gotags: yaml:"-"
 }
 
 message RateLimit {

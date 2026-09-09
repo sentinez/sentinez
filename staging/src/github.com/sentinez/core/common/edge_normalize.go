@@ -34,18 +34,18 @@ func NormalizeEdgeSetting(edge *edgepb.Setting) {
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetRules() {
-		rule.IngressCompiled = toRuleBased(rule.GetIngress())
+		rule.IngressFull = toRuleBased(rule.GetIngress())
 	}
 }
 
-func toRuleBased(rgLite *rulepb.RuleBasedLite) *rulepb.RuleBased {
+func toRuleBased(rgLite *rulepb.RuleIngressLite) *rulepb.RuleIngress {
 	if rgLite == nil {
 		return nil
 	}
 
 	zlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
 
-	return &rulepb.RuleBased{
+	return &rulepb.RuleIngress{
 		Id:          rgLite.GetId(),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),

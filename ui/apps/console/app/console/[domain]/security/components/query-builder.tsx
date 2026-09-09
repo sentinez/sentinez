@@ -19,287 +19,174 @@ import {
   SelectValue,
 } from '@sentinez/ui/components/select';
 
-import { transformUiToApi } from '@/lib/api/security';
+import {
+  AndCondition,
+  Condition,
+  Expression,
+  Rule,
+  FieldSource,
+  Operator,
+} from '@sentinez/proto/sentinez/secure/rule/v1/engine';
+import { FIELD_SOURCE_OPTIONS, OPERATOR_OPTIONS } from '@/lib/type/security';
+import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 
-export type Combinator = 'and' | 'or';
-export type Operator =
-  '==' | '!=' | '>' | '<' | '>=' | '<=' | 'contains' | 'startsWith' | 'endsWith' | 'matches' | 'in';
-
-export interface Rule {
-  id: string;
-  field: string;
-  operator: Operator;
-  value: string;
-}
-
-export interface RuleGroup {
-  id: string;
-  combinator: Combinator;
-  rules: (Rule | RuleGroup)[];
-  not?: boolean;
-}
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-interface QueryBuilderProps {
-  initialQuery?: RuleGroup;
-  onChange?: (query: RuleGroup) => void;
-  layout?: 'vertical' | 'horizontal';
+const createEmptyCondition = (): Condition => ({
+  id: generateId(),
+  source: FieldSource.FIELD_SOURCE_METHOD,
+  key: '',
+  operator: Operator.OPERATOR_EQ,
+  value: '',
+});
+
+const createEmptyRule = (): Rule => ({
+  id: generateId(),
+  name: '',
+  description: '',
+  condition: createEmptyCondition(),
+});
+
+const createEmptyAndCondition = (): AndCondition => ({
+  rules: [createEmptyRule()],
+  orCondition: [],
+});
+
+const createEmptyExpression = (): Expression => ({
+  orCondition: [createEmptyAndCondition()],
+});
+
+/** Sources that need a named key input (header name, query param, etc.) */
+const SOURCES_WITH_KEY = new Set<FieldSource>([
+  FieldSource.FIELD_SOURCE_HEADER,
+  FieldSource.FIELD_SOURCE_QUERY,
+  FieldSource.FIELD_SOURCE_BODY,
+  FieldSource.FIELD_SOURCE_JA4,
+  FieldSource.FIELD_SOURCE_TLS,
+]);
+
+// ─── SelectMenu ──────────────────────────────────────────────────────────────
+
+interface SelectMenuProps {
+  value: number;
+  onChange: (val: number) => void;
+  options: { label: string; value: number }[];
+  className?: string;
 }
 
-export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: QueryBuilderProps) {
-  const [query, setQuery] = useState<RuleGroup>(
-    initialQuery || {
-      id: generateId(),
-      combinator: 'and',
-      rules: [],
-    },
-  );
-
-  React.useEffect(() => {
-    if (initialQuery) {
-      setQuery(initialQuery);
-    }
-  }, [initialQuery]);
-
-  const notifyChange = (newQuery: RuleGroup) => {
-    setQuery(newQuery);
-    if (onChange) onChange(newQuery);
-  };
-
-  const updateGroup = (
-    groupId: string,
-    updater: (group: RuleGroup) => RuleGroup,
-    currentGroup: RuleGroup = query,
-  ): RuleGroup => {
-    if (currentGroup.id === groupId) {
-      return updater(currentGroup);
-    }
-    return {
-      ...currentGroup,
-      rules: currentGroup.rules.map((rule) => {
-        if ('combinator' in rule) {
-          return updateGroup(groupId, updater, rule);
-        }
-        return rule;
-      }),
-    };
-  };
-
-  const updateRule = (
-    ruleId: string,
-    updater: (rule: Rule) => Rule,
-    currentGroup: RuleGroup = query,
-  ): RuleGroup => {
-    return {
-      ...currentGroup,
-      rules: currentGroup.rules.map((rule) => {
-        if ('combinator' in rule) {
-          return updateRule(ruleId, updater, rule);
-        }
-        if (rule.id === ruleId) {
-          return updater(rule);
-        }
-        return rule;
-      }),
-    };
-  };
-
-  const removeNode = (nodeId: string, currentGroup: RuleGroup = query): RuleGroup | null => {
-    if (currentGroup.id === nodeId) return null;
-
-    const newRules = currentGroup.rules
-      .map((rule) => {
-        if ('combinator' in rule) {
-          return removeNode(nodeId, rule);
-        }
-        return rule.id === nodeId ? null : rule;
-      })
-      .filter(Boolean) as (Rule | RuleGroup)[];
-
-    return { ...currentGroup, rules: newRules };
-  };
-
-  const addRule = (groupId: string) => {
-    const newGroup = updateGroup(groupId, (group) => ({
-      ...group,
-      rules: [...group.rules, { id: generateId(), field: '', operator: '==', value: '' }],
-    }));
-    notifyChange(newGroup);
-  };
-
-  const addGroup = (groupId: string) => {
-    const newGroup = updateGroup(groupId, (group) => ({
-      ...group,
-      rules: [...group.rules, { id: generateId(), combinator: 'and', rules: [] }],
-    }));
-    notifyChange(newGroup);
-  };
-
-  const SelectMenu = ({ value, onChange, options, className = '' }: any) => (
-    <Select value={value} onValueChange={onChange}>
+function SelectMenu({ value, onChange, options, className = '' }: SelectMenuProps) {
+  return (
+    <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
       <SelectTrigger className={`h-9 ${className}`}>
         <SelectValue placeholder="Select..." />
       </SelectTrigger>
       <SelectContent>
-        {options.map((opt: any) => (
-          <SelectItem key={opt.value} value={opt.value}>
+        {options.map((opt) => (
+          <SelectItem key={opt.value} value={String(opt.value)}>
             {opt.label}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
   );
+}
 
-  const renderGroup = (group: RuleGroup, isRoot = false) => {
-    return (
-      <Card
-        key={group.id}
-        className={`w-full overflow-hidden shadow-none ${isRoot ? '' : 'border-dashed mt-4'}`}
-      >
-        <CardHeader>
-          <CardTitle>Expression</CardTitle>
-          <CardDescription>Visually security rule expressions.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/40">
-            <SelectMenu
-              value={group.combinator}
-              onChange={(val: any) =>
-                notifyChange(
-                  updateGroup(group.id, (g) => ({ ...g, combinator: val as Combinator })),
-                )
-              }
-              options={[
-                { label: 'AND', value: 'and' },
-                { label: 'OR', value: 'or' },
-              ]}
-              className="w-24 font-bold"
-            />
-            <Button variant="outline" size="sm" onClick={() => addRule(group.id)}>
-              <Plus className="w-4 h-4 mr-1" /> Rule
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => addGroup(group.id)}>
-              <Plus className="w-4 h-4 mr-1" /> Group
-            </Button>
-            {!isRoot && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-auto text-destructive"
-                onClick={() => {
-                  const res = removeNode(group.id);
-                  if (res) notifyChange(res);
-                }}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-          {group.rules.length === 0 && (
-            <div className="text-sm text-muted-foreground text-center py-2">
-              No conditions in this group.
-            </div>
-          )}
-          {group.rules.map((rule) => {
-            if ('combinator' in rule) {
-              return renderGroup(rule);
-            }
-            return (
-              <div key={rule.id} className="flex flex-col gap-2 p-3 rounded-md bg-background">
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
-                  <SelectMenu
-                    value={
-                      rule.field.startsWith('http.header.')
-                        ? 'http.header'
-                        : rule.field.startsWith('http.query.')
-                          ? 'http.query'
-                          : rule.field
-                    }
-                    onChange={(val: string) => {
-                      let newField = val;
-                      if (val === 'http.header') newField = 'http.header.New-Header';
-                      if (val === 'http.query') newField = 'http.query.param';
-                      notifyChange(updateRule(rule.id, (r) => ({ ...r, field: newField })));
-                    }}
-                    options={[
-                      { label: 'HTTP Method', value: 'http.method' },
-                      { label: 'HTTP Host', value: 'http.host' },
-                      { label: 'HTTP Path', value: 'http.path' },
-                      { label: 'HTTP Header', value: 'http.header' },
-                      { label: 'HTTP Query', value: 'http.query' },
-                      { label: 'Source IP', value: 'ip.src' },
-                    ]}
-                    className="w-full md:w-48"
-                  />
+// ─── QueryBuilder ─────────────────────────────────────────────────────────────
 
-                  {(rule.field.startsWith('http.header.') ||
-                    rule.field.startsWith('http.query.')) && (
-                    <Input
-                      placeholder="Key (e.g. User-Agent)"
-                      value={rule.field.split('.').slice(2).join('.')}
-                      onChange={(e) => {
-                        const prefix = rule.field.split('.').slice(0, 2).join('.');
-                        notifyChange(
-                          updateRule(rule.id, (r) => ({
-                            ...r,
-                            field: `${prefix}.${e.target.value}`,
-                          })),
-                        );
-                      }}
-                      className="w-full md:w-48 font-mono text-xs"
-                    />
-                  )}
+interface QueryBuilderProps {
+  initialQuery?: RuleBased;
+  onChange?: (query: RuleBased) => void;
+  layout?: 'vertical' | 'horizontal';
+}
 
-                  <SelectMenu
-                    value={rule.operator}
-                    onChange={(val: any) =>
-                      notifyChange(
-                        updateRule(rule.id, (r) => ({ ...r, operator: val as Operator })),
-                      )
-                    }
-                    options={[
-                      { label: '==', value: '==' },
-                      { label: '!=', value: '!=' },
-                      { label: '>', value: '>' },
-                      { label: '<', value: '<' },
-                      { label: 'contains', value: 'contains' },
-                      { label: 'startsWith', value: 'startsWith' },
-                      { label: 'endsWith', value: 'endsWith' },
-                      { label: 'matches', value: 'matches' },
-                      { label: 'in', value: 'in' },
-                    ]}
-                    className="w-full md:w-32"
-                  />
+export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: QueryBuilderProps) {
+  const [query, setQuery] = useState<RuleBased>(
+    initialQuery ?? {
+      enable: false,
+      ingress: {
+        id: generateId(),
+        name: '',
+        description: '',
+        status: 0,
+        priority: 0,
+        expr: createEmptyExpression(),
+      },
+    },
+  );
 
-                  <Input
-                    placeholder="Value"
-                    value={rule.value}
-                    onChange={(e) =>
-                      notifyChange(updateRule(rule.id, (r) => ({ ...r, value: e.target.value })))
-                    }
-                    className="w-full flex-grow"
-                  />
+  React.useEffect(() => {
+    if (initialQuery) setQuery(initialQuery);
+  }, [initialQuery]);
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive shrink-0"
-                    onClick={() => {
-                      const res = removeNode(rule.id);
-                      if (res) notifyChange(res);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-    );
+  const notifyChange = (next: RuleBased) => {
+    setQuery(next);
+    onChange?.(next);
   };
+
+  const getExpr = (): Expression => query.ingress?.expr ?? createEmptyExpression();
+
+  const updateExpr = (updater: (e: Expression) => Expression) => {
+    if (!query.ingress) return;
+    notifyChange({ ...query, ingress: { ...query.ingress, expr: updater(getExpr()) } });
+  };
+
+  // ── OR-group actions ──────────────────────────────────────────────────────
+
+  const addOrGroup = () =>
+    updateExpr((e) => ({
+      ...e,
+      orCondition: [...e.orCondition, createEmptyAndCondition()],
+    }));
+
+  const removeOrGroup = (gIdx: number) =>
+    updateExpr((e) => ({
+      ...e,
+      orCondition: e.orCondition.filter((_, i) => i !== gIdx),
+    }));
+
+  // ── Rule actions ──────────────────────────────────────────────────────────
+
+  const addRule = (gIdx: number) =>
+    updateExpr((e) => ({
+      ...e,
+      orCondition: e.orCondition.map((g, i) =>
+        i !== gIdx ? g : { ...g, rules: [...g.rules, createEmptyRule()] },
+      ),
+    }));
+
+  const removeRule = (gIdx: number, rIdx: number) =>
+    updateExpr((e) => ({
+      ...e,
+      orCondition: e.orCondition.map((g, i) =>
+        i !== gIdx ? g : { ...g, rules: g.rules.filter((_, ri) => ri !== rIdx) },
+      ),
+    }));
+
+  const updateCondition = (gIdx: number, rIdx: number, updater: (c: Condition) => Condition) =>
+    updateExpr((e) => ({
+      ...e,
+      orCondition: e.orCondition.map((g, i) =>
+        i !== gIdx
+          ? g
+          : {
+              ...g,
+              rules: g.rules.map((rule, ri) =>
+                ri !== rIdx
+                  ? rule
+                  : {
+                      ...rule,
+                      condition: updater(rule.condition ?? createEmptyCondition()),
+                    },
+              ),
+            },
+      ),
+    }));
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  const expr = getExpr();
 
   return (
     <div
@@ -307,18 +194,162 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
         layout === 'horizontal' ? 'grid grid-cols-1 lg:grid-cols-5 gap-6' : 'flex flex-col gap-4'
       }
     >
-      <div className={`flex ${layout === 'horizontal' ? 'lg:col-span-3' : ''}`}>
-        {renderGroup(query, true)}
+      {/* ── Builder panel ── */}
+      <div className={`flex flex-col gap-4 ${layout === 'horizontal' ? 'lg:col-span-3' : ''}`}>
+        <Card className="w-full overflow-hidden shadow-none">
+          <CardHeader>
+            <CardTitle>Expression</CardTitle>
+            <CardDescription>Visually assemble security rule expressions.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 flex flex-col gap-4">
+            {expr.orCondition.map((andCond, gIdx) => (
+              <div key={gIdx}>
+                {/* OR separator */}
+                {gIdx > 0 && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                      OR
+                    </span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                )}
+
+                <Card className="border-dashed shadow-none">
+                  <CardContent className="p-3 flex flex-col gap-3">
+                    {/* AND group toolbar */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        AND Group
+                      </span>
+                      <div className="flex-1" />
+                      <Button variant="outline" size="sm" onClick={() => addRule(gIdx)}>
+                        <Plus className="w-4 h-4 mr-1" /> Rule
+                      </Button>
+                      {expr.orCondition.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => removeOrGroup(gIdx)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    {andCond.rules.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-2">
+                        No conditions in this group.
+                      </p>
+                    )}
+
+                    {/* Rules */}
+                    {andCond.rules.map((rule, rIdx) => {
+                      const cond = rule.condition ?? createEmptyCondition();
+                      const needsKey = SOURCES_WITH_KEY.has(cond.source);
+
+                      return (
+                        <div key={rIdx} className="flex flex-col gap-1">
+                          {rIdx > 0 && (
+                            <span className="text-xs font-bold text-muted-foreground px-1">
+                              AND
+                            </span>
+                          )}
+                          <div className="flex flex-wrap md:flex-nowrap items-center gap-2 p-3 rounded-md bg-muted/40">
+                            {/* Source */}
+                            <SelectMenu
+                              value={cond.source}
+                              onChange={(val) =>
+                                updateCondition(gIdx, rIdx, (c) => ({
+                                  ...c,
+                                  source: val as FieldSource,
+                                  key: '',
+                                }))
+                              }
+                              options={FIELD_SOURCE_OPTIONS}
+                              className="w-full md:w-44"
+                            />
+
+                            {/* Key (header / query param / body field) */}
+                            {needsKey && (
+                              <Input
+                                placeholder="Key (e.g. User-Agent)"
+                                value={cond.key}
+                                onChange={(e) =>
+                                  updateCondition(gIdx, rIdx, (c) => ({
+                                    ...c,
+                                    key: e.target.value,
+                                  }))
+                                }
+                                className="w-full md:w-40 font-mono text-xs"
+                              />
+                            )}
+
+                            {/* Operator */}
+                            <SelectMenu
+                              value={cond.operator}
+                              onChange={(val) =>
+                                updateCondition(gIdx, rIdx, (c) => ({
+                                  ...c,
+                                  operator: val as Operator,
+                                }))
+                              }
+                              options={OPERATOR_OPTIONS}
+                              className="w-full md:w-32"
+                            />
+
+                            {/* Value */}
+                            <Input
+                              placeholder="Value"
+                              value={String(cond.value ?? '')}
+                              onChange={(e) =>
+                                updateCondition(gIdx, rIdx, (c) => ({
+                                  ...c,
+                                  value: e.target.value,
+                                }))
+                              }
+                              className="w-full flex-grow"
+                            />
+
+                            {/* Remove rule */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive shrink-0"
+                              onClick={() => removeRule(gIdx, rIdx)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+
+            {/* Add OR group */}
+            <Button variant="outline" size="sm" className="self-start" onClick={addOrGroup}>
+              <Plus className="w-4 h-4 mr-1" /> OR Group
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* ── JSON preview panel ── */}
       <Card
-        className={`bg-muted/20 rounded-xl shadow-none h-fit sticky top-4 z-auto ${layout === 'horizontal' ? 'lg:col-span-2' : ''}`}
+        className={`bg-muted/20 shadow-none h-fit sticky top-4 z-auto ${
+          layout === 'horizontal' ? 'lg:col-span-2' : ''
+        }`}
       >
         <CardHeader>
           <CardTitle>Generated Expression JSON</CardTitle>
         </CardHeader>
         <CardContent>
           <pre className="text-xs text-muted-foreground overflow-auto max-h-[600px] scrollbar-thin">
-            {JSON.stringify(transformUiToApi(query), null, 2)}
+            {JSON.stringify(query.ingress?.expr, null, 2)}
           </pre>
         </CardContent>
       </Card>

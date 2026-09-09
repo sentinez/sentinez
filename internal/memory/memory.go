@@ -272,7 +272,7 @@ func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
 			continue
 		}
 
-		m.ruleBased.Store(s.GetServer().GetName(), rule.GetIngressCompiled())
+		m.ruleBased.Store(s.GetServer().GetName(), rule.GetIngressFull())
 	}
 
 	return nil

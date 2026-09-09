@@ -7,8 +7,8 @@
       "@sentinez/proto/*": ["dist/*"]
     },
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "outDir": "dist",
     "declaration": true,
     "esModuleInterop": true,

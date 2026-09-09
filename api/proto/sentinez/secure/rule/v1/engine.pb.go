@@ -843,7 +843,7 @@ func (x *MatchedRules) GetNames() []string {
 	return nil
 }
 
-type RuleBased struct {
+type RuleIngress struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -858,20 +858,20 @@ type RuleBased struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleBased) Reset() {
-	*x = RuleBased{}
+func (x *RuleIngress) Reset() {
+	*x = RuleIngress{}
 	mi := &file_sentinez_secure_rule_v1_engine_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleBased) String() string {
+func (x *RuleIngress) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleBased) ProtoMessage() {}
+func (*RuleIngress) ProtoMessage() {}
 
-func (x *RuleBased) ProtoReflect() protoreflect.Message {
+func (x *RuleIngress) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_secure_rule_v1_engine_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -883,75 +883,75 @@ func (x *RuleBased) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleBased.ProtoReflect.Descriptor instead.
-func (*RuleBased) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleIngress.ProtoReflect.Descriptor instead.
+func (*RuleIngress) Descriptor() ([]byte, []int) {
 	return file_sentinez_secure_rule_v1_engine_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *RuleBased) GetId() string {
+func (x *RuleIngress) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleBased) GetName() string {
+func (x *RuleIngress) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *RuleBased) GetDescription() string {
+func (x *RuleIngress) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *RuleBased) GetExpr() *Expression {
+func (x *RuleIngress) GetExpr() *Expression {
 	if x != nil {
 		return x.Expr
 	}
 	return nil
 }
 
-func (x *RuleBased) GetAction() *Action {
+func (x *RuleIngress) GetAction() *Action {
 	if x != nil {
 		return x.Action
 	}
 	return nil
 }
 
-func (x *RuleBased) GetStatus() v1.Status {
+func (x *RuleIngress) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
 	return v1.Status(0)
 }
 
-func (x *RuleBased) GetPriority() int32 {
+func (x *RuleIngress) GetPriority() int32 {
 	if x != nil {
 		return x.Priority
 	}
 	return 0
 }
 
-func (x *RuleBased) GetCreatedAt() *timestamppb.Timestamp {
+func (x *RuleIngress) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-func (x *RuleBased) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *RuleIngress) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
 	}
 	return nil
 }
 
-type RuleBasedLite struct {
+type RuleIngressLite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -962,20 +962,20 @@ type RuleBasedLite struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleBasedLite) Reset() {
-	*x = RuleBasedLite{}
+func (x *RuleIngressLite) Reset() {
+	*x = RuleIngressLite{}
 	mi := &file_sentinez_secure_rule_v1_engine_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleBasedLite) String() string {
+func (x *RuleIngressLite) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleBasedLite) ProtoMessage() {}
+func (*RuleIngressLite) ProtoMessage() {}
 
-func (x *RuleBasedLite) ProtoReflect() protoreflect.Message {
+func (x *RuleIngressLite) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_secure_rule_v1_engine_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -987,40 +987,40 @@ func (x *RuleBasedLite) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleBasedLite.ProtoReflect.Descriptor instead.
-func (*RuleBasedLite) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleIngressLite.ProtoReflect.Descriptor instead.
+func (*RuleIngressLite) Descriptor() ([]byte, []int) {
 	return file_sentinez_secure_rule_v1_engine_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *RuleBasedLite) GetId() string {
+func (x *RuleIngressLite) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleBasedLite) GetName() string {
+func (x *RuleIngressLite) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *RuleBasedLite) GetDescription() string {
+func (x *RuleIngressLite) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *RuleBasedLite) GetExpr() *ExpressionLite {
+func (x *RuleIngressLite) GetExpr() *ExpressionLite {
 	if x != nil {
 		return x.Expr
 	}
 	return nil
 }
 
-func (x *RuleBasedLite) GetAction() *Action {
+func (x *RuleIngressLite) GetAction() *Action {
 	if x != nil {
 		return x.Action
 	}
@@ -1069,8 +1069,8 @@ const file_sentinez_secure_rule_v1_engine_proto_rawDesc = "" +
 	"\for_condition\x18\x01 \x03(\v2).sentinez.secure.rule.v1.AndConditionLiteR\vorCondition\"6\n" +
 	"\fMatchedRules\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x14\n" +
-	"\x05names\x18\x02 \x03(\tR\x05names\"\x88\x03\n" +
-	"\tRuleBased\x12\x0e\n" +
+	"\x05names\x18\x02 \x03(\tR\x05names\"\x8a\x03\n" +
+	"\vRuleIngress\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x127\n" +
@@ -1081,8 +1081,8 @@ const file_sentinez_secure_rule_v1_engine_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xcb\x01\n" +
-	"\rRuleBasedLite\x12\x0e\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xcd\x01\n" +
+	"\x0fRuleIngressLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12;\n" +
@@ -1152,8 +1152,8 @@ var file_sentinez_secure_rule_v1_engine_proto_goTypes = []any{
 	(*Expression)(nil),            // 10: sentinez.secure.rule.v1.Expression
 	(*ExpressionLite)(nil),        // 11: sentinez.secure.rule.v1.ExpressionLite
 	(*MatchedRules)(nil),          // 12: sentinez.secure.rule.v1.MatchedRules
-	(*RuleBased)(nil),             // 13: sentinez.secure.rule.v1.RuleBased
-	(*RuleBasedLite)(nil),         // 14: sentinez.secure.rule.v1.RuleBasedLite
+	(*RuleIngress)(nil),           // 13: sentinez.secure.rule.v1.RuleIngress
+	(*RuleIngressLite)(nil),       // 14: sentinez.secure.rule.v1.RuleIngressLite
 	(*structpb.Value)(nil),        // 15: google.protobuf.Value
 	(*structpb.Struct)(nil),       // 16: google.protobuf.Struct
 	(v1.Status)(0),                // 17: sentinez.types.v1.Status
@@ -1173,13 +1173,13 @@ var file_sentinez_secure_rule_v1_engine_proto_depIdxs = []int32{
 	9,  // 10: sentinez.secure.rule.v1.RuleLite.condition:type_name -> sentinez.secure.rule.v1.ConditionLite
 	6,  // 11: sentinez.secure.rule.v1.Expression.or_condition:type_name -> sentinez.secure.rule.v1.AndCondition
 	7,  // 12: sentinez.secure.rule.v1.ExpressionLite.or_condition:type_name -> sentinez.secure.rule.v1.AndConditionLite
-	10, // 13: sentinez.secure.rule.v1.RuleBased.expr:type_name -> sentinez.secure.rule.v1.Expression
-	4,  // 14: sentinez.secure.rule.v1.RuleBased.action:type_name -> sentinez.secure.rule.v1.Action
-	17, // 15: sentinez.secure.rule.v1.RuleBased.status:type_name -> sentinez.types.v1.Status
-	18, // 16: sentinez.secure.rule.v1.RuleBased.created_at:type_name -> google.protobuf.Timestamp
-	18, // 17: sentinez.secure.rule.v1.RuleBased.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 18: sentinez.secure.rule.v1.RuleBasedLite.expr:type_name -> sentinez.secure.rule.v1.ExpressionLite
-	4,  // 19: sentinez.secure.rule.v1.RuleBasedLite.action:type_name -> sentinez.secure.rule.v1.Action
+	10, // 13: sentinez.secure.rule.v1.RuleIngress.expr:type_name -> sentinez.secure.rule.v1.Expression
+	4,  // 14: sentinez.secure.rule.v1.RuleIngress.action:type_name -> sentinez.secure.rule.v1.Action
+	17, // 15: sentinez.secure.rule.v1.RuleIngress.status:type_name -> sentinez.types.v1.Status
+	18, // 16: sentinez.secure.rule.v1.RuleIngress.created_at:type_name -> google.protobuf.Timestamp
+	18, // 17: sentinez.secure.rule.v1.RuleIngress.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 18: sentinez.secure.rule.v1.RuleIngressLite.expr:type_name -> sentinez.secure.rule.v1.ExpressionLite
+	4,  // 19: sentinez.secure.rule.v1.RuleIngressLite.action:type_name -> sentinez.secure.rule.v1.Action
 	20, // [20:20] is the sub-list for method output_type
 	20, // [20:20] is the sub-list for method input_type
 	20, // [20:20] is the sub-list for extension type_name

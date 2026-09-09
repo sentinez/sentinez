@@ -44,10 +44,14 @@ import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listRuleBaseds, createRuleBased, RuleBased } from '@/lib/api/security';
+import { listRuleBaseds, createRuleBased } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { QueryBuilder, RuleGroup } from '../components';
 import Title from '@/components/title';
+import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Action, ActionType } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
+import { QueryBuilder } from '../components';
+import { statusLabel } from '@/lib/type/security';
 
 export const columns: ColumnDef<RuleBased>[] = [
   {
@@ -57,9 +61,9 @@ export const columns: ColumnDef<RuleBased>[] = [
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rule-based/${row.original.id}`}
+          href={`./rule-based/${row.original.ingress?.id}`}
         >
-          {row.getValue('name')}
+          {row.original.ingress?.name}
         </Link>
       </div>
     ),
@@ -67,17 +71,16 @@ export const columns: ColumnDef<RuleBased>[] = [
   {
     accessorKey: 'description',
     header: () => <div>Description</div>,
-    cell: ({ row }) => <div>{row.getValue('description')}</div>,
+    cell: ({ row }) => <div>{row.original.ingress?.description}</div>,
   },
   {
     accessorKey: 'status',
     header: () => <div>Status</div>,
     cell: ({ row }) => {
-      let status = String(row.getValue('status') || 'disable').toLowerCase();
-      if (status.includes('active')) status = 'active';
+      const s = statusLabel(row.original.ingress?.status);
       return (
         <div className="capitalize">
-          <BadgeStatus status={status as any} value={status} />
+          <BadgeStatus status={s as any} value={s} />
         </div>
       );
     },
@@ -86,7 +89,7 @@ export const columns: ColumnDef<RuleBased>[] = [
     accessorKey: 'priority',
     header: () => <div className="w-full text-right">Priority</div>,
     cell: ({ row }) => {
-      return <div className="w-full text-right">{row.getValue('priority')}</div>;
+      return <div className="w-full text-right">{row.original.ingress?.priority}</div>;
     },
   },
   {
@@ -101,7 +104,9 @@ export const columns: ColumnDef<RuleBased>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id || '')}>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(row.original.ingress?.id || '')}
+            >
               Copy Rule ID
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -125,7 +130,7 @@ export default function RuleBasedPage() {
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [priority, setPriority] = React.useState('1');
-  const [query, setQuery] = React.useState<RuleGroup | undefined>(undefined);
+  const [query, setQuery] = React.useState<RuleBased | undefined>(undefined);
 
   const fetchRules = React.useCallback(async () => {
     setLoading(true);
@@ -156,13 +161,14 @@ export default function RuleBasedPage() {
 
     try {
       await createRuleBased({
-        name,
-        description,
-        status: 'STATUS_ACTIVE',
-        priority: priorityNumber,
-        node: query as any,
-        action: {
-          type: 'ACTION_TYPE_BLOCK',
+        enable: false,
+        ingress: {
+          id: '',
+          name,
+          description,
+          status: Status.STATUS_ACTIVE,
+          priority: priorityNumber,
+          action: { type: ActionType.ACTION_TYPE_BLOCK },
         },
       });
       toast.success('Rule based created successfully');
@@ -177,7 +183,7 @@ export default function RuleBasedPage() {
     }
   };
 
-  const table = useReactTable({
+  const table = useReactTable<RuleBased>({
     data: rules,
     columns,
     onSortingChange: setSorting,

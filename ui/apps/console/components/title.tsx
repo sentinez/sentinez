@@ -20,15 +20,15 @@ export default function Title({ children, title, subtitle }: TitleProps) {
           <ChevronLeft className="w-5 h-5" />
         </Button>
       </div>
-      <div className="flex justify-between flex-col w-full p-3">
-        <div className="flex justify-between">
+      <div className="flex justify-between p-3 w-full">
+        <div className="flex flex-col">
           <p className="text-lg font-semibold tracking-tight sm:text-2xl">{title}</p>
-          {children}
+          <p className="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance">
+            {subtitle}
+          </p>
         </div>
 
-        <p className="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance md:max-w-[80%]">
-          {subtitle}
-        </p>
+        <div className="flex items-center">{children}</div>
       </div>
     </div>
   );

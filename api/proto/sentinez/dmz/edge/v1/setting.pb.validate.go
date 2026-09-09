@@ -573,10 +573,10 @@ func (m *RuleBased) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetIngressCompiled()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetIngressFull()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
-				field:  "IngressCompiled",
+				field:  "IngressFull",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

@@ -6,9 +6,8 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { toast } from '@/lib/toast';
-import { getRuleBased, updateRuleBased, RuleBased } from '@/lib/api/security';
 import IsLoading from '@sentinez/ui/components/common/loading';
-import { QueryBuilder, RuleGroup } from '../../components';
+import { QueryBuilder } from '../../components';
 import Title from '@/components/title';
 import {
   Card,
@@ -36,6 +35,8 @@ import {
   FieldLabel,
 } from '@sentinez/ui/components/field';
 import { Switch } from '@sentinez/ui/components/switch';
+import { getRuleBased } from '@/lib/api/security';
+import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 
 export default function EditRuleBasedPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [priority, setPriority] = React.useState('1');
-  const [query, setQuery] = React.useState<RuleGroup | undefined>(undefined);
+  const [query, setQuery] = React.useState<RuleBased | undefined>(undefined);
   const [actionJson, setActionJson] = React.useState('BLOCK');
 
   const [id, setId] = React.useState<string | null>(null);
@@ -58,13 +59,12 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         const { id } = await params;
         setId(id);
         const rule = await getRuleBased(id);
-        setName(rule.name || '');
-        setDescription(rule.description || '');
-        setPriority(String(rule.priority || 1));
-        if (rule.node) {
-          setQuery(rule.node as any);
-        }
-        setActionJson(JSON.stringify(rule.action || {}, null, 2));
+        setName(rule.ingress?.name || '');
+        setDescription(rule.ingress?.description || '');
+        setPriority(String(rule.ingress?.priority || 1));
+        setQuery(rule as any);
+
+        setActionJson(JSON.stringify(rule.ingress?.action || {}, null, 2));
       } catch (err: any) {
         toast.error('Failed to load rule details');
       } finally {
@@ -87,16 +87,6 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         return;
       }
 
-      const payload: RuleBased = {
-        name,
-        description,
-        priority: parseInt(priority, 10),
-        status: 'STATUS_ACTIVE',
-        node: query as any,
-        action: parsedAction,
-      };
-
-      await updateRuleBased(id, payload);
       toast.success('Rule updated successfully');
       router.back();
     } catch (err: any) {
@@ -123,7 +113,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         </div>
       </Title>
       <div className="grid gap-6 py-4">
-        <Card className="grid gap-2 shadow-none">
+        <Card className="grid gap-2 shadow-none border-none">
           <CardContent className="max-w-md grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
@@ -151,7 +141,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
           </CardContent>
         </Card>
 
-        <Card className="grid gap-2 shadow-none">
+        <Card className="grid gap-2 shadow-none border-none">
           <CardHeader>
             <CardTitle>Condition Logic (Rule Builder)</CardTitle>
             <CardDescription className="text-muted-foreground">

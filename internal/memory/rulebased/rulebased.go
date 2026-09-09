@@ -34,7 +34,7 @@ func New() *RuleBased {
 	once.Do(func() {
 		ruleInst = &RuleBased{
 			space: ssync.NewMap[string, corerule.EvalFunc](),
-			rules: ssync.NewMap[string, *rulepb.RuleBased](),
+			rules: ssync.NewMap[string, *rulepb.RuleIngress](),
 		}
 	})
 
@@ -43,10 +43,10 @@ func New() *RuleBased {
 
 type RuleBased struct {
 	space *ssync.Map[string, corerule.EvalFunc]
-	rules *ssync.Map[string, *rulepb.RuleBased]
+	rules *ssync.Map[string, *rulepb.RuleIngress]
 }
 
-func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleBased) {
+func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleIngress) {
 	val, _ := jsonx.Marshal(gr)
 	zlog.Debugf("rule: load config: %s", val)
 
@@ -56,7 +56,7 @@ func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleBased) {
 }
 
 func (rc *RuleBased) Load(
-	namespace string) (corerule.EvalFunc, *rulepb.RuleBased) {
+	namespace string) (corerule.EvalFunc, *rulepb.RuleIngress) {
 
 	ev, ok := rc.space.Load(namespace)
 	if !ok {
@@ -72,7 +72,7 @@ func (rc *RuleBased) Load(
 }
 
 func (rc *RuleBased) LoadContext(
-	ctx corehttp.Context) (corerule.EvalFunc, *rulepb.RuleBased) {
+	ctx corehttp.Context) (corerule.EvalFunc, *rulepb.RuleIngress) {
 
 	if rc == nil {
 		return nil, nil

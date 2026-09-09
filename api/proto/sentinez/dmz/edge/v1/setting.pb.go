@@ -482,12 +482,12 @@ func (x *Rulesets) GetEnable() bool {
 }
 
 type RuleBased struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Enable          bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
-	Ingress         *v1.RuleBasedLite      `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                        // @gotags: yaml:"ingress"
-	IngressCompiled *v1.RuleBased          `protobuf:"bytes,3,opt,name=ingress_compiled,json=ingressCompiled,proto3" json:"ingress_compiled,omitempty" yaml:"-"` // @gotags: yaml:"-"
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
+	Ingress       *v1.RuleIngressLite    `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                            // @gotags: yaml:"ingress"
+	IngressFull   *v1.RuleIngress        `protobuf:"bytes,3,opt,name=ingress_full,json=ingressFull,proto3" json:"ingress_full,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RuleBased) Reset() {
@@ -527,16 +527,16 @@ func (x *RuleBased) GetEnable() bool {
 	return false
 }
 
-func (x *RuleBased) GetIngress() *v1.RuleBasedLite {
+func (x *RuleBased) GetIngress() *v1.RuleIngressLite {
 	if x != nil {
 		return x.Ingress
 	}
 	return nil
 }
 
-func (x *RuleBased) GetIngressCompiled() *v1.RuleBased {
+func (x *RuleBased) GetIngressFull() *v1.RuleIngress {
 	if x != nil {
-		return x.IngressCompiled
+		return x.IngressFull
 	}
 	return nil
 }
@@ -776,11 +776,11 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x05rules\x18\x02 \x03(\v2\x1f.sentinez.dmz.edge.v1.RuleBasedR\x05rules\x12;\n" +
 	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\"\n" +
 	"\bRulesets\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xb4\x01\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xb0\x01\n" +
 	"\tRuleBased\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\x12@\n" +
-	"\aingress\x18\x02 \x01(\v2&.sentinez.secure.rule.v1.RuleBasedLiteR\aingress\x12M\n" +
-	"\x10ingress_compiled\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.RuleBasedR\x0fingressCompiled\"\xe4\x01\n" +
+	"\x06enable\x18\x01 \x01(\bR\x06enable\x12B\n" +
+	"\aingress\x18\x02 \x01(\v2(.sentinez.secure.rule.v1.RuleIngressLiteR\aingress\x12G\n" +
+	"\fingress_full\x18\x03 \x01(\v2$.sentinez.secure.rule.v1.RuleIngressR\vingressFull\"\xe4\x01\n" +
 	"\tRateLimit\x12\x16\n" +
 	"\x06enable\x18\n" +
 	" \x01(\bR\x06enable\x12W\n" +
@@ -819,23 +819,23 @@ func file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP() []byte {
 var file_sentinez_dmz_edge_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
-	(BalanceStrategy)(0),     // 0: sentinez.dmz.edge.v1.BalanceStrategy
-	(ProxyProtocol)(0),       // 1: sentinez.dmz.edge.v1.ProxyProtocol
-	(*Setting)(nil),          // 2: sentinez.dmz.edge.v1.Setting
-	(*Metadata)(nil),         // 3: sentinez.dmz.edge.v1.Metadata
-	(*Server)(nil),           // 4: sentinez.dmz.edge.v1.Server
-	(*Location)(nil),         // 5: sentinez.dmz.edge.v1.Location
-	(*Security)(nil),         // 6: sentinez.dmz.edge.v1.Security
-	(*Rulesets)(nil),         // 7: sentinez.dmz.edge.v1.Rulesets
-	(*RuleBased)(nil),        // 8: sentinez.dmz.edge.v1.RuleBased
-	(*RateLimit)(nil),        // 9: sentinez.dmz.edge.v1.RateLimit
-	(*Controller)(nil),       // 10: sentinez.dmz.edge.v1.Controller
-	(*Personal)(nil),         // 11: sentinez.dmz.edge.v1.Personal
-	(*Upstream)(nil),         // 12: sentinez.dmz.edge.v1.Upstream
-	nil,                      // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	(*v1.RuleBasedLite)(nil), // 14: sentinez.secure.rule.v1.RuleBasedLite
-	(*v1.RuleBased)(nil),     // 15: sentinez.secure.rule.v1.RuleBased
-	(*v11.CDN)(nil),          // 16: sentinez.cdn.rule.v1.CDN
+	(BalanceStrategy)(0),       // 0: sentinez.dmz.edge.v1.BalanceStrategy
+	(ProxyProtocol)(0),         // 1: sentinez.dmz.edge.v1.ProxyProtocol
+	(*Setting)(nil),            // 2: sentinez.dmz.edge.v1.Setting
+	(*Metadata)(nil),           // 3: sentinez.dmz.edge.v1.Metadata
+	(*Server)(nil),             // 4: sentinez.dmz.edge.v1.Server
+	(*Location)(nil),           // 5: sentinez.dmz.edge.v1.Location
+	(*Security)(nil),           // 6: sentinez.dmz.edge.v1.Security
+	(*Rulesets)(nil),           // 7: sentinez.dmz.edge.v1.Rulesets
+	(*RuleBased)(nil),          // 8: sentinez.dmz.edge.v1.RuleBased
+	(*RateLimit)(nil),          // 9: sentinez.dmz.edge.v1.RateLimit
+	(*Controller)(nil),         // 10: sentinez.dmz.edge.v1.Controller
+	(*Personal)(nil),           // 11: sentinez.dmz.edge.v1.Personal
+	(*Upstream)(nil),           // 12: sentinez.dmz.edge.v1.Upstream
+	nil,                        // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	(*v1.RuleIngressLite)(nil), // 14: sentinez.secure.rule.v1.RuleIngressLite
+	(*v1.RuleIngress)(nil),     // 15: sentinez.secure.rule.v1.RuleIngress
+	(*v11.CDN)(nil),            // 16: sentinez.cdn.rule.v1.CDN
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
@@ -850,8 +850,8 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	7,  // 9: sentinez.dmz.edge.v1.Security.rulesets:type_name -> sentinez.dmz.edge.v1.Rulesets
 	8,  // 10: sentinez.dmz.edge.v1.Security.rules:type_name -> sentinez.dmz.edge.v1.RuleBased
 	9,  // 11: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
-	14, // 12: sentinez.dmz.edge.v1.RuleBased.ingress:type_name -> sentinez.secure.rule.v1.RuleBasedLite
-	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_compiled:type_name -> sentinez.secure.rule.v1.RuleBased
+	14, // 12: sentinez.dmz.edge.v1.RuleBased.ingress:type_name -> sentinez.secure.rule.v1.RuleIngressLite
+	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_full:type_name -> sentinez.secure.rule.v1.RuleIngress
 	16, // 14: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.cdn.rule.v1.CDN
 	1,  // 15: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
 	16, // [16:16] is the sub-list for method output_type

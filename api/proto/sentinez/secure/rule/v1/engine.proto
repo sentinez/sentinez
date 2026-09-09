@@ -138,7 +138,7 @@ message MatchedRules {
   repeated string names = 2;
 }
 
-message RuleBased {
+message RuleIngress {
   string id = 1;
   string name = 2;
   string description = 3;
@@ -151,7 +151,7 @@ message RuleBased {
   google.protobuf.Timestamp updated_at = 9;
 }
 
-message RuleBasedLite {
+message RuleIngressLite {
   string id = 1;
   string name = 2;
   string description = 3;
