@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent } from '@sentinez/ui/components/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@sentinez/ui/components/card';
 import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { Plus, Trash2 } from 'lucide-react';
@@ -149,41 +155,47 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
     return (
       <Card
         key={group.id}
-        className={`w-full overflow-hidden ${isRoot ? 'border-primary/20' : 'border-dashed mt-4'}`}
+        className={`w-full overflow-hidden shadow-none ${isRoot ? '' : 'border-dashed mt-4'}`}
       >
-        <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/40 border-b border-border/50">
-          <SelectMenu
-            value={group.combinator}
-            onChange={(val: any) =>
-              notifyChange(updateGroup(group.id, (g) => ({ ...g, combinator: val as Combinator })))
-            }
-            options={[
-              { label: 'AND', value: 'and' },
-              { label: 'OR', value: 'or' },
-            ]}
-            className="w-24 font-bold"
-          />
-          <Button variant="outline" size="sm" onClick={() => addRule(group.id)}>
-            <Plus className="w-4 h-4 mr-1" /> Rule
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => addGroup(group.id)}>
-            <Plus className="w-4 h-4 mr-1" /> Group
-          </Button>
-          {!isRoot && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-auto text-destructive"
-              onClick={() => {
-                const res = removeNode(group.id);
-                if (res) notifyChange(res);
-              }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
+        <CardHeader>
+          <CardTitle>Expression</CardTitle>
+          <CardDescription>Visually security rule expressions.</CardDescription>
+        </CardHeader>
         <CardContent className="p-4 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2 p-3 bg-muted/40">
+            <SelectMenu
+              value={group.combinator}
+              onChange={(val: any) =>
+                notifyChange(
+                  updateGroup(group.id, (g) => ({ ...g, combinator: val as Combinator })),
+                )
+              }
+              options={[
+                { label: 'AND', value: 'and' },
+                { label: 'OR', value: 'or' },
+              ]}
+              className="w-24 font-bold"
+            />
+            <Button variant="outline" size="sm" onClick={() => addRule(group.id)}>
+              <Plus className="w-4 h-4 mr-1" /> Rule
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addGroup(group.id)}>
+              <Plus className="w-4 h-4 mr-1" /> Group
+            </Button>
+            {!isRoot && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-auto text-destructive"
+                onClick={() => {
+                  const res = removeNode(group.id);
+                  if (res) notifyChange(res);
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
           {group.rules.length === 0 && (
             <div className="text-sm text-muted-foreground text-center py-2">
               No conditions in this group.
@@ -194,10 +206,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
               return renderGroup(rule);
             }
             return (
-              <div
-                key={rule.id}
-                className="flex flex-col gap-2 p-3 border rounded-md bg-background"
-              >
+              <div key={rule.id} className="flex flex-col gap-2 p-3 rounded-md bg-background">
                 <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
                   <SelectMenu
                     value={
@@ -298,19 +307,21 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
         layout === 'horizontal' ? 'grid grid-cols-1 lg:grid-cols-5 gap-6' : 'flex flex-col gap-4'
       }
     >
-      <div className={layout === 'horizontal' ? 'lg:col-span-3' : ''}>
+      <div className={`flex ${layout === 'horizontal' ? 'lg:col-span-3' : ''}`}>
         {renderGroup(query, true)}
       </div>
-      <div
-        className={`p-4 bg-muted/20 rounded-xl border h-fit sticky top-4 ${layout === 'horizontal' ? 'lg:col-span-2' : ''}`}
+      <Card
+        className={`bg-muted/20 rounded-xl shadow-none h-fit sticky top-4 z-auto ${layout === 'horizontal' ? 'lg:col-span-2' : ''}`}
       >
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold">Generated Expression JSON</h4>
-        </div>
-        <pre className="text-xs text-muted-foreground overflow-auto max-h-[600px] scrollbar-thin">
-          {JSON.stringify(transformUiToApi(query), null, 2)}
-        </pre>
-      </div>
+        <CardHeader>
+          <CardTitle>Generated Expression JSON</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs text-muted-foreground overflow-auto max-h-[600px] scrollbar-thin">
+            {JSON.stringify(transformUiToApi(query), null, 2)}
+          </pre>
+        </CardContent>
+      </Card>
     </div>
   );
 }

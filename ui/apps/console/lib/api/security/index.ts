@@ -318,7 +318,7 @@ export async function listRuleBaseds(options?: ApiOptions) {
 
 export async function getRuleBased(id: string, options?: ApiOptions) {
   try {
-    const endpoint = `${API_BASE_PATH}/security/rulebased/${id}`;
+    const endpoint = `${API_BASE_PATH}/security/rule-based/${id}`;
     const resp = await axios.get(endpoint, {
       signal: options?.signal,
     });
@@ -345,7 +345,7 @@ export async function createRuleBased(data: RuleBased, options?: ApiOptions) {
 
 export async function updateRuleBased(id: string, data: RuleBased, options?: ApiOptions) {
   try {
-    const endpoint = `${API_BASE_PATH}/security/rulebased/${id}`;
+    const endpoint = `${API_BASE_PATH}/security/rule-based/${id}`;
     const payload = transformUiToApiRuleBased(data);
     const resp = await axios.put(endpoint, { ruleBased: payload }, { signal: options?.signal });
     return resp.data;

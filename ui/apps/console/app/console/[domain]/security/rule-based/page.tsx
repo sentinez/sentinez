@@ -46,7 +46,8 @@ import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { listRuleBaseds, createRuleBased, RuleBased } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { QueryBuilder, RuleGroup } from './components';
+import { QueryBuilder, RuleGroup } from '../components';
+import Title from '@/components/title';
 
 export const columns: ColumnDef<RuleBased>[] = [
   {
@@ -56,7 +57,7 @@ export const columns: ColumnDef<RuleBased>[] = [
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rulebased/${row.original.id}`}
+          href={`./rule-based/${row.original.id}`}
         >
           {row.getValue('name')}
         </Link>
@@ -197,74 +198,68 @@ export default function RuleBasedPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between flex-col">
-        <div className="flex justify-between">
-          <h3 className="text-lg font-semibold tracking-tight sm:text-2xl">Rule</h3>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <PlusIcon className="w-4 h-4 mr-2" />
-                Create Rule
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create Rule Based</DialogTitle>
-                <DialogDescription>Define a new Web Application Firewall rule.</DialogDescription>
-              </DialogHeader>
-              <div className="py-6 flex flex-col gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Rule Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+      <Title title="Security Rule" subtitle="Manage active security rules.">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <PlusIcon className="w-4 h-4" />
+              Create
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create Rule Based</DialogTitle>
+              <DialogDescription>Define a new Web Application Firewall rule.</DialogDescription>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Rule Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Input
+                  id="priority"
+                  type="number"
+                  placeholder="1"
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2 mt-2">
+                <Label>Condition Logic</Label>
+                <div className="-mx-1">
+                  <QueryBuilder
+                    key={open ? 'open' : 'closed'}
+                    initialQuery={query}
+                    onChange={setQuery}
                   />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Input
-                    id="description"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="priority">Priority</Label>
-                  <Input
-                    id="priority"
-                    type="number"
-                    placeholder="1"
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2 mt-2">
-                  <Label>Condition Logic</Label>
-                  <div className="-mx-1">
-                    <QueryBuilder
-                      key={open ? 'open' : 'closed'}
-                      initialQuery={query}
-                      onChange={setQuery}
-                    />
-                  </div>
                 </div>
               </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary">Cancel</Button>
-                </DialogClose>
-                <Button onClick={handleCreate}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <p className="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance md:max-w-[80%]">
-          Manage active security rules.
-        </p>
-      </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleCreate}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </Title>
 
       <div className="w-full">
         <div className="flex items-center py-4">

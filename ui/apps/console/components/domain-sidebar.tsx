@@ -269,7 +269,7 @@ export function DomainSidebarInset({ children }: { children: React.ReactNode }) 
   return (
     <SidebarInset>
       <PreviewHeader username={dashboard.user.name} />
-      <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2">
+      <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
         <SidebarTrigger className="-ml-1 cursor-pointer" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
         <Breadcrumb>
@@ -280,7 +280,7 @@ export function DomainSidebarInset({ children }: { children: React.ReactNode }) 
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+      <div className="flex flex-1 flex-col gap-4 p-4 max-w-7xl">{children}</div>
       <PreviewFooter />
     </SidebarInset>
   );
