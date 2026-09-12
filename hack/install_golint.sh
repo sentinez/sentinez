@@ -15,5 +15,5 @@
 # limitations under the License.
 
 # binary will be $(go env GOPATH)/bin/golangci-lint
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.11.3
+curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 golangci-lint --version

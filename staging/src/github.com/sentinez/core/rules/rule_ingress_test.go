@@ -374,7 +374,7 @@ func BenchmarkEvalRule(b *testing.B) {
 	ctx := newContext()
 
 	b.ReportAllocs()
-	
+
 	for b.Loop() {
 		_ = eval(ctx, req)
 	}
@@ -403,7 +403,7 @@ func BenchmarkEvalRuleIngress_Simple(b *testing.B) {
 	matched := &rulepb.MatchedRules{}
 
 	b.ReportAllocs()
-	
+
 	for b.Loop() {
 		_ = eval(ctx, matched)
 	}
@@ -446,7 +446,6 @@ func BenchmarkEvalRuleIngress_Complex(b *testing.B) {
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
 
-	
 	b.ReportAllocs()
 	for b.Loop() {
 		_ = eval(ctx, matched)
