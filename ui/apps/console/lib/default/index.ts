@@ -108,6 +108,19 @@ export const dashboard = {
           title: 'Logs',
           url: '/console/analytic/logs',
           icon: SquareActivity,
+          isActive: true,
+          items: [
+            {
+              title: 'Rule Based',
+              url: '/console/analytic/logs/security/rule-based',
+              icon: ShieldCheck,
+            },
+            {
+              title: 'Rulesets',
+              url: '/console/analytic/logs/security/rulesets',
+              icon: BrickWallFire,
+            },
+          ],
         },
         {
           title: 'Activity',

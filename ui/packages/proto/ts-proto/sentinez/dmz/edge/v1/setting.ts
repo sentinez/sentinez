@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CDN } from "../../../cdn/rule/v1/cdn";
-import { RuleBased as RuleBased1, RuleBasedLite } from "../../../secure/rule/v1/engine";
+import { RuleIngress, RuleIngressLite } from "../../../secure/rule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 
@@ -153,10 +153,10 @@ export interface RuleBased {
   enable: boolean;
   /** @gotags: yaml:"ingress" */
   ingress?:
-    | RuleBased1
+    | RuleIngressLite
     | undefined;
   /** @gotags: yaml:"-" */
-  ingressCompiled?: RuleBasedLite | undefined;
+  ingressFull?: RuleIngress | undefined;
 }
 
 export interface RateLimit {
@@ -915,7 +915,7 @@ export const Rulesets: MessageFns<Rulesets> = {
 };
 
 function createBaseRuleBased(): RuleBased {
-  return { enable: false, ingress: undefined, ingressCompiled: undefined };
+  return { enable: false, ingress: undefined, ingressFull: undefined };
 }
 
 export const RuleBased: MessageFns<RuleBased> = {
@@ -924,10 +924,10 @@ export const RuleBased: MessageFns<RuleBased> = {
       writer.uint32(8).bool(message.enable);
     }
     if (message.ingress !== undefined) {
-      RuleBased1.encode(message.ingress, writer.uint32(18).fork()).join();
+      RuleIngressLite.encode(message.ingress, writer.uint32(18).fork()).join();
     }
-    if (message.ingressCompiled !== undefined) {
-      RuleBasedLite.encode(message.ingressCompiled, writer.uint32(26).fork()).join();
+    if (message.ingressFull !== undefined) {
+      RuleIngress.encode(message.ingressFull, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -958,7 +958,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingress = RuleBased1.decode(reader, reader.uint32());
+            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -966,7 +966,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingressCompiled = RuleBasedLite.decode(reader, reader.uint32());
+            message.ingressFull = RuleIngress.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -984,11 +984,11 @@ export const RuleBased: MessageFns<RuleBased> = {
   fromJSON(object: any): RuleBased {
     return {
       enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
-      ingress: isSet(object.ingress) ? RuleBased1.fromJSON(object.ingress) : undefined,
-      ingressCompiled: isSet(object.ingressCompiled)
-        ? RuleBasedLite.fromJSON(object.ingressCompiled)
-        : isSet(object.ingress_compiled)
-        ? RuleBasedLite.fromJSON(object.ingress_compiled)
+      ingress: isSet(object.ingress) ? RuleIngressLite.fromJSON(object.ingress) : undefined,
+      ingressFull: isSet(object.ingressFull)
+        ? RuleIngress.fromJSON(object.ingressFull)
+        : isSet(object.ingress_full)
+        ? RuleIngress.fromJSON(object.ingress_full)
         : undefined,
     };
   },
@@ -999,10 +999,10 @@ export const RuleBased: MessageFns<RuleBased> = {
       obj.enable = message.enable;
     }
     if (message.ingress !== undefined) {
-      obj.ingress = RuleBased1.toJSON(message.ingress);
+      obj.ingress = RuleIngressLite.toJSON(message.ingress);
     }
-    if (message.ingressCompiled !== undefined) {
-      obj.ingressCompiled = RuleBasedLite.toJSON(message.ingressCompiled);
+    if (message.ingressFull !== undefined) {
+      obj.ingressFull = RuleIngress.toJSON(message.ingressFull);
     }
     return obj;
   },
@@ -1014,10 +1014,10 @@ export const RuleBased: MessageFns<RuleBased> = {
     const message = createBaseRuleBased();
     message.enable = object.enable ?? false;
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? RuleBased1.fromPartial(object.ingress)
+      ? RuleIngressLite.fromPartial(object.ingress)
       : undefined;
-    message.ingressCompiled = (object.ingressCompiled !== undefined && object.ingressCompiled !== null)
-      ? RuleBasedLite.fromPartial(object.ingressCompiled)
+    message.ingressFull = (object.ingressFull !== undefined && object.ingressFull !== null)
+      ? RuleIngress.fromPartial(object.ingressFull)
       : undefined;
     return message;
   },

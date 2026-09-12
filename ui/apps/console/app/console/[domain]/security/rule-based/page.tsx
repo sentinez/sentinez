@@ -61,9 +61,9 @@ export const columns: ColumnDef<RuleBased>[] = [
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rule-based/${row.original.ingress?.id}`}
+          href={`./rule-based/${row.original.ingressFull?.id}`}
         >
-          {row.original.ingress?.name}
+          {row.original.ingressFull?.name}
         </Link>
       </div>
     ),
@@ -71,13 +71,13 @@ export const columns: ColumnDef<RuleBased>[] = [
   {
     accessorKey: 'description',
     header: () => <div>Description</div>,
-    cell: ({ row }) => <div>{row.original.ingress?.description}</div>,
+    cell: ({ row }) => <div>{row.original.ingressFull?.description}</div>,
   },
   {
     accessorKey: 'status',
     header: () => <div>Status</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.ingress?.status);
+      const s = statusLabel(row.original.ingressFull?.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s as any} value={s} />
@@ -89,7 +89,7 @@ export const columns: ColumnDef<RuleBased>[] = [
     accessorKey: 'priority',
     header: () => <div className="w-full text-right">Priority</div>,
     cell: ({ row }) => {
-      return <div className="w-full text-right">{row.original.ingress?.priority}</div>;
+      return <div className="w-full text-right">{row.original.ingressFull?.priority}</div>;
     },
   },
   {
@@ -105,7 +105,7 @@ export const columns: ColumnDef<RuleBased>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(row.original.ingress?.id || '')}
+              onClick={() => navigator.clipboard.writeText(row.original.ingressFull?.id || '')}
             >
               Copy Rule ID
             </DropdownMenuItem>
@@ -162,7 +162,7 @@ export default function RuleBasedPage() {
     try {
       await createRuleBased({
         enable: false,
-        ingress: {
+        ingressFull: {
           id: '',
           name,
           description,

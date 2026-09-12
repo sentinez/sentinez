@@ -105,7 +105,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
   const [query, setQuery] = useState<RuleBased>(
     initialQuery ?? {
       enable: false,
-      ingress: {
+      ingressFull: {
         id: generateId(),
         name: '',
         description: '',
@@ -125,11 +125,11 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
     onChange?.(next);
   };
 
-  const getExpr = (): Expression => query.ingress?.expr ?? createEmptyExpression();
+  const getExpr = (): Expression => query.ingressFull?.expr ?? createEmptyExpression();
 
   const updateExpr = (updater: (e: Expression) => Expression) => {
-    if (!query.ingress) return;
-    notifyChange({ ...query, ingress: { ...query.ingress, expr: updater(getExpr()) } });
+    if (!query.ingressFull) return;
+    notifyChange({ ...query, ingressFull: { ...query.ingressFull, expr: updater(getExpr()) } });
   };
 
   // ── OR-group actions ──────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
                       </span>
                       <div className="flex-1" />
                       <Button variant="outline" size="sm" onClick={() => addRule(gIdx)}>
-                        <Plus className="w-4 h-4 mr-1" /> Rule
+                        <Plus className="w-4 h-4" /> AND
                       </Button>
                       {expr.orCondition.length > 1 && (
                         <Button
@@ -332,7 +332,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
 
             {/* Add OR group */}
             <Button variant="outline" size="sm" className="self-start" onClick={addOrGroup}>
-              <Plus className="w-4 h-4 mr-1" /> OR Group
+              <Plus className="w-4 h-4" /> OR Group
             </Button>
           </CardContent>
         </Card>
@@ -349,7 +349,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
         </CardHeader>
         <CardContent>
           <pre className="text-xs text-muted-foreground overflow-auto max-h-[600px] scrollbar-thin">
-            {JSON.stringify(query.ingress?.expr, null, 2)}
+            {JSON.stringify(query.ingressFull?.expr, null, 2)}
           </pre>
         </CardContent>
       </Card>

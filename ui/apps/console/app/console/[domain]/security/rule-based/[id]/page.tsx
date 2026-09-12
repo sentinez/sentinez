@@ -59,12 +59,12 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         const { id } = await params;
         setId(id);
         const rule = await getRuleBased(id);
-        setName(rule.ingress?.name || '');
-        setDescription(rule.ingress?.description || '');
-        setPriority(String(rule.ingress?.priority || 1));
+        setName(rule.ingressFull?.name || '');
+        setDescription(rule.ingressFull?.description || '');
+        setPriority(String(rule.ingressFull?.priority || 1));
         setQuery(rule as any);
 
-        setActionJson(JSON.stringify(rule.ingress?.action || {}, null, 2));
+        setActionJson(JSON.stringify(rule.ingressFull?.action || {}, null, 2));
       } catch (err: any) {
         toast.error('Failed to load rule details');
       } finally {

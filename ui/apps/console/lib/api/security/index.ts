@@ -1,4 +1,5 @@
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { FieldSource, Operator } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
@@ -10,7 +11,7 @@ export interface ApiOptions {
 
 export const MOCK_RULE: RuleBased = {
   enable: true,
-  ingress: {
+  ingressFull: {
     id: 'proxy-rule-1',
     name: 'Complex Logic: (Path AND Method) OR IP',
     description: 'Mocked rule from proxy.yaml',
@@ -26,9 +27,9 @@ export const MOCK_RULE: RuleBased = {
               description: '',
               condition: {
                 id: '0f1i7zh',
-                source: 8,
+                source: FieldSource.FIELD_SOURCE_METHOD,
                 key: '',
-                operator: 1,
+                operator: Operator.OPERATOR_EQ,
                 value: '',
               },
             },
