@@ -12,10 +12,24 @@ import {
   Gamepad,
   BrickWallFire,
   Signal,
+  Globe,
 } from 'lucide-react';
 
+export interface NavItem {
+  title: string;
+  url: string;
+  icon?: any;
+  isActive?: boolean;
+  items?: NavItem[];
+}
+
 // This is sample data
-export const dashboard = {
+export const dashboard: {
+  user: { name: string; email: string; avatar: string };
+  tenant: { name: string; logo: any; plan: string }[];
+  rootNavMain: NavItem[];
+  domainNavMain: NavItem[];
+} = {
   user: {
     name: 'shadcn',
     email: 'm@example.com',
@@ -31,19 +45,21 @@ export const dashboard = {
   rootNavMain: [
     {
       title: 'Console',
-      url: '/console/resource',
+      url: '/console/domain',
       icon: Gamepad2,
       isActive: true,
       items: [
         {
-          title: 'Resource',
-          url: '/console/resource',
-          icon: Server,
+          title: 'Domains',
+          url: '/console/domain',
+          icon: Globe,
+          items: [],
         },
         {
           title: 'Member',
           url: '/console/member',
           icon: Building2,
+          items: [],
         },
       ],
     },

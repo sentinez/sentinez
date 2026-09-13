@@ -37,6 +37,7 @@ import {
 import { Switch } from '@sentinez/ui/components/switch';
 import { getRuleBased } from '@/lib/api/security';
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import PageLayout from '@/components/page-layout';
 
 export default function EditRuleBasedPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -59,12 +60,12 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         const { id } = await params;
         setId(id);
         const rule = await getRuleBased(id);
-        setName(rule.ingressFull?.name || '');
-        setDescription(rule.ingressFull?.description || '');
-        setPriority(String(rule.ingressFull?.priority || 1));
+        setName(rule.ingressRuntime?.name || '');
+        setDescription(rule.ingressRuntime?.description || '');
+        setPriority(String(rule.ingressRuntime?.priority || 1));
         setQuery(rule as any);
 
-        setActionJson(JSON.stringify(rule.ingressFull?.action || {}, null, 2));
+        setActionJson(JSON.stringify(rule.ingressRuntime?.action || {}, null, 2));
       } catch (err: any) {
         toast.error('Failed to load rule details');
       } finally {
@@ -101,7 +102,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <PageLayout>
       <Title title="Edit Rule" subtitle="Modify security rule configuration and logic.">
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleSave}>
@@ -183,7 +184,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
           <CardFooter></CardFooter>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 SelectLabel;

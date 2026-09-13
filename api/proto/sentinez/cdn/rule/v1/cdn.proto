@@ -34,7 +34,17 @@ message Rule {
   google.protobuf.Timestamp updated_at = 9;
 }
 
+message RuleLite {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  sentinez.secure.rule.v1.ExpressionLite expr = 4;
+
+  string status = 6;
+  int32 priority = 7;
+}
+
 message CDN {
-  bool enable = 1;  // @gotags: yaml:"enable"
-  Rule rule = 2;    // @gotags: yaml:"rule"
+  Rule rule_runtime = 1;
+  RuleLite rule = 2; // @gotags: yaml:"rule"
 }

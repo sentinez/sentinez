@@ -49,7 +49,7 @@ func (rc *Rule) Store(namespace string, rule *rulepb.CDN) {
 	val, _ := jsonx.Marshal(rule)
 	zlog.Debugf("cdn rule: load config: %s", val)
 
-	ev := corerule.NewEval(rule.GetRule().GetExpr())
+	ev := corerule.NewEval(rule.GetRuleRuntime().GetExpr())
 
 	rc.space.Store(namespace, ev)
 	rc.cdnRule.Store(namespace, rule)

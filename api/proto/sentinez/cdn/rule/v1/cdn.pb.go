@@ -138,17 +138,101 @@ func (x *Rule) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type RuleLite struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Expr          *v1.ExpressionLite     `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty"`
+	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Priority      int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RuleLite) Reset() {
+	*x = RuleLite{}
+	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RuleLite) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RuleLite) ProtoMessage() {}
+
+func (x *RuleLite) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RuleLite.ProtoReflect.Descriptor instead.
+func (*RuleLite) Descriptor() ([]byte, []int) {
+	return file_sentinez_cdn_rule_v1_cdn_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RuleLite) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RuleLite) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RuleLite) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *RuleLite) GetExpr() *v1.ExpressionLite {
+	if x != nil {
+		return x.Expr
+	}
+	return nil
+}
+
+func (x *RuleLite) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *RuleLite) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
 type CDN struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"` // @gotags: yaml:"enable"
-	Rule          *Rule                  `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"`      // @gotags: yaml:"rule"
+	RuleRuntime   *Rule                  `protobuf:"bytes,1,opt,name=rule_runtime,json=ruleRuntime,proto3" json:"rule_runtime,omitempty"`
+	Rule          *RuleLite              `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"` // @gotags: yaml:"rule"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CDN) Reset() {
 	*x = CDN{}
-	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[1]
+	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -160,7 +244,7 @@ func (x *CDN) String() string {
 func (*CDN) ProtoMessage() {}
 
 func (x *CDN) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[1]
+	mi := &file_sentinez_cdn_rule_v1_cdn_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -173,17 +257,17 @@ func (x *CDN) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CDN.ProtoReflect.Descriptor instead.
 func (*CDN) Descriptor() ([]byte, []int) {
-	return file_sentinez_cdn_rule_v1_cdn_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_cdn_rule_v1_cdn_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CDN) GetEnable() bool {
+func (x *CDN) GetRuleRuntime() *Rule {
 	if x != nil {
-		return x.Enable
+		return x.RuleRuntime
 	}
-	return false
+	return nil
 }
 
-func (x *CDN) GetRule() *Rule {
+func (x *CDN) GetRule() *RuleLite {
 	if x != nil {
 		return x.Rule
 	}
@@ -205,10 +289,17 @@ const file_sentinez_cdn_rule_v1_cdn_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"M\n" +
-	"\x03CDN\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\x12.\n" +
-	"\x04rule\x18\x02 \x01(\v2\x1a.sentinez.cdn.rule.v1.RuleR\x04ruleBDZBgithub.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1;rulepbb\x06proto3"
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc1\x01\n" +
+	"\bRuleLite\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12;\n" +
+	"\x04expr\x18\x04 \x01(\v2'.sentinez.secure.rule.v1.ExpressionLiteR\x04expr\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1a\n" +
+	"\bpriority\x18\a \x01(\x05R\bpriority\"x\n" +
+	"\x03CDN\x12=\n" +
+	"\frule_runtime\x18\x01 \x01(\v2\x1a.sentinez.cdn.rule.v1.RuleR\vruleRuntime\x122\n" +
+	"\x04rule\x18\x02 \x01(\v2\x1e.sentinez.cdn.rule.v1.RuleLiteR\x04ruleBDZBgithub.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1;rulepbb\x06proto3"
 
 var (
 	file_sentinez_cdn_rule_v1_cdn_proto_rawDescOnce sync.Once
@@ -222,25 +313,29 @@ func file_sentinez_cdn_rule_v1_cdn_proto_rawDescGZIP() []byte {
 	return file_sentinez_cdn_rule_v1_cdn_proto_rawDescData
 }
 
-var file_sentinez_cdn_rule_v1_cdn_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_cdn_rule_v1_cdn_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_cdn_rule_v1_cdn_proto_goTypes = []any{
 	(*Rule)(nil),                  // 0: sentinez.cdn.rule.v1.Rule
-	(*CDN)(nil),                   // 1: sentinez.cdn.rule.v1.CDN
-	(*v1.Expression)(nil),         // 2: sentinez.secure.rule.v1.Expression
-	(v11.Status)(0),               // 3: sentinez.types.v1.Status
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*RuleLite)(nil),              // 1: sentinez.cdn.rule.v1.RuleLite
+	(*CDN)(nil),                   // 2: sentinez.cdn.rule.v1.CDN
+	(*v1.Expression)(nil),         // 3: sentinez.secure.rule.v1.Expression
+	(v11.Status)(0),               // 4: sentinez.types.v1.Status
+	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	(*v1.ExpressionLite)(nil),     // 6: sentinez.secure.rule.v1.ExpressionLite
 }
 var file_sentinez_cdn_rule_v1_cdn_proto_depIdxs = []int32{
-	2, // 0: sentinez.cdn.rule.v1.Rule.expr:type_name -> sentinez.secure.rule.v1.Expression
-	3, // 1: sentinez.cdn.rule.v1.Rule.status:type_name -> sentinez.types.v1.Status
-	4, // 2: sentinez.cdn.rule.v1.Rule.created_at:type_name -> google.protobuf.Timestamp
-	4, // 3: sentinez.cdn.rule.v1.Rule.updated_at:type_name -> google.protobuf.Timestamp
-	0, // 4: sentinez.cdn.rule.v1.CDN.rule:type_name -> sentinez.cdn.rule.v1.Rule
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 0: sentinez.cdn.rule.v1.Rule.expr:type_name -> sentinez.secure.rule.v1.Expression
+	4, // 1: sentinez.cdn.rule.v1.Rule.status:type_name -> sentinez.types.v1.Status
+	5, // 2: sentinez.cdn.rule.v1.Rule.created_at:type_name -> google.protobuf.Timestamp
+	5, // 3: sentinez.cdn.rule.v1.Rule.updated_at:type_name -> google.protobuf.Timestamp
+	6, // 4: sentinez.cdn.rule.v1.RuleLite.expr:type_name -> sentinez.secure.rule.v1.ExpressionLite
+	0, // 5: sentinez.cdn.rule.v1.CDN.rule_runtime:type_name -> sentinez.cdn.rule.v1.Rule
+	1, // 6: sentinez.cdn.rule.v1.CDN.rule:type_name -> sentinez.cdn.rule.v1.RuleLite
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_cdn_rule_v1_cdn_proto_init() }
@@ -254,7 +349,7 @@ func file_sentinez_cdn_rule_v1_cdn_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_cdn_rule_v1_cdn_proto_rawDesc), len(file_sentinez_cdn_rule_v1_cdn_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

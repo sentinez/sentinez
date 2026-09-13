@@ -10,8 +10,7 @@ export interface ApiOptions {
 }
 
 export const MOCK_RULE: RuleBased = {
-  enable: true,
-  ingressFull: {
+  ingressRuntime: {
     id: 'proxy-rule-1',
     name: 'Complex Logic: (Path AND Method) OR IP',
     description: 'Mocked rule from proxy.yaml',
@@ -23,14 +22,13 @@ export const MOCK_RULE: RuleBased = {
           rules: [
             {
               id: 'nxaxo3j',
-              name: '',
-              description: '',
+              expr: '',
               condition: {
                 id: '0f1i7zh',
                 source: FieldSource.FIELD_SOURCE_METHOD,
                 key: '',
                 operator: Operator.OPERATOR_EQ,
-                value: '',
+                value: 'GET',
               },
             },
           ],

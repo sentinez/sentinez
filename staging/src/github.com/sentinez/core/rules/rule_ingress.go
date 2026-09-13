@@ -39,5 +39,5 @@ func match(ctx chttp.RequestContext,
 		return "", "", false
 	}
 
-	return rule.GetId(), rule.GetName(), true
+	return rule.GetId(), rule.GetExpr(), true
 }

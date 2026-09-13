@@ -23,6 +23,7 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	corerule "github.com/sentinez/core/rules"
 	"github.com/sentinez/core/storage/cache/mem"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/sync"
@@ -48,7 +49,7 @@ type Cache struct {
 
 func (c *Cache) Handle(ctx corehttp.Context) error {
 	eval, rule := c.store.CDNRules().LoadContext(ctx)
-	if !rule.GetEnable() {
+	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return c.HandleNext(ctx)
 	}
 

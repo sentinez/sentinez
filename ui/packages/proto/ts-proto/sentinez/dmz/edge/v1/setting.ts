@@ -146,22 +146,26 @@ export interface Security {
 }
 
 export interface Rulesets {
-  enable: boolean;
 }
 
 export interface RuleBased {
-  enable: boolean;
   /** @gotags: yaml:"ingress" */
   ingress?:
     | RuleIngressLite
     | undefined;
   /** @gotags: yaml:"-" */
-  ingressFull?: RuleIngress | undefined;
+  ingressRuntime?: RuleIngress | undefined;
 }
 
 export interface RateLimit {
-  /** @gotags: yaml:"isRateLimitOn" */
-  enable: boolean;
+  /** @gotags: yaml:"ingress" */
+  ingress?:
+    | RuleIngressLite
+    | undefined;
+  /** @gotags: yaml:"-" */
+  ingressRuntime?:
+    | RuleIngress
+    | undefined;
   /** @gotags: yaml:"timeWindow" */
   timeWindow: string;
   /** @gotags: yaml:"limit" */
@@ -848,14 +852,11 @@ export const Security: MessageFns<Security> = {
 };
 
 function createBaseRulesets(): Rulesets {
-  return { enable: false };
+  return {};
 }
 
 export const Rulesets: MessageFns<Rulesets> = {
-  encode(message: Rulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enable !== false) {
-      writer.uint32(8).bool(message.enable);
-    }
+  encode(_: Rulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
@@ -872,14 +873,6 @@ export const Rulesets: MessageFns<Rulesets> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 8) {
-              break;
-            }
-
-            message.enable = reader.bool();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -892,42 +885,35 @@ export const Rulesets: MessageFns<Rulesets> = {
     }
   },
 
-  fromJSON(object: any): Rulesets {
-    return { enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false };
+  fromJSON(_: any): Rulesets {
+    return {};
   },
 
-  toJSON(message: Rulesets): unknown {
+  toJSON(_: Rulesets): unknown {
     const obj: any = {};
-    if (message.enable !== false) {
-      obj.enable = message.enable;
-    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<Rulesets>, I>>(base?: I): Rulesets {
     return Rulesets.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Rulesets>, I>>(object: I): Rulesets {
+  fromPartial<I extends Exact<DeepPartial<Rulesets>, I>>(_: I): Rulesets {
     const message = createBaseRulesets();
-    message.enable = object.enable ?? false;
     return message;
   },
 };
 
 function createBaseRuleBased(): RuleBased {
-  return { enable: false, ingress: undefined, ingressFull: undefined };
+  return { ingress: undefined, ingressRuntime: undefined };
 }
 
 export const RuleBased: MessageFns<RuleBased> = {
   encode(message: RuleBased, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enable !== false) {
-      writer.uint32(8).bool(message.enable);
-    }
     if (message.ingress !== undefined) {
-      RuleIngressLite.encode(message.ingress, writer.uint32(18).fork()).join();
+      RuleIngressLite.encode(message.ingress, writer.uint32(10).fork()).join();
     }
-    if (message.ingressFull !== undefined) {
-      RuleIngress.encode(message.ingressFull, writer.uint32(26).fork()).join();
+    if (message.ingressRuntime !== undefined) {
+      RuleIngress.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -946,11 +932,11 @@ export const RuleBased: MessageFns<RuleBased> = {
         const tag = reader.uint32();
         switch (tag >>> 3) {
           case 1: {
-            if (tag !== 8) {
+            if (tag !== 10) {
               break;
             }
 
-            message.enable = reader.bool();
+            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -958,15 +944,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
-            continue;
-          }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.ingressFull = RuleIngress.decode(reader, reader.uint32());
+            message.ingressRuntime = RuleIngress.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -983,26 +961,22 @@ export const RuleBased: MessageFns<RuleBased> = {
 
   fromJSON(object: any): RuleBased {
     return {
-      enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
       ingress: isSet(object.ingress) ? RuleIngressLite.fromJSON(object.ingress) : undefined,
-      ingressFull: isSet(object.ingressFull)
-        ? RuleIngress.fromJSON(object.ingressFull)
-        : isSet(object.ingress_full)
-        ? RuleIngress.fromJSON(object.ingress_full)
+      ingressRuntime: isSet(object.ingressRuntime)
+        ? RuleIngress.fromJSON(object.ingressRuntime)
+        : isSet(object.ingress_runtime)
+        ? RuleIngress.fromJSON(object.ingress_runtime)
         : undefined,
     };
   },
 
   toJSON(message: RuleBased): unknown {
     const obj: any = {};
-    if (message.enable !== false) {
-      obj.enable = message.enable;
-    }
     if (message.ingress !== undefined) {
       obj.ingress = RuleIngressLite.toJSON(message.ingress);
     }
-    if (message.ingressFull !== undefined) {
-      obj.ingressFull = RuleIngress.toJSON(message.ingressFull);
+    if (message.ingressRuntime !== undefined) {
+      obj.ingressRuntime = RuleIngress.toJSON(message.ingressRuntime);
     }
     return obj;
   },
@@ -1012,25 +986,27 @@ export const RuleBased: MessageFns<RuleBased> = {
   },
   fromPartial<I extends Exact<DeepPartial<RuleBased>, I>>(object: I): RuleBased {
     const message = createBaseRuleBased();
-    message.enable = object.enable ?? false;
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
       ? RuleIngressLite.fromPartial(object.ingress)
       : undefined;
-    message.ingressFull = (object.ingressFull !== undefined && object.ingressFull !== null)
-      ? RuleIngress.fromPartial(object.ingressFull)
+    message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
+      ? RuleIngress.fromPartial(object.ingressRuntime)
       : undefined;
     return message;
   },
 };
 
 function createBaseRateLimit(): RateLimit {
-  return { enable: false, timeWindow: "", limit: 0, timeout: "" };
+  return { ingress: undefined, ingressRuntime: undefined, timeWindow: "", limit: 0, timeout: "" };
 }
 
 export const RateLimit: MessageFns<RateLimit> = {
   encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enable !== false) {
-      writer.uint32(80).bool(message.enable);
+    if (message.ingress !== undefined) {
+      RuleIngressLite.encode(message.ingress, writer.uint32(10).fork()).join();
+    }
+    if (message.ingressRuntime !== undefined) {
+      RuleIngress.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
     }
     if (message.timeWindow !== "") {
       writer.uint32(90).string(message.timeWindow);
@@ -1057,12 +1033,20 @@ export const RateLimit: MessageFns<RateLimit> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
-          case 10: {
-            if (tag !== 80) {
+          case 1: {
+            if (tag !== 10) {
               break;
             }
 
-            message.enable = reader.bool();
+            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.ingressRuntime = RuleIngress.decode(reader, reader.uint32());
             continue;
           }
           case 11: {
@@ -1103,7 +1087,12 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   fromJSON(object: any): RateLimit {
     return {
-      enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
+      ingress: isSet(object.ingress) ? RuleIngressLite.fromJSON(object.ingress) : undefined,
+      ingressRuntime: isSet(object.ingressRuntime)
+        ? RuleIngress.fromJSON(object.ingressRuntime)
+        : isSet(object.ingress_runtime)
+        ? RuleIngress.fromJSON(object.ingress_runtime)
+        : undefined,
       timeWindow: isSet(object.timeWindow)
         ? globalThis.String(object.timeWindow)
         : isSet(object.time_window)
@@ -1116,8 +1105,11 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   toJSON(message: RateLimit): unknown {
     const obj: any = {};
-    if (message.enable !== false) {
-      obj.enable = message.enable;
+    if (message.ingress !== undefined) {
+      obj.ingress = RuleIngressLite.toJSON(message.ingress);
+    }
+    if (message.ingressRuntime !== undefined) {
+      obj.ingressRuntime = RuleIngress.toJSON(message.ingressRuntime);
     }
     if (message.timeWindow !== "") {
       obj.timeWindow = message.timeWindow;
@@ -1136,7 +1128,12 @@ export const RateLimit: MessageFns<RateLimit> = {
   },
   fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
     const message = createBaseRateLimit();
-    message.enable = object.enable ?? false;
+    message.ingress = (object.ingress !== undefined && object.ingress !== null)
+      ? RuleIngressLite.fromPartial(object.ingress)
+      : undefined;
+    message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
+      ? RuleIngress.fromPartial(object.ingressRuntime)
+      : undefined;
     message.timeWindow = object.timeWindow ?? "";
     message.limit = object.limit ?? 0;
     message.timeout = object.timeout ?? "";

@@ -44,8 +44,7 @@ const createEmptyCondition = (): Condition => ({
 
 const createEmptyRule = (): Rule => ({
   id: generateId(),
-  name: '',
-  description: '',
+  expr: '',
   condition: createEmptyCondition(),
 });
 
@@ -104,8 +103,7 @@ interface QueryBuilderProps {
 export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: QueryBuilderProps) {
   const [query, setQuery] = useState<RuleBased>(
     initialQuery ?? {
-      enable: false,
-      ingressFull: {
+      ingressRuntime: {
         id: generateId(),
         name: '',
         description: '',
@@ -125,11 +123,14 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
     onChange?.(next);
   };
 
-  const getExpr = (): Expression => query.ingressFull?.expr ?? createEmptyExpression();
+  const getExpr = (): Expression => query.ingressRuntime?.expr ?? createEmptyExpression();
 
   const updateExpr = (updater: (e: Expression) => Expression) => {
-    if (!query.ingressFull) return;
-    notifyChange({ ...query, ingressFull: { ...query.ingressFull, expr: updater(getExpr()) } });
+    if (!query.ingressRuntime) return;
+    notifyChange({
+      ...query,
+      ingressRuntime: { ...query.ingressRuntime, expr: updater(getExpr()) },
+    });
   };
 
   // ── OR-group actions ──────────────────────────────────────────────────────
@@ -349,7 +350,7 @@ export function QueryBuilder({ initialQuery, onChange, layout = 'vertical' }: Qu
         </CardHeader>
         <CardContent>
           <pre className="text-xs text-muted-foreground overflow-auto max-h-[600px] scrollbar-thin">
-            {JSON.stringify(query.ingressFull?.expr, null, 2)}
+            {JSON.stringify(query.ingressRuntime?.expr, null, 2)}
           </pre>
         </CardContent>
       </Card>

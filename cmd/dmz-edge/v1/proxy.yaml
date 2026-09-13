@@ -93,32 +93,28 @@ setting:
   # ----------------------------------------------------------
   security:
     rulesets:
-      - enable: true
 
     rules:
-      - enable: true
-        ingress:
+      - ingress:
           name: "Complex Logic: (Path AND Method) OR IP"
+          status: STATUS_ACTIVE
           expr:
             orCondition:
               - rules:
-                - name: "block path"
-                  condition:
+                - condition:
                     source: FIELD_SOURCE_PATH
                     key: "/block"
                     operator: OPERATOR_EQ
                     value: "/block"
 
-                - name: "block method"
-                  condition:
+                - condition:
                     source: FIELD_SOURCE_METHOD
                     key: "POST"
                     operator: OPERATOR_NE
                     value: "POST"
 
               - rules:
-                - name: "block ip"
-                  condition:
+                - condition:
                     source: FIELD_SOURCE_IP
                     key: "1.1.1.1"
                     operator: OPERATOR_EQ
@@ -127,8 +123,7 @@ setting:
             type: ACTION_TYPE_BLOCK
 
     limiters:
-      - enable: true
-        timeWindow: 5s
+      - timeWindow: 5s
         limit: 50
         timeout: 5s
 
@@ -141,21 +136,19 @@ setting:
   controller:
     # maxConcurrent: 500               # Maximum concurrent users
     # waitingRoom:
-    #   enabled: true
     #   message: "Server is busy, please wait..."  # Message shown to waiting users
       cdn:
-       - enable: true
-         rule:
-           name: cache request with condition
-           expr:
-             orCondition:
-               - rules:
-                 - name: "cache when method is GET"
-                   condition:
-                     source: FIELD_SOURCE_METHOD
-                     key: "GET"
-                     operator: OPERATOR_EQ
-                     value: "GET"
+       - rule:
+          name: cache request with condition
+          status: STATUS_ACTIVE
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_METHOD
+                    key: "GET"
+                    operator: OPERATOR_EQ
+                    value: "GET"
 
 
   # ----------------------------------------------------------

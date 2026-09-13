@@ -290,9 +290,7 @@ export interface Action {
 /** A complete rule definition */
 export interface Rule {
   id: string;
-  /** @gotags: yaml:"name" */
-  name: string;
-  description: string;
+  expr: string;
   /** @gotags: yaml:"condition" */
   condition?: Condition | undefined;
 }
@@ -369,6 +367,7 @@ export interface RuleIngressLite {
   description: string;
   expr?: ExpressionLite | undefined;
   action?: Action | undefined;
+  status: string;
 }
 
 function createBaseCondition(): Condition {
@@ -590,7 +589,7 @@ export const Action: MessageFns<Action> = {
 };
 
 function createBaseRule(): Rule {
-  return { id: "", name: "", description: "", condition: undefined };
+  return { id: "", expr: "", condition: undefined };
 }
 
 export const Rule: MessageFns<Rule> = {
@@ -598,14 +597,11 @@ export const Rule: MessageFns<Rule> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
-    if (message.description !== "") {
-      writer.uint32(26).string(message.description);
+    if (message.expr !== "") {
+      writer.uint32(18).string(message.expr);
     }
     if (message.condition !== undefined) {
-      Condition.encode(message.condition, writer.uint32(34).fork()).join();
+      Condition.encode(message.condition, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -636,19 +632,11 @@ export const Rule: MessageFns<Rule> = {
               break;
             }
 
-            message.name = reader.string();
+            message.expr = reader.string();
             continue;
           }
           case 3: {
             if (tag !== 26) {
-              break;
-            }
-
-            message.description = reader.string();
-            continue;
-          }
-          case 4: {
-            if (tag !== 34) {
               break;
             }
 
@@ -670,8 +658,7 @@ export const Rule: MessageFns<Rule> = {
   fromJSON(object: any): Rule {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      expr: isSet(object.expr) ? globalThis.String(object.expr) : "",
       condition: isSet(object.condition) ? Condition.fromJSON(object.condition) : undefined,
     };
   },
@@ -681,11 +668,8 @@ export const Rule: MessageFns<Rule> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
+    if (message.expr !== "") {
+      obj.expr = message.expr;
     }
     if (message.condition !== undefined) {
       obj.condition = Condition.toJSON(message.condition);
@@ -699,8 +683,7 @@ export const Rule: MessageFns<Rule> = {
   fromPartial<I extends Exact<DeepPartial<Rule>, I>>(object: I): Rule {
     const message = createBaseRule();
     message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
+    message.expr = object.expr ?? "";
     message.condition = (object.condition !== undefined && object.condition !== null)
       ? Condition.fromPartial(object.condition)
       : undefined;
@@ -1573,7 +1556,7 @@ export const RuleIngress: MessageFns<RuleIngress> = {
 };
 
 function createBaseRuleIngressLite(): RuleIngressLite {
-  return { id: "", name: "", description: "", expr: undefined, action: undefined };
+  return { id: "", name: "", description: "", expr: undefined, action: undefined, status: "" };
 }
 
 export const RuleIngressLite: MessageFns<RuleIngressLite> = {
@@ -1592,6 +1575,9 @@ export const RuleIngressLite: MessageFns<RuleIngressLite> = {
     }
     if (message.action !== undefined) {
       Action.encode(message.action, writer.uint32(42).fork()).join();
+    }
+    if (message.status !== "") {
+      writer.uint32(50).string(message.status);
     }
     return writer;
   },
@@ -1649,6 +1635,14 @@ export const RuleIngressLite: MessageFns<RuleIngressLite> = {
             message.action = Action.decode(reader, reader.uint32());
             continue;
           }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1668,6 +1662,7 @@ export const RuleIngressLite: MessageFns<RuleIngressLite> = {
       description: isSet(object.description) ? globalThis.String(object.description) : "",
       expr: isSet(object.expr) ? ExpressionLite.fromJSON(object.expr) : undefined,
       action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
+      status: isSet(object.status) ? globalThis.String(object.status) : "",
     };
   },
 
@@ -1688,6 +1683,9 @@ export const RuleIngressLite: MessageFns<RuleIngressLite> = {
     if (message.action !== undefined) {
       obj.action = Action.toJSON(message.action);
     }
+    if (message.status !== "") {
+      obj.status = message.status;
+    }
     return obj;
   },
 
@@ -1705,6 +1703,7 @@ export const RuleIngressLite: MessageFns<RuleIngressLite> = {
     message.action = (object.action !== undefined && object.action !== null)
       ? Action.fromPartial(object.action)
       : undefined;
+    message.status = object.status ?? "";
     return message;
   },
 };

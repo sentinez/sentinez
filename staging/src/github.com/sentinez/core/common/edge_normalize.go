@@ -15,8 +15,10 @@
 package corecmn
 
 import (
+	cdnrulepb "github.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -29,12 +31,29 @@ const (
 )
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
+	normalizeEdgeController(edge.GetController())
 	normalizeEdgeSecurity(edge.GetSecurity())
+}
+
+func normalizeEdgeController(controller *edgepb.Controller) {
+	for _, cdn := range controller.GetCdn() {
+		cdn.RuleRuntime = toCDN(cdn.GetRule())
+	}
+}
+
+func toCDN(cdn *cdnrulepb.RuleLite) *cdnrulepb.Rule {
+	return &cdnrulepb.Rule{
+		Id:          cdn.GetId(),
+		Name:        cdn.GetName(),
+		Description: cdn.GetDescription(),
+		Expr:        toExpr(cdn.GetExpr()),
+		Status:      toStatus(cdn.GetStatus()),
+	}
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetRules() {
-		rule.IngressFull = toRuleBased(rule.GetIngress())
+		rule.IngressRuntime = toRuleBased(rule.GetIngress())
 	}
 }
 
@@ -51,6 +70,7 @@ func toRuleBased(rgLite *rulepb.RuleIngressLite) *rulepb.RuleIngress {
 		Description: rgLite.GetDescription(),
 		Expr:        toExpr(rgLite.GetExpr()),
 		Action:      rgLite.GetAction(),
+		Status:      toStatus(rgLite.GetStatus()),
 	}
 }
 
@@ -115,6 +135,15 @@ func toSource(source string) rulepb.FieldSource {
 	return rulepb.FieldSource(src)
 }
 
+func toStatus(status string) typepb.Status {
+	st, ok := typepb.Status_value[status]
+	if !ok {
+		return typepb.Status_STATUS_UNSPECIFIED
+	}
+
+	return typepb.Status(st)
+}
+
 func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	if cond == nil {
 		return nil
@@ -136,7 +165,6 @@ func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 
 	return &rulepb.Rule{
 		Id:        rand.NewNanoID(rulePrefix),
-		Name:      rule.GetName(),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

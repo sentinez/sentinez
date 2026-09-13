@@ -495,8 +495,6 @@ func (m *Rulesets) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Enable
-
 	return nil
 }
 
@@ -561,8 +559,6 @@ func (m *RuleBased) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Enable
-
 	if v, ok := interface{}(m.GetIngress()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
@@ -573,10 +569,10 @@ func (m *RuleBased) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetIngressFull()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetIngressRuntime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleBasedValidationError{
-				field:  "IngressFull",
+				field:  "IngressRuntime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -647,7 +643,25 @@ func (m *RateLimit) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Enable
+	if v, ok := interface{}(m.GetIngress()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RateLimitValidationError{
+				field:  "Ingress",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetIngressRuntime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RateLimitValidationError{
+				field:  "IngressRuntime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for TimeWindow
 

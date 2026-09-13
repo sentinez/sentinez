@@ -18,13 +18,17 @@ package grpcgateway
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/core"
+	"github.com/sentinez/core/common/console"
+	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/shared/zlog"
 )
 
 var (
@@ -38,7 +42,7 @@ type Server interface {
 	RuntimeMux() *runtime.ServeMux
 	HTTPMux() *http.ServeMux
 	Use(handlers ...func(http.Handler) http.Handler)
-	ListenAndServe(addr string) error
+	ListenAndServe(addr string, opts ...corehttp.ServerOption) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -90,7 +94,7 @@ func (h *XServer) Use(handlers ...func(http.Handler) http.Handler) {
 }
 
 // ListenAndServe starts the runtime mux.
-func (h *XServer) ListenAndServe(address string) error {
+func (h *XServer) ListenAndServe(address string, opts ...corehttp.ServerOption) error {
 	if address == "" {
 		address = ":9000"
 	}
@@ -105,6 +109,33 @@ func (h *XServer) ListenAndServe(address string) error {
 		Addr:    address,
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
+
+	host, port, _ := net.SplitHostPort(address)
+
+	var option corehttp.Option
+	for _, opt := range opts {
+		opt(&option)
+	}
+
+	if option.CertFile != "" && option.CertKeyFile != "" {
+		if option.TLSConfig != nil {
+			zlog.Warnf("grpc http: http ignore TLS config")
+		}
+
+		console.INFO(
+			h.meta.GetServiceName(),
+			h.meta.GetServiceKey(),
+			fmt.Sprintf("running on https %s:%s", host, port),
+		)
+
+		return h.server.ListenAndServeTLS(option.CertFile, option.CertKeyFile)
+	}
+
+	console.INFO(
+		h.meta.GetServiceName(),
+		h.meta.GetServiceKey(),
+		fmt.Sprintf("running on http %s:%s", host, port),
+	)
 
 	return h.server.ListenAndServe()
 }

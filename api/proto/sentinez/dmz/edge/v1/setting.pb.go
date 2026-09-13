@@ -439,7 +439,6 @@ func (x *Security) GetLimiters() []*RateLimit {
 
 type Rulesets struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -474,20 +473,12 @@ func (*Rulesets) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *Rulesets) GetEnable() bool {
-	if x != nil {
-		return x.Enable
-	}
-	return false
-}
-
 type RuleBased struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enable        bool                   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
-	Ingress       *v1.RuleIngressLite    `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                            // @gotags: yaml:"ingress"
-	IngressFull   *v1.RuleIngress        `protobuf:"bytes,3,opt,name=ingress_full,json=ingressFull,proto3" json:"ingress_full,omitempty" yaml:"-"` // @gotags: yaml:"-"
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Ingress        *v1.RuleIngressLite    `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
+	IngressRuntime *v1.RuleIngress        `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RuleBased) Reset() {
@@ -520,13 +511,6 @@ func (*RuleBased) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *RuleBased) GetEnable() bool {
-	if x != nil {
-		return x.Enable
-	}
-	return false
-}
-
 func (x *RuleBased) GetIngress() *v1.RuleIngressLite {
 	if x != nil {
 		return x.Ingress
@@ -534,21 +518,22 @@ func (x *RuleBased) GetIngress() *v1.RuleIngressLite {
 	return nil
 }
 
-func (x *RuleBased) GetIngressFull() *v1.RuleIngress {
+func (x *RuleBased) GetIngressRuntime() *v1.RuleIngress {
 	if x != nil {
-		return x.IngressFull
+		return x.IngressRuntime
 	}
 	return nil
 }
 
 type RateLimit struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enable        bool                   `protobuf:"varint,10,opt,name=enable,proto3" json:"enable,omitempty" yaml:"isRateLimitOn"`                          //@gotags: yaml:"isRateLimitOn"
-	TimeWindow    string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"` //@gotags: yaml:"timeWindow"
-	Limit         int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                            //@gotags: yaml:"limit"
-	Timeout       string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                         //@gotags: yaml:"timeout"
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Ingress        *v1.RuleIngressLite    `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
+	IngressRuntime *v1.RuleIngress        `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	TimeWindow     string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`            //@gotags: yaml:"timeWindow"
+	Limit          int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                       //@gotags: yaml:"limit"
+	Timeout        string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                    //@gotags: yaml:"timeout"
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RateLimit) Reset() {
@@ -581,11 +566,18 @@ func (*RateLimit) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *RateLimit) GetEnable() bool {
+func (x *RateLimit) GetIngress() *v1.RuleIngressLite {
 	if x != nil {
-		return x.Enable
+		return x.Ingress
 	}
-	return false
+	return nil
+}
+
+func (x *RateLimit) GetIngressRuntime() *v1.RuleIngress {
+	if x != nil {
+		return x.IngressRuntime
+	}
+	return nil
 }
 
 func (x *RateLimit) GetTimeWindow() string {
@@ -774,16 +766,15 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\bSecurity\x12:\n" +
 	"\brulesets\x18\x01 \x03(\v2\x1e.sentinez.dmz.edge.v1.RulesetsR\brulesets\x125\n" +
 	"\x05rules\x18\x02 \x03(\v2\x1f.sentinez.dmz.edge.v1.RuleBasedR\x05rules\x12;\n" +
-	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\"\n" +
-	"\bRulesets\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\"\xb0\x01\n" +
-	"\tRuleBased\x12\x16\n" +
-	"\x06enable\x18\x01 \x01(\bR\x06enable\x12B\n" +
-	"\aingress\x18\x02 \x01(\v2(.sentinez.secure.rule.v1.RuleIngressLiteR\aingress\x12G\n" +
-	"\fingress_full\x18\x03 \x01(\v2$.sentinez.secure.rule.v1.RuleIngressR\vingressFull\"\xe4\x01\n" +
-	"\tRateLimit\x12\x16\n" +
-	"\x06enable\x18\n" +
-	" \x01(\bR\x06enable\x12W\n" +
+	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\n" +
+	"\n" +
+	"\bRulesets\"\x9e\x01\n" +
+	"\tRuleBased\x12B\n" +
+	"\aingress\x18\x01 \x01(\v2(.sentinez.secure.rule.v1.RuleIngressLiteR\aingress\x12M\n" +
+	"\x0fingress_runtime\x18\x02 \x01(\v2$.sentinez.secure.rule.v1.RuleIngressR\x0eingressRuntime\"\xdf\x02\n" +
+	"\tRateLimit\x12B\n" +
+	"\aingress\x18\x01 \x01(\v2(.sentinez.secure.rule.v1.RuleIngressLiteR\aingress\x12M\n" +
+	"\x0fingress_runtime\x18\x02 \x01(\v2$.sentinez.secure.rule.v1.RuleIngressR\x0eingressRuntime\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12\x14\n" +
 	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
@@ -851,14 +842,16 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	8,  // 10: sentinez.dmz.edge.v1.Security.rules:type_name -> sentinez.dmz.edge.v1.RuleBased
 	9,  // 11: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
 	14, // 12: sentinez.dmz.edge.v1.RuleBased.ingress:type_name -> sentinez.secure.rule.v1.RuleIngressLite
-	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_full:type_name -> sentinez.secure.rule.v1.RuleIngress
-	16, // 14: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.cdn.rule.v1.CDN
-	1,  // 15: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_runtime:type_name -> sentinez.secure.rule.v1.RuleIngress
+	14, // 14: sentinez.dmz.edge.v1.RateLimit.ingress:type_name -> sentinez.secure.rule.v1.RuleIngressLite
+	15, // 15: sentinez.dmz.edge.v1.RateLimit.ingress_runtime:type_name -> sentinez.secure.rule.v1.RuleIngress
+	16, // 16: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.cdn.rule.v1.CDN
+	1,  // 17: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_setting_proto_init() }

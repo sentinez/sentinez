@@ -25,6 +25,7 @@ import (
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
@@ -160,7 +161,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
 		for _, cdn := range s.GetController().GetCdn() {
-			if !cdn.GetEnable() {
+			if cdn.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 				continue
 			}
 
@@ -214,7 +215,7 @@ func (m *MemStore) LoadReverseProxy(
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 	for _, limiter := range s.GetSecurity().GetLimiters() {
-		if !limiter.GetEnable() {
+		if limiter.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 			return nil
 		}
@@ -248,10 +249,11 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	)
 
 	for _, ruleset := range s.GetSecurity().GetRulesets() {
-		if !ruleset.GetEnable() {
-			zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
-			continue
-		}
+		_ = ruleset
+		// if ruleset.GetIngressFull().GetStatus() != typepb.Status_STATUS_ACTIVE {
+		// 	zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
+		// 	continue
+		// }
 
 		ns := s.GetServer().GetName()
 
@@ -267,12 +269,12 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 
 func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
 	for _, rule := range s.GetSecurity().GetRules() {
-		if !rule.GetEnable() {
+		if rule.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			zlog.Infof("edge:rule: ignore '%s'", s.GetServer().GetName())
 			continue
 		}
 
-		m.ruleBased.Store(s.GetServer().GetName(), rule.GetIngressFull())
+		m.ruleBased.Store(s.GetServer().GetName(), rule.GetIngressRuntime())
 	}
 
 	return nil

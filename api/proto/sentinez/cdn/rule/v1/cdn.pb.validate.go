@@ -141,6 +141,90 @@ var _ interface {
 	ErrorName() string
 } = RuleValidationError{}
 
+// Validate checks the field values on RuleLite with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RuleLite) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Description
+
+	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleLiteValidationError{
+				field:  "Expr",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for Priority
+
+	return nil
+}
+
+// RuleLiteValidationError is the validation error returned by
+// RuleLite.Validate if the designated constraints aren't met.
+type RuleLiteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RuleLiteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RuleLiteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RuleLiteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RuleLiteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RuleLiteValidationError) ErrorName() string { return "RuleLiteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RuleLiteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRuleLite.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RuleLiteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RuleLiteValidationError{}
+
 // Validate checks the field values on CDN with the rules defined in the proto
 // definition for this message. If any rules are violated, an error is returned.
 func (m *CDN) Validate() error {
@@ -148,7 +232,15 @@ func (m *CDN) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Enable
+	if v, ok := interface{}(m.GetRuleRuntime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CDNValidationError{
+				field:  "RuleRuntime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if v, ok := interface{}(m.GetRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {

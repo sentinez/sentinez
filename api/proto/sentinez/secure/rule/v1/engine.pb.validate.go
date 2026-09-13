@@ -204,9 +204,7 @@ func (m *Rule) Validate() error {
 
 	// no validation rules for Id
 
-	// no validation rules for Name
-
-	// no validation rules for Description
+	// no validation rules for Expr
 
 	if v, ok := interface{}(m.GetCondition()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
@@ -988,6 +986,8 @@ func (m *RuleIngressLite) Validate() error {
 			}
 		}
 	}
+
+	// no validation rules for Status
 
 	return nil
 }

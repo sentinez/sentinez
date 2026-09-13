@@ -128,7 +128,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
           setTabIndex(subIndex);
 
-          const matchedSubChild = matchedChild.items?.find((subSubItem: any) =>
+          const matchedSubChild: any = matchedChild.items?.find((subSubItem: any) =>
             pathname.startsWith(subSubItem.url),
           );
           if (matchedSubChild) {
@@ -292,27 +292,29 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                 )}
                               </SidebarMenuButton>
                             </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <SidebarMenuSub>
-                                {item.items?.map((subItem: any, subIndex: number) => (
-                                  <SidebarMenuSubItem key={subItem.title}>
-                                    <SidebarMenuSubButton
-                                      asChild
-                                      isActive={subTabIndex === subIndex}
-                                      onClick={() =>
-                                        handlerSidebarSubChildrenClick(subItem, subIndex)
-                                      }
-                                      className="px-2.5 md:px-2 cursor-pointer"
-                                    >
-                                      <div>
-                                        {subItem.icon && <subItem.icon />}
-                                        <span>{subItem.title}</span>
-                                      </div>
-                                    </SidebarMenuSubButton>
-                                  </SidebarMenuSubItem>
-                                ))}
-                              </SidebarMenuSub>
-                            </CollapsibleContent>
+                            {item.items?.length > 0 && (
+                              <CollapsibleContent>
+                                <SidebarMenuSub>
+                                  {item.items?.map((subItem: any, subIndex: number) => (
+                                    <SidebarMenuSubItem key={subItem.title}>
+                                      <SidebarMenuSubButton
+                                        asChild
+                                        isActive={subTabIndex === subIndex}
+                                        onClick={() =>
+                                          handlerSidebarSubChildrenClick(subItem, subIndex)
+                                        }
+                                        className="px-2.5 md:px-2 cursor-pointer"
+                                      >
+                                        <div>
+                                          {subItem.icon && <subItem.icon />}
+                                          <span>{subItem.title}</span>
+                                        </div>
+                                      </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                  ))}
+                                </SidebarMenuSub>
+                              </CollapsibleContent>
+                            )}
                           </SidebarMenuItem>
                         </Collapsible>
                       </SidebarMenu>

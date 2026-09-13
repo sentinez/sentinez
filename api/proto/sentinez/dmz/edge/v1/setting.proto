@@ -66,17 +66,16 @@ message Security {
 }
 
 message Rulesets {
-  bool enable = 1;
 }
 
 message RuleBased {
-  bool enable = 1;
-  sentinez.secure.rule.v1.RuleIngressLite ingress = 2;  // @gotags: yaml:"ingress"
-  sentinez.secure.rule.v1.RuleIngress ingress_full = 3;  // @gotags: yaml:"-"
+  sentinez.secure.rule.v1.RuleIngressLite ingress = 1;  // @gotags: yaml:"ingress"
+  sentinez.secure.rule.v1.RuleIngress ingress_runtime = 2;  // @gotags: yaml:"-"
 }
 
 message RateLimit {
-  bool enable = 10;  //@gotags: yaml:"isRateLimitOn"
+  sentinez.secure.rule.v1.RuleIngressLite ingress = 1;  // @gotags: yaml:"ingress"
+  sentinez.secure.rule.v1.RuleIngress ingress_runtime = 2;  // @gotags: yaml:"-"
 
   string time_window = 11 [(buf.validate.field) = {
     required: false

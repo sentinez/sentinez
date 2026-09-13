@@ -391,9 +391,8 @@ func (x *Action) GetParams() *structpb.Struct {
 type Rule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"` // @gotags: yaml:"name"
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Condition     *Condition             `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
+	Expr          string                 `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	Condition     *Condition             `protobuf:"bytes,3,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -435,16 +434,9 @@ func (x *Rule) GetId() string {
 	return ""
 }
 
-func (x *Rule) GetName() string {
+func (x *Rule) GetExpr() string {
 	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *Rule) GetDescription() string {
-	if x != nil {
-		return x.Description
+		return x.Expr
 	}
 	return ""
 }
@@ -958,6 +950,7 @@ type RuleIngressLite struct {
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Expr          *ExpressionLite        `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty"`
 	Action        *Action                `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1027,6 +1020,13 @@ func (x *RuleIngressLite) GetAction() *Action {
 	return nil
 }
 
+func (x *RuleIngressLite) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
 var File_sentinez_secure_rule_v1_engine_proto protoreflect.FileDescriptor
 
 const file_sentinez_secure_rule_v1_engine_proto_rawDesc = "" +
@@ -1040,12 +1040,11 @@ const file_sentinez_secure_rule_v1_engine_proto_rawDesc = "" +
 	"\x05value\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\x05value\"r\n" +
 	"\x06Action\x127\n" +
 	"\x04type\x18\x01 \x01(\x0e2#.sentinez.secure.rule.v1.ActionTypeR\x04type\x12/\n" +
-	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"\x8e\x01\n" +
+	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"l\n" +
 	"\x04Rule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12@\n" +
-	"\tcondition\x18\x04 \x01(\v2\".sentinez.secure.rule.v1.ConditionR\tcondition\"\x8d\x01\n" +
+	"\x04expr\x18\x02 \x01(\tR\x04expr\x12@\n" +
+	"\tcondition\x18\x03 \x01(\v2\".sentinez.secure.rule.v1.ConditionR\tcondition\"\x8d\x01\n" +
 	"\fAndCondition\x123\n" +
 	"\x05rules\x18\x01 \x03(\v2\x1d.sentinez.secure.rule.v1.RuleR\x05rules\x12H\n" +
 	"\for_condition\x18\x02 \x03(\v2%.sentinez.secure.rule.v1.AndConditionR\vorCondition\"\x99\x01\n" +
@@ -1081,13 +1080,14 @@ const file_sentinez_secure_rule_v1_engine_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xcd\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe5\x01\n" +
 	"\x0fRuleIngressLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12;\n" +
 	"\x04expr\x18\x04 \x01(\v2'.sentinez.secure.rule.v1.ExpressionLiteR\x04expr\x127\n" +
-	"\x06action\x18\x05 \x01(\v2\x1f.sentinez.secure.rule.v1.ActionR\x06action*\xfb\x01\n" +
+	"\x06action\x18\x05 \x01(\v2\x1f.sentinez.secure.rule.v1.ActionR\x06action\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status*\xfb\x01\n" +
 	"\vFieldSource\x12\x1c\n" +
 	"\x18FIELD_SOURCE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FIELD_SOURCE_HEADER\x10\x01\x12\x16\n" +

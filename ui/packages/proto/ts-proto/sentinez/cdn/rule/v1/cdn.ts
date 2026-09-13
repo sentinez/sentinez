@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
-import { Expression } from "../../../secure/rule/v1/engine";
+import { Expression, ExpressionLite } from "../../../secure/rule/v1/engine";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 
 export const protobufPackage = "sentinez.cdn.rule.v1";
@@ -23,11 +23,21 @@ export interface Rule {
   updatedAt?: Date | undefined;
 }
 
+export interface RuleLite {
+  id: string;
+  name: string;
+  description: string;
+  expr?: ExpressionLite | undefined;
+  status: string;
+  priority: number;
+}
+
 export interface CDN {
-  /** @gotags: yaml:"enable" */
-  enable: boolean;
+  ruleRuntime?:
+    | Rule
+    | undefined;
   /** @gotags: yaml:"rule" */
-  rule?: Rule | undefined;
+  rule?: RuleLite | undefined;
 }
 
 function createBaseRule(): Rule {
@@ -230,17 +240,168 @@ export const Rule: MessageFns<Rule> = {
   },
 };
 
+function createBaseRuleLite(): RuleLite {
+  return { id: "", name: "", description: "", expr: undefined, status: "", priority: 0 };
+}
+
+export const RuleLite: MessageFns<RuleLite> = {
+  encode(message: RuleLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.expr !== undefined) {
+      ExpressionLite.encode(message.expr, writer.uint32(34).fork()).join();
+    }
+    if (message.status !== "") {
+      writer.uint32(50).string(message.status);
+    }
+    if (message.priority !== 0) {
+      writer.uint32(56).int32(message.priority);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleLite {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRuleLite();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.expr = ExpressionLite.decode(reader, reader.uint32());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.priority = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): RuleLite {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      expr: isSet(object.expr) ? ExpressionLite.fromJSON(object.expr) : undefined,
+      status: isSet(object.status) ? globalThis.String(object.status) : "",
+      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
+    };
+  },
+
+  toJSON(message: RuleLite): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.expr !== undefined) {
+      obj.expr = ExpressionLite.toJSON(message.expr);
+    }
+    if (message.status !== "") {
+      obj.status = message.status;
+    }
+    if (message.priority !== 0) {
+      obj.priority = Math.round(message.priority);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleLite>, I>>(base?: I): RuleLite {
+    return RuleLite.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleLite>, I>>(object: I): RuleLite {
+    const message = createBaseRuleLite();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? ExpressionLite.fromPartial(object.expr)
+      : undefined;
+    message.status = object.status ?? "";
+    message.priority = object.priority ?? 0;
+    return message;
+  },
+};
+
 function createBaseCDN(): CDN {
-  return { enable: false, rule: undefined };
+  return { ruleRuntime: undefined, rule: undefined };
 }
 
 export const CDN: MessageFns<CDN> = {
   encode(message: CDN, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.enable !== false) {
-      writer.uint32(8).bool(message.enable);
+    if (message.ruleRuntime !== undefined) {
+      Rule.encode(message.ruleRuntime, writer.uint32(10).fork()).join();
     }
     if (message.rule !== undefined) {
-      Rule.encode(message.rule, writer.uint32(18).fork()).join();
+      RuleLite.encode(message.rule, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -259,11 +420,11 @@ export const CDN: MessageFns<CDN> = {
         const tag = reader.uint32();
         switch (tag >>> 3) {
           case 1: {
-            if (tag !== 8) {
+            if (tag !== 10) {
               break;
             }
 
-            message.enable = reader.bool();
+            message.ruleRuntime = Rule.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -271,7 +432,7 @@ export const CDN: MessageFns<CDN> = {
               break;
             }
 
-            message.rule = Rule.decode(reader, reader.uint32());
+            message.rule = RuleLite.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -288,18 +449,22 @@ export const CDN: MessageFns<CDN> = {
 
   fromJSON(object: any): CDN {
     return {
-      enable: isSet(object.enable) ? globalThis.Boolean(object.enable) : false,
-      rule: isSet(object.rule) ? Rule.fromJSON(object.rule) : undefined,
+      ruleRuntime: isSet(object.ruleRuntime)
+        ? Rule.fromJSON(object.ruleRuntime)
+        : isSet(object.rule_runtime)
+        ? Rule.fromJSON(object.rule_runtime)
+        : undefined,
+      rule: isSet(object.rule) ? RuleLite.fromJSON(object.rule) : undefined,
     };
   },
 
   toJSON(message: CDN): unknown {
     const obj: any = {};
-    if (message.enable !== false) {
-      obj.enable = message.enable;
+    if (message.ruleRuntime !== undefined) {
+      obj.ruleRuntime = Rule.toJSON(message.ruleRuntime);
     }
     if (message.rule !== undefined) {
-      obj.rule = Rule.toJSON(message.rule);
+      obj.rule = RuleLite.toJSON(message.rule);
     }
     return obj;
   },
@@ -309,8 +474,10 @@ export const CDN: MessageFns<CDN> = {
   },
   fromPartial<I extends Exact<DeepPartial<CDN>, I>>(object: I): CDN {
     const message = createBaseCDN();
-    message.enable = object.enable ?? false;
-    message.rule = (object.rule !== undefined && object.rule !== null) ? Rule.fromPartial(object.rule) : undefined;
+    message.ruleRuntime = (object.ruleRuntime !== undefined && object.ruleRuntime !== null)
+      ? Rule.fromPartial(object.ruleRuntime)
+      : undefined;
+    message.rule = (object.rule !== undefined && object.rule !== null) ? RuleLite.fromPartial(object.rule) : undefined;
     return message;
   },
 };

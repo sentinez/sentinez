@@ -1,11 +1,12 @@
 'use client';
 
 import Title from '@/components/title';
+import PageLayout from '@/components/page-layout';
 
 export default function Page() {
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <PageLayout>
       <Title title="Security Rulesets" subtitle="Manage active owasp core rulesets."></Title>
-    </div>
+    </PageLayout>
   );
 }

@@ -1,4 +1,5 @@
 import PageLayout from '@/components/page-layout';
+import { ResourceTable } from '@/app/console/[domain]/tenant/resource/components/table';
 import Title from '@/components/title';
 import { Button } from '@sentinez/ui/components/button';
 import { PlusIcon } from 'lucide-react';
@@ -8,12 +9,14 @@ export default async function Page() {
 
   return (
     <PageLayout>
-      <Title title="Members" subtitle="Manage members of the organization.">
+      <Title title="Domains" subtitle="Manage active resource domains">
         <Button size="sm">
           <PlusIcon className="w-4 h-4" />
-          Invite
+          Create
         </Button>
       </Title>
+
+      <ResourceTable />
     </PageLayout>
   );
 }

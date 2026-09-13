@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { NavUser } from '@/components/nav-user';
 import {
   Sidebar,
@@ -14,6 +13,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarTrigger,
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
@@ -32,30 +34,49 @@ import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
-import { Search } from 'lucide-react';
+import { ChevronRight, Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@sentinez/ui/components/collapsible';
+import {
+  ComponentProps,
+  Fragment,
+  JSX,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
-export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
   const router = useRouter();
   const pathname = usePathname();
-  const [, startTransitionNavMain] = React.useTransition();
-  const [, startTransitionChildren] = React.useTransition();
 
-  const rootNavMain = dashboard.rootNavMain;
+  const navMain = useMemo(() => {
+    return dashboard.rootNavMain;
+  }, []);
 
-  const [loading, setLoading] = React.useState(true);
-  const [activeItem, setActiveItem] = React.useState(rootNavMain[0]);
-  const [childItems, setChildItems] = React.useState(rootNavMain[0]?.items);
-  const [navIndex, setNavIndex] = React.useState(0);
-  const [tabIndex, setTabIndex] = React.useState(-1);
-  const [search, setSearch] = React.useState('');
+  const [, startTransitionNavMain] = useTransition();
+  const [, startTransitionChildren] = useTransition();
+
+  const [loading, setLoading] = useState(true);
+  const [activeItem, setActiveItem] = useState(navMain[0]);
+  const [childItems, setChildItems] = useState(navMain[0]?.items);
+  const [navIndex, setNavIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(-1);
+  const [subTabIndex, setSubTabIndex] = useState(-1);
+  const [search, setSearch] = useState('');
   const { setOpen } = useSidebar();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handler = setTimeout(() => {
-      const originalItems = rootNavMain[navIndex]?.items || [];
+      const originalItems = navMain[navIndex]?.items || [];
       if (search.trim() === '') {
         setChildItems(originalItems);
       } else {
@@ -67,35 +88,46 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
     }, 300); // debounce 300ms
 
     return () => clearTimeout(handler); // cleanup
-  }, [search, activeItem, navIndex]);
+  }, [search, activeItem, navIndex, navMain]);
 
-  React.useEffect(() => {
-    for (const [index, item] of rootNavMain.entries()) {
-      // Use exact match for root-level URLs to avoid false positives
+  useEffect(() => {
+    for (const [index, item] of navMain.entries()) {
+      const matchedChild = item.items?.find((subItem: any) =>
+        subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url),
+      );
       const itemMatches =
         item.url === '/console'
           ? pathname === '/console' || pathname.startsWith('/console/')
           : pathname.startsWith(item.url);
-      if (itemMatches) {
+
+      if (itemMatches || matchedChild) {
         setActiveItem(item);
         setNavIndex(index);
         setChildItems(item.items);
 
-        const matchedChild = item.items?.find((subItem: any) =>
-          subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url),
-        );
-        if (matchedChild) {
+        if (matchedChild && item.items && matchedChild.items) {
           const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
           setTabIndex(subIndex);
+
+          const matchedSubChild: any = matchedChild.items?.find((subSubItem: any) =>
+            pathname.startsWith(subSubItem.url),
+          );
+          if (matchedSubChild) {
+            const subSubIndex = matchedChild.items.findIndex(
+              (sub: any) => sub.url === matchedSubChild.url,
+            );
+            setSubTabIndex(subSubIndex);
+          } else {
+            setSubTabIndex(-1);
+          }
+
           setLoading(false);
-        } else {
-          setTabIndex(-1);
         }
 
         break;
       }
     }
-  }, [pathname]);
+  }, [pathname, navMain]);
 
   const handlerSidebarNavMainClick = (item: any, index: number) => {
     router.push(item.url);
@@ -114,6 +146,14 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
 
     startTransitionChildren(() => {
       setTabIndex(index);
+    });
+  };
+
+  const handlerSidebarSubChildrenClick = (item: any, index: number) => {
+    router.push(item.url);
+
+    startTransitionChildren(() => {
+      setSubTabIndex(index);
     });
   };
 
@@ -150,26 +190,22 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {rootNavMain.map((item: any, index: number) =>
-                  loading ? (
-                    <SidebarLoading key={index} />
-                  ) : (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        tooltip={{
-                          children: item.title,
-                          hidden: false,
-                        }}
-                        onClick={() => handlerSidebarNavMainClick(item, index)}
-                        isActive={activeItem?.title === item.title}
-                        className="px-2.5 md:px-2 cursor-pointer"
-                      >
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ),
-                )}
+                {navMain.map((item: any, index: number) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      tooltip={{
+                        children: item.title,
+                        hidden: false,
+                      }}
+                      onClick={() => handlerSidebarNavMainClick(item, index)}
+                      isActive={activeItem?.title === item.title}
+                      className="px-2.5 md:px-2 cursor-pointer"
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -184,9 +220,11 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <TeamSwitcher teams={dashboard.tenant} />
-          <div className="flex w-full items-center justify-between">
+          {loading ? (
+            <SidebarLoading />
+          ) : (
             <div className="text-foreground text-base font-medium">{activeItem?.title}</div>
-          </div>
+          )}
           <SidebarGroup>
             <SidebarGroupContent>
               <div className="relative">
@@ -212,18 +250,55 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
                 ) : (
                   childItems?.map((item: any, index: number) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        size="default"
-                        onClick={() => handlerSidebarChildrenClick(item, index)}
-                        className="px-2.5 md:px-2 cursor-pointer"
-                        isActive={tabIndex === index}
-                      >
-                        <span className="flex items-center gap-2">
-                          <item.icon strokeWidth={1} />
-                          <span>{item.title}</span>
-                        </span>
-                      </SidebarMenuButton>
+                      <SidebarMenu>
+                        <Collapsible
+                          key={item.title}
+                          asChild
+                          defaultOpen={item.isActive}
+                          className="group/collapsible"
+                        >
+                          <SidebarMenuItem>
+                            <CollapsibleTrigger asChild>
+                              <SidebarMenuButton
+                                tooltip={item.title}
+                                size="default"
+                                onClick={() => handlerSidebarChildrenClick(item, index)}
+                                className="px-2.5 md:px-2 cursor-pointer"
+                                isActive={tabIndex === index}
+                              >
+                                {item.icon && <item.icon />}
+                                <span>{item.title}</span>
+                                {item.items?.length > 0 && (
+                                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                )}
+                              </SidebarMenuButton>
+                            </CollapsibleTrigger>
+                            {item.items?.length > 0 && (
+                              <CollapsibleContent>
+                                <SidebarMenuSub>
+                                  {item.items?.map((subItem: any, subIndex: number) => (
+                                    <SidebarMenuSubItem key={subItem.title}>
+                                      <SidebarMenuSubButton
+                                        asChild
+                                        isActive={subTabIndex === subIndex}
+                                        onClick={() =>
+                                          handlerSidebarSubChildrenClick(subItem, subIndex)
+                                        }
+                                        className="px-2.5 md:px-2 cursor-pointer"
+                                      >
+                                        <div>
+                                          {subItem.icon && <subItem.icon />}
+                                          <span>{subItem.title}</span>
+                                        </div>
+                                      </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                  ))}
+                                </SidebarMenuSub>
+                              </CollapsibleContent>
+                            )}
+                          </SidebarMenuItem>
+                        </Collapsible>
+                      </SidebarMenu>
                     </SidebarMenuItem>
                   ))
                 )}
@@ -236,11 +311,11 @@ export function RootSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
   );
 }
 
-export function RootSidebarInset({ children }: { children: React.ReactNode }) {
-  const [breadcrumbs, setBreadcrumbs] = React.useState<React.JSX.Element[]>([]);
+export function RootSidebarInset({ children }: { children: ReactNode }) {
+  const [breadcrumbs, setBreadcrumbs] = useState<JSX.Element[]>([]);
   const pathname = usePathname();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const pathArray = pathname.split('/').filter((path) => path !== '');
     const components = pathArray.map((path, index) => {
       return (
@@ -270,12 +345,12 @@ export function RootSidebarInset({ children }: { children: React.ReactNode }) {
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((item, index) => (
-              <React.Fragment key={index}>{item}</React.Fragment>
+              <Fragment key={index}>{item}</Fragment>
             ))}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+      <div className="flex flex-1 flex-col gap-4 p-4 max-w-7xl">{children}</div>
       <PreviewFooter />
     </SidebarInset>
   );
