@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"slices"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/core"
@@ -94,22 +95,17 @@ func (h *XServer) Use(handlers ...func(http.Handler) http.Handler) {
 }
 
 // ListenAndServe starts the runtime mux.
-func (h *XServer) ListenAndServe(address string, opts ...corehttp.ServerOption) error {
+func (h *XServer) ListenAndServe(address string,
+	opts ...corehttp.ServerOption) error {
 	if address == "" {
 		address = ":9000"
 	}
 
-	// handler runtime.Mux with http.ServeMux
-	// serve grpc-gateway mux on the root path
 	h.httpMux.Handle("/", h.runtimeMux)
-
-	// create http server with address and http.Handler
-	// httpMux was wrapped with the middlewares
 	h.server = &http.Server{
 		Addr:    address,
 		Handler: chain(h.httpMux, h.middlewares...),
 	}
-
 	host, port, _ := net.SplitHostPort(address)
 
 	var option corehttp.Option
@@ -121,13 +117,11 @@ func (h *XServer) ListenAndServe(address string, opts ...corehttp.ServerOption) 
 		if option.TLSConfig != nil {
 			zlog.Warnf("grpc http: http ignore TLS config")
 		}
-
 		console.INFO(
 			h.meta.GetServiceName(),
 			h.meta.GetServiceKey(),
 			fmt.Sprintf("running on https %s:%s", host, port),
 		)
-
 		return h.server.ListenAndServeTLS(option.CertFile, option.CertKeyFile)
 	}
 
@@ -136,7 +130,6 @@ func (h *XServer) ListenAndServe(address string, opts ...corehttp.ServerOption) 
 		h.meta.GetServiceKey(),
 		fmt.Sprintf("running on http %s:%s", host, port),
 	)
-
 	return h.server.ListenAndServe()
 }
 
@@ -156,8 +149,8 @@ func (h *XServer) Shutdown(ctx context.Context) error {
 }
 
 func chain(h http.Handler, m ...func(http.Handler) http.Handler) http.Handler {
-	for i := len(m) - 1; i >= 0; i-- {
-		h = m[i](h)
+	for _, v := range slices.Backward(m) {
+		h = v(h)
 	}
 
 	return extendHeader(h)

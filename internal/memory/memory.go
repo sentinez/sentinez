@@ -214,19 +214,19 @@ func (m *MemStore) LoadReverseProxy(
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
-	for _, limiter := range s.GetSecurity().GetLimiters() {
-		if limiter.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
+	for _, l := range s.GetSecurity().GetLimiters() {
+		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 			return nil
 		}
 
-		size, err := time.ParseDuration(limiter.GetTimeWindow())
+		size, err := time.ParseDuration(l.GetTimeWindow())
 		if err != nil {
 			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
 			return err
 		}
 
-		timeout, err := time.ParseDuration(limiter.GetTimeout())
+		timeout, err := time.ParseDuration(l.GetTimeout())
 		if err != nil {
 			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
 			return err
@@ -235,7 +235,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 		lim := corelimiter.NewRateLimiter(
 			timeout,
 			size,
-			limiter.GetLimit(),
+			l.GetLimit(),
 		)
 		m.limiter.Store(s.GetServer().GetName(), lim)
 	}
@@ -248,9 +248,9 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 		flag = corers.ReqAppAttackRCE
 	)
 
-	for _, ruleset := range s.GetSecurity().GetRulesets() {
-		_ = ruleset
-		// if ruleset.GetIngressFull().GetStatus() != typepb.Status_STATUS_ACTIVE {
+	for _, r := range s.GetSecurity().GetRulesets() {
+		_ = r
+		// if r.GetIngressFull().GetStatus() != typepb.Status_STATUS_ACTIVE {
 		// 	zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
 		// 	continue
 		// }
