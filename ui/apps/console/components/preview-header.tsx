@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Language from './language';
 
 type PreviewHeaderProps = {
@@ -14,7 +15,14 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
       <div className="w-full border-b border-border bg-background px-3 py-1">
         <div className="flex w-full flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-foreground">Sentinéz</span>
+            <Image
+              alt="sentinez"
+              src="/assets/sentinez.png"
+              loading="eager"
+              width={65}
+              height={15}
+              className="w-16 h-auto"
+            />
 
             <span className="hidden text-muted-foreground sm:inline">·</span>
 
