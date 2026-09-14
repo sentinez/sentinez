@@ -1,17 +1,12 @@
+<img src="./_logo/sentinez/3/3.png" width="600"/>
 
-
-# Sentinéz /sen-ti-nɛz/
+**Sentinez** *stylized as* **Sentinéz** /sen-ti-nɛz/
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](http://www.apache.org/licenses/LICENSE-2.0)
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by/4.0/)
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
-![img](./_logo/senzz.png)
-
----
-**Sentinez** *stylized as* **Sentinéz**
-
-### 🛡️ Sentinel - Edge reverse proxy with many antioxidants
+### 🛡️ Sentinéz - Edge reverse proxy with many antioxidants
 
 > [!WARNING]
 > Please keep in mind that ***Sentinéz*** is still under active development
