@@ -7,11 +7,17 @@ scrape_configs:
   # Prometheus monitor
   - job_name: prometheus
     static_configs:
-      - targets:
-          - prometheus:9090
+      - targets: ['sentinez.monitoring.prometheus:9090']
 
   # Docker container metrics
   - job_name: cadvisor
     static_configs:
-      - targets:
-          - cadvisor:8080
+      - targets: ['sentinez.monitoring.cadvisor:8080']
+    
+    metric_relabel_configs:
+      - source_labels: ['name']
+        regex: '/sentinez.monitoring.*|sentinez.monitoring.*'
+        action: drop
+
+      - source_labels: ['name']
+        target_label: 'container'

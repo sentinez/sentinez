@@ -1,7 +1,7 @@
 services:
-  prometheus:
+  sentinez.monitoring.prometheus:
     image: prom/prometheus:v3.8.1
-    container_name: prometheus
+    container_name: sentinez.monitoring.prometheus
     restart: unless-stopped
 
     command:
@@ -17,11 +17,11 @@ services:
       - "9090:9090"
 
     depends_on:
-      - cadvisor
+      - sentinez.monitoring.cadvisor
 
-  grafana:
+  sentinez.monitoring.grafana:
     image: grafana/grafana:12.1.1
-    container_name: grafana
+    container_name: sentinez.monitoring.grafana
     restart: unless-stopped
 
     ports:
@@ -32,11 +32,11 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
 
     depends_on:
-      - prometheus
+      - sentinez.monitoring.prometheus
 
-  cadvisor:
+  sentinez.monitoring.cadvisor:
     image: gcr.io/cadvisor/cadvisor
-    container_name: cadvisor
+    container_name: sentinez.monitoring.cadvisor
     restart: unless-stopped
 
     ports:
