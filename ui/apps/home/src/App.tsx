@@ -1,9 +1,9 @@
-import * as THREE from "three";
-import { useRef } from "react";
-import { type GLTF } from "three-stdlib";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, useGLTF } from "@react-three/drei";
-import { EffectComposer, N8AO } from "@react-three/postprocessing";
+import * as THREE from 'three';
+import { useRef } from 'react';
+import { type GLTF } from 'three-stdlib';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Environment, useGLTF } from '@react-three/drei';
+import { EffectComposer, N8AO } from '@react-three/postprocessing';
 import {
   BallCollider,
   Physics,
@@ -11,27 +11,26 @@ import {
   CylinderCollider,
   type RapierRigidBody,
   type RigidBodyProps,
-} from "@react-three/rapier";
+} from '@react-three/rapier';
 
-import capModel from "./cap.glb?url";
-import adamsbridgeHdr from "./adamsbridge.hdr?url";
+import capModel from './cap.glb?url';
+import adamsbridgeHdr from './adamsbridge.hdr?url';
 
 type GLTFResult = GLTF & {
   nodes: { Mesh_1: THREE.Mesh };
 };
 
 // `legacyMode` was removed from @types/three; kept to match upstream source
-(THREE.ColorManagement as unknown as { legacyMode: boolean }).legacyMode =
-  false;
+(THREE.ColorManagement as unknown as { legacyMode: boolean }).legacyMode = false;
 const baubleMaterial = new THREE.MeshLambertMaterial({
-  color: "#c0a0a0",
-  emissive: "red",
+  color: '#c0a0a0',
+  emissive: 'red',
 });
 const capMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.75,
   roughness: 0.15,
-  color: "#8a492f",
-  emissive: "#600000",
+  color: '#8a492f',
+  emissive: '#600000',
   envMapIntensity: 20,
 });
 const sphereGeometry = new THREE.SphereGeometry(1, 28, 28);
@@ -115,12 +114,7 @@ function Pointer({ vec = new THREE.Vector3() }: { vec?: THREE.Vector3 }) {
     ref.current?.setNextKinematicTranslation(vec);
   });
   return (
-    <RigidBody
-      position={[100, 100, 100]}
-      type="kinematicPosition"
-      colliders={false}
-      ref={ref}
-    >
+    <RigidBody position={[100, 100, 100]} type="kinematicPosition" colliders={false} ref={ref}>
       <BallCollider args={[2]} />
     </RigidBody>
   );
@@ -145,16 +139,10 @@ export const App = () => (
       shadow-mapSize={[512, 512]}
     />
     <directionalLight position={[0, 5, -4]} intensity={4 * Math.PI} />
-    <directionalLight
-      position={[0, -15, -0]}
-      intensity={4 * Math.PI}
-      color="red"
-    />
+    <directionalLight position={[0, -15, -0]} intensity={4 * Math.PI} color="red" />
     <Physics gravity={[0, 0, 0]}>
       <Pointer />
-      {
-        baubles.map((props, i) => <Bauble key={i} {...props} />) /* prettier-ignore */
-      }
+      {baubles.map((props, i) => <Bauble key={i} {...props} />) /* prettier-ignore */}
     </Physics>
     <Environment files={adamsbridgeHdr} />
     {/* `disableNormalPass` no longer exists in this postprocessing version; the normal pass is already disabled by default */}
