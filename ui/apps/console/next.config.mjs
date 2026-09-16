@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@sentinez/ui"],
-  basePath: "",
+  transpilePackages: ["@sentinez/ui", "@sentinez/proto"],
   assetPrefix: "",
   sassOptions: {},
-  distDir: 'dist',
 }
 
 export default nextConfig
