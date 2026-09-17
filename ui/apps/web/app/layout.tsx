@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: 'https://s6z.io.vn/images/sntz.png',
-        width: 1200,
-        height: 630,
+        width: 720,
+        height: 720,
         alt: 'Sentinéz — On Your Side',
       },
     ],
