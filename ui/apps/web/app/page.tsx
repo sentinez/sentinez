@@ -2,8 +2,28 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 
 const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
+
+const MULTI_LANG_TEXTS = [
+  'Like A Sentinel', // UK
+  'Giống Như Người Canh Giác', // VN
+  '如同哨兵', // CN
+  'Как часовой', // RU
+  'एक प्रहरी की तरह', // IN (Hindi)
+  '파수꾼처럼', // KR
+  'Like A Sentinel', // US
+  'センチネルのように', // JP
+  'Like A Sentinel', // AU
+  'Comme une sentinelle', // FR
+  'Seperti Sentinel', // MY
+  'Like A Sentinel', // NZ
+  'Seperti Sentinel', // ID
+  'Like A Sentinel', // SG
+  'ดั่งยามเฝ้า', // TH
+  'Comme une sentinelle', // EU/FR
+];
 
 const CARDS = [
   {
@@ -29,6 +49,7 @@ const CARDS = [
 export default function Page() {
   const [displayed, setDisplayed] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
+  const [langIndex, setLangIndex] = useState(0);
 
   useEffect(() => {
     let i = 0;
@@ -48,6 +69,13 @@ export default function Page() {
       setCursorVisible((v) => !v);
     }, 530);
     return () => clearInterval(blink);
+  }, []);
+
+  useEffect(() => {
+    const langTimer = setInterval(() => {
+      setLangIndex((prev) => (prev + 1) % MULTI_LANG_TEXTS.length);
+    }, 2500);
+    return () => clearInterval(langTimer);
   }, []);
 
   return (
@@ -98,10 +126,22 @@ export default function Page() {
 
         {/* Hero */}
         <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
-          <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(4rem,12vw,10rem)] font-semibold leading-[0.92] tracking-[-0.03em] uppercase">
+          <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(3.5rem,10vw,8rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center">
             <span className="text-[#0504aa]">SENTINÉZ</span>
-            <br />
-            <span className="text-[#0a0a0a] text-9xl">THREATS BLOCKED</span>
+            <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden min-w-[300px]">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={langIndex}
+                  initial={{ y: 25, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -25, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  className="text-[#0a0a0a] text-[clamp(2rem,6vw,5.5rem)] whitespace-nowrap block"
+                >
+                  {MULTI_LANG_TEXTS[langIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
           </h1>
           <p className="mt-8 [font-family:'Phudu',sans-serif] text-[clamp(0.65rem,1.5vw,0.85rem)] tracking-[0.2em] text-[#999] uppercase min-h-[1.4em]">
             {displayed}

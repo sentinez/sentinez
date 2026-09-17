@@ -6,7 +6,7 @@
 [![License-img](https://img.shields.io/badge/License-Creative%20Commons-blue)](https://creativecommons.org/licenses/by/4.0/)
 ![Mwgo](https://img.shields.io/badge/Made%20with-Go-blue?logo=go)
 
-### 🛡️ Sentinéz - A reverse proxy with many antioxidants
+### 🛡️ Sentinéz - Intelligent security platform with many antioxidants
 
 > [!WARNING]
 > Please keep in mind that ***Sentinéz*** is still under active development
