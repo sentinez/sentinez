@@ -1,7 +1,6 @@
 {
   "extends": "@sentinez/tsconfig/react-library.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@sentinez/ui/*": [
         "./src/*"

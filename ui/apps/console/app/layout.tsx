@@ -15,8 +15,31 @@ const fontMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Sentinez',
-  description: 'Sentinez',
+  title: 'Sentinéz — On Your Side',
+  description: 'Security and protection for modern applications.',
+
+  openGraph: {
+    title: 'Sentinéz — On Your Side',
+    description: 'Security and protection for modern applications.',
+    url: 'https://s6z.io.vn/',
+    siteName: 'Sentinéz',
+    type: 'website',
+    images: [
+      {
+        url: 'https://s6z.io.vn/images/sntz.png',
+        width: 1200,
+        height: 630,
+        alt: 'Sentinéz — On Your Side',
+      },
+    ],
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sentinéz — On Your Side',
+    description: 'Security and protection for modern applications.',
+    images: ['https://s6z.io.vn/images/sntz.png'],
+  },
 };
 
 export default function RootLayout({
