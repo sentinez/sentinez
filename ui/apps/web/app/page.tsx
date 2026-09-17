@@ -7,22 +7,17 @@ import { AnimatePresence, motion } from 'motion/react';
 const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
 
 const MULTI_LANG_TEXTS = [
-  'Like A Sentinel', // UK
-  'Giống Như Người Canh Giác', // VN
-  '如同哨兵', // CN
-  'Как часовой', // RU
-  'एक प्रहरी की तरह', // IN (Hindi)
-  '파수꾼처럼', // KR
-  'Like A Sentinel', // US
-  'センチネルのように', // JP
-  'Like A Sentinel', // AU
-  'Comme une sentinelle', // FR
-  'Seperti Sentinel', // MY
-  'Like A Sentinel', // NZ
-  'Seperti Sentinel', // ID
-  'Like A Sentinel', // SG
-  'ดั่งยามเฝ้า', // TH
-  'Comme une sentinelle', // EU/FR
+  'On Your Side', // US — English
+  'Luôn Bên Bạn', // VN — Vietnamese
+  '站在你这边', // CN — Chinese
+  'На твоей стороне', // RU — Russian
+  'आपके साथ', // IN — Hindi
+  '당신의 편에서', // KR — Korean
+  'あなたの味方', // JP — Japanese
+  'À vos côtés', // FR — French
+  'Di Sisi Anda', // MY — Malay
+  'อยู่เคียงข้างคุณ', // TH — Thai
+  'An Ihrer Seite', // EU — German
 ];
 
 const CARDS = [

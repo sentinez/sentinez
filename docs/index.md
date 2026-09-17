@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "Sentinéz Engineering"
   text: "technical documents"
-  tagline: Like A Sentinel
+  tagline: "On Your Side"
   image:
     src: /logo.png
     alt: sentinez

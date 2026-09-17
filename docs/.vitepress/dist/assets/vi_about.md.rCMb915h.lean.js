@@ -1,0 +1,1 @@
+import{G as e,W as t,n,rt as r}from"./chunks/framework.DBm3e_pg.js";var i=JSON.parse(`{"title":"Về Sentinéz","description":"","frontmatter":{},"headers":[],"relativePath":"vi/about.md","filePath":"vi/about.md"}`),a={name:`vi/about.md`};function o(n,i,a,o,s,c){return r(),t(`div`,null,[...i[0]||=[e("",17)]])}var s=n(a,[[`render`,o]]);export{i as __pageData,s as default};
