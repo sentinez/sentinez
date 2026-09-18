@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import '@sentinez/ui/globals.css';
+import '@sentinez/ui/custom.css';
+
 import { Providers } from '@/components/providers';
 import { Metadata } from 'next';
 

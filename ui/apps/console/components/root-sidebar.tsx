@@ -264,7 +264,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                 size="default"
                                 onClick={() => handlerSidebarChildrenClick(item, index)}
                                 className="px-2.5 md:px-2 cursor-pointer"
-                                isActive={tabIndex === index}
+                                isActive={tabIndex === index && subTabIndex === -1}
                               >
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
@@ -288,7 +288,13 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                       >
                                         <div>
                                           {subItem.icon && <subItem.icon />}
-                                          <span>{subItem.title}</span>
+                                          <span
+                                            className={
+                                              subTabIndex === subIndex ? 'font-semibold' : ''
+                                            }
+                                          >
+                                            {subItem.title}
+                                          </span>
                                         </div>
                                       </SidebarMenuSubButton>
                                     </SidebarMenuSubItem>

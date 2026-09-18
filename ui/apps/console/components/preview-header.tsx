@@ -15,17 +15,22 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
       <div className="w-full border-b border-border bg-background px-3 py-1">
         <div className="flex w-full flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Image
-              alt="sentinez"
-              src="/assets/sentinez.png"
-              loading="eager"
-              width={65}
-              height={15}
-              className="w-16 h-auto"
-            />
-
+            <span
+              className="[font-family:'Phudu',sans-serif]
+              font-bold
+              text-xs 
+              bg-gradient-to-r
+              from-cyan-400 
+              via-blue-500
+              to-purple-600
+              bg-[length:200%_auto]
+              bg-clip-text
+              text-transparent
+              animate-gradient"
+            >
+              SENTINÉZ
+            </span>
             <span className="hidden text-muted-foreground sm:inline">·</span>
-
             <p className="hidden text-xs text-muted-foreground sm:block">
               Welcome back, {props.username}
             </p>

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { ArrowUpRight } from 'lucide-react';
 
 const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
 
@@ -25,19 +26,19 @@ const CARDS = [
     label: 'WEB APPLICATION FIREWALL',
     title: 'PROTECT',
     link: '/dashboard',
-    linkLabel: 'GET STARTED ↗',
+    linkLabel: 'GET STARTED',
   },
   {
     label: 'REAL-TIME THREAT DETECTION',
     title: 'DETECT',
     link: '/threats',
-    linkLabel: 'VIEW THREATS ↗',
+    linkLabel: 'VIEW THREATS',
   },
   {
     label: 'OPEN PLATFORM',
     title: 'GITHUB',
     link: 'https://github.com/sentinez',
-    linkLabel: '/SENTINEZ ↗',
+    linkLabel: '/SENTINEZ',
   },
 ];
 
@@ -75,11 +76,16 @@ export default function Page() {
 
   return (
     <>
-      {/* Phudu font must be loaded via @import */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Phudu:wght@400;600;700;900&display=swap');`}</style>
-
       {/* Root */}
-      <div className="bg-white text-[#0a0a0a] min-h-svh flex flex-col overflow-x-hidden [font-family:'Phudu',sans-serif]">
+      <div
+        className="text-[#0a0a0a] min-h-svh flex flex-col overflow-x-hidden [font-family:'Phudu',sans-serif]
+        bg-gradient-to-r
+        from-white
+        via-gray-200
+        to-white
+        bg-[length:200%_200%]
+        animate-gradient"
+      >
         {/* Header — logo | card nav | studio */}
         <header className="flex flex-col md:flex-row items-stretch justify-between border-b border-black/[0.08]">
           {/* Top bar on mobile (Logo + Studio stamp) */}
@@ -124,7 +130,7 @@ export default function Page() {
                     {card.title}
                   </span>
                   <span className="text-[0.55rem] tracking-[0.15em] text-[#888] group-hover:text-[#0057ff] uppercase whitespace-nowrap transition-colors duration-200">
-                    {card.linkLabel}
+                    {card.linkLabel} <ArrowUpRight strokeWidth={1} />
                   </span>
                 </div>
               </a>

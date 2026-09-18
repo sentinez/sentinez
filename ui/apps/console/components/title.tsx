@@ -22,7 +22,7 @@ export default function Title({ children, title, subtitle }: TitleProps) {
       </div>
       <div className="flex justify-between p-3 w-full">
         <div className="flex flex-col">
-          <p className="text-lg font-semibold tracking-tight sm:text-2xl">{title}</p>
+          <p className="text-lg font-semibold tracking-tight sm:text-lg">{title}</p>
           <p className="text-[1.05rem] text-muted-foreground sm:text-base sm:text-balance">
             {subtitle}
           </p>
