@@ -14,7 +14,7 @@ export default function Title({ children, title, subtitle }: TitleProps) {
   const router = useRouter();
 
   return (
-    <div className="flex w-full sticky top-[45px] bg-background border-b">
+    <div className="flex max-w-7xl p-2.25 sticky top-11.25 bg-background border-b">
       <div className="h-full items-center flex">
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ChevronLeft className="w-5 h-5" />
