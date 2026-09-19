@@ -1,5 +1,5 @@
 import IsLoading from '@/components/main-loading';
 
 export default function Loading() {
-  return <IsLoading timeout={2000} />;
+  return <IsLoading timeout={1500} />;
 }

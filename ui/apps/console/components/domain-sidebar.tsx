@@ -375,7 +375,7 @@ export function DomainSidebarInset({ children }: { children: ReactNode }) {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-4 max-w-7xl">{children}</div>
+      <div className="flex flex-1 flex-col gap-4">{children}</div>
       <PreviewFooter />
     </SidebarInset>
   );

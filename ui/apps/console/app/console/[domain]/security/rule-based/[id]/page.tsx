@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
@@ -38,23 +37,24 @@ import { Switch } from '@sentinez/ui/components/switch';
 import { getRuleBased } from '@/lib/api/security';
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import PageLayout from '@/components/page-layout';
+import { useEffect, useState } from 'react';
 
 export default function EditRuleBasedPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const [loading, setLoading] = React.useState(true);
-  const [saving, setSaving] = React.useState(false);
-  const [alignItemWithTrigger, setAlignItemWithTrigger] = React.useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [alignItemWithTrigger, setAlignItemWithTrigger] = useState(true);
 
   // form state
-  const [name, setName] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [priority, setPriority] = React.useState('1');
-  const [query, setQuery] = React.useState<RuleBased | undefined>(undefined);
-  const [actionJson, setActionJson] = React.useState('BLOCK');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('1');
+  const [query, setQuery] = useState<RuleBased | undefined>(undefined);
+  const [actionJson, setActionJson] = useState('BLOCK');
 
-  const [id, setId] = React.useState<string | null>(null);
+  const [id, setId] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function load() {
       try {
         const { id } = await params;
@@ -102,7 +102,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <PageLayout>
+    <>
       <Title title="Edit Rule" subtitle="Modify security rule configuration and logic.">
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleSave}>
@@ -113,78 +113,80 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
       </Title>
-      <div className="grid gap-6 py-4">
-        <Card className="grid gap-2 shadow-none border-none">
-          <CardContent className="max-w-md grid gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
+      <PageLayout>
+        <div className="grid gap-6 py-4">
+          <Card className="grid gap-2 shadow-none border-none">
+            <CardContent className="max-w-md grid gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Input
-                id="priority"
-                type="number"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="grid gap-2 shadow-none border-none">
-          <CardHeader>
-            <CardTitle>Condition Logic (Rule Builder)</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Visually assemble natural expressions for routing and security rules.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FieldGroup className="w-full max-w-md py-6">
-              <Field orientation="horizontal">
-                <FieldContent>
-                  <FieldLabel htmlFor="align-item">Align Item</FieldLabel>
-                  <FieldDescription>Toggle to align the item with the trigger.</FieldDescription>
-                </FieldContent>
-                <Switch
-                  id="align-item"
-                  checked={alignItemWithTrigger}
-                  onCheckedChange={setAlignItemWithTrigger}
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
-              </Field>
-              <Field>
-                <Select defaultValue="banana">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent position={alignItemWithTrigger ? 'item-aligned' : 'popper'}>
-                    <SelectGroup>
-                      <SelectItem value="apple">Apple</SelectItem>
-                      <SelectItem value="banana">Banana</SelectItem>
-                      <SelectItem value="blueberry">Blueberry</SelectItem>
-                      <SelectItem value="grapes">Grapes</SelectItem>
-                      <SelectItem value="pineapple">Pineapple</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-            </FieldGroup>
-            <QueryBuilder layout="horizontal" initialQuery={query} onChange={setQuery} />
-          </CardContent>
-          <CardFooter></CardFooter>
-        </Card>
-      </div>
-    </PageLayout>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Input
+                  id="priority"
+                  type="number"
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="grid gap-2 shadow-none border-none">
+            <CardHeader>
+              <CardTitle>Condition Logic (Rule Builder)</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Visually assemble natural expressions for routing and security rules.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup className="w-full max-w-md py-6">
+                <Field orientation="horizontal">
+                  <FieldContent>
+                    <FieldLabel htmlFor="align-item">Align Item</FieldLabel>
+                    <FieldDescription>Toggle to align the item with the trigger.</FieldDescription>
+                  </FieldContent>
+                  <Switch
+                    id="align-item"
+                    checked={alignItemWithTrigger}
+                    onCheckedChange={setAlignItemWithTrigger}
+                  />
+                </Field>
+                <Field>
+                  <Select defaultValue="banana">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position={alignItemWithTrigger ? 'item-aligned' : 'popper'}>
+                      <SelectGroup>
+                        <SelectItem value="apple">Apple</SelectItem>
+                        <SelectItem value="banana">Banana</SelectItem>
+                        <SelectItem value="blueberry">Blueberry</SelectItem>
+                        <SelectItem value="grapes">Grapes</SelectItem>
+                        <SelectItem value="pineapple">Pineapple</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </FieldGroup>
+              <QueryBuilder layout="horizontal" initialQuery={query} onChange={setQuery} />
+            </CardContent>
+            <CardFooter></CardFooter>
+          </Card>
+        </div>
+      </PageLayout>
+    </>
   );
 }
 SelectLabel;
