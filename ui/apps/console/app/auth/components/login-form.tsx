@@ -15,17 +15,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
-        {/* <CardHeader className="text-center">
-          <CardTitle className="text-xl">
-            <a href="#" className="flex items-center gap-2 self-center font-medium">
-              <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
-              </div>
-              Sentinéz
-            </a>
-          </CardTitle>
-          <CardDescription className=" text-left">Login with your Sentinez account</CardDescription>
-        </CardHeader> */}
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">Login</CardTitle>
+          <CardDescription className=" text-center">
+            Login with your Sentinez account
+          </CardDescription>
+        </CardHeader>
         <CardContent>
           <form>
             <div className="grid gap-6">
