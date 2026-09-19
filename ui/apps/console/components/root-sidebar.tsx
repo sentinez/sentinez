@@ -34,7 +34,7 @@ import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
-import { ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
 import {
   Collapsible,
@@ -72,7 +72,8 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const [tabIndex, setTabIndex] = useState(-1);
   const [subTabIndex, setSubTabIndex] = useState(-1);
   const [search, setSearch] = useState('');
-  const { setOpen } = useSidebar();
+  const [mobileTab, setMobileTab] = useState<'main' | 'domain'>('domain');
+  const { setOpen, setOpenMobile, isMobile } = useSidebar();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -138,6 +139,13 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       setTabIndex(0);
       setNavIndex(index);
       setOpen(true);
+      if (isMobile) {
+        if (item.items && item.items.length > 0) {
+          setMobileTab('domain');
+        } else {
+          setOpenMobile(false);
+        }
+      }
     });
   };
 
@@ -146,6 +154,9 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
     startTransitionChildren(() => {
       setTabIndex(index);
+      if (isMobile && (!item.items || item.items.length === 0)) {
+        setOpenMobile(false);
+      }
     });
   };
 
@@ -154,19 +165,57 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
     startTransitionChildren(() => {
       setSubTabIndex(index);
+      if (isMobile) {
+        setOpenMobile(false);
+      }
     });
   };
 
   return (
     <Sidebar
       collapsible="icon"
-      className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
+      className="overflow-hidden *:data-[sidebar=sidebar]:flex-row flex-col md:flex-row"
       {...props}
     >
+      {isMobile && (
+        <div className="flex items-center border-b p-2 bg-sidebar text-sm font-medium gap-1 shrink-0 w-full">
+          <button
+            type="button"
+            onClick={() => setMobileTab('main')}
+            className={cn(
+              'flex-1 py-1.5 px-3 rounded-md text-center transition-colors cursor-pointer text-xs font-semibold',
+              mobileTab === 'main'
+                ? 'bg-accent text-accent-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+            )}
+          >
+            Main
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('domain')}
+            className={cn(
+              'flex-1 py-1.5 px-3 rounded-md text-center transition-colors cursor-pointer text-xs font-semibold truncate',
+              mobileTab === 'domain'
+                ? 'bg-accent text-accent-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+            )}
+          >
+            {activeItem?.title || 'Domain'}
+          </button>
+        </div>
+      )}
+
       {/* This is the first sidebar */}
       {/* We disable collapsible and adjust width to icon. */}
       {/* This will make the sidebar appear as icons. */}
-      <Sidebar collapsible="none" className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r">
+      <Sidebar
+        collapsible="none"
+        className={cn(
+          'w-[calc(var(--sidebar-width-icon)+1px)]! border-r',
+          mobileTab === 'main' ? 'flex w-full' : 'hidden md:flex',
+        )}
+      >
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -217,8 +266,21 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
 
       {/* This is the second sidebar */}
       {/* We disable collapsible and let it fill remaining space */}
-      <Sidebar collapsible="none" className="hidden flex-1 md:flex">
+      <Sidebar
+        collapsible="none"
+        className={cn('flex-1', mobileTab === 'domain' ? 'flex w-full' : 'hidden md:flex')}
+      >
         <SidebarHeader className="gap-3.5 border-b p-4">
+          {isMobile && (
+            <button
+              type="button"
+              onClick={() => setMobileTab('main')}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium -mb-1"
+            >
+              <ChevronLeft className="size-4" />
+              <span>Back to Main</span>
+            </button>
+          )}
           <TeamSwitcher teams={dashboard.tenant} />
           {loading ? (
             <SidebarLoading />
