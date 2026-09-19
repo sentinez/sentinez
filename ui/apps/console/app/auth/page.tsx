@@ -73,18 +73,10 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div
-        className="relative hidden lg:flex 
-        bg-gradient-to-r
-        from-cyan-500
-        via-blue-500
-        to-purple-600
-        bg-[length:200%_200%]
-        animate-gradient"
-      >
+      <div className="relative hidden lg:flex animated-gradient">
         <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 md:px-6 md:py-12">
           <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(2.5rem,8vw,8rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center max-w-full">
-            <span className="text-white">SENTINÉZ</span>
+            <span className=" text-white">SENTINÉZ</span>
             <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden max-w-full">
               <AnimatePresence mode="wait">
                 <motion.span

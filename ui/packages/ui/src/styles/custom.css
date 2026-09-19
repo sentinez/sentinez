@@ -17,3 +17,17 @@
 .animate-gradient {
   animation: gradient 3s ease infinite;
 }
+
+.animated-gradient {
+  position: relative;
+  background: linear-gradient(45deg, #7ca5de 0%, #357de5 50%, #6bd1a9 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease alternate infinite;
+  overflow: hidden;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

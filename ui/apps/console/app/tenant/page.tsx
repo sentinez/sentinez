@@ -1,7 +1,7 @@
 import { Tenant, TeamJoin } from './components/card';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 1500));
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
