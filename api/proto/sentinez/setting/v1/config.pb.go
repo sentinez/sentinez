@@ -50,6 +50,8 @@ const (
 	Senz_SENZ_CONSUL_URI         Senz = 8
 	Senz_SENZ_MEMBERSHIP_ADDRESS Senz = 9
 	Senz_SENZ_DISCOVERY_ADDRESS  Senz = 10
+	Senz_SENZ_ADMIN_USERNAME     Senz = 11
+	Senz_SENZ_ADMIN_PASSWORD     Senz = 12
 )
 
 // Enum value maps for Senz.
@@ -66,6 +68,8 @@ var (
 		8:  "SENZ_CONSUL_URI",
 		9:  "SENZ_MEMBERSHIP_ADDRESS",
 		10: "SENZ_DISCOVERY_ADDRESS",
+		11: "SENZ_ADMIN_USERNAME",
+		12: "SENZ_ADMIN_PASSWORD",
 	}
 	Senz_value = map[string]int32{
 		"SENZ_UNSPECIFIED":        0,
@@ -79,6 +83,8 @@ var (
 		"SENZ_CONSUL_URI":         8,
 		"SENZ_MEMBERSHIP_ADDRESS": 9,
 		"SENZ_DISCOVERY_ADDRESS":  10,
+		"SENZ_ADMIN_USERNAME":     11,
+		"SENZ_ADMIN_PASSWORD":     12,
 	}
 )
 
@@ -180,7 +186,7 @@ const file_sentinez_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2$.sentinez.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\x84\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xb6\x02\n" +
 	"\x04Senz\x12\x14\n" +
 	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
@@ -193,7 +199,9 @@ const file_sentinez_setting_v1_config_proto_rawDesc = "" +
 	"\x0fSENZ_CONSUL_URI\x10\b\x12\x1b\n" +
 	"\x17SENZ_MEMBERSHIP_ADDRESS\x10\t\x12\x1a\n" +
 	"\x16SENZ_DISCOVERY_ADDRESS\x10\n" +
-	"BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/setting/v1;settingpbb\x06proto3"
+	"\x12\x17\n" +
+	"\x13SENZ_ADMIN_USERNAME\x10\v\x12\x17\n" +
+	"\x13SENZ_ADMIN_PASSWORD\x10\fBFZDgithub.com/sentinez/sentinez/api/proto/sentinez/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_setting_v1_config_proto_rawDescOnce sync.Once

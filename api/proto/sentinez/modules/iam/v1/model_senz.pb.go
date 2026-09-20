@@ -34,4 +34,5 @@ const (
 	User_FullName    = "full_name"
 	User_EmailBackup = "email_backup"
 	User_PhoneNumber = "phone_number"
+	User_Console     = "console"
 )

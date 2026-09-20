@@ -33,10 +33,8 @@ message Resource {
     string: { prefix: "senz.tenant.resources." }
   }];
   sentinez.dmz.edge.v1.Setting resource_setting = 3;
-  string resource_domain = 4
-      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string resource_name = 5
-      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string resource_domain = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string resource_name = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   sentinez.types.v1.Status status = 6;
   sentinez.types.v1.Plan plan = 7;
 }

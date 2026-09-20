@@ -768,6 +768,9 @@
         },
         "phoneNumber": {
           "type": "string"
+        },
+        "console": {
+          "$ref": "#/definitions/v1Console"
         }
       }
     }

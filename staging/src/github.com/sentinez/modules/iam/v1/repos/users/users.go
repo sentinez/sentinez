@@ -57,6 +57,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 			iampb.User_EmailBackup: postgres.String,
 			iampb.User_PhoneNumber: postgres.String,
 			iampb.User_FullName:    postgres.String,
+			iampb.User_Console:     postgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -137,6 +138,7 @@ func (u *Users) Create(ctx context.Context,
 		iampb.User_EmailBackup: user.GetEmailBackup(),
 		iampb.User_FullName:    user.GetFullName(),
 		iampb.User_PhoneNumber: user.GetPhoneNumber(),
+		iampb.User_Console:     user.GetConsole(),
 	})
 
 	if _, err := u.storage.Insert(ctx, query); err != nil {
@@ -188,6 +190,7 @@ func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		iampb.User_EmailBackup,
 		iampb.User_FullName,
 		iampb.User_PhoneNumber,
+		iampb.User_Console,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -219,6 +222,7 @@ func scanOne(row dbx.Row) (*iampb.User, error) {
 		&user.EmailBackup,
 		&user.FullName,
 		&user.PhoneNumber,
+		&user.Console,
 		&createdAt,
 		&updatedAt,
 	)

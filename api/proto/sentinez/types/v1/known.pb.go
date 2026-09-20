@@ -243,8 +243,10 @@ type LogKind int32
 const (
 	LogKind_LOG_KIND_UNSPECIFIED LogKind = 0
 	LogKind_LOG_KIND_HTTP        LogKind = 1
-	LogKind_LOG_KIND_WAF         LogKind = 2
-	LogKind_LOG_KIND_RULE        LogKind = 3
+	LogKind_LOG_KIND_WAF_RULESET LogKind = 2
+	LogKind_LOG_KIND_RULE_BASED  LogKind = 3
+	LogKind_LOG_KIND_RATE_LIMIT  LogKind = 4
+	LogKind_LOG_KIND_CDN_RULE    LogKind = 5
 )
 
 // Enum value maps for LogKind.
@@ -252,14 +254,18 @@ var (
 	LogKind_name = map[int32]string{
 		0: "LOG_KIND_UNSPECIFIED",
 		1: "LOG_KIND_HTTP",
-		2: "LOG_KIND_WAF",
-		3: "LOG_KIND_RULE",
+		2: "LOG_KIND_WAF_RULESET",
+		3: "LOG_KIND_RULE_BASED",
+		4: "LOG_KIND_RATE_LIMIT",
+		5: "LOG_KIND_CDN_RULE",
 	}
 	LogKind_value = map[string]int32{
 		"LOG_KIND_UNSPECIFIED": 0,
 		"LOG_KIND_HTTP":        1,
-		"LOG_KIND_WAF":         2,
-		"LOG_KIND_RULE":        3,
+		"LOG_KIND_WAF_RULESET": 2,
+		"LOG_KIND_RULE_BASED":  3,
+		"LOG_KIND_RATE_LIMIT":  4,
+		"LOG_KIND_CDN_RULE":    5,
 	}
 )
 
@@ -483,12 +489,14 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPLAN_FREE\x10\x01\x12\x11\n" +
 	"\rPLAN_STANDARD\x10\x02\x12\f\n" +
-	"\bPLAN_PRO\x10\x03*[\n" +
+	"\bPLAN_PRO\x10\x03*\x99\x01\n" +
 	"\aLogKind\x12\x18\n" +
 	"\x14LOG_KIND_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rLOG_KIND_HTTP\x10\x01\x12\x10\n" +
-	"\fLOG_KIND_WAF\x10\x02\x12\x11\n" +
-	"\rLOG_KIND_RULE\x10\x03*\xb3\x01\n" +
+	"\rLOG_KIND_HTTP\x10\x01\x12\x18\n" +
+	"\x14LOG_KIND_WAF_RULESET\x10\x02\x12\x17\n" +
+	"\x13LOG_KIND_RULE_BASED\x10\x03\x12\x17\n" +
+	"\x13LOG_KIND_RATE_LIMIT\x10\x04\x12\x15\n" +
+	"\x11LOG_KIND_CDN_RULE\x10\x05*\xb3\x01\n" +
 	"\x06Errors\x12\x16\n" +
 	"\x12ERRORS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ERRORS_INTERNAL_ERROR\x10\x01\x12\x14\n" +

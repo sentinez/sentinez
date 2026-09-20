@@ -155,7 +155,7 @@ func (srv *IAMService) PasskeyLoginChallenge(
 	emailOrUsername := req.GetEmailOrUsername()
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, emailOrUsername)
 	if err != nil {
-		if !errorx.NotRowsNotFound(err) {
+		if errorx.IsNoRows(err) {
 			return nil, errorx.StatusNotFoundF(
 				"not found username or email=%s", emailOrUsername)
 		}
@@ -268,7 +268,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 func (srv *IAMService) createAccountExtend(
 	ctx context.Context, account *iampb.Account) (*accrepos.AccountX, error) {
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
-	if err != nil && errorx.NotRowsNotFound(err) {
+	if err != nil && !errorx.IsNoRows(err) {
 		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
 		return nil, err
 	}
@@ -321,7 +321,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, username)
-	if errorx.NotRowsNotFound(err) {
+	if !errorx.IsNoRows(err) {
 		return err
 	}
 
@@ -331,7 +331,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	}
 
 	acc, err = srv.accounts.GetByUsernameOrEmail(ctx, email)
-	if errorx.NotRowsNotFound(err) {
+	if !errorx.IsNoRows(err) {
 		return err
 	}
 	if acc.GetId() != "" {
@@ -374,6 +374,7 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 		FullName:    req.GetFullName(),
 		EmailBackup: req.GetEmail(),
 		PhoneNumber: req.GetPhoneNumber(),
+		Console:     typepb.Console_CONSOLE_PORTAL,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -412,8 +413,38 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 	return acc, nil
 }
 
+func (srv *IAMService) loginAdmin(
+	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
+
+	if req.GetPassword() != srv.config.Get(settingpb.Senz_SENZ_ADMIN_PASSWORD) {
+		return nil, errorx.StatusUnauthorizedF(
+			"username, email or password is wrong!")
+	}
+
+	accessToken, err := crypto.TokenGenerator(&typepb.Context{
+		Name:     req.GetEmailOrUsername(),
+		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:   "sentinez.admin",
+		Console:  typepb.Console_CONSOLE_ADMIN,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &iampb.LoginResponse{User: &iampb.User{
+		FullName: req.GetEmailOrUsername(),
+		Console:  typepb.Console_CONSOLE_ADMIN,
+		Id:       "sentinez.admin",
+	}, AccessToken: accessToken}, nil
+}
+
 func (srv *IAMService) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
+
+	if req.GetEmailOrUsername() ==
+		srv.config.Get(settingpb.Senz_SENZ_ADMIN_USERNAME) {
+		return srv.loginAdmin(req)
+	}
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, req.GetEmailOrUsername())
 	if err != nil {
@@ -432,16 +463,11 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	console := typepb.Console_CONSOLE_PORTAL
-	if acc.GetUsername() == "admin" {
-		console = typepb.Console_CONSOLE_ADMIN
-	}
-
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
 		Name:     user.GetFullName(),
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 		UserId:   user.GetId(),
-		Console:  console,
+		Console:  typepb.Console_CONSOLE_PORTAL,
 	})
 	if err != nil {
 		return nil, err
@@ -454,7 +480,7 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if errorx.NotRowsNotFound(err) {
+	if !errorx.IsNoRows(err) {
 		return nil, err
 	}
 
@@ -468,6 +494,7 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 		FullName:    request.GetFullName(),
 		EmailBackup: request.GetEmail(),
 		PhoneNumber: request.GetPhoneNumber(),
+		Console:     typepb.Console_CONSOLE_PORTAL,
 	})
 	if err != nil {
 		return nil, err
@@ -529,7 +556,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if errorx.NotRowsNotFound(err) {
+	if !errorx.IsNoRows(err) {
 		return nil, err
 	}
 

@@ -58,8 +58,10 @@ enum Plan {
 enum LogKind {
   LOG_KIND_UNSPECIFIED = 0;
   LOG_KIND_HTTP = 1;
-  LOG_KIND_WAF = 2;
-  LOG_KIND_RULE = 3;
+  LOG_KIND_WAF_RULESET = 2;
+  LOG_KIND_RULE_BASED = 3;
+  LOG_KIND_RATE_LIMIT = 4;
+  LOG_KIND_CDN_RULE = 5;
 }
 
 enum Errors {

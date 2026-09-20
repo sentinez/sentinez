@@ -26,6 +26,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -151,7 +152,11 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 
 	resp, err := acc.storage.CollectOneRow(ctx, builder, scanOne)
 	if err != nil {
-		return &AccountX{}, err
+		if !errorx.IsNoRows(err) {
+			return nil, err
+		}
+
+		return nil, errorx.ErrNotFound
 	}
 
 	return resp, nil
@@ -287,7 +292,7 @@ func scanOne(row dbx.Row) (*AccountX, error) {
 		&updatedAt,
 	)
 	if err != nil {
-		zlog.Debugf("postgres: in tx=false query: %s", row)
+		zlog.Debugf("postgres: in tx=false query: %v", row)
 		return nil, err
 	}
 

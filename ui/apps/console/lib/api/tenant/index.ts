@@ -28,7 +28,7 @@ export async function getResourceByDomain(domain: string, options?: ApiOptions) 
     return resp.data.resource ?? null;
   } catch (err: any) {
     if (axios.isCancel(err)) throw err;
-    console.error('Error fetching resource by domain:', err.message);
+    // console.error('Error fetching resource by domain:', err.message);
     return null;
   }
 }

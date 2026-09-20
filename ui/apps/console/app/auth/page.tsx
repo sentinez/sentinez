@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import View from './view';
+import View from './components/view';
 import IsLoading from '@/components/main-loading';
+import { LoginForm } from './components/login-form';
 
 export default function Page() {
   const [loading, setLoading] = useState(true);
@@ -18,5 +19,9 @@ export default function Page() {
 
   if (loading) return <IsLoading timeout={1000} />;
 
-  return <View />;
+  return (
+    <View>
+      <LoginForm />
+    </View>
+  );
 }

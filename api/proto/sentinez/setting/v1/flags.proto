@@ -32,9 +32,7 @@ message Flag {
 
   // extra
   string env_file = 3;
-  string swagger_path = 4;
-  string api_specs_path = 5;
-  string proxy_config = 6;
-  string cert_file = 7;
-  string cert_key_file = 8;
+  string proxy_config = 4;
+  string cert_file = 5;
+  string cert_key_file = 6;
 }

@@ -9,7 +9,7 @@ import axios from 'axios';
  */
 export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[]) {
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(args[0] !== null);
   const [error, setError] = useState<any>(null);
 
   // Use a ref to store the previous args to avoid unnecessary re-fetches
@@ -22,6 +22,10 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
 
   const fetchData = useCallback(
     async (signal?: AbortSignal) => {
+      if (argsRef.current[0] === null) {
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       setError(null);
       try {

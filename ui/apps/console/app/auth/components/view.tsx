@@ -2,7 +2,7 @@
 
 import { LoginForm } from '@/app/auth/components/login-form';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
 const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
@@ -21,7 +21,7 @@ const MULTI_LANG_TEXTS = [
   'An Ihrer Seite', // EU — German
 ];
 
-export default function View() {
+export default function View({ children }: { children: ReactNode }) {
   const [displayed, setDisplayed] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
   const [langIndex, setLangIndex] = useState(0);
@@ -68,9 +68,7 @@ export default function View() {
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <LoginForm />
-          </div>
+          <div className="w-full max-w-xs">{children}</div>
         </div>
       </div>
       <div className="relative hidden lg:flex animated-gradient">
