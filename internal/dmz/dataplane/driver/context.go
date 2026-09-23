@@ -19,7 +19,7 @@ import (
 	"sync"
 
 	"github.com/cilium/ebpf/link"
-	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+	sentinezbpf "github.com/sentinez/bpf/sentinez"
 	"github.com/sentinez/shared/zlog"
 )
 

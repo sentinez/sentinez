@@ -3,6 +3,7 @@ module github.com/sentinez/sentinez
 go 1.27.1
 
 replace (
+	github.com/sentinez/bpf => ./staging/src/github.com/sentinez/bpf
 	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/modules => ./staging/src/github.com/sentinez/modules
@@ -12,12 +13,13 @@ replace (
 
 require (
 	github.com/a-h/templ v0.3.1020
-	github.com/cilium/ebpf v0.21.0
+	github.com/cilium/ebpf v0.22.0
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/olric-data/olric v0.7.4
+	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/modules v0.0.0-00010101000000-000000000000
@@ -139,5 +141,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )
-
-tool github.com/cilium/ebpf/cmd/bpf2go

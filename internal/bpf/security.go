@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+	sentinezbpf "github.com/sentinez/bpf/sentinez"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 )
 
