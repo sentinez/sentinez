@@ -98,4 +98,4 @@ jobs:
       - name: Sync sentinez/bpf
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash hack/ci/action_no_stag.sh bpf
+        run: bash hack/ci/action_sync.sh bpf
