@@ -14,26 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# sql generate tools
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-
-# grpc gateway & protocol buffer
-go install \
-    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
-    github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 \
-    google.golang.org/protobuf/cmd/protoc-gen-go \
-    google.golang.org/grpc/cmd/protoc-gen-go-grpc
-
-# mockup test
-go install github.com/vektra/mockery/v3@v3.5.5
-
-# proto lint
-go install github.com/bufbuild/buf/cmd/buf@v1.48.0
-
 # Go 1.16+
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Wire dependency injection
 go install github.com/google/wire/cmd/wire@latest
-
-go install github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto@latest

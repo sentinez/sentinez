@@ -35,7 +35,7 @@ func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
 		store: store,
 		logger: zlog.NewLog(
 			edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogKind_LOG_KIND_RULE, ll,
+			typepb.LogKind_LOG_KIND_RULE_BASED, ll,
 		),
 	}
 }

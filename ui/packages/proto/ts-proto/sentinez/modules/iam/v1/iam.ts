@@ -64,7 +64,6 @@ export interface CreateAccountRequest {
   fullName: string;
   password: string;
   email: string;
-  phoneNumber: string;
 }
 
 export interface CreateAccountResponse {
@@ -74,7 +73,6 @@ export interface CreateAccountResponse {
 export interface CreateUserRequest {
   fullName: string;
   email: string;
-  phoneNumber: string;
 }
 
 export interface CreateUserResponse {
@@ -93,7 +91,6 @@ export interface UpdateUserRequest {
   id: string;
   fullName: string;
   email: string;
-  phoneNumber: string;
 }
 
 export interface UpdateUserResponse {
@@ -112,7 +109,6 @@ export interface GetUserResponse {
 export interface ListUsersRequest {
   page?: Pages | undefined;
   ids: string[];
-  phoneNumbers: string[];
   emails: string[];
 }
 
@@ -979,7 +975,7 @@ export const LoginResponse: MessageFns<LoginResponse> = {
 };
 
 function createBaseCreateAccountRequest(): CreateAccountRequest {
-  return { username: "", fullName: "", password: "", email: "", phoneNumber: "" };
+  return { username: "", fullName: "", password: "", email: "" };
 }
 
 export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
@@ -995,9 +991,6 @@ export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
     }
     if (message.email !== "") {
       writer.uint32(34).string(message.email);
-    }
-    if (message.phoneNumber !== "") {
-      writer.uint32(42).string(message.phoneNumber);
     }
     return writer;
   },
@@ -1047,14 +1040,6 @@ export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
             message.email = reader.string();
             continue;
           }
-          case 5: {
-            if (tag !== 42) {
-              break;
-            }
-
-            message.phoneNumber = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1077,11 +1062,6 @@ export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
         : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      phoneNumber: isSet(object.phoneNumber)
-        ? globalThis.String(object.phoneNumber)
-        : isSet(object.phone_number)
-        ? globalThis.String(object.phone_number)
-        : "",
     };
   },
 
@@ -1099,9 +1079,6 @@ export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
-    if (message.phoneNumber !== "") {
-      obj.phoneNumber = message.phoneNumber;
-    }
     return obj;
   },
 
@@ -1114,7 +1091,6 @@ export const CreateAccountRequest: MessageFns<CreateAccountRequest> = {
     message.fullName = object.fullName ?? "";
     message.password = object.password ?? "";
     message.email = object.email ?? "";
-    message.phoneNumber = object.phoneNumber ?? "";
     return message;
   },
 };
@@ -1193,7 +1169,7 @@ export const CreateAccountResponse: MessageFns<CreateAccountResponse> = {
 };
 
 function createBaseCreateUserRequest(): CreateUserRequest {
-  return { fullName: "", email: "", phoneNumber: "" };
+  return { fullName: "", email: "" };
 }
 
 export const CreateUserRequest: MessageFns<CreateUserRequest> = {
@@ -1203,9 +1179,6 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
     }
     if (message.email !== "") {
       writer.uint32(18).string(message.email);
-    }
-    if (message.phoneNumber !== "") {
-      writer.uint32(26).string(message.phoneNumber);
     }
     return writer;
   },
@@ -1239,14 +1212,6 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
             message.email = reader.string();
             continue;
           }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.phoneNumber = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1267,11 +1232,6 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
         ? globalThis.String(object.full_name)
         : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      phoneNumber: isSet(object.phoneNumber)
-        ? globalThis.String(object.phoneNumber)
-        : isSet(object.phone_number)
-        ? globalThis.String(object.phone_number)
-        : "",
     };
   },
 
@@ -1283,9 +1243,6 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
-    if (message.phoneNumber !== "") {
-      obj.phoneNumber = message.phoneNumber;
-    }
     return obj;
   },
 
@@ -1296,7 +1253,6 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
     const message = createBaseCreateUserRequest();
     message.fullName = object.fullName ?? "";
     message.email = object.email ?? "";
-    message.phoneNumber = object.phoneNumber ?? "";
     return message;
   },
 };
@@ -1514,7 +1470,7 @@ export const StatusResponse: MessageFns<StatusResponse> = {
 };
 
 function createBaseUpdateUserRequest(): UpdateUserRequest {
-  return { id: "", fullName: "", email: "", phoneNumber: "" };
+  return { id: "", fullName: "", email: "" };
 }
 
 export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
@@ -1527,9 +1483,6 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
     }
     if (message.email !== "") {
       writer.uint32(90).string(message.email);
-    }
-    if (message.phoneNumber !== "") {
-      writer.uint32(98).string(message.phoneNumber);
     }
     return writer;
   },
@@ -1571,14 +1524,6 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
             message.email = reader.string();
             continue;
           }
-          case 12: {
-            if (tag !== 98) {
-              break;
-            }
-
-            message.phoneNumber = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1600,11 +1545,6 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
         ? globalThis.String(object.full_name)
         : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      phoneNumber: isSet(object.phoneNumber)
-        ? globalThis.String(object.phoneNumber)
-        : isSet(object.phone_number)
-        ? globalThis.String(object.phone_number)
-        : "",
     };
   },
 
@@ -1619,9 +1559,6 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
-    if (message.phoneNumber !== "") {
-      obj.phoneNumber = message.phoneNumber;
-    }
     return obj;
   },
 
@@ -1633,7 +1570,6 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
     message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
     message.email = object.email ?? "";
-    message.phoneNumber = object.phoneNumber ?? "";
     return message;
   },
 };
@@ -1858,7 +1794,7 @@ export const GetUserResponse: MessageFns<GetUserResponse> = {
 };
 
 function createBaseListUsersRequest(): ListUsersRequest {
-  return { page: undefined, ids: [], phoneNumbers: [], emails: [] };
+  return { page: undefined, ids: [], emails: [] };
 }
 
 export const ListUsersRequest: MessageFns<ListUsersRequest> = {
@@ -1869,11 +1805,8 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
     for (const v of message.ids) {
       writer.uint32(82).string(v!);
     }
-    for (const v of message.phoneNumbers) {
-      writer.uint32(90).string(v!);
-    }
     for (const v of message.emails) {
-      writer.uint32(98).string(v!);
+      writer.uint32(90).string(v!);
     }
     return writer;
   },
@@ -1912,14 +1845,6 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
               break;
             }
 
-            message.phoneNumbers.push(reader.string());
-            continue;
-          }
-          case 12: {
-            if (tag !== 98) {
-              break;
-            }
-
             message.emails.push(reader.string());
             continue;
           }
@@ -1939,11 +1864,6 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
-      phoneNumbers: globalThis.Array.isArray(object?.phoneNumbers)
-        ? object.phoneNumbers.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.phone_numbers)
-        ? object.phone_numbers.map((e: any) => globalThis.String(e))
-        : [],
       emails: globalThis.Array.isArray(object?.emails) ? object.emails.map((e: any) => globalThis.String(e)) : [],
     };
   },
@@ -1955,9 +1875,6 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
     }
     if (message.ids?.length) {
       obj.ids = message.ids;
-    }
-    if (message.phoneNumbers?.length) {
-      obj.phoneNumbers = message.phoneNumbers;
     }
     if (message.emails?.length) {
       obj.emails = message.emails;
@@ -1972,7 +1889,6 @@ export const ListUsersRequest: MessageFns<ListUsersRequest> = {
     const message = createBaseListUsersRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
-    message.phoneNumbers = object.phoneNumbers?.map((e) => e) || [];
     message.emails = object.emails?.map((e) => e) || [];
     return message;
   },

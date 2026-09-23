@@ -51,6 +51,8 @@ import {
   useState,
   useTransition,
 } from 'react';
+import { UserDataLocal } from '@/lib/type/common';
+import { SENTINEZ_USER_KEY } from '@/lib/const';
 
 export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
@@ -74,6 +76,19 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const [search, setSearch] = useState('');
   const [mobileTab, setMobileTab] = useState<'main' | 'domain'>('domain');
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
+
+  const [user, setUser] = useState<UserDataLocal>({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    const user = localStorage.getItem(SENTINEZ_USER_KEY);
+    if (user) {
+      setUser(JSON.parse(user));
+    }
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -260,7 +275,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={dashboard.user} />
+          <NavUser user={user} />
         </SidebarFooter>
       </Sidebar>
 
@@ -383,6 +398,19 @@ export function RootSidebarInset({ children }: { children: ReactNode }) {
   const [breadcrumbs, setBreadcrumbs] = useState<JSX.Element[]>([]);
   const pathname = usePathname();
 
+  const [user, setUser] = useState<UserDataLocal>({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    const user = localStorage.getItem(SENTINEZ_USER_KEY);
+    if (user) {
+      setUser(JSON.parse(user));
+    }
+  }, []);
+
   useEffect(() => {
     const pathArray = pathname.split('/').filter((path) => path !== '');
     const components = pathArray.map((path, index) => {
@@ -406,7 +434,7 @@ export function RootSidebarInset({ children }: { children: ReactNode }) {
 
   return (
     <SidebarInset>
-      <PreviewHeader username={dashboard.user.name} />
+      <PreviewHeader username={user.name} />
       <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
         <SidebarTrigger className="-ml-1 cursor-pointer" />
         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />

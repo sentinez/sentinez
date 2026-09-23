@@ -785,8 +785,6 @@ func (m *CreateAccountRequest) Validate() error {
 
 	// no validation rules for Email
 
-	// no validation rules for PhoneNumber
-
 	return nil
 }
 
@@ -926,8 +924,6 @@ func (m *CreateUserRequest) Validate() error {
 	// no validation rules for FullName
 
 	// no validation rules for Email
-
-	// no validation rules for PhoneNumber
 
 	return nil
 }
@@ -1212,8 +1208,6 @@ func (m *UpdateUserRequest) Validate() error {
 	// no validation rules for FullName
 
 	// no validation rules for Email
-
-	// no validation rules for PhoneNumber
 
 	return nil
 }

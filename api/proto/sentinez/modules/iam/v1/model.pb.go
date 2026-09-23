@@ -236,8 +236,8 @@ type User struct {
 	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	EmailBackup   string                 `protobuf:"bytes,11,opt,name=email_backup,json=emailBackup,proto3" json:"email_backup,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,12,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
+	Console       v1.Console             `protobuf:"varint,13,opt,name=console,proto3,enum=sentinez.types.v1.Console" json:"console,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,25 +293,25 @@ func (x *User) GetFullName() string {
 	return ""
 }
 
-func (x *User) GetEmailBackup() string {
+func (x *User) GetEmail() string {
 	if x != nil {
-		return x.EmailBackup
+		return x.Email
 	}
 	return ""
 }
 
-func (x *User) GetPhoneNumber() string {
+func (x *User) GetConsole() v1.Console {
 	if x != nil {
-		return x.PhoneNumber
+		return x.Console
 	}
-	return ""
+	return v1.Console(0)
 }
 
 var File_sentinez_modules_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_modules_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/modules/iam/v1/model.proto\x12\x17sentinez.modules.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc9\x03\n" +
+	"#sentinez/modules/iam/v1/model.proto\x12\x17sentinez.modules.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"\xc9\x03\n" +
 	"\aAccount\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
@@ -330,14 +330,14 @@ const file_sentinez_modules_iam_v1_model_proto_rawDesc = "" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1a\n" +
-	"\bprovider\x18\f \x01(\tR\bprovider\"\x81\x02\n" +
+	"\bprovider\x18\f \x01(\tR\bprovider\"\xec\x01\n" +
 	"\x04User\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
 	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12*\n" +
-	"\femail_backup\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\vemailBackup\x12<\n" +
-	"\fphone_number\x18\f \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber:\x06\xca\xf3\x18\x02\b\x01BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1;iampbb\x06proto3"
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x124\n" +
+	"\aconsole\x18\r \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole:\x06\xca\xf3\x18\x02\b\x01BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1;iampbb\x06proto3"
 
 var (
 	file_sentinez_modules_iam_v1_model_proto_rawDescOnce sync.Once
@@ -357,16 +357,18 @@ var file_sentinez_modules_iam_v1_model_proto_goTypes = []any{
 	(*AccountResponse)(nil), // 1: sentinez.modules.iam.v1.AccountResponse
 	(*User)(nil),            // 2: sentinez.modules.iam.v1.User
 	(*v1.Metadata)(nil),     // 3: sentinez.types.v1.Metadata
+	(v1.Console)(0),         // 4: sentinez.types.v1.Console
 }
 var file_sentinez_modules_iam_v1_model_proto_depIdxs = []int32{
 	3, // 0: sentinez.modules.iam.v1.Account.metadata:type_name -> sentinez.types.v1.Metadata
 	3, // 1: sentinez.modules.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.v1.Metadata
 	3, // 2: sentinez.modules.iam.v1.User.metadata:type_name -> sentinez.types.v1.Metadata
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	4, // 3: sentinez.modules.iam.v1.User.console:type_name -> sentinez.types.v1.Console
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_modules_iam_v1_model_proto_init() }

@@ -148,8 +148,8 @@ func Is(err error, target error) bool {
 	return false
 }
 
-func NotRowsNotFound(err error) bool {
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+func IsNoRows(err error) bool {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
 		return true
 	}
 

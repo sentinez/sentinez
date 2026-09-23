@@ -35,7 +35,7 @@ func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &WAF{
 		Node: corechains.NewNode(),
 		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogKind_LOG_KIND_WAF, logLevel,
+			typepb.LogKind_LOG_KIND_WAF_RULESET, logLevel,
 		),
 		store: store,
 	}

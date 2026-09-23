@@ -16,6 +16,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // ensure the imports are used
@@ -31,6 +33,8 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+
+	_ = typepb.Console(0)
 )
 
 // Validate checks the field values on Account with the rules defined in the
@@ -227,9 +231,9 @@ func (m *User) Validate() error {
 
 	// no validation rules for FullName
 
-	// no validation rules for EmailBackup
+	// no validation rules for Email
 
-	// no validation rules for PhoneNumber
+	// no validation rules for Console
 
 	return nil
 }

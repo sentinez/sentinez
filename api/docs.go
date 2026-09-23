@@ -13,3 +13,27 @@
 // limitations under the License.
 
 package api
+
+import (
+	"embed"
+	"io/fs"
+)
+
+var (
+
+	//go:embed docs/swagger
+	swagger embed.FS
+
+	//go:embed docs/v1
+	apiDocsV1 embed.FS
+)
+
+func DocsV1() fs.FS {
+	f, _ := fs.Sub(apiDocsV1, "docs/v1")
+	return f
+}
+
+func Swagger() fs.FS {
+	f, _ := fs.Sub(swagger, "docs/swagger")
+	return f
+}

@@ -53,10 +53,10 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
 		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
-			iampb.User_Id:          postgres.String,
-			iampb.User_EmailBackup: postgres.String,
-			iampb.User_PhoneNumber: postgres.String,
-			iampb.User_FullName:    postgres.String,
+			iampb.User_Id:       postgres.String,
+			iampb.User_Email:    postgres.String,
+			iampb.User_FullName: postgres.String,
+			iampb.User_Console:  postgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -86,11 +86,7 @@ func buildListQuery(builder sq.SelectBuilder,
 	}
 
 	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{iampb.User_EmailBackup: email})
-	}
-
-	for _, phone := range req.GetPhoneNumbers() {
-		builder = builder.Where(sq.Eq{iampb.User_PhoneNumber: phone})
+		builder = builder.Where(sq.Eq{iampb.User_Email: email})
 	}
 
 	return builder
@@ -133,10 +129,10 @@ func (u *Users) Create(ctx context.Context,
 
 	user.Id = rand.NewID(table.NewPrimaryKey(tables.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
-		iampb.User_Id:          user.GetId(),
-		iampb.User_EmailBackup: user.GetEmailBackup(),
-		iampb.User_FullName:    user.GetFullName(),
-		iampb.User_PhoneNumber: user.GetPhoneNumber(),
+		iampb.User_Id:       user.GetId(),
+		iampb.User_Email:    user.GetEmail(),
+		iampb.User_FullName: user.GetFullName(),
+		iampb.User_Console:  user.GetConsole(),
 	})
 
 	if _, err := u.storage.Insert(ctx, query); err != nil {
@@ -162,16 +158,12 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 
 	query := postgres.UpdateBuilder(u.storage, user.GetId())
 
-	if user.GetEmailBackup() != "" {
-		query = query.Set(iampb.User_EmailBackup, user.GetEmailBackup())
+	if user.GetEmail() != "" {
+		query = query.Set(iampb.User_Email, user.GetEmail())
 	}
 
 	if user.GetFullName() != "" {
 		query = query.Set(iampb.User_FullName, user.GetFullName())
-	}
-
-	if user.GetPhoneNumber() != "" {
-		query = query.Set(iampb.Account_PasswordHash, user.GetPhoneNumber())
 	}
 
 	_, err := u.storage.Exec(ctx, query)
@@ -185,9 +177,9 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(u.storage, page,
 		iampb.User_Id,
-		iampb.User_EmailBackup,
+		iampb.User_Email,
 		iampb.User_FullName,
-		iampb.User_PhoneNumber,
+		iampb.User_Console,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -216,9 +208,9 @@ func scanOne(row dbx.Row) (*iampb.User, error) {
 
 	err := row.Scan(
 		&user.Id,
-		&user.EmailBackup,
+		&user.Email,
 		&user.FullName,
-		&user.PhoneNumber,
+		&user.Console,
 		&createdAt,
 		&updatedAt,
 	)

@@ -46,10 +46,6 @@ func (m *Flag) Validate() error {
 
 	// no validation rules for EnvFile
 
-	// no validation rules for SwaggerPath
-
-	// no validation rules for ApiSpecsPath
-
 	// no validation rules for ProxyConfig
 
 	// no validation rules for CertFile

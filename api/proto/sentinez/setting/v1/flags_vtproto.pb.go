@@ -53,33 +53,19 @@ func (m *Flag) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.CertKeyFile)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertKeyFile)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x32
 	}
 	if len(m.CertFile) > 0 {
 		i -= len(m.CertFile)
 		copy(dAtA[i:], m.CertFile)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.CertFile)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x2a
 	}
 	if len(m.ProxyConfig) > 0 {
 		i -= len(m.ProxyConfig)
 		copy(dAtA[i:], m.ProxyConfig)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ProxyConfig)))
-		i--
-		dAtA[i] = 0x32
-	}
-	if len(m.ApiSpecsPath) > 0 {
-		i -= len(m.ApiSpecsPath)
-		copy(dAtA[i:], m.ApiSpecsPath)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ApiSpecsPath)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.SwaggerPath) > 0 {
-		i -= len(m.SwaggerPath)
-		copy(dAtA[i:], m.SwaggerPath)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.SwaggerPath)))
 		i--
 		dAtA[i] = 0x22
 	}
@@ -122,14 +108,6 @@ func (m *Flag) SizeVT() (n int) {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	l = len(m.EnvFile)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	l = len(m.SwaggerPath)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	l = len(m.ApiSpecsPath)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -276,70 +254,6 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SwaggerPath", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SwaggerPath = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApiSpecsPath", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApiSpecsPath = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ProxyConfig", wireType)
 			}
 			var stringLen uint64
@@ -370,7 +284,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			}
 			m.ProxyConfig = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CertFile", wireType)
 			}
@@ -402,7 +316,7 @@ func (m *Flag) UnmarshalVT(dAtA []byte) error {
 			}
 			m.CertFile = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CertKeyFile", wireType)
 			}

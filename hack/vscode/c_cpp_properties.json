@@ -1,19 +1,19 @@
 {
-    "configurations": [
-        {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/bpf/**",
-                "${workspaceFolder}/bpf/include"
-            ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.makefile-tools"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/staging/src/github.com/sentinez/**",
+        "${workspaceFolder}/staging/src/github.com/sentinez/bpf/**",
+        "${workspaceFolder}/staging/src/github.com/sentinez/bpf/include"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c17",
+      "cppStandard": "gnu++17",
+      "intelliSenseMode": "linux-gcc-x64",
+      "configurationProvider": "ms-vscode.makefile-tools"
+    }
+  ],
+  "version": 4
 }

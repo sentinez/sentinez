@@ -8,8 +8,8 @@ import (
 	"context"
 
 	"github.com/sentinez/core/storage/dbx/postgres"
-	usersrepo "github.com/sentinez/modules/iam/v1/repos/users"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
+	"github.com/sentinez/modules/iam/v1/repos/users"
+	"github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -19,10 +19,19 @@ func NewMockIUser(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockIUser {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockIUser{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -76,7 +85,7 @@ type MockIUser_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - user *iampb.User
-func (_e *MockIUser_Expecter) Create(ctx interface{}, user interface{}) *MockIUser_Create_Call {
+func (_e *MockIUser_Expecter) Create(ctx any, user any) *MockIUser_Create_Call {
 	return &MockIUser_Create_Call{Call: _e.mock.On("Create", ctx, user)}
 }
 
@@ -133,7 +142,7 @@ type MockIUser_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIUser_Expecter) Delete(ctx interface{}, id interface{}) *MockIUser_Delete_Call {
+func (_e *MockIUser_Expecter) Delete(ctx any, id any) *MockIUser_Delete_Call {
 	return &MockIUser_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
@@ -201,7 +210,7 @@ type MockIUser_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIUser_Expecter) Get(ctx interface{}, id interface{}) *MockIUser_Get_Call {
+func (_e *MockIUser_Expecter) Get(ctx any, id any) *MockIUser_Get_Call {
 	return &MockIUser_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
@@ -229,74 +238,6 @@ func (_c *MockIUser_Get_Call) Return(user *iampb.User, err error) *MockIUser_Get
 }
 
 func (_c *MockIUser_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*iampb.User, error)) *MockIUser_Get_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetByFullnameOrEmail provides a mock function for the type MockIUser
-func (_mock *MockIUser) GetByFullnameOrEmail(ctx context.Context, input string) (*iampb.User, error) {
-	ret := _mock.Called(ctx, input)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetByFullnameOrEmail")
-	}
-
-	var r0 *iampb.User
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*iampb.User, error)); ok {
-		return returnFunc(ctx, input)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *iampb.User); ok {
-		r0 = returnFunc(ctx, input)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*iampb.User)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, input)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockIUser_GetByFullnameOrEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByFullnameOrEmail'
-type MockIUser_GetByFullnameOrEmail_Call struct {
-	*mock.Call
-}
-
-// GetByFullnameOrEmail is a helper method to define mock.On call
-//   - ctx context.Context
-//   - input string
-func (_e *MockIUser_Expecter) GetByFullnameOrEmail(ctx interface{}, input interface{}) *MockIUser_GetByFullnameOrEmail_Call {
-	return &MockIUser_GetByFullnameOrEmail_Call{Call: _e.mock.On("GetByFullnameOrEmail", ctx, input)}
-}
-
-func (_c *MockIUser_GetByFullnameOrEmail_Call) Run(run func(ctx context.Context, input string)) *MockIUser_GetByFullnameOrEmail_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 string
-		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockIUser_GetByFullnameOrEmail_Call) Return(user *iampb.User, err error) *MockIUser_GetByFullnameOrEmail_Call {
-	_c.Call.Return(user, err)
-	return _c
-}
-
-func (_c *MockIUser_GetByFullnameOrEmail_Call) RunAndReturn(run func(ctx context.Context, input string) (*iampb.User, error)) *MockIUser_GetByFullnameOrEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -337,7 +278,7 @@ type MockIUser_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - req *iampb.ListUsersRequest
-func (_e *MockIUser_Expecter) List(ctx interface{}, req interface{}) *MockIUser_List_Call {
+func (_e *MockIUser_Expecter) List(ctx any, req any) *MockIUser_List_Call {
 	return &MockIUser_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
@@ -394,7 +335,7 @@ type MockIUser_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - user *iampb.User
-func (_e *MockIUser_Expecter) Update(ctx interface{}, user interface{}) *MockIUser_Update_Call {
+func (_e *MockIUser_Expecter) Update(ctx any, user any) *MockIUser_Update_Call {
 	return &MockIUser_Update_Call{Call: _e.mock.On("Update", ctx, user)}
 }
 
@@ -452,7 +393,7 @@ type MockIUser_WithTX_Call struct {
 
 // WithTX is a helper method to define mock.On call
 //   - tx *postgres.TxSession
-func (_e *MockIUser_Expecter) WithTX(tx interface{}) *MockIUser_WithTX_Call {
+func (_e *MockIUser_Expecter) WithTX(tx any) *MockIUser_WithTX_Call {
 	return &MockIUser_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
 }
 

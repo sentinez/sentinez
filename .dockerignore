@@ -2,7 +2,7 @@
 .idea/
 .vscode/
 
-_patches/
+_submodules/
 _logo/
 _audit
 

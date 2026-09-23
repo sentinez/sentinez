@@ -44,7 +44,7 @@ setting:
       - location: / # URL prefix to match incoming requests
         proxyRewrite: / # (Optional) rewrite prefix before forwarding
         proxyPass: # Destination origin upstream(s)
-          - server: shark-app-8dkwp.ondigitalocean.app
+          - server: finorio.demo.nextjstemplates.com
             protocol: PROXY_PROTOCOL_HTTPS
         balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
         proxySetHeaders:

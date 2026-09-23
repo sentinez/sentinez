@@ -17,6 +17,7 @@ package grpcgateway
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -29,6 +30,7 @@ import (
 	httpconst "github.com/sentinez/core/http/const"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -50,17 +52,19 @@ type Server interface {
 // New creates a new http server.
 func New(conf *settingpb.Config, opts ...runtime.ServeMuxOption) Server {
 	return &XServer{
-		runtimeMux: runtime.NewServeMux(opts...),
+		runtimeMux: runtime.NewServeMux(append(defaultSrvMuxOpt(), opts...)...),
 		httpMux:    http.NewServeMux(),
 		meta:       conf.GetMeta(),
+		server:     &http.Server{},
 	}
 }
 
 func NewServer(conf *settingpb.Config) Server {
 	return &XServer{
-		runtimeMux: runtime.NewServeMux(),
+		runtimeMux: runtime.NewServeMux(defaultSrvMuxOpt()...),
 		httpMux:    http.NewServeMux(),
 		meta:       conf.GetMeta(),
+		server:     &http.Server{},
 	}
 }
 
@@ -102,10 +106,10 @@ func (h *XServer) ListenAndServe(address string,
 	}
 
 	h.httpMux.Handle("/", h.runtimeMux)
-	h.server = &http.Server{
-		Addr:    address,
-		Handler: chain(h.httpMux, h.middlewares...),
-	}
+
+	h.server.Addr = address
+	h.server.Handler = chain(h.httpMux, h.middlewares...)
+
 	host, port, _ := net.SplitHostPort(address)
 
 	var option corehttp.Option
@@ -162,4 +166,41 @@ func extendHeader(next http.Handler) http.Handler {
 
 		w.Header().Set(httpconst.HeaderServer, core.Name)
 	})
+}
+
+func routingErrorHandler(ctx context.Context,
+	mux *runtime.ServeMux,
+	marshaler runtime.Marshaler,
+	writer http.ResponseWriter,
+	request *http.Request,
+	status int) {
+
+	runtime.DefaultRoutingErrorHandler(
+		ctx, mux, marshaler, writer, request, status)
+}
+
+func errorHandler(ctx context.Context,
+	mux *runtime.ServeMux,
+	marshaler runtime.Marshaler,
+	writer http.ResponseWriter,
+	request *http.Request,
+	err error) {
+
+	switch {
+	case errors.Is(err, errorx.ErrNotFound):
+		err = errorx.StatusNotFoundF("%v", err)
+	case errors.Is(err, errorx.ErrInvalidData):
+		err = errorx.StatusInvalidDataF("%v", err)
+	case errors.Is(err, errorx.ErrUnimplemented):
+		err = errorx.StatusUnimplementedF("%v", err)
+	}
+
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, writer, request, err)
+}
+
+func defaultSrvMuxOpt() []runtime.ServeMuxOption {
+	return []runtime.ServeMuxOption{
+		runtime.WithRoutingErrorHandler(routingErrorHandler),
+		runtime.WithErrorHandler(errorHandler),
+	}
 }

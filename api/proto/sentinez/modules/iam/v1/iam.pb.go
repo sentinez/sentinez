@@ -534,7 +534,6 @@ type CreateAccountRequest struct {
 	FullName      string                 `protobuf:"bytes,2,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,5,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -597,13 +596,6 @@ func (x *CreateAccountRequest) GetEmail() string {
 	return ""
 }
 
-func (x *CreateAccountRequest) GetPhoneNumber() string {
-	if x != nil {
-		return x.PhoneNumber
-	}
-	return ""
-}
-
 type CreateAccountResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
@@ -652,7 +644,6 @@ type CreateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FullName      string                 `protobuf:"bytes,1,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,3,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -697,13 +688,6 @@ func (x *CreateUserRequest) GetFullName() string {
 func (x *CreateUserRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
-	}
-	return ""
-}
-
-func (x *CreateUserRequest) GetPhoneNumber() string {
-	if x != nil {
-		return x.PhoneNumber
 	}
 	return ""
 }
@@ -845,7 +829,6 @@ type UpdateUserRequest struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,12,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -897,13 +880,6 @@ func (x *UpdateUserRequest) GetFullName() string {
 func (x *UpdateUserRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
-	}
-	return ""
-}
-
-func (x *UpdateUserRequest) GetPhoneNumber() string {
-	if x != nil {
-		return x.PhoneNumber
 	}
 	return ""
 }
@@ -1052,8 +1028,7 @@ type ListUsersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
-	PhoneNumbers  []string               `protobuf:"bytes,11,rep,name=phone_numbers,json=phoneNumbers,proto3" json:"phone_numbers,omitempty"`
-	Emails        []string               `protobuf:"bytes,12,rep,name=emails,proto3" json:"emails,omitempty"`
+	Emails        []string               `protobuf:"bytes,11,rep,name=emails,proto3" json:"emails,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1098,13 +1073,6 @@ func (x *ListUsersRequest) GetPage() *v1.Pages {
 func (x *ListUsersRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
-	}
-	return nil
-}
-
-func (x *ListUsersRequest) GetPhoneNumbers() []string {
-	if x != nil {
-		return x.PhoneNumbers
 	}
 	return nil
 }
@@ -1410,45 +1378,41 @@ const file_sentinez_modules_iam_v1_iam_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\"e\n" +
 	"\rLoginResponse\x121\n" +
 	"\x04user\x18\x01 \x01(\v2\x1d.sentinez.modules.iam.v1.UserR\x04user\x12!\n" +
-	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\"\xff\x01\n" +
+	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\"\xc1\x01\n" +
 	"\x14CreateAccountRequest\x12@\n" +
 	"\busername\x18\x01 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\tfull_name\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12#\n" +
 	"\bpassword\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\x12\x1d\n" +
-	"\x05email\x18\x04 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12<\n" +
-	"\fphone_number\x18\x05 \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber\"6\n" +
+	"\x05email\x18\x04 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"6\n" +
 	"\x15CreateAccountResponse\x12\x1d\n" +
 	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\"\x95\x01\n" +
+	"account_id\x18\x01 \x01(\tR\taccountId\"W\n" +
 	"\x11CreateUserRequest\x12#\n" +
 	"\tfull_name\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
-	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12<\n" +
-	"\fphone_number\x18\x03 \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber\"-\n" +
+	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"-\n" +
 	"\x12CreateUserResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x0f\n" +
 	"\rStatusRequest\"X\n" +
 	"\x0eStatusResponse\x12\x10\n" +
 	"\x03msg\x18\x01 \x01(\tR\x03msg\x124\n" +
-	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"\xbc\x01\n" +
+	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"~\n" +
 	"\x11UpdateUserRequest\x12%\n" +
 	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12<\n" +
-	"\fphone_number\x18\f \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber\"G\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"G\n" +
 	"\x12UpdateUserResponse\x121\n" +
 	"\x04user\x18\x01 \x01(\v2\x1d.sentinez.modules.iam.v1.UserR\x04user\"V\n" +
 	"\x0eGetUserRequest\x12%\n" +
 	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12\x1d\n" +
 	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"D\n" +
 	"\x0fGetUserResponse\x121\n" +
-	"\x04user\x18\x01 \x01(\v2\x1d.sentinez.modules.iam.v1.UserR\x04user\"\x8f\x01\n" +
+	"\x04user\x18\x01 \x01(\v2\x1d.sentinez.modules.iam.v1.UserR\x04user\"j\n" +
 	"\x10ListUsersRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\x12#\n" +
-	"\rphone_numbers\x18\v \x03(\tR\fphoneNumbers\x12\x16\n" +
-	"\x06emails\x18\f \x03(\tR\x06emails\"^\n" +
+	" \x03(\tR\x03ids\x12\x16\n" +
+	"\x06emails\x18\v \x03(\tR\x06emails\"^\n" +
 	"\x11ListUsersResponse\x123\n" +
 	"\x05users\x18\x01 \x03(\v2\x1d.sentinez.modules.iam.v1.UserR\x05users\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\xa6\x01\n" +

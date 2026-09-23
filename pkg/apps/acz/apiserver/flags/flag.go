@@ -30,15 +30,7 @@ var onceAPIServer sync.Once
 // Parse flag args for apiserver service
 func Parse() *settingpb.Flag {
 	onceAPIServer.Do(func() {
-		flagx.Get().ApiSpecsPath = "./api/docs/v1"
-		flagx.Get().SwaggerPath = "./api/docs/swagger"
 		flagx.Get().EnvFile = "./cmd/acz-apiserver/.env"
-
-		pflag.StringVar(&flagx.Get().ApiSpecsPath, settingpb.XFlag_ApiSpecsPath,
-			flagx.Get().GetApiSpecsPath(), "openapi specification path")
-
-		pflag.StringVar(&flagx.Get().SwaggerPath, settingpb.XFlag_SwaggerPath,
-			flagx.Get().GetSwaggerPath(), "swagger user interface path")
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variable config file")

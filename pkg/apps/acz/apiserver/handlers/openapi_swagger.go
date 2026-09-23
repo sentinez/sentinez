@@ -19,16 +19,17 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/sentinez/sentinez/api"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 )
 
 // RegisterSwaggerRoutes return api json and swagger ui
 func RegisterSwaggerRoutes(mux *http.ServeMux, flag *settingpb.Flag) {
 
-	apifs := http.FileServer(http.Dir(flag.GetApiSpecsPath()))
+	apifs := http.FileServer(http.FS(api.DocsV1()))
 	mux.Handle("/api/", http.StripPrefix("/api/", apifs))
 
-	swaggerfs := http.FileServer(http.Dir(flag.GetSwaggerPath()))
+	swaggerfs := http.FileServer(http.FS(api.Swagger()))
 	mux.Handle("/swagger/", apiSpecSwaggerHandler(swaggerfs))
 	mux.HandleFunc("/swagger", swaggerHandler())
 }

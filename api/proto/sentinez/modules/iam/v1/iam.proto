@@ -244,8 +244,6 @@ message CreateAccountRequest {
   string full_name = 2 [(buf.validate.field).required = true];
   string password = 3 [(buf.validate.field).string.min_len = 8];
   string email = 4 [(buf.validate.field).string.email = true];
-  string phone_number = 5
-      [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
 message CreateAccountResponse {
@@ -255,8 +253,6 @@ message CreateAccountResponse {
 message CreateUserRequest {
   string full_name = 1 [(buf.validate.field).required = true];
   string email = 2 [(buf.validate.field).string.email = true];
-  string phone_number = 3
-      [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
 message CreateUserResponse {
@@ -278,8 +274,6 @@ message UpdateUserRequest {
 
   string full_name = 10 [(buf.validate.field).required = true];
   string email = 11 [(buf.validate.field).string.email = true];
-  string phone_number = 12
-      [(buf.validate.field).string.pattern = "^\\+?[1-9]\\d{7,14}$"];
 }
 
 message UpdateUserResponse {
@@ -302,8 +296,7 @@ message GetUserResponse {
 message ListUsersRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
-  repeated string phone_numbers = 11;
-  repeated string emails = 12;
+  repeated string emails = 11;
 }
 
 message ListUsersResponse {

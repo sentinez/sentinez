@@ -17,7 +17,7 @@ package driver
 import (
 	"fmt"
 
-	sentinezbpf "github.com/sentinez/sentinez/bpf/sentinez"
+	sentinezbpf "github.com/sentinez/bpf/sentinez"
 )
 
 func Exec(fn func(*sentinezbpf.SenzObjects) error) error {

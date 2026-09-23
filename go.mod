@@ -3,6 +3,7 @@ module github.com/sentinez/sentinez
 go 1.27.1
 
 replace (
+	github.com/sentinez/bpf => ./staging/src/github.com/sentinez/bpf
 	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/modules => ./staging/src/github.com/sentinez/modules
@@ -12,26 +13,28 @@ replace (
 
 require (
 	github.com/a-h/templ v0.3.1020
-	github.com/cilium/ebpf v0.21.0
+	github.com/cilium/ebpf v0.22.0
 	github.com/corazawaf/coraza/v3 v3.3.3
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/olric-data/olric v0.7.4
+	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/modules v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/spf13/pflag v1.0.10
-	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/grpc v1.83.1
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
-	buf.build/go/protovalidate v1.2.0 // indirect
-	cel.dev/expr v0.25.2 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2 // indirect
+	buf.build/go/protovalidate v1.4.0 // indirect
+	cel.dev/cel-go v0.32.0 // indirect
+	cel.dev/expr v0.25.3 // indirect
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
@@ -58,7 +61,6 @@ require (
 	github.com/go-webauthn/x v0.2.6 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.28.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -92,8 +94,8 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/magefile/mage v1.15.1-0.20241126214340-bdc92f694516 // indirect
 	github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/miekg/dns v1.1.72 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
@@ -107,7 +109,7 @@ require (
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
-	github.com/tidwall/btree v1.7.0 // indirect
+	github.com/tidwall/btree v1.8.1 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
@@ -118,23 +120,24 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	go.opentelemetry.io/otel v1.46.0 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.46.0 // indirect
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/fx v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.1 // indirect
+	go.uber.org/zap v1.28.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.30.0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
-	golang.org/x/mod v0.38.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/crypto v0.56.0 // indirect
+	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
+	golang.org/x/mod v0.40.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
-	golang.org/x/tools v0.48.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d // indirect
+	golang.org/x/tools v0.49.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260904194346-d0f1323225a4 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260904194346-d0f1323225a4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )
-
-tool github.com/cilium/ebpf/cmd/bpf2go

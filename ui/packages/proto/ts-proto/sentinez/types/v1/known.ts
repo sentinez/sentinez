@@ -181,8 +181,10 @@ export function planToJSON(object: Plan): string {
 export enum LogKind {
   LOG_KIND_UNSPECIFIED = 0,
   LOG_KIND_HTTP = 1,
-  LOG_KIND_WAF = 2,
-  LOG_KIND_RULE = 3,
+  LOG_KIND_WAF_RULESET = 2,
+  LOG_KIND_RULE_BASED = 3,
+  LOG_KIND_RATE_LIMIT = 4,
+  LOG_KIND_CDN_RULE = 5,
   UNRECOGNIZED = -1,
 }
 
@@ -195,11 +197,17 @@ export function logKindFromJSON(object: any): LogKind {
     case "LOG_KIND_HTTP":
       return LogKind.LOG_KIND_HTTP;
     case 2:
-    case "LOG_KIND_WAF":
-      return LogKind.LOG_KIND_WAF;
+    case "LOG_KIND_WAF_RULESET":
+      return LogKind.LOG_KIND_WAF_RULESET;
     case 3:
-    case "LOG_KIND_RULE":
-      return LogKind.LOG_KIND_RULE;
+    case "LOG_KIND_RULE_BASED":
+      return LogKind.LOG_KIND_RULE_BASED;
+    case 4:
+    case "LOG_KIND_RATE_LIMIT":
+      return LogKind.LOG_KIND_RATE_LIMIT;
+    case 5:
+    case "LOG_KIND_CDN_RULE":
+      return LogKind.LOG_KIND_CDN_RULE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -213,10 +221,14 @@ export function logKindToJSON(object: LogKind): string {
       return "LOG_KIND_UNSPECIFIED";
     case LogKind.LOG_KIND_HTTP:
       return "LOG_KIND_HTTP";
-    case LogKind.LOG_KIND_WAF:
-      return "LOG_KIND_WAF";
-    case LogKind.LOG_KIND_RULE:
-      return "LOG_KIND_RULE";
+    case LogKind.LOG_KIND_WAF_RULESET:
+      return "LOG_KIND_WAF_RULESET";
+    case LogKind.LOG_KIND_RULE_BASED:
+      return "LOG_KIND_RULE_BASED";
+    case LogKind.LOG_KIND_RATE_LIMIT:
+      return "LOG_KIND_RATE_LIMIT";
+    case LogKind.LOG_KIND_CDN_RULE:
+      return "LOG_KIND_CDN_RULE";
     case LogKind.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

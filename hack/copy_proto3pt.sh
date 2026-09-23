@@ -39,11 +39,11 @@ if (( $# % 2 != 0 )); then
   exit 1
 fi
 
-copy_proto_files "./_patches/googleapis/google/api" \
+copy_proto_files "./_submodules/googleapis/google/api" \
 "./api/third_party/googleapis/google/api"
 
-copy_proto_files "./_patches/grpc-gateway/protoc-gen-openapiv2" \
+copy_proto_files "./_submodules/grpc-gateway/protoc-gen-openapiv2" \
 "./api/third_party/grpc-gateway/protoc-gen-openapiv2"
 
-copy_proto_files "./_patches/protovalidate/proto/protovalidate" \
+copy_proto_files "./_submodules/protovalidate/proto/protovalidate" \
 "./api/third_party/protovalidate/proto/protovalidate"

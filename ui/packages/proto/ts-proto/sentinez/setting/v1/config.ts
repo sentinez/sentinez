@@ -27,6 +27,8 @@ export enum Senz {
   SENZ_CONSUL_URI = 8,
   SENZ_MEMBERSHIP_ADDRESS = 9,
   SENZ_DISCOVERY_ADDRESS = 10,
+  SENZ_ADMIN_USERNAME = 11,
+  SENZ_ADMIN_PASSWORD = 12,
   UNRECOGNIZED = -1,
 }
 
@@ -65,6 +67,12 @@ export function senzFromJSON(object: any): Senz {
     case 10:
     case "SENZ_DISCOVERY_ADDRESS":
       return Senz.SENZ_DISCOVERY_ADDRESS;
+    case 11:
+    case "SENZ_ADMIN_USERNAME":
+      return Senz.SENZ_ADMIN_USERNAME;
+    case 12:
+    case "SENZ_ADMIN_PASSWORD":
+      return Senz.SENZ_ADMIN_PASSWORD;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -96,6 +104,10 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_MEMBERSHIP_ADDRESS";
     case Senz.SENZ_DISCOVERY_ADDRESS:
       return "SENZ_DISCOVERY_ADDRESS";
+    case Senz.SENZ_ADMIN_USERNAME:
+      return "SENZ_ADMIN_USERNAME";
+    case Senz.SENZ_ADMIN_PASSWORD:
+      return "SENZ_ADMIN_PASSWORD";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@sentinez/ui/components/avatar';
@@ -18,6 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
+import { toast } from '@/lib/toast';
 
 export function NavUser({
   user,
@@ -28,7 +30,14 @@ export function NavUser({
     avatar: string;
   };
 }) {
+  const router = useRouter();
   const { isMobile } = useSidebar();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.success('Logged out', 'You have been logged out successfully.');
+    router.push('/auth');
+  };
 
   return (
     <SidebarMenu>
@@ -80,7 +89,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut />
               Log out
             </DropdownMenuItem>

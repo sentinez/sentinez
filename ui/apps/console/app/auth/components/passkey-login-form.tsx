@@ -1,56 +1,62 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@sentinez/ui/components/card';
-import { Alert, AlertDescription, AlertTitle } from '@sentinez/ui/components/alert';
-
+import { Card, CardContent } from '@sentinez/ui/components/card';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
-import Image from 'next/image';
 import { PasskeyLogin } from '@/lib/api/iam/passkey';
-import { Terminal } from 'lucide-react';
+import { toast } from '@/lib/toast';
+import { handleStatusError } from '@/lib/error-handler';
+import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleLoginPasskey(e: React.FormEvent) {
+  async function handleLoginPasskey(e: React.ChangeEvent) {
     e.preventDefault();
     if (!email) {
-      alert('Please enter your email first');
+      toast.warning('Input Required', 'Please enter your email address.');
       return;
     }
 
     try {
+      setIsLoading(true);
       const resp = await PasskeyLogin({ emailOrUsername: email });
-      console.log(resp);
-      alert(`Welcome`);
+      toast.success('Login Successful', 'Welcome back to Sentinéz!');
+
+      if (resp?.accessToken) {
+        localStorage.setItem(SENTINEZ_ACCESS_TOKEN_KEY, resp.accessToken);
+        localStorage.setItem(
+          SENTINEZ_USER_KEY,
+          JSON.stringify({
+            name: resp.user?.fullName || email,
+            email: resp.user?.email || email,
+            avatar: '/assets/sntz.png',
+          }),
+        );
+      }
+
+      router.push('/console');
     } catch (err: any) {
-      alert(err.message || 'Login failed');
+      console.error('Passkey login error:', err);
+      if (err.name === 'NotAllowedError') {
+        toast.error('Passkey Cancelled', 'The passkey authentication prompt was cancelled.');
+      } else {
+        handleStatusError(err);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
-        {/* <CardHeader className="text-center">
-          <CardTitle className="text-xl">
-            <a href="#" className="flex items-center gap-2 self-center font-medium">
-              <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
-              </div>
-              Sentinéz
-            </a>
-          </CardTitle>
-          <CardDescription className=" text-left">Login with your Sentinéz account</CardDescription>
-        </CardHeader> */}
         <CardContent>
           <form onSubmit={handleLoginPasskey}>
             <div className="grid gap-6">
@@ -64,10 +70,11 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
-                <Button type="submit" className="w-full cursor-pointer">
-                  Login
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+                  {isLoading ? 'Authenticating...' : 'Login'}
                 </Button>
               </div>
               <div className="text-center text-sm">
@@ -83,3 +90,4 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
     </div>
   );
 }
+

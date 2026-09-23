@@ -1,24 +1,21 @@
-[submodule "_patches/coreruleset"]
-	path = _patches/coreruleset
-	url = https://github.com/coreruleset/coreruleset.git
-[submodule "_patches/grpc-gateway"]
-	path = _patches/grpc-gateway
-	url = https://github.com/grpc-ecosystem/grpc-gateway.git
-[submodule "_patches/protovalidate"]
-	path = _patches/protovalidate
-	url = https://github.com/bufbuild/protovalidate.git
-[submodule "_patches/googleapis"]
-	path = _patches/googleapis
-	url = https://github.com/googleapis/googleapis.git
-[submodule "_patches/libbpf"]
-	path = _patches/libbpf
-	url = https://github.com/libbpf/libbpf.git
-[submodule "_patches/xdp-tools"]
-	path = _patches/xdp-tools
+[submodule "staging/src/github.com/sentinez/bpf/_submodules/xdp-tools"]
+	path = staging/src/github.com/sentinez/bpf/_submodules/xdp-tools
 	url = https://github.com/xdp-project/xdp-tools
-[submodule "_patches/open-telemetry"]
-	path = _patches/open-telemetry
+[submodule "staging/src/github.com/sentinez/bpf/_submodules/libbpf"]
+	path = staging/src/github.com/sentinez/bpf/_submodules/libbpf
+	url = https://github.com/libbpf/libbpf.git
+[submodule "_submodules/coreruleset"]
+	path = _submodules/coreruleset
+	url = https://github.com/coreruleset/coreruleset.git
+[submodule "_submodules/grpc-gateway"]
+	path = _submodules/grpc-gateway
+	url = https://github.com/grpc-ecosystem/grpc-gateway.git
+[submodule "_submodules/protovalidate"]
+	path = _submodules/protovalidate
+	url = https://github.com/bufbuild/protovalidate.git
+[submodule "_submodules/googleapis"]
+	path = _submodules/googleapis
+	url = https://github.com/googleapis/googleapis.git
+[submodule "_submodules/opentelemetry-proto"]
+	path = _submodules/opentelemetry-proto
 	url = https://github.com/open-telemetry/opentelemetry-proto.git
-[submodule "_patches/crslang"]
-	path = _patches/crslang
-	url = https://github.com/coreruleset/crslang.git
