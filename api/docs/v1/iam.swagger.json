@@ -429,16 +429,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "phoneNumbers",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "emails",
             "in": "query",
             "required": false,
@@ -555,9 +545,6 @@
           "type": "string"
         },
         "email": {
-          "type": "string"
-        },
-        "phoneNumber": {
           "type": "string"
         }
       }
@@ -763,10 +750,7 @@
         "fullName": {
           "type": "string"
         },
-        "emailBackup": {
-          "type": "string"
-        },
-        "phoneNumber": {
+        "email": {
           "type": "string"
         },
         "console": {

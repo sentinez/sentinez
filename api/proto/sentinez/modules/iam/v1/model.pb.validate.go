@@ -231,9 +231,7 @@ func (m *User) Validate() error {
 
 	// no validation rules for FullName
 
-	// no validation rules for EmailBackup
-
-	// no validation rules for PhoneNumber
+	// no validation rules for Email
 
 	// no validation rules for Console
 

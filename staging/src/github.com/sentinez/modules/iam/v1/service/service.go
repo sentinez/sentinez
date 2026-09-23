@@ -17,11 +17,11 @@ package iamsvc
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/jackc/pgx/v5"
 
 	"github.com/sentinez/core/storage/dbx/postgres"
 	accrepos "github.com/sentinez/modules/iam/v1/repos/accounts"
@@ -155,7 +155,7 @@ func (srv *IAMService) PasskeyLoginChallenge(
 	emailOrUsername := req.GetEmailOrUsername()
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, emailOrUsername)
 	if err != nil {
-		if errorx.IsNoRows(err) {
+		if !errors.Is(err, errorx.ErrNotFound) {
 			return nil, errorx.StatusNotFoundF(
 				"not found username or email=%s", emailOrUsername)
 		}
@@ -238,7 +238,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 ) (*iampb.PasskeyRegisterChallengeResponse, error) {
 
 	acc, err := srv.store.GetOrCreateAccount(req.GetEmailOrUsername())
-	if err != nil {
+	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
 		return nil, err
 	}
 
@@ -268,7 +268,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 func (srv *IAMService) createAccountExtend(
 	ctx context.Context, account *iampb.Account) (*accrepos.AccountX, error) {
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
-	if err != nil && !errorx.IsNoRows(err) {
+	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
 		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
 		return nil, err
 	}
@@ -321,7 +321,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, username)
-	if !errorx.IsNoRows(err) {
+	if !errors.Is(err, errorx.ErrNotFound) {
 		return err
 	}
 
@@ -331,7 +331,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	}
 
 	acc, err = srv.accounts.GetByUsernameOrEmail(ctx, email)
-	if !errorx.IsNoRows(err) {
+	if !errors.Is(err, errorx.ErrNotFound) {
 		return err
 	}
 	if acc.GetId() != "" {
@@ -371,10 +371,9 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 	}
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iampb.User{
-		FullName:    req.GetFullName(),
-		EmailBackup: req.GetEmail(),
-		PhoneNumber: req.GetPhoneNumber(),
-		Console:     typepb.Console_CONSOLE_PORTAL,
+		FullName: req.GetFullName(),
+		Email:    req.GetEmail(),
+		Console:  typepb.Console_CONSOLE_PORTAL,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -403,7 +402,7 @@ func (srv *IAMService) GetAccountByUsernameOrEmail(
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
-		if errorx.Is(err, pgx.ErrNoRows) {
+		if errorx.Is(err, errorx.ErrNotFound) {
 			return &accrepos.AccountX{}, nil
 		}
 
@@ -480,7 +479,7 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if !errorx.IsNoRows(err) {
+	if !errors.Is(err, errorx.ErrNotFound) {
 		return nil, err
 	}
 
@@ -491,10 +490,9 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	}
 
 	user, err := srv.users.Create(ctx, &iampb.User{
-		FullName:    request.GetFullName(),
-		EmailBackup: request.GetEmail(),
-		PhoneNumber: request.GetPhoneNumber(),
-		Console:     typepb.Console_CONSOLE_PORTAL,
+		FullName: request.GetFullName(),
+		Email:    request.GetEmail(),
+		Console:  typepb.Console_CONSOLE_PORTAL,
 	})
 	if err != nil {
 		return nil, err
@@ -556,7 +554,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if !errorx.IsNoRows(err) {
+	if !errors.Is(err, errorx.ErrNotFound) {
 		return nil, err
 	}
 
@@ -583,14 +581,10 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 func copyUserUpdateParams(dest *iampb.User, req *iampb.UpdateUserRequest) {
 
 	if req.GetEmail() != "" {
-		dest.EmailBackup = req.GetEmail()
+		dest.Email = req.GetEmail()
 	}
 
 	if req.GetFullName() != "" {
 		dest.FullName = req.GetFullName()
-	}
-
-	if req.GetPhoneNumber() != "" {
-		dest.PhoneNumber = req.GetPhoneNumber()
 	}
 }

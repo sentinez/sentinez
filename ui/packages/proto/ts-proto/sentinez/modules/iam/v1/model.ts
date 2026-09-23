@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Console, consoleFromJSON, consoleToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.modules.iam.v1";
@@ -37,8 +38,8 @@ export interface User {
   metadata?: Metadata | undefined;
   id: string;
   fullName: string;
-  emailBackup: string;
-  phoneNumber: string;
+  email: string;
+  console: Console;
 }
 
 function createBaseAccount(): Account {
@@ -420,7 +421,7 @@ export const AccountResponse: MessageFns<AccountResponse> = {
 };
 
 function createBaseUser(): User {
-  return { metadata: undefined, id: "", fullName: "", emailBackup: "", phoneNumber: "" };
+  return { metadata: undefined, id: "", fullName: "", email: "", console: 0 };
 }
 
 export const User: MessageFns<User> = {
@@ -434,11 +435,11 @@ export const User: MessageFns<User> = {
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
     }
-    if (message.emailBackup !== "") {
-      writer.uint32(90).string(message.emailBackup);
+    if (message.email !== "") {
+      writer.uint32(90).string(message.email);
     }
-    if (message.phoneNumber !== "") {
-      writer.uint32(98).string(message.phoneNumber);
+    if (message.console !== 0) {
+      writer.uint32(104).int32(message.console);
     }
     return writer;
   },
@@ -485,15 +486,15 @@ export const User: MessageFns<User> = {
               break;
             }
 
-            message.emailBackup = reader.string();
+            message.email = reader.string();
             continue;
           }
-          case 12: {
-            if (tag !== 98) {
+          case 13: {
+            if (tag !== 104) {
               break;
             }
 
-            message.phoneNumber = reader.string();
+            message.console = reader.int32() as any;
             continue;
           }
         }
@@ -517,16 +518,8 @@ export const User: MessageFns<User> = {
         : isSet(object.full_name)
         ? globalThis.String(object.full_name)
         : "",
-      emailBackup: isSet(object.emailBackup)
-        ? globalThis.String(object.emailBackup)
-        : isSet(object.email_backup)
-        ? globalThis.String(object.email_backup)
-        : "",
-      phoneNumber: isSet(object.phoneNumber)
-        ? globalThis.String(object.phoneNumber)
-        : isSet(object.phone_number)
-        ? globalThis.String(object.phone_number)
-        : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      console: isSet(object.console) ? consoleFromJSON(object.console) : 0,
     };
   },
 
@@ -541,11 +534,11 @@ export const User: MessageFns<User> = {
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
     }
-    if (message.emailBackup !== "") {
-      obj.emailBackup = message.emailBackup;
+    if (message.email !== "") {
+      obj.email = message.email;
     }
-    if (message.phoneNumber !== "") {
-      obj.phoneNumber = message.phoneNumber;
+    if (message.console !== 0) {
+      obj.console = consoleToJSON(message.console);
     }
     return obj;
   },
@@ -560,8 +553,8 @@ export const User: MessageFns<User> = {
       : undefined;
     message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
-    message.emailBackup = object.emailBackup ?? "";
-    message.phoneNumber = object.phoneNumber ?? "";
+    message.email = object.email ?? "";
+    message.console = object.console ?? 0;
     return message;
   },
 };

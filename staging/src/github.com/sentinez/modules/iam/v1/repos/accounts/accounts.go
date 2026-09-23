@@ -156,7 +156,7 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 			return nil, err
 		}
 
-		return nil, errorx.ErrNotFound
+		return &AccountX{}, errorx.ErrNotFound
 	}
 
 	return resp, nil

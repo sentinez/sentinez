@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core/storage/dbx/postgres"
-	accrepos "github.com/sentinez/modules/iam/v1/repos/accounts"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
+	"github.com/sentinez/modules/iam/v1/repos/accounts"
+	"github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -21,10 +21,19 @@ func NewMockIAccount(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockIAccount {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockIAccount{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -78,7 +87,7 @@ type MockIAccount_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - account *accrepos.AccountX
-func (_e *MockIAccount_Expecter) Create(ctx interface{}, account interface{}) *MockIAccount_Create_Call {
+func (_e *MockIAccount_Expecter) Create(ctx any, account any) *MockIAccount_Create_Call {
 	return &MockIAccount_Create_Call{Call: _e.mock.On("Create", ctx, account)}
 }
 
@@ -135,7 +144,7 @@ type MockIAccount_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIAccount_Expecter) Delete(ctx interface{}, id interface{}) *MockIAccount_Delete_Call {
+func (_e *MockIAccount_Expecter) Delete(ctx any, id any) *MockIAccount_Delete_Call {
 	return &MockIAccount_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
@@ -203,7 +212,7 @@ type MockIAccount_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIAccount_Expecter) Get(ctx interface{}, id interface{}) *MockIAccount_Get_Call {
+func (_e *MockIAccount_Expecter) Get(ctx any, id any) *MockIAccount_Get_Call {
 	return &MockIAccount_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
@@ -271,7 +280,7 @@ type MockIAccount_GetByUsernameOrEmail_Call struct {
 // GetByUsernameOrEmail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input string
-func (_e *MockIAccount_Expecter) GetByUsernameOrEmail(ctx interface{}, input interface{}) *MockIAccount_GetByUsernameOrEmail_Call {
+func (_e *MockIAccount_Expecter) GetByUsernameOrEmail(ctx any, input any) *MockIAccount_GetByUsernameOrEmail_Call {
 	return &MockIAccount_GetByUsernameOrEmail_Call{Call: _e.mock.On("GetByUsernameOrEmail", ctx, input)}
 }
 
@@ -339,7 +348,7 @@ type MockIAccount_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - req *iampb.ListAccountsRequest
-func (_e *MockIAccount_Expecter) List(ctx interface{}, req interface{}) *MockIAccount_List_Call {
+func (_e *MockIAccount_Expecter) List(ctx any, req any) *MockIAccount_List_Call {
 	return &MockIAccount_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
@@ -396,7 +405,7 @@ type MockIAccount_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - account *accrepos.AccountX
-func (_e *MockIAccount_Expecter) Update(ctx interface{}, account interface{}) *MockIAccount_Update_Call {
+func (_e *MockIAccount_Expecter) Update(ctx any, account any) *MockIAccount_Update_Call {
 	return &MockIAccount_Update_Call{Call: _e.mock.On("Update", ctx, account)}
 }
 
@@ -454,7 +463,7 @@ type MockIAccount_WithTX_Call struct {
 
 // WithTX is a helper method to define mock.On call
 //   - tx *postgres.TxSession
-func (_e *MockIAccount_Expecter) WithTX(tx interface{}) *MockIAccount_WithTX_Call {
+func (_e *MockIAccount_Expecter) WithTX(tx any) *MockIAccount_WithTX_Call {
 	return &MockIAccount_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
 }
 
@@ -487,10 +496,19 @@ func NewMockIAccountX(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockIAccountX {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockIAccountX{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -521,7 +539,7 @@ type MockIAccountX_AddCredential_Call struct {
 
 // AddCredential is a helper method to define mock.On call
 //   - credential *webauthn.Credential
-func (_e *MockIAccountX_Expecter) AddCredential(credential interface{}) *MockIAccountX_AddCredential_Call {
+func (_e *MockIAccountX_Expecter) AddCredential(credential any) *MockIAccountX_AddCredential_Call {
 	return &MockIAccountX_AddCredential_Call{Call: _e.mock.On("AddCredential", credential)}
 }
 
@@ -607,7 +625,7 @@ type MockIAccountX_UpdateCredential_Call struct {
 
 // UpdateCredential is a helper method to define mock.On call
 //   - credential *webauthn.Credential
-func (_e *MockIAccountX_Expecter) UpdateCredential(credential interface{}) *MockIAccountX_UpdateCredential_Call {
+func (_e *MockIAccountX_Expecter) UpdateCredential(credential any) *MockIAccountX_UpdateCredential_Call {
 	return &MockIAccountX_UpdateCredential_Call{Call: _e.mock.On("UpdateCredential", credential)}
 }
 

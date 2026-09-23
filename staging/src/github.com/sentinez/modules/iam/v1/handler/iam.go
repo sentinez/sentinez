@@ -17,6 +17,7 @@ package iamhdl
 
 import (
 	"context"
+	"errors"
 
 	iamsvc "github.com/sentinez/modules/iam/v1/service"
 	"github.com/sentinez/modules/pkg/headers"
@@ -81,7 +82,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterChallenge(
 
 	user, err := iam.service.
 		GetAccountByUsernameOrEmail(ctx, req.GetEmailOrUsername())
-	if err != nil {
+	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
 		return nil, err
 	}
 
@@ -172,11 +173,10 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	zlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
 
 	accResp, err := iam.service.CreateAccount(ctx, &iampb.CreateAccountRequest{
-		Username:    req.GetUsername(),
-		Password:    req.GetPassword(),
-		Email:       req.GetEmail(),
-		PhoneNumber: req.GetPhoneNumber(),
-		FullName:    req.GetFullName(),
+		Username: req.GetUsername(),
+		Password: req.GetPassword(),
+		Email:    req.GetEmail(),
+		FullName: req.GetFullName(),
 	})
 	if err != nil {
 		zlog.Errorf("failed to create account: %v", err)

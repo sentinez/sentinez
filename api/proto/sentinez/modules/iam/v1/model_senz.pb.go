@@ -29,10 +29,9 @@ const (
 )
 
 const (
-	User_Metadata    = "metadata"
-	User_Id          = "id"
-	User_FullName    = "full_name"
-	User_EmailBackup = "email_backup"
-	User_PhoneNumber = "phone_number"
-	User_Console     = "console"
+	User_Metadata = "metadata"
+	User_Id       = "id"
+	User_FullName = "full_name"
+	User_Email    = "email"
+	User_Console  = "console"
 )

@@ -1,54 +1,48 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@sentinez/ui/components/card';
+import { Card, CardContent } from '@sentinez/ui/components/card';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
-import Image from 'next/image';
 import { PasskeyRegister } from '@/lib/api/iam/passkey';
+import { toast } from '@/lib/toast';
+import { handleStatusError } from '@/lib/error-handler';
 
 export function PasskeyRegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleRegisterPasskey(e: React.FormEvent) {
+  async function handleRegisterPasskey(e: React.ChangeEvent) {
     e.preventDefault();
     if (!email) {
-      alert('Please enter your email first');
+      toast.warning('Input Required', 'Please enter your email address.');
       return;
     }
 
     try {
-      const _ = PasskeyRegister({ emailOrUsername: email });
+      setIsLoading(true);
+      await PasskeyRegister({ emailOrUsername: email });
+      toast.success('Registration Successful', 'Passkey registered successfully! Please sign in.');
+      router.push('/auth/passkey/login');
     } catch (err: any) {
-      console.error(err);
-      alert('Registration failed: ' + err.message);
+      console.error('Passkey registration error:', err);
+      if (err.name === 'NotAllowedError') {
+        toast.error('Registration Cancelled', 'The passkey registration prompt was cancelled.');
+      } else {
+        handleStatusError(err);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
-        {/* <CardHeader className="text-center">
-          <CardTitle className="text-xl">
-            <a href="#" className="flex items-center gap-2 self-center font-medium">
-              <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
-              </div>
-              Sentinéz
-            </a>
-          </CardTitle>
-          <CardDescription className=" text-left">
-            Register with your Sentinéz account
-          </CardDescription>
-        </CardHeader> */}
         <CardContent>
           <form onSubmit={handleRegisterPasskey}>
             <div className="grid gap-6">
@@ -62,10 +56,11 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
-                <Button type="submit" className="w-full cursor-pointer">
-                  Register Passkey
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+                  {isLoading ? 'Registering...' : 'Register Passkey'}
                 </Button>
               </div>
               <div className="text-center text-sm">
@@ -81,3 +76,4 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
     </div>
   );
 }
+

@@ -15,24 +15,13 @@ export interface Flag {
   logLevel: string;
   /** extra */
   envFile: string;
-  swaggerPath: string;
-  apiSpecsPath: string;
   proxyConfig: string;
   certFile: string;
   certKeyFile: string;
 }
 
 function createBaseFlag(): Flag {
-  return {
-    envMode: "",
-    logLevel: "",
-    envFile: "",
-    swaggerPath: "",
-    apiSpecsPath: "",
-    proxyConfig: "",
-    certFile: "",
-    certKeyFile: "",
-  };
+  return { envMode: "", logLevel: "", envFile: "", proxyConfig: "", certFile: "", certKeyFile: "" };
 }
 
 export const Flag: MessageFns<Flag> = {
@@ -46,20 +35,14 @@ export const Flag: MessageFns<Flag> = {
     if (message.envFile !== "") {
       writer.uint32(26).string(message.envFile);
     }
-    if (message.swaggerPath !== "") {
-      writer.uint32(34).string(message.swaggerPath);
-    }
-    if (message.apiSpecsPath !== "") {
-      writer.uint32(42).string(message.apiSpecsPath);
-    }
     if (message.proxyConfig !== "") {
-      writer.uint32(50).string(message.proxyConfig);
+      writer.uint32(34).string(message.proxyConfig);
     }
     if (message.certFile !== "") {
-      writer.uint32(58).string(message.certFile);
+      writer.uint32(42).string(message.certFile);
     }
     if (message.certKeyFile !== "") {
-      writer.uint32(66).string(message.certKeyFile);
+      writer.uint32(50).string(message.certKeyFile);
     }
     return writer;
   },
@@ -106,7 +89,7 @@ export const Flag: MessageFns<Flag> = {
               break;
             }
 
-            message.swaggerPath = reader.string();
+            message.proxyConfig = reader.string();
             continue;
           }
           case 5: {
@@ -114,27 +97,11 @@ export const Flag: MessageFns<Flag> = {
               break;
             }
 
-            message.apiSpecsPath = reader.string();
+            message.certFile = reader.string();
             continue;
           }
           case 6: {
             if (tag !== 50) {
-              break;
-            }
-
-            message.proxyConfig = reader.string();
-            continue;
-          }
-          case 7: {
-            if (tag !== 58) {
-              break;
-            }
-
-            message.certFile = reader.string();
-            continue;
-          }
-          case 8: {
-            if (tag !== 66) {
               break;
             }
 
@@ -170,16 +137,6 @@ export const Flag: MessageFns<Flag> = {
         : isSet(object.env_file)
         ? globalThis.String(object.env_file)
         : "",
-      swaggerPath: isSet(object.swaggerPath)
-        ? globalThis.String(object.swaggerPath)
-        : isSet(object.swagger_path)
-        ? globalThis.String(object.swagger_path)
-        : "",
-      apiSpecsPath: isSet(object.apiSpecsPath)
-        ? globalThis.String(object.apiSpecsPath)
-        : isSet(object.api_specs_path)
-        ? globalThis.String(object.api_specs_path)
-        : "",
       proxyConfig: isSet(object.proxyConfig)
         ? globalThis.String(object.proxyConfig)
         : isSet(object.proxy_config)
@@ -209,12 +166,6 @@ export const Flag: MessageFns<Flag> = {
     if (message.envFile !== "") {
       obj.envFile = message.envFile;
     }
-    if (message.swaggerPath !== "") {
-      obj.swaggerPath = message.swaggerPath;
-    }
-    if (message.apiSpecsPath !== "") {
-      obj.apiSpecsPath = message.apiSpecsPath;
-    }
     if (message.proxyConfig !== "") {
       obj.proxyConfig = message.proxyConfig;
     }
@@ -235,8 +186,6 @@ export const Flag: MessageFns<Flag> = {
     message.envMode = object.envMode ?? "";
     message.logLevel = object.logLevel ?? "";
     message.envFile = object.envFile ?? "";
-    message.swaggerPath = object.swaggerPath ?? "";
-    message.apiSpecsPath = object.apiSpecsPath ?? "";
     message.proxyConfig = object.proxyConfig ?? "";
     message.certFile = object.certFile ?? "";
     message.certKeyFile = object.certKeyFile ?? "";

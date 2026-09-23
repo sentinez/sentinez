@@ -236,8 +236,7 @@ type User struct {
 	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	EmailBackup   string                 `protobuf:"bytes,11,opt,name=email_backup,json=emailBackup,proto3" json:"email_backup,omitempty"`
-	PhoneNumber   string                 `protobuf:"bytes,12,opt,name=phone_number,json=phoneNumber,proto3" json:"phone_number,omitempty"`
+	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
 	Console       v1.Console             `protobuf:"varint,13,opt,name=console,proto3,enum=sentinez.types.v1.Console" json:"console,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -294,16 +293,9 @@ func (x *User) GetFullName() string {
 	return ""
 }
 
-func (x *User) GetEmailBackup() string {
+func (x *User) GetEmail() string {
 	if x != nil {
-		return x.EmailBackup
-	}
-	return ""
-}
-
-func (x *User) GetPhoneNumber() string {
-	if x != nil {
-		return x.PhoneNumber
+		return x.Email
 	}
 	return ""
 }
@@ -338,14 +330,13 @@ const file_sentinez_modules_iam_v1_model_proto_rawDesc = "" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1a\n" +
-	"\bprovider\x18\f \x01(\tR\bprovider\"\xb7\x02\n" +
+	"\bprovider\x18\f \x01(\tR\bprovider\"\xec\x01\n" +
 	"\x04User\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
 	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12*\n" +
-	"\femail_backup\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\vemailBackup\x12<\n" +
-	"\fphone_number\x18\f \x01(\tB\x19\xbaH\x16r\x142\x12^\\+?[1-9]\\d{7,14}$R\vphoneNumber\x124\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x124\n" +
 	"\aconsole\x18\r \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole:\x06\xca\xf3\x18\x02\b\x01BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1;iampbb\x06proto3"
 
 var (
