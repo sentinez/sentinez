@@ -8,7 +8,6 @@ import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { QueryBuilder, createEmptyExpression } from '../../components';
 import { Expression } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
-import Title from '@/components/title';
 import {
   Card,
   CardContent,
@@ -36,7 +35,7 @@ import {
 } from '@sentinez/ui/components/field';
 import { Switch } from '@sentinez/ui/components/switch';
 import { getRuleBased } from '@/lib/api/security';
-import PageLayout from '@/components/page-layout';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
 export default function EditRuleBasedPage({ params }: { params: Promise<{ id: string }> }) {
@@ -102,8 +101,8 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <>
-      <Title title="Edit Rule" subtitle="Modify security rule configuration and logic.">
+    <PageLayout>
+      <PageLayoutHeader title="Edit Rule" subtitle="Modify security rule configuration and logic.">
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleSave}>
             {saving ? 'Saving...' : 'Save'}
@@ -112,8 +111,8 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
             Cancel
           </Button>
         </div>
-      </Title>
-      <PageLayout>
+      </PageLayoutHeader>
+      <PageLayoutContent>
         <div className="grid gap-6 py-4">
           <Card className="grid gap-2 shadow-none border-none">
             <CardContent className="max-w-md grid gap-6">
@@ -185,8 +184,8 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
             <CardFooter></CardFooter>
           </Card>
         </div>
-      </PageLayout>
-    </>
+      </PageLayoutContent>
+    </PageLayout>
   );
 }
 SelectLabel;

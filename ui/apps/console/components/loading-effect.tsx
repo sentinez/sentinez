@@ -9,13 +9,9 @@ import { Field, FieldLabel } from '@sentinez/ui/components/field';
 export default function LoadingEffect({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const run = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    const timer = setTimeout(() => setLoading(false), 1500);
 
-      setLoading(false);
-    };
-
-    run();
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) return <IsLoading timeout={1000} />;

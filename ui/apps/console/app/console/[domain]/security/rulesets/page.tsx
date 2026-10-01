@@ -1,15 +1,17 @@
 'use client';
 
-import Title from '@/components/title';
-import PageLayout from '@/components/page-layout';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 
 export default function Page() {
   return (
-    <>
-      <Title title="Security Rulesets" subtitle="Manage active owasp core rulesets."></Title>
-      <PageLayout>
+    <PageLayout>
+      <PageLayoutHeader
+        title="Security Rulesets"
+        subtitle="Manage active owasp core rulesets."
+      ></PageLayoutHeader>
+      <PageLayoutContent>
         <span></span>
-      </PageLayout>
-    </>
+      </PageLayoutContent>
+    </PageLayout>
   );
 }

@@ -45,14 +45,13 @@ import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { listRuleBaseds, createRuleBased } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import Title from '@/components/title';
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { ActionType } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { QueryBuilder, createEmptyExpression } from '../components';
 import { Expression } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { statusLabel } from '@/lib/type/security';
-import PageLayout from '@/components/page-layout';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useEffect, useState } from 'react';
 
 export const columns: ColumnDef<RuleBased>[] = [
@@ -204,8 +203,8 @@ export default function View() {
   });
 
   return (
-    <>
-      <Title title="Security Rule" subtitle="Manage active security rules.">
+    <PageLayout>
+      <PageLayoutHeader title="Security Rule" subtitle="Manage active security rules.">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
@@ -262,9 +261,9 @@ export default function View() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </Title>
+      </PageLayoutHeader>
 
-      <PageLayout>
+      <PageLayoutContent>
         <div className="w-full">
           <div className="flex items-center py-4">
             <Input
@@ -363,7 +362,7 @@ export default function View() {
             </div>
           </div>
         </div>
-      </PageLayout>
-    </>
+      </PageLayoutContent>
+    </PageLayout>
   );
 }

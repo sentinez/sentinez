@@ -1,15 +1,17 @@
 'use client';
 
-import PageLayout from '@/components/page-layout';
-import Title from '@/components/title';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 
 export default function Page() {
   return (
-    <>
-      <Title title="CDN Rule" subtitle="Manage active content delivery network rule"></Title>
-      <PageLayout>
+    <PageLayout>
+      <PageLayoutHeader
+        title="CDN Rule"
+        subtitle="Manage active content delivery network rule"
+      ></PageLayoutHeader>
+      <PageLayoutContent>
         <span></span>
-      </PageLayout>
-    </>
+      </PageLayoutContent>
+    </PageLayout>
   );
 }
