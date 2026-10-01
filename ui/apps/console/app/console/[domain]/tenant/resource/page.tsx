@@ -8,13 +8,13 @@ type Props = {
   }>;
 };
 
-export default async function ResourcePage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { domain } = await params;
   return (
     <>
       <Title title="Resource" subtitle="Manage resources for this domain"></Title>
       <PageLayout>
-        <ResourceView domain={domain} />;
+        <ResourceView domain={domain} />
       </PageLayout>
     </>
   );

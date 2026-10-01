@@ -1,13 +1,29 @@
 'use client';
 
 import Image from 'next/image';
-import { LoaderCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Progress } from '@sentinez/ui/components/progress';
 import { Field, FieldLabel } from '@sentinez/ui/components/field';
 
-export default function IsLoading({ timeout }: { timeout: number }) {
+export default function LoadingEffect({ children }: { children: ReactNode }) {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const run = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      setLoading(false);
+    };
+
+    run();
+  }, []);
+
+  if (loading) return <IsLoading timeout={1000} />;
+
+  return <>{children}</>;
+}
+
+export function IsLoading({ timeout }: { timeout: number }) {
   useEffect(() => {
     const start = performance.now();
     let frame: number;
@@ -28,7 +44,7 @@ export default function IsLoading({ timeout }: { timeout: number }) {
     return () => cancelAnimationFrame(frame);
   }, [timeout]);
 
-  const [progress, setProgress] = useState(13);
+  const [progress, setProgress] = useState(0);
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background z-50 [font-family:'Phudu',sans-serif]">
       <div className="flex flex-col items-center gap-4">

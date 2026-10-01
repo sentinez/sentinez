@@ -76,4 +76,3 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
     </div>
   );
 }
-

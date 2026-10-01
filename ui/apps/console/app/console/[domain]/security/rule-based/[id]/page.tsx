@@ -6,7 +6,8 @@ import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
-import { QueryBuilder } from '../../components';
+import { QueryBuilder, createEmptyExpression } from '../../components';
+import { Expression } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import Title from '@/components/title';
 import {
   Card,
@@ -35,7 +36,6 @@ import {
 } from '@sentinez/ui/components/field';
 import { Switch } from '@sentinez/ui/components/switch';
 import { getRuleBased } from '@/lib/api/security';
-import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import PageLayout from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
@@ -49,7 +49,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('1');
-  const [query, setQuery] = useState<RuleBased | undefined>(undefined);
+  const [query, setQuery] = useState<Expression>(createEmptyExpression);
   const [actionJson, setActionJson] = useState('BLOCK');
 
   const [id, setId] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
         setName(rule.ingressRuntime?.name || '');
         setDescription(rule.ingressRuntime?.description || '');
         setPriority(String(rule.ingressRuntime?.priority || 1));
-        setQuery(rule as any);
+        setQuery(rule.ingressRuntime?.expr ?? createEmptyExpression());
 
         setActionJson(JSON.stringify(rule.ingressRuntime?.action || {}, null, 2));
       } catch (err: any) {
@@ -180,7 +180,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
                   </Select>
                 </Field>
               </FieldGroup>
-              <QueryBuilder layout="horizontal" initialQuery={query} onChange={setQuery} />
+              <QueryBuilder orientation="horizontal" value={query} onValueChange={setQuery} />
             </CardContent>
             <CardFooter></CardFooter>
           </Card>

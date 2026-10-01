@@ -49,7 +49,8 @@ import Title from '@/components/title';
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { ActionType } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { QueryBuilder } from '../components';
+import { QueryBuilder, createEmptyExpression } from '../components';
+import { Expression } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { statusLabel } from '@/lib/type/security';
 import PageLayout from '@/components/page-layout';
 import { useCallback, useEffect, useState } from 'react';
@@ -131,7 +132,7 @@ export default function View() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('1');
-  const [query, setQuery] = useState<RuleBased | undefined>(undefined);
+  const [query, setQuery] = useState<Expression>(createEmptyExpression);
 
   const fetchRules = useCallback(async () => {
     setLoading(true);
@@ -176,7 +177,7 @@ export default function View() {
       setName('');
       setDescription('');
       setPriority('1');
-      setQuery(undefined);
+      setQuery(createEmptyExpression());
       fetchRules();
     } catch (err: any) {
       toast.error('Failed to create rule based');
@@ -249,11 +250,7 @@ export default function View() {
               <div className="grid gap-2 mt-2">
                 <Label>Condition Logic</Label>
                 <div className="-mx-1">
-                  <QueryBuilder
-                    key={open ? 'open' : 'closed'}
-                    initialQuery={query}
-                    onChange={setQuery}
-                  />
+                  <QueryBuilder value={query} onValueChange={setQuery} />
                 </div>
               </div>
             </div>
