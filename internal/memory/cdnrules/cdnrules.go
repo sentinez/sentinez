@@ -19,7 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/delivery/cdn/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -34,7 +34,7 @@ func New() *Rule {
 	once.Do(func() {
 		inst = &Rule{
 			space:   ssync.NewMap[string, corerule.EvalFunc](),
-			cdnRule: ssync.NewMap[string, *rulepb.CDN](),
+			cdnRule: ssync.NewMap[string, *cdnpb.CDN](),
 		}
 	})
 	return inst
@@ -42,10 +42,10 @@ func New() *Rule {
 
 type Rule struct {
 	space   *ssync.Map[string, corerule.EvalFunc]
-	cdnRule *ssync.Map[string, *rulepb.CDN]
+	cdnRule *ssync.Map[string, *cdnpb.CDN]
 }
 
-func (rc *Rule) Store(namespace string, rule *rulepb.CDN) {
+func (rc *Rule) Store(namespace string, rule *cdnpb.CDN) {
 	val, _ := jsonx.Marshal(rule)
 	zlog.Debugf("cdn rule: load config: %s", val)
 
@@ -55,7 +55,7 @@ func (rc *Rule) Store(namespace string, rule *rulepb.CDN) {
 	rc.cdnRule.Store(namespace, rule)
 }
 
-func (rc *Rule) Load(namespace string) (corerule.EvalFunc, *rulepb.CDN) {
+func (rc *Rule) Load(namespace string) (corerule.EvalFunc, *cdnpb.CDN) {
 	evalFunc, ok := rc.space.Load(namespace)
 	if !ok {
 		return nil, nil
@@ -70,7 +70,7 @@ func (rc *Rule) Load(namespace string) (corerule.EvalFunc, *rulepb.CDN) {
 }
 
 func (rc *Rule) LoadContext(
-	ctx corehttp.Context) (corerule.EvalFunc, *rulepb.CDN) {
+	ctx corehttp.Context) (corerule.EvalFunc, *cdnpb.CDN) {
 
 	if rc == nil {
 		return nil, nil

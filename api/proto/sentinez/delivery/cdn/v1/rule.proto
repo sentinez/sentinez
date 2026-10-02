@@ -14,8 +14,8 @@
 
 syntax = "proto3";
 
-package sentinez.cdn.rule.v1;
-option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1;rulepb";
+package sentinez.delivery.cdn.v1;
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/delivery/cdn/v1;cdnpb";
 
 import "sentinez/secure/rule/v1/engine.proto";
 import "sentinez/types/v1/known.proto";

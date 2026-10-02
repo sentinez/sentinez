@@ -17,7 +17,7 @@ syntax = "proto3";
 package sentinez.dmz.edge.v1;
 
 import "sentinez/secure/rule/v1/engine.proto";
-import "sentinez/cdn/rule/v1/cdn.proto";
+import "sentinez/delivery/cdn/v1/rule.proto";
 
 import "buf/validate/validate.proto";
 
@@ -92,7 +92,7 @@ message RateLimit {
 
 // Controller for systems using a virtual waiting room or throttling:
 message Controller {
-  repeated sentinez.cdn.rule.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
+  repeated sentinez.delivery.cdn.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
 }
 
 // Personal defines where the request goes and how the edge processes it
