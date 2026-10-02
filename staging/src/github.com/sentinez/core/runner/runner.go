@@ -31,6 +31,8 @@ func NewApp[T any](appConf *settingpb.Config, scopeName string) *App[T] {
 	zlog.SetScopeLogLevel(scopeName, level)
 	ctx := NewContext[T](appConf)
 
+	_OTLP(appConf, ctx)
+
 	return &App[T]{
 		ctx: ctx,
 	}
@@ -47,4 +49,20 @@ func (a *App[T]) Main(main func(*Context[T])) {
 	if err := ctn.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}
+}
+
+func _OTLP[T any](appConf *settingpb.Config, rctx *Context[T]) {
+	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfig{
+		Endpoint:    "localhost:4317",
+		Insecure:    true,
+		ServiceName: appConf.GetMeta().GetServiceKey(),
+	})
+	if err != nil {
+		zlog.Fatalf("runner.setupOTLP: %v", err)
+	}
+
+	// Export fails without a collector; only ensure shutdown does not hang.
+	rctx.OnStop(func(ctx context.Context) error {
+		return shutdown(ctx)
+	})
 }
