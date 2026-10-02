@@ -33,7 +33,7 @@ fmt.proto:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto lint.core lint.core lint.shared lint.modules lint.contrib.httphz
+lint: lint.go lint.proto lint.core lint.core lint.shared lint.controlplane lint.contrib.httphz
 
 lint.go:
 	@echo "[LINT] sentinez is linting ..."
@@ -56,7 +56,7 @@ lint.shared:
 	@cd ./staging/src/github.com/sentinez/shared && golangci-lint run
 
 lint.controlplane:
-	@echo "[LINT] modules is linting ..."
+	@echo "[LINT] controlplane is linting ..."
 	@cd ./staging/src/github.com/sentinez/controlplane && golangci-lint run
 
 lint.contrib.httphz:

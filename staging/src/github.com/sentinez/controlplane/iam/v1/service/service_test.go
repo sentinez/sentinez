@@ -21,11 +21,11 @@ import (
 	"testing"
 
 	"github.com/pashagolub/pgxmock/v2"
-	"github.com/sentinez/core/storage/dbx/postgres"
 	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/controlplane/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users/mock"
 	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/core/storage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"

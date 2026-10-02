@@ -23,11 +23,11 @@ import (
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 
-	"github.com/sentinez/core/storage/dbx/postgres"
 	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users"
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/passkey"
+	"github.com/sentinez/core/storage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
