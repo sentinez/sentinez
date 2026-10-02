@@ -23,6 +23,7 @@ const (
 	RuleBased_Description = "description"
 	RuleBased_Expr        = "expr"
 	RuleBased_Action      = "action"
+	RuleBased_ActionValue = "action_value"
 	RuleBased_Status      = "status"
 	RuleBased_Priority    = "priority"
 )

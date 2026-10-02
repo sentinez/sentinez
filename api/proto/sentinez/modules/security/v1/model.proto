@@ -38,6 +38,12 @@ message RuleBased {
   string description = 4;
   sentinez.secure.rule.v1.Expression expr = 5;
   string action = 6;
-  sentinez.types.v1.Status status = 7;
-  int32 priority = 8;
+  ActionValue action_value = 7;
+  sentinez.types.v1.Status status = 8;
+  int32 priority = 9;
+}
+
+message ActionValue {
+  string str_value = 1;
+  map<string, string> map_value = 2;
 }
