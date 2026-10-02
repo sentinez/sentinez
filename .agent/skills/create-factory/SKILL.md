@@ -7,22 +7,22 @@ description: Instructions for creating a base factory package following the stan
 
 **CRITICAL PREREQUISITE:** Before generating or implementing the factory, you MUST read and apply the rules from the `go-style-guide` skill. All generated code must strictly follow the Uber Go Style Guide conventions.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/modules/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain can be found at `api/proto/sentinez/mods/<domain>/v1/<domain>.proto`. Please review it to understand the service interface, endpoints, and models.
 
-When asked to create a new factory for a given functional domain, you must follow the standard Dependency Injection (DI) factory pattern established in the `sentinez` project (such as in `github.com/sentinez/modules/iam/v1/factory/factory.go`). This factory acts as a composition root that wires up repositories, third-party clients, the business service, and the gRPC handler.
+When asked to create a new factory for a given functional domain, you must follow the standard Dependency Injection (DI) factory pattern established in the `sentinez` project (such as in `github.com/sentinez/controlplane/iam/v1/factory/factory.go`). This factory acts as a composition root that wires up repositories, third-party clients, the business service, and the gRPC handler.
 
 ## 1. File Structure and Package
 
-The factory should be placed in an appropriate package under `github.com/sentinez/modules/<domain>/v1/factory`. The main file should typically be named `factory.go`.
+The factory should be placed in an appropriate package under `github.com/sentinez/controlplane/<domain>/v1/factory`. The main file should typically be named `factory.go`.
 The package name should be `<domain>fac`.
 
 Use standard imports, especially:
 - Context from `context`
-- Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/modules/<domain>/v1` (aliased as `pb` or `<domain>pb`)
+- Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/mods/<domain>/v1` (aliased as `pb` or `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
-- Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/repos/<model>`
-- The service package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/service` (aliased as `<domain>svc`)
-- The handler package from `github.com/sentinez/sentinez/github.com/sentinez/modules/<domain>/v1/handler` (aliased as `<domain>hdl`)
+- Repository interfaces from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
+- The service package from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
+- The handler package from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/handler` (aliased as `<domain>hdl`)
 - Database context/transactions from `github.com/sentinez/core/storage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/zlog`
 

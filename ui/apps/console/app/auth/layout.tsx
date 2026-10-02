@@ -5,10 +5,6 @@ export const metadata: Metadata = {
   description: 'Sentinez Central Authentication',
 };
 
-export default function Layout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <>{children}</>;
 }

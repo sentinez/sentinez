@@ -1,15 +1,17 @@
-import PageLayout from '@/components/page-layout';
-import Title from '@/components/title';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 15000));
   return (
-    <>
-      <Title title="Rate Limiter Rule" subtitle="Manage active security rules."></Title>
+    <PageLayout>
+      <PageLayoutHeader
+        title="Rate Limiter Rule"
+        subtitle="Manage active security rules."
+      ></PageLayoutHeader>
 
-      <PageLayout>
+      <PageLayoutContent>
         <span></span>
-      </PageLayout>
-    </>
+      </PageLayoutContent>
+    </PageLayout>
   );
 }

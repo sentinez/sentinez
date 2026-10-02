@@ -33,7 +33,7 @@ enum Kind {
   KIND_UNSPECIFIED = 0;
   KIND_ACCESS_ZONE = 1;
   KIND_DEMILITARIZED_ZONE = 2;
-  KIND_MESH = 4;
+  KIND_CONTROL_PLANE = 4;
 }
 
 enum Console {

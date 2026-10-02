@@ -288,22 +288,6 @@
       "type": "object",
       "title": "Metadata used for observability and debugging:"
     },
-    "dmzedgev1RuleBased": {
-      "type": "object",
-      "properties": {
-        "enable": {
-          "type": "boolean"
-        },
-        "ingress": {
-          "$ref": "#/definitions/v1RuleBasedLite",
-          "title": "@gotags: yaml:\"ingress\""
-        },
-        "ingressCompiled": {
-          "$ref": "#/definitions/securerulev1RuleBased",
-          "title": "@gotags: yaml:\"-\""
-        }
-      }
-    },
     "edgev1Location": {
       "type": "object",
       "properties": {
@@ -372,41 +356,6 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "securerulev1RuleBased": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expression"
-        },
-        "action": {
-          "$ref": "#/definitions/v1Action"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
     "sentinezcdnrulev1Rule": {
       "type": "object",
       "properties": {
@@ -439,7 +388,47 @@
         }
       }
     },
+    "sentinezcdnrulev1RuleLite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1ExpressionLite"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "sentinezsecurerulev1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "expr": {
+          "type": "string"
+        },
+        "condition": {
+          "$ref": "#/definitions/v1Condition",
+          "title": "@gotags: yaml:\"condition\""
+        }
+      },
+      "title": "A complete rule definition"
+    },
+    "sentinezsecurerulev1RuleLite": {
       "type": "object",
       "properties": {
         "id": {
@@ -449,12 +438,16 @@
           "type": "string",
           "title": "@gotags: yaml:\"name\""
         },
-        "description": {
-          "type": "string"
-        },
         "condition": {
-          "$ref": "#/definitions/v1Condition",
+          "$ref": "#/definitions/v1ConditionLite",
           "title": "@gotags: yaml:\"condition\""
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"actions\""
         }
       },
       "title": "A complete rule definition"
@@ -536,7 +529,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleLite"
+            "$ref": "#/definitions/sentinezsecurerulev1RuleLite"
           }
         },
         "orCondition": {
@@ -559,12 +552,11 @@
     "v1CDN": {
       "type": "object",
       "properties": {
-        "enable": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"enable\""
+        "ruleRuntime": {
+          "$ref": "#/definitions/sentinezcdnrulev1Rule"
         },
         "rule": {
-          "$ref": "#/definitions/sentinezcdnrulev1Rule",
+          "$ref": "#/definitions/sentinezcdnrulev1RuleLite",
           "title": "@gotags: yaml:\"rule\""
         }
       }
@@ -801,9 +793,13 @@
     "v1RateLimit": {
       "type": "object",
       "properties": {
-        "enable": {
-          "type": "boolean",
-          "title": "@gotags: yaml:\"isRateLimitOn\""
+        "ingress": {
+          "$ref": "#/definitions/v1RuleIngressLite",
+          "title": "@gotags: yaml:\"ingress\""
+        },
+        "ingressRuntime": {
+          "$ref": "#/definitions/v1RuleIngress",
+          "title": "@gotags: yaml:\"-\""
         },
         "timeWindow": {
           "type": "string",
@@ -846,7 +842,55 @@
         }
       }
     },
-    "v1RuleBasedLite": {
+    "v1RuleBased": {
+      "type": "object",
+      "properties": {
+        "ingress": {
+          "$ref": "#/definitions/v1RuleIngressLite",
+          "title": "@gotags: yaml:\"ingress\""
+        },
+        "ingressRuntime": {
+          "$ref": "#/definitions/v1RuleIngress",
+          "title": "@gotags: yaml:\"-\""
+        }
+      }
+    },
+    "v1RuleIngress": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1RuleIngressLite": {
       "type": "object",
       "properties": {
         "id": {
@@ -863,40 +907,14 @@
         },
         "action": {
           "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "type": "string"
         }
       }
-    },
-    "v1RuleLite": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "condition": {
-          "$ref": "#/definitions/v1ConditionLite",
-          "title": "@gotags: yaml:\"condition\""
-        },
-        "actions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "@gotags: yaml:\"actions\""
-        }
-      },
-      "title": "A complete rule definition"
     },
     "v1Rulesets": {
-      "type": "object",
-      "properties": {
-        "enable": {
-          "type": "boolean"
-        }
-      }
+      "type": "object"
     },
     "v1Security": {
       "type": "object",
@@ -913,7 +931,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/dmzedgev1RuleBased"
+            "$ref": "#/definitions/v1RuleBased"
           },
           "title": "@gotags: yaml:\"rules\""
         },

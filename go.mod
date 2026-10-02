@@ -5,8 +5,8 @@ go 1.27.1
 replace (
 	github.com/sentinez/bpf => ./staging/src/github.com/sentinez/bpf
 	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
+	github.com/sentinez/controlplane => ./staging/src/github.com/sentinez/controlplane
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
-	github.com/sentinez/modules => ./staging/src/github.com/sentinez/modules
 	github.com/sentinez/sentinez/api => ./api
 	github.com/sentinez/shared => ./staging/src/github.com/sentinez/shared
 )
@@ -21,8 +21,8 @@ require (
 	github.com/olric-data/olric v0.7.4
 	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
+	github.com/sentinez/controlplane v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
-	github.com/sentinez/modules v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/spf13/pflag v1.0.10

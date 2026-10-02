@@ -1,6 +1,5 @@
-import Title from '@/components/title';
 import { ResourceView } from '../../../components/resource-view';
-import PageLayout from '@/components/page-layout';
+import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 
 type Props = {
   params: Promise<{
@@ -8,14 +7,17 @@ type Props = {
   }>;
 };
 
-export default async function ResourcePage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { domain } = await params;
   return (
-    <>
-      <Title title="Resource" subtitle="Manage resources for this domain"></Title>
-      <PageLayout>
-        <ResourceView domain={domain} />;
-      </PageLayout>
-    </>
+    <PageLayout>
+      <PageLayoutHeader
+        title="Resource"
+        subtitle="Manage resources for this domain"
+      ></PageLayoutHeader>
+      <PageLayoutContent>
+        <ResourceView domain={domain} />
+      </PageLayoutContent>
+    </PageLayout>
   );
 }

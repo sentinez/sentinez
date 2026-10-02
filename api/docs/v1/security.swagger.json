@@ -234,7 +234,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/modulessecurityv1RuleBased"
+          "$ref": "#/definitions/v1RuleBased"
         },
         "updateMask": {
           "type": "string"
@@ -257,36 +257,6 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
-        }
-      }
-    },
-    "modulessecurityv1RuleBased": {
-      "type": "object",
-      "properties": {
-        "metadata": {
-          "$ref": "#/definitions/v1Metadata"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expression"
-        },
-        "action": {
-          "type": "string"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
         }
       }
     },
@@ -313,11 +283,7 @@
         "id": {
           "type": "string"
         },
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "description": {
+        "expr": {
           "type": "string"
         },
         "condition": {
@@ -335,6 +301,20 @@
         "STATUS_DISABLE"
       ],
       "default": "STATUS_UNSPECIFIED"
+    },
+    "v1ActionValue": {
+      "type": "object",
+      "properties": {
+        "strValue": {
+          "type": "string"
+        },
+        "mapValue": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     },
     "v1AndCondition": {
       "type": "object",
@@ -387,7 +367,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/modulessecurityv1RuleBased"
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     },
@@ -435,7 +415,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/modulessecurityv1RuleBased"
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     },
@@ -446,7 +426,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/modulessecurityv1RuleBased"
+            "$ref": "#/definitions/v1RuleBased"
           }
         },
         "total": {
@@ -503,6 +483,39 @@
         }
       }
     },
+    "v1RuleBased": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "action": {
+          "type": "string"
+        },
+        "actionValue": {
+          "$ref": "#/definitions/v1ActionValue"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
@@ -515,7 +528,7 @@
       "type": "object",
       "properties": {
         "ruleBased": {
-          "$ref": "#/definitions/modulessecurityv1RuleBased"
+          "$ref": "#/definitions/v1RuleBased"
         }
       }
     }

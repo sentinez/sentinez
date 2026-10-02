@@ -434,19 +434,21 @@ export function RootSidebarInset({ children }: { children: ReactNode }) {
 
   return (
     <SidebarInset>
-      <PreviewHeader username={user.name} />
-      <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
-        <SidebarTrigger className="-ml-1 cursor-pointer" />
-        <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((item, index) => (
-              <Fragment key={index}>{item}</Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+      <div className="min-h-screen">
+        <PreviewHeader username={user.name} />
+        <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
+          <SidebarTrigger className="-ml-1 cursor-pointer" />
+          <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((item, index) => (
+                <Fragment key={index}>{item}</Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="flex flex-1 flex-col gap-4 h-screen">{children}</div>
       </div>
-      <div className="flex flex-1 flex-col gap-4">{children}</div>
       <PreviewFooter />
     </SidebarInset>
   );
