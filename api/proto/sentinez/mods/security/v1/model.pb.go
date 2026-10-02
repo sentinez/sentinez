@@ -146,20 +146,79 @@ func (x *RuleBased) GetPriority() int32 {
 	return 0
 }
 
+type ActionValue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StrValue      string                 `protobuf:"bytes,1,opt,name=str_value,json=strValue,proto3" json:"str_value,omitempty"`
+	MapValue      map[string]string      `protobuf:"bytes,2,rep,name=map_value,json=mapValue,proto3" json:"map_value,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActionValue) Reset() {
+	*x = ActionValue{}
+	mi := &file_sentinez_mods_security_v1_model_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActionValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActionValue) ProtoMessage() {}
+
+func (x *ActionValue) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_mods_security_v1_model_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActionValue.ProtoReflect.Descriptor instead.
+func (*ActionValue) Descriptor() ([]byte, []int) {
+	return file_sentinez_mods_security_v1_model_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ActionValue) GetStrValue() string {
+	if x != nil {
+		return x.StrValue
+	}
+	return ""
+}
+
+func (x *ActionValue) GetMapValue() map[string]string {
+	if x != nil {
+		return x.MapValue
+	}
+	return nil
+}
+
 var File_sentinez_mods_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_mods_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/mods/security/v1/model.proto\x12\x19sentinez.mods.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a$sentinez/secure/rule/v1/engine.proto\"\xd7\x02\n" +
+	"%sentinez/mods/security/v1/model.proto\x12\x19sentinez.mods.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a$sentinez/secure/rule/v1/engine.proto\"\xa2\x03\n" +
 	"\tRuleBased\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x123\n" +
 	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.rulebaseds.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x127\n" +
 	"\x04expr\x18\x05 \x01(\v2#.sentinez.secure.rule.v1.ExpressionR\x04expr\x12\x16\n" +
-	"\x06action\x18\x06 \x01(\tR\x06action\x121\n" +
-	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\b \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/mods/security/v1;securitypbb\x06proto3"
+	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
+	"\faction_value\x18\a \x01(\v2&.sentinez.mods.security.v1.ActionValueR\vactionValue\x121\n" +
+	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
+	"\vActionValue\x12\x1b\n" +
+	"\tstr_value\x18\x01 \x01(\tR\bstrValue\x12Q\n" +
+	"\tmap_value\x18\x02 \x03(\v24.sentinez.mods.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
+	"\rMapValueEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/mods/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_mods_security_v1_model_proto_rawDescOnce sync.Once
@@ -173,22 +232,26 @@ func file_sentinez_mods_security_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_mods_security_v1_model_proto_rawDescData
 }
 
-var file_sentinez_mods_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_mods_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_mods_security_v1_model_proto_goTypes = []any{
 	(*RuleBased)(nil),      // 0: sentinez.mods.security.v1.RuleBased
-	(*v1.Metadata)(nil),    // 1: sentinez.types.v1.Metadata
-	(*v11.Expression)(nil), // 2: sentinez.secure.rule.v1.Expression
-	(v1.Status)(0),         // 3: sentinez.types.v1.Status
+	(*ActionValue)(nil),    // 1: sentinez.mods.security.v1.ActionValue
+	nil,                    // 2: sentinez.mods.security.v1.ActionValue.MapValueEntry
+	(*v1.Metadata)(nil),    // 3: sentinez.types.v1.Metadata
+	(*v11.Expression)(nil), // 4: sentinez.secure.rule.v1.Expression
+	(v1.Status)(0),         // 5: sentinez.types.v1.Status
 }
 var file_sentinez_mods_security_v1_model_proto_depIdxs = []int32{
-	1, // 0: sentinez.mods.security.v1.RuleBased.metadata:type_name -> sentinez.types.v1.Metadata
-	2, // 1: sentinez.mods.security.v1.RuleBased.expr:type_name -> sentinez.secure.rule.v1.Expression
-	3, // 2: sentinez.mods.security.v1.RuleBased.status:type_name -> sentinez.types.v1.Status
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 0: sentinez.mods.security.v1.RuleBased.metadata:type_name -> sentinez.types.v1.Metadata
+	4, // 1: sentinez.mods.security.v1.RuleBased.expr:type_name -> sentinez.secure.rule.v1.Expression
+	1, // 2: sentinez.mods.security.v1.RuleBased.action_value:type_name -> sentinez.mods.security.v1.ActionValue
+	5, // 3: sentinez.mods.security.v1.RuleBased.status:type_name -> sentinez.types.v1.Status
+	2, // 4: sentinez.mods.security.v1.ActionValue.map_value:type_name -> sentinez.mods.security.v1.ActionValue.MapValueEntry
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_mods_security_v1_model_proto_init() }

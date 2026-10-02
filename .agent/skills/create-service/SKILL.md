@@ -17,7 +17,7 @@ The service should be placed in an appropriate package under `github.com/sentine
 Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/mods/<domain>/v1` (aliased as `pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/types/conf/v1` (aliased as `confpb`)
-- Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
+- Repository interfaces from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
 - Standard error handling from `github.com/sentinez/sentinez/pkg/common/errorx`
 - Postgres transaction support from `github.com/sentinez/core/storage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/zlog`

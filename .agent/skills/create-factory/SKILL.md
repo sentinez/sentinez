@@ -20,9 +20,9 @@ Use standard imports, especially:
 - Context from `context`
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/mods/<domain>/v1` (aliased as `pb` or `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
-- Repository interfaces from `github.com/sentinez/sentinez/github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
-- The service package from `github.com/sentinez/sentinez/github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
-- The handler package from `github.com/sentinez/sentinez/github.com/sentinez/controlplane/<domain>/v1/handler` (aliased as `<domain>hdl`)
+- Repository interfaces from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
+- The service package from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
+- The handler package from `github.com/sentinez/sentinez/staging/src/github.com/sentinez/controlplane/<domain>/v1/handler` (aliased as `<domain>hdl`)
 - Database context/transactions from `github.com/sentinez/core/storage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/zlog`
 

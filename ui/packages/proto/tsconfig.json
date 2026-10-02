@@ -1,19 +1,27 @@
 {
   "compilerOptions": {
-    "lib": ["ES2020"],
-    "types": ["node"],
-    "baseUrl": ".",
+    "lib": [
+      "ES2020"
+    ],
+    "types": [
+      "node"
+    ],
     "paths": {
-      "@sentinez/proto/*": ["dist/*"]
+      "@sentinez/proto/*": [
+        "./dist/*"
+      ]
     },
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "outDir": "dist",
+    "rootDir": "./ts-proto",
+    "outDir": "./dist",
     "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["ts-proto"]
+  "include": [
+    "ts-proto"
+  ]
 }
