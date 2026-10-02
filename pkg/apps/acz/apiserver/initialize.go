@@ -17,14 +17,14 @@ package apiserver
 import (
 	"context"
 
-	greeterfac "github.com/sentinez/modules/greeter/v1/factory"
-	iamfac "github.com/sentinez/modules/iam/v1/factory"
-	securityfac "github.com/sentinez/modules/security/v1/factory"
-	tenantfac "github.com/sentinez/modules/tenant/v1/factory"
+	greeterfac "github.com/sentinez/controlplane/greeter/v1/factory"
+	iamfac "github.com/sentinez/controlplane/iam/v1/factory"
+	securityfac "github.com/sentinez/controlplane/security/v1/factory"
+	tenantfac "github.com/sentinez/controlplane/tenant/v1/factory"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/controlplane/v1"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/handlers"
 	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/middleware"
-	"github.com/sentinez/sentinez/pkg/apps/acz/apiserver/services/v1"
 )
 
 func (srv *Server) Initialize(
@@ -40,9 +40,9 @@ func (srv *Server) Initialize(
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
 	return srv.Visit(ctx,
-		services.NewGreeter(greeterfac.NewDefaultHandler(conf)),
-		services.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-		services.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
-		services.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
+		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
+		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
+		controlplane.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
+		controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
 	)
 }

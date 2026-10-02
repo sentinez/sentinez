@@ -504,9 +504,6 @@
         "action": {
           "type": "string"
         },
-        "actionValue": {
-          "$ref": "#/definitions/v1ActionValue"
-        },
         "status": {
           "$ref": "#/definitions/typesv1Status"
         },

@@ -55,9 +55,9 @@ lint.shared:
 	@echo "[LINT] shared is linting ..."
 	@cd ./staging/src/github.com/sentinez/shared && golangci-lint run
 
-lint.modules:
+lint.controlplane:
 	@echo "[LINT] modules is linting ..."
-	@cd ./staging/src/github.com/sentinez/modules && golangci-lint run
+	@cd ./staging/src/github.com/sentinez/controlplane && golangci-lint run
 
 lint.contrib.httphz:
 	@echo "[LINT] httphz is linting ..."

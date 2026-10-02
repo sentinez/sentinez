@@ -20,8 +20,8 @@ import (
 	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/client/options"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/modules/greeter/v1"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/modules/iam/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/greeter/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
 )
 
 func NewIAM(opt *options.Options,
