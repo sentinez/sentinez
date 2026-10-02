@@ -16,7 +16,9 @@
 package zlog
 
 import (
+	"context"
 	"testing"
+	"time"
 )
 
 func TestInfo(_ *testing.T) {
@@ -44,4 +46,20 @@ func TestFatal(_ *testing.T) {
 	// terminate the test.To test Fatal, you might need to mock os.Exit or
 	// run it in a separate process. Here, we just demonstrate the call.
 	// Fatal("This is a fatal message")
+}
+
+func TestSetupOTLP(t *testing.T) {
+	shutdown, err := SetupOTLP(context.Background(), OTLPConfig{
+		Endpoint:    "localhost:4317",
+		Insecure:    true,
+		ServiceName: "zlog-test",
+	})
+	if err != nil {
+		t.Fatalf("SetupOTLP: %v", err)
+	}
+	Info("otlp enabled")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	// Export fails without a collector; only ensure shutdown does not hang.
+	_ = shutdown(ctx)
 }

@@ -1,0 +1,13 @@
+# Repos published from staging/src/github.com/sentinez/<destination> to
+# github.com/sentinez/<destination>. Regenerate the workflow after editing:
+#   bash staging/publishing/gen_sync_workflow.sh
+branches:
+  - staging
+  - main
+rules:
+  - destination: core
+  - destination: shared
+  - destination: tools
+  - destination: contrib
+  - destination: controlplane
+  - destination: bpf

@@ -15,7 +15,7 @@
 package corecmn
 
 import (
-	cdnrulepb "github.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/delivery/cdn/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -41,8 +41,8 @@ func normalizeEdgeController(controller *edgepb.Controller) {
 	}
 }
 
-func toCDN(cdn *cdnrulepb.RuleLite) *cdnrulepb.Rule {
-	return &cdnrulepb.Rule{
+func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
+	return &cdnpb.Rule{
 		Id:          cdn.GetId(),
 		Name:        cdn.GetName(),
 		Description: cdn.GetDescription(),

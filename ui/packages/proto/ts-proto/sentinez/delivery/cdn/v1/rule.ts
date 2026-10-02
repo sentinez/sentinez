@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.12.1
 //   protoc               unknown
-// source: sentinez/cdn/rule/v1/cdn.proto
+// source: sentinez/delivery/cdn/v1/rule.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -10,7 +10,7 @@ import { Timestamp } from "../../../../google/protobuf/timestamp";
 import { Expression, ExpressionLite } from "../../../secure/rule/v1/engine";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 
-export const protobufPackage = "sentinez.cdn.rule.v1";
+export const protobufPackage = "sentinez.delivery.cdn.v1";
 
 export interface Rule {
   id: string;

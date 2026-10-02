@@ -16,7 +16,9 @@ package runner
 
 import (
 	"context"
+	"strings"
 
+	httpconst "github.com/sentinez/core/http/const"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
@@ -30,6 +32,8 @@ func NewApp[T any](appConf *settingpb.Config, scopeName string) *App[T] {
 	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
 	zlog.SetScopeLogLevel(scopeName, level)
 	ctx := NewContext[T](appConf)
+
+	_OTLP(appConf, ctx)
 
 	return &App[T]{
 		ctx: ctx,
@@ -47,4 +51,28 @@ func (a *App[T]) Main(main func(*Context[T])) {
 	if err := ctn.Run(context.Background()); err != nil {
 		zlog.Fatal(err)
 	}
+}
+
+func _OTLP[T any](appConf *settingpb.Config, rctx *Context[T]) {
+	secure := false
+	endpoint := appConf.GetDefault(
+		settingpb.Senz_SENZ_OTLP_ENDPOINT, "localhost:4317")
+
+	if strings.HasPrefix(endpoint, httpconst.SchemeSecure) {
+		secure = true
+	}
+
+	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfig{
+		Endpoint:    endpoint,
+		Insecure:    secure,
+		ServiceName: appConf.GetMeta().GetServiceKey(),
+	})
+	if err != nil {
+		zlog.Fatalf("runner.setupOTLP: %v", err)
+	}
+
+	// Export fails without a collector; only ensure shutdown does not hang.
+	rctx.OnStop(func(ctx context.Context) error {
+		return shutdown(ctx)
+	})
 }

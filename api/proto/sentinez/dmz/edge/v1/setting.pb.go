@@ -22,7 +22,7 @@ package edgepb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/cdn/rule/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/delivery/cdn/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -739,7 +739,7 @@ var File_sentinez_dmz_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a$sentinez/secure/rule/v1/engine.proto\x1a\x1esentinez/cdn/rule/v1/cdn.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
+	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a$sentinez/secure/rule/v1/engine.proto\x1a#sentinez/delivery/cdn/v1/rule.proto\x1a\x1bbuf/validate/validate.proto\"\xb5\x02\n" +
 	"\aSetting\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x124\n" +
 	"\x06server\x18\x02 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\x12:\n" +
@@ -778,10 +778,10 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12\x14\n" +
 	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
-	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"9\n" +
+	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"=\n" +
 	"\n" +
-	"Controller\x12+\n" +
-	"\x03cdn\x18\x01 \x03(\v2\x19.sentinez.cdn.rule.v1.CDNR\x03cdn\"\n" +
+	"Controller\x12/\n" +
+	"\x03cdn\x18\x01 \x03(\v2\x1d.sentinez.delivery.cdn.v1.CDNR\x03cdn\"\n" +
 	"\n" +
 	"\bPersonal\"\xe8\x01\n" +
 	"\bUpstream\x12\x9a\x01\n" +
@@ -826,7 +826,7 @@ var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
 	nil,                        // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
 	(*v1.RuleIngressLite)(nil), // 14: sentinez.secure.rule.v1.RuleIngressLite
 	(*v1.RuleIngress)(nil),     // 15: sentinez.secure.rule.v1.RuleIngress
-	(*v11.CDN)(nil),            // 16: sentinez.cdn.rule.v1.CDN
+	(*v11.CDN)(nil),            // 16: sentinez.delivery.cdn.v1.CDN
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
@@ -845,7 +845,7 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	15, // 13: sentinez.dmz.edge.v1.RuleBased.ingress_runtime:type_name -> sentinez.secure.rule.v1.RuleIngress
 	14, // 14: sentinez.dmz.edge.v1.RateLimit.ingress:type_name -> sentinez.secure.rule.v1.RuleIngressLite
 	15, // 15: sentinez.dmz.edge.v1.RateLimit.ingress_runtime:type_name -> sentinez.secure.rule.v1.RuleIngress
-	16, // 16: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.cdn.rule.v1.CDN
+	16, // 16: sentinez.dmz.edge.v1.Controller.cdn:type_name -> sentinez.delivery.cdn.v1.CDN
 	1,  // 17: sentinez.dmz.edge.v1.Upstream.protocol:type_name -> sentinez.dmz.edge.v1.ProxyProtocol
 	18, // [18:18] is the sub-list for method output_type
 	18, // [18:18] is the sub-list for method input_type
