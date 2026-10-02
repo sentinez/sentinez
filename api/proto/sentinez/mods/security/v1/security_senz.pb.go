@@ -18,7 +18,7 @@ var (
 
 var metadata_security = &typepb.XMeta{
 	ServiceName: "SENTINEZ // SECURITY",
-	ServiceKind: typepb.Kind_KIND_MESH,
+	ServiceKind: typepb.Kind_KIND_CONTROL_PLANE,
 	ServiceKey:  "sentinez.mods.security.v1",
 }
 
