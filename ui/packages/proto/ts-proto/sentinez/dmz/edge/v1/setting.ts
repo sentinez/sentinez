@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { CDN } from "../../../cdn/rule/v1/cdn";
+import { CDN } from "../../../delivery/cdn/v1/rule";
 import { RuleIngress, RuleIngressLite } from "../../../secure/rule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
