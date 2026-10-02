@@ -16,7 +16,9 @@ package runner
 
 import (
 	"context"
+	"strings"
 
+	httpconst "github.com/sentinez/core/http/const"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
@@ -52,9 +54,17 @@ func (a *App[T]) Main(main func(*Context[T])) {
 }
 
 func _OTLP[T any](appConf *settingpb.Config, rctx *Context[T]) {
+	secure := false
+	endpoint := appConf.GetDefault(
+		settingpb.Senz_SENZ_OTLP_ENDPOINT, "localhost:4317")
+
+	if strings.HasPrefix(endpoint, httpconst.SchemeSecure) {
+		secure = true
+	}
+
 	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfig{
-		Endpoint:    "localhost:4317",
-		Insecure:    true,
+		Endpoint:    endpoint,
+		Insecure:    secure,
 		ServiceName: appConf.GetMeta().GetServiceKey(),
 	})
 	if err != nil {
