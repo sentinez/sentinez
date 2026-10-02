@@ -18,10 +18,10 @@ package main
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/greeter/v1"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/modules/greeter/v1"
-	"github.com/sentinez/sentinez/pkg/apps/mesh/greeter/config"
+	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
 )
 
 func main() {
