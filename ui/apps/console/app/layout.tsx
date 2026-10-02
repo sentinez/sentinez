@@ -5,6 +5,7 @@ import '@sentinez/ui/custom.css';
 
 import { Providers } from '@/components/providers';
 import { Metadata } from 'next';
+import LoadingEffect from '@/components/loading-effect';
 
 const fontSans = Roboto({
   subsets: ['latin'],
@@ -48,7 +49,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <LoadingEffect>{children}</LoadingEffect>
+        </Providers>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LoginRequest, LoginResponse } from '@sentinez/proto/sentinez/modules/iam/v1/iam';
 
-const API_BASE_PATH = process.env.SNTZ_BASE_PATH || 'http://localhost:8080';
+const API_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || 'http://localhost:8080';
 
 export async function Login(params: LoginRequest): Promise<LoginResponse> {
   try {

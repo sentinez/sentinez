@@ -1,4 +1,3 @@
-import LoadingEffect from '@/components/loading-effect';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -7,5 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <LoadingEffect>{children}</LoadingEffect>;
+  return <>{children}</>;
 }

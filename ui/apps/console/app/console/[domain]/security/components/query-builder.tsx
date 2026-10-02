@@ -172,7 +172,7 @@ export function QueryBuilder({
         data-slot="query-builder"
         data-orientation={orientation}
         className={cn(
-          'group/query-builder grid grid-cols-1 gap-4',
+          'group/query-builder flex gap-4 h-full',
           'data-[orientation=horizontal]:gap-6 lg:data-[orientation=horizontal]:grid-cols-5',
           className,
         )}

@@ -84,3 +84,57 @@ export const ACTION_TYPE_LABEL: Record<ActionType, string> = {
   [ActionType.ACTION_TYPE_ROUTE_TO]: 'Route To',
   [ActionType.UNRECOGNIZED]: 'Unknown',
 };
+
+export interface SelectOption<T> {
+  label: string;
+  value: T;
+  description: string;
+}
+
+export const PRIORITY_OPTIONS: SelectOption<number>[] = [
+  { label: 'Critical (1)', value: 1, description: 'Evaluated before all other rules.' },
+  { label: 'High (10)', value: 10, description: 'Evaluated early, after critical rules.' },
+  { label: 'Medium (50)', value: 50, description: 'Default for most rules.' },
+  { label: 'Low (100)', value: 100, description: 'Evaluated last, after all other rules.' },
+];
+
+export const STATUS_OPTIONS: SelectOption<Status>[] = [
+  {
+    label: STATUS_LABEL[Status.STATUS_ACTIVE],
+    value: Status.STATUS_ACTIVE,
+    description: 'The rule is evaluated against incoming requests.',
+  },
+  {
+    label: STATUS_LABEL[Status.STATUS_DISABLE],
+    value: Status.STATUS_DISABLE,
+    description: 'The rule is kept but skipped during evaluation.',
+  },
+];
+
+export const ACTION_TYPE_DESCRIPTION: Partial<Record<ActionType, string>> = {
+  [ActionType.ACTION_TYPE_BLOCK]: 'Reject the request when the condition matches.',
+  [ActionType.ACTION_TYPE_LOG]: 'Allow the request and record a log entry.',
+  [ActionType.ACTION_TYPE_MODIFY_HEADER]: 'Set a request header (name and value) when matched.',
+  [ActionType.ACTION_TYPE_REDIRECT]: 'Redirect the client to the given URL.',
+  [ActionType.ACTION_TYPE_SET_TAG]: 'Attach a tag to the request for downstream use.',
+  [ActionType.ACTION_TYPE_ROUTE_TO]: 'Route the request to the given upstream/target.',
+};
+
+/** Actions that take no extra value */
+export const ACTIONS_WITHOUT_VALUE: ActionType[] = [
+  ActionType.ACTION_TYPE_BLOCK,
+  ActionType.ACTION_TYPE_LOG,
+];
+
+export const ACTION_TYPE_OPTIONS: SelectOption<ActionType>[] = [
+  ActionType.ACTION_TYPE_BLOCK,
+  ActionType.ACTION_TYPE_LOG,
+  ActionType.ACTION_TYPE_MODIFY_HEADER,
+  ActionType.ACTION_TYPE_REDIRECT,
+  ActionType.ACTION_TYPE_SET_TAG,
+  ActionType.ACTION_TYPE_ROUTE_TO,
+].map((value) => ({
+  label: ACTION_TYPE_LABEL[value],
+  value,
+  description: ACTION_TYPE_DESCRIPTION[value] ?? '',
+}));

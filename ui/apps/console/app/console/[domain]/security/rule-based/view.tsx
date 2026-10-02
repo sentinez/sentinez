@@ -27,9 +27,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from '@sentinez/ui/components/dialog';
 import {
   DropdownMenu,
@@ -40,23 +38,20 @@ import {
 } from '@sentinez/ui/components/dropdown-menu';
 import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
-import { Label } from '@sentinez/ui/components/label';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listRuleBaseds, createRuleBased } from '@/lib/api/security';
+import { listRuleBaseds, deleteRuleBased } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
-import { ActionType } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
-import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { QueryBuilder, createEmptyExpression } from '../components';
 import { Expression } from '@sentinez/proto/sentinez/secure/rule/v1/engine';
 import { statusLabel } from '@/lib/type/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export const columns: ColumnDef<RuleBased>[] = [
+export const getColumns = (onDelete: (rule: RuleBased) => void): ColumnDef<RuleBased>[] => [
   {
     accessorKey: 'name',
+    size: 220,
     header: ({ column }) => <div className="w-full">Name</div>,
     cell: ({ row }) => (
       <div className="w-full truncate">
@@ -71,11 +66,17 @@ export const columns: ColumnDef<RuleBased>[] = [
   },
   {
     accessorKey: 'description',
+    size: 0, // auto: takes the remaining width
     header: () => <div>Description</div>,
-    cell: ({ row }) => <div>{row.original.ingressRuntime?.description}</div>,
+    cell: ({ row }) => (
+      <div className="truncate" title={row.original.ingressRuntime?.description}>
+        {row.original.ingressRuntime?.description}
+      </div>
+    ),
   },
   {
     accessorKey: 'status',
+    size: 120,
     header: () => <div>Status</div>,
     cell: ({ row }) => {
       const s = statusLabel(row.original.ingressRuntime?.status);
@@ -88,6 +89,7 @@ export const columns: ColumnDef<RuleBased>[] = [
   },
   {
     accessorKey: 'priority',
+    size: 100,
     header: () => <div className="w-full text-right">Priority</div>,
     cell: ({ row }) => {
       return <div className="w-full text-right">{row.original.ingressRuntime?.priority}</div>;
@@ -95,6 +97,7 @@ export const columns: ColumnDef<RuleBased>[] = [
   },
   {
     id: 'actions',
+    size: 64,
     header: () => <div className="w-full" />,
     cell: ({ row }) => (
       <div className="w-full flex justify-center">
@@ -110,6 +113,9 @@ export const columns: ColumnDef<RuleBased>[] = [
             >
               Copy Rule ID
             </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -120,18 +126,13 @@ export const columns: ColumnDef<RuleBased>[] = [
 export default function View() {
   const [rules, setRules] = useState<RuleBased[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState<RuleBased | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  // form state
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('1');
-  const [query, setQuery] = useState<Expression>(createEmptyExpression);
 
   const fetchRules = useCallback(async () => {
     setLoading(true);
@@ -149,39 +150,23 @@ export default function View() {
     fetchRules();
   }, [fetchRules]);
 
-  const handleCreate = async () => {
-    if (!name || !description) {
-      toast.error('Fields name and description are required');
-      return;
-    }
-    const priorityNumber = parseInt(priority, 10);
-    if (isNaN(priorityNumber)) {
-      toast.error('Priority must be a number');
-      return;
-    }
-
+  const handleDelete = async () => {
+    const id = deleting?.ingressRuntime?.id;
+    if (!id) return;
+    setDeletingBusy(true);
     try {
-      await createRuleBased({
-        ingressRuntime: {
-          id: '',
-          name,
-          description,
-          status: Status.STATUS_ACTIVE,
-          priority: priorityNumber,
-          action: { type: ActionType.ACTION_TYPE_BLOCK },
-        },
-      });
-      toast.success('Rule based created successfully');
-      setOpen(false);
-      setName('');
-      setDescription('');
-      setPriority('1');
-      setQuery(createEmptyExpression());
+      await deleteRuleBased(id);
+      toast.success('Rule based deleted successfully');
+      setDeleting(null);
       fetchRules();
     } catch (err: any) {
-      toast.error('Failed to create rule based');
+      toast.error('Failed to delete rule based');
+    } finally {
+      setDeletingBusy(false);
     }
   };
+
+  const columns = useMemo(() => getColumns(setDeleting), []);
 
   const table = useReactTable<RuleBased>({
     data: rules,
@@ -205,62 +190,12 @@ export default function View() {
   return (
     <PageLayout>
       <PageLayoutHeader title="Security Rule" subtitle="Manage active security rules.">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <PlusIcon className="w-4 h-4" />
-              Create
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create Rule Based</DialogTitle>
-              <DialogDescription>Define a new Web Application Firewall rule.</DialogDescription>
-            </DialogHeader>
-            <div className="py-6 flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Rule Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Input
-                  id="priority"
-                  type="number"
-                  placeholder="1"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2 mt-2">
-                <Label>Condition Logic</Label>
-                <div className="-mx-1">
-                  <QueryBuilder value={query} onValueChange={setQuery} />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="secondary">Cancel</Button>
-              </DialogClose>
-              <Button onClick={handleCreate}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button size="sm" asChild>
+          <Link href="./rule-based/new">
+            <PlusIcon className="w-4 h-4" />
+            Create
+          </Link>
+        </Button>
       </PageLayoutHeader>
 
       <PageLayoutContent>
@@ -304,7 +239,14 @@ export default function View() {
                   <TableRow key={headerGroup.id} className="max-h-fit">
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id}>
+                        <TableHead
+                          key={header.id}
+                          style={
+                            header.column.columnDef.size
+                              ? { width: header.column.columnDef.size }
+                              : undefined
+                          }
+                        >
                           {header.isPlaceholder
                             ? null
                             : flexRender(header.column.columnDef.header, header.getContext())}
@@ -363,6 +305,26 @@ export default function View() {
           </div>
         </div>
       </PageLayoutContent>
+
+      <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Rule Based</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{deleting?.ingressRuntime?.name}&quot;? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setDeleting(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" disabled={deletingBusy} onClick={handleDelete}>
+              {deletingBusy ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 }

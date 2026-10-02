@@ -19,8 +19,19 @@ export interface RuleBased {
   description: string;
   expr?: Expression | undefined;
   action: string;
+  actionValue?: ActionValue | undefined;
   status: Status;
   priority: number;
+}
+
+export interface ActionValue {
+  strValue: string;
+  mapValue: { [key: string]: string };
+}
+
+export interface ActionValue_MapValueEntry {
+  key: string;
+  value: string;
 }
 
 function createBaseRuleBased(): RuleBased {
@@ -31,6 +42,7 @@ function createBaseRuleBased(): RuleBased {
     description: "",
     expr: undefined,
     action: "",
+    actionValue: undefined,
     status: 0,
     priority: 0,
   };
@@ -56,11 +68,14 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.action !== "") {
       writer.uint32(50).string(message.action);
     }
+    if (message.actionValue !== undefined) {
+      ActionValue.encode(message.actionValue, writer.uint32(58).fork()).join();
+    }
     if (message.status !== 0) {
-      writer.uint32(56).int32(message.status);
+      writer.uint32(64).int32(message.status);
     }
     if (message.priority !== 0) {
-      writer.uint32(64).int32(message.priority);
+      writer.uint32(72).int32(message.priority);
     }
     return writer;
   },
@@ -127,15 +142,23 @@ export const RuleBased: MessageFns<RuleBased> = {
             continue;
           }
           case 7: {
-            if (tag !== 56) {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.actionValue = ActionValue.decode(reader, reader.uint32());
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
               break;
             }
 
             message.status = reader.int32() as any;
             continue;
           }
-          case 8: {
-            if (tag !== 64) {
+          case 9: {
+            if (tag !== 72) {
               break;
             }
 
@@ -162,6 +185,11 @@ export const RuleBased: MessageFns<RuleBased> = {
       description: isSet(object.description) ? globalThis.String(object.description) : "",
       expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
       action: isSet(object.action) ? globalThis.String(object.action) : "",
+      actionValue: isSet(object.actionValue)
+        ? ActionValue.fromJSON(object.actionValue)
+        : isSet(object.action_value)
+        ? ActionValue.fromJSON(object.action_value)
+        : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
     };
@@ -187,6 +215,9 @@ export const RuleBased: MessageFns<RuleBased> = {
     if (message.action !== "") {
       obj.action = message.action;
     }
+    if (message.actionValue !== undefined) {
+      obj.actionValue = ActionValue.toJSON(message.actionValue);
+    }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
@@ -211,8 +242,228 @@ export const RuleBased: MessageFns<RuleBased> = {
       ? Expression.fromPartial(object.expr)
       : undefined;
     message.action = object.action ?? "";
+    message.actionValue = (object.actionValue !== undefined && object.actionValue !== null)
+      ? ActionValue.fromPartial(object.actionValue)
+      : undefined;
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
+    return message;
+  },
+};
+
+function createBaseActionValue(): ActionValue {
+  return { strValue: "", mapValue: {} };
+}
+
+export const ActionValue: MessageFns<ActionValue> = {
+  encode(message: ActionValue, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.strValue !== "") {
+      writer.uint32(10).string(message.strValue);
+    }
+    globalThis.Object.entries(message.mapValue).forEach(([key, value]: [string, string]) => {
+      ActionValue_MapValueEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
+    });
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ActionValue {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseActionValue();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.strValue = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            const entry2 = ActionValue_MapValueEntry.decode(reader, reader.uint32());
+            if (entry2.value !== undefined) {
+              message.mapValue[entry2.key] = entry2.value;
+            }
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ActionValue {
+    return {
+      strValue: isSet(object.strValue)
+        ? globalThis.String(object.strValue)
+        : isSet(object.str_value)
+        ? globalThis.String(object.str_value)
+        : "",
+      mapValue: isObject(object.mapValue)
+        ? (globalThis.Object.entries(object.mapValue) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : isObject(object.map_value)
+        ? (globalThis.Object.entries(object.map_value) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : {},
+    };
+  },
+
+  toJSON(message: ActionValue): unknown {
+    const obj: any = {};
+    if (message.strValue !== "") {
+      obj.strValue = message.strValue;
+    }
+    if (message.mapValue) {
+      const entries = globalThis.Object.entries(message.mapValue) as [string, string][];
+      if (entries.length > 0) {
+        obj.mapValue = {};
+        entries.forEach(([k, v]) => {
+          obj.mapValue[k] = v;
+        });
+      }
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ActionValue>, I>>(base?: I): ActionValue {
+    return ActionValue.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ActionValue>, I>>(object: I): ActionValue {
+    const message = createBaseActionValue();
+    message.strValue = object.strValue ?? "";
+    message.mapValue = (globalThis.Object.entries(object.mapValue ?? {}) as [string, string][]).reduce(
+      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
+        if (value !== undefined) {
+          acc[key] = globalThis.String(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBaseActionValue_MapValueEntry(): ActionValue_MapValueEntry {
+  return { key: "", value: "" };
+}
+
+export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = {
+  encode(message: ActionValue_MapValueEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ActionValue_MapValueEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseActionValue_MapValueEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ActionValue_MapValueEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: ActionValue_MapValueEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ActionValue_MapValueEntry>, I>>(base?: I): ActionValue_MapValueEntry {
+    return ActionValue_MapValueEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ActionValue_MapValueEntry>, I>>(object: I): ActionValue_MapValueEntry {
+    const message = createBaseActionValue_MapValueEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -228,6 +479,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
