@@ -21,8 +21,8 @@ import (
 	securityfac "github.com/sentinez/controlplane/security/v1/factory"
 	coregrpc "github.com/sentinez/core/grpc"
 	"github.com/sentinez/sentinez/api/client/local"
-	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/mods/security/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc/test/bufconn"
 )
 

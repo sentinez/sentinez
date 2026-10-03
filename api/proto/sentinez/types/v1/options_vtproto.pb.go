@@ -55,8 +55,8 @@ func (m *XMeta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if m.ServiceKind != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.ServiceKind))
+	if m.ServiceZone != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.ServiceZone))
 		i--
 		dAtA[i] = 0x10
 	}
@@ -197,8 +197,8 @@ func (m *XMeta) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.ServiceKind != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.ServiceKind))
+	if m.ServiceZone != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.ServiceZone))
 	}
 	l = len(m.ServiceKey)
 	if l > 0 {
@@ -307,9 +307,9 @@ func (m *XMeta) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ServiceKind", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ServiceZone", wireType)
 			}
-			m.ServiceKind = 0
+			m.ServiceZone = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -319,7 +319,7 @@ func (m *XMeta) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ServiceKind |= Kind(b&0x7F) << shift
+				m.ServiceZone |= Zone(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

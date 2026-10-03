@@ -19,14 +19,14 @@ import (
 	"encoding/base64"
 	"os"
 
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1"
 )
 
 type RulesetsLoader struct {
 	buf bytes.Buffer
 }
 
-func (rl *RulesetsLoader) Load(rulesetsFn []func() *rulepb.CoreRule) {
+func (rl *RulesetsLoader) Load(rulesetsFn []func() *corerulesetpb.CoreRule) {
 	for _, rule := range rulesetsFn {
 
 		conf, err := base64.StdEncoding.DecodeString(rule().Configuration)

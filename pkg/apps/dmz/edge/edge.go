@@ -21,8 +21,8 @@ import (
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"

@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/security/v1/repos/rulebased"
-	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/mods/security/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/errorx"
 )
 

@@ -2,7 +2,7 @@
 
 import { RootSidebar, RootSidebarInset } from '@/components/root-sidebar';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <RootSidebar />

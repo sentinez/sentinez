@@ -1,3 +1,0 @@
-cmd/acz-realtime directory is where you start the realtime server
-
-go run cmd/acz-realtime/main.go

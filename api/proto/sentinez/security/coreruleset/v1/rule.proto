@@ -1,0 +1,49 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.security.coreruleset.v1;
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1;corerulesetpb";
+
+message CoreRulesets {
+  string name = 1;
+  repeated CoreRule rules = 2;
+  string version = 3;
+}
+
+message CoreRule {
+  RuleAction actions = 1;
+  string configuration = 2;
+  string level = 3;
+}
+
+message RuleAction {
+  string statement = 1;
+  RuleAction children = 2;
+  RuleActionField fields = 3;
+}
+
+message RuleActionField {
+  repeated string id = 1;
+  repeated string logdata = 2;
+  repeated string msg = 3;
+  repeated string phase = 4;
+  repeated string setvar = 5;
+  repeated string severity = 6;
+  repeated string t = 7;
+  repeated string ver = 8;
+  repeated string tag = 9;
+}

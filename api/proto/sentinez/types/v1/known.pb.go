@@ -36,55 +36,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Kind int32
+type Zone int32
 
 const (
-	Kind_KIND_UNSPECIFIED        Kind = 0
-	Kind_KIND_ACCESS_ZONE        Kind = 1
-	Kind_KIND_DEMILITARIZED_ZONE Kind = 2
-	Kind_KIND_CONTROL_PLANE      Kind = 4
+	Zone_ZONE_UNSPECIFIED   Zone = 0
+	Zone_ZONE_DEMILITARIZED Zone = 1
+	Zone_ZONE_INTERNAL      Zone = 2
+	Zone_ZONE_PRIVATE_API   Zone = 3
+	Zone_ZONE_PUBLIC_API    Zone = 4
 )
 
-// Enum value maps for Kind.
+// Enum value maps for Zone.
 var (
-	Kind_name = map[int32]string{
-		0: "KIND_UNSPECIFIED",
-		1: "KIND_ACCESS_ZONE",
-		2: "KIND_DEMILITARIZED_ZONE",
-		4: "KIND_CONTROL_PLANE",
+	Zone_name = map[int32]string{
+		0: "ZONE_UNSPECIFIED",
+		1: "ZONE_DEMILITARIZED",
+		2: "ZONE_INTERNAL",
+		3: "ZONE_PRIVATE_API",
+		4: "ZONE_PUBLIC_API",
 	}
-	Kind_value = map[string]int32{
-		"KIND_UNSPECIFIED":        0,
-		"KIND_ACCESS_ZONE":        1,
-		"KIND_DEMILITARIZED_ZONE": 2,
-		"KIND_CONTROL_PLANE":      4,
+	Zone_value = map[string]int32{
+		"ZONE_UNSPECIFIED":   0,
+		"ZONE_DEMILITARIZED": 1,
+		"ZONE_INTERNAL":      2,
+		"ZONE_PRIVATE_API":   3,
+		"ZONE_PUBLIC_API":    4,
 	}
 )
 
-func (x Kind) Enum() *Kind {
-	p := new(Kind)
+func (x Zone) Enum() *Zone {
+	p := new(Zone)
 	*p = x
 	return p
 }
 
-func (x Kind) String() string {
+func (x Zone) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Kind) Descriptor() protoreflect.EnumDescriptor {
+func (Zone) Descriptor() protoreflect.EnumDescriptor {
 	return file_sentinez_types_v1_known_proto_enumTypes[0].Descriptor()
 }
 
-func (Kind) Type() protoreflect.EnumType {
+func (Zone) Type() protoreflect.EnumType {
 	return &file_sentinez_types_v1_known_proto_enumTypes[0]
 }
 
-func (x Kind) Number() protoreflect.EnumNumber {
+func (x Zone) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Kind.Descriptor instead.
-func (Kind) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Zone.Descriptor instead.
+func (Zone) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{0}
 }
 
@@ -471,12 +474,13 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x124\n" +
-	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*g\n" +
-	"\x04Kind\x12\x14\n" +
-	"\x10KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
-	"\x10KIND_ACCESS_ZONE\x10\x01\x12\x1b\n" +
-	"\x17KIND_DEMILITARIZED_ZONE\x10\x02\x12\x16\n" +
-	"\x12KIND_CONTROL_PLANE\x10\x04*I\n" +
+	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*r\n" +
+	"\x04Zone\x12\x14\n" +
+	"\x10ZONE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12ZONE_DEMILITARIZED\x10\x01\x12\x11\n" +
+	"\rZONE_INTERNAL\x10\x02\x12\x14\n" +
+	"\x10ZONE_PRIVATE_API\x10\x03\x12\x13\n" +
+	"\x0fZONE_PUBLIC_API\x10\x04*I\n" +
 	"\aConsole\x12\x17\n" +
 	"\x13CONSOLE_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eCONSOLE_PORTAL\x10\x01\x12\x11\n" +
@@ -521,7 +525,7 @@ func file_sentinez_types_v1_known_proto_rawDescGZIP() []byte {
 var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_sentinez_types_v1_known_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_v1_known_proto_goTypes = []any{
-	(Kind)(0),                     // 0: sentinez.types.v1.Kind
+	(Zone)(0),                     // 0: sentinez.types.v1.Zone
 	(Console)(0),                  // 1: sentinez.types.v1.Console
 	(Status)(0),                   // 2: sentinez.types.v1.Status
 	(Plan)(0),                     // 3: sentinez.types.v1.Plan

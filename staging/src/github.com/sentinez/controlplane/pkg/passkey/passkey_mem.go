@@ -21,7 +21,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/storage/cache/mem"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/rand"
 )

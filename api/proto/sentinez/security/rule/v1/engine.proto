@@ -1,0 +1,173 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.security.rule.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "sentinez/types/v1/known.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepb";
+
+// The possible sources from which a field can be extracted in a request
+enum FieldSource {
+  FIELD_SOURCE_UNSPECIFIED = 0;
+  FIELD_SOURCE_HEADER = 1;
+  FIELD_SOURCE_QUERY = 2;
+  FIELD_SOURCE_PATH = 3;
+  FIELD_SOURCE_BODY = 4;
+  FIELD_SOURCE_IP = 5;
+  FIELD_SOURCE_JA4 = 6;
+  FIELD_SOURCE_TLS = 7;
+  FIELD_SOURCE_METHOD = 8;
+  FIELD_SOURCE_HOST = 9;
+}
+
+// A logical condition expression
+message Condition {
+  string id = 5;  // @gotags: yaml:"-"
+  // The source of the field
+  // Example: "User-Agent" or "country"
+  FieldSource source = 1;  // @gotags: yaml:"source"
+  string key = 2;          // @gotags: yaml:"key"
+  // Supported operators: "eq", "ne", "contains",
+  // "matches", "in", "prefix", "suffix", "gt", "lt"
+  Operator operator = 3;  // @gotags: yaml:"operator"
+  // The value to compare against
+  google.protobuf.Value value = 4;  // @gotags: yaml:"value"
+}
+
+enum Operator {
+  OPERATOR_UNSPECIFIED = 0;
+  OPERATOR_EQ = 1;
+  OPERATOR_NE = 2;
+  OPERATOR_CONTAINS = 3;
+  OPERATOR_MATCHES = 4;
+  OPERATOR_IN = 5;
+  OPERATOR_PREFIX = 6;
+  OPERATOR_SUFFIX = 7;
+  OPERATOR_GT = 8;
+  OPERATOR_GTE = 9;
+  OPERATOR_LT = 10;
+  OPERATOR_LTE = 11;
+  OPERATOR_NOT_IN = 12;
+}
+
+// An action to execute when a rule matches
+message Action {
+  // Example types: "block", "log", "modify_header",
+  // "redirect", "set_tag", "route_to"
+  ActionType type = 1;  // @gotags: yaml:"type"
+
+  // Dynamic parameters, e.g., { "status": 403, "message": "Forbidden" }
+  google.protobuf.Struct params = 2;  // @gotags: yaml:"params"
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_BLOCK = 1;
+  ACTION_TYPE_LOG = 2;
+  ACTION_TYPE_MODIFY_HEADER = 3;
+  ACTION_TYPE_REDIRECT = 4;
+  ACTION_TYPE_SET_TAG = 5;
+  ACTION_TYPE_ROUTE_TO = 6;
+}
+
+// A complete rule definition
+message Rule {
+  string id = 1;
+  string expr = 2;
+  Condition condition = 3;  // @gotags: yaml:"condition"
+}
+
+message AndCondition {
+  repeated Rule rules = 1;
+  repeated AndCondition or_condition = 2;
+}
+
+message AndConditionLite {
+  repeated RuleLite rules = 1;
+  repeated AndConditionLite or_condition = 2;
+}
+
+// A complete rule definition
+message RuleLite {
+  string id = 1;
+  string name = 2;              // @gotags: yaml:"name"
+  ConditionLite condition = 4;  // @gotags: yaml:"condition"
+  repeated string actions = 5;  // @gotags: yaml:"actions"
+}
+
+// A logical condition expression
+message ConditionLite {
+  // The source of the field
+  // Example: "User-Agent" or "country"
+  string source = 1;  // @gotags: yaml:"source"
+  string key = 2;     // @gotags: yaml:"key"
+  // Supported operators: "eq", "ne", "contains",
+  // "matches", "in", "prefix", "suffix", "gt", "lt"
+  string operator = 3;  // @gotags: yaml:"operator"
+  // The value to compare against
+  string value = 4;  // @gotags: yaml:"value"
+}
+
+message Expression {
+  repeated AndCondition or_condition = 1;
+}
+
+message ExpressionLite {
+  repeated AndConditionLite or_condition = 1;
+}
+
+message MatchedRules {
+  repeated string ids = 1;
+  repeated string names = 2;
+}
+
+message RuleIngress {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+
+  Expression expr = 4;
+  Action action = 5;
+  sentinez.types.v1.Status status = 6;
+  int32 priority = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message RuleIngressLite {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+
+  ExpressionLite expr = 4;
+  Action action = 5;
+  string status = 6;
+}
+
+enum RuleService {
+  RULE_SERVICE_UNSPECIFIED = 0;
+  RULE_SERVICE_CORE_RULESETS = 1;
+  RULE_SERVICE_CUSTOM_RULES = 2;
+  RULE_SERVICE_RATE_LIMIT = 3;
+}
+
+enum RuleBehavior {
+  RULE_BEHAVIOR_UNSPECIFIED = 0;
+  RULE_BEHAVIOR_DENY = 1;
+}

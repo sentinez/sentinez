@@ -7,15 +7,14 @@
 package example
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/descriptorpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -88,8 +87,8 @@ const file_example_proto_rawDesc = "" +
 	"\x0eExampleService\x12A\n" +
 	"\x06Create\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\a\x8a\xb5\x18\x03\x12\x01\x01\x12B\n" +
 	"\x06Delete\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\b\x8a\xb5\x18\x04\x12\x02\x01\x02\x12A\n" +
-	"\aIgnored\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x06\x8a\xb5\x18\x02\b\x01Bz\x8a\xb2\x19*\n" +
-	"\x10SENTINEZ // EDGE\x10\x02\x1a\x14sentinez.dmz.edge.v1ZJgithub.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/exampleb\x06proto3"
+	"\aIgnored\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x06\x8a\xb5\x18\x02\b\x01Bv\x8a\xb2\x19&\n" +
+	"\x10SENTINEZ // EDGE\x10\x01\x1a\x10sentinez.edge.v1ZJgithub.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/exampleb\x06proto3"
 
 var (
 	file_example_proto_rawDescOnce sync.Once

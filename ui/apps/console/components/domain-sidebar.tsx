@@ -154,13 +154,14 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           } else {
             setSubTabIndex(-1);
           }
-
-          setLoading(false);
         }
 
         break;
       }
     }
+
+    // Always leave the skeleton state, even when no nav item/child matched.
+    setLoading(false);
   }, [pathname, navMain]);
 
   const handlerSidebarNavMainClick = (item: any, index: number) => {

@@ -1,29 +1,29 @@
 services:
-  sentinez-dmz-edge-01:
+  sentinez-edge-01:
     image: sentinez/edge:latest
-    container_name: sentinez.dmz.edge.01
+    container_name: sentinez.edge.01
     env_file:
-      - ../../../cmd/dmz-edge/v1/.env
+      - ../../../cmd/szedge/v1/.env
     environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez-dmz-edge-02:7777
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez-edge-02:7777
       - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
     networks:
       - sentinez-net
     ports:
       - "7443:7443"
 
-  sentinez-dmz-edge-02:
+  sentinez-edge-02:
     image: sentinez/edge:latest
-    container_name: sentinez.dmz.edge.02
+    container_name: sentinez.edge.02
     env_file:
-      - ../../../cmd/dmz-edge/v1/.env
+      - ../../../cmd/szedge/v1/.env
     networks:
       - sentinez-net
     environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez-dmz-edge-01:7777
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez-edge-01:7777
       - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
     depends_on:
-      - sentinez-dmz-edge-01
+      - sentinez-edge-01
     ports:
       - "8443:8443"
 

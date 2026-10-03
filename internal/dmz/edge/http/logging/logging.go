@@ -18,12 +18,11 @@ import (
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/bpf"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/request"
-	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
@@ -63,8 +62,7 @@ func (l *Logger) Handle(ctx corehttp.Context) error {
 	event.Protocol = ctx.Protocol()
 	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
 
-	protocol.ParseQuery(ctx.Queries(), event.Queries)
-	protocol.ParseHeader(ctx.Headers(), event.Headers)
+	event.Queries = string(ctx.QueryStr())
 
 	if l.log.V(zlog.LevelInfo.Int()) {
 		l.log.Info("http: request", event, event)

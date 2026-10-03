@@ -16,7 +16,7 @@ package wsz
 
 import (
 	corehttp "github.com/sentinez/core/http"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/sync"

@@ -8,10 +8,10 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 
 | Path | Purpose |
 |---|---|
-| `cmd/` | Service entrypoints: `acz-apiserver`, `acz-realtime`, `dmz-edge/v1`, `dmz-dataplane/v1`, `mesh-greeter/v1`, `mesh-centraldata/v1` |
+| `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
 | `internal/` | Root-module private code: `dmz` (edge/dataplane), `cluster`, `bpf`, `memory`, `defaults` |
-| `pkg/` | Root-module shared packages: `apps/{acz,controlplane,dmz}` (service wiring), `network`, `pools`, `protocol`, `queue`, `tracer` |
-| `api/` | Separate module (`sentinez/api`): protobuf sources (`proto/`), `buf.gen.yaml`, generated clients, third_party |
+| `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
+| `api/` | Separate module (`sentinez/api`): protobuf sources (`proto/sentinez/{apps,edge,gateway,network,security,types}`), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework: `runner`, `http`, `grpc`, `limiter`, `modsec` (Coraza), `rules`, `rulesets`, `storage`, `context` |
 | ↳ `shared` | Utility libs: `zlog` (zap + OTLP), `config`, `errorx`, `eventq`, `store`, `topic`, `jsonx`, `perms`, `cron`, etc. |
@@ -24,18 +24,19 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 
-Zone naming convention: `acz` = access zone, `dmz` = demilitarized zone, `mesh` = internal services.
+Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
 
 ## Commands
 
 ```sh
 make                         # build all default services (outputs to cmd/<svc>/bin/)
-make acz.apiserver.run       # build + run API server
-make acz.realtime.run
-make dmz.edge.run            # edge proxy
-make dmz.dataplane.run
-make mesh.greeter.run
-make <svc>.image.build       # docker image (acz.apiserver, dmz.edge, mesh.greeter)
+make sz.apiserver.run        # build + run API server
+make sz.realtime.run
+make sz.edge.run             # edge proxy
+make sz.dataplane.run        # runs inside the `gateway` netns (sudo)
+make sz.greeter.run
+make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane, greeter, centraldata
+make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata)
 make compose.up / compose.down
 make test.cover              # go test ./... -cover  (root module only)
 make lint                    # golangci-lint across root + core/shared/controlplane/httphz, plus buf lint

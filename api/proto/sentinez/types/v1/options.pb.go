@@ -39,7 +39,7 @@ const (
 type XMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	ServiceKind   Kind                   `protobuf:"varint,2,opt,name=service_kind,json=serviceKind,proto3,enum=sentinez.types.v1.Kind" json:"service_kind,omitempty"`
+	ServiceZone   Zone                   `protobuf:"varint,2,opt,name=service_zone,json=serviceZone,proto3,enum=sentinez.types.v1.Zone" json:"service_zone,omitempty"`
 	ServiceKey    string                 `protobuf:"bytes,3,opt,name=service_key,json=serviceKey,proto3" json:"service_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -82,11 +82,11 @@ func (x *XMeta) GetServiceName() string {
 	return ""
 }
 
-func (x *XMeta) GetServiceKind() Kind {
+func (x *XMeta) GetServiceZone() Zone {
 	if x != nil {
-		return x.ServiceKind
+		return x.ServiceZone
 	}
-	return Kind_KIND_UNSPECIFIED
+	return Zone_ZONE_UNSPECIFIED
 }
 
 func (x *XMeta) GetServiceKey() string {
@@ -252,7 +252,7 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"\x1fsentinez/types/v1/options.proto\x12\x11sentinez.types.v1\x1a google/protobuf/descriptor.proto\x1a\x1dsentinez/types/v1/known.proto\"\x87\x01\n" +
 	"\x05XMeta\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12:\n" +
-	"\fservice_kind\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.KindR\vserviceKind\x12\x1f\n" +
+	"\fservice_zone\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.ZoneR\vserviceZone\x12\x1f\n" +
 	"\vservice_key\x18\x03 \x01(\tR\n" +
 	"serviceKey\"T\n" +
 	"\bXMessage\x12%\n" +
@@ -282,14 +282,14 @@ var file_sentinez_types_v1_options_proto_goTypes = []any{
 	(*XMeta)(nil),                       // 0: sentinez.types.v1.XMeta
 	(*XMessage)(nil),                    // 1: sentinez.types.v1.XMessage
 	(*XMethod)(nil),                     // 2: sentinez.types.v1.XMethod
-	(Kind)(0),                           // 3: sentinez.types.v1.Kind
+	(Zone)(0),                           // 3: sentinez.types.v1.Zone
 	(Console)(0),                        // 4: sentinez.types.v1.Console
 	(*descriptorpb.MethodOptions)(nil),  // 5: google.protobuf.MethodOptions
 	(*descriptorpb.MessageOptions)(nil), // 6: google.protobuf.MessageOptions
 	(*descriptorpb.FileOptions)(nil),    // 7: google.protobuf.FileOptions
 }
 var file_sentinez_types_v1_options_proto_depIdxs = []int32{
-	3, // 0: sentinez.types.v1.XMeta.service_kind:type_name -> sentinez.types.v1.Kind
+	3, // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
 	4, // 1: sentinez.types.v1.XMethod.consoles:type_name -> sentinez.types.v1.Console
 	5, // 2: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
 	6, // 3: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions

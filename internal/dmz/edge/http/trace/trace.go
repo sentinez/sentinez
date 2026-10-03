@@ -15,12 +15,18 @@
 package trace
 
 import (
+	"errors"
+	"time"
+
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/sentinez/pkg/tracer"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 )
+
+var _ corechains.ChainNode = (*stage)(nil)
 
 func NewTracer(_ zlog.Level) corechains.ChainNode {
 	return &Trace{
@@ -37,4 +43,41 @@ func (t *Trace) Handle(ctx corehttp.Context) error {
 	ctx.SetRequestId(requestId)
 
 	return t.HandleNext(ctx)
+}
+
+// Wrap decorates node so that an error returned from it (and not already
+// attributed to a deeper stage) is tagged with name and logged once.
+// Because errors unwind from the innermost node outwards, the first
+// stage to see an error is the one that produced it.
+func Wrap(name string, node corechains.ChainNode) corechains.ChainNode {
+	return &stage{name: name, node: node}
+}
+
+type stage struct {
+	name string
+	node corechains.ChainNode
+}
+
+func (s *stage) SetNext(next corechains.ChainNode) corechains.ChainNode {
+	s.node.SetNext(next)
+	return next
+}
+
+func (s *stage) Handle(ctx corehttp.Context) error {
+	begin := time.Now()
+	err := s.node.Handle(ctx)
+	if err == nil {
+		return nil
+	}
+
+	var se *tracer.StageError
+	if errors.As(err, &se) {
+		return err
+	}
+
+	se = &tracer.StageError{Stage: s.name, Elapsed: time.Since(begin), Err: err}
+	zlog.Errorf("tracer: request %s failed at stage %q status %d after %s: %v",
+		ctx.RequestId(), se.Stage, ctx.StatusCode(), se.Elapsed, err)
+
+	return se
 }

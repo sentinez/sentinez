@@ -1,3 +1,0 @@
-cmd/acz-apiserver directory is where you start the API.
-
-go run cmd/acz-apiserver/main.go

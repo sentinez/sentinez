@@ -1,0 +1,3 @@
+cmd/szrealtime directory is where you start the realtime server
+
+go run cmd/szrealtime/main.go

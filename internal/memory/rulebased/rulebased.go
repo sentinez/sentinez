@@ -15,11 +15,13 @@
 package rulebased
 
 import (
+	"sort"
 	"sync"
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -33,51 +35,65 @@ var (
 func New() *RuleBased {
 	once.Do(func() {
 		ruleInst = &RuleBased{
-			space: ssync.NewMap[string, corerule.EvalFunc](),
-			rules: ssync.NewMap[string, *rulepb.RuleIngress](),
+			chains: ssync.NewMap[string, []Entry](),
 		}
 	})
 
 	return ruleInst
 }
 
+// Entry is a compiled rule ready to be evaluated.
+type Entry struct {
+	Eval corerule.EvalFunc
+	Rule *rulepb.RuleIngress
+}
+
 type RuleBased struct {
-	space *ssync.Map[string, corerule.EvalFunc]
-	rules *ssync.Map[string, *rulepb.RuleIngress]
+	chains *ssync.Map[string, []Entry]
 }
 
-func (rc *RuleBased) Store(namespace string, gr *rulepb.RuleIngress) {
-	val, _ := jsonx.Marshal(gr)
-	zlog.Debugf("rule: load config: %s", val)
+// Store replaces the rule chain of namespace. Inactive rules are skipped
+// and the rest are ordered by priority: a higher priority value runs
+// first, ties keep their given order.
+func (rc *RuleBased) Store(namespace string, rules []*rulepb.RuleIngress) {
+	chain := make([]Entry, 0, len(rules))
+	for _, r := range rules {
+		if r.GetStatus() != typepb.Status_STATUS_ACTIVE {
+			continue
+		}
 
-	rule := corerule.NewEval(gr.GetExpr())
+		val, _ := jsonx.Marshal(r)
+		zlog.Debugf("rule: load config: %s", val)
 
-	rc.space.Store(namespace, rule)
-}
-
-func (rc *RuleBased) Load(
-	namespace string) (corerule.EvalFunc, *rulepb.RuleIngress) {
-
-	ev, ok := rc.space.Load(namespace)
-	if !ok {
-		return nil, nil
+		chain = append(chain, Entry{
+			Eval: corerule.NewEval(r.GetExpr()),
+			Rule: r,
+		})
 	}
 
-	rule, ok := rc.rules.Load(namespace)
-	if !ok {
-		return ev, nil
+	sort.SliceStable(chain, func(i, j int) bool {
+		return chain[i].Rule.GetPriority() > chain[j].Rule.GetPriority()
+	})
+
+	if len(chain) == 0 {
+		rc.chains.Delete(namespace)
+		return
 	}
 
-	return ev, rule
+	rc.chains.Store(namespace, chain)
 }
 
-func (rc *RuleBased) LoadContext(
-	ctx corehttp.Context) (corerule.EvalFunc, *rulepb.RuleIngress) {
+// Load returns the priority-ordered chain of namespace. The result is
+// shared and must not be modified.
+func (rc *RuleBased) Load(namespace string) []Entry {
+	chain, _ := rc.chains.Load(namespace)
+	return chain
+}
 
+func (rc *RuleBased) LoadContext(ctx corehttp.Context) []Entry {
 	if rc == nil {
-		return nil, nil
+		return nil
 	}
 
-	zlog.Debugf("edge: hit rule cached %s", ctx.X().GetNamespace())
 	return rc.Load(ctx.X().GetNamespace())
 }

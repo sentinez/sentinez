@@ -7,7 +7,7 @@ package resourcerepo
 import (
 	"context"
 
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/tenant/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -27,7 +27,7 @@ import (
 	"text/template"
 
 	"github.com/sentinez/core/modsec/ruleparser"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1"
 	templatez "github.com/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -41,12 +41,12 @@ func normalizeName(input string) string {
 	caser := cases.Title(language.English)
 
 	names := strings.Split(input, " ")
-	result := ""
+	var result strings.Builder
 	for _, val := range names {
-		result += caser.String(val)
+		result.WriteString(caser.String(val))
 	}
 
-	return result
+	return result.String()
 }
 
 func normalizeVersion(input string) string {
@@ -95,12 +95,12 @@ func PascalCaseFileName(filePath string) string {
 	name = strings.ToLower(name)
 	nameArr := strings.Split(name, "_")
 
-	result := ""
+	var result strings.Builder
 	for _, val := range nameArr {
-		result += caser.String(val)
+		result.WriteString(caser.String(val))
 	}
 
-	return result
+	return result.String()
 }
 
 func parse(filePath string) *rulepb.CoreRulesets {

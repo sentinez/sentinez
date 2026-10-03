@@ -20,8 +20,8 @@ import (
 	centraldatafac "github.com/sentinez/controlplane/centraldata/v1/factory"
 	coregrpc "github.com/sentinez/core/grpc"
 	"github.com/sentinez/sentinez/api/client/local"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/mods/centraldata/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc/test/bufconn"
 )
 

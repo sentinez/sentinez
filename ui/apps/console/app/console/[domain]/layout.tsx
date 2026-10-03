@@ -2,7 +2,7 @@
 
 import { DomainSidebar, DomainSidebarInset } from '@/components/domain-sidebar';
 
-export default function DomainLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <DomainSidebar />

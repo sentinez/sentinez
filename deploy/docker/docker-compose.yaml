@@ -66,10 +66,10 @@ services:
   #     - "8222:8222"  # monitoring port
   #   # command: -js # Enable JetStream
 
-  sentinez.apiserver:
+  sentinez.gateway.apiserver:
     image: sentinez/apiserver:latest
-    hostname: sentinez.apiserver
-    container_name: sentinez.apiserver
+    hostname: sentinez.gateway.apiserver
+    container_name: sentinez.gateway.apiserver
     restart: on-failure:3
     environment:
       - SENZ_POSTGRES_URI=postgres://root:root@sentinez.postgres:5432/sentinez?sslmode=disable
@@ -78,7 +78,7 @@ services:
     networks:
       - sentinez-network
     env_file:
-      - ../../cmd/acz-apiserver/.env
+      - ../../cmd/szapiserver/.env
     depends_on:
       - sentinez.postgres
   
@@ -94,7 +94,7 @@ services:
     networks:
       - sentinez-network
     env_file:
-      - ../../cmd/dmz-edge/v1/.env
+      - ../../cmd/szedge/v1/.env
 
 volumes:
   _volume:

@@ -28,7 +28,7 @@ import {
   Rule,
   FieldSource,
   Operator,
-} from '@sentinez/proto/sentinez/secure/rule/v1/engine';
+} from '@sentinez/proto/sentinez/security/rule/v1/engine';
 import { FIELD_SOURCE_OPTIONS, OPERATOR_OPTIONS } from '@/lib/type/security';
 
 // ─── Factories ───────────────────────────────────────────────────────────────

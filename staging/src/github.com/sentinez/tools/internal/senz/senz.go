@@ -74,7 +74,7 @@ func writeTypeAssertions(g *protogen.GeneratedFile) {
 func writeMetadata(g *protogen.GeneratedFile, name string, meta *typepb.XMeta) {
 	g.P("var metadata_", name, " = &typepb.XMeta{")
 	g.P("	ServiceName: ", strconv.Quote(meta.GetServiceName()), ",")
-	g.P("	ServiceKind: typepb.Kind_", meta.GetServiceKind(), ",")
+	g.P("	ServiceZone: typepb.Zone_", meta.GetServiceZone(), ",")
 	g.P("	ServiceKey:  ", strconv.Quote(meta.GetServiceKey()), ",")
 	g.P("}")
 }
@@ -89,8 +89,8 @@ func writeMetaGetters(g *protogen.GeneratedFile, name string) {
 	g.P("	return metadata_", strings.ToLower(name), ".GetServiceName()")
 	g.P("}")
 	g.P()
-	g.P("func GetMeta", name, "ServiceKind() typepb.Kind {")
-	g.P("	return metadata_", strings.ToLower(name), ".GetServiceKind()")
+	g.P("func GetMeta", name, "ServiceZone() typepb.Zone {")
+	g.P("	return metadata_", strings.ToLower(name), ".GetServiceZone()")
 	g.P("}")
 	g.P()
 	g.P("func GetMeta", name, "ServiceKey() string {")

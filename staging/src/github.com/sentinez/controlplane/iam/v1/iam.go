@@ -21,8 +21,8 @@ import (
 	iamfac "github.com/sentinez/controlplane/iam/v1/factory"
 	coregrpc "github.com/sentinez/core/grpc"
 	"github.com/sentinez/sentinez/api/client/local"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc/test/bufconn"
 )
 

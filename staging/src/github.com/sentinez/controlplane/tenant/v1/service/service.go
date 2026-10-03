@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/tenant/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )

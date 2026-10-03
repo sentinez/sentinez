@@ -20,8 +20,8 @@ import (
 	tenanthandler "github.com/sentinez/controlplane/tenant/v1/handler"
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
 	tenantsvc "github.com/sentinez/controlplane/tenant/v1/service"
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/tenant/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

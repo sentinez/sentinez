@@ -50,13 +50,19 @@ type LogCloser interface {
 	Sync() error
 }
 
-func NewLog(named string, logKind typepb.LogKind, level Level) Log {
-	logger := configJSONLogger(named)
+func NewLog(named string, logKind typepb.LogKind, level Level,
+	opts ...Option) Log {
+
+	logger := configJSONLogger(named, newLoggerOptions(opts))
 	return createLogger(logger, logKind, ToLevel(level.String()).Int())
 }
 
-func NewLogCloser(named string, logKind typepb.LogKind, level Level) LogCloser {
-	logger := configJSONLogger(named)
+// NewLogCloser creates a LogCloser; pass WithOTLPProvider to export its
+// records through a dedicated OTLP setup.
+func NewLogCloser(named string, logKind typepb.LogKind, level Level,
+	opts ...Option) LogCloser {
+
+	logger := configJSONLogger(named, newLoggerOptions(opts))
 	return &logCloser{
 		logger: createLogger(logger, logKind, ToLevel(level.String()).Int()),
 	}
