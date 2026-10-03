@@ -24,9 +24,7 @@ import (
 	"strings"
 
 	httpconst "github.com/sentinez/core/http/const"
-	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
 	"github.com/sentinez/sentinez/pkg/pools/request"
-	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/color"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/grpc/grpclog"
@@ -64,9 +62,6 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		var queries map[string]*httppb.QueryValue
-		protocol.ParseQuery(r.URL.Query(), queries)
-
 		event := request.Acquire()
 
 		event.Scheme = r.URL.Scheme
@@ -76,7 +71,7 @@ func Logging(h http.Handler) http.Handler {
 		event.Status = int32(lw.statusCode)
 		event.RemoteAddress = ip
 		event.Protocol = r.Proto
-		event.Queries = queries
+		event.Queries = r.URL.Query().Encode()
 		event.UserAgent = r.UserAgent()
 		event.ContentType = r.Header.Get(httpconst.HeaderContentType)
 

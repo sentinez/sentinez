@@ -46,27 +46,31 @@ type RuleBased struct {
 	store  *memory.MemStore
 }
 
+// Handle runs the active rules of the namespace in priority order. The
+// first matching rule with a terminal action (block) ends the chain; other
+// matches fall through to the next rule.
 func (rb *RuleBased) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit rule")
-
-	eval, rule := rb.store.RuleBased().LoadContext(ctx)
-	if eval == nil || rule == nil {
+	chain := rb.store.RuleBased().LoadContext(ctx)
+	if len(chain) == 0 {
 		return rb.HandleNext(ctx)
 	}
 
 	matched := matchedPool.Get()
 	defer matchedPool.Put(matched)
 
-	if ok := eval(ctx, matched); !ok {
-		return rb.HandleNext(ctx)
-	}
+	for _, e := range chain {
+		matched.Reset()
+		if !e.Eval(ctx, matched) {
+			continue
+		}
 
-	zlog.Debugf("edge: action = %v", rule.GetAction().GetType())
+		action := e.Rule.GetAction().GetType()
+		zlog.Debugf("edge: rule %s matched, action = %v",
+			e.Rule.GetId(), action)
 
-	switch rule.GetAction().GetType() {
-	case rulepb.ActionType_ACTION_TYPE_BLOCK:
-		zlog.Debugf("edge: matched rule %v", matched)
-		return corehttp.Forbidden(ctx)
+		if action == rulepb.ActionType_ACTION_TYPE_BLOCK {
+			return corehttp.Forbidden(ctx)
+		}
 	}
 
 	return rb.HandleNext(ctx)

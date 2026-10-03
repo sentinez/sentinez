@@ -21,6 +21,7 @@ import (
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
+	otellog "go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.40.0"
@@ -44,9 +45,23 @@ type OTLPConfig struct {
 
 // SetupOTLP installs a global OpenTelemetry LoggerProvider that exports logs
 // over OTLP/gRPC. Every logger created by this package (before or after this
-// call) forwards its records to it. The returned function flushes pending
-// records and shuts the exporter down; call it on service exit.
+// call) forwards its records to it, unless it was given its own provider with
+// WithOTLPProvider. The returned function flushes pending records and shuts
+// the exporter down; call it on service exit.
 func SetupOTLP(ctx context.Context, cfg OTLPConfig) (func(context.Context) error, error) {
+	provider, err := NewOTLPProvider(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	otel.SetLoggerProvider(provider)
+
+	return provider.Shutdown, nil
+}
+
+// NewOTLPProvider builds an OTLP/gRPC LoggerProvider without installing it
+// globally. Hand it to a single logger with WithOTLPProvider; the caller owns
+// the provider and must Shutdown it to flush pending records.
+func NewOTLPProvider(ctx context.Context, cfg OTLPConfig) (*sdklog.LoggerProvider, error) {
 	opts := []otlploggrpc.Option{}
 	if cfg.Endpoint != "" {
 		opts = append(opts, otlploggrpc.WithEndpoint(cfg.Endpoint))
@@ -85,13 +100,42 @@ func SetupOTLP(ctx context.Context, cfg OTLPConfig) (func(context.Context) error
 		sdklog.WithResource(attrs),
 		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
 	)
-	otel.SetLoggerProvider(provider)
 
-	return provider.Shutdown, nil
+	return provider, nil
 }
 
-// withOTLP tees the core with an OpenTelemetry bridge. The bridge resolves the
-// global LoggerProvider lazily, so it is a no-op until SetupOTLP is called.
-func withOTLP(core zapcore.Core, scope string) zapcore.Core {
-	return zapcore.NewTee(core, otelzap.NewCore(scope))
+// Option customizes a logger created by NewLog or NewLogCloser.
+type Option func(*loggerOptions)
+
+type loggerOptions struct {
+	provider otellog.LoggerProvider
+}
+
+// WithOTLPProvider exports this logger's records through p instead of the
+// global LoggerProvider, so it can use its own OTLP endpoint and resource.
+func WithOTLPProvider(p otellog.LoggerProvider) Option {
+	return func(o *loggerOptions) { o.provider = p }
+}
+
+func newLoggerOptions(opts []Option) loggerOptions {
+	var o loggerOptions
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	return o
+}
+
+// withOTLP tees the core with an OpenTelemetry bridge. Without a provider the
+// bridge resolves the global LoggerProvider lazily, so it is a no-op until
+// SetupOTLP is called.
+func withOTLP(core zapcore.Core, scope string,
+	p otellog.LoggerProvider) zapcore.Core {
+
+	if p == nil {
+		return zapcore.NewTee(core, otelzap.NewCore(scope))
+	}
+
+	return zapcore.NewTee(core,
+		otelzap.NewCore(scope, otelzap.WithLoggerProvider(p)))
 }

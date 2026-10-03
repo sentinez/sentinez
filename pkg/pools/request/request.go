@@ -25,12 +25,12 @@ var (
 	_ io.Closer = (*RequestEvent)(nil)
 
 	pool = sync.NewPoolCtr(func() *RequestEvent {
-		return &RequestEvent{RequestEvent: &httppb.RequestEvent{}}
+		return &RequestEvent{Event: &httppb.Event{}}
 	})
 )
 
 type RequestEvent struct {
-	*httppb.RequestEvent
+	*httppb.Event
 }
 
 func (re *RequestEvent) Close() error {

@@ -35,6 +35,6 @@ func WAF4160() (corers.Version, fs.FS) {
 }
 
 func WAF4170() (corers.Version, fs.FS) {
-	sub, _ := fs.Sub(fsWAF4160, "deploy/ruleroot/v4-17-0")
+	sub, _ := fs.Sub(fsWAF4170, "deploy/ruleroot/v4-17-0")
 	return corers.WAF4170, sub
 }

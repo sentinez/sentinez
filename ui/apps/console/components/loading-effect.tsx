@@ -22,22 +22,18 @@ export default function LoadingEffect({ children }: { children: ReactNode }) {
 export function IsLoading({ timeout }: { timeout: number }) {
   useEffect(() => {
     const start = performance.now();
-    let frame: number;
+    // setInterval (not requestAnimationFrame) so progress still advances
+    // when the tab is hidden or the browser throttles animation frames.
+    const id = setInterval(() => {
+      const elapsed = performance.now() - start;
+      const next = Math.min((elapsed / timeout) * 99, 99);
 
-    const update = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min((elapsed / timeout) * 99, 99);
+      setProgress(next);
 
-      setProgress(progress);
+      if (next >= 99) clearInterval(id);
+    }, 50);
 
-      if (progress < 99) {
-        frame = requestAnimationFrame(update);
-      }
-    };
-
-    frame = requestAnimationFrame(update);
-
-    return () => cancelAnimationFrame(frame);
+    return () => clearInterval(id);
   }, [timeout]);
 
   const [progress, setProgress] = useState(0);

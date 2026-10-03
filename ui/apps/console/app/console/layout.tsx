@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: 'Sentinez Console',
 };
 
-export default async function ConsoleLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider
       // style={{'--sidebar-width': '300px'} as React.CSSProperties}
