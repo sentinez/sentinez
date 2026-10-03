@@ -26,7 +26,7 @@ require (
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/spf13/pflag v1.0.10
-	google.golang.org/grpc v1.83.2
+	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 )
 
