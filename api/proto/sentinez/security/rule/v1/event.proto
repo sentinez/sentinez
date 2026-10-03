@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package sentinez.security.rule.v1;
 
-import "sentinez/security/rule/v1/rule.proto";
+import "sentinez/security/rule/v1/engine.proto";
 import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepb";

@@ -16,9 +16,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: sentinez/security/rule/v1/rule.proto
+// source: sentinez/security/coreruleset/v1/rule.proto
 
-package rulepb
+package corerulesetpb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -35,104 +35,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RuleService int32
-
-const (
-	RuleService_RULE_SERVICE_UNSPECIFIED   RuleService = 0
-	RuleService_RULE_SERVICE_CORE_RULESETS RuleService = 1
-	RuleService_RULE_SERVICE_CUSTOM_RULES  RuleService = 2
-	RuleService_RULE_SERVICE_RATE_LIMIT    RuleService = 3
-)
-
-// Enum value maps for RuleService.
-var (
-	RuleService_name = map[int32]string{
-		0: "RULE_SERVICE_UNSPECIFIED",
-		1: "RULE_SERVICE_CORE_RULESETS",
-		2: "RULE_SERVICE_CUSTOM_RULES",
-		3: "RULE_SERVICE_RATE_LIMIT",
-	}
-	RuleService_value = map[string]int32{
-		"RULE_SERVICE_UNSPECIFIED":   0,
-		"RULE_SERVICE_CORE_RULESETS": 1,
-		"RULE_SERVICE_CUSTOM_RULES":  2,
-		"RULE_SERVICE_RATE_LIMIT":    3,
-	}
-)
-
-func (x RuleService) Enum() *RuleService {
-	p := new(RuleService)
-	*p = x
-	return p
-}
-
-func (x RuleService) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RuleService) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_security_rule_v1_rule_proto_enumTypes[0].Descriptor()
-}
-
-func (RuleService) Type() protoreflect.EnumType {
-	return &file_sentinez_security_rule_v1_rule_proto_enumTypes[0]
-}
-
-func (x RuleService) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RuleService.Descriptor instead.
-func (RuleService) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{0}
-}
-
-type RuleBehavior int32
-
-const (
-	RuleBehavior_RULE_BEHAVIOR_UNSPECIFIED RuleBehavior = 0
-	RuleBehavior_RULE_BEHAVIOR_DENY        RuleBehavior = 1
-)
-
-// Enum value maps for RuleBehavior.
-var (
-	RuleBehavior_name = map[int32]string{
-		0: "RULE_BEHAVIOR_UNSPECIFIED",
-		1: "RULE_BEHAVIOR_DENY",
-	}
-	RuleBehavior_value = map[string]int32{
-		"RULE_BEHAVIOR_UNSPECIFIED": 0,
-		"RULE_BEHAVIOR_DENY":        1,
-	}
-)
-
-func (x RuleBehavior) Enum() *RuleBehavior {
-	p := new(RuleBehavior)
-	*p = x
-	return p
-}
-
-func (x RuleBehavior) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RuleBehavior) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_security_rule_v1_rule_proto_enumTypes[1].Descriptor()
-}
-
-func (RuleBehavior) Type() protoreflect.EnumType {
-	return &file_sentinez_security_rule_v1_rule_proto_enumTypes[1]
-}
-
-func (x RuleBehavior) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RuleBehavior.Descriptor instead.
-func (RuleBehavior) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{1}
-}
-
 type CoreRulesets struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -144,7 +46,7 @@ type CoreRulesets struct {
 
 func (x *CoreRulesets) Reset() {
 	*x = CoreRulesets{}
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[0]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -156,7 +58,7 @@ func (x *CoreRulesets) String() string {
 func (*CoreRulesets) ProtoMessage() {}
 
 func (x *CoreRulesets) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[0]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -169,7 +71,7 @@ func (x *CoreRulesets) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreRulesets.ProtoReflect.Descriptor instead.
 func (*CoreRulesets) Descriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{0}
+	return file_sentinez_security_coreruleset_v1_rule_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CoreRulesets) GetName() string {
@@ -204,7 +106,7 @@ type CoreRule struct {
 
 func (x *CoreRule) Reset() {
 	*x = CoreRule{}
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[1]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -216,7 +118,7 @@ func (x *CoreRule) String() string {
 func (*CoreRule) ProtoMessage() {}
 
 func (x *CoreRule) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[1]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -229,7 +131,7 @@ func (x *CoreRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreRule.ProtoReflect.Descriptor instead.
 func (*CoreRule) Descriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_security_coreruleset_v1_rule_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CoreRule) GetActions() *RuleAction {
@@ -264,7 +166,7 @@ type RuleAction struct {
 
 func (x *RuleAction) Reset() {
 	*x = RuleAction{}
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[2]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +178,7 @@ func (x *RuleAction) String() string {
 func (*RuleAction) ProtoMessage() {}
 
 func (x *RuleAction) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[2]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +191,7 @@ func (x *RuleAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuleAction.ProtoReflect.Descriptor instead.
 func (*RuleAction) Descriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_security_coreruleset_v1_rule_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RuleAction) GetStatement() string {
@@ -330,7 +232,7 @@ type RuleActionField struct {
 
 func (x *RuleActionField) Reset() {
 	*x = RuleActionField{}
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[3]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +244,7 @@ func (x *RuleActionField) String() string {
 func (*RuleActionField) ProtoMessage() {}
 
 func (x *RuleActionField) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_security_rule_v1_rule_proto_msgTypes[3]
+	mi := &file_sentinez_security_coreruleset_v1_rule_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +257,7 @@ func (x *RuleActionField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuleActionField.ProtoReflect.Descriptor instead.
 func (*RuleActionField) Descriptor() ([]byte, []int) {
-	return file_sentinez_security_rule_v1_rule_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_security_coreruleset_v1_rule_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RuleActionField) GetId() []string {
@@ -421,24 +323,24 @@ func (x *RuleActionField) GetTag() []string {
 	return nil
 }
 
-var File_sentinez_security_rule_v1_rule_proto protoreflect.FileDescriptor
+var File_sentinez_security_coreruleset_v1_rule_proto protoreflect.FileDescriptor
 
-const file_sentinez_security_rule_v1_rule_proto_rawDesc = "" +
+const file_sentinez_security_coreruleset_v1_rule_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/security/rule/v1/rule.proto\x12\x19sentinez.security.rule.v1\"w\n" +
+	"+sentinez/security/coreruleset/v1/rule.proto\x12 sentinez.security.coreruleset.v1\"~\n" +
 	"\fCoreRulesets\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
-	"\x05rules\x18\x02 \x03(\v2#.sentinez.security.rule.v1.CoreRuleR\x05rules\x12\x18\n" +
-	"\aversion\x18\x03 \x01(\tR\aversion\"\x87\x01\n" +
-	"\bCoreRule\x12?\n" +
-	"\aactions\x18\x01 \x01(\v2%.sentinez.security.rule.v1.RuleActionR\aactions\x12$\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12@\n" +
+	"\x05rules\x18\x02 \x03(\v2*.sentinez.security.coreruleset.v1.CoreRuleR\x05rules\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\tR\aversion\"\x8e\x01\n" +
+	"\bCoreRule\x12F\n" +
+	"\aactions\x18\x01 \x01(\v2,.sentinez.security.coreruleset.v1.RuleActionR\aactions\x12$\n" +
 	"\rconfiguration\x18\x02 \x01(\tR\rconfiguration\x12\x14\n" +
-	"\x05level\x18\x03 \x01(\tR\x05level\"\xb1\x01\n" +
+	"\x05level\x18\x03 \x01(\tR\x05level\"\xbf\x01\n" +
 	"\n" +
 	"RuleAction\x12\x1c\n" +
-	"\tstatement\x18\x01 \x01(\tR\tstatement\x12A\n" +
-	"\bchildren\x18\x02 \x01(\v2%.sentinez.security.rule.v1.RuleActionR\bchildren\x12B\n" +
-	"\x06fields\x18\x03 \x01(\v2*.sentinez.security.rule.v1.RuleActionFieldR\x06fields\"\xc9\x01\n" +
+	"\tstatement\x18\x01 \x01(\tR\tstatement\x12H\n" +
+	"\bchildren\x18\x02 \x01(\v2,.sentinez.security.coreruleset.v1.RuleActionR\bchildren\x12I\n" +
+	"\x06fields\x18\x03 \x01(\v21.sentinez.security.coreruleset.v1.RuleActionFieldR\x06fields\"\xc9\x01\n" +
 	"\x0fRuleActionField\x12\x0e\n" +
 	"\x02id\x18\x01 \x03(\tR\x02id\x12\x18\n" +
 	"\alogdata\x18\x02 \x03(\tR\alogdata\x12\x10\n" +
@@ -448,43 +350,32 @@ const file_sentinez_security_rule_v1_rule_proto_rawDesc = "" +
 	"\bseverity\x18\x06 \x03(\tR\bseverity\x12\f\n" +
 	"\x01t\x18\a \x03(\tR\x01t\x12\x10\n" +
 	"\x03ver\x18\b \x03(\tR\x03ver\x12\x10\n" +
-	"\x03tag\x18\t \x03(\tR\x03tag*\x87\x01\n" +
-	"\vRuleService\x12\x1c\n" +
-	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aRULE_SERVICE_CORE_RULESETS\x10\x01\x12\x1d\n" +
-	"\x19RULE_SERVICE_CUSTOM_RULES\x10\x02\x12\x1b\n" +
-	"\x17RULE_SERVICE_RATE_LIMIT\x10\x03*E\n" +
-	"\fRuleBehavior\x12\x1d\n" +
-	"\x19RULE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\x16\n" +
-	"\x12RULE_BEHAVIOR_DENY\x10\x01BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepbb\x06proto3"
+	"\x03tag\x18\t \x03(\tR\x03tagBWZUgithub.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1;corerulesetpbb\x06proto3"
 
 var (
-	file_sentinez_security_rule_v1_rule_proto_rawDescOnce sync.Once
-	file_sentinez_security_rule_v1_rule_proto_rawDescData []byte
+	file_sentinez_security_coreruleset_v1_rule_proto_rawDescOnce sync.Once
+	file_sentinez_security_coreruleset_v1_rule_proto_rawDescData []byte
 )
 
-func file_sentinez_security_rule_v1_rule_proto_rawDescGZIP() []byte {
-	file_sentinez_security_rule_v1_rule_proto_rawDescOnce.Do(func() {
-		file_sentinez_security_rule_v1_rule_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_security_rule_v1_rule_proto_rawDesc), len(file_sentinez_security_rule_v1_rule_proto_rawDesc)))
+func file_sentinez_security_coreruleset_v1_rule_proto_rawDescGZIP() []byte {
+	file_sentinez_security_coreruleset_v1_rule_proto_rawDescOnce.Do(func() {
+		file_sentinez_security_coreruleset_v1_rule_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_security_coreruleset_v1_rule_proto_rawDesc), len(file_sentinez_security_coreruleset_v1_rule_proto_rawDesc)))
 	})
-	return file_sentinez_security_rule_v1_rule_proto_rawDescData
+	return file_sentinez_security_coreruleset_v1_rule_proto_rawDescData
 }
 
-var file_sentinez_security_rule_v1_rule_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_sentinez_security_rule_v1_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_sentinez_security_rule_v1_rule_proto_goTypes = []any{
-	(RuleService)(0),        // 0: sentinez.security.rule.v1.RuleService
-	(RuleBehavior)(0),       // 1: sentinez.security.rule.v1.RuleBehavior
-	(*CoreRulesets)(nil),    // 2: sentinez.security.rule.v1.CoreRulesets
-	(*CoreRule)(nil),        // 3: sentinez.security.rule.v1.CoreRule
-	(*RuleAction)(nil),      // 4: sentinez.security.rule.v1.RuleAction
-	(*RuleActionField)(nil), // 5: sentinez.security.rule.v1.RuleActionField
+var file_sentinez_security_coreruleset_v1_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sentinez_security_coreruleset_v1_rule_proto_goTypes = []any{
+	(*CoreRulesets)(nil),    // 0: sentinez.security.coreruleset.v1.CoreRulesets
+	(*CoreRule)(nil),        // 1: sentinez.security.coreruleset.v1.CoreRule
+	(*RuleAction)(nil),      // 2: sentinez.security.coreruleset.v1.RuleAction
+	(*RuleActionField)(nil), // 3: sentinez.security.coreruleset.v1.RuleActionField
 }
-var file_sentinez_security_rule_v1_rule_proto_depIdxs = []int32{
-	3, // 0: sentinez.security.rule.v1.CoreRulesets.rules:type_name -> sentinez.security.rule.v1.CoreRule
-	4, // 1: sentinez.security.rule.v1.CoreRule.actions:type_name -> sentinez.security.rule.v1.RuleAction
-	4, // 2: sentinez.security.rule.v1.RuleAction.children:type_name -> sentinez.security.rule.v1.RuleAction
-	5, // 3: sentinez.security.rule.v1.RuleAction.fields:type_name -> sentinez.security.rule.v1.RuleActionField
+var file_sentinez_security_coreruleset_v1_rule_proto_depIdxs = []int32{
+	1, // 0: sentinez.security.coreruleset.v1.CoreRulesets.rules:type_name -> sentinez.security.coreruleset.v1.CoreRule
+	2, // 1: sentinez.security.coreruleset.v1.CoreRule.actions:type_name -> sentinez.security.coreruleset.v1.RuleAction
+	2, // 2: sentinez.security.coreruleset.v1.RuleAction.children:type_name -> sentinez.security.coreruleset.v1.RuleAction
+	3, // 3: sentinez.security.coreruleset.v1.RuleAction.fields:type_name -> sentinez.security.coreruleset.v1.RuleActionField
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -492,27 +383,26 @@ var file_sentinez_security_rule_v1_rule_proto_depIdxs = []int32{
 	0, // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_sentinez_security_rule_v1_rule_proto_init() }
-func file_sentinez_security_rule_v1_rule_proto_init() {
-	if File_sentinez_security_rule_v1_rule_proto != nil {
+func init() { file_sentinez_security_coreruleset_v1_rule_proto_init() }
+func file_sentinez_security_coreruleset_v1_rule_proto_init() {
+	if File_sentinez_security_coreruleset_v1_rule_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_security_rule_v1_rule_proto_rawDesc), len(file_sentinez_security_rule_v1_rule_proto_rawDesc)),
-			NumEnums:      2,
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_security_coreruleset_v1_rule_proto_rawDesc), len(file_sentinez_security_coreruleset_v1_rule_proto_rawDesc)),
+			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_sentinez_security_rule_v1_rule_proto_goTypes,
-		DependencyIndexes: file_sentinez_security_rule_v1_rule_proto_depIdxs,
-		EnumInfos:         file_sentinez_security_rule_v1_rule_proto_enumTypes,
-		MessageInfos:      file_sentinez_security_rule_v1_rule_proto_msgTypes,
+		GoTypes:           file_sentinez_security_coreruleset_v1_rule_proto_goTypes,
+		DependencyIndexes: file_sentinez_security_coreruleset_v1_rule_proto_depIdxs,
+		MessageInfos:      file_sentinez_security_coreruleset_v1_rule_proto_msgTypes,
 	}.Build()
-	File_sentinez_security_rule_v1_rule_proto = out.File
-	file_sentinez_security_rule_v1_rule_proto_goTypes = nil
-	file_sentinez_security_rule_v1_rule_proto_depIdxs = nil
+	File_sentinez_security_coreruleset_v1_rule_proto = out.File
+	file_sentinez_security_coreruleset_v1_rule_proto_goTypes = nil
+	file_sentinez_security_coreruleset_v1_rule_proto_depIdxs = nil
 }

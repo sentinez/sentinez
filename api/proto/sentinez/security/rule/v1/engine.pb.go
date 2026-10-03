@@ -249,6 +249,104 @@ func (ActionType) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_security_rule_v1_engine_proto_rawDescGZIP(), []int{2}
 }
 
+type RuleService int32
+
+const (
+	RuleService_RULE_SERVICE_UNSPECIFIED   RuleService = 0
+	RuleService_RULE_SERVICE_CORE_RULESETS RuleService = 1
+	RuleService_RULE_SERVICE_CUSTOM_RULES  RuleService = 2
+	RuleService_RULE_SERVICE_RATE_LIMIT    RuleService = 3
+)
+
+// Enum value maps for RuleService.
+var (
+	RuleService_name = map[int32]string{
+		0: "RULE_SERVICE_UNSPECIFIED",
+		1: "RULE_SERVICE_CORE_RULESETS",
+		2: "RULE_SERVICE_CUSTOM_RULES",
+		3: "RULE_SERVICE_RATE_LIMIT",
+	}
+	RuleService_value = map[string]int32{
+		"RULE_SERVICE_UNSPECIFIED":   0,
+		"RULE_SERVICE_CORE_RULESETS": 1,
+		"RULE_SERVICE_CUSTOM_RULES":  2,
+		"RULE_SERVICE_RATE_LIMIT":    3,
+	}
+)
+
+func (x RuleService) Enum() *RuleService {
+	p := new(RuleService)
+	*p = x
+	return p
+}
+
+func (x RuleService) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RuleService) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_security_rule_v1_engine_proto_enumTypes[3].Descriptor()
+}
+
+func (RuleService) Type() protoreflect.EnumType {
+	return &file_sentinez_security_rule_v1_engine_proto_enumTypes[3]
+}
+
+func (x RuleService) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RuleService.Descriptor instead.
+func (RuleService) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_security_rule_v1_engine_proto_rawDescGZIP(), []int{3}
+}
+
+type RuleBehavior int32
+
+const (
+	RuleBehavior_RULE_BEHAVIOR_UNSPECIFIED RuleBehavior = 0
+	RuleBehavior_RULE_BEHAVIOR_DENY        RuleBehavior = 1
+)
+
+// Enum value maps for RuleBehavior.
+var (
+	RuleBehavior_name = map[int32]string{
+		0: "RULE_BEHAVIOR_UNSPECIFIED",
+		1: "RULE_BEHAVIOR_DENY",
+	}
+	RuleBehavior_value = map[string]int32{
+		"RULE_BEHAVIOR_UNSPECIFIED": 0,
+		"RULE_BEHAVIOR_DENY":        1,
+	}
+)
+
+func (x RuleBehavior) Enum() *RuleBehavior {
+	p := new(RuleBehavior)
+	*p = x
+	return p
+}
+
+func (x RuleBehavior) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RuleBehavior) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_security_rule_v1_engine_proto_enumTypes[4].Descriptor()
+}
+
+func (RuleBehavior) Type() protoreflect.EnumType {
+	return &file_sentinez_security_rule_v1_engine_proto_enumTypes[4]
+}
+
+func (x RuleBehavior) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RuleBehavior.Descriptor instead.
+func (RuleBehavior) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_security_rule_v1_engine_proto_rawDescGZIP(), []int{4}
+}
+
 // A logical condition expression
 type Condition struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1122,7 +1220,15 @@ const file_sentinez_security_rule_v1_engine_proto_rawDesc = "" +
 	"\x19ACTION_TYPE_MODIFY_HEADER\x10\x03\x12\x18\n" +
 	"\x14ACTION_TYPE_REDIRECT\x10\x04\x12\x17\n" +
 	"\x13ACTION_TYPE_SET_TAG\x10\x05\x12\x18\n" +
-	"\x14ACTION_TYPE_ROUTE_TO\x10\x06BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepbb\x06proto3"
+	"\x14ACTION_TYPE_ROUTE_TO\x10\x06*\x87\x01\n" +
+	"\vRuleService\x12\x1c\n" +
+	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aRULE_SERVICE_CORE_RULESETS\x10\x01\x12\x1d\n" +
+	"\x19RULE_SERVICE_CUSTOM_RULES\x10\x02\x12\x1b\n" +
+	"\x17RULE_SERVICE_RATE_LIMIT\x10\x03*E\n" +
+	"\fRuleBehavior\x12\x1d\n" +
+	"\x19RULE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12RULE_BEHAVIOR_DENY\x10\x01BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepbb\x06proto3"
 
 var (
 	file_sentinez_security_rule_v1_engine_proto_rawDescOnce sync.Once
@@ -1136,50 +1242,52 @@ func file_sentinez_security_rule_v1_engine_proto_rawDescGZIP() []byte {
 	return file_sentinez_security_rule_v1_engine_proto_rawDescData
 }
 
-var file_sentinez_security_rule_v1_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_sentinez_security_rule_v1_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_sentinez_security_rule_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_security_rule_v1_engine_proto_goTypes = []any{
 	(FieldSource)(0),              // 0: sentinez.security.rule.v1.FieldSource
 	(Operator)(0),                 // 1: sentinez.security.rule.v1.Operator
 	(ActionType)(0),               // 2: sentinez.security.rule.v1.ActionType
-	(*Condition)(nil),             // 3: sentinez.security.rule.v1.Condition
-	(*Action)(nil),                // 4: sentinez.security.rule.v1.Action
-	(*Rule)(nil),                  // 5: sentinez.security.rule.v1.Rule
-	(*AndCondition)(nil),          // 6: sentinez.security.rule.v1.AndCondition
-	(*AndConditionLite)(nil),      // 7: sentinez.security.rule.v1.AndConditionLite
-	(*RuleLite)(nil),              // 8: sentinez.security.rule.v1.RuleLite
-	(*ConditionLite)(nil),         // 9: sentinez.security.rule.v1.ConditionLite
-	(*Expression)(nil),            // 10: sentinez.security.rule.v1.Expression
-	(*ExpressionLite)(nil),        // 11: sentinez.security.rule.v1.ExpressionLite
-	(*MatchedRules)(nil),          // 12: sentinez.security.rule.v1.MatchedRules
-	(*RuleIngress)(nil),           // 13: sentinez.security.rule.v1.RuleIngress
-	(*RuleIngressLite)(nil),       // 14: sentinez.security.rule.v1.RuleIngressLite
-	(*structpb.Value)(nil),        // 15: google.protobuf.Value
-	(*structpb.Struct)(nil),       // 16: google.protobuf.Struct
-	(v1.Status)(0),                // 17: sentinez.types.v1.Status
-	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
+	(RuleService)(0),              // 3: sentinez.security.rule.v1.RuleService
+	(RuleBehavior)(0),             // 4: sentinez.security.rule.v1.RuleBehavior
+	(*Condition)(nil),             // 5: sentinez.security.rule.v1.Condition
+	(*Action)(nil),                // 6: sentinez.security.rule.v1.Action
+	(*Rule)(nil),                  // 7: sentinez.security.rule.v1.Rule
+	(*AndCondition)(nil),          // 8: sentinez.security.rule.v1.AndCondition
+	(*AndConditionLite)(nil),      // 9: sentinez.security.rule.v1.AndConditionLite
+	(*RuleLite)(nil),              // 10: sentinez.security.rule.v1.RuleLite
+	(*ConditionLite)(nil),         // 11: sentinez.security.rule.v1.ConditionLite
+	(*Expression)(nil),            // 12: sentinez.security.rule.v1.Expression
+	(*ExpressionLite)(nil),        // 13: sentinez.security.rule.v1.ExpressionLite
+	(*MatchedRules)(nil),          // 14: sentinez.security.rule.v1.MatchedRules
+	(*RuleIngress)(nil),           // 15: sentinez.security.rule.v1.RuleIngress
+	(*RuleIngressLite)(nil),       // 16: sentinez.security.rule.v1.RuleIngressLite
+	(*structpb.Value)(nil),        // 17: google.protobuf.Value
+	(*structpb.Struct)(nil),       // 18: google.protobuf.Struct
+	(v1.Status)(0),                // 19: sentinez.types.v1.Status
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
 }
 var file_sentinez_security_rule_v1_engine_proto_depIdxs = []int32{
 	0,  // 0: sentinez.security.rule.v1.Condition.source:type_name -> sentinez.security.rule.v1.FieldSource
 	1,  // 1: sentinez.security.rule.v1.Condition.operator:type_name -> sentinez.security.rule.v1.Operator
-	15, // 2: sentinez.security.rule.v1.Condition.value:type_name -> google.protobuf.Value
+	17, // 2: sentinez.security.rule.v1.Condition.value:type_name -> google.protobuf.Value
 	2,  // 3: sentinez.security.rule.v1.Action.type:type_name -> sentinez.security.rule.v1.ActionType
-	16, // 4: sentinez.security.rule.v1.Action.params:type_name -> google.protobuf.Struct
-	3,  // 5: sentinez.security.rule.v1.Rule.condition:type_name -> sentinez.security.rule.v1.Condition
-	5,  // 6: sentinez.security.rule.v1.AndCondition.rules:type_name -> sentinez.security.rule.v1.Rule
-	6,  // 7: sentinez.security.rule.v1.AndCondition.or_condition:type_name -> sentinez.security.rule.v1.AndCondition
-	8,  // 8: sentinez.security.rule.v1.AndConditionLite.rules:type_name -> sentinez.security.rule.v1.RuleLite
-	7,  // 9: sentinez.security.rule.v1.AndConditionLite.or_condition:type_name -> sentinez.security.rule.v1.AndConditionLite
-	9,  // 10: sentinez.security.rule.v1.RuleLite.condition:type_name -> sentinez.security.rule.v1.ConditionLite
-	6,  // 11: sentinez.security.rule.v1.Expression.or_condition:type_name -> sentinez.security.rule.v1.AndCondition
-	7,  // 12: sentinez.security.rule.v1.ExpressionLite.or_condition:type_name -> sentinez.security.rule.v1.AndConditionLite
-	10, // 13: sentinez.security.rule.v1.RuleIngress.expr:type_name -> sentinez.security.rule.v1.Expression
-	4,  // 14: sentinez.security.rule.v1.RuleIngress.action:type_name -> sentinez.security.rule.v1.Action
-	17, // 15: sentinez.security.rule.v1.RuleIngress.status:type_name -> sentinez.types.v1.Status
-	18, // 16: sentinez.security.rule.v1.RuleIngress.created_at:type_name -> google.protobuf.Timestamp
-	18, // 17: sentinez.security.rule.v1.RuleIngress.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 18: sentinez.security.rule.v1.RuleIngressLite.expr:type_name -> sentinez.security.rule.v1.ExpressionLite
-	4,  // 19: sentinez.security.rule.v1.RuleIngressLite.action:type_name -> sentinez.security.rule.v1.Action
+	18, // 4: sentinez.security.rule.v1.Action.params:type_name -> google.protobuf.Struct
+	5,  // 5: sentinez.security.rule.v1.Rule.condition:type_name -> sentinez.security.rule.v1.Condition
+	7,  // 6: sentinez.security.rule.v1.AndCondition.rules:type_name -> sentinez.security.rule.v1.Rule
+	8,  // 7: sentinez.security.rule.v1.AndCondition.or_condition:type_name -> sentinez.security.rule.v1.AndCondition
+	10, // 8: sentinez.security.rule.v1.AndConditionLite.rules:type_name -> sentinez.security.rule.v1.RuleLite
+	9,  // 9: sentinez.security.rule.v1.AndConditionLite.or_condition:type_name -> sentinez.security.rule.v1.AndConditionLite
+	11, // 10: sentinez.security.rule.v1.RuleLite.condition:type_name -> sentinez.security.rule.v1.ConditionLite
+	8,  // 11: sentinez.security.rule.v1.Expression.or_condition:type_name -> sentinez.security.rule.v1.AndCondition
+	9,  // 12: sentinez.security.rule.v1.ExpressionLite.or_condition:type_name -> sentinez.security.rule.v1.AndConditionLite
+	12, // 13: sentinez.security.rule.v1.RuleIngress.expr:type_name -> sentinez.security.rule.v1.Expression
+	6,  // 14: sentinez.security.rule.v1.RuleIngress.action:type_name -> sentinez.security.rule.v1.Action
+	19, // 15: sentinez.security.rule.v1.RuleIngress.status:type_name -> sentinez.types.v1.Status
+	20, // 16: sentinez.security.rule.v1.RuleIngress.created_at:type_name -> google.protobuf.Timestamp
+	20, // 17: sentinez.security.rule.v1.RuleIngress.updated_at:type_name -> google.protobuf.Timestamp
+	13, // 18: sentinez.security.rule.v1.RuleIngressLite.expr:type_name -> sentinez.security.rule.v1.ExpressionLite
+	6,  // 19: sentinez.security.rule.v1.RuleIngressLite.action:type_name -> sentinez.security.rule.v1.Action
 	20, // [20:20] is the sub-list for method output_type
 	20, // [20:20] is the sub-list for method input_type
 	20, // [20:20] is the sub-list for extension type_name
@@ -1197,7 +1305,7 @@ func file_sentinez_security_rule_v1_engine_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_security_rule_v1_engine_proto_rawDesc), len(file_sentinez_security_rule_v1_engine_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      5,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,

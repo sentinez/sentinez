@@ -6,7 +6,7 @@ var SentinezRuleFunc = `
 package rules
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1"
 )
 
 {{ $outer := . }}

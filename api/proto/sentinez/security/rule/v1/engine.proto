@@ -159,3 +159,15 @@ message RuleIngressLite {
   Action action = 5;
   string status = 6;
 }
+
+enum RuleService {
+  RULE_SERVICE_UNSPECIFIED = 0;
+  RULE_SERVICE_CORE_RULESETS = 1;
+  RULE_SERVICE_CUSTOM_RULES = 2;
+  RULE_SERVICE_RATE_LIMIT = 3;
+}
+
+enum RuleBehavior {
+  RULE_BEHAVIOR_UNSPECIFIED = 0;
+  RULE_BEHAVIOR_DENY = 1;
+}

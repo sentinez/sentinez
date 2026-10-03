@@ -14,9 +14,9 @@
 
 syntax = "proto3";
 
-package sentinez.security.rule.v1;
+package sentinez.security.coreruleset.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1;rulepb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1;corerulesetpb";
 
 message CoreRulesets {
   string name = 1;
@@ -46,16 +46,4 @@ message RuleActionField {
   repeated string t = 7;
   repeated string ver = 8;
   repeated string tag = 9;
-}
-
-enum RuleService {
-  RULE_SERVICE_UNSPECIFIED = 0;
-  RULE_SERVICE_CORE_RULESETS = 1;
-  RULE_SERVICE_CUSTOM_RULES = 2;
-  RULE_SERVICE_RATE_LIMIT = 3;
-}
-
-enum RuleBehavior {
-  RULE_BEHAVIOR_UNSPECIFIED = 0;
-  RULE_BEHAVIOR_DENY = 1;
 }
