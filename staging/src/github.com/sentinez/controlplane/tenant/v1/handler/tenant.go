@@ -19,7 +19,7 @@ import (
 	"context"
 
 	tenantsvc "github.com/sentinez/controlplane/tenant/v1/service"
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/tenant/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 )
 
 var _ tenantpb.TenantServiceServer = (*Tenant)(nil)

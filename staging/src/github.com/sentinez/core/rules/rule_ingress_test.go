@@ -23,7 +23,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )

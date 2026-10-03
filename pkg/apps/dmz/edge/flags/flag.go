@@ -22,8 +22,8 @@ import (
 
 	"github.com/sentinez/shared/zlog"
 
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/spf13/pflag"
 )
 

@@ -20,6 +20,7 @@ import (
 
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	otellog "go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -48,7 +49,8 @@ type OTLPConfig struct {
 // call) forwards its records to it, unless it was given its own provider with
 // WithOTLPProvider. The returned function flushes pending records and shuts
 // the exporter down; call it on service exit.
-func SetupOTLP(ctx context.Context, cfg OTLPConfig) (func(context.Context) error, error) {
+func SetupOTLP(ctx context.Context,
+	cfg OTLPConfig) (func(context.Context) error, error) {
 	provider, err := NewOTLPProvider(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -61,8 +63,26 @@ func SetupOTLP(ctx context.Context, cfg OTLPConfig) (func(context.Context) error
 // NewOTLPProvider builds an OTLP/gRPC LoggerProvider without installing it
 // globally. Hand it to a single logger with WithOTLPProvider; the caller owns
 // the provider and must Shutdown it to flush pending records.
-func NewOTLPProvider(ctx context.Context, cfg OTLPConfig) (*sdklog.LoggerProvider, error) {
-	opts := []otlploggrpc.Option{}
+func NewOTLPProvider(ctx context.Context,
+	cfg OTLPConfig) (*sdklog.LoggerProvider, error) {
+	exporter, err := otlploggrpc.New(ctx, exporterOptions(cfg)...)
+	if err != nil {
+		return nil, fmt.Errorf("zlog: create otlp log exporter: %w", err)
+	}
+
+	res, err := newResource(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return sdklog.NewLoggerProvider(
+		sdklog.WithResource(res),
+		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
+	), nil
+}
+
+func exporterOptions(cfg OTLPConfig) []otlploggrpc.Option {
+	var opts []otlploggrpc.Option
 	if cfg.Endpoint != "" {
 		opts = append(opts, otlploggrpc.WithEndpoint(cfg.Endpoint))
 	}
@@ -73,35 +93,35 @@ func NewOTLPProvider(ctx context.Context, cfg OTLPConfig) (*sdklog.LoggerProvide
 		opts = append(opts, otlploggrpc.WithHeaders(cfg.Headers))
 	}
 
-	exporter, err := otlploggrpc.New(ctx, opts...)
+	return opts
+}
+
+// newResource merges the configured service attributes into the default
+// resource.
+func newResource(ctx context.Context,
+	cfg OTLPConfig) (*resource.Resource, error) {
+	var attrs []attribute.KeyValue
+	if cfg.ServiceName != "" {
+		attrs = append(attrs, semconv.ServiceName(cfg.ServiceName))
+	}
+	if cfg.ServiceVersion != "" {
+		attrs = append(attrs, semconv.ServiceVersion(cfg.ServiceVersion))
+	}
+	if len(attrs) == 0 {
+		return resource.Default(), nil
+	}
+
+	extra, err := resource.New(ctx, resource.WithAttributes(attrs...))
 	if err != nil {
-		return nil, fmt.Errorf("zlog: create otlp log exporter: %w", err)
+		return nil, fmt.Errorf("zlog: create otlp resource: %w", err)
 	}
 
-	attrs := resource.Default()
-	if cfg.ServiceName != "" || cfg.ServiceVersion != "" {
-		var extra []resource.Option
-		if cfg.ServiceName != "" {
-			extra = append(extra, resource.WithAttributes(semconv.ServiceName(cfg.ServiceName)))
-		}
-		if cfg.ServiceVersion != "" {
-			extra = append(extra, resource.WithAttributes(semconv.ServiceVersion(cfg.ServiceVersion)))
-		}
-		res, err := resource.New(ctx, extra...)
-		if err != nil {
-			return nil, fmt.Errorf("zlog: create otlp resource: %w", err)
-		}
-		if attrs, err = resource.Merge(attrs, res); err != nil {
-			return nil, fmt.Errorf("zlog: merge otlp resource: %w", err)
-		}
+	res, err := resource.Merge(resource.Default(), extra)
+	if err != nil {
+		return nil, fmt.Errorf("zlog: merge otlp resource: %w", err)
 	}
 
-	provider := sdklog.NewLoggerProvider(
-		sdklog.WithResource(attrs),
-		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
-	)
-
-	return provider, nil
+	return res, nil
 }
 
 // Option customizes a logger created by NewLog or NewLogCloser.

@@ -160,7 +160,7 @@ Based on the [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/
 
 ### Formatting
 
-- **Soft line length limit: 99 characters.**
+- **Line length limit: 80 columns (tab = 4), enforced by `lll` in `.golangci.yaml`; function length limit 35 lines (`funlen`).** This project setting overrides the upstream Uber 99-character guidance.
 - **Be consistent** — apply changes at package level or larger.
 - Run `goimports` on save; run `golint` and `go vet` for checks.
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	centraldatasvc "github.com/sentinez/controlplane/centraldata/v1/service"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/mods/centraldata/v1"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

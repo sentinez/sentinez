@@ -284,9 +284,61 @@
     }
   },
   "definitions": {
-    "dmzedgev1Metadata": {
+    "edgecdnv1Rule": {
       "type": "object",
-      "title": "Metadata used for observability and debugging:"
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "edgecdnv1RuleLite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1ExpressionLite"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
     },
     "edgev1Location": {
       "type": "object",
@@ -356,63 +408,7 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "sentinezcdnrulev1Rule": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expression"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "sentinezcdnrulev1RuleLite": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1ExpressionLite"
-        },
-        "status": {
-          "type": "string"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "sentinezsecurerulev1Rule": {
+    "securityrulev1Rule": {
       "type": "object",
       "properties": {
         "id": {
@@ -428,7 +424,7 @@
       },
       "title": "A complete rule definition"
     },
-    "sentinezsecurerulev1RuleLite": {
+    "securityrulev1RuleLite": {
       "type": "object",
       "properties": {
         "id": {
@@ -451,6 +447,10 @@
         }
       },
       "title": "A complete rule definition"
+    },
+    "sentinezedgev1Metadata": {
+      "type": "object",
+      "title": "Metadata used for observability and debugging:"
     },
     "sentineztypesv1Metadata": {
       "type": "object",
@@ -510,7 +510,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/sentinezsecurerulev1Rule"
+            "$ref": "#/definitions/securityrulev1Rule"
           }
         },
         "orCondition": {
@@ -529,7 +529,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/sentinezsecurerulev1RuleLite"
+            "$ref": "#/definitions/securityrulev1RuleLite"
           }
         },
         "orCondition": {
@@ -553,10 +553,10 @@
       "type": "object",
       "properties": {
         "ruleRuntime": {
-          "$ref": "#/definitions/sentinezcdnrulev1Rule"
+          "$ref": "#/definitions/edgecdnv1Rule"
         },
         "rule": {
-          "$ref": "#/definitions/sentinezcdnrulev1RuleLite",
+          "$ref": "#/definitions/edgecdnv1RuleLite",
           "title": "@gotags: yaml:\"rule\""
         }
       }
@@ -968,7 +968,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/dmzedgev1Metadata",
+          "$ref": "#/definitions/sentinezedgev1Metadata",
           "title": "@gotags: yaml:\"metadata\""
         },
         "server": {

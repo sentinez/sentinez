@@ -16,7 +16,7 @@ package http
 
 import (
 	corechains "github.com/sentinez/core/http/chains"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/cdn"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/logging"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/ratelimiter"
@@ -29,6 +29,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
+// nolint
 func Init(appConf *settingpb.Config,
 	memStore *memory.MemStore) corechains.ChainNode {
 	var (
@@ -43,41 +44,23 @@ func Init(appConf *settingpb.Config,
 	// current middleware
 	curr = income
 
-	curr = curr.SetNext(
-		trace.Wrap("logger", logging.NewLogger(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("logger", logging.NewLogger(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("domain", secure.NewDomainBased(hostname, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("domain", secure.NewDomainBased(hostname, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("cdn", cdn.NewCache(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("cdn", cdn.NewCache(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("ratelimiter", ratelimiter.NewLimiter(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("ratelimiter", ratelimiter.NewLimiter(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("room", room.NewRoom(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("room", room.NewRoom(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("static", static.NewStatic(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("static", static.NewStatic(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("rulebased", secure.NewRuleBased(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("rulebased", secure.NewRuleBased(ll, memStore)))
 
-	curr = curr.SetNext(
-		trace.Wrap("waf", secure.NewWAF(ll, memStore)),
-	)
+	curr = curr.SetNext(trace.Wrap("waf", secure.NewWAF(ll, memStore)))
 
-	_ = curr.SetNext(
-		trace.Wrap("router", routing.NewStandardRouter(memStore)),
-	)
+	_ = curr.SetNext(trace.Wrap("router", routing.NewStandardRouter(memStore)))
 
 	return income
 }

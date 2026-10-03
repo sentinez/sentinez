@@ -15,9 +15,9 @@
 # limitations under the License.
 
 
-./cmd/acz-apiserver/bin/apiserver \
+./cmd/szapiserver/bin/apiserver \
     --log_level info  \
     --mode prod \
     --api_specs_path ./api/docs/v1 \
     --swagger_path ./api/docs/swagger \
-    --env_file ./cmd/acz-apiserver/.env
+    --env_file ./cmd/szapiserver/.env

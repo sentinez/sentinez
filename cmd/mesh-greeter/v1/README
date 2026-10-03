@@ -1,3 +1,0 @@
-cmd/mesh-greeter/v1 directory is where you start the greeter version 1
-
-go run cmd/mesh-greeter/v1/main.go

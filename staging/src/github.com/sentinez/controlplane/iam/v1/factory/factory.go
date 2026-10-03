@@ -26,8 +26,8 @@ import (
 	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/sentinez/api/client"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 

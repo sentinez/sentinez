@@ -21,8 +21,8 @@ import (
 
 	iamsvc "github.com/sentinez/controlplane/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
-	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/greeter/v1"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/mods/iam/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )

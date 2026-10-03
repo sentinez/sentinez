@@ -42,7 +42,7 @@ func (m *XMeta) Validate() error {
 
 	// no validation rules for ServiceName
 
-	// no validation rules for ServiceKind
+	// no validation rules for ServiceZone
 
 	// no validation rules for ServiceKey
 

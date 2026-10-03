@@ -16,8 +16,8 @@ package greeterfac
 
 import (
 	greeterhdl "github.com/sentinez/controlplane/greeter/v1/handler"
-	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/mods/greeter/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 func NewDefaultHandler(_ *settingpb.Config,

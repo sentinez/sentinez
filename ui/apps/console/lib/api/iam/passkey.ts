@@ -9,7 +9,7 @@ import {
   PasskeyRegisterChallengeRequest,
   PasskeyRegisterChallengeResponse,
   PasskeyRegisterVerifyResponse,
-} from '@sentinez/proto/sentinez/modules/iam/v1/iam';
+} from '@sentinez/proto/sentinez/apps/iam/v1/iam';
 
 const API_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || 'http://localhost:8080';
 

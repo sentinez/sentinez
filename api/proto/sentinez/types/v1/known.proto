@@ -29,11 +29,12 @@ message Context {
   Console console = 5;
 }
 
-enum Kind {
-  KIND_UNSPECIFIED = 0;
-  KIND_ACCESS_ZONE = 1;
-  KIND_DEMILITARIZED_ZONE = 2;
-  KIND_CONTROL_PLANE = 4;
+enum Zone {
+  ZONE_UNSPECIFIED = 0;
+  ZONE_DEMILITARIZED = 1;
+  ZONE_INTERNAL = 2;
+  ZONE_PRIVATE_API = 3;
+  ZONE_PUBLIC_API = 4;
 }
 
 enum Console {

@@ -15,11 +15,12 @@
 .PHONY: default
 
 default: default.print 	\
-	dmz.edge.build			\
-	dmz.dataplane.build		\
-	acz.apiserver.build 	\
-	acz.realtime.build      \
-	mesh.greeter.build 		
+	sz.edge.build			\
+	sz.dataplane.build		\
+	sz.apiserver.build 		\
+	sz.realtime.build      	\
+	sz.greeter.build 		\
+	sz.centraldata.build
 
 default.print:
 	@echo "[BUILD] senz: build sentinez and services"
@@ -33,7 +34,7 @@ fmt.proto:
 #####################################################################
 # Go linting tool                                              
 #####################################################################
-lint: lint.go lint.proto lint.core lint.core lint.shared lint.controlplane lint.contrib.httphz
+lint: lint.go lint.proto lint.core lint.shared lint.controlplane lint.contrib.httphz lint.tools
 
 lint.go:
 	@echo "[LINT] sentinez is linting ..."
@@ -66,77 +67,86 @@ lint.contrib.httphz:
 #####################################################################
 #####################################################################
 
-acz.realtime.run: SENTINEZ_OUT ?= realtime
-acz.realtime.run:
-	@go build -ldflags="-s -w" -o ./cmd/acz-realtime/bin/$(SENTINEZ_OUT) ./cmd/acz-realtime && \
- 	./cmd/acz-realtime/bin/$(SENTINEZ_OUT)
+# Service targets follow cmd/sz<name>[/v1]:
+#   sz.<name>.build | sz.<name>.run | sz.<name>.image.build
+# Override the binary name with SENTINEZ_OUT and the image with TAG.
 
-acz.realtime.build: SENTINEZ_OUT ?= realtime
-acz.realtime.build:
-	@go build -ldflags="-s -w" -o ./cmd/acz-realtime/bin/$(SENTINEZ_OUT) ./cmd/acz-realtime
-	@echo "[DONE]  senz: acz.realtime ... ok"
+sz.apiserver.build: SENTINEZ_OUT ?= apiserver
+sz.apiserver.build:
+	@go build -ldflags="-s -w" -o ./cmd/szapiserver/bin/$(SENTINEZ_OUT) ./cmd/szapiserver
+	@echo "[DONE]  senz: sz.apiserver ... ok"
 
-acz.apiserver.build: SENTINEZ_OUT ?= apiserver
-acz.apiserver.build:
-	@go build -ldflags="-s -w" -o ./cmd/acz-apiserver/bin/$(SENTINEZ_OUT) ./cmd/acz-apiserver
-	@echo "[DONE]  senz: acz.apiserver ... ok"
+sz.apiserver.run: SENTINEZ_OUT ?= apiserver
+sz.apiserver.run: sz.apiserver.build
+	@./cmd/szapiserver/bin/$(SENTINEZ_OUT) --env_file=./cmd/szapiserver/.env
 
-acz.apiserver.run: SENTINEZ_OUT ?= apiserver
-acz.apiserver.run:
-	@go build -ldflags="-s -w" -o ./cmd/acz-apiserver/bin/$(SENTINEZ_OUT) ./cmd/acz-apiserver && \
- 	./cmd/acz-apiserver/bin/$(SENTINEZ_OUT) 
+sz.apiserver.image.build: TAG ?= sentinez/apiserver
+sz.apiserver.image.build:
+	@docker buildx build -f ./cmd/szapiserver/Dockerfile -t $(TAG):latest .
 
-acz.apiserver.image.build: TAG ?= sentinez/acz-apiserver
-acz.apiserver.image.build:
-	docker buildx build -f ./cmd/acz-apiserver/Dockerfile -t $(TAG):latest .
+sz.realtime.build: SENTINEZ_OUT ?= realtime
+sz.realtime.build:
+	@go build -ldflags="-s -w" -o ./cmd/szrealtime/bin/$(SENTINEZ_OUT) ./cmd/szrealtime
+	@echo "[DONE]  senz: sz.realtime ... ok"
 
-mesh.greeter.build: SENTINEZ_OUT ?= greeter
-mesh.greeter.build:
-	@go build -ldflags="-s -w" -o ./cmd/mesh-greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/mesh-greeter/v1
-	@echo "[DONE]  senz: mesh.greeter.v1 ... ok"
+sz.realtime.run: SENTINEZ_OUT ?= realtime
+sz.realtime.run: sz.realtime.build
+	@./cmd/szrealtime/bin/$(SENTINEZ_OUT) --env_file=./cmd/szrealtime/.env
 
-mesh.greeter.run: SENTINEZ_OUT ?= greeter
-mesh.greeter.run:
-	@go build -ldflags="-s -w" -o ./cmd/mesh-greeter/v1/bin/$(SENTINEZ_OUT) ./cmd/mesh-greeter/v1 && \
-	./cmd/mesh-greeter/v1/bin/$(SENTINEZ_OUT) --env_file=./cmd/mesh-greeter/v1/.env
+sz.greeter.build: SENTINEZ_OUT ?= greeter
+sz.greeter.build:
+	@go build -ldflags="-s -w" -o ./cmd/szgreeter/v1/bin/$(SENTINEZ_OUT) ./cmd/szgreeter/v1
+	@echo "[DONE]  senz: sz.greeter.v1 ... ok"
 
-mesh.greeter.image.build: TAG ?= sentinez/greeter
-mesh.greeter.image.build:
-	docker buildx build -f ./cmd/mesh-greeter/v1/Dockerfile -t $(TAG):latest .
+sz.greeter.run: SENTINEZ_OUT ?= greeter
+sz.greeter.run: sz.greeter.build
+	@./cmd/szgreeter/v1/bin/$(SENTINEZ_OUT) --env_file=./cmd/szgreeter/v1/.env
 
-dmz.edge.run: SENTINEZ_OUT ?= edge
-dmz.edge.run:
-	@go build -ldflags="-s -w" -o ./cmd/dmz-edge/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz-edge/v1 && \
-	./cmd/dmz-edge/v1/bin/$(SENTINEZ_OUT) \
-		--cert_file=cmd/dmz-edge/v1/is.s6z.io.vn.cert \
-		--cert_key_file=cmd/dmz-edge/v1/is.s6z.io.vn.key \
-		--proxy_config=./cmd/dmz-edge/v1/proxy.yaml \
-		--env_file=./cmd/dmz-edge/v1/.env
+sz.greeter.image.build: TAG ?= sentinez/greeter
+sz.greeter.image.build:
+	@docker buildx build -f ./cmd/szgreeter/v1/Dockerfile -t $(TAG):latest .
 
-dmz.dataplane.build: SENTINEZ_OUT ?= dataplane
-dmz.dataplane.build:
-	@go build -ldflags="-s -w" -o ./cmd/dmz-dataplane/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz-dataplane/v1 
-	@echo "[DONE]  senz: dmz.dataplane ... ok"
+sz.centraldata.build: SENTINEZ_OUT ?= centraldata
+sz.centraldata.build:
+	@go build -ldflags="-s -w" -o ./cmd/szcentraldata/v1/bin/$(SENTINEZ_OUT) ./cmd/szcentraldata/v1
+	@echo "[DONE]  senz: sz.centraldata.v1 ... ok"
 
+sz.centraldata.image.build: TAG ?= sentinez/centraldata
+sz.centraldata.image.build:
+	@docker buildx build -f ./cmd/szcentraldata/v1/Dockerfile -t $(TAG):latest .
 
-dmz.dataplane.run: SENTINEZ_OUT ?= dataplane
-dmz.dataplane.run:
-	sudo ip netns exec gateway ./cmd/dmz-dataplane/v1/bin/$(SENTINEZ_OUT) \
-		--env_file=./cmd/dmz-dataplane/v1/.env
+sz.edge.build: SENTINEZ_OUT ?= edge
+sz.edge.build:
+	@go build -ldflags="-s -w" -o ./cmd/szedge/v1/bin/$(SENTINEZ_OUT) ./cmd/szedge/v1
+	@echo "[DONE]  senz: sz.edge.v1 ... ok"
 
-dmz.edge.build: SENTINEZ_OUT ?= edge
-dmz.edge.build:
-	@go build -ldflags="-s -w" -o ./cmd/dmz-edge/v1/bin/$(SENTINEZ_OUT) ./cmd/dmz-edge/v1
-	@echo "[DONE]  senz: dmz.edge.v1 ... ok"
+sz.edge.run: SENTINEZ_OUT ?= edge
+sz.edge.run: sz.edge.build
+	@./cmd/szedge/v1/bin/$(SENTINEZ_OUT) \
+		--cert_file=cmd/szedge/v1/is.s6z.io.vn.cert \
+		--cert_key_file=cmd/szedge/v1/is.s6z.io.vn.key \
+		--proxy_config=./cmd/szedge/v1/proxy.yaml \
+		--env_file=./cmd/szedge/v1/.env
 
-dmz.edge.image.build: TAG ?= sentinez/edge
-dmz.edge.image.build:
-	@docker buildx build -f ./cmd/dmz-edge/v1/Dockerfile -t $(TAG):latest .
+sz.edge.image.build: TAG ?= sentinez/edge
+sz.edge.image.build:
+	@docker buildx build -f ./cmd/szedge/v1/Dockerfile -t $(TAG):latest .
+
+sz.dataplane.build: SENTINEZ_OUT ?= dataplane
+sz.dataplane.build:
+	@go build -ldflags="-s -w" -o ./cmd/szdataplane/v1/bin/$(SENTINEZ_OUT) ./cmd/szdataplane/v1
+	@echo "[DONE]  senz: sz.dataplane ... ok"
+
+# The dataplane attaches eBPF/XDP programs inside the "gateway" netns.
+sz.dataplane.run: SENTINEZ_OUT ?= dataplane
+sz.dataplane.run: sz.dataplane.build
+	sudo ip netns exec gateway ./cmd/szdataplane/v1/bin/$(SENTINEZ_OUT) \
+		--env_file=./cmd/szdataplane/v1/.env
 
 image.clear:
 	@docker rmi hashicorp/consul
-	@docker rmi sentinez/sentinez_api
-	@docker rmi sentinez/sentinez_edge
+	@docker rmi sentinez/apiserver
+	@docker rmi sentinez/edge
 
 compose.up:
 	@docker compose -f deploy/docker/docker-compose.yaml up -d

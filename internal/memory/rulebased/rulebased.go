@@ -20,7 +20,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/secure/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"

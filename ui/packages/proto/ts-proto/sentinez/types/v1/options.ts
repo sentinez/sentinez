@@ -6,13 +6,13 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Console, consoleFromJSON, consoleToJSON, Kind, kindFromJSON, kindToJSON } from "./known";
+import { Console, consoleFromJSON, consoleToJSON, Zone, zoneFromJSON, zoneToJSON } from "./known";
 
 export const protobufPackage = "sentinez.types.v1";
 
 export interface XMeta {
   serviceName: string;
-  serviceKind: Kind;
+  serviceZone: Zone;
   serviceKey: string;
 }
 
@@ -27,7 +27,7 @@ export interface XMethod {
 }
 
 function createBaseXMeta(): XMeta {
-  return { serviceName: "", serviceKind: 0, serviceKey: "" };
+  return { serviceName: "", serviceZone: 0, serviceKey: "" };
 }
 
 export const XMeta: MessageFns<XMeta> = {
@@ -35,8 +35,8 @@ export const XMeta: MessageFns<XMeta> = {
     if (message.serviceName !== "") {
       writer.uint32(10).string(message.serviceName);
     }
-    if (message.serviceKind !== 0) {
-      writer.uint32(16).int32(message.serviceKind);
+    if (message.serviceZone !== 0) {
+      writer.uint32(16).int32(message.serviceZone);
     }
     if (message.serviceKey !== "") {
       writer.uint32(26).string(message.serviceKey);
@@ -70,7 +70,7 @@ export const XMeta: MessageFns<XMeta> = {
               break;
             }
 
-            message.serviceKind = reader.int32() as any;
+            message.serviceZone = reader.int32() as any;
             continue;
           }
           case 3: {
@@ -100,10 +100,10 @@ export const XMeta: MessageFns<XMeta> = {
         : isSet(object.service_name)
         ? globalThis.String(object.service_name)
         : "",
-      serviceKind: isSet(object.serviceKind)
-        ? kindFromJSON(object.serviceKind)
-        : isSet(object.service_kind)
-        ? kindFromJSON(object.service_kind)
+      serviceZone: isSet(object.serviceZone)
+        ? zoneFromJSON(object.serviceZone)
+        : isSet(object.service_zone)
+        ? zoneFromJSON(object.service_zone)
         : 0,
       serviceKey: isSet(object.serviceKey)
         ? globalThis.String(object.serviceKey)
@@ -118,8 +118,8 @@ export const XMeta: MessageFns<XMeta> = {
     if (message.serviceName !== "") {
       obj.serviceName = message.serviceName;
     }
-    if (message.serviceKind !== 0) {
-      obj.serviceKind = kindToJSON(message.serviceKind);
+    if (message.serviceZone !== 0) {
+      obj.serviceZone = zoneToJSON(message.serviceZone);
     }
     if (message.serviceKey !== "") {
       obj.serviceKey = message.serviceKey;
@@ -133,7 +133,7 @@ export const XMeta: MessageFns<XMeta> = {
   fromPartial<I extends Exact<DeepPartial<XMeta>, I>>(object: I): XMeta {
     const message = createBaseXMeta();
     message.serviceName = object.serviceName ?? "";
-    message.serviceKind = object.serviceKind ?? 0;
+    message.serviceZone = object.serviceZone ?? 0;
     message.serviceKey = object.serviceKey ?? "";
     return message;
   },

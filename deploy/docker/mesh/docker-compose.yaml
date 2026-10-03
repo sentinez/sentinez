@@ -2,16 +2,16 @@ services:
   sentinez.edge:
     container_name: sentinez.edge
     hostname: sentinez.edge
-    image: sentinez/sentinez_edge:latest
+    image: sentinez/edge:latest
     ports:
       - "7777:7777"
     networks:
       - sentinez-network
 
-  sentinez.core.greeter.v1:
-    container_name: sentinez.core.greeter.v1
-    hostname: sentinez.core.greeter.v1
-    image: sentinez/sentinez.core.greeter:latest
+  sentinez.controlplane.greeter.v1:
+    container_name: sentinez.controlplane.greeter.v1
+    hostname: sentinez.controlplane.greeter.v1
+    image: sentinez/greeter:latest
     networks:
       - sentinez-network
 

@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/setting/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/config"
 	"google.golang.org/protobuf/types/known/timestamppb"

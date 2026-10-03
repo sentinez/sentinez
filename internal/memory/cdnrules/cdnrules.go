@@ -19,7 +19,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/delivery/cdn/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/edge/cdn/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"

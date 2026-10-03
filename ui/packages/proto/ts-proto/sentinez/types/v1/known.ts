@@ -10,46 +10,52 @@ import { Timestamp } from "../../../google/protobuf/timestamp";
 
 export const protobufPackage = "sentinez.types.v1";
 
-export enum Kind {
-  KIND_UNSPECIFIED = 0,
-  KIND_ACCESS_ZONE = 1,
-  KIND_DEMILITARIZED_ZONE = 2,
-  KIND_CONTROL_PLANE = 4,
+export enum Zone {
+  ZONE_UNSPECIFIED = 0,
+  ZONE_DEMILITARIZED = 1,
+  ZONE_INTERNAL = 2,
+  ZONE_PRIVATE_API = 3,
+  ZONE_PUBLIC_API = 4,
   UNRECOGNIZED = -1,
 }
 
-export function kindFromJSON(object: any): Kind {
+export function zoneFromJSON(object: any): Zone {
   switch (object) {
     case 0:
-    case "KIND_UNSPECIFIED":
-      return Kind.KIND_UNSPECIFIED;
+    case "ZONE_UNSPECIFIED":
+      return Zone.ZONE_UNSPECIFIED;
     case 1:
-    case "KIND_ACCESS_ZONE":
-      return Kind.KIND_ACCESS_ZONE;
+    case "ZONE_DEMILITARIZED":
+      return Zone.ZONE_DEMILITARIZED;
     case 2:
-    case "KIND_DEMILITARIZED_ZONE":
-      return Kind.KIND_DEMILITARIZED_ZONE;
+    case "ZONE_INTERNAL":
+      return Zone.ZONE_INTERNAL;
+    case 3:
+    case "ZONE_PRIVATE_API":
+      return Zone.ZONE_PRIVATE_API;
     case 4:
-    case "KIND_CONTROL_PLANE":
-      return Kind.KIND_CONTROL_PLANE;
+    case "ZONE_PUBLIC_API":
+      return Zone.ZONE_PUBLIC_API;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return Kind.UNRECOGNIZED;
+      return Zone.UNRECOGNIZED;
   }
 }
 
-export function kindToJSON(object: Kind): string {
+export function zoneToJSON(object: Zone): string {
   switch (object) {
-    case Kind.KIND_UNSPECIFIED:
-      return "KIND_UNSPECIFIED";
-    case Kind.KIND_ACCESS_ZONE:
-      return "KIND_ACCESS_ZONE";
-    case Kind.KIND_DEMILITARIZED_ZONE:
-      return "KIND_DEMILITARIZED_ZONE";
-    case Kind.KIND_CONTROL_PLANE:
-      return "KIND_CONTROL_PLANE";
-    case Kind.UNRECOGNIZED:
+    case Zone.ZONE_UNSPECIFIED:
+      return "ZONE_UNSPECIFIED";
+    case Zone.ZONE_DEMILITARIZED:
+      return "ZONE_DEMILITARIZED";
+    case Zone.ZONE_INTERNAL:
+      return "ZONE_INTERNAL";
+    case Zone.ZONE_PRIVATE_API:
+      return "ZONE_PRIVATE_API";
+    case Zone.ZONE_PUBLIC_API:
+      return "ZONE_PUBLIC_API";
+    case Zone.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
