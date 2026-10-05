@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/shared/config"
 
-	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/dataplane/v1"
+	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/flags"
 )

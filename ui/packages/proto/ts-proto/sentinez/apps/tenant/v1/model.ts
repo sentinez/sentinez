@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Setting } from "../../../edge/v1/setting";
+import { Setting } from "../../../dmz/edge/v1/setting";
 import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 

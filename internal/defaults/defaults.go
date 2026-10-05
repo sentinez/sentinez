@@ -18,6 +18,7 @@ const (
 	HTTPSAddress     = "0.0.0.0:443"
 	DiscoveryAddress = "0.0.0.0"
 	DiscoveryPort    = 3322
+	EdgeAddress      = "0.0.0.0:8443"
 )
 
 const (

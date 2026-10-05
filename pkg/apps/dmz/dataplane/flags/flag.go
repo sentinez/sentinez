@@ -18,7 +18,7 @@ package flags
 import (
 	"sync"
 
-	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/dataplane/v1"
+	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/flagx"
 	"github.com/sentinez/shared/zlog"

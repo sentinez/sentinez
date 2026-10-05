@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/core/storage/dbx/postgres"
 	"github.com/sentinez/core/storage/utils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/protobuf/protox"
