@@ -1,7 +1,7 @@
 services:
-  sentinez-edge-01:
+  sentinez.dmz.edge.01:
     image: sentinez/edge:latest
-    container_name: sentinez.edge.01
+    container_name: sentinez.dmz.edge.01
     env_file:
       - ../../../cmd/szedge/v1/.env
     environment:
@@ -12,9 +12,9 @@ services:
     ports:
       - "7443:7443"
 
-  sentinez-edge-02:
+  sentinez.dmz.edge.02:
     image: sentinez/edge:latest
-    container_name: sentinez.edge.02
+    container_name: sentinez.dmz.edge.02
     env_file:
       - ../../../cmd/szedge/v1/.env
     networks:

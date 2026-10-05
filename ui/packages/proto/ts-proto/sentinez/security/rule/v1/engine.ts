@@ -256,6 +256,84 @@ export function actionTypeToJSON(object: ActionType): string {
   }
 }
 
+export enum RuleService {
+  RULE_SERVICE_UNSPECIFIED = 0,
+  RULE_SERVICE_CORE_RULESETS = 1,
+  RULE_SERVICE_CUSTOM_RULES = 2,
+  RULE_SERVICE_RATE_LIMIT = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function ruleServiceFromJSON(object: any): RuleService {
+  switch (object) {
+    case 0:
+    case "RULE_SERVICE_UNSPECIFIED":
+      return RuleService.RULE_SERVICE_UNSPECIFIED;
+    case 1:
+    case "RULE_SERVICE_CORE_RULESETS":
+      return RuleService.RULE_SERVICE_CORE_RULESETS;
+    case 2:
+    case "RULE_SERVICE_CUSTOM_RULES":
+      return RuleService.RULE_SERVICE_CUSTOM_RULES;
+    case 3:
+    case "RULE_SERVICE_RATE_LIMIT":
+      return RuleService.RULE_SERVICE_RATE_LIMIT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return RuleService.UNRECOGNIZED;
+  }
+}
+
+export function ruleServiceToJSON(object: RuleService): string {
+  switch (object) {
+    case RuleService.RULE_SERVICE_UNSPECIFIED:
+      return "RULE_SERVICE_UNSPECIFIED";
+    case RuleService.RULE_SERVICE_CORE_RULESETS:
+      return "RULE_SERVICE_CORE_RULESETS";
+    case RuleService.RULE_SERVICE_CUSTOM_RULES:
+      return "RULE_SERVICE_CUSTOM_RULES";
+    case RuleService.RULE_SERVICE_RATE_LIMIT:
+      return "RULE_SERVICE_RATE_LIMIT";
+    case RuleService.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum RuleBehavior {
+  RULE_BEHAVIOR_UNSPECIFIED = 0,
+  RULE_BEHAVIOR_DENY = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function ruleBehaviorFromJSON(object: any): RuleBehavior {
+  switch (object) {
+    case 0:
+    case "RULE_BEHAVIOR_UNSPECIFIED":
+      return RuleBehavior.RULE_BEHAVIOR_UNSPECIFIED;
+    case 1:
+    case "RULE_BEHAVIOR_DENY":
+      return RuleBehavior.RULE_BEHAVIOR_DENY;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return RuleBehavior.UNRECOGNIZED;
+  }
+}
+
+export function ruleBehaviorToJSON(object: RuleBehavior): string {
+  switch (object) {
+    case RuleBehavior.RULE_BEHAVIOR_UNSPECIFIED:
+      return "RULE_BEHAVIOR_UNSPECIFIED";
+    case RuleBehavior.RULE_BEHAVIOR_DENY:
+      return "RULE_BEHAVIOR_DENY";
+    case RuleBehavior.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** A logical condition expression */
 export interface Condition {
   /** @gotags: yaml:"-" */

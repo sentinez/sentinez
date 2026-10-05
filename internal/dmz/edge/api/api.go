@@ -19,7 +19,7 @@ import (
 
 	corehttpreq "github.com/sentinez/core/http/request"
 	corerules "github.com/sentinez/core/rules"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
 )
 
@@ -31,9 +31,16 @@ func New() *EdgeService {
 
 type EdgeService struct{}
 
-func (e *EdgeService) EvaluateIngress(ctx context.Context,
-	request *edgepb.EvaluateIngressRequest,
-) (*edgepb.EvaluateIngressResponse, error) {
+// Status implements [edgepb.EdgeServiceServer].
+func (e *EdgeService) Status(_ context.Context,
+	_ *edgepb.StatusRequest) (*edgepb.StatusResponse, error) {
+
+	return &edgepb.StatusResponse{Msg: "OK"}, nil
+}
+
+func (e *EdgeService) EvaluateRuleset(ctx context.Context,
+	request *edgepb.EvaluateRulesetRequest,
+) (*edgepb.EvaluateRulesetResponse, error) {
 
 	enginectx := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
 	// defer corehttpreq.(enginectx)
@@ -42,10 +49,10 @@ func (e *EdgeService) EvaluateIngress(ctx context.Context,
 	matched := &rulepb.MatchedRules{}
 	ok := eval(enginectx, matched)
 	if !ok {
-		return &edgepb.EvaluateIngressResponse{}, nil
+		return &edgepb.EvaluateRulesetResponse{}, nil
 	}
 
-	return &edgepb.EvaluateIngressResponse{
+	return &edgepb.EvaluateRulesetResponse{
 		Results: []*edgepb.EvaluationResult{{
 			Matched: ok,
 		}},

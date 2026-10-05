@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-export const protobufPackage = "sentinez.setting.v1";
+export const protobufPackage = "sentinez.types.setting.v1";
 
 export interface Flag {
   /** base */

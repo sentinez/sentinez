@@ -32,7 +32,7 @@ import (
 	corecontext "github.com/sentinez/core/context"
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/store/ja4"

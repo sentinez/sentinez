@@ -24,3 +24,14 @@ option (sentinez.types.v1.x_meta) = {
   service_zone: ZONE_PRIVATE_API
   service_key: "sentinez.gateway.apiserver.v1"
 };
+
+
+service APIServerService {
+  rpc Status(StatusRequest) returns (StatusResponse) {}
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  string msg = 1;
+}

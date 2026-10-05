@@ -30,8 +30,7 @@ import (
 )
 
 // nolint
-func Init(appConf *settingpb.Config,
-	memStore *memory.MemStore) corechains.ChainNode {
+func Init(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
 	var (
 		hostname = appConf.Get(settingpb.Senz_SENZ_HOSTNAME)
 		ll       = zlog.LevelInfo
@@ -44,23 +43,23 @@ func Init(appConf *settingpb.Config,
 	// current middleware
 	curr = income
 
-	curr = curr.SetNext(trace.Wrap("logger", logging.NewLogger(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("LOG", logging.NewLogger(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("domain", secure.NewDomainBased(hostname, memStore)))
+	curr = curr.SetNext(trace.Wrap("DMA", secure.NewDomainBased(hostname, ms)))
 
-	curr = curr.SetNext(trace.Wrap("cdn", cdn.NewCache(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("CDN", cdn.NewCache(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("ratelimiter", ratelimiter.NewLimiter(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("LMT", ratelimiter.NewLimiter(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("room", room.NewRoom(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("ROM", room.NewRoom(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("static", static.NewStatic(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("STC", static.NewStatic(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("rulebased", secure.NewRuleBased(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("RUL", secure.NewRuleBased(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("waf", secure.NewWAF(ll, memStore)))
+	curr = curr.SetNext(trace.Wrap("WAF", secure.NewWAF(ll, ms)))
 
-	_ = curr.SetNext(trace.Wrap("router", routing.NewStandardRouter(memStore)))
+	_ = curr.SetNext(trace.Wrap("ROU", routing.NewStandardRouter(ms)))
 
 	return income
 }

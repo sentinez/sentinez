@@ -7,7 +7,7 @@ package resourcerepo
 import (
 	"context"
 
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	"github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -17,10 +17,19 @@ func NewMockIResource(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *MockIResource {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &MockIResource{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }
@@ -74,7 +83,7 @@ type MockIResource_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - rs *tenantpb.Resource
-func (_e *MockIResource_Expecter) Create(ctx interface{}, rs interface{}) *MockIResource_Create_Call {
+func (_e *MockIResource_Expecter) Create(ctx any, rs any) *MockIResource_Create_Call {
 	return &MockIResource_Create_Call{Call: _e.mock.On("Create", ctx, rs)}
 }
 
@@ -131,7 +140,7 @@ type MockIResource_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIResource_Expecter) Delete(ctx interface{}, id interface{}) *MockIResource_Delete_Call {
+func (_e *MockIResource_Expecter) Delete(ctx any, id any) *MockIResource_Delete_Call {
 	return &MockIResource_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
@@ -199,7 +208,7 @@ type MockIResource_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-func (_e *MockIResource_Expecter) Get(ctx interface{}, id interface{}) *MockIResource_Get_Call {
+func (_e *MockIResource_Expecter) Get(ctx any, id any) *MockIResource_Get_Call {
 	return &MockIResource_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
@@ -267,7 +276,7 @@ type MockIResource_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - req *tenantpb.ListResourceRequest
-func (_e *MockIResource_Expecter) List(ctx interface{}, req interface{}) *MockIResource_List_Call {
+func (_e *MockIResource_Expecter) List(ctx any, req any) *MockIResource_List_Call {
 	return &MockIResource_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
@@ -324,7 +333,7 @@ type MockIResource_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - rs *tenantpb.Resource
-func (_e *MockIResource_Expecter) Update(ctx interface{}, rs interface{}) *MockIResource_Update_Call {
+func (_e *MockIResource_Expecter) Update(ctx any, rs any) *MockIResource_Update_Call {
 	return &MockIResource_Update_Call{Call: _e.mock.On("Update", ctx, rs)}
 }
 

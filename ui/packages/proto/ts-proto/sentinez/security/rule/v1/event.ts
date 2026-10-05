@@ -13,7 +13,7 @@ import {
   RuleService,
   ruleServiceFromJSON,
   ruleServiceToJSON,
-} from "./rule";
+} from "./engine";
 
 export const protobufPackage = "sentinez.security.rule.v1";
 

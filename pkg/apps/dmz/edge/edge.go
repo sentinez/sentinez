@@ -21,9 +21,10 @@ import (
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/edge/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
+	edgeapi "github.com/sentinez/sentinez/internal/dmz/edge/api"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/network"
@@ -62,6 +63,7 @@ func New(conf *settingpb.Config,
 		core:    server,
 		setting: setting,
 		mem:     mem,
+		service: edgeapi.New(),
 	}
 }
 
@@ -73,10 +75,11 @@ func New(conf *settingpb.Config,
 // all ingress traffic is processed and dispatched here.
 type Server struct {
 	core    corehttp.Server
+	options []corehttp.ServerOption
 	conf    *settingpb.Config
 	setting *edgepb.Setting
 	mem     *memory.MemStore
-	options []corehttp.ServerOption
+	service *edgeapi.EdgeService
 }
 
 // Shutdown gracefully stops the Edge Server.
