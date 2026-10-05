@@ -1,5 +1,5 @@
 services:
-  sentinez.edge:
+  sentinez.dmz.edge:
     deploy:
       resources:
         limits:
@@ -9,7 +9,7 @@ services:
           cpus: '0.5'
           memory: 256M
 
-  sentinez.core.greeter.v1:
+  sentinez.controlplane.greeter.v1:
     deploy:
       resources:
         limits:

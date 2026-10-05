@@ -1,7 +1,7 @@
 services:
-  sentinez.edge:
-    container_name: sentinez.edge
-    hostname: sentinez.edge
+  sentinez.dmz.edge:
+    container_name: sentinez.dmz.edge
+    hostname: sentinez.dmz.edge
     image: sentinez/edge:latest
     ports:
       - "7777:7777"

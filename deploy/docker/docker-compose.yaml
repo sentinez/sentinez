@@ -82,10 +82,10 @@ services:
     depends_on:
       - sentinez.postgres
   
-  sentinez.edge:
+  sentinez.dmz.edge:
     image: sentinez/edge:latest
-    hostname: sentinez.edge
-    container_name: sentinez.edge
+    hostname: sentinez.dmz.edge
+    container_name: sentinez.dmz.edge
     restart: on-failure:3
     ports:
       - "7443:7443" # HTTPS connection

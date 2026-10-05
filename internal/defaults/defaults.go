@@ -22,5 +22,5 @@ const (
 )
 
 const (
-	NamespaceSetting = "sentinez.edge.setting"
+	NamespaceSetting = "sentinez.dmz.edge.setting"
 )
