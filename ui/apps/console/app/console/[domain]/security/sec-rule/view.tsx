@@ -40,15 +40,15 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listRuleBaseds, deleteRuleBased } from '@/lib/api/security';
+import { listSecRules, deleteSecRule } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { statusLabel } from '@/lib/type/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export const getColumns = (onDelete: (rule: RuleBased) => void): ColumnDef<RuleBased>[] => [
+export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule>[] => [
   {
     accessorKey: 'name',
     size: 220,
@@ -57,7 +57,7 @@ export const getColumns = (onDelete: (rule: RuleBased) => void): ColumnDef<RuleB
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rule-based/${row.original.ingressRuntime?.id}`}
+          href={`./sec-rule/${row.original.ingressRuntime?.id}`}
         >
           {row.original.ingressRuntime?.name}
         </Link>
@@ -124,9 +124,9 @@ export const getColumns = (onDelete: (rule: RuleBased) => void): ColumnDef<RuleB
 ];
 
 export default function View() {
-  const [rules, setRules] = useState<RuleBased[]>([]);
+  const [rules, setRules] = useState<SecRule[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<RuleBased | null>(null);
+  const [deleting, setDeleting] = useState<SecRule | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -137,10 +137,10 @@ export default function View() {
   const fetchRules = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await listRuleBaseds();
+      const data = await listSecRules();
       setRules(data);
     } catch (err: any) {
-      toast.error('Failed to load rule baseds');
+      toast.error('Failed to load SecRules');
     } finally {
       setLoading(false);
     }
@@ -155,12 +155,12 @@ export default function View() {
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteRuleBased(id);
-      toast.success('Rule based deleted successfully');
+      await deleteSecRule(id);
+      toast.success('SecRule deleted successfully');
       setDeleting(null);
       fetchRules();
     } catch (err: any) {
-      toast.error('Failed to delete rule based');
+      toast.error('Failed to delete SecRule');
     } finally {
       setDeletingBusy(false);
     }
@@ -168,7 +168,7 @@ export default function View() {
 
   const columns = useMemo(() => getColumns(setDeleting), []);
 
-  const table = useReactTable<RuleBased>({
+  const table = useReactTable<SecRule>({
     data: rules,
     columns,
     onSortingChange: setSorting,
@@ -191,7 +191,7 @@ export default function View() {
     <PageLayout>
       <PageLayoutHeader title="Security Rule" subtitle="Manage active security rules.">
         <Button size="sm" asChild>
-          <Link href="./rule-based/new">
+          <Link href="./sec-rule/new">
             <PlusIcon className="w-4 h-4" />
             Create
           </Link>
@@ -309,7 +309,7 @@ export default function View() {
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Rule Based</DialogTitle>
+            <DialogTitle>Delete SecRule</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete &quot;{deleting?.ingressRuntime?.name}&quot;? This
               action cannot be undone.

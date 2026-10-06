@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulebased
+package secrule
 
 import (
 	"context"
@@ -32,60 +32,60 @@ import (
 )
 
 // nolint
-type IRuleBased interface {
-	Create(ctx context.Context, model *securitypb.RuleBased) (*securitypb.RuleBased, error)
-	Update(ctx context.Context, model *securitypb.RuleBased) error
-	Get(ctx context.Context, id string) (*securitypb.RuleBased, error)
+type ISecRule interface {
+	Create(ctx context.Context, model *securitypb.SecRule) (*securitypb.SecRule, error)
+	Update(ctx context.Context, model *securitypb.SecRule) error
+	Get(ctx context.Context, id string) (*securitypb.SecRule, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IRuleBased
+	WithTX(tx *postgres.TxSession) ISecRule
 
-	List(ctx context.Context, req *securitypb.ListRuleBasedsRequest) ([]*securitypb.RuleBased, int64, error)
+	List(ctx context.Context, req *securitypb.ListSecRulesRequest) ([]*securitypb.SecRule, int64, error)
 }
 
-func New(ctx context.Context, appConf *settingpb.Config) (IRuleBased, error) {
-	storage, err := postgres.New[securitypb.RuleBased](ctx, appConf,
-		dbx.WithTable(tables.SecurityRuleBaseds),
+func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
+	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
+		dbx.WithTable(tables.SecuritySecRules),
 		dbx.WithColumns(dbx.ColumnM{
-			securitypb.RuleBased_Id:          postgres.String,
-			securitypb.RuleBased_Name:        postgres.String,
-			securitypb.RuleBased_Description: postgres.String,
-			securitypb.RuleBased_Expr:        postgres.JSONB,
-			securitypb.RuleBased_Status:      postgres.Int4,
-			securitypb.RuleBased_Priority:    postgres.Int4,
-			securitypb.RuleBased_Action:      postgres.JSONB,
+			securitypb.SecRule_Id:          postgres.String,
+			securitypb.SecRule_Name:        postgres.String,
+			securitypb.SecRule_Description: postgres.String,
+			securitypb.SecRule_Expr:        postgres.JSONB,
+			securitypb.SecRule_Status:      postgres.Int4,
+			securitypb.SecRule_Priority:    postgres.Int4,
+			securitypb.SecRule_Action:      postgres.JSONB,
 		}),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RuleBased{
+	return &SecRule{
 		storage: storage,
 	}, nil
 }
 
-type RuleBased struct {
-	storage dbx.Database[securitypb.RuleBased]
+type SecRule struct {
+	storage dbx.Database[securitypb.SecRule]
 }
 
-func (r *RuleBased) WithTX(tx *postgres.TxSession) IRuleBased {
-	return &RuleBased{
+func (r *SecRule) WithTX(tx *postgres.TxSession) ISecRule {
+	return &SecRule{
 		storage: postgres.WithTx(tx, r.storage),
 	}
 }
 
 func buildListQuery(builder sq.SelectBuilder,
-	req *securitypb.ListRuleBasedsRequest) sq.SelectBuilder {
+	req *securitypb.ListSecRulesRequest) sq.SelectBuilder {
 	if len(req.GetIds()) > 0 {
-		builder = builder.Where(sq.Eq{securitypb.RuleBased_Id: req.GetIds()})
+		builder = builder.Where(sq.Eq{securitypb.SecRule_Id: req.GetIds()})
 	}
 	return builder
 }
 
-func (r *RuleBased) List(ctx context.Context,
-	req *securitypb.ListRuleBasedsRequest,
-) ([]*securitypb.RuleBased, int64, error) {
+func (r *SecRule) List(ctx context.Context,
+	req *securitypb.ListSecRulesRequest,
+) ([]*securitypb.SecRule, int64, error) {
 	builder := postgres.SelectBuilder(r.storage, req.GetPage())
 	builder = buildListQuery(builder, req)
 
@@ -94,7 +94,7 @@ func (r *RuleBased) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	zlog.Debug("[security.rulebaseds] query: ", query, " args: ", args)
+	zlog.Debug("[security.secrules] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -111,17 +111,17 @@ func (r *RuleBased) List(ctx context.Context,
 	return models, total, nil
 }
 
-func (r *RuleBased) Create(ctx context.Context,
-	model *securitypb.RuleBased) (*securitypb.RuleBased, error) {
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecurityRuleBaseds))
+func (r *SecRule) Create(ctx context.Context,
+	model *securitypb.SecRule) (*securitypb.SecRule, error) {
+	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecuritySecRules))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.RuleBased_Id:          model.GetId(),
-		securitypb.RuleBased_Name:        model.GetName(),
-		securitypb.RuleBased_Description: model.GetDescription(),
-		securitypb.RuleBased_Expr:        model.GetExpr(),
-		securitypb.RuleBased_Status:      model.GetStatus(),
-		securitypb.RuleBased_Priority:    model.GetPriority(),
-		securitypb.RuleBased_Action:      model.GetAction(),
+		securitypb.SecRule_Id:          model.GetId(),
+		securitypb.SecRule_Name:        model.GetName(),
+		securitypb.SecRule_Description: model.GetDescription(),
+		securitypb.SecRule_Expr:        model.GetExpr(),
+		securitypb.SecRule_Status:      model.GetStatus(),
+		securitypb.SecRule_Priority:    model.GetPriority(),
+		securitypb.SecRule_Action:      model.GetAction(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -131,59 +131,59 @@ func (r *RuleBased) Create(ctx context.Context,
 	return model, nil
 }
 
-func (r *RuleBased) Delete(ctx context.Context, id string) error {
+func (r *SecRule) Delete(ctx context.Context, id string) error {
 	return r.storage.Delete(ctx, id)
 }
 
-func (r *RuleBased) Get(
+func (r *SecRule) Get(
 	ctx context.Context,
 	id string,
-) (*securitypb.RuleBased, error) {
-	builder := r.selectQuery(nil).Where(sq.Eq{securitypb.RuleBased_Id: id})
+) (*securitypb.SecRule, error) {
+	builder := r.selectQuery(nil).Where(sq.Eq{securitypb.SecRule_Id: id})
 	return r.storage.Select(ctx, builder, scanOne)
 }
 
-func (r *RuleBased) Update(
+func (r *SecRule) Update(
 	ctx context.Context,
-	model *securitypb.RuleBased,
+	model *securitypb.SecRule,
 ) error {
 	query := postgres.UpdateBuilder(r.storage, model.GetId())
 
 	if model.GetName() != "" {
-		query = query.Set(securitypb.RuleBased_Name, model.GetName())
+		query = query.Set(securitypb.SecRule_Name, model.GetName())
 	}
 	if model.GetDescription() != "" {
 		query = query.Set(
-			securitypb.RuleBased_Description,
+			securitypb.SecRule_Description,
 			model.GetDescription(),
 		)
 	}
 	if model.GetExpr() != nil {
-		query = query.Set(securitypb.RuleBased_Expr, model.GetExpr())
+		query = query.Set(securitypb.SecRule_Expr, model.GetExpr())
 	}
 
-	query = query.Set(securitypb.RuleBased_Status, model.GetStatus())
+	query = query.Set(securitypb.SecRule_Status, model.GetStatus())
 
 	_, err := r.storage.Exec(ctx, query)
 	return err
 }
 
-func (r *RuleBased) selectQuery(page *typepb.Pages) sq.SelectBuilder {
+func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.RuleBased_Id,
-		securitypb.RuleBased_Name,
-		securitypb.RuleBased_Description,
-		securitypb.RuleBased_Expr,
-		securitypb.RuleBased_Status,
-		securitypb.RuleBased_Priority,
-		securitypb.RuleBased_Action,
+		securitypb.SecRule_Id,
+		securitypb.SecRule_Name,
+		securitypb.SecRule_Description,
+		securitypb.SecRule_Expr,
+		securitypb.SecRule_Status,
+		securitypb.SecRule_Priority,
+		securitypb.SecRule_Action,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
 }
 
-func scan(rows dbx.Rows) ([]*securitypb.RuleBased, error) {
-	var models []*securitypb.RuleBased
+func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
+	var models []*securitypb.SecRule
 	for rows.Next() {
 		model, err := scanOne(rows)
 		if err != nil {
@@ -194,10 +194,10 @@ func scan(rows dbx.Rows) ([]*securitypb.RuleBased, error) {
 	return models, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*securitypb.RuleBased, error) {
+func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 	var (
 		createdAt, updatedAt time.Time
-		model                securitypb.RuleBased
+		model                securitypb.SecRule
 	)
 
 	err := row.Scan(

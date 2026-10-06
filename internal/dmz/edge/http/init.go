@@ -55,7 +55,7 @@ func Init(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
 
 	curr = curr.SetNext(trace.Wrap("STC", static.NewStatic(ll, ms)))
 
-	curr = curr.SetNext(trace.Wrap("RUL", secure.NewRuleBased(ll, ms)))
+	curr = curr.SetNext(trace.Wrap("RUL", secure.NewSecRule(ll, ms)))
 
 	curr = curr.SetNext(trace.Wrap("WAF", secure.NewWAF(ll, ms)))
 

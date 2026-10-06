@@ -32,8 +32,8 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/rulebased"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
+	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/zlog"
@@ -49,7 +49,7 @@ func NewMemStore(st *edgepb.Setting) *MemStore {
 			limiter:      ratelimiter.New(),
 			reverseProxy: reverseproxy.New(),
 			route:        routes.New(),
-			ruleBased:    rulebased.New(),
+			secRule:      secrules.New(),
 			rulesets:     rulesets.New(),
 			cdnRules:     cdnrules.New(),
 		}
@@ -67,7 +67,7 @@ type MemStore struct {
 	limiter      *ratelimiter.Limiter
 	reverseProxy *reverseproxy.ReverseProxy
 	route        *routes.Router
-	ruleBased    *rulebased.RuleBased
+	secRule      *secrules.SecRule
 	rulesets     *rulesets.Rulesets
 	cdnRules     *cdnrules.Rule
 }
@@ -88,12 +88,12 @@ func (m *MemStore) Rulesets() *rulesets.Rulesets {
 	return m.rulesets
 }
 
-func (m *MemStore) RuleBased() *rulebased.RuleBased {
+func (m *MemStore) SecRule() *secrules.SecRule {
 	if m == nil {
 		return nil
 	}
 
-	return m.ruleBased
+	return m.secRule
 }
 
 func (m *MemStore) Route() *routes.Router {
@@ -147,7 +147,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 		_ = m.LoadCDNRule(s)
 
 		// rule config
-		_ = m.LoadRuleBased(s)
+		_ = m.LoadSecRule(s)
 
 		// rate limiter rule config
 		_ = m.LoadRateLimiter(s)
@@ -268,13 +268,13 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	return nil
 }
 
-func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
-	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetRules()))
-	for _, rule := range s.GetSecurity().GetRules() {
+func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
+	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecRules()))
+	for _, rule := range s.GetSecurity().GetSecRules() {
 		rules = append(rules, rule.GetIngressRuntime())
 	}
 
-	m.ruleBased.Store(s.GetServer().GetName(), rules)
+	m.secRule.Store(s.GetServer().GetName(), rules)
 
 	return nil
 }

@@ -6,28 +6,28 @@ import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import {
   DEFAULT_PRIORITY,
-  RuleBasedFields,
-  RuleBasedFormValue,
+  SecRuleFields,
+  SecRuleFormValue,
   actionParamsOf,
   createEmptyExpression,
   paramRowsOf,
-  validateRuleBasedForm,
+  validateSecRuleForm,
 } from '../../components';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { getRuleBased, updateRuleBased } from '@/lib/api/security';
+import { getSecRule, updateSecRule } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
 const UPDATE_MASK = 'name,description,expr,action,status,priority';
 
-export default function EditRuleBasedPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditSecRulePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [id, setId] = useState<string | null>(null);
 
-  const [form, setForm] = useState<RuleBasedFormValue>({
+  const [form, setForm] = useState<SecRuleFormValue>({
     name: '',
     description: '',
     priority: DEFAULT_PRIORITY,
@@ -36,14 +36,14 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
     action: ActionType.ACTION_TYPE_BLOCK,
     expr: createEmptyExpression(),
   });
-  const patchForm = (patch: Partial<RuleBasedFormValue>) => setForm((f) => ({ ...f, ...patch }));
+  const patchForm = (patch: Partial<SecRuleFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   useEffect(() => {
     async function load() {
       try {
         const { id } = await params;
         setId(id);
-        const r = (await getRuleBased(id)).ingressRuntime;
+        const r = (await getSecRule(id)).ingressRuntime;
         setForm({
           name: r?.name || '',
           description: r?.description || '',
@@ -67,7 +67,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
 
   const handleSave = async () => {
     if (!id) return;
-    const error = validateRuleBasedForm(form);
+    const error = validateSecRuleForm(form);
     if (error) {
       toast.error(error);
       return;
@@ -75,7 +75,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
 
     setSaving(true);
     try {
-      await updateRuleBased(
+      await updateSecRule(
         id,
         {
           ingressRuntime: {
@@ -117,7 +117,7 @@ export default function EditRuleBasedPage({ params }: { params: Promise<{ id: st
       </PageLayoutHeader>
       <PageLayoutContent>
         <div className="max-w-3xl mx-auto py-4">
-          <RuleBasedFields value={form} onChange={patchForm} idPrefix="edit" />
+          <SecRuleFields value={form} onChange={patchForm} idPrefix="edit" />
         </div>
       </PageLayoutContent>
     </PageLayout>

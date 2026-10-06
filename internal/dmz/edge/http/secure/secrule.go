@@ -29,18 +29,18 @@ var (
 	matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
-func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
-	return &RuleBased{
+func NewSecRule(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
+	return &SecRule{
 		Node:  corechains.NewNode(),
 		store: store,
 		logging: zlog.NewLog(
 			edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_RULE, ll,
+			typepb.LogType_LOG_TYPE_SEC_RULE, ll,
 		),
 	}
 }
 
-type RuleBased struct {
+type SecRule struct {
 	*corechains.Node
 	logging zlog.Log
 	store   *memory.MemStore
@@ -49,10 +49,10 @@ type RuleBased struct {
 // Handle runs the active rules of the namespace in priority order. The
 // first matching rule with a terminal action (block) ends the chain; other
 // matches fall through to the next rule.
-func (rb *RuleBased) Handle(ctx corehttp.Context) error {
-	chain := rb.store.RuleBased().LoadContext(ctx)
+func (sr *SecRule) Handle(ctx corehttp.Context) error {
+	chain := sr.store.SecRule().LoadContext(ctx)
 	if len(chain) == 0 {
-		return rb.HandleNext(ctx)
+		return sr.HandleNext(ctx)
 	}
 
 	matched := matchedPool.Get()
@@ -73,5 +73,5 @@ func (rb *RuleBased) Handle(ctx corehttp.Context) error {
 		}
 	}
 
-	return rb.HandleNext(ctx)
+	return sr.HandleNext(ctx)
 }

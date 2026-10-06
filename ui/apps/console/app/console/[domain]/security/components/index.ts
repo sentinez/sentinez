@@ -1,2 +1,2 @@
 export * from './query-builder';
-export * from './rule-based-fields';
+export * from './sec-rule-fields';

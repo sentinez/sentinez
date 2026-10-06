@@ -401,13 +401,13 @@ func (m *Security) Validate() error {
 
 	}
 
-	for idx, item := range m.GetRules() {
+	for idx, item := range m.GetSecRules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return SecurityValidationError{
-					field:  fmt.Sprintf("Rules[%v]", idx),
+					field:  fmt.Sprintf("SecRules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -552,16 +552,16 @@ var _ interface {
 	ErrorName() string
 } = RulesetsValidationError{}
 
-// Validate checks the field values on RuleBased with the rules defined in the
+// Validate checks the field values on SecRule with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *RuleBased) Validate() error {
+func (m *SecRule) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetIngress()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return SecRuleValidationError{
 				field:  "Ingress",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -571,7 +571,7 @@ func (m *RuleBased) Validate() error {
 
 	if v, ok := interface{}(m.GetIngressRuntime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleBasedValidationError{
+			return SecRuleValidationError{
 				field:  "IngressRuntime",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -582,9 +582,9 @@ func (m *RuleBased) Validate() error {
 	return nil
 }
 
-// RuleBasedValidationError is the validation error returned by
-// RuleBased.Validate if the designated constraints aren't met.
-type RuleBasedValidationError struct {
+// SecRuleValidationError is the validation error returned by SecRule.Validate
+// if the designated constraints aren't met.
+type SecRuleValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -592,22 +592,22 @@ type RuleBasedValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleBasedValidationError) Field() string { return e.field }
+func (e SecRuleValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleBasedValidationError) Reason() string { return e.reason }
+func (e SecRuleValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleBasedValidationError) Cause() error { return e.cause }
+func (e SecRuleValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleBasedValidationError) Key() bool { return e.key }
+func (e SecRuleValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleBasedValidationError) ErrorName() string { return "RuleBasedValidationError" }
+func (e SecRuleValidationError) ErrorName() string { return "SecRuleValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleBasedValidationError) Error() string {
+func (e SecRuleValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -619,14 +619,14 @@ func (e RuleBasedValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleBased.%s: %s%s",
+		"invalid %sSecRule.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleBasedValidationError{}
+var _ error = SecRuleValidationError{}
 
 var _ interface {
 	Field() string
@@ -634,7 +634,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleBasedValidationError{}
+} = SecRuleValidationError{}
 
 // Validate checks the field values on RateLimit with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

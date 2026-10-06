@@ -24,7 +24,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 
-Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
+Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. WAF rules are called `SecRule` (proto `security.v1.SecRule`, REST `/security/secrule(s)`, console route `security/sec-rule`, Go packages `secrule`/`secrules`); the old `RuleBased` name is retired. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
 
 ## Commands
 

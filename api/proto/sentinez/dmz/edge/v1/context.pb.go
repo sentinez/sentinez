@@ -109,8 +109,8 @@ func (x *Context) GetX() *ContextExtra {
 type ContextExtra struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
 	Namespace               string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	RuleBasedMatchedIds     []string               `protobuf:"bytes,10,rep,name=rule_based_matched_ids,json=ruleBasedMatchedIds,proto3" json:"rule_based_matched_ids,omitempty"`
-	RuleBasedMatchedNames   []string               `protobuf:"bytes,11,rep,name=rule_based_matched_names,json=ruleBasedMatchedNames,proto3" json:"rule_based_matched_names,omitempty"`
+	SecRuleMatchedIds       []string               `protobuf:"bytes,10,rep,name=sec_rule_matched_ids,json=secRuleMatchedIds,proto3" json:"sec_rule_matched_ids,omitempty"`
+	SecRuleMatchedNames     []string               `protobuf:"bytes,11,rep,name=sec_rule_matched_names,json=secRuleMatchedNames,proto3" json:"sec_rule_matched_names,omitempty"`
 	RulesetsMatchedIds      []string               `protobuf:"bytes,12,rep,name=rulesets_matched_ids,json=rulesetsMatchedIds,proto3" json:"rulesets_matched_ids,omitempty"`
 	RulesetsMatchedNames    []string               `protobuf:"bytes,13,rep,name=rulesets_matched_names,json=rulesetsMatchedNames,proto3" json:"rulesets_matched_names,omitempty"`
 	RulesetsMatchedSeverity []string               `protobuf:"bytes,14,rep,name=rulesets_matched_severity,json=rulesetsMatchedSeverity,proto3" json:"rulesets_matched_severity,omitempty"`
@@ -155,16 +155,16 @@ func (x *ContextExtra) GetNamespace() string {
 	return ""
 }
 
-func (x *ContextExtra) GetRuleBasedMatchedIds() []string {
+func (x *ContextExtra) GetSecRuleMatchedIds() []string {
 	if x != nil {
-		return x.RuleBasedMatchedIds
+		return x.SecRuleMatchedIds
 	}
 	return nil
 }
 
-func (x *ContextExtra) GetRuleBasedMatchedNames() []string {
+func (x *ContextExtra) GetSecRuleMatchedNames() []string {
 	if x != nil {
-		return x.RuleBasedMatchedNames
+		return x.SecRuleMatchedNames
 	}
 	return nil
 }
@@ -200,12 +200,12 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\ttransport\x18\x02 \x01(\v2 .sentinez.types.net.v1.TransportR\ttransport\x12=\n" +
 	"\arequest\x18\x03 \x01(\v2#.sentinez.types.net.http.v1.RequestR\arequest\x120\n" +
 	"\x01x\x18\n" +
-	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xbe\x02\n" +
+	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xb6\x02\n" +
 	"\fContextExtra\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x123\n" +
-	"\x16rule_based_matched_ids\x18\n" +
-	" \x03(\tR\x13ruleBasedMatchedIds\x127\n" +
-	"\x18rule_based_matched_names\x18\v \x03(\tR\x15ruleBasedMatchedNames\x120\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12/\n" +
+	"\x14sec_rule_matched_ids\x18\n" +
+	" \x03(\tR\x11secRuleMatchedIds\x123\n" +
+	"\x16sec_rule_matched_names\x18\v \x03(\tR\x13secRuleMatchedNames\x120\n" +
 	"\x14rulesets_matched_ids\x18\f \x03(\tR\x12rulesetsMatchedIds\x124\n" +
 	"\x16rulesets_matched_names\x18\r \x03(\tR\x14rulesetsMatchedNames\x12:\n" +
 	"\x19rulesets_matched_severity\x18\x0e \x03(\tR\x17rulesetsMatchedSeverityBDZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"

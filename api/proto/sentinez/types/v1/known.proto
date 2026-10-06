@@ -26,7 +26,7 @@ message Context {
   string name = 1;
   google.protobuf.Timestamp expire_at = 2;
   string user_id = 3;
-  ControlPlane plane = 4;
+  ControlPlane control_plane = 4;
 }
 
 enum Zone {
@@ -60,7 +60,7 @@ enum LogType {
   LOG_TYPE_UNSPECIFIED = 0;
   LOG_TYPE_HTTP = 1;
   LOG_TYPE_WAF = 2;
-  LOG_TYPE_RULE = 3;
+  LOG_TYPE_SEC_RULE = 3;
   LOG_TYPE_RATE_LIMIT = 4;
   LOG_TYPE_CDN_RULE = 5;
 }

@@ -5,22 +5,22 @@ import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import {
   DEFAULT_PRIORITY,
-  RuleBasedFields,
-  RuleBasedFormValue,
+  SecRuleFields,
+  SecRuleFormValue,
   actionParamsOf,
   createEmptyExpression,
-  validateRuleBasedForm,
+  validateSecRuleForm,
 } from '../../components';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { createRuleBased } from '@/lib/api/security';
+import { createSecRule } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useState } from 'react';
 
-export default function CreateRuleBasedPage() {
+export default function CreateSecRulePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState<RuleBasedFormValue>({
+  const [form, setForm] = useState<SecRuleFormValue>({
     name: '',
     description: '',
     priority: DEFAULT_PRIORITY,
@@ -29,10 +29,10 @@ export default function CreateRuleBasedPage() {
     actionParams: [],
     expr: createEmptyExpression(),
   });
-  const patchForm = (patch: Partial<RuleBasedFormValue>) => setForm((f) => ({ ...f, ...patch }));
+  const patchForm = (patch: Partial<SecRuleFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   const handleCreate = async () => {
-    const error = validateRuleBasedForm(form);
+    const error = validateSecRuleForm(form);
     if (error) {
       toast.error(error);
       return;
@@ -40,7 +40,7 @@ export default function CreateRuleBasedPage() {
 
     setSaving(true);
     try {
-      await createRuleBased({
+      await createSecRule({
         ingressRuntime: {
           id: '',
           name: form.name,
@@ -51,10 +51,10 @@ export default function CreateRuleBasedPage() {
           action: { type: form.action, params: actionParamsOf(form) },
         },
       });
-      toast.success('Rule based created successfully');
+      toast.success('SecRule created successfully');
       router.back();
     } catch (err: any) {
-      toast.error('Failed to create rule based');
+      toast.error('Failed to create SecRule');
     } finally {
       setSaving(false);
     }
@@ -74,7 +74,7 @@ export default function CreateRuleBasedPage() {
       </PageLayoutHeader>
       <PageLayoutContent>
         <div className="max-w-3xl mx-auto py-4">
-          <RuleBasedFields value={form} onChange={patchForm} idPrefix="create" />
+          <SecRuleFields value={form} onChange={patchForm} idPrefix="create" />
         </div>
       </PageLayoutContent>
     </PageLayout>

@@ -188,7 +188,7 @@ export enum LogType {
   LOG_TYPE_UNSPECIFIED = 0,
   LOG_TYPE_HTTP = 1,
   LOG_TYPE_WAF = 2,
-  LOG_TYPE_RULE = 3,
+  LOG_TYPE_SEC_RULE = 3,
   LOG_TYPE_RATE_LIMIT = 4,
   LOG_TYPE_CDN_RULE = 5,
   UNRECOGNIZED = -1,
@@ -206,8 +206,8 @@ export function logTypeFromJSON(object: any): LogType {
     case "LOG_TYPE_WAF":
       return LogType.LOG_TYPE_WAF;
     case 3:
-    case "LOG_TYPE_RULE":
-      return LogType.LOG_TYPE_RULE;
+    case "LOG_TYPE_SEC_RULE":
+      return LogType.LOG_TYPE_SEC_RULE;
     case 4:
     case "LOG_TYPE_RATE_LIMIT":
       return LogType.LOG_TYPE_RATE_LIMIT;
@@ -229,8 +229,8 @@ export function logTypeToJSON(object: LogType): string {
       return "LOG_TYPE_HTTP";
     case LogType.LOG_TYPE_WAF:
       return "LOG_TYPE_WAF";
-    case LogType.LOG_TYPE_RULE:
-      return "LOG_TYPE_RULE";
+    case LogType.LOG_TYPE_SEC_RULE:
+      return "LOG_TYPE_SEC_RULE";
     case LogType.LOG_TYPE_RATE_LIMIT:
       return "LOG_TYPE_RATE_LIMIT";
     case LogType.LOG_TYPE_CDN_RULE:
@@ -311,7 +311,7 @@ export interface Context {
   name: string;
   expireAt?: Date | undefined;
   userId: string;
-  plane: ControlPlane;
+  controlPlane: ControlPlane;
 }
 
 function createBaseEmpty(): Empty {
@@ -367,7 +367,7 @@ export const Empty: MessageFns<Empty> = {
 };
 
 function createBaseContext(): Context {
-  return { name: "", expireAt: undefined, userId: "", plane: 0 };
+  return { name: "", expireAt: undefined, userId: "", controlPlane: 0 };
 }
 
 export const Context: MessageFns<Context> = {
@@ -381,8 +381,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       writer.uint32(26).string(message.userId);
     }
-    if (message.plane !== 0) {
-      writer.uint32(32).int32(message.plane);
+    if (message.controlPlane !== 0) {
+      writer.uint32(32).int32(message.controlPlane);
     }
     return writer;
   },
@@ -429,7 +429,7 @@ export const Context: MessageFns<Context> = {
               break;
             }
 
-            message.plane = reader.int32() as any;
+            message.controlPlane = reader.int32() as any;
             continue;
           }
         }
@@ -457,7 +457,11 @@ export const Context: MessageFns<Context> = {
         : isSet(object.user_id)
         ? globalThis.String(object.user_id)
         : "",
-      plane: isSet(object.plane) ? controlPlaneFromJSON(object.plane) : 0,
+      controlPlane: isSet(object.controlPlane)
+        ? controlPlaneFromJSON(object.controlPlane)
+        : isSet(object.control_plane)
+        ? controlPlaneFromJSON(object.control_plane)
+        : 0,
     };
   },
 
@@ -472,8 +476,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       obj.userId = message.userId;
     }
-    if (message.plane !== 0) {
-      obj.plane = controlPlaneToJSON(message.plane);
+    if (message.controlPlane !== 0) {
+      obj.controlPlane = controlPlaneToJSON(message.controlPlane);
     }
     return obj;
   },
@@ -486,7 +490,7 @@ export const Context: MessageFns<Context> = {
     message.name = object.name ?? "";
     message.expireAt = object.expireAt ?? undefined;
     message.userId = object.userId ?? "";
-    message.plane = object.plane ?? 0;
+    message.controlPlane = object.controlPlane ?? 0;
     return message;
   },
 };

@@ -21,13 +21,13 @@ Other clients for style: `lib/api/tenant/index.ts`, `lib/api/iam/*.ts`.
 2. `const API_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || 'http://localhost:8080';`
 3. `const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';`
 4. `export interface ApiOptions { signal?: AbortSignal }`; every function takes `options?: ApiOptions` last and passes `signal` to axios.
-5. Wire types mirroring the swagger definitions (name them after the definition, e.g. `SecurityRuleBased`).
+5. Wire types mirroring the swagger definitions (name them after the definition, e.g. `SecuritySecRule`).
 6. `fromWire` / `toWire` mappers between wire types and the proto types the UI uses. Use the generated `xxxFromJSON` / `xxxToJSON` and `Message.fromJSON` / `toJSON` helpers instead of hand-rolling enum or oneof conversion. Skip mapping only if the UI already consumes the wire shape.
-7. One exported async function per operation, with the path in a comment: `// GET /security/rulebased/{id}`.
+7. One exported async function per operation, with the path in a comment: `// GET /security/secrule/{id}`.
    - `encodeURIComponent` path params.
    - Query params: nested names use dotted keys (`'page.index'`); arrays with `collectionFormat: multi` need `paramsSerializer: { indexes: null }`.
-   - Unwrap the response field (`resp.data?.ruleBased`), return `id` for create, `void` for delete.
-   - Body wrappers follow the swagger (`{ ruleBased, updateMask }`).
+   - Unwrap the response field (`resp.data?.secRule`), return `id` for create, `void` for delete.
+   - Body wrappers follow the swagger (`{ secRule, updateMask }`).
 
 ## 3. Error handling and sample fallback
 

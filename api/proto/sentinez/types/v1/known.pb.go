@@ -247,7 +247,7 @@ const (
 	LogType_LOG_TYPE_UNSPECIFIED LogType = 0
 	LogType_LOG_TYPE_HTTP        LogType = 1
 	LogType_LOG_TYPE_WAF         LogType = 2
-	LogType_LOG_TYPE_RULE        LogType = 3
+	LogType_LOG_TYPE_SEC_RULE    LogType = 3
 	LogType_LOG_TYPE_RATE_LIMIT  LogType = 4
 	LogType_LOG_TYPE_CDN_RULE    LogType = 5
 )
@@ -258,7 +258,7 @@ var (
 		0: "LOG_TYPE_UNSPECIFIED",
 		1: "LOG_TYPE_HTTP",
 		2: "LOG_TYPE_WAF",
-		3: "LOG_TYPE_RULE",
+		3: "LOG_TYPE_SEC_RULE",
 		4: "LOG_TYPE_RATE_LIMIT",
 		5: "LOG_TYPE_CDN_RULE",
 	}
@@ -266,7 +266,7 @@ var (
 		"LOG_TYPE_UNSPECIFIED": 0,
 		"LOG_TYPE_HTTP":        1,
 		"LOG_TYPE_WAF":         2,
-		"LOG_TYPE_RULE":        3,
+		"LOG_TYPE_SEC_RULE":    3,
 		"LOG_TYPE_RATE_LIMIT":  4,
 		"LOG_TYPE_CDN_RULE":    5,
 	}
@@ -493,12 +493,12 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPLAN_FREE\x10\x01\x12\x11\n" +
 	"\rPLAN_STANDARD\x10\x02\x12\f\n" +
-	"\bPLAN_PRO\x10\x03*\x8b\x01\n" +
+	"\bPLAN_PRO\x10\x03*\x8f\x01\n" +
 	"\aLogType\x12\x18\n" +
 	"\x14LOG_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rLOG_TYPE_HTTP\x10\x01\x12\x10\n" +
-	"\fLOG_TYPE_WAF\x10\x02\x12\x11\n" +
-	"\rLOG_TYPE_RULE\x10\x03\x12\x17\n" +
+	"\fLOG_TYPE_WAF\x10\x02\x12\x15\n" +
+	"\x11LOG_TYPE_SEC_RULE\x10\x03\x12\x17\n" +
 	"\x13LOG_TYPE_RATE_LIMIT\x10\x04\x12\x15\n" +
 	"\x11LOG_TYPE_CDN_RULE\x10\x05*\xb3\x01\n" +
 	"\x06Errors\x12\x16\n" +

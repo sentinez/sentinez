@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulebased
+package secrules
 
 import (
 	"sort"
@@ -29,12 +29,12 @@ import (
 
 var (
 	once     sync.Once
-	ruleInst *RuleBased
+	ruleInst *SecRule
 )
 
-func New() *RuleBased {
+func New() *SecRule {
 	once.Do(func() {
-		ruleInst = &RuleBased{
+		ruleInst = &SecRule{
 			chains: ssync.NewMap[string, []Entry](),
 		}
 	})
@@ -48,14 +48,14 @@ type Entry struct {
 	Rule *secrulepb.SecRule
 }
 
-type RuleBased struct {
+type SecRule struct {
 	chains *ssync.Map[string, []Entry]
 }
 
 // Store replaces the rule chain of namespace. Inactive rules are skipped
 // and the rest are ordered by priority: a higher priority value runs
 // first, ties keep their given order.
-func (rc *RuleBased) Store(namespace string, rules []*secrulepb.SecRule) {
+func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 	chain := make([]Entry, 0, len(rules))
 	for _, r := range rules {
 		if r.GetStatus() != typepb.Status_STATUS_ACTIVE {
@@ -76,24 +76,24 @@ func (rc *RuleBased) Store(namespace string, rules []*secrulepb.SecRule) {
 	})
 
 	if len(chain) == 0 {
-		rc.chains.Delete(namespace)
+		sr.chains.Delete(namespace)
 		return
 	}
 
-	rc.chains.Store(namespace, chain)
+	sr.chains.Store(namespace, chain)
 }
 
 // Load returns the priority-ordered chain of namespace. The result is
 // shared and must not be modified.
-func (rc *RuleBased) Load(namespace string) []Entry {
-	chain, _ := rc.chains.Load(namespace)
+func (sr *SecRule) Load(namespace string) []Entry {
+	chain, _ := sr.chains.Load(namespace)
 	return chain
 }
 
-func (rc *RuleBased) LoadContext(ctx corehttp.Context) []Entry {
-	if rc == nil {
+func (sr *SecRule) LoadContext(ctx corehttp.Context) []Entry {
+	if sr == nil {
 		return nil
 	}
 
-	return rc.Load(ctx.X().GetNamespace())
+	return sr.Load(ctx.X().GetNamespace())
 }

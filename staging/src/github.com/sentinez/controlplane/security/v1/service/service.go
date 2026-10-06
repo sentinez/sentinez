@@ -17,7 +17,7 @@ package securitysvc
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/security/v1/repos/rulebased"
+	"github.com/sentinez/controlplane/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/errorx"
@@ -28,29 +28,29 @@ var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
 // New creates a new SecurityService.
 func New(
 	config *settingpb.Config,
-	ruleBasedRepo rulebased.IRuleBased,
+	secRuleRepo secrule.ISecRule,
 ) *SecurityService {
 	return &SecurityService{
-		config:        config,
-		ruleBasedRepo: ruleBasedRepo,
+		config:      config,
+		secRuleRepo: secRuleRepo,
 	}
 }
 
 // SecurityService handles security operations.
 type SecurityService struct {
-	config        *settingpb.Config
-	ruleBasedRepo rulebased.IRuleBased
+	config      *settingpb.Config
+	secRuleRepo secrule.ISecRule
 }
 
-// mapRuleBased converts a DB RuleBased into an API RuleBased response.
-func (srv *SecurityService) mapRuleBased(_ context.Context,
-	dbRB *securitypb.RuleBased,
-) *securitypb.RuleBased {
+// mapSecRule converts a DB SecRule into an API SecRule response.
+func (srv *SecurityService) mapSecRule(_ context.Context,
+	dbRB *securitypb.SecRule,
+) *securitypb.SecRule {
 	if dbRB == nil {
 		return nil
 	}
 
-	return &securitypb.RuleBased{
+	return &securitypb.SecRule{
 		Id:          dbRB.GetId(),
 		Name:        dbRB.GetName(),
 		Description: dbRB.GetDescription(),
@@ -62,91 +62,91 @@ func (srv *SecurityService) mapRuleBased(_ context.Context,
 	}
 }
 
-// ── RuleBased ────────────────────────────────────────────────────────────
+// ── SecRule ────────────────────────────────────────────────────────────
 
-// CreateRuleBased creates a new WAF rule based
-func (srv *SecurityService) CreateRuleBased(ctx context.Context,
-	req *securitypb.CreateRuleBasedRequest,
-) (*securitypb.CreateRuleBasedResponse, error) {
-	if req.GetRuleBased() == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
+// CreateSecRule creates a new WAF rule based
+func (srv *SecurityService) CreateSecRule(ctx context.Context,
+	req *securitypb.CreateSecRuleRequest,
+) (*securitypb.CreateSecRuleResponse, error) {
+	if req.GetSecRule() == nil {
+		return nil, errorx.StatusInvalidArgumentF("sec_rule is required")
 	}
 
-	created, err := srv.ruleBasedRepo.Create(ctx, req.GetRuleBased())
+	created, err := srv.secRuleRepo.Create(ctx, req.GetSecRule())
 	if err != nil {
 		return nil, err
 	}
 
-	return &securitypb.CreateRuleBasedResponse{Id: created.GetId()}, nil
+	return &securitypb.CreateSecRuleResponse{Id: created.GetId()}, nil
 }
 
-func (srv *SecurityService) GetRuleBased(ctx context.Context,
-	req *securitypb.GetRuleBasedRequest,
-) (*securitypb.GetRuleBasedResponse, error) {
-	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.GetId())
+func (srv *SecurityService) GetSecRule(ctx context.Context,
+	req *securitypb.GetSecRuleRequest,
+) (*securitypb.GetSecRuleResponse, error) {
+	dbRB, err := srv.secRuleRepo.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	return &securitypb.
-		GetRuleBasedResponse{RuleBased: srv.mapRuleBased(ctx, dbRB)}, nil
+		GetSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil
 }
 
-// UpdateRuleBased updates an existing WAF rule based
-func (srv *SecurityService) UpdateRuleBased(ctx context.Context,
-	req *securitypb.UpdateRuleBasedRequest,
-) (*securitypb.UpdateRuleBasedResponse, error) {
-	if req.GetRuleBased() == nil {
-		return nil, errorx.StatusInvalidArgumentF("rule_based is required")
+// UpdateSecRule updates an existing WAF rule based
+func (srv *SecurityService) UpdateSecRule(ctx context.Context,
+	req *securitypb.UpdateSecRuleRequest,
+) (*securitypb.UpdateSecRuleResponse, error) {
+	if req.GetSecRule() == nil {
+		return nil, errorx.StatusInvalidArgumentF("sec_rule is required")
 	}
 
-	dbRB, err := srv.ruleBasedRepo.Get(ctx, req.GetId())
+	dbRB, err := srv.secRuleRepo.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate rule structure
 
-	dbRB.Name = req.GetRuleBased().GetName()
-	dbRB.Description = req.GetRuleBased().GetDescription()
-	dbRB.Expr = req.GetRuleBased().GetExpr()
-	dbRB.Status = req.GetRuleBased().GetStatus()
-	dbRB.Priority = req.GetRuleBased().GetPriority()
-	dbRB.Action = req.GetRuleBased().GetAction()
+	dbRB.Name = req.GetSecRule().GetName()
+	dbRB.Description = req.GetSecRule().GetDescription()
+	dbRB.Expr = req.GetSecRule().GetExpr()
+	dbRB.Status = req.GetSecRule().GetStatus()
+	dbRB.Priority = req.GetSecRule().GetPriority()
+	dbRB.Action = req.GetSecRule().GetAction()
 
-	if err := srv.ruleBasedRepo.Update(ctx, dbRB); err != nil {
+	if err := srv.secRuleRepo.Update(ctx, dbRB); err != nil {
 		return nil, err
 	}
 
 	return &securitypb.
-		UpdateRuleBasedResponse{RuleBased: srv.mapRuleBased(ctx, dbRB)}, nil
+		UpdateSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil
 }
 
-func (srv *SecurityService) DeleteRuleBased(ctx context.Context,
-	req *securitypb.DeleteRuleBasedRequest,
-) (*securitypb.DeleteRuleBasedResponse, error) {
-	if err := srv.ruleBasedRepo.Delete(ctx, req.GetId()); err != nil {
+func (srv *SecurityService) DeleteSecRule(ctx context.Context,
+	req *securitypb.DeleteSecRuleRequest,
+) (*securitypb.DeleteSecRuleResponse, error) {
+	if err := srv.secRuleRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
-	return &securitypb.DeleteRuleBasedResponse{}, nil
+	return &securitypb.DeleteSecRuleResponse{}, nil
 }
 
-func (srv *SecurityService) ListRuleBaseds(ctx context.Context,
-	req *securitypb.ListRuleBasedsRequest,
-) (*securitypb.ListRuleBasedsResponse, error) {
-	dbRBs, total, err := srv.ruleBasedRepo.List(ctx, req)
+func (srv *SecurityService) ListSecRules(ctx context.Context,
+	req *securitypb.ListSecRulesRequest,
+) (*securitypb.ListSecRulesResponse, error) {
+	dbRBs, total, err := srv.secRuleRepo.List(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	var rbs []*securitypb.RuleBased
+	var rbs []*securitypb.SecRule
 	for _, dbRB := range dbRBs {
-		rbs = append(rbs, srv.mapRuleBased(ctx, dbRB))
+		rbs = append(rbs, srv.mapSecRule(ctx, dbRB))
 	}
 
-	return &securitypb.ListRuleBasedsResponse{
-		RuleBaseds: rbs,
-		Total:      total,
+	return &securitypb.ListSecRulesResponse{
+		SecRules: rbs,
+		Total:    total,
 	}, nil
 }
 

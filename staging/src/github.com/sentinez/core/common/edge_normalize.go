@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	rgPrefix   = "senz.rulebased."
+	rgPrefix   = "senz.secrule."
 	condPrefix = "senz.cond."
 	rulePrefix = "senz.rule."
 )
@@ -53,12 +53,12 @@ func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	for _, rule := range edgeSec.GetRules() {
-		rule.IngressRuntime = toRuleBased(rule.GetIngress())
+	for _, rule := range edgeSec.GetSecRules() {
+		rule.IngressRuntime = toSecRule(rule.GetIngress())
 	}
 }
 
-func toRuleBased(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
+func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 	if rgLite == nil {
 		return nil
 	}

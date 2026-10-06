@@ -103,8 +103,8 @@ export const dashboard: {
           icon: Signal,
         },
         {
-          title: 'Rule based',
-          url: '/console/security/rule-based',
+          title: 'SecRule',
+          url: '/console/security/sec-rule',
           icon: ShieldCheck,
         },
         {
@@ -127,8 +127,8 @@ export const dashboard: {
           isActive: true,
           items: [
             {
-              title: 'Rule Based',
-              url: '/console/analytic/logs/security/rule-based',
+              title: 'SecRule',
+              url: '/console/analytic/logs/security/sec-rule',
               icon: ShieldCheck,
             },
             {

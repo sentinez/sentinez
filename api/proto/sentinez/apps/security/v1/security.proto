@@ -51,45 +51,44 @@ option (sentinez.types.v1.x_meta) = {
 
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 service SecurityService {
-  // ── RuleBased ────────────────────────────────────────────────────────────
 
-  // CreateRuleBased creates a new WAF rule based
-  rpc CreateRuleBased(CreateRuleBasedRequest)
-      returns (CreateRuleBasedResponse) {
+  // CreateSecRule creates a new WAF rule based
+  rpc CreateSecRule(CreateSecRuleRequest)
+      returns (CreateSecRuleResponse) {
     option (google.api.http) = {
-      post: "/security/rulebased"
+      post: "/security/secrule"
       body: "*"
     };
   }
 
-  // GetRuleBased retrieves a WAF rule based by ID
-  rpc GetRuleBased(GetRuleBasedRequest) returns (GetRuleBasedResponse) {
+  // GetSecRule retrieves a WAF rule based by ID
+  rpc GetSecRule(GetSecRuleRequest) returns (GetSecRuleResponse) {
     option (google.api.http) = {
-      get: "/security/rulebased/{id}"
+      get: "/security/secrule/{id}"
     };
   }
 
-  // UpdateRuleBased updates an existing WAF rule based
-  rpc UpdateRuleBased(UpdateRuleBasedRequest)
-      returns (UpdateRuleBasedResponse) {
+  // UpdateSecRule updates an existing WAF rule based
+  rpc UpdateSecRule(UpdateSecRuleRequest)
+      returns (UpdateSecRuleResponse) {
     option (google.api.http) = {
-      put: "/security/rulebased/{id}"
+      put: "/security/secrule/{id}"
       body: "*"
     };
   }
 
-  // DeleteRuleBased removes a WAF rule based by ID
-  rpc DeleteRuleBased(DeleteRuleBasedRequest)
-      returns (DeleteRuleBasedResponse) {
+  // DeleteSecRule removes a WAF rule based by ID
+  rpc DeleteSecRule(DeleteSecRuleRequest)
+      returns (DeleteSecRuleResponse) {
     option (google.api.http) = {
-      delete: "/security/rulebased/{id}"
+      delete: "/security/secrule/{id}"
     };
   }
 
-  // ListRuleBaseds lists WAF rule baseds with optional filters
-  rpc ListRuleBaseds(ListRuleBasedsRequest) returns (ListRuleBasedsResponse) {
+  // ListSecRules lists WAF rule baseds with optional filters
+  rpc ListSecRules(ListSecRulesRequest) returns (ListSecRulesResponse) {
     option (google.api.http) = {
-      get: "/security/rulebaseds"
+      get: "/security/secrules"
     };
   }
 
@@ -107,47 +106,47 @@ service SecurityService {
   }
 }
 
-// ── RuleBased Messages ─────────────────────────────────────────────────────
+// ── SecRule Messages ─────────────────────────────────────────────────────
 
-message CreateRuleBasedRequest {
-  RuleBased rule_based = 1 [(buf.validate.field).required = true];
+message CreateSecRuleRequest {
+  SecRule sec_rule = 1 [(buf.validate.field).required = true];
 }
 
-message CreateRuleBasedResponse {
+message CreateSecRuleResponse {
   string id = 1;
 }
 
-message GetRuleBasedRequest {
+message GetSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetRuleBasedResponse {
-  RuleBased rule_based = 1;
+message GetSecRuleResponse {
+  SecRule sec_rule = 1;
 }
 
-message UpdateRuleBasedRequest {
+message UpdateSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  RuleBased rule_based = 2 [(buf.validate.field).required = true];
+  SecRule sec_rule = 2 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateRuleBasedResponse {
-  RuleBased rule_based = 1;
+message UpdateSecRuleResponse {
+  SecRule sec_rule = 1;
 }
 
-message DeleteRuleBasedRequest {
+message DeleteSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteRuleBasedResponse {}
+message DeleteSecRuleResponse {}
 
-message ListRuleBasedsRequest {
+message ListSecRulesRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
 }
 
-message ListRuleBasedsResponse {
-  repeated RuleBased rule_baseds = 1;
+message ListSecRulesResponse {
+  repeated SecRule sec_rules = 1;
   int64 total = 2;
 }
 // ── Status Messages ─────────────────────────────────────────────────────────

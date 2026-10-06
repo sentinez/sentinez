@@ -24,14 +24,14 @@ import "sentinez/types/rule/v1/rule.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 
-message RuleBased {
+message SecRule {
   option (sentinez.types.v1.x_message).database_model = true;
 
   sentinez.types.v1.Metadata metadata = 1;
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.security.rulebaseds." }
+    string: { prefix: "senz.security.secrules." }
   }];
 
   string name = 3;

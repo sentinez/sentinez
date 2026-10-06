@@ -12,7 +12,7 @@ import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
-export interface RuleBased {
+export interface SecRule {
   metadata?: Metadata | undefined;
   id: string;
   name: string;
@@ -34,7 +34,7 @@ export interface ActionValue_MapValueEntry {
   value: string;
 }
 
-function createBaseRuleBased(): RuleBased {
+function createBaseSecRule(): SecRule {
   return {
     metadata: undefined,
     id: "",
@@ -48,8 +48,8 @@ function createBaseRuleBased(): RuleBased {
   };
 }
 
-export const RuleBased: MessageFns<RuleBased> = {
-  encode(message: RuleBased, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRule: MessageFns<SecRule> = {
+  encode(message: SecRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -80,7 +80,7 @@ export const RuleBased: MessageFns<RuleBased> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRule {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -89,7 +89,7 @@ export const RuleBased: MessageFns<RuleBased> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRuleBased();
+      const message = createBaseSecRule();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -177,7 +177,7 @@ export const RuleBased: MessageFns<RuleBased> = {
     }
   },
 
-  fromJSON(object: any): RuleBased {
+  fromJSON(object: any): SecRule {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
@@ -195,7 +195,7 @@ export const RuleBased: MessageFns<RuleBased> = {
     };
   },
 
-  toJSON(message: RuleBased): unknown {
+  toJSON(message: SecRule): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
@@ -227,11 +227,11 @@ export const RuleBased: MessageFns<RuleBased> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleBased>, I>>(base?: I): RuleBased {
-    return RuleBased.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRule>, I>>(base?: I): SecRule {
+    return SecRule.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleBased>, I>>(object: I): RuleBased {
-    const message = createBaseRuleBased();
+  fromPartial<I extends Exact<DeepPartial<SecRule>, I>>(object: I): SecRule {
+    const message = createBaseSecRule();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;

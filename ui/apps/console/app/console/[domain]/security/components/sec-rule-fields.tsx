@@ -28,7 +28,7 @@ export interface ParamRow {
   value: string;
 }
 
-export interface RuleBasedFormValue {
+export interface SecRuleFormValue {
   name: string;
   description: string;
   priority: number;
@@ -44,7 +44,7 @@ export const DEFAULT_PRIORITY = 50;
 const MAP_ACTIONS = [ActionType.ACTION_TYPE_SET_TAG, ActionType.ACTION_TYPE_MODIFY_HEADER];
 
 /** Rows -> params (proto Action.params) */
-export function actionParamsOf(f: RuleBasedFormValue): Record<string, string> | undefined {
+export function actionParamsOf(f: SecRuleFormValue): Record<string, string> | undefined {
   if (ACTIONS_WITHOUT_VALUE.includes(f.action)) return undefined;
   if (MAP_ACTIONS.includes(f.action)) {
     const entries = f.actionParams
@@ -64,7 +64,7 @@ export function paramRowsOf(action: ActionType, params?: Record<string, any>): P
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateRuleBasedForm(f: RuleBasedFormValue): string | null {
+export function validateSecRuleForm(f: SecRuleFormValue): string | null {
   if (!f.name || !f.description) return 'Fields name and description are required';
   if (ACTIONS_WITHOUT_VALUE.includes(f.action) || actionParamsOf(f)) return null;
   return MAP_ACTIONS.includes(f.action)
@@ -73,8 +73,8 @@ export function validateRuleBasedForm(f: RuleBasedFormValue): string | null {
 }
 
 interface Props {
-  value: RuleBasedFormValue;
-  onChange: (patch: Partial<RuleBasedFormValue>) => void;
+  value: SecRuleFormValue;
+  onChange: (patch: Partial<SecRuleFormValue>) => void;
   idPrefix?: string;
 }
 
@@ -175,8 +175,8 @@ function KeyValueRows({
   );
 }
 
-/** Form fields matching v1RuleBased in security.swagger.json */
-export function RuleBasedFields({ value, onChange, idPrefix = 'rule' }: Props) {
+/** Form fields matching v1SecRule in security.swagger.json */
+export function SecRuleFields({ value, onChange, idPrefix = 'rule' }: Props) {
   // keep a rule's existing custom priority selectable
   const priorityOptions = PRIORITY_OPTIONS.some((o) => o.value === value.priority)
     ? PRIORITY_OPTIONS
