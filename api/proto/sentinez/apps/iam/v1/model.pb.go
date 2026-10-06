@@ -237,7 +237,7 @@ type User struct {
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
-	Console       v1.Console             `protobuf:"varint,13,opt,name=console,proto3,enum=sentinez.types.v1.Console" json:"console,omitempty"`
+	ControlPlane  v1.ControlPlane        `protobuf:"varint,13,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -300,11 +300,11 @@ func (x *User) GetEmail() string {
 	return ""
 }
 
-func (x *User) GetConsole() v1.Console {
+func (x *User) GetControlPlane() v1.ControlPlane {
 	if x != nil {
-		return x.Console
+		return x.ControlPlane
 	}
-	return v1.Console(0)
+	return v1.ControlPlane(0)
 }
 
 var File_sentinez_apps_iam_v1_model_proto protoreflect.FileDescriptor
@@ -330,14 +330,14 @@ const file_sentinez_apps_iam_v1_model_proto_rawDesc = "" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1a\n" +
-	"\bprovider\x18\f \x01(\tR\bprovider\"\xec\x01\n" +
+	"\bprovider\x18\f \x01(\tR\bprovider\"\xfc\x01\n" +
 	"\x04User\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
 	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x124\n" +
-	"\aconsole\x18\r \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole:\x06\xca\xf3\x18\x02\b\x01BCZAgithub.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampbb\x06proto3"
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12D\n" +
+	"\rcontrol_plane\x18\r \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane:\x06\xca\xf3\x18\x02\b\x01BCZAgithub.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampbb\x06proto3"
 
 var (
 	file_sentinez_apps_iam_v1_model_proto_rawDescOnce sync.Once
@@ -357,13 +357,13 @@ var file_sentinez_apps_iam_v1_model_proto_goTypes = []any{
 	(*AccountResponse)(nil), // 1: sentinez.apps.iam.v1.AccountResponse
 	(*User)(nil),            // 2: sentinez.apps.iam.v1.User
 	(*v1.Metadata)(nil),     // 3: sentinez.types.v1.Metadata
-	(v1.Console)(0),         // 4: sentinez.types.v1.Console
+	(v1.ControlPlane)(0),    // 4: sentinez.types.v1.ControlPlane
 }
 var file_sentinez_apps_iam_v1_model_proto_depIdxs = []int32{
 	3, // 0: sentinez.apps.iam.v1.Account.metadata:type_name -> sentinez.types.v1.Metadata
 	3, // 1: sentinez.apps.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.v1.Metadata
 	3, // 2: sentinez.apps.iam.v1.User.metadata:type_name -> sentinez.types.v1.Metadata
-	4, // 3: sentinez.apps.iam.v1.User.console:type_name -> sentinez.types.v1.Console
+	4, // 3: sentinez.apps.iam.v1.User.control_plane:type_name -> sentinez.types.v1.ControlPlane
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

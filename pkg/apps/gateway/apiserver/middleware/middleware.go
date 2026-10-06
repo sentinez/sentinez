@@ -75,7 +75,7 @@ func Logging(h http.Handler) http.Handler {
 		event.UserAgent = r.UserAgent()
 		event.ContentType = r.Header.Get(httpconst.HeaderContentType)
 
-		lw.Logger.Info("allow http request", event, event)
+		lw.Logging.Info("allow http request", event, event)
 	})
 }
 

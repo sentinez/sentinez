@@ -23,13 +23,13 @@ message Hello {
 service ExampleService {
   rpc Create(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL ]
+      control_planes: [ CONTROL_PLANE_PORTAL ]
     };
   }
 
   rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 

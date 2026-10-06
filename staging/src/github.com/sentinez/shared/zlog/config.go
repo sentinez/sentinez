@@ -95,14 +95,14 @@ func configConsoleLogger(scope string) *zap.Logger {
 	core := zapcore.NewCore(consoleEncoder,
 		zapcore.Lock(os.Stdout), zapcore.DebugLevel)
 
-	logger := zap.New(withOTLP(core, scope, nil), zap.AddCaller(),
+	logging := zap.New(withOTLP(core, scope, nil), zap.AddCaller(),
 		zap.AddCallerSkip(2), zap.AddStacktrace(zapcore.FatalLevel))
 
-	logger = logger.Named(scope)
-	return logger
+	logging = logging.Named(scope)
+	return logging
 }
 
-func configJSONLogger(scope string, o loggerOptions) *zap.Logger {
+func configJSONLogging(scope string, o loggingOptions) *zap.Logger {
 	var jsonConf = config
 	jsonConf.EncodeTime = zap.NewProductionEncoderConfig().EncodeTime
 	jsonConf.EncodeLevel = zapcore.CapitalLevelEncoder
@@ -112,10 +112,10 @@ func configJSONLogger(scope string, o loggerOptions) *zap.Logger {
 	core := zapcore.NewCore(jsonEncoder,
 		zapcore.Lock(os.Stdout), zapcore.DebugLevel)
 
-	logger := zap.New(withOTLP(core, scope, o.provider))
+	logging := zap.New(withOTLP(core, scope, o.provider))
 
-	logger = logger.Named(scope)
-	return logger
+	logging = logging.Named(scope)
+	return logging
 }
 
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

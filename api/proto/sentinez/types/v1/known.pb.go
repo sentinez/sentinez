@@ -91,52 +91,52 @@ func (Zone) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{0}
 }
 
-type Console int32
+type ControlPlane int32
 
 const (
-	Console_CONSOLE_UNSPECIFIED Console = 0
-	Console_CONSOLE_PORTAL      Console = 1
-	Console_CONSOLE_ADMIN       Console = 2
+	ControlPlane_CONTROL_PLANE_UNSPECIFIED ControlPlane = 0
+	ControlPlane_CONTROL_PLANE_PORTAL      ControlPlane = 1
+	ControlPlane_CONTROL_PLANE_ADMIN       ControlPlane = 2
 )
 
-// Enum value maps for Console.
+// Enum value maps for ControlPlane.
 var (
-	Console_name = map[int32]string{
-		0: "CONSOLE_UNSPECIFIED",
-		1: "CONSOLE_PORTAL",
-		2: "CONSOLE_ADMIN",
+	ControlPlane_name = map[int32]string{
+		0: "CONTROL_PLANE_UNSPECIFIED",
+		1: "CONTROL_PLANE_PORTAL",
+		2: "CONTROL_PLANE_ADMIN",
 	}
-	Console_value = map[string]int32{
-		"CONSOLE_UNSPECIFIED": 0,
-		"CONSOLE_PORTAL":      1,
-		"CONSOLE_ADMIN":       2,
+	ControlPlane_value = map[string]int32{
+		"CONTROL_PLANE_UNSPECIFIED": 0,
+		"CONTROL_PLANE_PORTAL":      1,
+		"CONTROL_PLANE_ADMIN":       2,
 	}
 )
 
-func (x Console) Enum() *Console {
-	p := new(Console)
+func (x ControlPlane) Enum() *ControlPlane {
+	p := new(ControlPlane)
 	*p = x
 	return p
 }
 
-func (x Console) String() string {
+func (x ControlPlane) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Console) Descriptor() protoreflect.EnumDescriptor {
+func (ControlPlane) Descriptor() protoreflect.EnumDescriptor {
 	return file_sentinez_types_v1_known_proto_enumTypes[1].Descriptor()
 }
 
-func (Console) Type() protoreflect.EnumType {
+func (ControlPlane) Type() protoreflect.EnumType {
 	return &file_sentinez_types_v1_known_proto_enumTypes[1]
 }
 
-func (x Console) Number() protoreflect.EnumNumber {
+func (x ControlPlane) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Console.Descriptor instead.
-func (Console) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use ControlPlane.Descriptor instead.
+func (ControlPlane) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{1}
 }
 
@@ -241,61 +241,61 @@ func (Plan) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{3}
 }
 
-type LogKind int32
+type LogType int32
 
 const (
-	LogKind_LOG_KIND_UNSPECIFIED LogKind = 0
-	LogKind_LOG_KIND_HTTP        LogKind = 1
-	LogKind_LOG_KIND_WAF_RULESET LogKind = 2
-	LogKind_LOG_KIND_RULE_BASED  LogKind = 3
-	LogKind_LOG_KIND_RATE_LIMIT  LogKind = 4
-	LogKind_LOG_KIND_CDN_RULE    LogKind = 5
+	LogType_LOG_TYPE_UNSPECIFIED LogType = 0
+	LogType_LOG_TYPE_HTTP        LogType = 1
+	LogType_LOG_TYPE_WAF         LogType = 2
+	LogType_LOG_TYPE_RULE        LogType = 3
+	LogType_LOG_TYPE_RATE_LIMIT  LogType = 4
+	LogType_LOG_TYPE_CDN_RULE    LogType = 5
 )
 
-// Enum value maps for LogKind.
+// Enum value maps for LogType.
 var (
-	LogKind_name = map[int32]string{
-		0: "LOG_KIND_UNSPECIFIED",
-		1: "LOG_KIND_HTTP",
-		2: "LOG_KIND_WAF_RULESET",
-		3: "LOG_KIND_RULE_BASED",
-		4: "LOG_KIND_RATE_LIMIT",
-		5: "LOG_KIND_CDN_RULE",
+	LogType_name = map[int32]string{
+		0: "LOG_TYPE_UNSPECIFIED",
+		1: "LOG_TYPE_HTTP",
+		2: "LOG_TYPE_WAF",
+		3: "LOG_TYPE_RULE",
+		4: "LOG_TYPE_RATE_LIMIT",
+		5: "LOG_TYPE_CDN_RULE",
 	}
-	LogKind_value = map[string]int32{
-		"LOG_KIND_UNSPECIFIED": 0,
-		"LOG_KIND_HTTP":        1,
-		"LOG_KIND_WAF_RULESET": 2,
-		"LOG_KIND_RULE_BASED":  3,
-		"LOG_KIND_RATE_LIMIT":  4,
-		"LOG_KIND_CDN_RULE":    5,
+	LogType_value = map[string]int32{
+		"LOG_TYPE_UNSPECIFIED": 0,
+		"LOG_TYPE_HTTP":        1,
+		"LOG_TYPE_WAF":         2,
+		"LOG_TYPE_RULE":        3,
+		"LOG_TYPE_RATE_LIMIT":  4,
+		"LOG_TYPE_CDN_RULE":    5,
 	}
 )
 
-func (x LogKind) Enum() *LogKind {
-	p := new(LogKind)
+func (x LogType) Enum() *LogType {
+	p := new(LogType)
 	*p = x
 	return p
 }
 
-func (x LogKind) String() string {
+func (x LogType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (LogKind) Descriptor() protoreflect.EnumDescriptor {
+func (LogType) Descriptor() protoreflect.EnumDescriptor {
 	return file_sentinez_types_v1_known_proto_enumTypes[4].Descriptor()
 }
 
-func (LogKind) Type() protoreflect.EnumType {
+func (LogType) Type() protoreflect.EnumType {
 	return &file_sentinez_types_v1_known_proto_enumTypes[4]
 }
 
-func (x LogKind) Number() protoreflect.EnumNumber {
+func (x LogType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use LogKind.Descriptor instead.
-func (LogKind) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use LogType.Descriptor instead.
+func (LogType) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{4}
 }
 
@@ -401,7 +401,7 @@ type Context struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ExpireAt      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_at,json=expireAt,proto3" json:"expire_at,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Console       Console                `protobuf:"varint,5,opt,name=console,proto3,enum=sentinez.types.v1.Console" json:"console,omitempty"`
+	ControlPlane  ControlPlane           `protobuf:"varint,4,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -457,11 +457,11 @@ func (x *Context) GetUserId() string {
 	return ""
 }
 
-func (x *Context) GetConsole() Console {
+func (x *Context) GetControlPlane() ControlPlane {
 	if x != nil {
-		return x.Console
+		return x.ControlPlane
 	}
-	return Console_CONSOLE_UNSPECIFIED
+	return ControlPlane_CONTROL_PLANE_UNSPECIFIED
 }
 
 var File_sentinez_types_v1_known_proto protoreflect.FileDescriptor
@@ -469,22 +469,22 @@ var File_sentinez_types_v1_known_proto protoreflect.FileDescriptor
 const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\n" +
 	"\x1dsentinez/types/v1/known.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\a\n" +
-	"\x05Empty\"\xa5\x01\n" +
+	"\x05Empty\"\xb5\x01\n" +
 	"\aContext\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x124\n" +
-	"\aconsole\x18\x05 \x01(\x0e2\x1a.sentinez.types.v1.ConsoleR\aconsole*r\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12D\n" +
+	"\rcontrol_plane\x18\x04 \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane*r\n" +
 	"\x04Zone\x12\x14\n" +
 	"\x10ZONE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12ZONE_DEMILITARIZED\x10\x01\x12\x11\n" +
 	"\rZONE_INTERNAL\x10\x02\x12\x14\n" +
 	"\x10ZONE_PRIVATE_API\x10\x03\x12\x13\n" +
-	"\x0fZONE_PUBLIC_API\x10\x04*I\n" +
-	"\aConsole\x12\x17\n" +
-	"\x13CONSOLE_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0eCONSOLE_PORTAL\x10\x01\x12\x11\n" +
-	"\rCONSOLE_ADMIN\x10\x02*G\n" +
+	"\x0fZONE_PUBLIC_API\x10\x04*`\n" +
+	"\fControlPlane\x12\x1d\n" +
+	"\x19CONTROL_PLANE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14CONTROL_PLANE_PORTAL\x10\x01\x12\x17\n" +
+	"\x13CONTROL_PLANE_ADMIN\x10\x02*G\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +
@@ -493,14 +493,14 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPLAN_FREE\x10\x01\x12\x11\n" +
 	"\rPLAN_STANDARD\x10\x02\x12\f\n" +
-	"\bPLAN_PRO\x10\x03*\x99\x01\n" +
-	"\aLogKind\x12\x18\n" +
-	"\x14LOG_KIND_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rLOG_KIND_HTTP\x10\x01\x12\x18\n" +
-	"\x14LOG_KIND_WAF_RULESET\x10\x02\x12\x17\n" +
-	"\x13LOG_KIND_RULE_BASED\x10\x03\x12\x17\n" +
-	"\x13LOG_KIND_RATE_LIMIT\x10\x04\x12\x15\n" +
-	"\x11LOG_KIND_CDN_RULE\x10\x05*\xb3\x01\n" +
+	"\bPLAN_PRO\x10\x03*\x8b\x01\n" +
+	"\aLogType\x12\x18\n" +
+	"\x14LOG_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rLOG_TYPE_HTTP\x10\x01\x12\x10\n" +
+	"\fLOG_TYPE_WAF\x10\x02\x12\x11\n" +
+	"\rLOG_TYPE_RULE\x10\x03\x12\x17\n" +
+	"\x13LOG_TYPE_RATE_LIMIT\x10\x04\x12\x15\n" +
+	"\x11LOG_TYPE_CDN_RULE\x10\x05*\xb3\x01\n" +
 	"\x06Errors\x12\x16\n" +
 	"\x12ERRORS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ERRORS_INTERNAL_ERROR\x10\x01\x12\x14\n" +
@@ -526,10 +526,10 @@ var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_sentinez_types_v1_known_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_v1_known_proto_goTypes = []any{
 	(Zone)(0),                     // 0: sentinez.types.v1.Zone
-	(Console)(0),                  // 1: sentinez.types.v1.Console
+	(ControlPlane)(0),             // 1: sentinez.types.v1.ControlPlane
 	(Status)(0),                   // 2: sentinez.types.v1.Status
 	(Plan)(0),                     // 3: sentinez.types.v1.Plan
-	(LogKind)(0),                  // 4: sentinez.types.v1.LogKind
+	(LogType)(0),                  // 4: sentinez.types.v1.LogType
 	(Errors)(0),                   // 5: sentinez.types.v1.Errors
 	(*Empty)(nil),                 // 6: sentinez.types.v1.Empty
 	(*Context)(nil),               // 7: sentinez.types.v1.Context
@@ -537,7 +537,7 @@ var file_sentinez_types_v1_known_proto_goTypes = []any{
 }
 var file_sentinez_types_v1_known_proto_depIdxs = []int32{
 	8, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
-	1, // 1: sentinez.types.v1.Context.console:type_name -> sentinez.types.v1.Console
+	1, // 1: sentinez.types.v1.Context.control_plane:type_name -> sentinez.types.v1.ControlPlane
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

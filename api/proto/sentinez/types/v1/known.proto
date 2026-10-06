@@ -26,7 +26,7 @@ message Context {
   string name = 1;
   google.protobuf.Timestamp expire_at = 2;
   string user_id = 3;
-  Console console = 5;
+  ControlPlane plane = 4;
 }
 
 enum Zone {
@@ -37,10 +37,10 @@ enum Zone {
   ZONE_PUBLIC_API = 4;
 }
 
-enum Console {
-  CONSOLE_UNSPECIFIED = 0;
-  CONSOLE_PORTAL = 1;
-  CONSOLE_ADMIN = 2;
+enum ControlPlane {
+  CONTROL_PLANE_UNSPECIFIED = 0;
+  CONTROL_PLANE_PORTAL = 1;
+  CONTROL_PLANE_ADMIN = 2;
 }
 
 enum Status {
@@ -56,13 +56,13 @@ enum Plan {
   PLAN_PRO = 3;
 }
 
-enum LogKind {
-  LOG_KIND_UNSPECIFIED = 0;
-  LOG_KIND_HTTP = 1;
-  LOG_KIND_WAF_RULESET = 2;
-  LOG_KIND_RULE_BASED = 3;
-  LOG_KIND_RATE_LIMIT = 4;
-  LOG_KIND_CDN_RULE = 5;
+enum LogType {
+  LOG_TYPE_UNSPECIFIED = 0;
+  LOG_TYPE_HTTP = 1;
+  LOG_TYPE_WAF = 2;
+  LOG_TYPE_RULE = 3;
+  LOG_TYPE_RATE_LIMIT = 4;
+  LOG_TYPE_CDN_RULE = 5;
 }
 
 enum Errors {

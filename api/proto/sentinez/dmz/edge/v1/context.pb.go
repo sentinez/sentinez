@@ -21,8 +21,8 @@
 package edgepb
 
 import (
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
-	v1 "github.com/sentinez/sentinez/api/proto/sentinez/network/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -194,11 +194,11 @@ var File_sentinez_dmz_edge_v1_context_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/context.proto\x12\x14sentinez.dmz.edge.v1\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a#sentinez/network/http/v1/http.proto\x1a\x1esentinez/network/v1/conn.proto\"\xf2\x01\n" +
+	"\"sentinez/dmz/edge/v1/context.proto\x12\x14sentinez.dmz.edge.v1\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a%sentinez/types/net/http/v1/http.proto\x1a sentinez/types/net/v1/conn.proto\"\xf6\x01\n" +
 	"\aContext\x12:\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x12<\n" +
-	"\ttransport\x18\x02 \x01(\v2\x1e.sentinez.network.v1.TransportR\ttransport\x12;\n" +
-	"\arequest\x18\x03 \x01(\v2!.sentinez.network.http.v1.RequestR\arequest\x120\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x12>\n" +
+	"\ttransport\x18\x02 \x01(\v2 .sentinez.types.net.v1.TransportR\ttransport\x12=\n" +
+	"\arequest\x18\x03 \x01(\v2#.sentinez.types.net.http.v1.RequestR\arequest\x120\n" +
 	"\x01x\x18\n" +
 	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xbe\x02\n" +
 	"\fContextExtra\x12\x1c\n" +
@@ -227,13 +227,13 @@ var file_sentinez_dmz_edge_v1_context_proto_goTypes = []any{
 	(*Context)(nil),      // 0: sentinez.dmz.edge.v1.Context
 	(*ContextExtra)(nil), // 1: sentinez.dmz.edge.v1.ContextExtra
 	(*Metadata)(nil),     // 2: sentinez.dmz.edge.v1.Metadata
-	(*v1.Transport)(nil), // 3: sentinez.network.v1.Transport
-	(*v11.Request)(nil),  // 4: sentinez.network.http.v1.Request
+	(*v1.Transport)(nil), // 3: sentinez.types.net.v1.Transport
+	(*v11.Request)(nil),  // 4: sentinez.types.net.http.v1.Request
 }
 var file_sentinez_dmz_edge_v1_context_proto_depIdxs = []int32{
 	2, // 0: sentinez.dmz.edge.v1.Context.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
-	3, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.network.v1.Transport
-	4, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.network.http.v1.Request
+	3, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.types.net.v1.Transport
+	4, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.types.net.http.v1.Request
 	1, // 3: sentinez.dmz.edge.v1.Context.x:type_name -> sentinez.dmz.edge.v1.ContextExtra
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type

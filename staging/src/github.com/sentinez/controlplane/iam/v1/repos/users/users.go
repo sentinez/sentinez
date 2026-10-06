@@ -53,10 +53,10 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
 		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
-			iampb.User_Id:       postgres.String,
-			iampb.User_Email:    postgres.String,
-			iampb.User_FullName: postgres.String,
-			iampb.User_Console:  postgres.Int4,
+			iampb.User_Id:           postgres.String,
+			iampb.User_Email:        postgres.String,
+			iampb.User_FullName:     postgres.String,
+			iampb.User_ControlPlane: postgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -129,10 +129,10 @@ func (u *Users) Create(ctx context.Context,
 
 	user.Id = rand.NewID(table.NewPrimaryKey(tables.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
-		iampb.User_Id:       user.GetId(),
-		iampb.User_Email:    user.GetEmail(),
-		iampb.User_FullName: user.GetFullName(),
-		iampb.User_Console:  user.GetConsole(),
+		iampb.User_Id:           user.GetId(),
+		iampb.User_Email:        user.GetEmail(),
+		iampb.User_FullName:     user.GetFullName(),
+		iampb.User_ControlPlane: user.GetControlPlane(),
 	})
 
 	if _, err := u.storage.Insert(ctx, query); err != nil {
@@ -179,7 +179,7 @@ func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		iampb.User_Id,
 		iampb.User_Email,
 		iampb.User_FullName,
-		iampb.User_Console,
+		iampb.User_ControlPlane,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -210,7 +210,7 @@ func scanOne(row dbx.Row) (*iampb.User, error) {
 		&user.Id,
 		&user.Email,
 		&user.FullName,
-		&user.Console,
+		&user.ControlPlane,
 		&createdAt,
 		&updatedAt,
 	)

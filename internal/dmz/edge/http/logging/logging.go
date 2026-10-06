@@ -27,24 +27,24 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ corechains.ChainNode = (*Logger)(nil)
+var _ corechains.ChainNode = (*Logging)(nil)
 
-func NewLogger(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
-	return &Logger{
+func NewLogging(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+	return &Logging{
 		Node: corechains.NewNode(),
 		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogKind_LOG_KIND_HTTP, logLevel,
+			typepb.LogType_LOG_TYPE_HTTP, logLevel,
 		),
 	}
 }
 
-type Logger struct {
+type Logging struct {
 	*corechains.Node
 	log zlog.LogCloser
 }
 
-func (l *Logger) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit logger")
+func (l *Logging) Handle(ctx corehttp.Context) error {
+	// zlog.Debug("[edge] >>> visit logging")
 	err := l.HandleNext(ctx)
 
 	ip := ctx.RequestIP()

@@ -9,14 +9,14 @@ import (
 
 func ExampleAllow_consoleMatch() {
 	viewMethod := &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 
 	// User has PORTAL console
-	userConsole := typepb.Console_CONSOLE_PORTAL
+	userConsole := typepb.ControlPlane_CONTROL_PLANE_PORTAL
 
 	err := perms.Allow(viewMethod, userConsole)
 	if err == nil {
@@ -29,13 +29,13 @@ func ExampleAllow_consoleMatch() {
 
 func ExampleAllow_consoleMismatch() {
 	adminMethod := &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 
 	// User has PORTAL console
-	userConsole := typepb.Console_CONSOLE_PORTAL
+	userConsole := typepb.ControlPlane_CONTROL_PLANE_PORTAL
 
 	err := perms.Allow(adminMethod, userConsole)
 	if err != nil {
@@ -50,7 +50,7 @@ func ExampleAllow_ignoredMethod() {
 	}
 
 	// Even if user has no matching console, ignored methods allow access
-	userConsole := typepb.Console_CONSOLE_UNSPECIFIED
+	userConsole := typepb.ControlPlane_CONTROL_PLANE_UNSPECIFIED
 
 	err := perms.Allow(ignoredMethod, userConsole)
 	if err == nil {
@@ -63,7 +63,7 @@ func ExampleAllow_noRestrictions() {
 	// Method with no consoles specified - allows all
 	publicMethod := &typepb.XMethod{}
 
-	userConsole := typepb.Console_CONSOLE_PORTAL
+	userConsole := typepb.ControlPlane_CONTROL_PLANE_PORTAL
 	err := perms.Allow(publicMethod, userConsole)
 	if err == nil {
 		fmt.Println("Access granted")

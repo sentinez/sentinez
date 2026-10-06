@@ -15,9 +15,10 @@
 package corecmn
 
 import (
-	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/cdn/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -57,14 +58,14 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	}
 }
 
-func toRuleBased(rgLite *rulepb.RuleIngressLite) *rulepb.RuleIngress {
+func toRuleBased(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 	if rgLite == nil {
 		return nil
 	}
 
 	zlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
 
-	return &rulepb.RuleIngress{
+	return &secrulepb.SecRule{
 		Id:          rgLite.GetId(),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),

@@ -20,7 +20,7 @@ import "buf/validate/validate.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
-import "sentinez/security/rule/v1/engine.proto";
+import "sentinez/types/rule/v1/rule.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 
@@ -36,7 +36,7 @@ message RuleBased {
 
   string name = 3;
   string description = 4;
-  sentinez.security.rule.v1.Expression expr = 5;
+  sentinez.types.rule.v1.Expression expr = 5;
   string action = 6;
   ActionValue action_value = 7;
   sentinez.types.v1.Status status = 8;

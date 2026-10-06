@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { ActionType, Expression } from '@sentinez/proto/sentinez/security/rule/v1/engine';
+import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import {
   ACTIONS_WITHOUT_VALUE,

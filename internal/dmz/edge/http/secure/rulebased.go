@@ -18,7 +18,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/sync"
@@ -33,17 +33,17 @@ func NewRuleBased(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &RuleBased{
 		Node:  corechains.NewNode(),
 		store: store,
-		logger: zlog.NewLog(
+		logging: zlog.NewLog(
 			edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogKind_LOG_KIND_RULE_BASED, ll,
+			typepb.LogType_LOG_TYPE_RULE, ll,
 		),
 	}
 }
 
 type RuleBased struct {
 	*corechains.Node
-	logger zlog.Log
-	store  *memory.MemStore
+	logging zlog.Log
+	store   *memory.MemStore
 }
 
 // Handle runs the active rules of the namespace in priority order. The

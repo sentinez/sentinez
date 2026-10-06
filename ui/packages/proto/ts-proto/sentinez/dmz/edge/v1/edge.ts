@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Request } from "../../../network/http/v1/http";
-import { Action } from "../../../security/rule/v1/engine";
+import { Request } from "../../../types/net/http/v1/http";
+import { Action } from "../../../types/rule/v1/rule";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 

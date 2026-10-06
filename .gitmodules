@@ -16,6 +16,3 @@
 [submodule "_submodules/googleapis"]
 	path = _submodules/googleapis
 	url = https://github.com/googleapis/googleapis.git
-[submodule "_submodules/opentelemetry-proto"]
-	path = _submodules/opentelemetry-proto
-	url = https://github.com/open-telemetry/opentelemetry-proto.git

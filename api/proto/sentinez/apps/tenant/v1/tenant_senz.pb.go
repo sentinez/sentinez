@@ -46,54 +46,54 @@ func GetTenantServiceStatus() *typepb.XMethod {
 
 func GetTenantServiceListResource() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
 func GetTenantServiceCreateResource() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
 func GetTenantServiceUpdateResource() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
 func GetTenantServiceDeleteResource() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
 func GetTenantServiceGetResource() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
 func GetTenantServiceGetResourceByDomain() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }

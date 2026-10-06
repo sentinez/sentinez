@@ -20,7 +20,7 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corerule "github.com/sentinez/core/rules"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/jsonx"
 	ssync "github.com/sentinez/shared/sync"
@@ -45,7 +45,7 @@ func New() *RuleBased {
 // Entry is a compiled rule ready to be evaluated.
 type Entry struct {
 	Eval corerule.EvalFunc
-	Rule *rulepb.RuleIngress
+	Rule *secrulepb.SecRule
 }
 
 type RuleBased struct {
@@ -55,7 +55,7 @@ type RuleBased struct {
 // Store replaces the rule chain of namespace. Inactive rules are skipped
 // and the rest are ordered by priority: a higher priority value runs
 // first, ties keep their given order.
-func (rc *RuleBased) Store(namespace string, rules []*rulepb.RuleIngress) {
+func (rc *RuleBased) Store(namespace string, rules []*secrulepb.SecRule) {
 	chain := make([]Entry, 0, len(rules))
 	for _, r := range rules {
 		if r.GetStatus() != typepb.Status_STATUS_ACTIVE {

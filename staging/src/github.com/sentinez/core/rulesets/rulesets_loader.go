@@ -19,7 +19,7 @@ import (
 	"encoding/base64"
 	"os"
 
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/security/coreruleset/v1"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
 type RulesetsLoader struct {

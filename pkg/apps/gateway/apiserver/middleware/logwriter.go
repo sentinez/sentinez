@@ -25,7 +25,7 @@ import (
 type logResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
-	Logger     zlog.LogCloser
+	Logging    zlog.LogCloser
 }
 
 func (rsp *logResponseWriter) WriteHeader(code int) {
@@ -40,10 +40,10 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 }
 
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
-	logger := zlog.NewLogCloser(
+	logging := zlog.NewLogCloser(
 		apiserver.GetMetaApiserverServiceKey(),
-		commonpb.LogKind_LOG_KIND_HTTP,
+		commonpb.LogType_LOG_TYPE_HTTP,
 		zlog.LevelInfo,
 	)
-	return &logResponseWriter{w, http.StatusOK, logger}
+	return &logResponseWriter{w, http.StatusOK, logging}
 }

@@ -1,4 +1,4 @@
-import { RuleBased } from '@sentinez/proto/sentinez/edge/v1/setting';
+import { RuleBased } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import {
   ActionType,
   FieldSource,
@@ -6,7 +6,7 @@ import {
   actionTypeFromJSON,
   actionTypeToJSON,
   Expression,
-} from '@sentinez/proto/sentinez/security/rule/v1/engine';
+} from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status, statusFromJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 

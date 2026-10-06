@@ -23,7 +23,7 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
@@ -35,7 +35,7 @@ func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
 	return &WAF{
 		Node: corechains.NewNode(),
 		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogKind_LOG_KIND_WAF_RULESET, logLevel,
+			typepb.LogType_LOG_TYPE_WAF, logLevel,
 		),
 		store: store,
 	}

@@ -83,10 +83,10 @@ func (m *Context) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Console != 0 {
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Console))
+	if m.ControlPlane != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.ControlPlane))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x20
 	}
 	if len(m.UserId) > 0 {
 		i -= len(m.UserId)
@@ -143,8 +143,8 @@ func (m *Context) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.Console != 0 {
-		n += 1 + protohelpers.SizeOfVarint(uint64(m.Console))
+	if m.ControlPlane != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.ControlPlane))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -330,11 +330,11 @@ func (m *Context) UnmarshalVT(dAtA []byte) error {
 			}
 			m.UserId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Console", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ControlPlane", wireType)
 			}
-			m.Console = 0
+			m.ControlPlane = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -344,7 +344,7 @@ func (m *Context) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Console |= Console(b&0x7F) << shift
+				m.ControlPlane |= ControlPlane(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

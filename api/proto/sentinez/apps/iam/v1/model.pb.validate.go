@@ -34,7 +34,7 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
-	_ = typepb.Console(0)
+	_ = typepb.ControlPlane(0)
 )
 
 // Validate checks the field values on Account with the rules defined in the
@@ -233,7 +233,7 @@ func (m *User) Validate() error {
 
 	// no validation rules for Email
 
-	// no validation rules for Console
+	// no validation rules for ControlPlane
 
 	return nil
 }

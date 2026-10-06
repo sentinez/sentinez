@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Expression } from "../../../security/rule/v1/engine";
+import { Expression } from "../../../types/rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 

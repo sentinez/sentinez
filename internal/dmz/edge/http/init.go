@@ -43,7 +43,7 @@ func Init(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
 	// current middleware
 	curr = income
 
-	curr = curr.SetNext(trace.Wrap("LOG", logging.NewLogger(ll, ms)))
+	curr = curr.SetNext(trace.Wrap("LOG", logging.NewLogging(ll, ms)))
 
 	curr = curr.SetNext(trace.Wrap("DMA", secure.NewDomainBased(hostname, ms)))
 

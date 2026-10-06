@@ -20,8 +20,8 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
-	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

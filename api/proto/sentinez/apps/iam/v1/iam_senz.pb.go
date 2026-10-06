@@ -46,9 +46,9 @@ func GetIdentityAccessManagementServiceListAccounts() *typepb.XMethod {
 
 func GetIdentityAccessManagementServiceListUsers() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }

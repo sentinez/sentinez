@@ -24,7 +24,7 @@ import (
 	corelimiter "github.com/sentinez/core/limiter"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/cluster"
@@ -269,7 +269,7 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadRuleBased(s *edgepb.Setting) error {
-	rules := make([]*rulepb.RuleIngress, 0, len(s.GetSecurity().GetRules()))
+	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetRules()))
 	for _, rule := range s.GetSecurity().GetRules() {
 		rules = append(rules, rule.GetIngressRuntime())
 	}

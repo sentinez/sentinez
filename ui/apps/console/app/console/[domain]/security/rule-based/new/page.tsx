@@ -11,7 +11,7 @@ import {
   createEmptyExpression,
   validateRuleBasedForm,
 } from '../../components';
-import { ActionType } from '@sentinez/proto/sentinez/security/rule/v1/engine';
+import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { createRuleBased } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';

@@ -28,7 +28,7 @@ import (
 //   - If method.Consoles is empty, access is allowed.
 //   - If user's console matches one of the allowed consoles, access is allowed.
 //   - Otherwise, access is denied.
-func Allow(method *typepb.XMethod, console typepb.Console) error {
+func Allow(method *typepb.XMethod, console typepb.ControlPlane) error {
 	if method == nil {
 		return nil
 	}
@@ -37,11 +37,11 @@ func Allow(method *typepb.XMethod, console typepb.Console) error {
 		return nil
 	}
 
-	if len(method.Consoles) == 0 {
+	if len(method.GetControlPlanes()) == 0 {
 		return nil
 	}
 
-	if slices.Contains(method.Consoles, console) {
+	if slices.Contains(method.GetControlPlanes(), console) {
 		return nil
 	}
 

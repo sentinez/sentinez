@@ -69,7 +69,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 
@@ -81,7 +81,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 
@@ -93,7 +93,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 
@@ -104,7 +104,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 
@@ -114,7 +114,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 
@@ -125,7 +125,7 @@ service TenantService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      consoles: [ CONSOLE_PORTAL, CONSOLE_ADMIN ]
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
 }

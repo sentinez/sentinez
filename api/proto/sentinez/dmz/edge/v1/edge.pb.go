@@ -21,8 +21,8 @@
 package edgepb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -278,18 +278,18 @@ var File_sentinez_dmz_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a&sentinez/security/rule/v1/engine.proto\x1a\x1fsentinez/types/v1/options.proto\x1a#sentinez/network/http/v1/http.proto\"\x0f\n" +
+	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\x1a%sentinez/types/net/http/v1/http.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg\"\x83\x01\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg\"\x85\x01\n" +
 	"\x16EvaluateRulesetRequest\x12\x1d\n" +
 	"\n" +
-	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12J\n" +
-	"\x0frequest_context\x18\x02 \x01(\v2!.sentinez.network.http.v1.RequestR\x0erequestContext\"\x82\x01\n" +
+	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12L\n" +
+	"\x0frequest_context\x18\x02 \x01(\v2#.sentinez.types.net.http.v1.RequestR\x0erequestContext\"\x7f\n" +
 	"\x10EvaluationResult\x12\x17\n" +
 	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x18\n" +
-	"\amatched\x18\x02 \x01(\bR\amatched\x12;\n" +
-	"\aactions\x18\x03 \x03(\v2!.sentinez.security.rule.v1.ActionR\aactions\"[\n" +
+	"\amatched\x18\x02 \x01(\bR\amatched\x128\n" +
+	"\aactions\x18\x03 \x03(\v2\x1e.sentinez.types.rule.v1.ActionR\aactions\"[\n" +
 	"\x17EvaluateRulesetResponse\x12@\n" +
 	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults2\xd4\x01\n" +
 	"\vEdgeService\x12n\n" +
@@ -316,12 +316,12 @@ var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
 	(*EvaluateRulesetRequest)(nil),  // 2: sentinez.dmz.edge.v1.EvaluateRulesetRequest
 	(*EvaluationResult)(nil),        // 3: sentinez.dmz.edge.v1.EvaluationResult
 	(*EvaluateRulesetResponse)(nil), // 4: sentinez.dmz.edge.v1.EvaluateRulesetResponse
-	(*v1.Request)(nil),              // 5: sentinez.network.http.v1.Request
-	(*v11.Action)(nil),              // 6: sentinez.security.rule.v1.Action
+	(*v1.Request)(nil),              // 5: sentinez.types.net.http.v1.Request
+	(*v11.Action)(nil),              // 6: sentinez.types.rule.v1.Action
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	5, // 0: sentinez.dmz.edge.v1.EvaluateRulesetRequest.request_context:type_name -> sentinez.network.http.v1.Request
-	6, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.security.rule.v1.Action
+	5, // 0: sentinez.dmz.edge.v1.EvaluateRulesetRequest.request_context:type_name -> sentinez.types.net.http.v1.Request
+	6, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.rule.v1.Action
 	3, // 2: sentinez.dmz.edge.v1.EvaluateRulesetResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
 	2, // 3: sentinez.dmz.edge.v1.EdgeService.EvaluateRuleset:input_type -> sentinez.dmz.edge.v1.EvaluateRulesetRequest
 	0, // 4: sentinez.dmz.edge.v1.EdgeService.Status:input_type -> sentinez.dmz.edge.v1.StatusRequest

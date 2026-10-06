@@ -12,13 +12,13 @@ func TestAllow(t *testing.T) {
 	tests := []struct {
 		name      string
 		method    *typepb.XMethod
-		console   typepb.Console
+		plane     typepb.ControlPlane
 		wantError bool
 	}{
 		{
 			name:      "Nil method",
 			method:    nil,
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 		{
@@ -26,68 +26,72 @@ func TestAllow(t *testing.T) {
 			method: &typepb.XMethod{
 				Ignore: true,
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 		{
 			name:      "Empty consoles list",
 			method:    &typepb.XMethod{},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 		{
 			name: "Console match",
 			method: &typepb.XMethod{
-				Consoles: []typepb.Console{typepb.Console_CONSOLE_PORTAL},
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+				},
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 		{
 			name: "Console mismatch",
 			method: &typepb.XMethod{
-				Consoles: []typepb.Console{typepb.Console_CONSOLE_ADMIN},
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+				},
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: true,
 		},
 		{
 			name: "Multiple consoles - match",
 			method: &typepb.XMethod{
-				Consoles: []typepb.Console{
-					typepb.Console_CONSOLE_PORTAL,
-					typepb.Console_CONSOLE_ADMIN,
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 				},
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 		{
 			name: "Multiple consoles - no match",
 			method: &typepb.XMethod{
-				Consoles: []typepb.Console{
-					typepb.Console_CONSOLE_ADMIN,
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 				},
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: true,
 		},
 		{
 			name: "Ignored method with consoles still allows access",
 			method: &typepb.XMethod{
 				Ignore: true,
-				Consoles: []typepb.Console{
-					typepb.Console_CONSOLE_ADMIN,
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 				},
 			},
-			console:   typepb.Console_CONSOLE_PORTAL,
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := Allow(tt.method, tt.console)
+			err := Allow(tt.method, tt.plane)
 			if tt.wantError {
 				assert.Error(t, err)
 			} else {

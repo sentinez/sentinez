@@ -22,7 +22,7 @@ import (
 
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	corecontext "github.com/sentinez/core/context"
-	networkpb "github.com/sentinez/sentinez/api/proto/sentinez/network/v1"
+	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/zlog"
 )
@@ -50,7 +50,7 @@ func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 
 	zlog.Debugf("transport: connection id: %s", netConn.Id)
 
-	return corecontext.WithTransportValue(ctx, &networkpb.Transport{
+	return corecontext.WithTransportValue(ctx, &netpb.Transport{
 		ConnId:     netConn.Id,
 		ServerName: tlsConn.ConnectionState().ServerName,
 	})
@@ -72,7 +72,7 @@ func OnStandardConnect(ctx context.Context, conn net.Conn) context.Context {
 
 	zlog.Debugf("transport: connection id: %s", netConn.Id)
 
-	return corecontext.WithTransportValue(ctx, &networkpb.Transport{
+	return corecontext.WithTransportValue(ctx, &netpb.Transport{
 		ConnId:     netConn.Id,
 		ServerName: tlsConn.ConnectionState().ServerName,
 	})

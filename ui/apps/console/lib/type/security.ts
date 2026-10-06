@@ -1,4 +1,4 @@
-import { ActionType, FieldSource, Operator } from '@sentinez/proto/sentinez/security/rule/v1/engine';
+import { ActionType, FieldSource, Operator } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 
 export const FIELD_SOURCE_OPTIONS: { label: string; value: FieldSource }[] = [
