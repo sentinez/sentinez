@@ -16,8 +16,8 @@ syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
 
-import "sentinez/security/rule/v1/engine.proto";
-import "sentinez/dmz/edge/cdn/v1/rule.proto";
+import "sentinez/types/secrule/v1/engine.proto";
+import "sentinez/types/cdn/v1/rule.proto";
 
 import "buf/validate/validate.proto";
 
@@ -61,21 +61,21 @@ message Location {
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   repeated Rulesets rulesets = 1;   // @gotags: yaml:"rulesets"
-  repeated RuleBased rules = 2;     // @gotags: yaml:"rules"
+  repeated SecRule sec_rules = 2;     // @gotags: yaml:"rules"
   repeated RateLimit limiters = 3;  // @gotags: yaml:"limiters"
 }
 
 message Rulesets {
 }
 
-message RuleBased {
-  sentinez.security.rule.v1.RuleIngressLite ingress = 1;  // @gotags: yaml:"ingress"
-  sentinez.security.rule.v1.RuleIngress ingress_runtime = 2;  // @gotags: yaml:"-"
+message SecRule {
+  sentinez.types.secrule.v1.SecRuleLite ingress = 1;  // @gotags: yaml:"ingress"
+  sentinez.types.secrule.v1.SecRule ingress_runtime = 2;  // @gotags: yaml:"-"
 }
 
 message RateLimit {
-  sentinez.security.rule.v1.RuleIngressLite ingress = 1;  // @gotags: yaml:"ingress"
-  sentinez.security.rule.v1.RuleIngress ingress_runtime = 2;  // @gotags: yaml:"-"
+  sentinez.types.secrule.v1.SecRuleLite ingress = 1;  // @gotags: yaml:"ingress"
+  sentinez.types.secrule.v1.SecRule ingress_runtime = 2;  // @gotags: yaml:"-"
 
   string time_window = 11 [(buf.validate.field) = {
     required: false
@@ -92,7 +92,7 @@ message RateLimit {
 
 // Controller for systems using a virtual waiting room or throttling:
 message Controller {
-  repeated sentinez.dmz.edge.cdn.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
+  repeated sentinez.types.cdn.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
 }
 
 // Personal defines where the request goes and how the edge processes it

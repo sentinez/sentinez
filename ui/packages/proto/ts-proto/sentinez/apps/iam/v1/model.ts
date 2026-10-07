@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Console, consoleFromJSON, consoleToJSON } from "../../../types/v1/known";
+import { ControlPlane, controlPlaneFromJSON, controlPlaneToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.iam.v1";
@@ -39,7 +39,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  console: Console;
+  controlPlane: ControlPlane;
 }
 
 function createBaseAccount(): Account {
@@ -421,7 +421,7 @@ export const AccountResponse: MessageFns<AccountResponse> = {
 };
 
 function createBaseUser(): User {
-  return { metadata: undefined, id: "", fullName: "", email: "", console: 0 };
+  return { metadata: undefined, id: "", fullName: "", email: "", controlPlane: 0 };
 }
 
 export const User: MessageFns<User> = {
@@ -438,8 +438,8 @@ export const User: MessageFns<User> = {
     if (message.email !== "") {
       writer.uint32(90).string(message.email);
     }
-    if (message.console !== 0) {
-      writer.uint32(104).int32(message.console);
+    if (message.controlPlane !== 0) {
+      writer.uint32(104).int32(message.controlPlane);
     }
     return writer;
   },
@@ -494,7 +494,7 @@ export const User: MessageFns<User> = {
               break;
             }
 
-            message.console = reader.int32() as any;
+            message.controlPlane = reader.int32() as any;
             continue;
           }
         }
@@ -519,7 +519,11 @@ export const User: MessageFns<User> = {
         ? globalThis.String(object.full_name)
         : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      console: isSet(object.console) ? consoleFromJSON(object.console) : 0,
+      controlPlane: isSet(object.controlPlane)
+        ? controlPlaneFromJSON(object.controlPlane)
+        : isSet(object.control_plane)
+        ? controlPlaneFromJSON(object.control_plane)
+        : 0,
     };
   },
 
@@ -537,8 +541,8 @@ export const User: MessageFns<User> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
-    if (message.console !== 0) {
-      obj.console = consoleToJSON(message.console);
+    if (message.controlPlane !== 0) {
+      obj.controlPlane = controlPlaneToJSON(message.controlPlane);
     }
     return obj;
   },
@@ -554,7 +558,7 @@ export const User: MessageFns<User> = {
     message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
     message.email = object.email ?? "";
-    message.console = object.console ?? 0;
+    message.controlPlane = object.controlPlane ?? 0;
     return message;
   },
 };

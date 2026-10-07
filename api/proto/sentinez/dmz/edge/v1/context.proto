@@ -18,22 +18,22 @@ package sentinez.dmz.edge.v1;
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 
 import "sentinez/dmz/edge/v1/setting.proto";
-import "sentinez/network/http/v1/http.proto";
-import "sentinez/network/v1/conn.proto";
+import "sentinez/types/net/http/v1/http.proto";
+import "sentinez/types/net/v1/conn.proto";
 
 // Context helps the edge identify which user is connected
 message Context {
   Metadata metadata = 1;
-  sentinez.network.v1.Transport transport = 2;
-  sentinez.network.http.v1.Request request = 3;
+  sentinez.types.net.v1.Transport transport = 2;
+  sentinez.types.net.http.v1.Request request = 3;
   ContextExtra x = 10;
 }
 
 message ContextExtra {
   string namespace = 1;
   
-  repeated string rule_based_matched_ids = 10;
-  repeated string rule_based_matched_names = 11;
+  repeated string sec_rule_matched_ids = 10;
+  repeated string sec_rule_matched_names = 11;
   repeated string rulesets_matched_ids = 12;
   repeated string rulesets_matched_names = 13;
   repeated string rulesets_matched_severity = 14;

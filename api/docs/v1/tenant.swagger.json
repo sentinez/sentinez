@@ -288,59 +288,16 @@
       "type": "object",
       "title": "Metadata used for observability and debugging:"
     },
-    "edgecdnv1Rule": {
+    "dmzedgev1SecRule": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string"
+        "ingress": {
+          "$ref": "#/definitions/v1SecRuleLite",
+          "title": "@gotags: yaml:\"ingress\""
         },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expression"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "edgecdnv1RuleLite": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1ExpressionLite"
-        },
-        "status": {
-          "type": "string"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
+        "ingressRuntime": {
+          "$ref": "#/definitions/typessecrulev1SecRule",
+          "title": "@gotags: yaml:\"-\""
         }
       }
     },
@@ -412,7 +369,76 @@
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
-    "securityrulev1Rule": {
+    "sentineztypesv1Metadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "typescdnv1Rule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "typescdnv1RuleLite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1ExpressionLite"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "typesrulev1Rule": {
       "type": "object",
       "properties": {
         "id": {
@@ -428,7 +454,7 @@
       },
       "title": "A complete rule definition"
     },
-    "securityrulev1RuleLite": {
+    "typesrulev1RuleLite": {
       "type": "object",
       "properties": {
         "id": {
@@ -452,9 +478,31 @@
       },
       "title": "A complete rule definition"
     },
-    "sentineztypesv1Metadata": {
+    "typessecrulev1SecRule": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -510,7 +558,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/securityrulev1Rule"
+            "$ref": "#/definitions/typesrulev1Rule"
           }
         },
         "orCondition": {
@@ -529,7 +577,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/securityrulev1RuleLite"
+            "$ref": "#/definitions/typesrulev1RuleLite"
           }
         },
         "orCondition": {
@@ -553,10 +601,10 @@
       "type": "object",
       "properties": {
         "ruleRuntime": {
-          "$ref": "#/definitions/edgecdnv1Rule"
+          "$ref": "#/definitions/typescdnv1Rule"
         },
         "rule": {
-          "$ref": "#/definitions/edgecdnv1RuleLite",
+          "$ref": "#/definitions/typescdnv1RuleLite",
           "title": "@gotags: yaml:\"rule\""
         }
       }
@@ -794,11 +842,11 @@
       "type": "object",
       "properties": {
         "ingress": {
-          "$ref": "#/definitions/v1RuleIngressLite",
+          "$ref": "#/definitions/v1SecRuleLite",
           "title": "@gotags: yaml:\"ingress\""
         },
         "ingressRuntime": {
-          "$ref": "#/definitions/v1RuleIngress",
+          "$ref": "#/definitions/typessecrulev1SecRule",
           "title": "@gotags: yaml:\"-\""
         },
         "timeWindow": {
@@ -842,55 +890,10 @@
         }
       }
     },
-    "v1RuleBased": {
-      "type": "object",
-      "properties": {
-        "ingress": {
-          "$ref": "#/definitions/v1RuleIngressLite",
-          "title": "@gotags: yaml:\"ingress\""
-        },
-        "ingressRuntime": {
-          "$ref": "#/definitions/v1RuleIngress",
-          "title": "@gotags: yaml:\"-\""
-        }
-      }
+    "v1Rulesets": {
+      "type": "object"
     },
-    "v1RuleIngress": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "expr": {
-          "$ref": "#/definitions/v1Expression"
-        },
-        "action": {
-          "$ref": "#/definitions/v1Action"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        },
-        "priority": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "v1RuleIngressLite": {
+    "v1SecRuleLite": {
       "type": "object",
       "properties": {
         "id": {
@@ -913,9 +916,6 @@
         }
       }
     },
-    "v1Rulesets": {
-      "type": "object"
-    },
     "v1Security": {
       "type": "object",
       "properties": {
@@ -927,11 +927,11 @@
           },
           "title": "@gotags: yaml:\"rulesets\""
         },
-        "rules": {
+        "secRules": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleBased"
+            "$ref": "#/definitions/dmzedgev1SecRule"
           },
           "title": "@gotags: yaml:\"rules\""
         },

@@ -31,7 +31,7 @@ type Auth struct {
 }
 
 func (a *Auth) Check(method *typepb.XMethod) error {
-	return perms.Allow(method, a.GetConsole())
+	return perms.Allow(method, a.GetControlPlane())
 }
 
 func GetAuth(ctx context.Context) (*Auth, error) {

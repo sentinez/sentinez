@@ -33,18 +33,18 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on CreateRuleBasedRequest with the rules
+// Validate checks the field values on CreateSecRuleRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *CreateRuleBasedRequest) Validate() error {
+func (m *CreateSecRuleRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CreateRuleBasedRequestValidationError{
-				field:  "RuleBased",
+			return CreateSecRuleRequestValidationError{
+				field:  "SecRule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -54,9 +54,9 @@ func (m *CreateRuleBasedRequest) Validate() error {
 	return nil
 }
 
-// CreateRuleBasedRequestValidationError is the validation error returned by
-// CreateRuleBasedRequest.Validate if the designated constraints aren't met.
-type CreateRuleBasedRequestValidationError struct {
+// CreateSecRuleRequestValidationError is the validation error returned by
+// CreateSecRuleRequest.Validate if the designated constraints aren't met.
+type CreateSecRuleRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -64,24 +64,24 @@ type CreateRuleBasedRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateRuleBasedRequestValidationError) Field() string { return e.field }
+func (e CreateSecRuleRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateRuleBasedRequestValidationError) Reason() string { return e.reason }
+func (e CreateSecRuleRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateRuleBasedRequestValidationError) Cause() error { return e.cause }
+func (e CreateSecRuleRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateRuleBasedRequestValidationError) Key() bool { return e.key }
+func (e CreateSecRuleRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateRuleBasedRequestValidationError) ErrorName() string {
-	return "CreateRuleBasedRequestValidationError"
+func (e CreateSecRuleRequestValidationError) ErrorName() string {
+	return "CreateSecRuleRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateRuleBasedRequestValidationError) Error() string {
+func (e CreateSecRuleRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -93,14 +93,14 @@ func (e CreateRuleBasedRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateRuleBasedRequest.%s: %s%s",
+		"invalid %sCreateSecRuleRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateRuleBasedRequestValidationError{}
+var _ error = CreateSecRuleRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -108,12 +108,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateRuleBasedRequestValidationError{}
+} = CreateSecRuleRequestValidationError{}
 
-// Validate checks the field values on CreateRuleBasedResponse with the rules
+// Validate checks the field values on CreateSecRuleResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *CreateRuleBasedResponse) Validate() error {
+func (m *CreateSecRuleResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -123,9 +123,9 @@ func (m *CreateRuleBasedResponse) Validate() error {
 	return nil
 }
 
-// CreateRuleBasedResponseValidationError is the validation error returned by
-// CreateRuleBasedResponse.Validate if the designated constraints aren't met.
-type CreateRuleBasedResponseValidationError struct {
+// CreateSecRuleResponseValidationError is the validation error returned by
+// CreateSecRuleResponse.Validate if the designated constraints aren't met.
+type CreateSecRuleResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -133,24 +133,24 @@ type CreateRuleBasedResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateRuleBasedResponseValidationError) Field() string { return e.field }
+func (e CreateSecRuleResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateRuleBasedResponseValidationError) Reason() string { return e.reason }
+func (e CreateSecRuleResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateRuleBasedResponseValidationError) Cause() error { return e.cause }
+func (e CreateSecRuleResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateRuleBasedResponseValidationError) Key() bool { return e.key }
+func (e CreateSecRuleResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateRuleBasedResponseValidationError) ErrorName() string {
-	return "CreateRuleBasedResponseValidationError"
+func (e CreateSecRuleResponseValidationError) ErrorName() string {
+	return "CreateSecRuleResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateRuleBasedResponseValidationError) Error() string {
+func (e CreateSecRuleResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -162,14 +162,14 @@ func (e CreateRuleBasedResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateRuleBasedResponse.%s: %s%s",
+		"invalid %sCreateSecRuleResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateRuleBasedResponseValidationError{}
+var _ error = CreateSecRuleResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -177,12 +177,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateRuleBasedResponseValidationError{}
+} = CreateSecRuleResponseValidationError{}
 
-// Validate checks the field values on GetRuleBasedRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
-func (m *GetRuleBasedRequest) Validate() error {
+// Validate checks the field values on GetSecRuleRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *GetSecRuleRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -192,9 +192,9 @@ func (m *GetRuleBasedRequest) Validate() error {
 	return nil
 }
 
-// GetRuleBasedRequestValidationError is the validation error returned by
-// GetRuleBasedRequest.Validate if the designated constraints aren't met.
-type GetRuleBasedRequestValidationError struct {
+// GetSecRuleRequestValidationError is the validation error returned by
+// GetSecRuleRequest.Validate if the designated constraints aren't met.
+type GetSecRuleRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -202,24 +202,24 @@ type GetRuleBasedRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetRuleBasedRequestValidationError) Field() string { return e.field }
+func (e GetSecRuleRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetRuleBasedRequestValidationError) Reason() string { return e.reason }
+func (e GetSecRuleRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetRuleBasedRequestValidationError) Cause() error { return e.cause }
+func (e GetSecRuleRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetRuleBasedRequestValidationError) Key() bool { return e.key }
+func (e GetSecRuleRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetRuleBasedRequestValidationError) ErrorName() string {
-	return "GetRuleBasedRequestValidationError"
+func (e GetSecRuleRequestValidationError) ErrorName() string {
+	return "GetSecRuleRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetRuleBasedRequestValidationError) Error() string {
+func (e GetSecRuleRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -231,14 +231,14 @@ func (e GetRuleBasedRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetRuleBasedRequest.%s: %s%s",
+		"invalid %sGetSecRuleRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetRuleBasedRequestValidationError{}
+var _ error = GetSecRuleRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -246,20 +246,20 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetRuleBasedRequestValidationError{}
+} = GetSecRuleRequestValidationError{}
 
-// Validate checks the field values on GetRuleBasedResponse with the rules
+// Validate checks the field values on GetSecRuleResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *GetRuleBasedResponse) Validate() error {
+func (m *GetSecRuleResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return GetRuleBasedResponseValidationError{
-				field:  "RuleBased",
+			return GetSecRuleResponseValidationError{
+				field:  "SecRule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -269,9 +269,9 @@ func (m *GetRuleBasedResponse) Validate() error {
 	return nil
 }
 
-// GetRuleBasedResponseValidationError is the validation error returned by
-// GetRuleBasedResponse.Validate if the designated constraints aren't met.
-type GetRuleBasedResponseValidationError struct {
+// GetSecRuleResponseValidationError is the validation error returned by
+// GetSecRuleResponse.Validate if the designated constraints aren't met.
+type GetSecRuleResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -279,24 +279,24 @@ type GetRuleBasedResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetRuleBasedResponseValidationError) Field() string { return e.field }
+func (e GetSecRuleResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetRuleBasedResponseValidationError) Reason() string { return e.reason }
+func (e GetSecRuleResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetRuleBasedResponseValidationError) Cause() error { return e.cause }
+func (e GetSecRuleResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetRuleBasedResponseValidationError) Key() bool { return e.key }
+func (e GetSecRuleResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetRuleBasedResponseValidationError) ErrorName() string {
-	return "GetRuleBasedResponseValidationError"
+func (e GetSecRuleResponseValidationError) ErrorName() string {
+	return "GetSecRuleResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetRuleBasedResponseValidationError) Error() string {
+func (e GetSecRuleResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -308,14 +308,14 @@ func (e GetRuleBasedResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetRuleBasedResponse.%s: %s%s",
+		"invalid %sGetSecRuleResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetRuleBasedResponseValidationError{}
+var _ error = GetSecRuleResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -323,22 +323,22 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetRuleBasedResponseValidationError{}
+} = GetSecRuleResponseValidationError{}
 
-// Validate checks the field values on UpdateRuleBasedRequest with the rules
+// Validate checks the field values on UpdateSecRuleRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *UpdateRuleBasedRequest) Validate() error {
+func (m *UpdateSecRuleRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	// no validation rules for Id
 
-	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleBasedRequestValidationError{
-				field:  "RuleBased",
+			return UpdateSecRuleRequestValidationError{
+				field:  "SecRule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -347,7 +347,7 @@ func (m *UpdateRuleBasedRequest) Validate() error {
 
 	if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleBasedRequestValidationError{
+			return UpdateSecRuleRequestValidationError{
 				field:  "UpdateMask",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -358,9 +358,9 @@ func (m *UpdateRuleBasedRequest) Validate() error {
 	return nil
 }
 
-// UpdateRuleBasedRequestValidationError is the validation error returned by
-// UpdateRuleBasedRequest.Validate if the designated constraints aren't met.
-type UpdateRuleBasedRequestValidationError struct {
+// UpdateSecRuleRequestValidationError is the validation error returned by
+// UpdateSecRuleRequest.Validate if the designated constraints aren't met.
+type UpdateSecRuleRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -368,24 +368,24 @@ type UpdateRuleBasedRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateRuleBasedRequestValidationError) Field() string { return e.field }
+func (e UpdateSecRuleRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateRuleBasedRequestValidationError) Reason() string { return e.reason }
+func (e UpdateSecRuleRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateRuleBasedRequestValidationError) Cause() error { return e.cause }
+func (e UpdateSecRuleRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateRuleBasedRequestValidationError) Key() bool { return e.key }
+func (e UpdateSecRuleRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateRuleBasedRequestValidationError) ErrorName() string {
-	return "UpdateRuleBasedRequestValidationError"
+func (e UpdateSecRuleRequestValidationError) ErrorName() string {
+	return "UpdateSecRuleRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateRuleBasedRequestValidationError) Error() string {
+func (e UpdateSecRuleRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -397,14 +397,14 @@ func (e UpdateRuleBasedRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateRuleBasedRequest.%s: %s%s",
+		"invalid %sUpdateSecRuleRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateRuleBasedRequestValidationError{}
+var _ error = UpdateSecRuleRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -412,20 +412,20 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateRuleBasedRequestValidationError{}
+} = UpdateSecRuleRequestValidationError{}
 
-// Validate checks the field values on UpdateRuleBasedResponse with the rules
+// Validate checks the field values on UpdateSecRuleResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *UpdateRuleBasedResponse) Validate() error {
+func (m *UpdateSecRuleResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetRuleBased()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UpdateRuleBasedResponseValidationError{
-				field:  "RuleBased",
+			return UpdateSecRuleResponseValidationError{
+				field:  "SecRule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -435,9 +435,9 @@ func (m *UpdateRuleBasedResponse) Validate() error {
 	return nil
 }
 
-// UpdateRuleBasedResponseValidationError is the validation error returned by
-// UpdateRuleBasedResponse.Validate if the designated constraints aren't met.
-type UpdateRuleBasedResponseValidationError struct {
+// UpdateSecRuleResponseValidationError is the validation error returned by
+// UpdateSecRuleResponse.Validate if the designated constraints aren't met.
+type UpdateSecRuleResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -445,24 +445,24 @@ type UpdateRuleBasedResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateRuleBasedResponseValidationError) Field() string { return e.field }
+func (e UpdateSecRuleResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateRuleBasedResponseValidationError) Reason() string { return e.reason }
+func (e UpdateSecRuleResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateRuleBasedResponseValidationError) Cause() error { return e.cause }
+func (e UpdateSecRuleResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateRuleBasedResponseValidationError) Key() bool { return e.key }
+func (e UpdateSecRuleResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateRuleBasedResponseValidationError) ErrorName() string {
-	return "UpdateRuleBasedResponseValidationError"
+func (e UpdateSecRuleResponseValidationError) ErrorName() string {
+	return "UpdateSecRuleResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateRuleBasedResponseValidationError) Error() string {
+func (e UpdateSecRuleResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -474,14 +474,14 @@ func (e UpdateRuleBasedResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateRuleBasedResponse.%s: %s%s",
+		"invalid %sUpdateSecRuleResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateRuleBasedResponseValidationError{}
+var _ error = UpdateSecRuleResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -489,12 +489,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateRuleBasedResponseValidationError{}
+} = UpdateSecRuleResponseValidationError{}
 
-// Validate checks the field values on DeleteRuleBasedRequest with the rules
+// Validate checks the field values on DeleteSecRuleRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *DeleteRuleBasedRequest) Validate() error {
+func (m *DeleteSecRuleRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -504,9 +504,9 @@ func (m *DeleteRuleBasedRequest) Validate() error {
 	return nil
 }
 
-// DeleteRuleBasedRequestValidationError is the validation error returned by
-// DeleteRuleBasedRequest.Validate if the designated constraints aren't met.
-type DeleteRuleBasedRequestValidationError struct {
+// DeleteSecRuleRequestValidationError is the validation error returned by
+// DeleteSecRuleRequest.Validate if the designated constraints aren't met.
+type DeleteSecRuleRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -514,24 +514,24 @@ type DeleteRuleBasedRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e DeleteRuleBasedRequestValidationError) Field() string { return e.field }
+func (e DeleteSecRuleRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DeleteRuleBasedRequestValidationError) Reason() string { return e.reason }
+func (e DeleteSecRuleRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DeleteRuleBasedRequestValidationError) Cause() error { return e.cause }
+func (e DeleteSecRuleRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DeleteRuleBasedRequestValidationError) Key() bool { return e.key }
+func (e DeleteSecRuleRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DeleteRuleBasedRequestValidationError) ErrorName() string {
-	return "DeleteRuleBasedRequestValidationError"
+func (e DeleteSecRuleRequestValidationError) ErrorName() string {
+	return "DeleteSecRuleRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DeleteRuleBasedRequestValidationError) Error() string {
+func (e DeleteSecRuleRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -543,14 +543,14 @@ func (e DeleteRuleBasedRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDeleteRuleBasedRequest.%s: %s%s",
+		"invalid %sDeleteSecRuleRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DeleteRuleBasedRequestValidationError{}
+var _ error = DeleteSecRuleRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -558,12 +558,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DeleteRuleBasedRequestValidationError{}
+} = DeleteSecRuleRequestValidationError{}
 
-// Validate checks the field values on DeleteRuleBasedResponse with the rules
+// Validate checks the field values on DeleteSecRuleResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *DeleteRuleBasedResponse) Validate() error {
+func (m *DeleteSecRuleResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -571,9 +571,9 @@ func (m *DeleteRuleBasedResponse) Validate() error {
 	return nil
 }
 
-// DeleteRuleBasedResponseValidationError is the validation error returned by
-// DeleteRuleBasedResponse.Validate if the designated constraints aren't met.
-type DeleteRuleBasedResponseValidationError struct {
+// DeleteSecRuleResponseValidationError is the validation error returned by
+// DeleteSecRuleResponse.Validate if the designated constraints aren't met.
+type DeleteSecRuleResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -581,24 +581,24 @@ type DeleteRuleBasedResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e DeleteRuleBasedResponseValidationError) Field() string { return e.field }
+func (e DeleteSecRuleResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e DeleteRuleBasedResponseValidationError) Reason() string { return e.reason }
+func (e DeleteSecRuleResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e DeleteRuleBasedResponseValidationError) Cause() error { return e.cause }
+func (e DeleteSecRuleResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e DeleteRuleBasedResponseValidationError) Key() bool { return e.key }
+func (e DeleteSecRuleResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e DeleteRuleBasedResponseValidationError) ErrorName() string {
-	return "DeleteRuleBasedResponseValidationError"
+func (e DeleteSecRuleResponseValidationError) ErrorName() string {
+	return "DeleteSecRuleResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e DeleteRuleBasedResponseValidationError) Error() string {
+func (e DeleteSecRuleResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -610,14 +610,14 @@ func (e DeleteRuleBasedResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sDeleteRuleBasedResponse.%s: %s%s",
+		"invalid %sDeleteSecRuleResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = DeleteRuleBasedResponseValidationError{}
+var _ error = DeleteSecRuleResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -625,19 +625,19 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = DeleteRuleBasedResponseValidationError{}
+} = DeleteSecRuleResponseValidationError{}
 
-// Validate checks the field values on ListRuleBasedsRequest with the rules
+// Validate checks the field values on ListSecRulesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListRuleBasedsRequest) Validate() error {
+func (m *ListSecRulesRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListRuleBasedsRequestValidationError{
+			return ListSecRulesRequestValidationError{
 				field:  "Page",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -648,9 +648,9 @@ func (m *ListRuleBasedsRequest) Validate() error {
 	return nil
 }
 
-// ListRuleBasedsRequestValidationError is the validation error returned by
-// ListRuleBasedsRequest.Validate if the designated constraints aren't met.
-type ListRuleBasedsRequestValidationError struct {
+// ListSecRulesRequestValidationError is the validation error returned by
+// ListSecRulesRequest.Validate if the designated constraints aren't met.
+type ListSecRulesRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -658,24 +658,24 @@ type ListRuleBasedsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRuleBasedsRequestValidationError) Field() string { return e.field }
+func (e ListSecRulesRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRuleBasedsRequestValidationError) Reason() string { return e.reason }
+func (e ListSecRulesRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRuleBasedsRequestValidationError) Cause() error { return e.cause }
+func (e ListSecRulesRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRuleBasedsRequestValidationError) Key() bool { return e.key }
+func (e ListSecRulesRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRuleBasedsRequestValidationError) ErrorName() string {
-	return "ListRuleBasedsRequestValidationError"
+func (e ListSecRulesRequestValidationError) ErrorName() string {
+	return "ListSecRulesRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRuleBasedsRequestValidationError) Error() string {
+func (e ListSecRulesRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -687,14 +687,14 @@ func (e ListRuleBasedsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRuleBasedsRequest.%s: %s%s",
+		"invalid %sListSecRulesRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRuleBasedsRequestValidationError{}
+var _ error = ListSecRulesRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -702,23 +702,23 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRuleBasedsRequestValidationError{}
+} = ListSecRulesRequestValidationError{}
 
-// Validate checks the field values on ListRuleBasedsResponse with the rules
+// Validate checks the field values on ListSecRulesResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListRuleBasedsResponse) Validate() error {
+func (m *ListSecRulesResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	for idx, item := range m.GetRuleBaseds() {
+	for idx, item := range m.GetSecRules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListRuleBasedsResponseValidationError{
-					field:  fmt.Sprintf("RuleBaseds[%v]", idx),
+				return ListSecRulesResponseValidationError{
+					field:  fmt.Sprintf("SecRules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -732,9 +732,9 @@ func (m *ListRuleBasedsResponse) Validate() error {
 	return nil
 }
 
-// ListRuleBasedsResponseValidationError is the validation error returned by
-// ListRuleBasedsResponse.Validate if the designated constraints aren't met.
-type ListRuleBasedsResponseValidationError struct {
+// ListSecRulesResponseValidationError is the validation error returned by
+// ListSecRulesResponse.Validate if the designated constraints aren't met.
+type ListSecRulesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -742,24 +742,24 @@ type ListRuleBasedsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListRuleBasedsResponseValidationError) Field() string { return e.field }
+func (e ListSecRulesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListRuleBasedsResponseValidationError) Reason() string { return e.reason }
+func (e ListSecRulesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListRuleBasedsResponseValidationError) Cause() error { return e.cause }
+func (e ListSecRulesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListRuleBasedsResponseValidationError) Key() bool { return e.key }
+func (e ListSecRulesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListRuleBasedsResponseValidationError) ErrorName() string {
-	return "ListRuleBasedsResponseValidationError"
+func (e ListSecRulesResponseValidationError) ErrorName() string {
+	return "ListSecRulesResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListRuleBasedsResponseValidationError) Error() string {
+func (e ListSecRulesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -771,14 +771,14 @@ func (e ListRuleBasedsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListRuleBasedsResponse.%s: %s%s",
+		"invalid %sListSecRulesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListRuleBasedsResponseValidationError{}
+var _ error = ListSecRulesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -786,7 +786,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListRuleBasedsResponseValidationError{}
+} = ListSecRulesResponseValidationError{}
 
 // Validate checks the field values on StatusRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error

@@ -7,9 +7,9 @@ package usersrepo
 import (
 	"context"
 
-	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users"
+	"github.com/sentinez/controlplane/iam/v1/repos/users"
 	"github.com/sentinez/core/storage/dbx/postgres"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 

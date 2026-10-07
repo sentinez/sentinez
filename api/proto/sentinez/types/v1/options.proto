@@ -46,5 +46,5 @@ message XMessage {
 
 message XMethod {
   bool ignore = 1;
-  repeated Console consoles = 2;
+  repeated ControlPlane control_planes = 2;
 }

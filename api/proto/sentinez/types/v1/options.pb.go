@@ -151,7 +151,7 @@ func (x *XMessage) GetExportField() bool {
 type XMethod struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ignore        bool                   `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
-	Consoles      []Console              `protobuf:"varint,2,rep,packed,name=consoles,proto3,enum=sentinez.types.v1.Console" json:"consoles,omitempty"`
+	ControlPlanes []ControlPlane         `protobuf:"varint,2,rep,packed,name=control_planes,json=controlPlanes,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_planes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -193,9 +193,9 @@ func (x *XMethod) GetIgnore() bool {
 	return false
 }
 
-func (x *XMethod) GetConsoles() []Console {
+func (x *XMethod) GetControlPlanes() []ControlPlane {
 	if x != nil {
-		return x.Consoles
+		return x.ControlPlanes
 	}
 	return nil
 }
@@ -257,10 +257,10 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"serviceKey\"T\n" +
 	"\bXMessage\x12%\n" +
 	"\x0edatabase_model\x18\x01 \x01(\bR\rdatabaseModel\x12!\n" +
-	"\fexport_field\x18\x02 \x01(\bR\vexportField\"Y\n" +
+	"\fexport_field\x18\x02 \x01(\bR\vexportField\"i\n" +
 	"\aXMethod\x12\x16\n" +
-	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x126\n" +
-	"\bconsoles\x18\x02 \x03(\x0e2\x1a.sentinez.types.v1.ConsoleR\bconsoles:W\n" +
+	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x12F\n" +
+	"\x0econtrol_planes\x18\x02 \x03(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\rcontrolPlanes:W\n" +
 	"\bx_method\x12\x1e.google.protobuf.MethodOptions\x18ц\x03 \x01(\v2\x1a.sentinez.types.v1.XMethodR\axMethod:[\n" +
 	"\tx_message\x12\x1f.google.protobuf.MessageOptions\x18\xb9\x8e\x03 \x01(\v2\x1b.sentinez.types.v1.XMessageR\bxMessage:O\n" +
 	"\x06x_meta\x12\x1c.google.protobuf.FileOptions\x18\xa1\x96\x03 \x01(\v2\x18.sentinez.types.v1.XMetaR\x05xMetaBAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
@@ -283,14 +283,14 @@ var file_sentinez_types_v1_options_proto_goTypes = []any{
 	(*XMessage)(nil),                    // 1: sentinez.types.v1.XMessage
 	(*XMethod)(nil),                     // 2: sentinez.types.v1.XMethod
 	(Zone)(0),                           // 3: sentinez.types.v1.Zone
-	(Console)(0),                        // 4: sentinez.types.v1.Console
+	(ControlPlane)(0),                   // 4: sentinez.types.v1.ControlPlane
 	(*descriptorpb.MethodOptions)(nil),  // 5: google.protobuf.MethodOptions
 	(*descriptorpb.MessageOptions)(nil), // 6: google.protobuf.MessageOptions
 	(*descriptorpb.FileOptions)(nil),    // 7: google.protobuf.FileOptions
 }
 var file_sentinez_types_v1_options_proto_depIdxs = []int32{
 	3, // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
-	4, // 1: sentinez.types.v1.XMethod.consoles:type_name -> sentinez.types.v1.Console
+	4, // 1: sentinez.types.v1.XMethod.control_planes:type_name -> sentinez.types.v1.ControlPlane
 	5, // 2: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
 	6, // 3: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
 	7, // 4: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions

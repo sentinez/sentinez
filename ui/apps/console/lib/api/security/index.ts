@@ -1,4 +1,4 @@
-import { RuleBased } from '@sentinez/proto/sentinez/edge/v1/setting';
+import { SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import {
   ActionType,
   FieldSource,
@@ -6,7 +6,7 @@ import {
   actionTypeFromJSON,
   actionTypeToJSON,
   Expression,
-} from '@sentinez/proto/sentinez/security/rule/v1/engine';
+} from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status, statusFromJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
@@ -30,8 +30,8 @@ export interface SecurityActionValue {
   mapValue?: Record<string, string>;
 }
 
-/** Wire format of `v1RuleBased` in security.swagger.json */
-export interface SecurityRuleBased {
+/** Wire format of `v1SecRule` in security.swagger.json */
+export interface SecuritySecRule {
   metadata?: { createdAt?: string; updatedAt?: string };
   id?: string;
   name?: string;
@@ -43,13 +43,13 @@ export interface SecurityRuleBased {
   priority?: number;
 }
 
-export interface ListRuleBasedsParams {
+export interface ListSecRulesParams {
   page?: Pages;
   ids?: string[];
 }
 
-export interface ListRuleBasedsResult {
-  ruleBaseds: RuleBased[];
+export interface ListSecRulesResult {
+  secRules: SecRule[];
   total: number;
 }
 
@@ -71,7 +71,7 @@ function actionValueToWire(params?: Record<string, any>): SecurityActionValue | 
   return { mapValue: Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])) };
 }
 
-function fromWire(rule: SecurityRuleBased): RuleBased {
+function fromWire(rule: SecuritySecRule): SecRule {
   return {
     ingressRuntime: {
       id: rule.id ?? '',
@@ -84,10 +84,10 @@ function fromWire(rule: SecurityRuleBased): RuleBased {
         ? { type: actionTypeFromJSON(rule.action), params: actionParamsFromWire(rule.actionValue) }
         : undefined,
     },
-  } as RuleBased;
+  } as SecRule;
 }
 
-function toWire(data: RuleBased): SecurityRuleBased {
+function toWire(data: SecRule): SecuritySecRule {
   const r = data.ingressRuntime;
   return {
     id: r?.id || undefined,
@@ -113,10 +113,10 @@ const sampleRule = (
   status: Status,
   expr: Expression,
   action: ActionType = ActionType.ACTION_TYPE_BLOCK,
-): RuleBased =>
+): SecRule =>
   ({
     ingressRuntime: { id, name, description, priority, status, expr, action: { type: action } },
-  }) as RuleBased;
+  }) as SecRule;
 
 const cond = (source: FieldSource, operator: Operator, value: unknown, key = '') => ({
   id: Math.random().toString(36).slice(2, 9),
@@ -124,7 +124,7 @@ const cond = (source: FieldSource, operator: Operator, value: unknown, key = '')
   condition: { id: Math.random().toString(36).slice(2, 9), source, key, operator, value },
 });
 
-export const SAMPLE_RULES: RuleBased[] = [
+export const SAMPLE_RULES: SecRule[] = [
   sampleRule(
     'sample-rule-1',
     'Block non-GET on /admin',
@@ -189,7 +189,7 @@ export const SAMPLE_RULES: RuleBased[] = [
   ),
 ];
 
-let sampleStore: RuleBased[] = [...SAMPLE_RULES];
+let sampleStore: SecRule[] = [...SAMPLE_RULES];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -203,24 +203,24 @@ function withFallback<T>(label: string, fallback: () => T) {
   };
 }
 
-// GET /security/rulebaseds
-export async function listRuleBaseds(
-  params?: ListRuleBasedsParams,
+// GET /security/secrules
+export async function listSecRules(
+  params?: ListSecRulesParams,
   options?: ApiOptions,
-): Promise<RuleBased[]> {
-  const resp = await listRuleBasedsWithTotal(params, options);
-  return resp.ruleBaseds;
+): Promise<SecRule[]> {
+  const resp = await listSecRulesWithTotal(params, options);
+  return resp.secRules;
 }
 
-export async function listRuleBasedsWithTotal(
-  params?: ListRuleBasedsParams,
+export async function listSecRulesWithTotal(
+  params?: ListSecRulesParams,
   options?: ApiOptions,
-): Promise<ListRuleBasedsResult> {
-  return withFallback('listRuleBaseds', () => {
+): Promise<ListSecRulesResult> {
+  return withFallback('listSecRules', () => {
     const list = params?.ids?.length
       ? sampleStore.filter((r) => params.ids!.includes(r.ingressRuntime?.id ?? ''))
       : sampleStore;
-    return { ruleBaseds: list, total: list.length };
+    return { secRules: list, total: list.length };
   })(async () => {
     const query: Record<string, unknown> = {};
     if (params?.page?.index !== undefined) query['page.index'] = params.page.index;
@@ -228,76 +228,76 @@ export async function listRuleBasedsWithTotal(
     if (params?.page?.total !== undefined) query['page.total'] = params.page.total;
     if (params?.ids?.length) query.ids = params.ids;
 
-    const resp = await axios.get(`${API_BASE_PATH}/security/rulebaseds`, {
+    const resp = await axios.get(`${API_BASE_PATH}/security/secrules`, {
       params: query,
       // repeat `ids` key (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    const list: SecurityRuleBased[] = resp.data?.ruleBaseds ?? [];
-    return { ruleBaseds: list.map(fromWire), total: Number(resp.data?.total ?? list.length) };
+    const list: SecuritySecRule[] = resp.data?.secRules ?? [];
+    return { secRules: list.map(fromWire), total: Number(resp.data?.total ?? list.length) };
   });
 }
 
-// GET /security/rulebased/{id}
-export async function getRuleBased(id: string, options?: ApiOptions): Promise<RuleBased> {
+// GET /security/secrule/{id}
+export async function getSecRule(id: string, options?: ApiOptions): Promise<SecRule> {
   return withFallback(
-    'getRuleBased',
+    'getSecRule',
     () => sampleStore.find((r) => r.ingressRuntime?.id === id) ?? sampleStore[0]!,
   )(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/security/rulebased/${encodeURIComponent(id)}`, {
+    const resp = await axios.get(`${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`, {
       signal: options?.signal,
     });
-    return fromWire(resp.data?.ruleBased ?? {});
+    return fromWire(resp.data?.secRule ?? {});
   });
 }
 
-// POST /security/rulebased
-export async function createRuleBased(data: RuleBased, options?: ApiOptions): Promise<string> {
-  return withFallback('createRuleBased', () => {
+// POST /security/secrule
+export async function createSecRule(data: SecRule, options?: ApiOptions): Promise<string> {
+  return withFallback('createSecRule', () => {
     const id = `sample-rule-${Date.now()}`;
     sampleStore = [
       ...sampleStore,
-      { ingressRuntime: { ...data.ingressRuntime!, id } } as RuleBased,
+      { ingressRuntime: { ...data.ingressRuntime!, id } } as SecRule,
     ];
     return id;
   })(async () => {
     const resp = await axios.post(
-      `${API_BASE_PATH}/security/rulebased`,
-      { ruleBased: toWire(data) },
+      `${API_BASE_PATH}/security/secrule`,
+      { secRule: toWire(data) },
       { signal: options?.signal },
     );
     return resp.data?.id ?? '';
   });
 }
 
-// PUT /security/rulebased/{id}
-export async function updateRuleBased(
+// PUT /security/secrule/{id}
+export async function updateSecRule(
   id: string,
-  data: RuleBased,
+  data: SecRule,
   updateMask?: string,
   options?: ApiOptions,
-): Promise<RuleBased> {
-  const next = { ingressRuntime: { ...data.ingressRuntime!, id } } as RuleBased;
-  return withFallback('updateRuleBased', () => {
+): Promise<SecRule> {
+  const next = { ingressRuntime: { ...data.ingressRuntime!, id } } as SecRule;
+  return withFallback('updateSecRule', () => {
     sampleStore = sampleStore.map((r) => (r.ingressRuntime?.id === id ? next : r));
     return next;
   })(async () => {
     const resp = await axios.put(
-      `${API_BASE_PATH}/security/rulebased/${encodeURIComponent(id)}`,
-      { ruleBased: toWire(next), updateMask },
+      `${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`,
+      { secRule: toWire(next), updateMask },
       { signal: options?.signal },
     );
-    return fromWire(resp.data?.ruleBased ?? {});
+    return fromWire(resp.data?.secRule ?? {});
   });
 }
 
-// DELETE /security/rulebased/{id}
-export async function deleteRuleBased(id: string, options?: ApiOptions): Promise<void> {
-  return withFallback<void>('deleteRuleBased', () => {
+// DELETE /security/secrule/{id}
+export async function deleteSecRule(id: string, options?: ApiOptions): Promise<void> {
+  return withFallback<void>('deleteSecRule', () => {
     sampleStore = sampleStore.filter((r) => r.ingressRuntime?.id !== id);
   })(async () => {
-    await axios.delete(`${API_BASE_PATH}/security/rulebased/${encodeURIComponent(id)}`, {
+    await axios.delete(`${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`, {
       signal: options?.signal,
     });
   });

@@ -61,40 +61,40 @@ export function zoneToJSON(object: Zone): string {
   }
 }
 
-export enum Console {
-  CONSOLE_UNSPECIFIED = 0,
-  CONSOLE_PORTAL = 1,
-  CONSOLE_ADMIN = 2,
+export enum ControlPlane {
+  CONTROL_PLANE_UNSPECIFIED = 0,
+  CONTROL_PLANE_PORTAL = 1,
+  CONTROL_PLANE_ADMIN = 2,
   UNRECOGNIZED = -1,
 }
 
-export function consoleFromJSON(object: any): Console {
+export function controlPlaneFromJSON(object: any): ControlPlane {
   switch (object) {
     case 0:
-    case "CONSOLE_UNSPECIFIED":
-      return Console.CONSOLE_UNSPECIFIED;
+    case "CONTROL_PLANE_UNSPECIFIED":
+      return ControlPlane.CONTROL_PLANE_UNSPECIFIED;
     case 1:
-    case "CONSOLE_PORTAL":
-      return Console.CONSOLE_PORTAL;
+    case "CONTROL_PLANE_PORTAL":
+      return ControlPlane.CONTROL_PLANE_PORTAL;
     case 2:
-    case "CONSOLE_ADMIN":
-      return Console.CONSOLE_ADMIN;
+    case "CONTROL_PLANE_ADMIN":
+      return ControlPlane.CONTROL_PLANE_ADMIN;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return Console.UNRECOGNIZED;
+      return ControlPlane.UNRECOGNIZED;
   }
 }
 
-export function consoleToJSON(object: Console): string {
+export function controlPlaneToJSON(object: ControlPlane): string {
   switch (object) {
-    case Console.CONSOLE_UNSPECIFIED:
-      return "CONSOLE_UNSPECIFIED";
-    case Console.CONSOLE_PORTAL:
-      return "CONSOLE_PORTAL";
-    case Console.CONSOLE_ADMIN:
-      return "CONSOLE_ADMIN";
-    case Console.UNRECOGNIZED:
+    case ControlPlane.CONTROL_PLANE_UNSPECIFIED:
+      return "CONTROL_PLANE_UNSPECIFIED";
+    case ControlPlane.CONTROL_PLANE_PORTAL:
+      return "CONTROL_PLANE_PORTAL";
+    case ControlPlane.CONTROL_PLANE_ADMIN:
+      return "CONTROL_PLANE_ADMIN";
+    case ControlPlane.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -184,58 +184,58 @@ export function planToJSON(object: Plan): string {
   }
 }
 
-export enum LogKind {
-  LOG_KIND_UNSPECIFIED = 0,
-  LOG_KIND_HTTP = 1,
-  LOG_KIND_WAF_RULESET = 2,
-  LOG_KIND_RULE_BASED = 3,
-  LOG_KIND_RATE_LIMIT = 4,
-  LOG_KIND_CDN_RULE = 5,
+export enum LogType {
+  LOG_TYPE_UNSPECIFIED = 0,
+  LOG_TYPE_HTTP = 1,
+  LOG_TYPE_WAF = 2,
+  LOG_TYPE_SEC_RULE = 3,
+  LOG_TYPE_RATE_LIMIT = 4,
+  LOG_TYPE_CDN_RULE = 5,
   UNRECOGNIZED = -1,
 }
 
-export function logKindFromJSON(object: any): LogKind {
+export function logTypeFromJSON(object: any): LogType {
   switch (object) {
     case 0:
-    case "LOG_KIND_UNSPECIFIED":
-      return LogKind.LOG_KIND_UNSPECIFIED;
+    case "LOG_TYPE_UNSPECIFIED":
+      return LogType.LOG_TYPE_UNSPECIFIED;
     case 1:
-    case "LOG_KIND_HTTP":
-      return LogKind.LOG_KIND_HTTP;
+    case "LOG_TYPE_HTTP":
+      return LogType.LOG_TYPE_HTTP;
     case 2:
-    case "LOG_KIND_WAF_RULESET":
-      return LogKind.LOG_KIND_WAF_RULESET;
+    case "LOG_TYPE_WAF":
+      return LogType.LOG_TYPE_WAF;
     case 3:
-    case "LOG_KIND_RULE_BASED":
-      return LogKind.LOG_KIND_RULE_BASED;
+    case "LOG_TYPE_SEC_RULE":
+      return LogType.LOG_TYPE_SEC_RULE;
     case 4:
-    case "LOG_KIND_RATE_LIMIT":
-      return LogKind.LOG_KIND_RATE_LIMIT;
+    case "LOG_TYPE_RATE_LIMIT":
+      return LogType.LOG_TYPE_RATE_LIMIT;
     case 5:
-    case "LOG_KIND_CDN_RULE":
-      return LogKind.LOG_KIND_CDN_RULE;
+    case "LOG_TYPE_CDN_RULE":
+      return LogType.LOG_TYPE_CDN_RULE;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return LogKind.UNRECOGNIZED;
+      return LogType.UNRECOGNIZED;
   }
 }
 
-export function logKindToJSON(object: LogKind): string {
+export function logTypeToJSON(object: LogType): string {
   switch (object) {
-    case LogKind.LOG_KIND_UNSPECIFIED:
-      return "LOG_KIND_UNSPECIFIED";
-    case LogKind.LOG_KIND_HTTP:
-      return "LOG_KIND_HTTP";
-    case LogKind.LOG_KIND_WAF_RULESET:
-      return "LOG_KIND_WAF_RULESET";
-    case LogKind.LOG_KIND_RULE_BASED:
-      return "LOG_KIND_RULE_BASED";
-    case LogKind.LOG_KIND_RATE_LIMIT:
-      return "LOG_KIND_RATE_LIMIT";
-    case LogKind.LOG_KIND_CDN_RULE:
-      return "LOG_KIND_CDN_RULE";
-    case LogKind.UNRECOGNIZED:
+    case LogType.LOG_TYPE_UNSPECIFIED:
+      return "LOG_TYPE_UNSPECIFIED";
+    case LogType.LOG_TYPE_HTTP:
+      return "LOG_TYPE_HTTP";
+    case LogType.LOG_TYPE_WAF:
+      return "LOG_TYPE_WAF";
+    case LogType.LOG_TYPE_SEC_RULE:
+      return "LOG_TYPE_SEC_RULE";
+    case LogType.LOG_TYPE_RATE_LIMIT:
+      return "LOG_TYPE_RATE_LIMIT";
+    case LogType.LOG_TYPE_CDN_RULE:
+      return "LOG_TYPE_CDN_RULE";
+    case LogType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -311,7 +311,7 @@ export interface Context {
   name: string;
   expireAt?: Date | undefined;
   userId: string;
-  console: Console;
+  controlPlane: ControlPlane;
 }
 
 function createBaseEmpty(): Empty {
@@ -367,7 +367,7 @@ export const Empty: MessageFns<Empty> = {
 };
 
 function createBaseContext(): Context {
-  return { name: "", expireAt: undefined, userId: "", console: 0 };
+  return { name: "", expireAt: undefined, userId: "", controlPlane: 0 };
 }
 
 export const Context: MessageFns<Context> = {
@@ -381,8 +381,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       writer.uint32(26).string(message.userId);
     }
-    if (message.console !== 0) {
-      writer.uint32(40).int32(message.console);
+    if (message.controlPlane !== 0) {
+      writer.uint32(32).int32(message.controlPlane);
     }
     return writer;
   },
@@ -424,12 +424,12 @@ export const Context: MessageFns<Context> = {
             message.userId = reader.string();
             continue;
           }
-          case 5: {
-            if (tag !== 40) {
+          case 4: {
+            if (tag !== 32) {
               break;
             }
 
-            message.console = reader.int32() as any;
+            message.controlPlane = reader.int32() as any;
             continue;
           }
         }
@@ -457,7 +457,11 @@ export const Context: MessageFns<Context> = {
         : isSet(object.user_id)
         ? globalThis.String(object.user_id)
         : "",
-      console: isSet(object.console) ? consoleFromJSON(object.console) : 0,
+      controlPlane: isSet(object.controlPlane)
+        ? controlPlaneFromJSON(object.controlPlane)
+        : isSet(object.control_plane)
+        ? controlPlaneFromJSON(object.control_plane)
+        : 0,
     };
   },
 
@@ -472,8 +476,8 @@ export const Context: MessageFns<Context> = {
     if (message.userId !== "") {
       obj.userId = message.userId;
     }
-    if (message.console !== 0) {
-      obj.console = consoleToJSON(message.console);
+    if (message.controlPlane !== 0) {
+      obj.controlPlane = controlPlaneToJSON(message.controlPlane);
     }
     return obj;
   },
@@ -486,7 +490,7 @@ export const Context: MessageFns<Context> = {
     message.name = object.name ?? "";
     message.expireAt = object.expireAt ?? undefined;
     message.userId = object.userId ?? "";
-    message.console = object.console ?? 0;
+    message.controlPlane = object.controlPlane ?? 0;
     return message;
   },
 };

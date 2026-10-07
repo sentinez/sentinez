@@ -17,13 +17,13 @@ var (
 )
 
 const (
-	RuleBased_Metadata    = "metadata"
-	RuleBased_Id          = "id"
-	RuleBased_Name        = "name"
-	RuleBased_Description = "description"
-	RuleBased_Expr        = "expr"
-	RuleBased_Action      = "action"
-	RuleBased_ActionValue = "action_value"
-	RuleBased_Status      = "status"
-	RuleBased_Priority    = "priority"
+	SecRule_Metadata    = "metadata"
+	SecRule_Id          = "id"
+	SecRule_Name        = "name"
+	SecRule_Description = "description"
+	SecRule_Expr        = "expr"
+	SecRule_Action      = "action"
+	SecRule_ActionValue = "action_value"
+	SecRule_Status      = "status"
+	SecRule_Priority    = "priority"
 )

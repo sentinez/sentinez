@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package logger provides the logger for the service.
 package zlog
 
 import (

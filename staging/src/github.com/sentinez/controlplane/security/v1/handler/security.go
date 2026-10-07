@@ -37,34 +37,34 @@ type Security struct {
 	service *securitysvc.SecurityService
 }
 
-func (h *Security) CreateRuleBased(ctx context.Context,
-	req *securitypb.CreateRuleBasedRequest,
-) (*securitypb.CreateRuleBasedResponse, error) {
-	return h.service.CreateRuleBased(ctx, req)
+func (h *Security) CreateSecRule(ctx context.Context,
+	req *securitypb.CreateSecRuleRequest,
+) (*securitypb.CreateSecRuleResponse, error) {
+	return h.service.CreateSecRule(ctx, req)
 }
 
-func (h *Security) GetRuleBased(ctx context.Context,
-	req *securitypb.GetRuleBasedRequest,
-) (*securitypb.GetRuleBasedResponse, error) {
-	return h.service.GetRuleBased(ctx, req)
+func (h *Security) GetSecRule(ctx context.Context,
+	req *securitypb.GetSecRuleRequest,
+) (*securitypb.GetSecRuleResponse, error) {
+	return h.service.GetSecRule(ctx, req)
 }
 
-func (h *Security) UpdateRuleBased(ctx context.Context,
-	req *securitypb.UpdateRuleBasedRequest,
-) (*securitypb.UpdateRuleBasedResponse, error) {
-	return h.service.UpdateRuleBased(ctx, req)
+func (h *Security) UpdateSecRule(ctx context.Context,
+	req *securitypb.UpdateSecRuleRequest,
+) (*securitypb.UpdateSecRuleResponse, error) {
+	return h.service.UpdateSecRule(ctx, req)
 }
 
-func (h *Security) DeleteRuleBased(ctx context.Context,
-	req *securitypb.DeleteRuleBasedRequest,
-) (*securitypb.DeleteRuleBasedResponse, error) {
-	return h.service.DeleteRuleBased(ctx, req)
+func (h *Security) DeleteSecRule(ctx context.Context,
+	req *securitypb.DeleteSecRuleRequest,
+) (*securitypb.DeleteSecRuleResponse, error) {
+	return h.service.DeleteSecRule(ctx, req)
 }
 
-func (h *Security) ListRuleBaseds(ctx context.Context,
-	req *securitypb.ListRuleBasedsRequest,
-) (*securitypb.ListRuleBasedsResponse, error) {
-	return h.service.ListRuleBaseds(ctx, req)
+func (h *Security) ListSecRules(ctx context.Context,
+	req *securitypb.ListSecRulesRequest,
+) (*securitypb.ListSecRulesResponse, error) {
+	return h.service.ListSecRules(ctx, req)
 }
 
 func (h *Security) Status(ctx context.Context,

@@ -17,7 +17,7 @@ package corecontext
 import (
 	"context"
 
-	networkpb "github.com/sentinez/sentinez/api/proto/sentinez/network/v1"
+	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 )
 
 type contextKey string
@@ -27,12 +27,12 @@ const (
 )
 
 func WithTransportValue(
-	parent context.Context, value *networkpb.Transport) context.Context {
+	parent context.Context, value *netpb.Transport) context.Context {
 	return context.WithValue(parent, transport, value)
 }
 
-func GetTransport(ctx context.Context) *networkpb.Transport {
-	v, ok := ctx.Value(transport).(*networkpb.Transport)
+func GetTransport(ctx context.Context) *netpb.Transport {
+	v, ok := ctx.Value(transport).(*netpb.Transport)
 	if !ok {
 		return nil
 	}

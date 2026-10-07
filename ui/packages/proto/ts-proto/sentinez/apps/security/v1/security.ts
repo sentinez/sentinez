@@ -8,50 +8,50 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { FieldMask } from "../../../../google/protobuf/field_mask";
 import { Pages } from "../../../types/v1/model";
-import { RuleBased } from "./model";
+import { SecRule } from "./model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
-export interface CreateRuleBasedRequest {
-  ruleBased?: RuleBased | undefined;
+export interface CreateSecRuleRequest {
+  secRule?: SecRule | undefined;
 }
 
-export interface CreateRuleBasedResponse {
+export interface CreateSecRuleResponse {
   id: string;
 }
 
-export interface GetRuleBasedRequest {
+export interface GetSecRuleRequest {
   id: string;
 }
 
-export interface GetRuleBasedResponse {
-  ruleBased?: RuleBased | undefined;
+export interface GetSecRuleResponse {
+  secRule?: SecRule | undefined;
 }
 
-export interface UpdateRuleBasedRequest {
+export interface UpdateSecRuleRequest {
   id: string;
-  ruleBased?: RuleBased | undefined;
+  secRule?: SecRule | undefined;
   updateMask?: string[] | undefined;
 }
 
-export interface UpdateRuleBasedResponse {
-  ruleBased?: RuleBased | undefined;
+export interface UpdateSecRuleResponse {
+  secRule?: SecRule | undefined;
 }
 
-export interface DeleteRuleBasedRequest {
+export interface DeleteSecRuleRequest {
   id: string;
 }
 
-export interface DeleteRuleBasedResponse {
+export interface DeleteSecRuleResponse {
 }
 
-export interface ListRuleBasedsRequest {
+export interface ListSecRulesRequest {
   page?: Pages | undefined;
   ids: string[];
 }
 
-export interface ListRuleBasedsResponse {
-  ruleBaseds: RuleBased[];
+export interface ListSecRulesResponse {
+  secRules: SecRule[];
   total: number;
 }
 
@@ -62,19 +62,19 @@ export interface StatusResponse {
   msg: string;
 }
 
-function createBaseCreateRuleBasedRequest(): CreateRuleBasedRequest {
-  return { ruleBased: undefined };
+function createBaseCreateSecRuleRequest(): CreateSecRuleRequest {
+  return { secRule: undefined };
 }
 
-export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
-  encode(message: CreateRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleBased !== undefined) {
-      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
+export const CreateSecRuleRequest: MessageFns<CreateSecRuleRequest> = {
+  encode(message: CreateSecRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secRule !== undefined) {
+      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleBasedRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRuleRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -83,7 +83,7 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRuleBasedRequest();
+      const message = createBaseCreateSecRuleRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -92,7 +92,7 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
               break;
             }
 
-            message.ruleBased = RuleBased.decode(reader, reader.uint32());
+            message.secRule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -107,49 +107,49 @@ export const CreateRuleBasedRequest: MessageFns<CreateRuleBasedRequest> = {
     }
   },
 
-  fromJSON(object: any): CreateRuleBasedRequest {
+  fromJSON(object: any): CreateSecRuleRequest {
     return {
-      ruleBased: isSet(object.ruleBased)
-        ? RuleBased.fromJSON(object.ruleBased)
-        : isSet(object.rule_based)
-        ? RuleBased.fromJSON(object.rule_based)
+      secRule: isSet(object.secRule)
+        ? SecRule.fromJSON(object.secRule)
+        : isSet(object.sec_rule)
+        ? SecRule.fromJSON(object.sec_rule)
         : undefined,
     };
   },
 
-  toJSON(message: CreateRuleBasedRequest): unknown {
+  toJSON(message: CreateSecRuleRequest): unknown {
     const obj: any = {};
-    if (message.ruleBased !== undefined) {
-      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    if (message.secRule !== undefined) {
+      obj.secRule = SecRule.toJSON(message.secRule);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRuleBasedRequest>, I>>(base?: I): CreateRuleBasedRequest {
-    return CreateRuleBasedRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRuleRequest>, I>>(base?: I): CreateSecRuleRequest {
+    return CreateSecRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedRequest>, I>>(object: I): CreateRuleBasedRequest {
-    const message = createBaseCreateRuleBasedRequest();
-    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
-      ? RuleBased.fromPartial(object.ruleBased)
+  fromPartial<I extends Exact<DeepPartial<CreateSecRuleRequest>, I>>(object: I): CreateSecRuleRequest {
+    const message = createBaseCreateSecRuleRequest();
+    message.secRule = (object.secRule !== undefined && object.secRule !== null)
+      ? SecRule.fromPartial(object.secRule)
       : undefined;
     return message;
   },
 };
 
-function createBaseCreateRuleBasedResponse(): CreateRuleBasedResponse {
+function createBaseCreateSecRuleResponse(): CreateSecRuleResponse {
   return { id: "" };
 }
 
-export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
-  encode(message: CreateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateSecRuleResponse: MessageFns<CreateSecRuleResponse> = {
+  encode(message: CreateSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRuleBasedResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRuleResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -158,7 +158,7 @@ export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRuleBasedResponse();
+      const message = createBaseCreateSecRuleResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -182,11 +182,11 @@ export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
     }
   },
 
-  fromJSON(object: any): CreateRuleBasedResponse {
+  fromJSON(object: any): CreateSecRuleResponse {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: CreateRuleBasedResponse): unknown {
+  toJSON(message: CreateSecRuleResponse): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -194,29 +194,29 @@ export const CreateRuleBasedResponse: MessageFns<CreateRuleBasedResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(base?: I): CreateRuleBasedResponse {
-    return CreateRuleBasedResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRuleResponse>, I>>(base?: I): CreateSecRuleResponse {
+    return CreateSecRuleResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRuleBasedResponse>, I>>(object: I): CreateRuleBasedResponse {
-    const message = createBaseCreateRuleBasedResponse();
+  fromPartial<I extends Exact<DeepPartial<CreateSecRuleResponse>, I>>(object: I): CreateSecRuleResponse {
+    const message = createBaseCreateSecRuleResponse();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRuleBasedRequest(): GetRuleBasedRequest {
+function createBaseGetSecRuleRequest(): GetSecRuleRequest {
   return { id: "" };
 }
 
-export const GetRuleBasedRequest: MessageFns<GetRuleBasedRequest> = {
-  encode(message: GetRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetSecRuleRequest: MessageFns<GetSecRuleRequest> = {
+  encode(message: GetSecRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleBasedRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRuleRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -225,7 +225,7 @@ export const GetRuleBasedRequest: MessageFns<GetRuleBasedRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRuleBasedRequest();
+      const message = createBaseGetSecRuleRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -249,11 +249,11 @@ export const GetRuleBasedRequest: MessageFns<GetRuleBasedRequest> = {
     }
   },
 
-  fromJSON(object: any): GetRuleBasedRequest {
+  fromJSON(object: any): GetSecRuleRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: GetRuleBasedRequest): unknown {
+  toJSON(message: GetSecRuleRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -261,29 +261,29 @@ export const GetRuleBasedRequest: MessageFns<GetRuleBasedRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRuleBasedRequest>, I>>(base?: I): GetRuleBasedRequest {
-    return GetRuleBasedRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRuleRequest>, I>>(base?: I): GetSecRuleRequest {
+    return GetSecRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRuleBasedRequest>, I>>(object: I): GetRuleBasedRequest {
-    const message = createBaseGetRuleBasedRequest();
+  fromPartial<I extends Exact<DeepPartial<GetSecRuleRequest>, I>>(object: I): GetSecRuleRequest {
+    const message = createBaseGetSecRuleRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRuleBasedResponse(): GetRuleBasedResponse {
-  return { ruleBased: undefined };
+function createBaseGetSecRuleResponse(): GetSecRuleResponse {
+  return { secRule: undefined };
 }
 
-export const GetRuleBasedResponse: MessageFns<GetRuleBasedResponse> = {
-  encode(message: GetRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleBased !== undefined) {
-      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
+export const GetSecRuleResponse: MessageFns<GetSecRuleResponse> = {
+  encode(message: GetSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secRule !== undefined) {
+      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleBasedResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRuleResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -292,7 +292,7 @@ export const GetRuleBasedResponse: MessageFns<GetRuleBasedResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRuleBasedResponse();
+      const message = createBaseGetSecRuleResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -301,7 +301,7 @@ export const GetRuleBasedResponse: MessageFns<GetRuleBasedResponse> = {
               break;
             }
 
-            message.ruleBased = RuleBased.decode(reader, reader.uint32());
+            message.secRule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -316,47 +316,47 @@ export const GetRuleBasedResponse: MessageFns<GetRuleBasedResponse> = {
     }
   },
 
-  fromJSON(object: any): GetRuleBasedResponse {
+  fromJSON(object: any): GetSecRuleResponse {
     return {
-      ruleBased: isSet(object.ruleBased)
-        ? RuleBased.fromJSON(object.ruleBased)
-        : isSet(object.rule_based)
-        ? RuleBased.fromJSON(object.rule_based)
+      secRule: isSet(object.secRule)
+        ? SecRule.fromJSON(object.secRule)
+        : isSet(object.sec_rule)
+        ? SecRule.fromJSON(object.sec_rule)
         : undefined,
     };
   },
 
-  toJSON(message: GetRuleBasedResponse): unknown {
+  toJSON(message: GetSecRuleResponse): unknown {
     const obj: any = {};
-    if (message.ruleBased !== undefined) {
-      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    if (message.secRule !== undefined) {
+      obj.secRule = SecRule.toJSON(message.secRule);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRuleBasedResponse>, I>>(base?: I): GetRuleBasedResponse {
-    return GetRuleBasedResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRuleResponse>, I>>(base?: I): GetSecRuleResponse {
+    return GetSecRuleResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRuleBasedResponse>, I>>(object: I): GetRuleBasedResponse {
-    const message = createBaseGetRuleBasedResponse();
-    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
-      ? RuleBased.fromPartial(object.ruleBased)
+  fromPartial<I extends Exact<DeepPartial<GetSecRuleResponse>, I>>(object: I): GetSecRuleResponse {
+    const message = createBaseGetSecRuleResponse();
+    message.secRule = (object.secRule !== undefined && object.secRule !== null)
+      ? SecRule.fromPartial(object.secRule)
       : undefined;
     return message;
   },
 };
 
-function createBaseUpdateRuleBasedRequest(): UpdateRuleBasedRequest {
-  return { id: "", ruleBased: undefined, updateMask: undefined };
+function createBaseUpdateSecRuleRequest(): UpdateSecRuleRequest {
+  return { id: "", secRule: undefined, updateMask: undefined };
 }
 
-export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
-  encode(message: UpdateRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
+  encode(message: UpdateSecRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.ruleBased !== undefined) {
-      RuleBased.encode(message.ruleBased, writer.uint32(18).fork()).join();
+    if (message.secRule !== undefined) {
+      SecRule.encode(message.secRule, writer.uint32(18).fork()).join();
     }
     if (message.updateMask !== undefined) {
       FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
@@ -364,7 +364,7 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleBasedRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRuleRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -373,7 +373,7 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRuleBasedRequest();
+      const message = createBaseUpdateSecRuleRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -390,7 +390,7 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
               break;
             }
 
-            message.ruleBased = RuleBased.decode(reader, reader.uint32());
+            message.secRule = SecRule.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -413,13 +413,13 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
     }
   },
 
-  fromJSON(object: any): UpdateRuleBasedRequest {
+  fromJSON(object: any): UpdateSecRuleRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      ruleBased: isSet(object.ruleBased)
-        ? RuleBased.fromJSON(object.ruleBased)
-        : isSet(object.rule_based)
-        ? RuleBased.fromJSON(object.rule_based)
+      secRule: isSet(object.secRule)
+        ? SecRule.fromJSON(object.secRule)
+        : isSet(object.sec_rule)
+        ? SecRule.fromJSON(object.sec_rule)
         : undefined,
       updateMask: isSet(object.updateMask)
         ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
@@ -429,13 +429,13 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
     };
   },
 
-  toJSON(message: UpdateRuleBasedRequest): unknown {
+  toJSON(message: UpdateSecRuleRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.ruleBased !== undefined) {
-      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    if (message.secRule !== undefined) {
+      obj.secRule = SecRule.toJSON(message.secRule);
     }
     if (message.updateMask !== undefined) {
       obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
@@ -443,33 +443,33 @@ export const UpdateRuleBasedRequest: MessageFns<UpdateRuleBasedRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRuleBasedRequest>, I>>(base?: I): UpdateRuleBasedRequest {
-    return UpdateRuleBasedRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRuleRequest>, I>>(base?: I): UpdateSecRuleRequest {
+    return UpdateSecRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRuleBasedRequest>, I>>(object: I): UpdateRuleBasedRequest {
-    const message = createBaseUpdateRuleBasedRequest();
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRuleRequest>, I>>(object: I): UpdateSecRuleRequest {
+    const message = createBaseUpdateSecRuleRequest();
     message.id = object.id ?? "";
-    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
-      ? RuleBased.fromPartial(object.ruleBased)
+    message.secRule = (object.secRule !== undefined && object.secRule !== null)
+      ? SecRule.fromPartial(object.secRule)
       : undefined;
     message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };
 
-function createBaseUpdateRuleBasedResponse(): UpdateRuleBasedResponse {
-  return { ruleBased: undefined };
+function createBaseUpdateSecRuleResponse(): UpdateSecRuleResponse {
+  return { secRule: undefined };
 }
 
-export const UpdateRuleBasedResponse: MessageFns<UpdateRuleBasedResponse> = {
-  encode(message: UpdateRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleBased !== undefined) {
-      RuleBased.encode(message.ruleBased, writer.uint32(10).fork()).join();
+export const UpdateSecRuleResponse: MessageFns<UpdateSecRuleResponse> = {
+  encode(message: UpdateSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secRule !== undefined) {
+      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRuleBasedResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRuleResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -478,7 +478,7 @@ export const UpdateRuleBasedResponse: MessageFns<UpdateRuleBasedResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRuleBasedResponse();
+      const message = createBaseUpdateSecRuleResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -487,7 +487,7 @@ export const UpdateRuleBasedResponse: MessageFns<UpdateRuleBasedResponse> = {
               break;
             }
 
-            message.ruleBased = RuleBased.decode(reader, reader.uint32());
+            message.secRule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -502,49 +502,49 @@ export const UpdateRuleBasedResponse: MessageFns<UpdateRuleBasedResponse> = {
     }
   },
 
-  fromJSON(object: any): UpdateRuleBasedResponse {
+  fromJSON(object: any): UpdateSecRuleResponse {
     return {
-      ruleBased: isSet(object.ruleBased)
-        ? RuleBased.fromJSON(object.ruleBased)
-        : isSet(object.rule_based)
-        ? RuleBased.fromJSON(object.rule_based)
+      secRule: isSet(object.secRule)
+        ? SecRule.fromJSON(object.secRule)
+        : isSet(object.sec_rule)
+        ? SecRule.fromJSON(object.sec_rule)
         : undefined,
     };
   },
 
-  toJSON(message: UpdateRuleBasedResponse): unknown {
+  toJSON(message: UpdateSecRuleResponse): unknown {
     const obj: any = {};
-    if (message.ruleBased !== undefined) {
-      obj.ruleBased = RuleBased.toJSON(message.ruleBased);
+    if (message.secRule !== undefined) {
+      obj.secRule = SecRule.toJSON(message.secRule);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRuleBasedResponse>, I>>(base?: I): UpdateRuleBasedResponse {
-    return UpdateRuleBasedResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRuleResponse>, I>>(base?: I): UpdateSecRuleResponse {
+    return UpdateSecRuleResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRuleBasedResponse>, I>>(object: I): UpdateRuleBasedResponse {
-    const message = createBaseUpdateRuleBasedResponse();
-    message.ruleBased = (object.ruleBased !== undefined && object.ruleBased !== null)
-      ? RuleBased.fromPartial(object.ruleBased)
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRuleResponse>, I>>(object: I): UpdateSecRuleResponse {
+    const message = createBaseUpdateSecRuleResponse();
+    message.secRule = (object.secRule !== undefined && object.secRule !== null)
+      ? SecRule.fromPartial(object.secRule)
       : undefined;
     return message;
   },
 };
 
-function createBaseDeleteRuleBasedRequest(): DeleteRuleBasedRequest {
+function createBaseDeleteSecRuleRequest(): DeleteSecRuleRequest {
   return { id: "" };
 }
 
-export const DeleteRuleBasedRequest: MessageFns<DeleteRuleBasedRequest> = {
-  encode(message: DeleteRuleBasedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRuleRequest: MessageFns<DeleteSecRuleRequest> = {
+  encode(message: DeleteSecRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleBasedRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRuleRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -553,7 +553,7 @@ export const DeleteRuleBasedRequest: MessageFns<DeleteRuleBasedRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRuleBasedRequest();
+      const message = createBaseDeleteSecRuleRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -577,11 +577,11 @@ export const DeleteRuleBasedRequest: MessageFns<DeleteRuleBasedRequest> = {
     }
   },
 
-  fromJSON(object: any): DeleteRuleBasedRequest {
+  fromJSON(object: any): DeleteSecRuleRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: DeleteRuleBasedRequest): unknown {
+  toJSON(message: DeleteSecRuleRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -589,26 +589,26 @@ export const DeleteRuleBasedRequest: MessageFns<DeleteRuleBasedRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRuleBasedRequest>, I>>(base?: I): DeleteRuleBasedRequest {
-    return DeleteRuleBasedRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRuleRequest>, I>>(base?: I): DeleteSecRuleRequest {
+    return DeleteSecRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRuleBasedRequest>, I>>(object: I): DeleteRuleBasedRequest {
-    const message = createBaseDeleteRuleBasedRequest();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRuleRequest>, I>>(object: I): DeleteSecRuleRequest {
+    const message = createBaseDeleteSecRuleRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseDeleteRuleBasedResponse(): DeleteRuleBasedResponse {
+function createBaseDeleteSecRuleResponse(): DeleteSecRuleResponse {
   return {};
 }
 
-export const DeleteRuleBasedResponse: MessageFns<DeleteRuleBasedResponse> = {
-  encode(_: DeleteRuleBasedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRuleResponse: MessageFns<DeleteSecRuleResponse> = {
+  encode(_: DeleteSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRuleBasedResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRuleResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -617,7 +617,7 @@ export const DeleteRuleBasedResponse: MessageFns<DeleteRuleBasedResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRuleBasedResponse();
+      const message = createBaseDeleteSecRuleResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -633,30 +633,30 @@ export const DeleteRuleBasedResponse: MessageFns<DeleteRuleBasedResponse> = {
     }
   },
 
-  fromJSON(_: any): DeleteRuleBasedResponse {
+  fromJSON(_: any): DeleteSecRuleResponse {
     return {};
   },
 
-  toJSON(_: DeleteRuleBasedResponse): unknown {
+  toJSON(_: DeleteSecRuleResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRuleBasedResponse>, I>>(base?: I): DeleteRuleBasedResponse {
-    return DeleteRuleBasedResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRuleResponse>, I>>(base?: I): DeleteSecRuleResponse {
+    return DeleteSecRuleResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRuleBasedResponse>, I>>(_: I): DeleteRuleBasedResponse {
-    const message = createBaseDeleteRuleBasedResponse();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRuleResponse>, I>>(_: I): DeleteSecRuleResponse {
+    const message = createBaseDeleteSecRuleResponse();
     return message;
   },
 };
 
-function createBaseListRuleBasedsRequest(): ListRuleBasedsRequest {
+function createBaseListSecRulesRequest(): ListSecRulesRequest {
   return { page: undefined, ids: [] };
 }
 
-export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
-  encode(message: ListRuleBasedsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
+  encode(message: ListSecRulesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -666,7 +666,7 @@ export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleBasedsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRulesRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -675,7 +675,7 @@ export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleBasedsRequest();
+      const message = createBaseListSecRulesRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -707,14 +707,14 @@ export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
     }
   },
 
-  fromJSON(object: any): ListRuleBasedsRequest {
+  fromJSON(object: any): ListSecRulesRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
-  toJSON(message: ListRuleBasedsRequest): unknown {
+  toJSON(message: ListSecRulesRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -725,25 +725,25 @@ export const ListRuleBasedsRequest: MessageFns<ListRuleBasedsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleBasedsRequest>, I>>(base?: I): ListRuleBasedsRequest {
-    return ListRuleBasedsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRulesRequest>, I>>(base?: I): ListSecRulesRequest {
+    return ListSecRulesRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleBasedsRequest>, I>>(object: I): ListRuleBasedsRequest {
-    const message = createBaseListRuleBasedsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListSecRulesRequest>, I>>(object: I): ListSecRulesRequest {
+    const message = createBaseListSecRulesRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
     return message;
   },
 };
 
-function createBaseListRuleBasedsResponse(): ListRuleBasedsResponse {
-  return { ruleBaseds: [], total: 0 };
+function createBaseListSecRulesResponse(): ListSecRulesResponse {
+  return { secRules: [], total: 0 };
 }
 
-export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
-  encode(message: ListRuleBasedsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.ruleBaseds) {
-      RuleBased.encode(v!, writer.uint32(10).fork()).join();
+export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
+  encode(message: ListSecRulesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.secRules) {
+      SecRule.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -751,7 +751,7 @@ export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleBasedsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRulesResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -760,7 +760,7 @@ export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleBasedsResponse();
+      const message = createBaseListSecRulesResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -769,7 +769,7 @@ export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
               break;
             }
 
-            message.ruleBaseds.push(RuleBased.decode(reader, reader.uint32()));
+            message.secRules.push(SecRule.decode(reader, reader.uint32()));
             continue;
           }
           case 2: {
@@ -792,21 +792,21 @@ export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
     }
   },
 
-  fromJSON(object: any): ListRuleBasedsResponse {
+  fromJSON(object: any): ListSecRulesResponse {
     return {
-      ruleBaseds: globalThis.Array.isArray(object?.ruleBaseds)
-        ? object.ruleBaseds.map((e: any) => RuleBased.fromJSON(e))
-        : globalThis.Array.isArray(object?.rule_baseds)
-        ? object.rule_baseds.map((e: any) => RuleBased.fromJSON(e))
+      secRules: globalThis.Array.isArray(object?.secRules)
+        ? object.secRules.map((e: any) => SecRule.fromJSON(e))
+        : globalThis.Array.isArray(object?.sec_rules)
+        ? object.sec_rules.map((e: any) => SecRule.fromJSON(e))
         : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListRuleBasedsResponse): unknown {
+  toJSON(message: ListSecRulesResponse): unknown {
     const obj: any = {};
-    if (message.ruleBaseds?.length) {
-      obj.ruleBaseds = message.ruleBaseds.map((e) => RuleBased.toJSON(e));
+    if (message.secRules?.length) {
+      obj.secRules = message.secRules.map((e) => SecRule.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -814,12 +814,12 @@ export const ListRuleBasedsResponse: MessageFns<ListRuleBasedsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleBasedsResponse>, I>>(base?: I): ListRuleBasedsResponse {
-    return ListRuleBasedsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRulesResponse>, I>>(base?: I): ListSecRulesResponse {
+    return ListSecRulesResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleBasedsResponse>, I>>(object: I): ListRuleBasedsResponse {
-    const message = createBaseListRuleBasedsResponse();
-    message.ruleBaseds = object.ruleBaseds?.map((e) => RuleBased.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<ListSecRulesResponse>, I>>(object: I): ListSecRulesResponse {
+    const message = createBaseListSecRulesResponse();
+    message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },

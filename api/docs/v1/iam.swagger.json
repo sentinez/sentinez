@@ -505,15 +505,6 @@
         }
       }
     },
-    "v1Console": {
-      "type": "string",
-      "enum": [
-        "CONSOLE_UNSPECIFIED",
-        "CONSOLE_PORTAL",
-        "CONSOLE_ADMIN"
-      ],
-      "default": "CONSOLE_UNSPECIFIED"
-    },
     "v1Context": {
       "type": "object",
       "properties": {
@@ -527,10 +518,19 @@
         "userId": {
           "type": "string"
         },
-        "console": {
-          "$ref": "#/definitions/v1Console"
+        "plane": {
+          "$ref": "#/definitions/v1ControlPlane"
         }
       }
+    },
+    "v1ControlPlane": {
+      "type": "string",
+      "enum": [
+        "CONTROL_PLANE_UNSPECIFIED",
+        "CONTROL_PLANE_PORTAL",
+        "CONTROL_PLANE_ADMIN"
+      ],
+      "default": "CONTROL_PLANE_UNSPECIFIED"
     },
     "v1CreateAccountRequest": {
       "type": "object",
@@ -753,8 +753,8 @@
         "email": {
           "type": "string"
         },
-        "console": {
-          "$ref": "#/definitions/v1Console"
+        "controlPlane": {
+          "$ref": "#/definitions/v1ControlPlane"
         }
       }
     }

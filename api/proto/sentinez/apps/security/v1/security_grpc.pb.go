@@ -33,12 +33,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreateRuleBased_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateRuleBased"
-	SecurityService_GetRuleBased_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetRuleBased"
-	SecurityService_UpdateRuleBased_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateRuleBased"
-	SecurityService_DeleteRuleBased_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteRuleBased"
-	SecurityService_ListRuleBaseds_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListRuleBaseds"
-	SecurityService_Status_FullMethodName          = "/sentinez.apps.security.v1.SecurityService/Status"
+	SecurityService_CreateSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateSecRule"
+	SecurityService_GetSecRule_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetSecRule"
+	SecurityService_UpdateSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateSecRule"
+	SecurityService_DeleteSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteSecRule"
+	SecurityService_ListSecRules_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListSecRules"
+	SecurityService_Status_FullMethodName        = "/sentinez.apps.security.v1.SecurityService/Status"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -47,16 +47,16 @@ const (
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceClient interface {
-	// CreateRuleBased creates a new WAF rule based
-	CreateRuleBased(ctx context.Context, in *CreateRuleBasedRequest, opts ...grpc.CallOption) (*CreateRuleBasedResponse, error)
-	// GetRuleBased retrieves a WAF rule based by ID
-	GetRuleBased(ctx context.Context, in *GetRuleBasedRequest, opts ...grpc.CallOption) (*GetRuleBasedResponse, error)
-	// UpdateRuleBased updates an existing WAF rule based
-	UpdateRuleBased(ctx context.Context, in *UpdateRuleBasedRequest, opts ...grpc.CallOption) (*UpdateRuleBasedResponse, error)
-	// DeleteRuleBased removes a WAF rule based by ID
-	DeleteRuleBased(ctx context.Context, in *DeleteRuleBasedRequest, opts ...grpc.CallOption) (*DeleteRuleBasedResponse, error)
-	// ListRuleBaseds lists WAF rule baseds with optional filters
-	ListRuleBaseds(ctx context.Context, in *ListRuleBasedsRequest, opts ...grpc.CallOption) (*ListRuleBasedsResponse, error)
+	// CreateSecRule creates a new WAF rule based
+	CreateSecRule(ctx context.Context, in *CreateSecRuleRequest, opts ...grpc.CallOption) (*CreateSecRuleResponse, error)
+	// GetSecRule retrieves a WAF rule based by ID
+	GetSecRule(ctx context.Context, in *GetSecRuleRequest, opts ...grpc.CallOption) (*GetSecRuleResponse, error)
+	// UpdateSecRule updates an existing WAF rule based
+	UpdateSecRule(ctx context.Context, in *UpdateSecRuleRequest, opts ...grpc.CallOption) (*UpdateSecRuleResponse, error)
+	// DeleteSecRule removes a WAF rule based by ID
+	DeleteSecRule(ctx context.Context, in *DeleteSecRuleRequest, opts ...grpc.CallOption) (*DeleteSecRuleResponse, error)
+	// ListSecRules lists WAF rule baseds with optional filters
+	ListSecRules(ctx context.Context, in *ListSecRulesRequest, opts ...grpc.CallOption) (*ListSecRulesResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -69,50 +69,50 @@ func NewSecurityServiceClient(cc grpc.ClientConnInterface) SecurityServiceClient
 	return &securityServiceClient{cc}
 }
 
-func (c *securityServiceClient) CreateRuleBased(ctx context.Context, in *CreateRuleBasedRequest, opts ...grpc.CallOption) (*CreateRuleBasedResponse, error) {
+func (c *securityServiceClient) CreateSecRule(ctx context.Context, in *CreateSecRuleRequest, opts ...grpc.CallOption) (*CreateSecRuleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateRuleBasedResponse)
-	err := c.cc.Invoke(ctx, SecurityService_CreateRuleBased_FullMethodName, in, out, cOpts...)
+	out := new(CreateSecRuleResponse)
+	err := c.cc.Invoke(ctx, SecurityService_CreateSecRule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) GetRuleBased(ctx context.Context, in *GetRuleBasedRequest, opts ...grpc.CallOption) (*GetRuleBasedResponse, error) {
+func (c *securityServiceClient) GetSecRule(ctx context.Context, in *GetSecRuleRequest, opts ...grpc.CallOption) (*GetSecRuleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetRuleBasedResponse)
-	err := c.cc.Invoke(ctx, SecurityService_GetRuleBased_FullMethodName, in, out, cOpts...)
+	out := new(GetSecRuleResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetSecRule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) UpdateRuleBased(ctx context.Context, in *UpdateRuleBasedRequest, opts ...grpc.CallOption) (*UpdateRuleBasedResponse, error) {
+func (c *securityServiceClient) UpdateSecRule(ctx context.Context, in *UpdateSecRuleRequest, opts ...grpc.CallOption) (*UpdateSecRuleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateRuleBasedResponse)
-	err := c.cc.Invoke(ctx, SecurityService_UpdateRuleBased_FullMethodName, in, out, cOpts...)
+	out := new(UpdateSecRuleResponse)
+	err := c.cc.Invoke(ctx, SecurityService_UpdateSecRule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) DeleteRuleBased(ctx context.Context, in *DeleteRuleBasedRequest, opts ...grpc.CallOption) (*DeleteRuleBasedResponse, error) {
+func (c *securityServiceClient) DeleteSecRule(ctx context.Context, in *DeleteSecRuleRequest, opts ...grpc.CallOption) (*DeleteSecRuleResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRuleBasedResponse)
-	err := c.cc.Invoke(ctx, SecurityService_DeleteRuleBased_FullMethodName, in, out, cOpts...)
+	out := new(DeleteSecRuleResponse)
+	err := c.cc.Invoke(ctx, SecurityService_DeleteSecRule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *securityServiceClient) ListRuleBaseds(ctx context.Context, in *ListRuleBasedsRequest, opts ...grpc.CallOption) (*ListRuleBasedsResponse, error) {
+func (c *securityServiceClient) ListSecRules(ctx context.Context, in *ListSecRulesRequest, opts ...grpc.CallOption) (*ListSecRulesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRuleBasedsResponse)
-	err := c.cc.Invoke(ctx, SecurityService_ListRuleBaseds_FullMethodName, in, out, cOpts...)
+	out := new(ListSecRulesResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListSecRules_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,16 +135,16 @@ func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, o
 //
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 type SecurityServiceServer interface {
-	// CreateRuleBased creates a new WAF rule based
-	CreateRuleBased(context.Context, *CreateRuleBasedRequest) (*CreateRuleBasedResponse, error)
-	// GetRuleBased retrieves a WAF rule based by ID
-	GetRuleBased(context.Context, *GetRuleBasedRequest) (*GetRuleBasedResponse, error)
-	// UpdateRuleBased updates an existing WAF rule based
-	UpdateRuleBased(context.Context, *UpdateRuleBasedRequest) (*UpdateRuleBasedResponse, error)
-	// DeleteRuleBased removes a WAF rule based by ID
-	DeleteRuleBased(context.Context, *DeleteRuleBasedRequest) (*DeleteRuleBasedResponse, error)
-	// ListRuleBaseds lists WAF rule baseds with optional filters
-	ListRuleBaseds(context.Context, *ListRuleBasedsRequest) (*ListRuleBasedsResponse, error)
+	// CreateSecRule creates a new WAF rule based
+	CreateSecRule(context.Context, *CreateSecRuleRequest) (*CreateSecRuleResponse, error)
+	// GetSecRule retrieves a WAF rule based by ID
+	GetSecRule(context.Context, *GetSecRuleRequest) (*GetSecRuleResponse, error)
+	// UpdateSecRule updates an existing WAF rule based
+	UpdateSecRule(context.Context, *UpdateSecRuleRequest) (*UpdateSecRuleResponse, error)
+	// DeleteSecRule removes a WAF rule based by ID
+	DeleteSecRule(context.Context, *DeleteSecRuleRequest) (*DeleteSecRuleResponse, error)
+	// ListSecRules lists WAF rule baseds with optional filters
+	ListSecRules(context.Context, *ListSecRulesRequest) (*ListSecRulesResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -156,20 +156,20 @@ type SecurityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSecurityServiceServer struct{}
 
-func (UnimplementedSecurityServiceServer) CreateRuleBased(context.Context, *CreateRuleBasedRequest) (*CreateRuleBasedResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateRuleBased not implemented")
+func (UnimplementedSecurityServiceServer) CreateSecRule(context.Context, *CreateSecRuleRequest) (*CreateSecRuleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateSecRule not implemented")
 }
-func (UnimplementedSecurityServiceServer) GetRuleBased(context.Context, *GetRuleBasedRequest) (*GetRuleBasedResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRuleBased not implemented")
+func (UnimplementedSecurityServiceServer) GetSecRule(context.Context, *GetSecRuleRequest) (*GetSecRuleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSecRule not implemented")
 }
-func (UnimplementedSecurityServiceServer) UpdateRuleBased(context.Context, *UpdateRuleBasedRequest) (*UpdateRuleBasedResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateRuleBased not implemented")
+func (UnimplementedSecurityServiceServer) UpdateSecRule(context.Context, *UpdateSecRuleRequest) (*UpdateSecRuleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateSecRule not implemented")
 }
-func (UnimplementedSecurityServiceServer) DeleteRuleBased(context.Context, *DeleteRuleBasedRequest) (*DeleteRuleBasedResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRuleBased not implemented")
+func (UnimplementedSecurityServiceServer) DeleteSecRule(context.Context, *DeleteSecRuleRequest) (*DeleteSecRuleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSecRule not implemented")
 }
-func (UnimplementedSecurityServiceServer) ListRuleBaseds(context.Context, *ListRuleBasedsRequest) (*ListRuleBasedsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRuleBaseds not implemented")
+func (UnimplementedSecurityServiceServer) ListSecRules(context.Context, *ListSecRulesRequest) (*ListSecRulesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSecRules not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -194,92 +194,92 @@ func RegisterSecurityServiceServer(s grpc.ServiceRegistrar, srv SecurityServiceS
 	s.RegisterService(&SecurityService_ServiceDesc, srv)
 }
 
-func _SecurityService_CreateRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRuleBasedRequest)
+func _SecurityService_CreateSecRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSecRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).CreateRuleBased(ctx, in)
+		return srv.(SecurityServiceServer).CreateSecRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_CreateRuleBased_FullMethodName,
+		FullMethod: SecurityService_CreateSecRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).CreateRuleBased(ctx, req.(*CreateRuleBasedRequest))
+		return srv.(SecurityServiceServer).CreateSecRule(ctx, req.(*CreateSecRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_GetRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRuleBasedRequest)
+func _SecurityService_GetSecRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSecRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).GetRuleBased(ctx, in)
+		return srv.(SecurityServiceServer).GetSecRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_GetRuleBased_FullMethodName,
+		FullMethod: SecurityService_GetSecRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).GetRuleBased(ctx, req.(*GetRuleBasedRequest))
+		return srv.(SecurityServiceServer).GetSecRule(ctx, req.(*GetSecRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_UpdateRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRuleBasedRequest)
+func _SecurityService_UpdateSecRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSecRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).UpdateRuleBased(ctx, in)
+		return srv.(SecurityServiceServer).UpdateSecRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_UpdateRuleBased_FullMethodName,
+		FullMethod: SecurityService_UpdateSecRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).UpdateRuleBased(ctx, req.(*UpdateRuleBasedRequest))
+		return srv.(SecurityServiceServer).UpdateSecRule(ctx, req.(*UpdateSecRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_DeleteRuleBased_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRuleBasedRequest)
+func _SecurityService_DeleteSecRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSecRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).DeleteRuleBased(ctx, in)
+		return srv.(SecurityServiceServer).DeleteSecRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_DeleteRuleBased_FullMethodName,
+		FullMethod: SecurityService_DeleteSecRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).DeleteRuleBased(ctx, req.(*DeleteRuleBasedRequest))
+		return srv.(SecurityServiceServer).DeleteSecRule(ctx, req.(*DeleteSecRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityService_ListRuleBaseds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRuleBasedsRequest)
+func _SecurityService_ListSecRules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSecRulesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityServiceServer).ListRuleBaseds(ctx, in)
+		return srv.(SecurityServiceServer).ListSecRules(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityService_ListRuleBaseds_FullMethodName,
+		FullMethod: SecurityService_ListSecRules_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).ListRuleBaseds(ctx, req.(*ListRuleBasedsRequest))
+		return srv.(SecurityServiceServer).ListSecRules(ctx, req.(*ListSecRulesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -310,24 +310,24 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SecurityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateRuleBased",
-			Handler:    _SecurityService_CreateRuleBased_Handler,
+			MethodName: "CreateSecRule",
+			Handler:    _SecurityService_CreateSecRule_Handler,
 		},
 		{
-			MethodName: "GetRuleBased",
-			Handler:    _SecurityService_GetRuleBased_Handler,
+			MethodName: "GetSecRule",
+			Handler:    _SecurityService_GetSecRule_Handler,
 		},
 		{
-			MethodName: "UpdateRuleBased",
-			Handler:    _SecurityService_UpdateRuleBased_Handler,
+			MethodName: "UpdateSecRule",
+			Handler:    _SecurityService_UpdateSecRule_Handler,
 		},
 		{
-			MethodName: "DeleteRuleBased",
-			Handler:    _SecurityService_DeleteRuleBased_Handler,
+			MethodName: "DeleteSecRule",
+			Handler:    _SecurityService_DeleteSecRule_Handler,
 		},
 		{
-			MethodName: "ListRuleBaseds",
-			Handler:    _SecurityService_ListRuleBaseds_Handler,
+			MethodName: "ListSecRules",
+			Handler:    _SecurityService_ListSecRules_Handler,
 		},
 		{
 			MethodName: "Status",

@@ -123,16 +123,16 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 		return nil, err
 	}
 
-	console := typepb.Console_CONSOLE_PORTAL
+	controlPlane := typepb.ControlPlane_CONTROL_PLANE_PORTAL
 	if acc.GetUsername() == "admin" {
-		console = typepb.Console_CONSOLE_ADMIN
+		controlPlane = typepb.ControlPlane_CONTROL_PLANE_ADMIN
 	}
 
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
-		Name:     user.GetFullName(),
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-		UserId:   user.GetId(),
-		Console:  console,
+		Name:         user.GetFullName(),
+		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:       user.GetId(),
+		ControlPlane: controlPlane,
 	})
 	if err != nil {
 		return nil, err
@@ -371,9 +371,9 @@ func (srv *IAMService) createAccountWithTX(ctx context.Context,
 	}
 
 	user, err := srv.users.WithTX(txss).Create(ctx, &iampb.User{
-		FullName: req.GetFullName(),
-		Email:    req.GetEmail(),
-		Console:  typepb.Console_CONSOLE_PORTAL,
+		FullName:     req.GetFullName(),
+		Email:        req.GetEmail(),
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 	})
 	if err != nil {
 		_ = txss.Rollback(ctx)
@@ -421,19 +421,19 @@ func (srv *IAMService) loginAdmin(
 	}
 
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
-		Name:     req.GetEmailOrUsername(),
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-		UserId:   "sentinez.admin",
-		Console:  typepb.Console_CONSOLE_ADMIN,
+		Name:         req.GetEmailOrUsername(),
+		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:       "sentinez.admin",
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &iampb.LoginResponse{User: &iampb.User{
-		FullName: req.GetEmailOrUsername(),
-		Console:  typepb.Console_CONSOLE_ADMIN,
-		Id:       "sentinez.admin",
+		FullName:     req.GetEmailOrUsername(),
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+		Id:           "sentinez.admin",
 	}, AccessToken: accessToken}, nil
 }
 
@@ -463,10 +463,10 @@ func (srv *IAMService) Login(ctx context.Context,
 	}
 
 	accessToken, err := crypto.TokenGenerator(&typepb.Context{
-		Name:     user.GetFullName(),
-		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
-		UserId:   user.GetId(),
-		Console:  typepb.Console_CONSOLE_PORTAL,
+		Name:         user.GetFullName(),
+		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:       user.GetId(),
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 	})
 	if err != nil {
 		return nil, err
@@ -490,9 +490,9 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 	}
 
 	user, err := srv.users.Create(ctx, &iampb.User{
-		FullName: request.GetFullName(),
-		Email:    request.GetEmail(),
-		Console:  typepb.Console_CONSOLE_PORTAL,
+		FullName:     request.GetFullName(),
+		Email:        request.GetEmail(),
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 	})
 	if err != nil {
 		return nil, err

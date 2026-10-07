@@ -125,20 +125,20 @@ func newResource(ctx context.Context,
 }
 
 // Option customizes a logger created by NewLog or NewLogCloser.
-type Option func(*loggerOptions)
+type Option func(*loggingOptions)
 
-type loggerOptions struct {
+type loggingOptions struct {
 	provider otellog.LoggerProvider
 }
 
 // WithOTLPProvider exports this logger's records through p instead of the
 // global LoggerProvider, so it can use its own OTLP endpoint and resource.
 func WithOTLPProvider(p otellog.LoggerProvider) Option {
-	return func(o *loggerOptions) { o.provider = p }
+	return func(o *loggingOptions) { o.provider = p }
 }
 
-func newLoggerOptions(opts []Option) loggerOptions {
-	var o loggerOptions
+func newLoggingOptions(opts []Option) loggingOptions {
+	var o loggingOptions
 	for _, opt := range opts {
 		opt(&o)
 	}

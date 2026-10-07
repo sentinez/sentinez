@@ -164,7 +164,7 @@ func generateMethodRequirementGetters(g *protogen.GeneratedFile, file *protogen.
 	for _, service := range file.Services {
 		for _, method := range service.Methods {
 			xmethod := getXMethod(method)
-			if xmethod == nil || (!xmethod.Ignore && len(xmethod.Consoles) == 0) {
+			if xmethod == nil || (!xmethod.Ignore && len(xmethod.GetControlPlanes()) == 0) {
 				continue
 			}
 
@@ -185,10 +185,10 @@ func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.S
 		g.P("\t\tIgnore: true,")
 	}
 
-	if len(xmethod.Consoles) > 0 {
-		g.P("\t\tConsoles: []typepb.Console{")
-		for _, c := range xmethod.Consoles {
-			g.P(fmt.Sprintf("\t\t\ttypepb.Console_%s,", c.String()))
+	if len(xmethod.GetControlPlanes()) > 0 {
+		g.P("\t\tControlPlanes: []typepb.ControlPlane{")
+		for _, c := range xmethod.GetControlPlanes() {
+			g.P(fmt.Sprintf("\t\t\ttypepb.ControlPlane_%s,", c.String()))
 		}
 		g.P("\t\t},")
 	}

@@ -153,14 +153,14 @@ func (m *XMethod) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.Consoles) > 0 {
+	if len(m.ControlPlanes) > 0 {
 		var pksize2 int
-		for _, num := range m.Consoles {
+		for _, num := range m.ControlPlanes {
 			pksize2 += protohelpers.SizeOfVarint(uint64(num))
 		}
 		i -= pksize2
 		j1 := i
-		for _, num1 := range m.Consoles {
+		for _, num1 := range m.ControlPlanes {
 			num := uint64(num1)
 			for num >= 1<<7 {
 				dAtA[j1] = uint8(uint64(num)&0x7f | 0x80)
@@ -233,9 +233,9 @@ func (m *XMethod) SizeVT() (n int) {
 	if m.Ignore {
 		n += 2
 	}
-	if len(m.Consoles) > 0 {
+	if len(m.ControlPlanes) > 0 {
 		l = 0
-		for _, e := range m.Consoles {
+		for _, e := range m.ControlPlanes {
 			l += protohelpers.SizeOfVarint(uint64(e))
 		}
 		n += 1 + protohelpers.SizeOfVarint(uint64(l)) + l
@@ -520,7 +520,7 @@ func (m *XMethod) UnmarshalVT(dAtA []byte) error {
 			m.Ignore = bool(v != 0)
 		case 2:
 			if wireType == 0 {
-				var v Console
+				var v ControlPlane
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protohelpers.ErrIntOverflow
@@ -530,12 +530,12 @@ func (m *XMethod) UnmarshalVT(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= Console(b&0x7F) << shift
+					v |= ControlPlane(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
-				m.Consoles = append(m.Consoles, v)
+				m.ControlPlanes = append(m.ControlPlanes, v)
 			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
@@ -563,11 +563,11 @@ func (m *XMethod) UnmarshalVT(dAtA []byte) error {
 					return io.ErrUnexpectedEOF
 				}
 				var elementCount int
-				if elementCount != 0 && len(m.Consoles) == 0 {
-					m.Consoles = make([]Console, 0, elementCount)
+				if elementCount != 0 && len(m.ControlPlanes) == 0 {
+					m.ControlPlanes = make([]ControlPlane, 0, elementCount)
 				}
 				for iNdEx < postIndex {
-					var v Console
+					var v ControlPlane
 					for shift := uint(0); ; shift += 7 {
 						if shift >= 64 {
 							return protohelpers.ErrIntOverflow
@@ -577,15 +577,15 @@ func (m *XMethod) UnmarshalVT(dAtA []byte) error {
 						}
 						b := dAtA[iNdEx]
 						iNdEx++
-						v |= Console(b&0x7F) << shift
+						v |= ControlPlane(b&0x7F) << shift
 						if b < 0x80 {
 							break
 						}
 					}
-					m.Consoles = append(m.Consoles, v)
+					m.ControlPlanes = append(m.ControlPlanes, v)
 				}
 			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Consoles", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ControlPlanes", wireType)
 			}
 		default:
 			iNdEx = preIndex

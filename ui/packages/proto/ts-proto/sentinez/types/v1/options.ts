@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Console, consoleFromJSON, consoleToJSON, Zone, zoneFromJSON, zoneToJSON } from "./known";
+import { ControlPlane, controlPlaneFromJSON, controlPlaneToJSON, Zone, zoneFromJSON, zoneToJSON } from "./known";
 
 export const protobufPackage = "sentinez.types.v1";
 
@@ -23,7 +23,7 @@ export interface XMessage {
 
 export interface XMethod {
   ignore: boolean;
-  consoles: Console[];
+  controlPlanes: ControlPlane[];
 }
 
 function createBaseXMeta(): XMeta {
@@ -233,7 +233,7 @@ export const XMessage: MessageFns<XMessage> = {
 };
 
 function createBaseXMethod(): XMethod {
-  return { ignore: false, consoles: [] };
+  return { ignore: false, controlPlanes: [] };
 }
 
 export const XMethod: MessageFns<XMethod> = {
@@ -242,7 +242,7 @@ export const XMethod: MessageFns<XMethod> = {
       writer.uint32(8).bool(message.ignore);
     }
     writer.uint32(18).fork();
-    for (const v of message.consoles) {
+    for (const v of message.controlPlanes) {
       writer.int32(v);
     }
     writer.join();
@@ -272,7 +272,7 @@ export const XMethod: MessageFns<XMethod> = {
           }
           case 2: {
             if (tag === 16) {
-              message.consoles.push(reader.int32() as any);
+              message.controlPlanes.push(reader.int32() as any);
 
               continue;
             }
@@ -280,7 +280,7 @@ export const XMethod: MessageFns<XMethod> = {
             if (tag === 18) {
               const end2 = reader.uint32() + reader.pos;
               while (reader.pos < end2) {
-                message.consoles.push(reader.int32() as any);
+                message.controlPlanes.push(reader.int32() as any);
               }
 
               continue;
@@ -303,7 +303,11 @@ export const XMethod: MessageFns<XMethod> = {
   fromJSON(object: any): XMethod {
     return {
       ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
-      consoles: globalThis.Array.isArray(object?.consoles) ? object.consoles.map((e: any) => consoleFromJSON(e)) : [],
+      controlPlanes: globalThis.Array.isArray(object?.controlPlanes)
+        ? object.controlPlanes.map((e: any) => controlPlaneFromJSON(e))
+        : globalThis.Array.isArray(object?.control_planes)
+        ? object.control_planes.map((e: any) => controlPlaneFromJSON(e))
+        : [],
     };
   },
 
@@ -312,8 +316,8 @@ export const XMethod: MessageFns<XMethod> = {
     if (message.ignore !== false) {
       obj.ignore = message.ignore;
     }
-    if (message.consoles?.length) {
-      obj.consoles = message.consoles.map((e) => consoleToJSON(e));
+    if (message.controlPlanes?.length) {
+      obj.controlPlanes = message.controlPlanes.map((e) => controlPlaneToJSON(e));
     }
     return obj;
   },
@@ -324,7 +328,7 @@ export const XMethod: MessageFns<XMethod> = {
   fromPartial<I extends Exact<DeepPartial<XMethod>, I>>(object: I): XMethod {
     const message = createBaseXMethod();
     message.ignore = object.ignore ?? false;
-    message.consoles = object.consoles?.map((e) => e) || [];
+    message.controlPlanes = object.controlPlanes?.map((e) => e) || [];
     return message;
   },
 };

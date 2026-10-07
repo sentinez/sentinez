@@ -20,7 +20,7 @@ import (
 	corehttpreq "github.com/sentinez/core/http/request"
 	corerules "github.com/sentinez/core/rules"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
 var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)

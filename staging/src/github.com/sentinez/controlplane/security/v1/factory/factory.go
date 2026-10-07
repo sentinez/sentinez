@@ -18,7 +18,7 @@ import (
 	"context"
 
 	securityhdl "github.com/sentinez/controlplane/security/v1/handler"
-	"github.com/sentinez/controlplane/security/v1/repos/rulebased"
+	"github.com/sentinez/controlplane/security/v1/repos/secrule"
 	securitysvc "github.com/sentinez/controlplane/security/v1/service"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -38,10 +38,10 @@ func NewDefaultService(ctx context.Context,
 	appConf *settingpb.Config,
 ) *securitysvc.SecurityService {
 
-	ruleBasedRepo, err := rulebased.New(ctx, appConf)
+	secRuleRepo, err := secrule.New(ctx, appConf)
 	if err != nil {
-		zlog.Fatalf("failed to init rulebased repo: %v", err)
+		zlog.Fatalf("failed to init secrule repo: %v", err)
 	}
 
-	return securitysvc.New(appConf, ruleBasedRepo)
+	return securitysvc.New(appConf, secRuleRepo)
 }

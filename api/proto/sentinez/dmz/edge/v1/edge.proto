@@ -16,9 +16,9 @@ syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
 
-import "sentinez/security/rule/v1/engine.proto";
+import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/options.proto";
-import "sentinez/network/http/v1/http.proto";
+import "sentinez/types/net/http/v1/http.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 option (sentinez.types.v1.x_meta) = {
@@ -40,13 +40,13 @@ message StatusResponse {
 
 message EvaluateRulesetRequest {
   string ruleset_id = 1;
-  sentinez.network.http.v1.Request request_context = 2;
+  sentinez.types.net.http.v1.Request request_context = 2;
 }
 
 message EvaluationResult {
   string rule_id = 1;
   bool matched = 2;
-  repeated sentinez.security.rule.v1.Action actions = 3;
+  repeated sentinez.types.rule.v1.Action actions = 3;
 }
 
 message EvaluateRulesetResponse {

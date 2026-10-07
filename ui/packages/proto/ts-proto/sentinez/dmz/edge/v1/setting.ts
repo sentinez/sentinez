@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { RuleIngress, RuleIngressLite } from "../../../security/rule/v1/engine";
-import { CDN } from "../cdn/v1/rule";
+import { CDN } from "../../../types/cdn/v1/rule";
+import { SecRule as SecRule1, SecRuleLite } from "../../../types/secrule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 
@@ -140,7 +140,7 @@ export interface Security {
   /** @gotags: yaml:"rulesets" */
   rulesets: Rulesets[];
   /** @gotags: yaml:"rules" */
-  rules: RuleBased[];
+  secRules: SecRule[];
   /** @gotags: yaml:"limiters" */
   limiters: RateLimit[];
 }
@@ -148,23 +148,23 @@ export interface Security {
 export interface Rulesets {
 }
 
-export interface RuleBased {
+export interface SecRule {
   /** @gotags: yaml:"ingress" */
   ingress?:
-    | RuleIngressLite
+    | SecRuleLite
     | undefined;
   /** @gotags: yaml:"-" */
-  ingressRuntime?: RuleIngress | undefined;
+  ingressRuntime?: SecRule1 | undefined;
 }
 
 export interface RateLimit {
   /** @gotags: yaml:"ingress" */
   ingress?:
-    | RuleIngressLite
+    | SecRuleLite
     | undefined;
   /** @gotags: yaml:"-" */
   ingressRuntime?:
-    | RuleIngress
+    | SecRule1
     | undefined;
   /** @gotags: yaml:"timeWindow" */
   timeWindow: string;
@@ -749,7 +749,7 @@ export const Location_ProxySetHeadersEntry: MessageFns<Location_ProxySetHeadersE
 };
 
 function createBaseSecurity(): Security {
-  return { rulesets: [], rules: [], limiters: [] };
+  return { rulesets: [], secRules: [], limiters: [] };
 }
 
 export const Security: MessageFns<Security> = {
@@ -757,8 +757,8 @@ export const Security: MessageFns<Security> = {
     for (const v of message.rulesets) {
       Rulesets.encode(v!, writer.uint32(10).fork()).join();
     }
-    for (const v of message.rules) {
-      RuleBased.encode(v!, writer.uint32(18).fork()).join();
+    for (const v of message.secRules) {
+      SecRule.encode(v!, writer.uint32(18).fork()).join();
     }
     for (const v of message.limiters) {
       RateLimit.encode(v!, writer.uint32(26).fork()).join();
@@ -792,7 +792,7 @@ export const Security: MessageFns<Security> = {
               break;
             }
 
-            message.rules.push(RuleBased.decode(reader, reader.uint32()));
+            message.secRules.push(SecRule.decode(reader, reader.uint32()));
             continue;
           }
           case 3: {
@@ -818,7 +818,11 @@ export const Security: MessageFns<Security> = {
   fromJSON(object: any): Security {
     return {
       rulesets: globalThis.Array.isArray(object?.rulesets) ? object.rulesets.map((e: any) => Rulesets.fromJSON(e)) : [],
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleBased.fromJSON(e)) : [],
+      secRules: globalThis.Array.isArray(object?.secRules)
+        ? object.secRules.map((e: any) => SecRule.fromJSON(e))
+        : globalThis.Array.isArray(object?.sec_rules)
+        ? object.sec_rules.map((e: any) => SecRule.fromJSON(e))
+        : [],
       limiters: globalThis.Array.isArray(object?.limiters)
         ? object.limiters.map((e: any) => RateLimit.fromJSON(e))
         : [],
@@ -830,8 +834,8 @@ export const Security: MessageFns<Security> = {
     if (message.rulesets?.length) {
       obj.rulesets = message.rulesets.map((e) => Rulesets.toJSON(e));
     }
-    if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => RuleBased.toJSON(e));
+    if (message.secRules?.length) {
+      obj.secRules = message.secRules.map((e) => SecRule.toJSON(e));
     }
     if (message.limiters?.length) {
       obj.limiters = message.limiters.map((e) => RateLimit.toJSON(e));
@@ -845,7 +849,7 @@ export const Security: MessageFns<Security> = {
   fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
     message.rulesets = object.rulesets?.map((e) => Rulesets.fromPartial(e)) || [];
-    message.rules = object.rules?.map((e) => RuleBased.fromPartial(e)) || [];
+    message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
     message.limiters = object.limiters?.map((e) => RateLimit.fromPartial(e)) || [];
     return message;
   },
@@ -903,22 +907,22 @@ export const Rulesets: MessageFns<Rulesets> = {
   },
 };
 
-function createBaseRuleBased(): RuleBased {
+function createBaseSecRule(): SecRule {
   return { ingress: undefined, ingressRuntime: undefined };
 }
 
-export const RuleBased: MessageFns<RuleBased> = {
-  encode(message: RuleBased, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRule: MessageFns<SecRule> = {
+  encode(message: SecRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ingress !== undefined) {
-      RuleIngressLite.encode(message.ingress, writer.uint32(10).fork()).join();
+      SecRuleLite.encode(message.ingress, writer.uint32(10).fork()).join();
     }
     if (message.ingressRuntime !== undefined) {
-      RuleIngress.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
+      SecRule1.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleBased {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRule {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -927,7 +931,7 @@ export const RuleBased: MessageFns<RuleBased> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRuleBased();
+      const message = createBaseSecRule();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -936,7 +940,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
+            message.ingress = SecRuleLite.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -944,7 +948,7 @@ export const RuleBased: MessageFns<RuleBased> = {
               break;
             }
 
-            message.ingressRuntime = RuleIngress.decode(reader, reader.uint32());
+            message.ingressRuntime = SecRule1.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -959,38 +963,38 @@ export const RuleBased: MessageFns<RuleBased> = {
     }
   },
 
-  fromJSON(object: any): RuleBased {
+  fromJSON(object: any): SecRule {
     return {
-      ingress: isSet(object.ingress) ? RuleIngressLite.fromJSON(object.ingress) : undefined,
+      ingress: isSet(object.ingress) ? SecRuleLite.fromJSON(object.ingress) : undefined,
       ingressRuntime: isSet(object.ingressRuntime)
-        ? RuleIngress.fromJSON(object.ingressRuntime)
+        ? SecRule1.fromJSON(object.ingressRuntime)
         : isSet(object.ingress_runtime)
-        ? RuleIngress.fromJSON(object.ingress_runtime)
+        ? SecRule1.fromJSON(object.ingress_runtime)
         : undefined,
     };
   },
 
-  toJSON(message: RuleBased): unknown {
+  toJSON(message: SecRule): unknown {
     const obj: any = {};
     if (message.ingress !== undefined) {
-      obj.ingress = RuleIngressLite.toJSON(message.ingress);
+      obj.ingress = SecRuleLite.toJSON(message.ingress);
     }
     if (message.ingressRuntime !== undefined) {
-      obj.ingressRuntime = RuleIngress.toJSON(message.ingressRuntime);
+      obj.ingressRuntime = SecRule1.toJSON(message.ingressRuntime);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleBased>, I>>(base?: I): RuleBased {
-    return RuleBased.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRule>, I>>(base?: I): SecRule {
+    return SecRule.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleBased>, I>>(object: I): RuleBased {
-    const message = createBaseRuleBased();
+  fromPartial<I extends Exact<DeepPartial<SecRule>, I>>(object: I): SecRule {
+    const message = createBaseSecRule();
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? RuleIngressLite.fromPartial(object.ingress)
+      ? SecRuleLite.fromPartial(object.ingress)
       : undefined;
     message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
-      ? RuleIngress.fromPartial(object.ingressRuntime)
+      ? SecRule1.fromPartial(object.ingressRuntime)
       : undefined;
     return message;
   },
@@ -1003,10 +1007,10 @@ function createBaseRateLimit(): RateLimit {
 export const RateLimit: MessageFns<RateLimit> = {
   encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ingress !== undefined) {
-      RuleIngressLite.encode(message.ingress, writer.uint32(10).fork()).join();
+      SecRuleLite.encode(message.ingress, writer.uint32(10).fork()).join();
     }
     if (message.ingressRuntime !== undefined) {
-      RuleIngress.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
+      SecRule1.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
     }
     if (message.timeWindow !== "") {
       writer.uint32(90).string(message.timeWindow);
@@ -1038,7 +1042,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.ingress = RuleIngressLite.decode(reader, reader.uint32());
+            message.ingress = SecRuleLite.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -1046,7 +1050,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.ingressRuntime = RuleIngress.decode(reader, reader.uint32());
+            message.ingressRuntime = SecRule1.decode(reader, reader.uint32());
             continue;
           }
           case 11: {
@@ -1087,11 +1091,11 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   fromJSON(object: any): RateLimit {
     return {
-      ingress: isSet(object.ingress) ? RuleIngressLite.fromJSON(object.ingress) : undefined,
+      ingress: isSet(object.ingress) ? SecRuleLite.fromJSON(object.ingress) : undefined,
       ingressRuntime: isSet(object.ingressRuntime)
-        ? RuleIngress.fromJSON(object.ingressRuntime)
+        ? SecRule1.fromJSON(object.ingressRuntime)
         : isSet(object.ingress_runtime)
-        ? RuleIngress.fromJSON(object.ingress_runtime)
+        ? SecRule1.fromJSON(object.ingress_runtime)
         : undefined,
       timeWindow: isSet(object.timeWindow)
         ? globalThis.String(object.timeWindow)
@@ -1106,10 +1110,10 @@ export const RateLimit: MessageFns<RateLimit> = {
   toJSON(message: RateLimit): unknown {
     const obj: any = {};
     if (message.ingress !== undefined) {
-      obj.ingress = RuleIngressLite.toJSON(message.ingress);
+      obj.ingress = SecRuleLite.toJSON(message.ingress);
     }
     if (message.ingressRuntime !== undefined) {
-      obj.ingressRuntime = RuleIngress.toJSON(message.ingressRuntime);
+      obj.ingressRuntime = SecRule1.toJSON(message.ingressRuntime);
     }
     if (message.timeWindow !== "") {
       obj.timeWindow = message.timeWindow;
@@ -1129,10 +1133,10 @@ export const RateLimit: MessageFns<RateLimit> = {
   fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
     const message = createBaseRateLimit();
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? RuleIngressLite.fromPartial(object.ingress)
+      ? SecRuleLite.fromPartial(object.ingress)
       : undefined;
     message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
-      ? RuleIngress.fromPartial(object.ingressRuntime)
+      ? SecRule1.fromPartial(object.ingressRuntime)
       : undefined;
     message.timeWindow = object.timeWindow ?? "";
     message.limit = object.limit ?? 0;

@@ -67,9 +67,9 @@ func BenchmarkStandardConverter(b *testing.B) {
 	begin.
 		SetNext(room.NewRoom(zlog.LevelError, nil)).
 		SetNext(static.NewStatic(zlog.LevelError, nil)).
-		SetNext(logging.NewLogger(zlog.LevelError, nil)).
+		SetNext(logging.NewLogging(zlog.LevelError, nil)).
 		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
-		SetNext(secure.NewRuleBased(zlog.LevelError, nil)).
+		SetNext(secure.NewSecRule(zlog.LevelError, nil)).
 		SetNext(secure.NewWAF(zlog.LevelError, nil)).
 		SetNext(routing.NewMockRouter())
 
@@ -100,9 +100,9 @@ func TestHandleChain(t *testing.T) {
 	begin.
 		SetNext(room.NewRoom(zlog.LevelError, nil)).
 		SetNext(static.NewStatic(zlog.LevelError, nil)).
-		SetNext(logging.NewLogger(zlog.LevelError, nil)).
+		SetNext(logging.NewLogging(zlog.LevelError, nil)).
 		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
-		SetNext(secure.NewRuleBased(zlog.LevelError, nil)).
+		SetNext(secure.NewSecRule(zlog.LevelError, nil)).
 		SetNext(secure.NewWAF(zlog.LevelError, nil)).
 		SetNext(routing.NewMockRouter())
 

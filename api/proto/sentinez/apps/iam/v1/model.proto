@@ -88,5 +88,5 @@ message User {
   string full_name = 10 [(buf.validate.field).required = true];
   string email = 11 [(buf.validate.field).string.email = true];
 
-  sentinez.types.v1.Console console = 13;
+  sentinez.types.v1.ControlPlane control_plane = 13;
 }

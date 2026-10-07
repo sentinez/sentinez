@@ -22,8 +22,9 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corehttpreq "github.com/sentinez/core/http/request"
-	httppb "github.com/sentinez/sentinez/api/proto/sentinez/network/http/v1"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/security/rule/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -183,8 +184,8 @@ func TestRuleClientIPRangeNotEQ(t *testing.T) {
 
 // nolint
 func TestChain(t *testing.T) {
-	// Directly build RuleIngress using newRule helper
-	rg := &rulepb.RuleIngress{
+	// Directly build SecRule using newRule helper
+	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -214,12 +215,12 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		rg     *rulepb.RuleIngress
+		rg     *secrulepb.SecRule
 		expect bool
 	}{
 		{
 			name: "AND: path, method, ip all match",
-			rg: &rulepb.RuleIngress{
+			rg: &secrulepb.SecRule{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -236,7 +237,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		},
 		{
 			name: "OR: host mismatch but IP match",
-			rg: &rulepb.RuleIngress{
+			rg: &secrulepb.SecRule{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -257,7 +258,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NESTED: A AND (B OR C)",
 			// A (IP match), B (Path mismatch), C (Method match) -> True
-			rg: &rulepb.RuleIngress{
+			rg: &secrulepb.SecRule{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -285,7 +286,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 		{
 			name: "NOT: NOT (Method GET)",
 			// Method is POST -> NOT (POST == GET) -> NOT (false) -> True
-			rg: &rulepb.RuleIngress{
+			rg: &secrulepb.SecRule{
 				Expr: &rulepb.Expression{
 					OrCondition: []*rulepb.AndCondition{
 						{
@@ -381,10 +382,10 @@ func BenchmarkEvalRule(b *testing.B) {
 }
 
 // nolint
-func BenchmarkEvalRuleIngress_Simple(b *testing.B) {
+func BenchmarkEvalSecRule_Simple(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleIngress{
+	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -410,10 +411,10 @@ func BenchmarkEvalRuleIngress_Simple(b *testing.B) {
 }
 
 // nolint
-func BenchmarkEvalRuleIngress_Complex(b *testing.B) {
+func BenchmarkEvalSecRule_Complex(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleIngress{
+	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{
@@ -453,10 +454,10 @@ func BenchmarkEvalRuleIngress_Complex(b *testing.B) {
 }
 
 // nolint
-func BenchmarkEvalRuleIngress_Complex_Parallel(b *testing.B) {
+func BenchmarkEvalSecRule_Complex_Parallel(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelFatal)
 
-	rg := &rulepb.RuleIngress{
+	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
 			OrCondition: []*rulepb.AndCondition{
 				{

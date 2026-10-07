@@ -20,15 +20,15 @@
     "application/json"
   ],
   "paths": {
-    "/security/rulebased": {
+    "/security/secrule": {
       "post": {
-        "summary": "CreateRuleBased creates a new WAF rule based",
-        "operationId": "SecurityService_CreateRuleBased",
+        "summary": "CreateSecRule creates a new WAF rule based",
+        "operationId": "SecurityService_CreateSecRule",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleBasedResponse"
+              "$ref": "#/definitions/v1CreateSecRuleResponse"
             }
           },
           "default": {
@@ -44,7 +44,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateRuleBasedRequest"
+              "$ref": "#/definitions/v1CreateSecRuleRequest"
             }
           }
         ],
@@ -53,15 +53,15 @@
         ]
       }
     },
-    "/security/rulebased/{id}": {
+    "/security/secrule/{id}": {
       "get": {
-        "summary": "GetRuleBased retrieves a WAF rule based by ID",
-        "operationId": "SecurityService_GetRuleBased",
+        "summary": "GetSecRule retrieves a WAF rule based by ID",
+        "operationId": "SecurityService_GetSecRule",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetRuleBasedResponse"
+              "$ref": "#/definitions/v1GetSecRuleResponse"
             }
           },
           "default": {
@@ -84,13 +84,13 @@
         ]
       },
       "delete": {
-        "summary": "DeleteRuleBased removes a WAF rule based by ID",
-        "operationId": "SecurityService_DeleteRuleBased",
+        "summary": "DeleteSecRule removes a WAF rule based by ID",
+        "operationId": "SecurityService_DeleteSecRule",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1DeleteRuleBasedResponse"
+              "$ref": "#/definitions/v1DeleteSecRuleResponse"
             }
           },
           "default": {
@@ -113,13 +113,13 @@
         ]
       },
       "put": {
-        "summary": "UpdateRuleBased updates an existing WAF rule based",
-        "operationId": "SecurityService_UpdateRuleBased",
+        "summary": "UpdateSecRule updates an existing WAF rule based",
+        "operationId": "SecurityService_UpdateSecRule",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1UpdateRuleBasedResponse"
+              "$ref": "#/definitions/v1UpdateSecRuleResponse"
             }
           },
           "default": {
@@ -141,7 +141,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SecurityServiceUpdateRuleBasedBody"
+              "$ref": "#/definitions/SecurityServiceUpdateSecRuleBody"
             }
           }
         ],
@@ -150,15 +150,15 @@
         ]
       }
     },
-    "/security/rulebaseds": {
+    "/security/secrules": {
       "get": {
-        "summary": "ListRuleBaseds lists WAF rule baseds with optional filters",
-        "operationId": "SecurityService_ListRuleBaseds",
+        "summary": "ListSecRules lists WAF rule baseds with optional filters",
+        "operationId": "SecurityService_ListSecRules",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListRuleBasedsResponse"
+              "$ref": "#/definitions/v1ListSecRulesResponse"
             }
           },
           "default": {
@@ -230,11 +230,11 @@
     }
   },
   "definitions": {
-    "SecurityServiceUpdateRuleBasedBody": {
+    "SecurityServiceUpdateSecRuleBody": {
       "type": "object",
       "properties": {
-        "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+        "secRule": {
+          "$ref": "#/definitions/v1SecRule"
         },
         "updateMask": {
           "type": "string"
@@ -363,15 +363,15 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CreateRuleBasedRequest": {
+    "v1CreateSecRuleRequest": {
       "type": "object",
       "properties": {
-        "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+        "secRule": {
+          "$ref": "#/definitions/v1SecRule"
         }
       }
     },
-    "v1CreateRuleBasedResponse": {
+    "v1CreateSecRuleResponse": {
       "type": "object",
       "properties": {
         "id": {
@@ -379,7 +379,7 @@
         }
       }
     },
-    "v1DeleteRuleBasedResponse": {
+    "v1DeleteSecRuleResponse": {
       "type": "object"
     },
     "v1Expression": {
@@ -411,22 +411,22 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
-    "v1GetRuleBasedResponse": {
+    "v1GetSecRuleResponse": {
       "type": "object",
       "properties": {
-        "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+        "secRule": {
+          "$ref": "#/definitions/v1SecRule"
         }
       }
     },
-    "v1ListRuleBasedsResponse": {
+    "v1ListSecRulesResponse": {
       "type": "object",
       "properties": {
-        "ruleBaseds": {
+        "secRules": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleBased"
+            "$ref": "#/definitions/v1SecRule"
           }
         },
         "total": {
@@ -483,7 +483,7 @@
         }
       }
     },
-    "v1RuleBased": {
+    "v1SecRule": {
       "type": "object",
       "properties": {
         "metadata": {
@@ -524,11 +524,11 @@
         }
       }
     },
-    "v1UpdateRuleBasedResponse": {
+    "v1UpdateSecRuleResponse": {
       "type": "object",
       "properties": {
-        "ruleBased": {
-          "$ref": "#/definitions/v1RuleBased"
+        "secRule": {
+          "$ref": "#/definitions/v1SecRule"
         }
       }
     }

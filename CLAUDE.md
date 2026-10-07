@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Sentinéz is a Go security platform (WAF / edge proxy with OWASP CRS rule-based filtering, rate limiting, and a web console). Requires Go 1.27+, Node 20.9+, protobuf/buf, make. The repo is mirrored to GitLab (`ci_sync_repo.yaml`).
+Sentinéz is a Go security platform (WAF / edge proxy with OWASP CRS rule-based filtering, rate limiting, and a web console). Requires Go 1.27+, Node 26+, protobuf/buf, make. The repo is mirrored to GitLab (`ci_sync_repo.yaml`).
 
 ## Layout
 
@@ -11,7 +11,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
 | `internal/` | Root-module private code: `dmz` (edge/dataplane), `cluster`, `bpf`, `memory`, `defaults` |
 | `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
-| `api/` | Separate module (`sentinez/api`): protobuf sources (`proto/sentinez/{apps,edge,gateway,network,security,types}`), `buf.gen.yaml`, generated clients, third_party |
+| `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps` (domain services), `dmz/{edge,dataplane}`, `gateway/{apiserver,realtime}`, `net` (network layer: `v1` conn, `http/v1`), `sec` (security: `rule`, `coreruleset`), `types`, `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework: `runner`, `http`, `grpc`, `limiter`, `modsec` (Coraza), `rules`, `rulesets`, `storage`, `context` |
 | ↳ `shared` | Utility libs: `zlog` (zap + OTLP), `config`, `errorx`, `eventq`, `store`, `topic`, `jsonx`, `perms`, `cron`, etc. |
@@ -24,7 +24,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 
-Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
+Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. WAF rules are called `SecRule` (proto `security.v1.SecRule`, REST `/security/secrule(s)`, console route `security/sec-rule`, Go packages `secrule`/`secrules`); the old `RuleBased` name is retired. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
 
 ## Commands
 

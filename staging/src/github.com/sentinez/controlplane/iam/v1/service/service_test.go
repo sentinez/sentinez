@@ -95,5 +95,6 @@ func TestLogin(t *testing.T) {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}
 
-	assert.True(t, tokenCtx.GetConsole() == typepb.Console_CONSOLE_ADMIN)
+	assert.True(t,
+		tokenCtx.GetControlPlane() == typepb.ControlPlane_CONTROL_PLANE_ADMIN)
 }

@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Request } from "../../../network/http/v1/http";
-import { Transport } from "../../../network/v1/conn";
+import { Request } from "../../../types/net/http/v1/http";
+import { Transport } from "../../../types/net/v1/conn";
 import { Metadata } from "./setting";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
@@ -22,8 +22,8 @@ export interface Context {
 
 export interface ContextExtra {
   namespace: string;
-  ruleBasedMatchedIds: string[];
-  ruleBasedMatchedNames: string[];
+  secRuleMatchedIds: string[];
+  secRuleMatchedNames: string[];
   rulesetsMatchedIds: string[];
   rulesetsMatchedNames: string[];
   rulesetsMatchedSeverity: string[];
@@ -155,8 +155,8 @@ export const Context: MessageFns<Context> = {
 function createBaseContextExtra(): ContextExtra {
   return {
     namespace: "",
-    ruleBasedMatchedIds: [],
-    ruleBasedMatchedNames: [],
+    secRuleMatchedIds: [],
+    secRuleMatchedNames: [],
     rulesetsMatchedIds: [],
     rulesetsMatchedNames: [],
     rulesetsMatchedSeverity: [],
@@ -168,10 +168,10 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.namespace !== "") {
       writer.uint32(10).string(message.namespace);
     }
-    for (const v of message.ruleBasedMatchedIds) {
+    for (const v of message.secRuleMatchedIds) {
       writer.uint32(82).string(v!);
     }
-    for (const v of message.ruleBasedMatchedNames) {
+    for (const v of message.secRuleMatchedNames) {
       writer.uint32(90).string(v!);
     }
     for (const v of message.rulesetsMatchedIds) {
@@ -212,7 +212,7 @@ export const ContextExtra: MessageFns<ContextExtra> = {
               break;
             }
 
-            message.ruleBasedMatchedIds.push(reader.string());
+            message.secRuleMatchedIds.push(reader.string());
             continue;
           }
           case 11: {
@@ -220,7 +220,7 @@ export const ContextExtra: MessageFns<ContextExtra> = {
               break;
             }
 
-            message.ruleBasedMatchedNames.push(reader.string());
+            message.secRuleMatchedNames.push(reader.string());
             continue;
           }
           case 12: {
@@ -262,15 +262,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
   fromJSON(object: any): ContextExtra {
     return {
       namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
-      ruleBasedMatchedIds: globalThis.Array.isArray(object?.ruleBasedMatchedIds)
-        ? object.ruleBasedMatchedIds.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.rule_based_matched_ids)
-        ? object.rule_based_matched_ids.map((e: any) => globalThis.String(e))
+      secRuleMatchedIds: globalThis.Array.isArray(object?.secRuleMatchedIds)
+        ? object.secRuleMatchedIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.sec_rule_matched_ids)
+        ? object.sec_rule_matched_ids.map((e: any) => globalThis.String(e))
         : [],
-      ruleBasedMatchedNames: globalThis.Array.isArray(object?.ruleBasedMatchedNames)
-        ? object.ruleBasedMatchedNames.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.rule_based_matched_names)
-        ? object.rule_based_matched_names.map((e: any) => globalThis.String(e))
+      secRuleMatchedNames: globalThis.Array.isArray(object?.secRuleMatchedNames)
+        ? object.secRuleMatchedNames.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.sec_rule_matched_names)
+        ? object.sec_rule_matched_names.map((e: any) => globalThis.String(e))
         : [],
       rulesetsMatchedIds: globalThis.Array.isArray(object?.rulesetsMatchedIds)
         ? object.rulesetsMatchedIds.map((e: any) => globalThis.String(e))
@@ -295,11 +295,11 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.namespace !== "") {
       obj.namespace = message.namespace;
     }
-    if (message.ruleBasedMatchedIds?.length) {
-      obj.ruleBasedMatchedIds = message.ruleBasedMatchedIds;
+    if (message.secRuleMatchedIds?.length) {
+      obj.secRuleMatchedIds = message.secRuleMatchedIds;
     }
-    if (message.ruleBasedMatchedNames?.length) {
-      obj.ruleBasedMatchedNames = message.ruleBasedMatchedNames;
+    if (message.secRuleMatchedNames?.length) {
+      obj.secRuleMatchedNames = message.secRuleMatchedNames;
     }
     if (message.rulesetsMatchedIds?.length) {
       obj.rulesetsMatchedIds = message.rulesetsMatchedIds;
@@ -319,8 +319,8 @@ export const ContextExtra: MessageFns<ContextExtra> = {
   fromPartial<I extends Exact<DeepPartial<ContextExtra>, I>>(object: I): ContextExtra {
     const message = createBaseContextExtra();
     message.namespace = object.namespace ?? "";
-    message.ruleBasedMatchedIds = object.ruleBasedMatchedIds?.map((e) => e) || [];
-    message.ruleBasedMatchedNames = object.ruleBasedMatchedNames?.map((e) => e) || [];
+    message.secRuleMatchedIds = object.secRuleMatchedIds?.map((e) => e) || [];
+    message.secRuleMatchedNames = object.secRuleMatchedNames?.map((e) => e) || [];
     message.rulesetsMatchedIds = object.rulesetsMatchedIds?.map((e) => e) || [];
     message.rulesetsMatchedNames = object.rulesetsMatchedNames?.map((e) => e) || [];
     message.rulesetsMatchedSeverity = object.rulesetsMatchedSeverity?.map((e) => e) || [];
