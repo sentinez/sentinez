@@ -139,7 +139,7 @@ export interface Location_ProxySetHeadersEntry {
 export interface Security {
   /** @gotags: yaml:"rulesets" */
   rulesets: Rulesets[];
-  /** @gotags: yaml:"rules" */
+  /** @gotags: yaml:"sec_rules" */
   secRules: SecRule[];
   /** @gotags: yaml:"limiters" */
   limiters: RateLimit[];
@@ -168,8 +168,8 @@ export interface RateLimit {
     | undefined;
   /** @gotags: yaml:"timeWindow" */
   timeWindow: string;
-  /** @gotags: yaml:"limit" */
-  limit: number;
+  /** @gotags: yaml:"maxRequests" */
+  maxRequests: number;
   /** @gotags: yaml:"timeout" */
   timeout: string;
 }
@@ -1001,7 +1001,7 @@ export const SecRule: MessageFns<SecRule> = {
 };
 
 function createBaseRateLimit(): RateLimit {
-  return { ingress: undefined, ingressRuntime: undefined, timeWindow: "", limit: 0, timeout: "" };
+  return { ingress: undefined, ingressRuntime: undefined, timeWindow: "", maxRequests: 0, timeout: "" };
 }
 
 export const RateLimit: MessageFns<RateLimit> = {
@@ -1015,8 +1015,8 @@ export const RateLimit: MessageFns<RateLimit> = {
     if (message.timeWindow !== "") {
       writer.uint32(90).string(message.timeWindow);
     }
-    if (message.limit !== 0) {
-      writer.uint32(96).int64(message.limit);
+    if (message.maxRequests !== 0) {
+      writer.uint32(96).int64(message.maxRequests);
     }
     if (message.timeout !== "") {
       writer.uint32(106).string(message.timeout);
@@ -1066,7 +1066,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.limit = longToNumber(reader.int64());
+            message.maxRequests = longToNumber(reader.int64());
             continue;
           }
           case 13: {
@@ -1102,7 +1102,11 @@ export const RateLimit: MessageFns<RateLimit> = {
         : isSet(object.time_window)
         ? globalThis.String(object.time_window)
         : "",
-      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      maxRequests: isSet(object.maxRequests)
+        ? globalThis.Number(object.maxRequests)
+        : isSet(object.max_requests)
+        ? globalThis.Number(object.max_requests)
+        : 0,
       timeout: isSet(object.timeout) ? globalThis.String(object.timeout) : "",
     };
   },
@@ -1118,8 +1122,8 @@ export const RateLimit: MessageFns<RateLimit> = {
     if (message.timeWindow !== "") {
       obj.timeWindow = message.timeWindow;
     }
-    if (message.limit !== 0) {
-      obj.limit = Math.round(message.limit);
+    if (message.maxRequests !== 0) {
+      obj.maxRequests = Math.round(message.maxRequests);
     }
     if (message.timeout !== "") {
       obj.timeout = message.timeout;
@@ -1139,7 +1143,7 @@ export const RateLimit: MessageFns<RateLimit> = {
       ? SecRule1.fromPartial(object.ingressRuntime)
       : undefined;
     message.timeWindow = object.timeWindow ?? "";
-    message.limit = object.limit ?? 0;
+    message.maxRequests = object.maxRequests ?? 0;
     message.timeout = object.timeout ?? "";
     return message;
   },

@@ -28,5 +28,6 @@ const (
 )
 
 const (
-	SecuritySecRules = "security.sec_rules"
+	SecuritySecRules   = "security.sec_rules"
+	SecurityRateLimits = "security.rate_limits"
 )

@@ -27,3 +27,18 @@ const (
 	SecRule_Status      = "status"
 	SecRule_Priority    = "priority"
 )
+
+const (
+	RateLimit_Metadata    = "metadata"
+	RateLimit_Id          = "id"
+	RateLimit_Name        = "name"
+	RateLimit_Description = "description"
+	RateLimit_Expr        = "expr"
+	RateLimit_Action      = "action"
+	RateLimit_ActionValue = "action_value"
+	RateLimit_Status      = "status"
+	RateLimit_Priority    = "priority"
+	RateLimit_TimeWindow  = "time_window"
+	RateLimit_MaxRequests = "max_requests"
+	RateLimit_Timeout     = "timeout"
+)

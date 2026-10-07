@@ -788,6 +788,761 @@ var _ interface {
 	ErrorName() string
 } = ListSecRulesResponseValidationError{}
 
+// Validate checks the field values on CreateRateLimitRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateRateLimitRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetRateLimit()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateRateLimitRequestValidationError{
+				field:  "RateLimit",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// CreateRateLimitRequestValidationError is the validation error returned by
+// CreateRateLimitRequest.Validate if the designated constraints aren't met.
+type CreateRateLimitRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateRateLimitRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateRateLimitRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateRateLimitRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateRateLimitRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateRateLimitRequestValidationError) ErrorName() string {
+	return "CreateRateLimitRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateRateLimitRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateRateLimitRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateRateLimitRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateRateLimitRequestValidationError{}
+
+// Validate checks the field values on CreateRateLimitResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateRateLimitResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// CreateRateLimitResponseValidationError is the validation error returned by
+// CreateRateLimitResponse.Validate if the designated constraints aren't met.
+type CreateRateLimitResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateRateLimitResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateRateLimitResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateRateLimitResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateRateLimitResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateRateLimitResponseValidationError) ErrorName() string {
+	return "CreateRateLimitResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateRateLimitResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateRateLimitResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateRateLimitResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateRateLimitResponseValidationError{}
+
+// Validate checks the field values on GetRateLimitRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetRateLimitRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// GetRateLimitRequestValidationError is the validation error returned by
+// GetRateLimitRequest.Validate if the designated constraints aren't met.
+type GetRateLimitRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRateLimitRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRateLimitRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRateLimitRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRateLimitRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRateLimitRequestValidationError) ErrorName() string {
+	return "GetRateLimitRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetRateLimitRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRateLimitRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRateLimitRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRateLimitRequestValidationError{}
+
+// Validate checks the field values on GetRateLimitResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetRateLimitResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetRateLimit()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetRateLimitResponseValidationError{
+				field:  "RateLimit",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetRateLimitResponseValidationError is the validation error returned by
+// GetRateLimitResponse.Validate if the designated constraints aren't met.
+type GetRateLimitResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetRateLimitResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetRateLimitResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetRateLimitResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetRateLimitResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetRateLimitResponseValidationError) ErrorName() string {
+	return "GetRateLimitResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetRateLimitResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetRateLimitResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetRateLimitResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetRateLimitResponseValidationError{}
+
+// Validate checks the field values on UpdateRateLimitRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateRateLimitRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	if v, ok := interface{}(m.GetRateLimit()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateRateLimitRequestValidationError{
+				field:  "RateLimit",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateRateLimitRequestValidationError{
+				field:  "UpdateMask",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateRateLimitRequestValidationError is the validation error returned by
+// UpdateRateLimitRequest.Validate if the designated constraints aren't met.
+type UpdateRateLimitRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateRateLimitRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateRateLimitRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateRateLimitRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateRateLimitRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateRateLimitRequestValidationError) ErrorName() string {
+	return "UpdateRateLimitRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateRateLimitRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateRateLimitRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateRateLimitRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateRateLimitRequestValidationError{}
+
+// Validate checks the field values on UpdateRateLimitResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateRateLimitResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetRateLimit()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateRateLimitResponseValidationError{
+				field:  "RateLimit",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateRateLimitResponseValidationError is the validation error returned by
+// UpdateRateLimitResponse.Validate if the designated constraints aren't met.
+type UpdateRateLimitResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateRateLimitResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateRateLimitResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateRateLimitResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateRateLimitResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateRateLimitResponseValidationError) ErrorName() string {
+	return "UpdateRateLimitResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateRateLimitResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateRateLimitResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateRateLimitResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateRateLimitResponseValidationError{}
+
+// Validate checks the field values on DeleteRateLimitRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DeleteRateLimitRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// DeleteRateLimitRequestValidationError is the validation error returned by
+// DeleteRateLimitRequest.Validate if the designated constraints aren't met.
+type DeleteRateLimitRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteRateLimitRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteRateLimitRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteRateLimitRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteRateLimitRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteRateLimitRequestValidationError) ErrorName() string {
+	return "DeleteRateLimitRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteRateLimitRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteRateLimitRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteRateLimitRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteRateLimitRequestValidationError{}
+
+// Validate checks the field values on DeleteRateLimitResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DeleteRateLimitResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// DeleteRateLimitResponseValidationError is the validation error returned by
+// DeleteRateLimitResponse.Validate if the designated constraints aren't met.
+type DeleteRateLimitResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteRateLimitResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteRateLimitResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteRateLimitResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteRateLimitResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteRateLimitResponseValidationError) ErrorName() string {
+	return "DeleteRateLimitResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteRateLimitResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteRateLimitResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteRateLimitResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteRateLimitResponseValidationError{}
+
+// Validate checks the field values on ListRateLimitsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListRateLimitsRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListRateLimitsRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// ListRateLimitsRequestValidationError is the validation error returned by
+// ListRateLimitsRequest.Validate if the designated constraints aren't met.
+type ListRateLimitsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListRateLimitsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListRateLimitsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListRateLimitsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListRateLimitsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListRateLimitsRequestValidationError) ErrorName() string {
+	return "ListRateLimitsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListRateLimitsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListRateLimitsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListRateLimitsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListRateLimitsRequestValidationError{}
+
+// Validate checks the field values on ListRateLimitsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListRateLimitsResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetRateLimits() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListRateLimitsResponseValidationError{
+					field:  fmt.Sprintf("RateLimits[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	return nil
+}
+
+// ListRateLimitsResponseValidationError is the validation error returned by
+// ListRateLimitsResponse.Validate if the designated constraints aren't met.
+type ListRateLimitsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListRateLimitsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListRateLimitsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListRateLimitsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListRateLimitsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListRateLimitsResponseValidationError) ErrorName() string {
+	return "ListRateLimitsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListRateLimitsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListRateLimitsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListRateLimitsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListRateLimitsResponseValidationError{}
+
 // Validate checks the field values on StatusRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.

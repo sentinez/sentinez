@@ -17,6 +17,7 @@ package securitysvc
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -29,17 +30,20 @@ var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
 func New(
 	config *settingpb.Config,
 	secRuleRepo secrule.ISecRule,
+	rateLimitRepo ratelimit.IRateLimit,
 ) *SecurityService {
 	return &SecurityService{
-		config:      config,
-		secRuleRepo: secRuleRepo,
+		config:        config,
+		secRuleRepo:   secRuleRepo,
+		rateLimitRepo: rateLimitRepo,
 	}
 }
 
 // SecurityService handles security operations.
 type SecurityService struct {
-	config      *settingpb.Config
-	secRuleRepo secrule.ISecRule
+	config        *settingpb.Config
+	secRuleRepo   secrule.ISecRule
+	rateLimitRepo ratelimit.IRateLimit
 }
 
 // mapSecRule converts a DB SecRule into an API SecRule response.

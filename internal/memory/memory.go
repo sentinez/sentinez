@@ -291,6 +291,6 @@ func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
 	return ratelimiter.Entry{
 		Eval:    corerule.NewEval(rule.GetExpr()),
 		Rule:    rule,
-		Limiter: corelimiter.NewRateLimiter(timeout, size, l.GetLimit()),
+		Limiter: corelimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
 	}, nil
 }

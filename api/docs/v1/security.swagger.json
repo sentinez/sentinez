@@ -20,6 +20,191 @@
     "application/json"
   ],
   "paths": {
+    "/security/ratelimit": {
+      "post": {
+        "summary": "CreateRateLimit creates a new rate limit rule",
+        "operationId": "SecurityService_CreateRateLimit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRateLimitResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRateLimitRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/ratelimit/{id}": {
+      "get": {
+        "summary": "GetRateLimit retrieves a rate limit rule by ID",
+        "operationId": "SecurityService_GetRateLimit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRateLimitResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteRateLimit removes a rate limit rule by ID",
+        "operationId": "SecurityService_DeleteRateLimit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRateLimitResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateRateLimit updates an existing rate limit rule",
+        "operationId": "SecurityService_UpdateRateLimit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRateLimitResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateRateLimitBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/ratelimits": {
+      "get": {
+        "summary": "ListRateLimits lists rate limit rules with optional filters",
+        "operationId": "SecurityService_ListRateLimits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRateLimitsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
     "/security/secrule": {
       "post": {
         "summary": "CreateSecRule creates a new WAF rule based",
@@ -230,6 +415,17 @@
     }
   },
   "definitions": {
+    "SecurityServiceUpdateRateLimitBody": {
+      "type": "object",
+      "properties": {
+        "rateLimit": {
+          "$ref": "#/definitions/v1RateLimit"
+        },
+        "updateMask": {
+          "type": "string"
+        }
+      }
+    },
     "SecurityServiceUpdateSecRuleBody": {
       "type": "object",
       "properties": {
@@ -363,6 +559,22 @@
       },
       "title": "A logical condition expression"
     },
+    "v1CreateRateLimitRequest": {
+      "type": "object",
+      "properties": {
+        "rateLimit": {
+          "$ref": "#/definitions/v1RateLimit"
+        }
+      }
+    },
+    "v1CreateRateLimitResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateSecRuleRequest": {
       "type": "object",
       "properties": {
@@ -378,6 +590,9 @@
           "type": "string"
         }
       }
+    },
+    "v1DeleteRateLimitResponse": {
+      "type": "object"
     },
     "v1DeleteSecRuleResponse": {
       "type": "object"
@@ -411,11 +626,35 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
+    "v1GetRateLimitResponse": {
+      "type": "object",
+      "properties": {
+        "rateLimit": {
+          "$ref": "#/definitions/v1RateLimit"
+        }
+      }
+    },
     "v1GetSecRuleResponse": {
       "type": "object",
       "properties": {
         "secRule": {
           "$ref": "#/definitions/v1SecRule"
+        }
+      }
+    },
+    "v1ListRateLimitsResponse": {
+      "type": "object",
+      "properties": {
+        "rateLimits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RateLimit"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
@@ -483,6 +722,52 @@
         }
       }
     },
+    "v1RateLimit": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression"
+        },
+        "action": {
+          "type": "string"
+        },
+        "actionValue": {
+          "$ref": "#/definitions/v1ActionValue"
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "timeWindow": {
+          "type": "string",
+          "description": "Counting window, as a Go duration string (e.g. \"10s\", \"1m\")."
+        },
+        "maxRequests": {
+          "type": "string",
+          "format": "int64",
+          "description": "Maximum number of requests allowed within time_window."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Block duration once the limit is exceeded, as a Go duration string."
+        }
+      }
+    },
     "v1SecRule": {
       "type": "object",
       "properties": {
@@ -521,6 +806,14 @@
       "properties": {
         "msg": {
           "type": "string"
+        }
+      }
+    },
+    "v1UpdateRateLimitResponse": {
+      "type": "object",
+      "properties": {
+        "rateLimit": {
+          "$ref": "#/definitions/v1RateLimit"
         }
       }
     },

@@ -146,6 +146,141 @@ func (x *SecRule) GetPriority() int32 {
 	return 0
 }
 
+type RateLimit struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Metadata    *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Id          string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Expr        *v11.Expression        `protobuf:"bytes,5,opt,name=expr,proto3" json:"expr,omitempty"`
+	Action      string                 `protobuf:"bytes,6,opt,name=action,proto3" json:"action,omitempty"`
+	ActionValue *ActionValue           `protobuf:"bytes,7,opt,name=action_value,json=actionValue,proto3" json:"action_value,omitempty"`
+	Status      v1.Status              `protobuf:"varint,8,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Priority    int32                  `protobuf:"varint,9,opt,name=priority,proto3" json:"priority,omitempty"`
+	// Counting window, as a Go duration string (e.g. "10s", "1m").
+	TimeWindow string `protobuf:"bytes,10,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty"`
+	// Maximum number of requests allowed within time_window.
+	MaxRequests int64 `protobuf:"varint,11,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty"`
+	// Block duration once the limit is exceeded, as a Go duration string.
+	Timeout       string `protobuf:"bytes,12,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RateLimit) Reset() {
+	*x = RateLimit{}
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RateLimit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RateLimit) ProtoMessage() {}
+
+func (x *RateLimit) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RateLimit.ProtoReflect.Descriptor instead.
+func (*RateLimit) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RateLimit) GetMetadata() *v1.Metadata {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *RateLimit) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RateLimit) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RateLimit) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *RateLimit) GetExpr() *v11.Expression {
+	if x != nil {
+		return x.Expr
+	}
+	return nil
+}
+
+func (x *RateLimit) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *RateLimit) GetActionValue() *ActionValue {
+	if x != nil {
+		return x.ActionValue
+	}
+	return nil
+}
+
+func (x *RateLimit) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *RateLimit) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
+func (x *RateLimit) GetTimeWindow() string {
+	if x != nil {
+		return x.TimeWindow
+	}
+	return ""
+}
+
+func (x *RateLimit) GetMaxRequests() int64 {
+	if x != nil {
+		return x.MaxRequests
+	}
+	return 0
+}
+
+func (x *RateLimit) GetTimeout() string {
+	if x != nil {
+		return x.Timeout
+	}
+	return ""
+}
+
 type ActionValue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	StrValue      string                 `protobuf:"bytes,1,opt,name=str_value,json=strValue,proto3" json:"str_value,omitempty"`
@@ -156,7 +291,7 @@ type ActionValue struct {
 
 func (x *ActionValue) Reset() {
 	*x = ActionValue{}
-	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[1]
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -168,7 +303,7 @@ func (x *ActionValue) String() string {
 func (*ActionValue) ProtoMessage() {}
 
 func (x *ActionValue) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[1]
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -181,7 +316,7 @@ func (x *ActionValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionValue.ProtoReflect.Descriptor instead.
 func (*ActionValue) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ActionValue) GetStrValue() string {
@@ -212,7 +347,22 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
 	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xef\x04\n" +
+	"\tRateLimit\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x123\n" +
+	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.ratelimits.R\x02id\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
+	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x12\x16\n" +
+	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
+	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
+	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority\x12W\n" +
+	"\vtime_window\x18\n" +
+	" \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
+	"timeWindow\x12!\n" +
+	"\fmax_requests\x18\v \x01(\x03R\vmaxRequests\x12P\n" +
+	"\atimeout\x18\f \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
 	"\vActionValue\x12\x1b\n" +
 	"\tstr_value\x18\x01 \x01(\tR\bstrValue\x12Q\n" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
@@ -232,26 +382,31 @@ func file_sentinez_apps_security_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_security_v1_model_proto_rawDescData
 }
 
-var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_sentinez_apps_security_v1_model_proto_goTypes = []any{
 	(*SecRule)(nil),        // 0: sentinez.apps.security.v1.SecRule
-	(*ActionValue)(nil),    // 1: sentinez.apps.security.v1.ActionValue
-	nil,                    // 2: sentinez.apps.security.v1.ActionValue.MapValueEntry
-	(*v1.Metadata)(nil),    // 3: sentinez.types.v1.Metadata
-	(*v11.Expression)(nil), // 4: sentinez.types.rule.v1.Expression
-	(v1.Status)(0),         // 5: sentinez.types.v1.Status
+	(*RateLimit)(nil),      // 1: sentinez.apps.security.v1.RateLimit
+	(*ActionValue)(nil),    // 2: sentinez.apps.security.v1.ActionValue
+	nil,                    // 3: sentinez.apps.security.v1.ActionValue.MapValueEntry
+	(*v1.Metadata)(nil),    // 4: sentinez.types.v1.Metadata
+	(*v11.Expression)(nil), // 5: sentinez.types.rule.v1.Expression
+	(v1.Status)(0),         // 6: sentinez.types.v1.Status
 }
 var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
-	3, // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.Metadata
-	4, // 1: sentinez.apps.security.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
-	1, // 2: sentinez.apps.security.v1.SecRule.action_value:type_name -> sentinez.apps.security.v1.ActionValue
-	5, // 3: sentinez.apps.security.v1.SecRule.status:type_name -> sentinez.types.v1.Status
-	2, // 4: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.Metadata
+	5, // 1: sentinez.apps.security.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
+	2, // 2: sentinez.apps.security.v1.SecRule.action_value:type_name -> sentinez.apps.security.v1.ActionValue
+	6, // 3: sentinez.apps.security.v1.SecRule.status:type_name -> sentinez.types.v1.Status
+	4, // 4: sentinez.apps.security.v1.RateLimit.metadata:type_name -> sentinez.types.v1.Metadata
+	5, // 5: sentinez.apps.security.v1.RateLimit.expr:type_name -> sentinez.types.rule.v1.Expression
+	2, // 6: sentinez.apps.security.v1.RateLimit.action_value:type_name -> sentinez.apps.security.v1.ActionValue
+	6, // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
+	3, // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_security_v1_model_proto_init() }
@@ -265,7 +420,7 @@ func file_sentinez_apps_security_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_security_v1_model_proto_rawDesc), len(file_sentinez_apps_security_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

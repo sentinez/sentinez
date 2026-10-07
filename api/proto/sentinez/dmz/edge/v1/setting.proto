@@ -82,7 +82,7 @@ message RateLimit {
     string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
   }];  //@gotags: yaml:"timeWindow"
 
-  int64 limit = 12;  //@gotags: yaml:"limit"
+  int64 max_requests = 12;  //@gotags: yaml:"maxRequests"
 
   string timeout = 13 [(buf.validate.field) = {
     required: false

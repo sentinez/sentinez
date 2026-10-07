@@ -76,6 +76,8 @@ interface Props {
   value: SecRuleFormValue;
   onChange: (patch: Partial<SecRuleFormValue>) => void;
   idPrefix?: string;
+  /** Restrict the selectable actions (defaults to every action type) */
+  actionOptions?: SelectOption<ActionType>[];
 }
 
 function OptionSelect<T extends number>({
@@ -176,7 +178,12 @@ function KeyValueRows({
 }
 
 /** Form fields matching v1SecRule in security.swagger.json */
-export function SecRuleFields({ value, onChange, idPrefix = 'rule' }: Props) {
+export function SecRuleFields({
+  value,
+  onChange,
+  idPrefix = 'rule',
+  actionOptions = ACTION_TYPE_OPTIONS,
+}: Props) {
   // keep a rule's existing custom priority selectable
   const priorityOptions = PRIORITY_OPTIONS.some((o) => o.value === value.priority)
     ? PRIORITY_OPTIONS
@@ -239,7 +246,7 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule' }: Props) {
       <OptionSelect
         label="Action"
         value={value.action}
-        options={ACTION_TYPE_OPTIONS}
+        options={actionOptions}
         onChange={(action) => onChange({ action, actionParams: [] })}
       />
 
