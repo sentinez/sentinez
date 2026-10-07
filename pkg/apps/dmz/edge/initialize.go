@@ -26,7 +26,7 @@ func (s *Server) initialize(appConf *settingpb.Config) error {
 	// init cache repository
 	s.mem.LoadServer(s.core)
 
-	income := http.Init(appConf, s.mem)
+	income := http.NewHandler(appConf, s.mem)
 	s.core.Handle(income.Handle)
 
 	return nil

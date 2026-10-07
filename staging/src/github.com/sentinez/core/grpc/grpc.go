@@ -53,7 +53,10 @@ func (s *Server) AsServer() *grpc.Server {
 
 // Serve starts the http server.
 // return error if the http server fails to start.
-func (s *Server) Serve(conf *settingpb.Config) error {
+func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
+	for _, opt := range opts {
+		opt(&s.option)
+	}
 
 	addr := conf.Get(settingpb.Senz_SENZ_ADDRESS)
 	listener, err := grpcgateway.ListenNetworkTCP(addr)
@@ -62,13 +65,13 @@ func (s *Server) Serve(conf *settingpb.Config) error {
 	}
 
 	if s.option.consul {
-		go Register(s.option.meta.GetServiceKey(), conf)
+		go Register(conf.GetMeta().GetServiceKey(), conf)
 	}
 
 	host, port, _ := net.SplitHostPort(addr)
 	console.INFO(
-		s.option.meta.GetServiceName(),
-		s.option.meta.GetServiceKey(),
+		conf.GetMeta().GetServiceName(),
+		conf.GetMeta().GetServiceKey(),
 		fmt.Sprintf("grpc running on %s:%s", host, port),
 	)
 
@@ -81,14 +84,10 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 
 // New returns a new service registrar.
 // opts are the gRPC server options.
-func New(opts ...ServerOption) *Server {
-
+func New(opts ...grpc.ServerOption) *Server {
 	server := &Server{}
-	for _, opt := range opts {
-		opt(&server.option)
-	}
 
-	server.server = grpc.NewServer(server.option.grpcOpt...)
+	server.server = grpc.NewServer(opts...)
 	return server
 }
 

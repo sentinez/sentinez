@@ -33,7 +33,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *CentralData {
 	return &CentralData{
-		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
+		Server: coregrpc.New(),
 		hdl:    centraldatafac.NewDefaultHandler(ctx, appConf),
 	}
 }

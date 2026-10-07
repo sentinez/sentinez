@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || 'http://localhost:8080';
+import { API_BASE_PATH } from '@/lib/api/base';
 
 export interface ApiOptions {
   signal?: AbortSignal;

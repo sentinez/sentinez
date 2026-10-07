@@ -94,7 +94,7 @@ setting:
   security:
     rulesets:
 
-    rules:
+    sec_rules:
       - ingress:
           name: "Complex Logic: (Path AND Method) OR IP"
           status: STATUS_ACTIVE

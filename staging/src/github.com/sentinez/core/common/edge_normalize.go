@@ -15,10 +15,10 @@
 package corecmn
 
 import (
-	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -26,9 +26,10 @@ import (
 )
 
 const (
-	rgPrefix   = "senz.secrule."
 	condPrefix = "senz.cond."
-	rulePrefix = "senz.rule."
+	rulePrefix = "senz.secrule."
+
+	defaultLimiterDuration = "5s"
 )
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
@@ -56,6 +57,32 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetSecRules() {
 		rule.IngressRuntime = toSecRule(rule.GetIngress())
 	}
+
+	for _, lim := range edgeSec.GetLimiters() {
+		normalizeLimiter(lim)
+	}
+}
+
+func normalizeLimiter(lim *edgepb.RateLimit) {
+	lim.IngressRuntime = toLimiterRule(lim.GetIngress())
+
+	if lim.GetTimeWindow() == "" {
+		lim.TimeWindow = defaultLimiterDuration
+	}
+
+	if lim.GetTimeout() == "" {
+		lim.Timeout = defaultLimiterDuration
+	}
+}
+
+// toLimiterRule builds the runtime rule of a rate limiter. A limiter
+// declared without ingress applies to the whole server, so it is active.
+func toLimiterRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
+	if rgLite == nil {
+		return &secrulepb.SecRule{Status: typepb.Status_STATUS_ACTIVE}
+	}
+
+	return toSecRule(rgLite)
 }
 
 func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {

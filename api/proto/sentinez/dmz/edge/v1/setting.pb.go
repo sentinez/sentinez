@@ -380,7 +380,7 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Rulesets      []*Rulesets            `protobuf:"bytes,1,rep,name=rulesets,proto3" json:"rulesets,omitempty" yaml:"rulesets"`                 // @gotags: yaml:"rulesets"
-	SecRules      []*SecRule             `protobuf:"bytes,2,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty" yaml:"rules"` // @gotags: yaml:"rules"
+	SecRules      []*SecRule             `protobuf:"bytes,2,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty" yaml:"sec_rules"` // @gotags: yaml:"sec_rules"
 	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"`                 // @gotags: yaml:"limiters"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

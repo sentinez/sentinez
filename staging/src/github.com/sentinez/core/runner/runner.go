@@ -44,8 +44,10 @@ type App[T any] struct {
 	ctx *Context[T]
 }
 
-func (a *App[T]) Main(main func(*Context[T])) {
-	main(a.ctx)
+func (a *App[T]) Main(mains ...func(*Context[T])) {
+	for _, main := range mains {
+		main(a.ctx)
+	}
 
 	ctn := container{engine: fx.New(a.ctx.opts...)}
 	if err := ctn.Run(context.Background()); err != nil {

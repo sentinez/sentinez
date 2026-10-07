@@ -17,20 +17,20 @@ package http
 import (
 	corechains "github.com/sentinez/core/http/chains"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/cdn"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/logging"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/ratelimiter"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/room"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/routing"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/secure"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/static"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/trace"
+	"github.com/sentinez/sentinez/internal/funcs/cdn"
+	"github.com/sentinez/sentinez/internal/funcs/logging"
+	"github.com/sentinez/sentinez/internal/funcs/ratelimiter"
+	"github.com/sentinez/sentinez/internal/funcs/room"
+	"github.com/sentinez/sentinez/internal/funcs/routing"
+	"github.com/sentinez/sentinez/internal/funcs/secure"
+	"github.com/sentinez/sentinez/internal/funcs/static"
+	"github.com/sentinez/sentinez/internal/funcs/trace"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
 
 // nolint
-func Init(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
+func NewHandler(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
 	var (
 		hostname = appConf.Get(settingpb.Senz_SENZ_HOSTNAME)
 		ll       = zlog.LevelInfo

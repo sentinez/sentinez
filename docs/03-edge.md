@@ -10,7 +10,7 @@ Relevant source:
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
 | [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine choice: `Hertz` (default) or `Standard` (`net/http`) |
-| [internal/dmz/edge/http/](../internal/dmz/edge/http/) | Middleware chain nodes |
+| [internal/funcs/](../internal/funcs/) | Middleware chain nodes |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [internal/cluster/](../internal/cluster/) | Embedded Olric + generic `DMap[T]` |

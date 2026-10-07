@@ -15,11 +15,10 @@
 package edge
 
 import (
-	"context"
-
 	coregrpc "github.com/sentinez/core/grpc"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	edgeapi "github.com/sentinez/sentinez/internal/dmz/edge/api"
 )
 
@@ -41,18 +40,23 @@ import (
 
 func NewService(conf *settingpb.Config) *Service {
 	return &Service{
-		Server:      coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
+		Server:      coregrpc.New(),
 		EdgeService: edgeapi.New(),
+		conf:        conf,
 	}
 }
 
 type Service struct {
 	*coregrpc.Server
 	*edgeapi.EdgeService
+	conf *settingpb.Config
 }
 
-func (e *Service) Start(_ context.Context, conf *settingpb.Config) error {
+func (e *Service) Start() error {
 	edgepb.RegisterEdgeServiceServer(e.AsServer(), e)
 
-	return e.Serve(conf)
+	return e.Serve(e.conf,
+		coregrpc.WithDiscorvery(false),
+		coregrpc.WithAddress(defaults.EdgeAddress),
+	)
 }

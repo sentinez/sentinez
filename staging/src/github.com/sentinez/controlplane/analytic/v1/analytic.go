@@ -33,7 +33,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *Analytic {
 	return &Analytic{
-		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
+		Server: coregrpc.New(),
 		hdl:    analyticfac.NewDefaultHandler(ctx, appConf),
 	}
 }
