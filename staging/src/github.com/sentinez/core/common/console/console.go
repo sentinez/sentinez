@@ -17,25 +17,24 @@ package console
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/sentinez/core"
 	"github.com/sentinez/shared/color"
 )
 
-var (
-	once sync.Once
-)
+// var once sync.Once
 
 func INFO(serviceName string, key string, msgs ...string) {
 	msgs = append([]string{core.Code + " " + core.Version}, msgs...)
 	gts := color.Green.Add(">")
 	msg := strings.Join(msgs, "\n"+gts+" ")
 
-	once.Do(func() {
-		fmt.Print(GenFigure(serviceName, key) + gts + " " + msg + "\n\n")
-	})
+	// once.Do(func() {
+	// 	fmt.Print(GenFigure(serviceName, key) + gts + " " + msg + "\n\n")
+	// })
+	fmt.Print(GenFigure(serviceName, key) + gts + " " + msg + "\n\n")
+
 }
 
 // GenFigure generates the ASCII art of the project.

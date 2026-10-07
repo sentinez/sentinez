@@ -17,11 +17,13 @@ package memory
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	corelimiter "github.com/sentinez/core/limiter"
+	corerule "github.com/sentinez/core/rules"
 	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -215,31 +217,25 @@ func (m *MemStore) LoadReverseProxy(
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
-	for _, l := range s.GetSecurity().GetLimiters() {
+	limiters := s.GetSecurity().GetLimiters()
+	entries := make([]ratelimiter.Entry, 0, len(limiters))
+
+	for _, l := range limiters {
 		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
-			return nil
+			continue
 		}
 
-		size, err := time.ParseDuration(l.GetTimeWindow())
+		entry, err := newLimiterEntry(l)
 		if err != nil {
 			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
 			return err
 		}
 
-		timeout, err := time.ParseDuration(l.GetTimeout())
-		if err != nil {
-			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
-			return err
-		}
-
-		lim := corelimiter.NewRateLimiter(
-			timeout,
-			size,
-			l.GetLimit(),
-		)
-		m.limiter.Store(s.GetServer().GetName(), lim)
+		entries = append(entries, entry)
 	}
+
+	m.limiter.Store(s.GetServer().GetName(), entries)
 
 	return nil
 }
@@ -277,4 +273,24 @@ func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 	m.secRule.Store(s.GetServer().GetName(), rules)
 
 	return nil
+}
+
+func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
+	size, err := time.ParseDuration(l.GetTimeWindow())
+	if err != nil {
+		return ratelimiter.Entry{}, fmt.Errorf("time window: %w", err)
+	}
+
+	timeout, err := time.ParseDuration(l.GetTimeout())
+	if err != nil {
+		return ratelimiter.Entry{}, fmt.Errorf("timeout: %w", err)
+	}
+
+	rule := l.GetIngressRuntime()
+
+	return ratelimiter.Entry{
+		Eval:    corerule.NewEval(rule.GetExpr()),
+		Rule:    rule,
+		Limiter: corelimiter.NewRateLimiter(timeout, size, l.GetLimit()),
+	}, nil
 }

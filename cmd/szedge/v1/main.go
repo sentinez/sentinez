@@ -47,26 +47,45 @@ func init() {
 	}()
 }
 
+func reverseProxy(c *runner.Context[edge.Server]) {
+	engine.Hertz(c)
+
+	c.Inject(
+		config.Config,
+		edgeyaml.LoadSetting,
+		edge.New,
+	)
+
+	c.Serve(func(_ context.Context, server *edge.Server) error {
+		return server.Start()
+	})
+
+	c.OnStop(func(ctx context.Context, server *edge.Server) error {
+		return server.Shutdown(ctx)
+	})
+}
+
+func grpcServer(c *runner.Context[edge.Service]) {
+	c.Inject(
+		config.Config,
+		edge.NewService,
+	)
+
+	c.Serve(func(_ context.Context, server *edge.Service) error {
+		return server.Start()
+	})
+
+	c.OnStop(func(ctx context.Context, server *edge.Service) error {
+		return server.Shutdown(ctx)
+	})
+}
+
 // main is the entrypoint of the Edge application.
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	app := runner.NewApp[edge.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[edge.Server]) {
-		engine.Hertz(c)
-
-		c.Inject(
-			config.Config,
-			edgeyaml.LoadSetting,
-			edge.New,
-		)
-
-		c.OnStart(func(_ context.Context, server *edge.Server) error {
-			return server.Start()
-		})
-
-		c.OnStop(func(ctx context.Context, server *edge.Server) error {
-			return server.Shutdown(ctx)
-		})
-	})
+	runner.New(config.Config(), core.Code).Main(
+		runner.NewApp(reverseProxy),
+		runner.NewApp(grpcServer),
+	)
 }

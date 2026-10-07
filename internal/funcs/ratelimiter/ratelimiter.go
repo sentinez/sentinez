@@ -33,12 +33,21 @@ type Limiter struct {
 	store *memory.MemStore
 }
 
+// Handle counts the request against every limiter whose expression matches
+// it, keyed by client IP. The request is rejected if any of them is over
+// its limit.
 func (l *Limiter) Handle(ctx corehttp.Context) error {
-	limiter := l.store.Limiter().LoadContext(ctx)
+	key := string(ctx.RequestIP())
 
-	if !limiter.Allow(string(ctx.RequestIP())) {
-		totalCount := limiter.Count(string(ctx.RequestIP())) + limiter.Limit()
-		zlog.Debugf("limit exceeded %d - %s", totalCount, ctx.URI())
+	for _, e := range l.store.Limiter().LoadContext(ctx) {
+		if !e.Eval(ctx, nil) || e.Limiter.Allow(key) {
+			continue
+		}
+
+		zlog.Debugf("edge: limiter %s exceeded %d/%d - %s",
+			e.Rule.GetId(), e.Limiter.Count(key), e.Limiter.Limit(),
+			ctx.URI())
+
 		return corehttp.TooManyRequests(ctx)
 	}
 

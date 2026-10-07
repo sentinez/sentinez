@@ -14,24 +14,12 @@
 
 package coregrpc
 
-import (
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/grpc"
-)
-
 type Option struct {
-	meta    *typepb.XMeta
 	consul  bool
-	grpcOpt []grpc.ServerOption
+	address string
 }
 
 type ServerOption func(*Option)
-
-func WithXMeta(meta *typepb.XMeta) ServerOption {
-	return func(so *Option) {
-		so.meta = meta
-	}
-}
 
 func WithDiscorvery(enable bool) ServerOption {
 	return func(o *Option) {
@@ -39,8 +27,8 @@ func WithDiscorvery(enable bool) ServerOption {
 	}
 }
 
-func WithGRPCServerOption(opts ...grpc.ServerOption) ServerOption {
+func WithAddress(addr string) ServerOption {
 	return func(o *Option) {
-		o.grpcOpt = append(o.grpcOpt, opts...)
+		o.address = addr
 	}
 }

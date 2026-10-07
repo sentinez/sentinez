@@ -24,7 +24,7 @@ import (
 
 func NewService(conf *settingpb.Config) *Greeter {
 	return &Greeter{
-		Server:  coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
+		Server:  coregrpc.New(),
 		handler: greeterhdl.New(),
 		conf:    conf,
 	}
@@ -40,5 +40,5 @@ type Greeter struct {
 func (g *Greeter) Start() error {
 	greeterpb.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	return g.Serve(g.conf)
+	return g.Serve(g.conf, coregrpc.WithDiscorvery(true))
 }

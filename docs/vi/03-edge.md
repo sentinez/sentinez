@@ -10,7 +10,7 @@ Mã nguồn liên quan:
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
 | [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, nạp YAML |
 | [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Chọn HTTP engine: `Hertz` (mặc định) hoặc `Standard` (`net/http`) |
-| [internal/dmz/edge/http/](../../internal/dmz/edge/http/) | Các node của chain middleware |
+| [internal/funcs/](../../internal/funcs/) | Các node của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
 | [internal/cluster/](../../internal/cluster/) | Olric embedded + `DMap[T]` generic |
@@ -20,10 +20,14 @@ Mã nguồn liên quan:
 ## 3.1 Khởi động
 
 ```
-main
- ├─ engine.Hertz(c)            → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
- ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
- └─ OnStart(server.Start)
+main: runner.Main(NewApp(reverseProxy), NewApp(api))
+ ├─ reverseProxy
+ │   ├─ engine.Hertz(c)        → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+ │   └─ Serve(server.Start)
+ └─ api
+     ├─ Inject(config.Config, edge.NewService)
+     └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.New(conf, setting, server)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto

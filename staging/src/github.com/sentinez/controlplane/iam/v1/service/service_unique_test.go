@@ -60,6 +60,7 @@ func newTestService(t *testing.T,
 	return svc, userRepo
 }
 
+// nolint
 func TestUsernameOrEmailMustUnique(t *testing.T) {
 	tests := []struct {
 		name         string

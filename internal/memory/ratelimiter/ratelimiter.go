@@ -19,6 +19,8 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corelimiter "github.com/sentinez/core/limiter"
+	corerule "github.com/sentinez/core/rules"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -26,37 +28,47 @@ import (
 var (
 	once        sync.Once
 	limiterInst *Limiter
-	mu          sync.Mutex
 )
 
 func New() *Limiter {
 	once.Do(func() {
 		limiterInst = &Limiter{
-			space: ssync.NewMap[string, *corelimiter.RateLimiter](),
+			space: ssync.NewMap[string, []Entry](),
 		}
 	})
 
 	return limiterInst
 }
 
+// Entry is a rate limiter applied to the requests matching Eval.
+type Entry struct {
+	Eval    corerule.EvalFunc
+	Rule    *secrulepb.SecRule
+	Limiter *corelimiter.RateLimiter
+}
+
 type Limiter struct {
-	space *ssync.Map[string, *corelimiter.RateLimiter]
+	space *ssync.Map[string, []Entry]
 }
 
-func (lim *Limiter) Store(serverName string, l *corelimiter.RateLimiter) {
-	lim.space.Store(serverName, l)
-}
-
-func (lim *Limiter) Load(serverName string) *corelimiter.RateLimiter {
-	expr, ok := lim.space.Load(serverName)
-	if !ok {
-		return nil
+// Store replaces the limiters of serverName.
+func (lim *Limiter) Store(serverName string, entries []Entry) {
+	if len(entries) == 0 {
+		lim.space.Delete(serverName)
+		return
 	}
 
-	return expr
+	lim.space.Store(serverName, entries)
 }
 
-func (lim *Limiter) LoadContext(ctx corehttp.Context) *corelimiter.RateLimiter {
+// Load returns the limiters of serverName. The result is shared and must
+// not be modified.
+func (lim *Limiter) Load(serverName string) []Entry {
+	entries, _ := lim.space.Load(serverName)
+	return entries
+}
+
+func (lim *Limiter) LoadContext(ctx corehttp.Context) []Entry {
 	if lim == nil {
 		return nil
 	}

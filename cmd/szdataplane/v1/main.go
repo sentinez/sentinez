@@ -24,16 +24,17 @@ import (
 )
 
 func main() {
-	app := runner.NewApp[dataplane.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[dataplane.Server]) {
-		c.Inject(config.Config, dataplane.New)
+	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
 
-		c.OnStart(func(_ context.Context, server *dataplane.Server) error {
-			return server.Start(dataplane.VETH0)
-		})
+func app(c *runner.Context[dataplane.Server]) {
+	c.Inject(config.Config, dataplane.New)
 
-		c.OnStop(func(ctx context.Context, server *dataplane.Server) error {
-			return server.Stop(ctx)
-		})
+	c.Serve(func(_ context.Context, server *dataplane.Server) error {
+		return server.Start(dataplane.VETH0)
+	})
+
+	c.OnStop(func(ctx context.Context, server *dataplane.Server) error {
+		return server.Stop(ctx)
 	})
 }

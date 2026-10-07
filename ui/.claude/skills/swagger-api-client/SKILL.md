@@ -18,7 +18,7 @@ Other clients for style: `lib/api/tenant/index.ts`, `lib/api/iam/*.ts`.
 ## 2. File layout (`lib/api/<service>/index.ts`)
 
 1. Imports: `axios`, proto types from `@sentinez/proto/...` (generated in `packages/proto/ts-proto`).
-2. `const API_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || 'http://localhost:8080';`
+2. `import { API_BASE_PATH } from '@/lib/api/base';` (`/api`, proxied by `app/api/[...path]/route.ts` to the server-only `API_BASE_PATH` env).
 3. `const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';`
 4. `export interface ApiOptions { signal?: AbortSignal }`; every function takes `options?: ApiOptions` last and passes `signal` to axios.
 5. Wire types mirroring the swagger definitions (name them after the definition, e.g. `SecuritySecRule`).

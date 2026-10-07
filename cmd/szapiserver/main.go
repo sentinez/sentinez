@@ -38,16 +38,17 @@ import (
 //	make sz.apiserver.run // start sentinez apiserver
 //	make sz.<service>.run // start service
 func main() {
-	app := runner.NewApp[apiserver.Server](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[apiserver.Server]) {
-		c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
+	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
 
-		c.OnStart(func(ctx context.Context, server *apiserver.Server) error {
-			return server.Start(ctx)
-		})
+func app(c *runner.Context[apiserver.Server]) {
+	c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
 
-		c.OnStop(func(ctx context.Context, server *apiserver.Server) error {
-			return server.Shutdown(ctx)
-		})
+	c.Serve(func(ctx context.Context, server *apiserver.Server) error {
+		return server.Start(ctx)
+	})
+
+	c.OnStop(func(ctx context.Context, server *apiserver.Server) error {
+		return server.Shutdown(ctx)
 	})
 }

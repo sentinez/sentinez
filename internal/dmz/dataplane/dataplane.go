@@ -27,7 +27,7 @@ import (
 func New(conf *settingpb.Config) *Server {
 	return &Server{
 		conf: conf,
-		grpc: coregrpc.New(coregrpc.WithXMeta(conf.GetMeta())),
+		grpc: coregrpc.New(),
 	}
 }
 
@@ -54,7 +54,7 @@ func (s *Server) Start(networkInterface string) error {
 
 	zlog.Infof("stream: attaching xdp successfully")
 
-	return s.grpc.Serve(s.conf)
+	return s.grpc.Serve(s.conf, coregrpc.WithDiscorvery(false))
 }
 
 func (s *Server) Stop(ctx context.Context) error {

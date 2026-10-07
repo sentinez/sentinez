@@ -10,7 +10,7 @@ Relevant source:
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
 | [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine choice: `Hertz` (default) or `Standard` (`net/http`) |
-| [internal/dmz/edge/http/](../internal/dmz/edge/http/) | Middleware chain nodes |
+| [internal/funcs/](../internal/funcs/) | Middleware chain nodes |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [internal/cluster/](../internal/cluster/) | Embedded Olric + generic `DMap[T]` |
@@ -20,10 +20,14 @@ Relevant source:
 ## 3.1 Startup
 
 ```
-main
- ├─ engine.Hertz(c)            → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
- ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
- └─ OnStart(server.Start)
+main: runner.Main(NewApp(reverseProxy), NewApp(api))
+ ├─ reverseProxy
+ │   ├─ engine.Hertz(c)        → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+ │   └─ Serve(server.Start)
+ └─ api
+     ├─ Inject(config.Config, edge.NewService)
+     └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.New(conf, setting, server)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos

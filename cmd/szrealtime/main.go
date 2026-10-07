@@ -25,17 +25,17 @@ import (
 )
 
 func main() {
-	app := runner.NewApp[realtime.Realtime](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[realtime.Realtime]) {
-		c.Inject(config.Config, wscore.NewServer, realtime.New)
+	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
 
-		c.OnStart(func(_ context.Context, server *realtime.Realtime) error {
-			return server.Start()
-		})
+func app(c *runner.Context[realtime.Realtime]) {
+	c.Inject(config.Config, wscore.NewServer, realtime.New)
 
-		c.OnStop(func(ctx context.Context, server *realtime.Realtime) error {
-			return server.Shutdown(ctx)
-		})
+	c.Serve(func(_ context.Context, server *realtime.Realtime) error {
+		return server.Start()
 	})
 
+	c.OnStop(func(ctx context.Context, server *realtime.Realtime) error {
+		return server.Shutdown(ctx)
+	})
 }
