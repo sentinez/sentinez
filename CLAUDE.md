@@ -11,7 +11,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
 | `internal/` | Root-module private code: `dmz` (edge/dataplane), `cluster`, `bpf`, `memory`, `defaults` |
 | `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
-| `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps` (domain services), `dmz/{edge,dataplane}`, `gateway/{apiserver,realtime}`, `net` (network layer: `v1` conn, `http/v1`), `sec` (security: `rule`, `coreruleset`), `types`, `buf.gen.yaml`, generated clients, third_party |
+| `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework: `runner`, `http`, `grpc`, `limiter`, `modsec` (Coraza), `rules`, `rulesets`, `storage`, `context` |
 | ↳ `shared` | Utility libs: `zlog` (zap + OTLP), `config`, `errorx`, `eventq`, `store`, `topic`, `jsonx`, `perms`, `cron`, etc. |
@@ -24,7 +24,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 
-Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. WAF rules are called `SecRule` (proto `security.v1.SecRule`, REST `/security/secrule(s)`, console route `security/sec-rule`, Go packages `secrule`/`secrules`); the old `RuleBased` name is retired. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
+Naming: binaries live in `cmd/sz<name>`; `pkg/apps/gateway` = API/realtime gateway, `dmz` = demilitarized zone (edge/dataplane), greeter = internal service. WAF rules are called `SecRule` (proto: API model `apps.security.v1.SecRule`, runtime `types.secrule.v1.SecRule`/`SecRuleLite`, edge wrapper `dmz.edge.v1.SecRule`; REST `/security/secrule(s)`, console route `security/sec-rule`, Go packages `secrule`/`secrules`); the old `RuleBased` name is retired. Domain protos are under `api/proto/sentinez/apps/<domain>/v1`.
 
 ## Commands
 

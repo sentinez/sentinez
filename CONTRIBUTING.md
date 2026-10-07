@@ -36,7 +36,9 @@ This is a **multi-module monorepo**. The root [go.mod](go.mod) uses
 `replace` directives to wire in the other modules; there is no `go.work`.
 
 - `/api`: separate module, protobuf sources under `proto/sentinez/`
-  (`apps`, `dmz`, `gateway`, `net`, `sec`, `types`) and generated code.
+  (`apps`, `dmz`, `gateway`, `types`) and generated code. Shared messages
+  live under `types/` (`v1`, `setting`, `rule`, `secrule`, `coreruleset`,
+  `cdn`, `net`, `net/http`).
 - `/cmd`: service entrypoints (`szapiserver`, `szrealtime`, `szedge`,
   `szdataplane`, `szgreeter`, `szcentraldata`).
 - `/deploy`: deployment scripts and configs (caddy, nginx, docker,
@@ -54,7 +56,9 @@ This is a **multi-module monorepo**. The root [go.mod](go.mod) uses
 - `/_submodules`: third-party git submodules.
 
 Binaries live in `cmd/sz<name>`. Domain protos live under
-`api/proto/sentinez/apps/<domain>/v1`.
+`api/proto/sentinez/apps/<domain>/v1`; shared proto types under
+`api/proto/sentinez/types/<name>/v1`. WAF rules are called `SecRule`
+(the old `RuleBased` name is retired).
 
 ## Building and Testing
 

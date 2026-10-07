@@ -54,17 +54,17 @@ func (a *App[T]) Main(main func(*Context[T])) {
 }
 
 func _OTLP[T any](appConf *settingpb.Config, rctx *Context[T]) {
-	secure := false
+	inSecure := true
 	endpoint := appConf.GetDefault(
 		settingpb.Senz_SENZ_OTLP_ENDPOINT, "localhost:4317")
 
 	if strings.HasPrefix(endpoint, httpconst.SchemeSecure) {
-		secure = true
+		inSecure = false
 	}
 
 	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfig{
 		Endpoint:    endpoint,
-		Insecure:    secure,
+		Insecure:    inSecure,
 		ServiceName: appConf.GetMeta().GetServiceKey(),
 	})
 	if err != nil {
