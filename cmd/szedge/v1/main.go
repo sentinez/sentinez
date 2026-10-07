@@ -56,7 +56,7 @@ func reverseProxy(c *runner.Context[edge.Server]) {
 		edge.New,
 	)
 
-	c.OnStart(func(_ context.Context, server *edge.Server) error {
+	c.Serve(func(_ context.Context, server *edge.Server) error {
 		return server.Start()
 	})
 
@@ -65,13 +65,13 @@ func reverseProxy(c *runner.Context[edge.Server]) {
 	})
 }
 
-func api(c *runner.Context[edge.Service]) {
+func grpcServer(c *runner.Context[edge.Service]) {
 	c.Inject(
 		config.Config,
 		edge.NewService,
 	)
 
-	c.OnStart(func(ctx context.Context, server *edge.Service) error {
+	c.Serve(func(_ context.Context, server *edge.Service) error {
 		return server.Start()
 	})
 
@@ -84,6 +84,8 @@ func api(c *runner.Context[edge.Service]) {
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	app := runner.NewApp[edge.Server](config.Config(), core.Code)
-	app.Main(reverseProxy, api)
+	runner.New(config.Config(), core.Code).Main(
+		runner.NewApp(reverseProxy),
+		runner.NewApp(grpcServer),
+	)
 }

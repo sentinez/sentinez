@@ -55,13 +55,19 @@ README warns that backward compatibility is not guaranteed before v1.0.0.
 Every binary (except `szcentraldata`) follows the same pattern:
 
 ```go
-app := runner.NewApp[T](config.Config(), core.Code)
-app.Main(func(c *runner.Context[T]) {
+func main() {
+    runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
+
+func app(c *runner.Context[T]) {
     c.Inject(config.Config, <constructor>...)   // fx.Provide
-    c.OnStart(func(ctx, *T) error { ... })      // runs in a goroutine
+    c.Serve(func(ctx, *T) error { ... })        // blocking main loop
     c.OnStop(func(ctx, *T) error { ... })
-})
+}
 ```
+
+A binary can run several apps by passing several `runner.NewApp(...)` to
+`Main`; `szedge` runs the HTTPS proxy and its gRPC API this way.
 
 See [09-core-shared.md](09-core-shared.md#91-corerunner) for `runner`.
 

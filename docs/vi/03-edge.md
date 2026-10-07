@@ -20,10 +20,14 @@ Mã nguồn liên quan:
 ## 3.1 Khởi động
 
 ```
-main
- ├─ engine.Hertz(c)            → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
- ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
- └─ OnStart(server.Start)
+main: runner.Main(NewApp(reverseProxy), NewApp(api))
+ ├─ reverseProxy
+ │   ├─ engine.Hertz(c)        → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+ │   └─ Serve(server.Start)
+ └─ api
+     ├─ Inject(config.Config, edge.NewService)
+     └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.New(conf, setting, server)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto

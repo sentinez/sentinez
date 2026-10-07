@@ -3,24 +3,27 @@
 ## 9.1 `core/runner`
 
 [core/runner](../staging/src/github.com/sentinez/core/runner/) wraps
-`uber/fx` to standardize service lifecycles.
+`uber/fx` to standardize service lifecycles and run several apps in one
+binary.
 
 | API | Description |
 |---|---|
-| `NewApp[T](conf, scope)` | Creates the console logger for gRPC, sets the log level from `--log_level`, creates a `Context[T]`, installs the OTLP exporter |
-| `App.Main(fn)` | Runs `fn` to register providers/hooks, builds `fx.New`, runs the container; on error → `zlog.Fatal` |
+| `New(conf, scope)` | Creates the console logger for gRPC, sets the log level from `--log_level`, installs the OTLP exporter; returns a `*Runner` |
+| `Runner.Run(ctx, apps...)` | Starts the apps in order, serves until `ctx` is done, `SIGINT/SIGTERM`, or a `Serve` fails, then stops them in reverse order; returns the joined errors |
+| `Runner.Main(apps...)` | `Run` with `context.Background()`; on error → `zlog.Fatal` |
+| `NewApp[T](setup...)` | Builds an `*App`; `T` is inferred from `setup func(*Context[T])` |
 | `Context.Inject(fns...)` | `fx.Provide` |
 | `Context.Invoke(fn)` | `fx.Invoke` |
-| `Context.OnStart(func(ctx, *T) error)` | OnStart hook; the function runs **in its own goroutine** so the hook does not block |
-| `Context.OnStop(func(ctx, *T) error \| func(ctx) error)` | OnStop hook |
+| `Context.OnStart(func(ctx, *T) error)` | Start hook; runs synchronously in registration order and must not block |
+| `Context.Serve(func(ctx, *T) error)` | Blocking main loop, started after every app has started; `http.ErrServerClosed` counts as a clean exit, any other error stops the whole runner |
+| `Context.OnStop(func(ctx, *T) error)` | Stop hook; runs in reverse registration order |
 
-`container.Run` starts the app in one goroutine and waits for
-`SIGINT/SIGTERM` in another, then calls `Stop`. In any mode other than
-`dev`, fx logging is disabled (`fx.NopLogger`).
+Each app has its own fx container, so apps in the same process can provide
+the same types (for example `config.Config`). Stop hooks get a 15 s timeout.
+In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 
 OTLP: endpoint `SENZ_OTLP_ENDPOINT` (default `localhost:4317`), service name
-= `meta.service_key`. The exporter's shutdown function is registered as an
-OnStop hook.
+= `meta.service_key`. The exporter is shut down after every app has stopped.
 
 ## 9.2 `core/http` and `core/http/chains`
 

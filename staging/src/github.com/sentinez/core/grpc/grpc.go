@@ -59,6 +59,10 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 	}
 
 	addr := conf.Get(settingpb.Senz_SENZ_ADDRESS)
+	if s.option.address != "" {
+		addr = s.option.address
+	}
+
 	listener, err := grpcgateway.ListenNetworkTCP(addr)
 	if err != nil {
 		return err

@@ -25,16 +25,17 @@ import (
 )
 
 func main() {
-	app := runner.NewApp[greeter.Greeter](config.Config(), core.Code)
-	app.Main(func(c *runner.Context[greeter.Greeter]) {
-		c.Inject(config.Config, greeter.NewService)
+	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
 
-		c.OnStart(func(_ context.Context, server *greeter.Greeter) error {
-			return server.Start()
-		})
+func app(c *runner.Context[greeter.Greeter]) {
+	c.Inject(config.Config, greeter.NewService)
 
-		c.OnStop(func(ctx context.Context, server *greeter.Greeter) error {
-			return server.Shutdown(ctx)
-		})
+	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
+		return server.Start()
+	})
+
+	c.OnStop(func(ctx context.Context, server *greeter.Greeter) error {
+		return server.Shutdown(ctx)
 	})
 }

@@ -54,13 +54,19 @@ cảnh báo chưa đảm bảo tương thích ngược trước v1.0.0.
 Mọi binary (trừ `szcentraldata`) đều theo một khuôn:
 
 ```go
-app := runner.NewApp[T](config.Config(), core.Code)
-app.Main(func(c *runner.Context[T]) {
+func main() {
+    runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+}
+
+func app(c *runner.Context[T]) {
     c.Inject(config.Config, <constructor>...)   // fx.Provide
-    c.OnStart(func(ctx, *T) error { ... })      // chạy trong goroutine
+    c.Serve(func(ctx, *T) error { ... })        // vòng lặp chính, block
     c.OnStop(func(ctx, *T) error { ... })
-})
+}
 ```
+
+Một binary có thể chạy nhiều app bằng cách truyền nhiều `runner.NewApp(...)`
+vào `Main`; `szedge` chạy HTTPS proxy và gRPC API của nó theo cách này.
 
 Chi tiết `runner` ở [09-core-shared.md](09-core-shared.md#91-corerunner).
 

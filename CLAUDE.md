@@ -91,7 +91,7 @@ Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-styl
 
 - Every Go file starts with the Apache 2.0 license header (`// Copyright 2025 Duc-Hung Ho.`).
 - Lint is golangci-lint per module; CI runs `hack/golint.sh` and `hack/protolint.sh`.
-- Services are bootstrapped through `core/runner` (generic `Context[T]` over a settings proto), which also initialises logging/OTLP.
+- Services are bootstrapped through `core/runner`: `runner.New(conf, scope).Main(runner.NewApp(setup)...)`, one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
 - Logging goes through `shared/zlog` (zap). OTLP log export lives in `shared/zlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/runner/runner.go` on branch `feat/OTLP`.
 - Commit style: conventional commits (`chore:`, `refactor:`, `feat:`), PR number suffix on main.
 - CI (`.github/workflows`): `ci_lint`, `ci_test` (`go test ./...`), `ci_sync_repo`.

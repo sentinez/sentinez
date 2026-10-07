@@ -3,23 +3,27 @@
 ## 9.1 `core/runner`
 
 [core/runner](../../staging/src/github.com/sentinez/core/runner/) bọc
-`uber/fx` để chuẩn hoá vòng đời service.
+`uber/fx` để chuẩn hoá vòng đời service và chạy nhiều app trong cùng một
+binary.
 
 | API | Mô tả |
 |---|---|
-| `NewApp[T](conf, scope)` | Tạo console logger cho gRPC, đặt log level theo `--log_level`, tạo `Context[T]`, cài OTLP exporter |
-| `App.Main(fn)` | Chạy `fn` để đăng ký provider/hook, dựng `fx.New`, chạy container; lỗi → `zlog.Fatal` |
+| `New(conf, scope)` | Tạo console logger cho gRPC, đặt log level theo `--log_level`, cài OTLP exporter; trả về `*Runner` |
+| `Runner.Run(ctx, apps...)` | Khởi động các app theo thứ tự, chạy đến khi `ctx` kết thúc, nhận `SIGINT/SIGTERM` hoặc một `Serve` lỗi, rồi dừng chúng theo thứ tự ngược; trả về các lỗi đã gộp |
+| `Runner.Main(apps...)` | `Run` với `context.Background()`; lỗi → `zlog.Fatal` |
+| `NewApp[T](setup...)` | Tạo `*App`; `T` được suy ra từ `setup func(*Context[T])` |
 | `Context.Inject(fns...)` | `fx.Provide` |
 | `Context.Invoke(fn)` | `fx.Invoke` |
-| `Context.OnStart(func(ctx, *T) error)` | Hook OnStart; hàm được chạy **trong goroutine riêng** để hook không block |
-| `Context.OnStop(func(ctx, *T) error \| func(ctx) error)` | Hook OnStop |
+| `Context.OnStart(func(ctx, *T) error)` | Hook khởi động; chạy đồng bộ theo thứ tự đăng ký và không được block |
+| `Context.Serve(func(ctx, *T) error)` | Vòng lặp chính (block), chạy sau khi mọi app đã khởi động; `http.ErrServerClosed` được coi là thoát bình thường, lỗi khác dừng toàn bộ runner |
+| `Context.OnStop(func(ctx, *T) error)` | Hook dừng; chạy theo thứ tự đăng ký ngược |
 
-`container.Run` khởi động app trong một goroutine, chờ `SIGINT/SIGTERM` ở
-goroutine khác rồi `Stop`. Ở mode khác `dev`, log của fx bị tắt
-(`fx.NopLogger`).
+Mỗi app có fx container riêng, nên các app trong cùng process có thể cùng
+provide một kiểu (ví dụ `config.Config`). Hook dừng có timeout 15 s. Ở mode
+khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
 OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service name
-= `meta.service_key`. Hàm shutdown của exporter được đăng ký vào OnStop.
+= `meta.service_key`. Exporter được shutdown sau khi mọi app đã dừng.
 
 ## 9.2 `core/http` và `core/http/chains`
 
