@@ -100,7 +100,8 @@ allow  ⇔ count + n ≤ limit
 - `SlidingWindow` giữ 2 `LocalWindow` (prev/curr); `advance` dịch cửa sổ theo
   `now.Truncate(size)`.
 - `RateLimiter` giữ một `SlidingWindow` cho mỗi key (IP) và cơ chế
-  `timeout`: sau khi vượt ngưỡng, từ chối mọi request trong `timeout` ms.
+  `timeout`: sau khi một key vượt ngưỡng, mọi request của key đó bị từ chối
+  trong `timeout` ms.
 - `Window.Sync` là hook để đồng bộ với kho tập trung trong tương lai (hiện
   no-op).
 

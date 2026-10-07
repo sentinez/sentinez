@@ -107,8 +107,8 @@ allow  ⇔ count + n ≤ limit
 - `SlidingWindow` holds two `LocalWindow`s (prev/curr); `advance` shifts the
   windows using `now.Truncate(size)`.
 - `RateLimiter` keeps one `SlidingWindow` per key (IP) and a `timeout`
-  mechanism: after the limit is exceeded, every request is rejected for
-  `timeout` ms.
+  mechanism: after a key exceeds the limit, every request from that key is
+  rejected for `timeout` ms. Other keys are not affected.
 - `Window.Sync` is a hook for syncing with a central store in the future
   (currently a no-op).
 

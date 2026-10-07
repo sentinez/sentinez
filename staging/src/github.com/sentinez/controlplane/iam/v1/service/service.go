@@ -319,27 +319,44 @@ func (srv *IAMService) Status(ctx context.Context,
 
 func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
+	if username != "" {
+		acc, err := srv.findAccount(ctx, username)
+		if err != nil {
+			return err
+		}
 
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, username)
-	if !errors.Is(err, errorx.ErrNotFound) {
+		if acc != nil {
+			return errorx.StatusAlreadyExistsF(
+				"username %s already exists", username)
+		}
+	}
+
+	acc, err := srv.findAccount(ctx, email)
+	if err != nil {
 		return err
 	}
 
-	if acc.GetId() != "" {
-		return errorx.StatusAlreadyExistsF(
-			"username %s already exists", acc.GetUsername())
-	}
-
-	acc, err = srv.accounts.GetByUsernameOrEmail(ctx, email)
-	if !errors.Is(err, errorx.ErrNotFound) {
-		return err
-	}
-	if acc.GetId() != "" {
-		return errorx.StatusAlreadyExistsF(
-			"email %s already exists", acc.GetEmail())
+	if acc != nil {
+		return errorx.StatusAlreadyExistsF("email %s already exists", email)
 	}
 
 	return nil
+}
+
+// findAccount returns the account matching usernameOrEmail, or nil if
+// there is none. Any other lookup failure is returned as an error.
+func (srv *IAMService) findAccount(ctx context.Context,
+	usernameOrEmail string) (*accrepos.AccountX, error) {
+	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
+	if errors.Is(err, errorx.ErrNotFound) {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return acc, nil
 }
 
 func (srv *IAMService) CreateAccount(ctx context.Context,
@@ -478,12 +495,12 @@ func (srv *IAMService) Login(ctx context.Context,
 func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if !errors.Is(err, errorx.ErrNotFound) {
+	acc, err := srv.findAccount(ctx, request.GetEmail())
+	if err != nil {
 		return nil, err
 	}
 
-	if acc.GetId() != "" {
+	if acc != nil {
 		return nil,
 			errorx.StatusAlreadyExistsF(
 				"email %s already exists", request.GetEmail())
@@ -553,12 +570,12 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-	if !errors.Is(err, errorx.ErrNotFound) {
+	acc, err := srv.findAccount(ctx, request.GetEmail())
+	if err != nil {
 		return nil, err
 	}
 
-	if acc.GetId() == "" {
+	if acc == nil {
 		return nil, errorx.StatusNotFoundF(
 			"email %s not found", request.GetEmail())
 	}
