@@ -43,6 +43,40 @@ message SecRule {
   int32 priority = 9;
 }
 
+message RateLimit {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  sentinez.types.v1.Metadata metadata = 1;
+
+  string id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.security.ratelimits." }
+  }];
+
+  string name = 3;
+  string description = 4;
+  sentinez.types.rule.v1.Expression expr = 5;
+  string action = 6;
+  ActionValue action_value = 7;
+  sentinez.types.v1.Status status = 8;
+  int32 priority = 9;
+
+  // Counting window, as a Go duration string (e.g. "10s", "1m").
+  string time_window = 10 [(buf.validate.field) = {
+    required: false
+    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
+  }];
+
+  // Maximum number of requests allowed within time_window.
+  int64 max_requests = 11;
+
+  // Block duration once the limit is exceeded, as a Go duration string.
+  string timeout = 12 [(buf.validate.field) = {
+    required: false
+    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
+  }];
+}
+
 message ActionValue {
   string str_value = 1;
   map<string, string> map_value = 2;

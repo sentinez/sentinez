@@ -67,6 +67,36 @@ func (h *Security) ListSecRules(ctx context.Context,
 	return h.service.ListSecRules(ctx, req)
 }
 
+func (h *Security) CreateRateLimit(ctx context.Context,
+	req *securitypb.CreateRateLimitRequest,
+) (*securitypb.CreateRateLimitResponse, error) {
+	return h.service.CreateRateLimit(ctx, req)
+}
+
+func (h *Security) GetRateLimit(ctx context.Context,
+	req *securitypb.GetRateLimitRequest,
+) (*securitypb.GetRateLimitResponse, error) {
+	return h.service.GetRateLimit(ctx, req)
+}
+
+func (h *Security) UpdateRateLimit(ctx context.Context,
+	req *securitypb.UpdateRateLimitRequest,
+) (*securitypb.UpdateRateLimitResponse, error) {
+	return h.service.UpdateRateLimit(ctx, req)
+}
+
+func (h *Security) DeleteRateLimit(ctx context.Context,
+	req *securitypb.DeleteRateLimitRequest,
+) (*securitypb.DeleteRateLimitResponse, error) {
+	return h.service.DeleteRateLimit(ctx, req)
+}
+
+func (h *Security) ListRateLimits(ctx context.Context,
+	req *securitypb.ListRateLimitsRequest,
+) (*securitypb.ListRateLimitsResponse, error) {
+	return h.service.ListRateLimits(ctx, req)
+}
+
 func (h *Security) Status(ctx context.Context,
 	req *securitypb.StatusRequest,
 ) (*securitypb.StatusResponse, error) {

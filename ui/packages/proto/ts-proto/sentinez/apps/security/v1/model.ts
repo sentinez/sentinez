@@ -24,6 +24,24 @@ export interface SecRule {
   priority: number;
 }
 
+export interface RateLimit {
+  metadata?: Metadata | undefined;
+  id: string;
+  name: string;
+  description: string;
+  expr?: Expression | undefined;
+  action: string;
+  actionValue?: ActionValue | undefined;
+  status: Status;
+  priority: number;
+  /** Counting window, as a Go duration string (e.g. "10s", "1m"). */
+  timeWindow: string;
+  /** Maximum number of requests allowed within time_window. */
+  maxRequests: number;
+  /** Block duration once the limit is exceeded, as a Go duration string. */
+  timeout: string;
+}
+
 export interface ActionValue {
   strValue: string;
   mapValue: { [key: string]: string };
@@ -247,6 +265,282 @@ export const SecRule: MessageFns<SecRule> = {
       : undefined;
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
+    return message;
+  },
+};
+
+function createBaseRateLimit(): RateLimit {
+  return {
+    metadata: undefined,
+    id: "",
+    name: "",
+    description: "",
+    expr: undefined,
+    action: "",
+    actionValue: undefined,
+    status: 0,
+    priority: 0,
+    timeWindow: "",
+    maxRequests: 0,
+    timeout: "",
+  };
+}
+
+export const RateLimit: MessageFns<RateLimit> = {
+  encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
+    if (message.expr !== undefined) {
+      Expression.encode(message.expr, writer.uint32(42).fork()).join();
+    }
+    if (message.action !== "") {
+      writer.uint32(50).string(message.action);
+    }
+    if (message.actionValue !== undefined) {
+      ActionValue.encode(message.actionValue, writer.uint32(58).fork()).join();
+    }
+    if (message.status !== 0) {
+      writer.uint32(64).int32(message.status);
+    }
+    if (message.priority !== 0) {
+      writer.uint32(72).int32(message.priority);
+    }
+    if (message.timeWindow !== "") {
+      writer.uint32(82).string(message.timeWindow);
+    }
+    if (message.maxRequests !== 0) {
+      writer.uint32(88).int64(message.maxRequests);
+    }
+    if (message.timeout !== "") {
+      writer.uint32(98).string(message.timeout);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RateLimit {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRateLimit();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.metadata = Metadata.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.expr = Expression.decode(reader, reader.uint32());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.action = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.actionValue = ActionValue.decode(reader, reader.uint32());
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.status = reader.int32() as any;
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.priority = reader.int32();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.timeWindow = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 88) {
+              break;
+            }
+
+            message.maxRequests = longToNumber(reader.int64());
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.timeout = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): RateLimit {
+    return {
+      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
+      action: isSet(object.action) ? globalThis.String(object.action) : "",
+      actionValue: isSet(object.actionValue)
+        ? ActionValue.fromJSON(object.actionValue)
+        : isSet(object.action_value)
+        ? ActionValue.fromJSON(object.action_value)
+        : undefined,
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
+      timeWindow: isSet(object.timeWindow)
+        ? globalThis.String(object.timeWindow)
+        : isSet(object.time_window)
+        ? globalThis.String(object.time_window)
+        : "",
+      maxRequests: isSet(object.maxRequests)
+        ? globalThis.Number(object.maxRequests)
+        : isSet(object.max_requests)
+        ? globalThis.Number(object.max_requests)
+        : 0,
+      timeout: isSet(object.timeout) ? globalThis.String(object.timeout) : "",
+    };
+  },
+
+  toJSON(message: RateLimit): unknown {
+    const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = Metadata.toJSON(message.metadata);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.expr !== undefined) {
+      obj.expr = Expression.toJSON(message.expr);
+    }
+    if (message.action !== "") {
+      obj.action = message.action;
+    }
+    if (message.actionValue !== undefined) {
+      obj.actionValue = ActionValue.toJSON(message.actionValue);
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.priority !== 0) {
+      obj.priority = Math.round(message.priority);
+    }
+    if (message.timeWindow !== "") {
+      obj.timeWindow = message.timeWindow;
+    }
+    if (message.maxRequests !== 0) {
+      obj.maxRequests = Math.round(message.maxRequests);
+    }
+    if (message.timeout !== "") {
+      obj.timeout = message.timeout;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RateLimit>, I>>(base?: I): RateLimit {
+    return RateLimit.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
+    const message = createBaseRateLimit();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? Expression.fromPartial(object.expr)
+      : undefined;
+    message.action = object.action ?? "";
+    message.actionValue = (object.actionValue !== undefined && object.actionValue !== null)
+      ? ActionValue.fromPartial(object.actionValue)
+      : undefined;
+    message.status = object.status ?? 0;
+    message.priority = object.priority ?? 0;
+    message.timeWindow = object.timeWindow ?? "";
+    message.maxRequests = object.maxRequests ?? 0;
+    message.timeout = object.timeout ?? "";
     return message;
   },
 };
@@ -479,6 +773,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isObject(value: any): boolean {
   return typeof value === "object" && value !== null;

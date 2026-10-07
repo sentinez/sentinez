@@ -112,7 +112,7 @@ allow  ⇔ count + n ≤ limit
 - `Window.Sync` is a hook for syncing with a central store in the future
   (currently a no-op).
 
-Configured in `security.limiters[]`: `timeWindow`, `limit`, `timeout`
+Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
 (`time.ParseDuration` strings).
 
 ## 4.6 WAF — OWASP CRS on Coraza

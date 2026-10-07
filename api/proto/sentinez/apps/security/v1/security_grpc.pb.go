@@ -33,12 +33,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreateSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateSecRule"
-	SecurityService_GetSecRule_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetSecRule"
-	SecurityService_UpdateSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateSecRule"
-	SecurityService_DeleteSecRule_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteSecRule"
-	SecurityService_ListSecRules_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListSecRules"
-	SecurityService_Status_FullMethodName        = "/sentinez.apps.security.v1.SecurityService/Status"
+	SecurityService_CreateSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/CreateSecRule"
+	SecurityService_GetSecRule_FullMethodName      = "/sentinez.apps.security.v1.SecurityService/GetSecRule"
+	SecurityService_UpdateSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/UpdateSecRule"
+	SecurityService_DeleteSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/DeleteSecRule"
+	SecurityService_ListSecRules_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/ListSecRules"
+	SecurityService_CreateRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateRateLimit"
+	SecurityService_GetRateLimit_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetRateLimit"
+	SecurityService_UpdateRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateRateLimit"
+	SecurityService_DeleteRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteRateLimit"
+	SecurityService_ListRateLimits_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListRateLimits"
+	SecurityService_Status_FullMethodName          = "/sentinez.apps.security.v1.SecurityService/Status"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -57,6 +62,16 @@ type SecurityServiceClient interface {
 	DeleteSecRule(ctx context.Context, in *DeleteSecRuleRequest, opts ...grpc.CallOption) (*DeleteSecRuleResponse, error)
 	// ListSecRules lists WAF rule baseds with optional filters
 	ListSecRules(ctx context.Context, in *ListSecRulesRequest, opts ...grpc.CallOption) (*ListSecRulesResponse, error)
+	// CreateRateLimit creates a new rate limit rule
+	CreateRateLimit(ctx context.Context, in *CreateRateLimitRequest, opts ...grpc.CallOption) (*CreateRateLimitResponse, error)
+	// GetRateLimit retrieves a rate limit rule by ID
+	GetRateLimit(ctx context.Context, in *GetRateLimitRequest, opts ...grpc.CallOption) (*GetRateLimitResponse, error)
+	// UpdateRateLimit updates an existing rate limit rule
+	UpdateRateLimit(ctx context.Context, in *UpdateRateLimitRequest, opts ...grpc.CallOption) (*UpdateRateLimitResponse, error)
+	// DeleteRateLimit removes a rate limit rule by ID
+	DeleteRateLimit(ctx context.Context, in *DeleteRateLimitRequest, opts ...grpc.CallOption) (*DeleteRateLimitResponse, error)
+	// ListRateLimits lists rate limit rules with optional filters
+	ListRateLimits(ctx context.Context, in *ListRateLimitsRequest, opts ...grpc.CallOption) (*ListRateLimitsResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -119,6 +134,56 @@ func (c *securityServiceClient) ListSecRules(ctx context.Context, in *ListSecRul
 	return out, nil
 }
 
+func (c *securityServiceClient) CreateRateLimit(ctx context.Context, in *CreateRateLimitRequest, opts ...grpc.CallOption) (*CreateRateLimitResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateRateLimitResponse)
+	err := c.cc.Invoke(ctx, SecurityService_CreateRateLimit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) GetRateLimit(ctx context.Context, in *GetRateLimitRequest, opts ...grpc.CallOption) (*GetRateLimitResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRateLimitResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetRateLimit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) UpdateRateLimit(ctx context.Context, in *UpdateRateLimitRequest, opts ...grpc.CallOption) (*UpdateRateLimitResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRateLimitResponse)
+	err := c.cc.Invoke(ctx, SecurityService_UpdateRateLimit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) DeleteRateLimit(ctx context.Context, in *DeleteRateLimitRequest, opts ...grpc.CallOption) (*DeleteRateLimitResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteRateLimitResponse)
+	err := c.cc.Invoke(ctx, SecurityService_DeleteRateLimit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) ListRateLimits(ctx context.Context, in *ListRateLimitsRequest, opts ...grpc.CallOption) (*ListRateLimitsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRateLimitsResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRateLimits_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
@@ -145,6 +210,16 @@ type SecurityServiceServer interface {
 	DeleteSecRule(context.Context, *DeleteSecRuleRequest) (*DeleteSecRuleResponse, error)
 	// ListSecRules lists WAF rule baseds with optional filters
 	ListSecRules(context.Context, *ListSecRulesRequest) (*ListSecRulesResponse, error)
+	// CreateRateLimit creates a new rate limit rule
+	CreateRateLimit(context.Context, *CreateRateLimitRequest) (*CreateRateLimitResponse, error)
+	// GetRateLimit retrieves a rate limit rule by ID
+	GetRateLimit(context.Context, *GetRateLimitRequest) (*GetRateLimitResponse, error)
+	// UpdateRateLimit updates an existing rate limit rule
+	UpdateRateLimit(context.Context, *UpdateRateLimitRequest) (*UpdateRateLimitResponse, error)
+	// DeleteRateLimit removes a rate limit rule by ID
+	DeleteRateLimit(context.Context, *DeleteRateLimitRequest) (*DeleteRateLimitResponse, error)
+	// ListRateLimits lists rate limit rules with optional filters
+	ListRateLimits(context.Context, *ListRateLimitsRequest) (*ListRateLimitsResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -170,6 +245,21 @@ func (UnimplementedSecurityServiceServer) DeleteSecRule(context.Context, *Delete
 }
 func (UnimplementedSecurityServiceServer) ListSecRules(context.Context, *ListSecRulesRequest) (*ListSecRulesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSecRules not implemented")
+}
+func (UnimplementedSecurityServiceServer) CreateRateLimit(context.Context, *CreateRateLimitRequest) (*CreateRateLimitResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateRateLimit not implemented")
+}
+func (UnimplementedSecurityServiceServer) GetRateLimit(context.Context, *GetRateLimitRequest) (*GetRateLimitResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRateLimit not implemented")
+}
+func (UnimplementedSecurityServiceServer) UpdateRateLimit(context.Context, *UpdateRateLimitRequest) (*UpdateRateLimitResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRateLimit not implemented")
+}
+func (UnimplementedSecurityServiceServer) DeleteRateLimit(context.Context, *DeleteRateLimitRequest) (*DeleteRateLimitResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRateLimit not implemented")
+}
+func (UnimplementedSecurityServiceServer) ListRateLimits(context.Context, *ListRateLimitsRequest) (*ListRateLimitsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRateLimits not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -284,6 +374,96 @@ func _SecurityService_ListSecRules_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_CreateRateLimit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRateLimitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).CreateRateLimit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_CreateRateLimit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).CreateRateLimit(ctx, req.(*CreateRateLimitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_GetRateLimit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRateLimitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).GetRateLimit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_GetRateLimit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).GetRateLimit(ctx, req.(*GetRateLimitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_UpdateRateLimit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRateLimitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).UpdateRateLimit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_UpdateRateLimit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).UpdateRateLimit(ctx, req.(*UpdateRateLimitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_DeleteRateLimit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRateLimitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).DeleteRateLimit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_DeleteRateLimit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).DeleteRateLimit(ctx, req.(*DeleteRateLimitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_ListRateLimits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRateLimitsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ListRateLimits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_ListRateLimits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ListRateLimits(ctx, req.(*ListRateLimitsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
@@ -328,6 +508,26 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSecRules",
 			Handler:    _SecurityService_ListSecRules_Handler,
+		},
+		{
+			MethodName: "CreateRateLimit",
+			Handler:    _SecurityService_CreateRateLimit_Handler,
+		},
+		{
+			MethodName: "GetRateLimit",
+			Handler:    _SecurityService_GetRateLimit_Handler,
+		},
+		{
+			MethodName: "UpdateRateLimit",
+			Handler:    _SecurityService_UpdateRateLimit_Handler,
+		},
+		{
+			MethodName: "DeleteRateLimit",
+			Handler:    _SecurityService_DeleteRateLimit_Handler,
+		},
+		{
+			MethodName: "ListRateLimits",
+			Handler:    _SecurityService_ListRateLimits_Handler,
 		},
 		{
 			MethodName: "Status",

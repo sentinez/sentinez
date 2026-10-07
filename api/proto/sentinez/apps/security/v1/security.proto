@@ -92,6 +92,49 @@ service SecurityService {
     };
   }
 
+  // ── RateLimit ─────────────────────────────────────────────────────────────
+
+  // CreateRateLimit creates a new rate limit rule
+  rpc CreateRateLimit(CreateRateLimitRequest)
+      returns (CreateRateLimitResponse) {
+    option (google.api.http) = {
+      post: "/security/ratelimit"
+      body: "*"
+    };
+  }
+
+  // GetRateLimit retrieves a rate limit rule by ID
+  rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse) {
+    option (google.api.http) = {
+      get: "/security/ratelimit/{id}"
+    };
+  }
+
+  // UpdateRateLimit updates an existing rate limit rule
+  rpc UpdateRateLimit(UpdateRateLimitRequest)
+      returns (UpdateRateLimitResponse) {
+    option (google.api.http) = {
+      put: "/security/ratelimit/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteRateLimit removes a rate limit rule by ID
+  rpc DeleteRateLimit(DeleteRateLimitRequest)
+      returns (DeleteRateLimitResponse) {
+    option (google.api.http) = {
+      delete: "/security/ratelimit/{id}"
+    };
+  }
+
+  // ListRateLimits lists rate limit rules with optional filters
+  rpc ListRateLimits(ListRateLimitsRequest)
+      returns (ListRateLimitsResponse) {
+    option (google.api.http) = {
+      get: "/security/ratelimits"
+    };
+  }
+
   // ── Status ────────────────────────────────────────────────────────────────
 
   // Status returns the health status of the security service
@@ -149,6 +192,51 @@ message ListSecRulesResponse {
   repeated SecRule sec_rules = 1;
   int64 total = 2;
 }
+
+// ── RateLimit Messages ───────────────────────────────────────────────────
+
+message CreateRateLimitRequest {
+  RateLimit rate_limit = 1 [(buf.validate.field).required = true];
+}
+
+message CreateRateLimitResponse {
+  string id = 1;
+}
+
+message GetRateLimitRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetRateLimitResponse {
+  RateLimit rate_limit = 1;
+}
+
+message UpdateRateLimitRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  RateLimit rate_limit = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateRateLimitResponse {
+  RateLimit rate_limit = 1;
+}
+
+message DeleteRateLimitRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteRateLimitResponse {}
+
+message ListRateLimitsRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+}
+
+message ListRateLimitsResponse {
+  repeated RateLimit rate_limits = 1;
+  int64 total = 2;
+}
+
 // ── Status Messages ─────────────────────────────────────────────────────────
 
 message StatusRequest {}

@@ -148,7 +148,7 @@ setting:
             type: ACTION_TYPE_BLOCK
     limiters:
       - timeWindow: 5s
-        limit: 50
+        maxRequests: 50
         timeout: 5s
   controller:
     cdn:

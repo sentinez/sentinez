@@ -665,7 +665,7 @@ func (m *RateLimit) Validate() error {
 
 	// no validation rules for TimeWindow
 
-	// no validation rules for Limit
+	// no validation rules for MaxRequests
 
 	// no validation rules for Timeout
 

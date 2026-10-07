@@ -105,7 +105,7 @@ allow  ⇔ count + n ≤ limit
 - `Window.Sync` là hook để đồng bộ với kho tập trung trong tương lai (hiện
   no-op).
 
-Cấu hình ở `security.limiters[]`: `timeWindow`, `limit`, `timeout` (chuỗi
+Cấu hình ở `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout` (chuỗi
 `time.ParseDuration`).
 
 ## 4.6 WAF — OWASP CRS trên Coraza

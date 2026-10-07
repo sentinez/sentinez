@@ -530,7 +530,7 @@ type RateLimit struct {
 	Ingress        *v1.SecRuleLite        `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
 	IngressRuntime *v1.SecRule            `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
 	TimeWindow     string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`            //@gotags: yaml:"timeWindow"
-	Limit          int64                  `protobuf:"varint,12,opt,name=limit,proto3" json:"limit,omitempty" yaml:"limit"`                                       //@gotags: yaml:"limit"
+	MaxRequests    int64                  `protobuf:"varint,12,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty" yaml:"maxRequests"`        //@gotags: yaml:"maxRequests"
 	Timeout        string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                    //@gotags: yaml:"timeout"
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -587,9 +587,9 @@ func (x *RateLimit) GetTimeWindow() string {
 	return ""
 }
 
-func (x *RateLimit) GetLimit() int64 {
+func (x *RateLimit) GetMaxRequests() int64 {
 	if x != nil {
-		return x.Limit
+		return x.MaxRequests
 	}
 	return 0
 }
@@ -771,13 +771,13 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\bRulesets\"\x98\x01\n" +
 	"\aSecRule\x12@\n" +
 	"\aingress\x18\x01 \x01(\v2&.sentinez.types.secrule.v1.SecRuleLiteR\aingress\x12K\n" +
-	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\"\xdb\x02\n" +
+	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\"\xe8\x02\n" +
 	"\tRateLimit\x12@\n" +
 	"\aingress\x18\x01 \x01(\v2&.sentinez.types.secrule.v1.SecRuleLiteR\aingress\x12K\n" +
 	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\x12W\n" +
 	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
-	"timeWindow\x12\x14\n" +
-	"\x05limit\x18\f \x01(\x03R\x05limit\x12P\n" +
+	"timeWindow\x12!\n" +
+	"\fmax_requests\x18\f \x01(\x03R\vmaxRequests\x12P\n" +
 	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\":\n" +
 	"\n" +
 	"Controller\x12,\n" +

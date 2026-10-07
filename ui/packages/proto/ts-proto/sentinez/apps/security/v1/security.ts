@@ -8,7 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { FieldMask } from "../../../../google/protobuf/field_mask";
 import { Pages } from "../../../types/v1/model";
-import { SecRule } from "./model";
+import { RateLimit, SecRule } from "./model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
@@ -52,6 +52,49 @@ export interface ListSecRulesRequest {
 
 export interface ListSecRulesResponse {
   secRules: SecRule[];
+  total: number;
+}
+
+export interface CreateRateLimitRequest {
+  rateLimit?: RateLimit | undefined;
+}
+
+export interface CreateRateLimitResponse {
+  id: string;
+}
+
+export interface GetRateLimitRequest {
+  id: string;
+}
+
+export interface GetRateLimitResponse {
+  rateLimit?: RateLimit | undefined;
+}
+
+export interface UpdateRateLimitRequest {
+  id: string;
+  rateLimit?: RateLimit | undefined;
+  updateMask?: string[] | undefined;
+}
+
+export interface UpdateRateLimitResponse {
+  rateLimit?: RateLimit | undefined;
+}
+
+export interface DeleteRateLimitRequest {
+  id: string;
+}
+
+export interface DeleteRateLimitResponse {
+}
+
+export interface ListRateLimitsRequest {
+  page?: Pages | undefined;
+  ids: string[];
+}
+
+export interface ListRateLimitsResponse {
+  rateLimits: RateLimit[];
   total: number;
 }
 
@@ -820,6 +863,769 @@ export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
   fromPartial<I extends Exact<DeepPartial<ListSecRulesResponse>, I>>(object: I): ListSecRulesResponse {
     const message = createBaseListSecRulesResponse();
     message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
+    return message;
+  },
+};
+
+function createBaseCreateRateLimitRequest(): CreateRateLimitRequest {
+  return { rateLimit: undefined };
+}
+
+export const CreateRateLimitRequest: MessageFns<CreateRateLimitRequest> = {
+  encode(message: CreateRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rateLimit !== undefined) {
+      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRateLimitRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateRateLimitRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateRateLimitRequest {
+    return {
+      rateLimit: isSet(object.rateLimit)
+        ? RateLimit.fromJSON(object.rateLimit)
+        : isSet(object.rate_limit)
+        ? RateLimit.fromJSON(object.rate_limit)
+        : undefined,
+    };
+  },
+
+  toJSON(message: CreateRateLimitRequest): unknown {
+    const obj: any = {};
+    if (message.rateLimit !== undefined) {
+      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRateLimitRequest>, I>>(base?: I): CreateRateLimitRequest {
+    return CreateRateLimitRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRateLimitRequest>, I>>(object: I): CreateRateLimitRequest {
+    const message = createBaseCreateRateLimitRequest();
+    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
+      ? RateLimit.fromPartial(object.rateLimit)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseCreateRateLimitResponse(): CreateRateLimitResponse {
+  return { id: "" };
+}
+
+export const CreateRateLimitResponse: MessageFns<CreateRateLimitResponse> = {
+  encode(message: CreateRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRateLimitResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateRateLimitResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateRateLimitResponse {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: CreateRateLimitResponse): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateRateLimitResponse>, I>>(base?: I): CreateRateLimitResponse {
+    return CreateRateLimitResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateRateLimitResponse>, I>>(object: I): CreateRateLimitResponse {
+    const message = createBaseCreateRateLimitResponse();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRateLimitRequest(): GetRateLimitRequest {
+  return { id: "" };
+}
+
+export const GetRateLimitRequest: MessageFns<GetRateLimitRequest> = {
+  encode(message: GetRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRateLimitRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetRateLimitRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetRateLimitRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetRateLimitRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRateLimitRequest>, I>>(base?: I): GetRateLimitRequest {
+    return GetRateLimitRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRateLimitRequest>, I>>(object: I): GetRateLimitRequest {
+    const message = createBaseGetRateLimitRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetRateLimitResponse(): GetRateLimitResponse {
+  return { rateLimit: undefined };
+}
+
+export const GetRateLimitResponse: MessageFns<GetRateLimitResponse> = {
+  encode(message: GetRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rateLimit !== undefined) {
+      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRateLimitResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetRateLimitResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetRateLimitResponse {
+    return {
+      rateLimit: isSet(object.rateLimit)
+        ? RateLimit.fromJSON(object.rateLimit)
+        : isSet(object.rate_limit)
+        ? RateLimit.fromJSON(object.rate_limit)
+        : undefined,
+    };
+  },
+
+  toJSON(message: GetRateLimitResponse): unknown {
+    const obj: any = {};
+    if (message.rateLimit !== undefined) {
+      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetRateLimitResponse>, I>>(base?: I): GetRateLimitResponse {
+    return GetRateLimitResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetRateLimitResponse>, I>>(object: I): GetRateLimitResponse {
+    const message = createBaseGetRateLimitResponse();
+    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
+      ? RateLimit.fromPartial(object.rateLimit)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRateLimitRequest(): UpdateRateLimitRequest {
+  return { id: "", rateLimit: undefined, updateMask: undefined };
+}
+
+export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
+  encode(message: UpdateRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.rateLimit !== undefined) {
+      RateLimit.encode(message.rateLimit, writer.uint32(18).fork()).join();
+    }
+    if (message.updateMask !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRateLimitRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateRateLimitRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): UpdateRateLimitRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      rateLimit: isSet(object.rateLimit)
+        ? RateLimit.fromJSON(object.rateLimit)
+        : isSet(object.rate_limit)
+        ? RateLimit.fromJSON(object.rate_limit)
+        : undefined,
+      updateMask: isSet(object.updateMask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
+        : isSet(object.update_mask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.update_mask))
+        : undefined,
+    };
+  },
+
+  toJSON(message: UpdateRateLimitRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.rateLimit !== undefined) {
+      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    }
+    if (message.updateMask !== undefined) {
+      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRateLimitRequest>, I>>(base?: I): UpdateRateLimitRequest {
+    return UpdateRateLimitRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRateLimitRequest>, I>>(object: I): UpdateRateLimitRequest {
+    const message = createBaseUpdateRateLimitRequest();
+    message.id = object.id ?? "";
+    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
+      ? RateLimit.fromPartial(object.rateLimit)
+      : undefined;
+    message.updateMask = object.updateMask ?? undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateRateLimitResponse(): UpdateRateLimitResponse {
+  return { rateLimit: undefined };
+}
+
+export const UpdateRateLimitResponse: MessageFns<UpdateRateLimitResponse> = {
+  encode(message: UpdateRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.rateLimit !== undefined) {
+      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRateLimitResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateRateLimitResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): UpdateRateLimitResponse {
+    return {
+      rateLimit: isSet(object.rateLimit)
+        ? RateLimit.fromJSON(object.rateLimit)
+        : isSet(object.rate_limit)
+        ? RateLimit.fromJSON(object.rate_limit)
+        : undefined,
+    };
+  },
+
+  toJSON(message: UpdateRateLimitResponse): unknown {
+    const obj: any = {};
+    if (message.rateLimit !== undefined) {
+      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateRateLimitResponse>, I>>(base?: I): UpdateRateLimitResponse {
+    return UpdateRateLimitResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateRateLimitResponse>, I>>(object: I): UpdateRateLimitResponse {
+    const message = createBaseUpdateRateLimitResponse();
+    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
+      ? RateLimit.fromPartial(object.rateLimit)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteRateLimitRequest(): DeleteRateLimitRequest {
+  return { id: "" };
+}
+
+export const DeleteRateLimitRequest: MessageFns<DeleteRateLimitRequest> = {
+  encode(message: DeleteRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRateLimitRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteRateLimitRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): DeleteRateLimitRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteRateLimitRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteRateLimitRequest>, I>>(base?: I): DeleteRateLimitRequest {
+    return DeleteRateLimitRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteRateLimitRequest>, I>>(object: I): DeleteRateLimitRequest {
+    const message = createBaseDeleteRateLimitRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteRateLimitResponse(): DeleteRateLimitResponse {
+  return {};
+}
+
+export const DeleteRateLimitResponse: MessageFns<DeleteRateLimitResponse> = {
+  encode(_: DeleteRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRateLimitResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteRateLimitResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): DeleteRateLimitResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteRateLimitResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteRateLimitResponse>, I>>(base?: I): DeleteRateLimitResponse {
+    return DeleteRateLimitResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteRateLimitResponse>, I>>(_: I): DeleteRateLimitResponse {
+    const message = createBaseDeleteRateLimitResponse();
+    return message;
+  },
+};
+
+function createBaseListRateLimitsRequest(): ListRateLimitsRequest {
+  return { page: undefined, ids: [] };
+}
+
+export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
+  encode(message: ListRateLimitsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.ids) {
+      writer.uint32(82).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRateLimitsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRateLimitsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.ids.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListRateLimitsRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: ListRateLimitsRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRateLimitsRequest>, I>>(base?: I): ListRateLimitsRequest {
+    return ListRateLimitsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRateLimitsRequest>, I>>(object: I): ListRateLimitsRequest {
+    const message = createBaseListRateLimitsRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.ids = object.ids?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseListRateLimitsResponse(): ListRateLimitsResponse {
+  return { rateLimits: [], total: 0 };
+}
+
+export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
+  encode(message: ListRateLimitsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rateLimits) {
+      RateLimit.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRateLimitsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRateLimitsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rateLimits.push(RateLimit.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListRateLimitsResponse {
+    return {
+      rateLimits: globalThis.Array.isArray(object?.rateLimits)
+        ? object.rateLimits.map((e: any) => RateLimit.fromJSON(e))
+        : globalThis.Array.isArray(object?.rate_limits)
+        ? object.rate_limits.map((e: any) => RateLimit.fromJSON(e))
+        : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: ListRateLimitsResponse): unknown {
+    const obj: any = {};
+    if (message.rateLimits?.length) {
+      obj.rateLimits = message.rateLimits.map((e) => RateLimit.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRateLimitsResponse>, I>>(base?: I): ListRateLimitsResponse {
+    return ListRateLimitsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRateLimitsResponse>, I>>(object: I): ListRateLimitsResponse {
+    const message = createBaseListRateLimitsResponse();
+    message.rateLimits = object.rateLimits?.map((e) => RateLimit.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },
