@@ -24,7 +24,7 @@ import (
 func NewRateLimiter(timeout time.Duration,
 	windowSize time.Duration, limit int64) *RateLimiter {
 	return &RateLimiter{
-		records:    ssync.NewMap[string, *SlidingWindow](),
+		records:    ssync.NewMap[string, *record](),
 		windowSize: windowSize,
 		limit:      limit,
 		timeout:    timeout.Milliseconds(),
@@ -32,11 +32,17 @@ func NewRateLimiter(timeout time.Duration,
 }
 
 type RateLimiter struct {
-	records      *ssync.Map[string, *SlidingWindow]
-	mu           sync.Mutex
-	windowSize   time.Duration
-	limit        int64
-	timeout      int64
+	records    *ssync.Map[string, *record]
+	mu         sync.Mutex
+	windowSize time.Duration
+	limit      int64
+	timeout    int64
+}
+
+// record is the per-key state, so that one key exceeding the limit does
+// not block the others.
+type record struct {
+	window       *SlidingWindow
 	lastBlocking int64
 }
 
@@ -56,23 +62,24 @@ func (r *RateLimiter) AllowN(key string, now time.Time, n int64) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	limiter, ok := r.records.Load(key)
+	rec, ok := r.records.Load(key)
 	if !ok {
-		limiter = NewSlidingWindow(r.windowSize, r.limit)
-		r.records.Store(key, limiter)
+		rec = &record{window: NewSlidingWindow(r.windowSize, r.limit)}
+		r.records.Store(key, rec)
 	}
 
-	if r.lastBlocking != 0 && r.lastBlocking+r.timeout > now.UnixMilli() {
-		r.lastBlocking = now.UnixMilli()
+	nowMillis := now.UnixMilli()
+	if rec.lastBlocking != 0 && rec.lastBlocking+r.timeout > nowMillis {
+		rec.lastBlocking = nowMillis
 		return false
 	}
 
-	if !limiter.AllowN(now, n) {
-		r.lastBlocking = now.UnixMilli()
+	if !rec.window.AllowN(now, n) {
+		rec.lastBlocking = nowMillis
 		return false
 	}
 
-	return r.lastBlocking+r.timeout <= now.UnixMilli()
+	return true
 }
 
 func (r *RateLimiter) Count(key string) int64 {
@@ -80,12 +87,12 @@ func (r *RateLimiter) Count(key string) int64 {
 		return 0
 	}
 
-	limiter, ok := r.records.Load(key)
+	rec, ok := r.records.Load(key)
 	if !ok {
 		return 0
 	}
 
-	return limiter.Count()
+	return rec.window.Count()
 }
 
 func (r *RateLimiter) Size() time.Duration {
