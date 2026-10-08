@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@sentinez/ui/components/select';
 import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type {
   CreateResourceRequest,
   TenantPlan,
@@ -42,22 +43,30 @@ interface Option<T extends string> {
   description?: string;
 }
 
-const PLAN_OPTIONS: Option<TenantPlan>[] = [
-  { label: 'Free', value: 'PLAN_FREE', description: 'For testing and personal projects.' },
-  { label: 'Standard', value: 'PLAN_STANDARD', description: 'For production sites.' },
-  { label: 'Pro', value: 'PLAN_PRO', description: 'For high-traffic sites.' },
+type FieldsTranslator = ReturnType<typeof useTranslations<'ResourceFields'>>;
+type StatusTranslator = ReturnType<typeof useTranslations<'Enum.status'>>;
+type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
+
+const planOptions = (t: FieldsTranslator): Option<TenantPlan>[] => [
+  { label: t('planFree'), value: 'PLAN_FREE', description: t('planFreeDescription') },
+  {
+    label: t('planStandard'),
+    value: 'PLAN_STANDARD',
+    description: t('planStandardDescription'),
+  },
+  { label: t('planPro'), value: 'PLAN_PRO', description: t('planProDescription') },
 ];
 
-const STATUS_OPTIONS: Option<TenantStatus>[] = [
+const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<TenantStatus>[] => [
   {
-    label: 'Active',
+    label: ts('active'),
     value: 'STATUS_ACTIVE',
-    description: 'The edge serves traffic for this domain.',
+    description: t('statusActiveDescription'),
   },
   {
-    label: 'Disable',
+    label: ts('disable'),
     value: 'STATUS_DISABLE',
-    description: 'The resource is kept but the edge does not serve it.',
+    description: t('statusDisableDescription'),
   },
 ];
 
@@ -133,21 +142,21 @@ export function resourceOf(f: ResourceFormValue): CreateResourceRequest {
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateResourceForm(f: ResourceFormValue): string | null {
+export function validateResourceForm(f: ResourceFormValue, t: ValidationTranslator): string | null {
   if (!DOMAIN_RE.test(f.resourceName.trim())) {
-    return 'Name must start with a letter and be 3-30 characters of letters, digits, "." or "_"';
+    return t('resourceName');
   }
   if (!DOMAIN_RE.test(f.resourceDomain.trim())) {
-    return 'Domain must start with a letter and be 3-30 characters of letters, digits, "." or "_"';
+    return t('resourceDomain');
   }
   const origins = f.origins.filter((o) => o.server.trim());
   if (origins.length === 0) return null;
   if (!LOCATION_RE.test(f.location.trim())) {
-    return 'Location must start with "/"';
+    return t('location');
   }
   const bad = origins.find((o) => !UPSTREAM_RE.test(o.server.trim()));
   if (bad) {
-    return `Origin "${bad.server}" must be an IPv4 address or a hostname`;
+    return t('origin', { server: bad.server });
   }
   return null;
 }
@@ -195,6 +204,7 @@ function OriginRows({
   onChange: (rows: OriginRow[]) => void;
   idPrefix: string;
 }) {
+  const t = useTranslations('ResourceFields');
   const patchRow = (i: number, patch: Partial<OriginRow>) =>
     onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
 
@@ -206,7 +216,7 @@ function OriginRows({
             value={row.protocol}
             onValueChange={(v) => patchRow(i, { protocol: v as Protocol })}
           >
-            <SelectTrigger className="w-28 shrink-0" aria-label="Protocol">
+            <SelectTrigger className="w-28 shrink-0" aria-label={t('protocol')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -219,8 +229,8 @@ function OriginRows({
           </Select>
           <Input
             id={`${idPrefix}-origin-${i}`}
-            aria-label="Origin server"
-            placeholder="10.0.0.10 or origin.example.com"
+            aria-label={t('originServer')}
+            placeholder={t('originPlaceholder')}
             spellCheck={false}
             autoComplete="off"
             value={row.server}
@@ -230,7 +240,7 @@ function OriginRows({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Remove origin"
+            aria-label={t('removeOrigin')}
             onClick={() => onChange(rows.filter((_, j) => j !== i))}
           >
             <Trash2Icon className="w-4 h-4" />
@@ -245,7 +255,7 @@ function OriginRows({
         onClick={() => onChange([...rows, { server: '', protocol: 'PROXY_PROTOCOL_HTTPS' }])}
       >
         <PlusIcon className="w-4 h-4" />
-        Add origin
+        {t('addOrigin')}
       </Button>
     </div>
   );
@@ -259,11 +269,14 @@ interface Props {
 
 /** Form fields matching v1CreateResourceRequest in tenant.swagger.json */
 export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props) {
+  const t = useTranslations('ResourceFields');
+  const ts = useTranslations('Enum.status');
+
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="grid gap-2 content-start">
-          <Label htmlFor={`${idPrefix}-name`}>Name</Label>
+          <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
           <Input
             id={`${idPrefix}-name`}
             placeholder="my_site"
@@ -274,7 +287,7 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
           />
         </div>
         <div className="grid gap-2 content-start">
-          <Label htmlFor={`${idPrefix}-domain`}>Domain</Label>
+          <Label htmlFor={`${idPrefix}-domain`}>{t('domain')}</Label>
           <Input
             id={`${idPrefix}-domain`}
             placeholder="example.com"
@@ -283,33 +296,30 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
             value={value.resourceDomain}
             onChange={(e) => onChange({ resourceDomain: e.target.value })}
           />
-          <p className="text-sm text-muted-foreground">The host name the edge serves.</p>
+          <p className="text-sm text-muted-foreground">{t('domainHint')}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <OptionSelect
-          label="Plan"
+          label={t('plan')}
           value={value.plan}
-          options={PLAN_OPTIONS}
+          options={planOptions(t)}
           onChange={(plan) => onChange({ plan })}
         />
         <OptionSelect
-          label="Status"
+          label={t('status')}
           value={value.status}
-          options={STATUS_OPTIONS}
+          options={statusOptions(t, ts)}
           onChange={(status) => onChange({ status })}
         />
       </div>
 
       <div className="grid gap-2 mt-2">
-        <Label>Origin</Label>
-        <p className="text-sm text-muted-foreground">
-          Upstream servers the edge proxies to (round robin). Leave empty to start from the default
-          edge setting.
-        </p>
+        <Label>{t('origin')}</Label>
+        <p className="text-sm text-muted-foreground">{t('originHint')}</p>
         <div className="grid gap-2 sm:w-1/2">
-          <Label htmlFor={`${idPrefix}-location`}>Location</Label>
+          <Label htmlFor={`${idPrefix}-location`}>{t('location')}</Label>
           <Input
             id={`${idPrefix}-location`}
             placeholder="/"

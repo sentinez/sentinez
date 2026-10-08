@@ -82,7 +82,24 @@ export default function Loading() {
   unused), and show `toast.success` / `toast.error` from `@/lib/toast`.
 - Disable the Save button while saving (`saving ? 'Saving...' : 'Save'`).
 
-## 5. Verify
+## 5. i18n (next-intl)
+
+No user-facing string is hard-coded. Messages live in `messages/en.json` (source of
+truth for key types, see `global.d.ts`) and `messages/vi.json`; add every key to both.
+The locale comes from the `NEXT_LOCALE` cookie / `Accept-Language` (`i18n/locale.ts`),
+there is no `/[locale]` URL segment.
+
+- Client components: `const t = useTranslations('SecRule')`; shared words
+  (Save, Cancel, Delete, Loading..., No results.) are in `Common`.
+- Server components (`page.tsx` with the delay): `await getTranslations('Domain')`.
+- Helpers outside React (`validateXxxForm`, `getColumns`, `handleStatusError`) take the
+  translator as a parameter, typed `ReturnType<typeof useTranslations<'Validation'>>`.
+- Table columns set `meta: { label: t('...') }` so the "Columns" menu is translated.
+- Enum labels (status, action, priority, field source) come from
+  `useSecurityOptions()` in `hooks/use-security-options.ts`, not from `lib/type/security`.
+- Dates / numbers: `useFormatter()` instead of `toLocaleString()`.
+
+## 6. Verify
 
 ```sh
 cd ui/apps/console

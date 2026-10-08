@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
@@ -19,6 +20,9 @@ import { useEffect, useState } from 'react';
 const UPDATE_MASK = 'name,description,expr,action,status,priority,time_window,max_requests,timeout';
 
 export default function EditRateLimitPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations('RateLimiter');
+  const tc = useTranslations('Common');
+  const tv = useTranslations('Validation');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,7 +37,7 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
         setId(id);
         setForm(rateLimitFormOf(await getRateLimit(id)));
       } catch {
-        toast.error('Failed to load rate limit details');
+        toast.error(t('loadDetailFailed'));
       } finally {
         setLoading(false);
       }
@@ -43,7 +47,7 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
 
   const handleSave = async () => {
     if (!id) return;
-    const error = validateRateLimitForm(form);
+    const error = validateRateLimitForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -52,10 +56,10 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
     setSaving(true);
     try {
       await updateRateLimit(id, rateLimitOf(form, id), UPDATE_MASK);
-      toast.success('Rate limit rule updated successfully');
+      toast.success(t('updated'));
       router.back();
     } catch {
-      toast.error('Failed to save rate limit rule');
+      toast.error(t('saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -67,16 +71,13 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
 
   return (
     <PageLayout>
-      <PageLayoutHeader
-        title="Edit Rate Limit"
-        subtitle="Modify the rate limit condition, threshold and block time."
-      >
+      <PageLayoutHeader title={t('editTitle')} subtitle={t('editSubtitle')}>
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleSave}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? tc('saving') : tc('save')}
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            {tc('cancel')}
           </Button>
         </div>
       </PageLayoutHeader>

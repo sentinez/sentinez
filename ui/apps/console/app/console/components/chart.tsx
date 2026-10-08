@@ -18,6 +18,8 @@ import {
   type ChartConfig,
 } from '@sentinez/ui/components/chart';
 import { Card } from '@sentinez/ui/components/card';
+import { useFormatter, useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 export const description = 'A line chart';
 
@@ -86,14 +88,19 @@ const hourlyVisitors = [
   118, 83, 57,
 ].map((visitors, hour) => ({ hour: `${String(hour).padStart(2, '0')}:00`, visitors }));
 
-const visitorConfig = {
-  visitors: {
-    label: 'Unique visitors',
-    color: 'var(--chart-1)',
-  },
-} satisfies ChartConfig;
-
 export function ResourceVisitorChart() {
+  const t = useTranslations('Resource');
+  const format = useFormatter();
+  const visitorConfig = useMemo(
+    () =>
+      ({
+        visitors: {
+          label: t('visitors'),
+          color: 'var(--chart-1)',
+        },
+      }) satisfies ChartConfig,
+    [t],
+  );
   const total = hourlyVisitors.reduce((sum, d) => sum + d.visitors, 0);
   const peak = hourlyVisitors.reduce((max, d) => (d.visitors > max.visitors ? d : max));
 
@@ -101,15 +108,15 @@ export function ResourceVisitorChart() {
     <div className="flex flex-col gap-4">
       <div className="flex gap-8">
         <div>
-          <div className="text-sm text-muted-foreground">Total (24h)</div>
-          <div className="text-2xl font-bold tabular-nums">{total.toLocaleString()}</div>
+          <div className="text-sm text-muted-foreground">{t('total24h')}</div>
+          <div className="text-2xl font-bold tabular-nums">{format.number(total)}</div>
         </div>
         <div>
-          <div className="text-sm text-muted-foreground">Peak hour</div>
+          <div className="text-sm text-muted-foreground">{t('peakHour')}</div>
           <div className="text-2xl font-bold tabular-nums">
             {peak.hour}{' '}
             <span className="text-sm font-normal text-muted-foreground">
-              ({peak.visitors.toLocaleString()})
+              ({format.number(peak.visitors)})
             </span>
           </div>
         </div>

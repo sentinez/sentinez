@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { handleStatusError } from '@/lib/error-handler';
 import axios from 'axios';
+import { useTranslations } from 'next-intl';
 
 /**
  * A standard hook for managing data fetching with automatic error toasts and request cancellation.
  */
 export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[]) {
+  const t = useTranslations('Errors');
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(args[0] !== null);
   const [error, setError] = useState<any>(null);
@@ -34,7 +36,7 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
 
         if (!result) {
           if (!signal?.aborted) {
-            handleStatusError({ response: { status: 404 } });
+            handleStatusError({ response: { status: 404 } }, t);
             setError(new Error('Not Found'));
           }
         } else {
@@ -45,7 +47,7 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
           // Silent abort
           return;
         }
-        handleStatusError(err);
+        handleStatusError(err, t);
         setError(err);
       } finally {
         if (!signal?.aborted) {
@@ -53,7 +55,7 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
         }
       }
     },
-    [apiFn],
+    [apiFn, t],
   );
 
   useEffect(() => {

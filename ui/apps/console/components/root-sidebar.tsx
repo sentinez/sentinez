@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { dashboard } from '@/lib/default';
 import { usePathname, useRouter } from 'next/navigation';
 import { TeamSwitcher } from './team-switcher';
@@ -57,6 +58,8 @@ import { SENTINEZ_USER_KEY } from '@/lib/const';
 export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
+  const t = useTranslations('Nav');
+  const ts = useTranslations('Sidebar');
   const router = useRouter();
   const pathname = usePathname();
 
@@ -97,14 +100,14 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         setChildItems(originalItems);
       } else {
         const filtered = originalItems.filter((item: any) =>
-          item.title.toLowerCase().includes(search.toLowerCase()),
+          t(item.titleKey).toLowerCase().includes(search.toLowerCase()),
         );
         setChildItems(filtered);
       }
     }, 300); // debounce 300ms
 
     return () => clearTimeout(handler); // cleanup
-  }, [search, activeItem, navIndex, navMain]);
+  }, [search, activeItem, navIndex, navMain, t]);
 
   useEffect(() => {
     for (const [index, item] of navMain.entries()) {
@@ -205,7 +208,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
             )}
           >
-            Main
+            {ts('main')}
           </button>
           <button
             type="button"
@@ -217,7 +220,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
             )}
           >
-            {activeItem?.title || 'Domain'}
+            {activeItem ? t(activeItem.titleKey) : ts('domain')}
           </button>
         </div>
       )}
@@ -256,18 +259,18 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
                 {navMain.map((item: any, index: number) => (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.titleKey}>
                     <SidebarMenuButton
                       tooltip={{
-                        children: item.title,
+                        children: t(item.titleKey),
                         hidden: false,
                       }}
                       onClick={() => handlerSidebarNavMainClick(item, index)}
-                      isActive={activeItem?.title === item.title}
+                      isActive={activeItem?.titleKey === item.titleKey}
                       className="px-2.5 md:px-2 cursor-pointer"
                     >
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -294,14 +297,16 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium -mb-1"
             >
               <ChevronLeft className="size-4" />
-              <span>Back to Main</span>
+              <span>{ts('backToMain')}</span>
             </button>
           )}
           <TeamSwitcher teams={dashboard.tenant} />
           {loading ? (
             <SidebarLoading />
           ) : (
-            <div className="text-foreground text-base font-medium">{activeItem?.title}</div>
+            <div className="text-foreground text-base font-medium">
+              {activeItem && t(activeItem.titleKey)}
+            </div>
           )}
           <SidebarGroup>
             <SidebarGroupContent>
@@ -309,7 +314,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
 
                 <SidebarInput
-                  placeholder="Search..."
+                  placeholder={ts('search')}
                   className="pl-8"
                   onChange={(e) => {
                     setSearch(e.target.value);
@@ -327,10 +332,10 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                   <SidebarLoading />
                 ) : (
                   childItems?.map((item: any, index: number) => (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenu>
                         <Collapsible
-                          key={item.title}
+                          key={item.titleKey}
                           asChild
                           defaultOpen={item.isActive}
                           className="group/collapsible"
@@ -338,14 +343,14 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                           <SidebarMenuItem>
                             <CollapsibleTrigger asChild>
                               <SidebarMenuButton
-                                tooltip={item.title}
+                                tooltip={t(item.titleKey)}
                                 size="default"
                                 onClick={() => handlerSidebarChildrenClick(item, index)}
                                 className="px-2.5 md:px-2 cursor-pointer"
                                 isActive={tabIndex === index && subTabIndex === -1}
                               >
                                 {item.icon && <item.icon />}
-                                <span>{item.title}</span>
+                                <span>{t(item.titleKey)}</span>
                                 {item.items?.length > 0 && (
                                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                 )}
@@ -355,7 +360,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                               <CollapsibleContent>
                                 <SidebarMenuSub>
                                   {item.items?.map((subItem: any, subIndex: number) => (
-                                    <SidebarMenuSubItem key={subItem.title}>
+                                    <SidebarMenuSubItem key={subItem.titleKey}>
                                       <SidebarMenuSubButton
                                         asChild
                                         isActive={subTabIndex === subIndex}
@@ -371,7 +376,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                               subTabIndex === subIndex ? 'font-semibold' : ''
                                             }
                                           >
-                                            {subItem.title}
+                                            {t(subItem.titleKey)}
                                           </span>
                                         </div>
                                       </SidebarMenuSubButton>
@@ -435,7 +440,7 @@ export function RootSidebarInset({ children }: { children: ReactNode }) {
 
   return (
     <SidebarInset>
-      <div className="min-h-screen">
+      <div className="flex min-h-screen flex-col">
         <PreviewHeader username={user.name} />
         <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
           <SidebarTrigger className="-ml-1 cursor-pointer" />
@@ -448,7 +453,7 @@ export function RootSidebarInset({ children }: { children: ReactNode }) {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="flex flex-1 flex-col gap-4 h-screen">{children}</div>
+        <div className="flex flex-1 flex-col gap-4">{children}</div>
       </div>
       <PreviewFooter />
     </SidebarInset>

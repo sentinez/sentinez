@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -29,7 +30,8 @@ import {
   FieldSource,
   Operator,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { FIELD_SOURCE_OPTIONS, OPERATOR_OPTIONS } from '@/lib/type/security';
+import { OPERATOR_OPTIONS } from '@/lib/type/security';
+import { useSecurityOptions } from '@/hooks/use-security-options';
 
 // ─── Factories ───────────────────────────────────────────────────────────────
 
@@ -197,11 +199,12 @@ export type QueryBuilderEditorProps = React.ComponentProps<typeof Card> & {
 };
 
 export function QueryBuilderEditor({
-  title = 'Expression',
-  description = 'Visually assemble security rule expressions.',
+  title,
+  description,
   className,
   ...props
 }: QueryBuilderEditorProps) {
+  const t = useTranslations('QueryBuilder');
   const { expression, addGroup } = useQueryBuilder();
 
   return (
@@ -215,19 +218,19 @@ export function QueryBuilderEditor({
       {...props}
     >
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{title ?? t('title')}</CardTitle>
+        <CardDescription>{description ?? t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 flex flex-col gap-4">
         {expression.orCondition.map((_, groupIndex) => (
           <React.Fragment key={groupIndex}>
-            {groupIndex > 0 && <QueryBuilderSeparator>OR</QueryBuilderSeparator>}
+            {groupIndex > 0 && <QueryBuilderSeparator>{t('or')}</QueryBuilderSeparator>}
             <QueryBuilderGroup groupIndex={groupIndex} />
           </React.Fragment>
         ))}
 
         <Button variant="outline" size="sm" className="self-start" onClick={addGroup}>
-          <Plus className="w-4 h-4" aria-hidden /> OR Group
+          <Plus className="w-4 h-4" aria-hidden /> {t('orGroup')}
         </Button>
       </CardContent>
     </Card>
@@ -264,11 +267,12 @@ export type QueryBuilderGroupProps = React.ComponentProps<typeof Card> & {
 };
 
 export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuilderGroupProps) {
+  const t = useTranslations('QueryBuilder');
   const { expression, addRule, removeGroup } = useQueryBuilder();
   const group = expression.orCondition[groupIndex];
   if (!group) return null;
 
-  const label = `AND group ${groupIndex + 1}`;
+  const label = t('andGroupN', { n: groupIndex + 1 });
   const canRemove = expression.orCondition.length > 1;
 
   return (
@@ -283,18 +287,18 @@ export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuil
       <CardContent className="p-3 flex flex-col gap-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            AND Group
+            {t('andGroup')}
           </span>
           <div className="flex-1" />
           <Button variant="outline" size="sm" onClick={() => addRule(groupIndex)}>
-            <Plus className="w-4 h-4" aria-hidden /> AND
+            <Plus className="w-4 h-4" aria-hidden /> {t('and')}
           </Button>
           {canRemove && (
             <Button
               variant="ghost"
               size="icon"
               className="text-destructive"
-              aria-label={`Remove ${label}`}
+              aria-label={t('removeGroup', { n: groupIndex + 1 })}
               onClick={() => removeGroup(groupIndex)}
             >
               <Trash2 className="w-4 h-4" aria-hidden />
@@ -303,16 +307,14 @@ export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuil
         </div>
 
         {group.rules.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-2">
-            No conditions in this group.
-          </p>
+          <p className="text-sm text-muted-foreground text-center py-2">{t('noConditions')}</p>
         )}
 
         {group.rules.map((rule, ruleIndex) => (
           <div key={rule.id || ruleIndex} className="flex flex-col gap-1">
             {ruleIndex > 0 && (
               <span className="text-xs font-bold text-muted-foreground px-1" aria-hidden>
-                AND
+                {t('and')}
               </span>
             )}
             <QueryBuilderRule groupIndex={groupIndex} ruleIndex={ruleIndex} />
@@ -336,13 +338,15 @@ export function QueryBuilderRule({
   className,
   ...props
 }: QueryBuilderRuleProps) {
+  const t = useTranslations('QueryBuilder');
+  const { fieldSourceOptions } = useSecurityOptions();
   const { expression, updateCondition, removeRule } = useQueryBuilder();
   const rule = expression.orCondition[groupIndex]?.rules[ruleIndex];
   if (!rule) return null;
 
   const condition = rule.condition ?? createEmptyCondition();
   const needsKey = SOURCES_WITH_KEY.has(condition.source);
-  const label = `Condition ${ruleIndex + 1}`;
+  const label = t('conditionN', { n: ruleIndex + 1 });
   const update = (patch: Partial<Condition>) =>
     updateCondition(groupIndex, ruleIndex, (c) => ({ ...c, ...patch }));
 
@@ -359,17 +363,17 @@ export function QueryBuilderRule({
       {...props}
     >
       <EnumSelect
-        aria-label="Source"
+        aria-label={t('source')}
         value={condition.source}
         onValueChange={(source) => update({ source: source as FieldSource, key: '' })}
-        options={FIELD_SOURCE_OPTIONS}
+        options={fieldSourceOptions}
         className="w-full md:w-44"
       />
 
       {needsKey && (
         <Input
-          aria-label="Key"
-          placeholder="Key (e.g. User-Agent)"
+          aria-label={t('key')}
+          placeholder={t('keyPlaceholder')}
           value={condition.key}
           onChange={(e) => update({ key: e.target.value })}
           className="w-full md:w-40 font-mono text-xs"
@@ -377,7 +381,7 @@ export function QueryBuilderRule({
       )}
 
       <EnumSelect
-        aria-label="Operator"
+        aria-label={t('operator')}
         value={condition.operator}
         onValueChange={(operator) => update({ operator: operator as Operator })}
         options={OPERATOR_OPTIONS}
@@ -385,8 +389,8 @@ export function QueryBuilderRule({
       />
 
       <Input
-        aria-label="Value"
-        placeholder="Value"
+        aria-label={t('value')}
+        placeholder={t('value')}
         value={String(condition.value ?? '')}
         onChange={(e) => update({ value: e.target.value })}
         className="w-full grow"
@@ -396,7 +400,7 @@ export function QueryBuilderRule({
         variant="ghost"
         size="icon"
         className="text-destructive shrink-0"
-        aria-label={`Remove ${label.toLowerCase()}`}
+        aria-label={t('removeCondition', { n: ruleIndex + 1 })}
         onClick={() => removeRule(groupIndex, ruleIndex)}
       >
         <Trash2 className="w-4 h-4" aria-hidden />
@@ -411,11 +415,8 @@ export type QueryBuilderPreviewProps = React.ComponentProps<typeof Card> & {
   title?: React.ReactNode;
 };
 
-export function QueryBuilderPreview({
-  title = 'JSON',
-  className,
-  ...props
-}: QueryBuilderPreviewProps) {
+export function QueryBuilderPreview({ title, className, ...props }: QueryBuilderPreviewProps) {
+  const t = useTranslations('QueryBuilder');
   const { expression } = useQueryBuilder();
 
   return (
@@ -429,7 +430,7 @@ export function QueryBuilderPreview({
       {...props}
     >
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{title ?? t('json')}</CardTitle>
       </CardHeader>
       <CardContent>
         <pre className="text-xs text-muted-foreground overflow-auto max-h-150 scrollbar-thin">
@@ -457,10 +458,12 @@ function EnumSelect({
   className,
   'aria-label': ariaLabel,
 }: EnumSelectProps) {
+  const tc = useTranslations('Common');
+
   return (
     <Select value={String(value)} onValueChange={(v) => onValueChange(Number(v))}>
       <SelectTrigger aria-label={ariaLabel} className={cn('h-9', className)}>
-        <SelectValue placeholder="Select..." />
+        <SelectValue placeholder={tc('select')} />
       </SelectTrigger>
       <SelectContent>
         {options.map((opt) => (

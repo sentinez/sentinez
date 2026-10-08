@@ -11,19 +11,22 @@ import {
 import { Button } from '@sentinez/ui/components/button';
 import { MoveRight, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export function Tenant() {
+  const t = useTranslations('Tenant');
+
   return (
     <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
       <CardHeader>
         <CardTitle>Sentinez</CardTitle>
-        <CardDescription>Tenant member</CardDescription>
+        <CardDescription>{t('member')}</CardDescription>
       </CardHeader>
       <CardContent></CardContent>
       <CardFooter className="flex justify-between">
         <Link href="/console" className="w-full">
           <Button className="w-full cursor-pointer">
-            Go <MoveRight />
+            {t('go')} <MoveRight />
           </Button>
         </Link>
       </CardFooter>
@@ -32,19 +35,21 @@ export function Tenant() {
 }
 
 export function TeamJoin() {
+  const t = useTranslations('Tenant');
+
   return (
     <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
       <CardHeader>
-        <CardTitle>Create or Join</CardTitle>
-        <CardDescription>Create or join a team in one-click.</CardDescription>
+        <CardTitle>{t('createOrJoin')}</CardTitle>
+        <CardDescription>{t('createOrJoinDescription')}</CardDescription>
       </CardHeader>
       <CardContent></CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline" className=" cursor-pointer">
-          Join <Plus />
+          {t('join')} <Plus />
         </Button>
         <Button className=" cursor-pointer">
-          Create <MoveRight />
+          {t('create')} <MoveRight />
         </Button>
       </CardFooter>
     </Card>

@@ -11,6 +11,7 @@ import { Status, statusFromJSON, statusToJSON } from '@sentinez/proto/sentinez/t
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
+import { type Pages, pageQuery as pagesQuery, paginate } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -18,11 +19,7 @@ export interface ApiOptions {
   signal?: AbortSignal;
 }
 
-export interface Pages {
-  index?: number;
-  size?: number;
-  total?: boolean;
-}
+export type { Pages };
 
 /** Wire format of `v1ActionValue` in security.swagger.json */
 export interface SecurityActionValue {
@@ -137,10 +134,7 @@ function rateLimitToWire(data: RateLimit): SecurityRateLimit {
 }
 
 function pageQuery(params?: ListSecRulesParams): Record<string, unknown> {
-  const query: Record<string, unknown> = {};
-  if (params?.page?.index !== undefined) query['page.index'] = params.page.index;
-  if (params?.page?.size !== undefined) query['page.size'] = params.page.size;
-  if (params?.page?.total !== undefined) query['page.total'] = params.page.total;
+  const query = pagesQuery(params?.page);
   if (params?.ids?.length) query.ids = params.ids;
   return query;
 }
@@ -231,7 +225,55 @@ export const SAMPLE_RULES: SecRule[] = [
   ),
 ];
 
-let sampleStore: SecRule[] = [...SAMPLE_RULES];
+// Extra generated rules so the list has several pages to page through
+const GENERATED_ACTIONS = [
+  ActionType.ACTION_TYPE_BLOCK,
+  ActionType.ACTION_TYPE_LOG,
+  ActionType.ACTION_TYPE_REDIRECT,
+  ActionType.ACTION_TYPE_SET_TAG,
+];
+
+const generatedExpr = (id: string, path: string): Expression =>
+  ({
+    orCondition: [
+      {
+        rules: [
+          {
+            id: `${id}-r`,
+            expr: '',
+            condition: {
+              id: `${id}-c`,
+              source: FieldSource.FIELD_SOURCE_PATH,
+              key: '',
+              operator: Operator.OPERATOR_PREFIX,
+              value: path,
+            },
+          },
+        ],
+        orCondition: [],
+      },
+    ],
+  }) as Expression;
+
+const generateRules = (prefix: string, from: number, count: number): SecRule[] =>
+  Array.from({ length: count }, (_, i) => {
+    const n = from + i;
+    const id = `${prefix}-${n}`;
+    return sampleRule(
+      id,
+      `Sample rule ${n}`,
+      `Sample: path prefix /sample/${n}`,
+      [10, 50, 100][n % 3] ?? 50,
+      n % 5 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
+      generatedExpr(id, `/sample/${n}`),
+      GENERATED_ACTIONS[n % GENERATED_ACTIONS.length] ?? ActionType.ACTION_TYPE_BLOCK,
+    );
+  });
+
+let sampleStore: SecRule[] = [
+  ...SAMPLE_RULES,
+  ...generateRules('sample-rule', SAMPLE_RULES.length + 1, 20),
+];
 
 const sampleRateLimit = (
   rule: SecRule,
@@ -311,7 +353,12 @@ export const SAMPLE_RATE_LIMITS: RateLimit[] = [
   ),
 ];
 
-let sampleRateLimitStore: RateLimit[] = [...SAMPLE_RATE_LIMITS];
+let sampleRateLimitStore: RateLimit[] = [
+  ...SAMPLE_RATE_LIMITS,
+  ...generateRules('sample-ratelimit', SAMPLE_RATE_LIMITS.length + 1, 12).map((r, i) =>
+    sampleRateLimit(r, ['10s', '1m', '5m'][i % 3] ?? '1m', 50 * (i + 1), i % 2 ? '10m' : ''),
+  ),
+];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -342,7 +389,7 @@ export async function listSecRulesWithTotal(
     const list = params?.ids?.length
       ? sampleStore.filter((r) => params.ids!.includes(r.ingressRuntime?.id ?? ''))
       : sampleStore;
-    return { secRules: list, total: list.length };
+    return { secRules: paginate(list, params?.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/secrules`, {
       params: pageQuery(params),
@@ -433,7 +480,7 @@ export async function listRateLimitsWithTotal(
     const list = params?.ids?.length
       ? sampleRateLimitStore.filter((r) => params.ids!.includes(r.ingressRuntime?.id ?? ''))
       : sampleRateLimitStore;
-    return { rateLimits: list, total: list.length };
+    return { rateLimits: paginate(list, params?.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/ratelimits`, {
       params: pageQuery(params),

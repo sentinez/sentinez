@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react';
 
@@ -30,12 +31,13 @@ export function NavUser({
     avatar: string;
   };
 }) {
+  const t = useTranslations('Sidebar');
   const router = useRouter();
   const { isMobile } = useSidebar();
 
   const handleLogout = () => {
     localStorage.clear();
-    toast.success('Logged out', 'You have been logged out successfully.');
+    toast.success(t('loggedOut'), t('loggedOutDescription'));
     router.push('/auth');
   };
 
@@ -81,17 +83,17 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
-                Account
+                {t('account')}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
-                Notifications
+                {t('notifications')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut />
-              Log out
+              {t('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

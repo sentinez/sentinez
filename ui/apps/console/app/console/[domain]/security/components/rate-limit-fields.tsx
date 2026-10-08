@@ -5,11 +5,14 @@ import { Label } from '@sentinez/ui/components/label';
 import { RateLimit } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { ACTION_TYPE_OPTIONS } from '@/lib/type/security';
+import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
+import { useSecurityOptions } from '@/hooks/use-security-options';
 import {
   DEFAULT_PRIORITY,
   SecRuleFields,
   SecRuleFormValue,
+  ValidationTranslator,
   actionParamsOf,
   paramRowsOf,
   validateSecRuleForm,
@@ -23,15 +26,6 @@ export interface RateLimitFormValue extends SecRuleFormValue {
   /** Go duration string; empty means no extra block time */
   timeout: string;
 }
-
-// The edge answers 429 once a limiter is exceeded, so only these make sense
-const RATE_LIMIT_ACTION_OPTIONS = ACTION_TYPE_OPTIONS.filter((o) =>
-  [ActionType.ACTION_TYPE_BLOCK, ActionType.ACTION_TYPE_LOG].includes(o.value),
-).map((o) =>
-  o.value === ActionType.ACTION_TYPE_BLOCK
-    ? { ...o, description: 'Reject requests over the limit with 429 Too Many Requests.' }
-    : o,
-);
 
 // Positive Go duration, matching the proto pattern without the sign
 const DURATION_RE = /^(?:\d+(?:\.\d+)?(?:ns|us|µs|ms|s|m|h))+$/;
@@ -88,24 +82,22 @@ export function rateLimitOf(f: RateLimitFormValue, id = ''): RateLimit {
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateRateLimitForm(f: RateLimitFormValue): string | null {
-  const error = validateSecRuleForm(f);
+export function validateRateLimitForm(
+  f: RateLimitFormValue,
+  t: ValidationTranslator,
+): string | null {
+  const error = validateSecRuleForm(f, t);
   if (error) return error;
   if (!DURATION_RE.test(f.timeWindow.trim())) {
-    return 'Time window must be a positive duration, e.g. 10s, 1m';
+    return t('timeWindow');
   }
   if (!Number.isInteger(f.maxRequests) || f.maxRequests <= 0) {
-    return 'Max requests must be a whole number greater than 0';
+    return t('maxRequests');
   }
   if (f.timeout.trim() && !DURATION_RE.test(f.timeout.trim())) {
-    return 'Block timeout must be a positive duration, e.g. 30s, 10m';
+    return t('blockTimeout');
   }
   return null;
-}
-
-/** Human-readable limit, e.g. "100 req / 1m" */
-export function formatRateLimit(rl: Pick<RateLimit, 'maxRequests' | 'timeWindow'>): string {
-  return `${rl.maxRequests} req / ${rl.timeWindow || '?'}`;
 }
 
 interface Props {
@@ -116,23 +108,36 @@ interface Props {
 
 /** Form fields matching v1RateLimit in security.swagger.json */
 export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Props) {
+  const t = useTranslations('RateLimitFields');
+  const { actionTypeOptions } = useSecurityOptions();
+  // The edge answers 429 once a limiter is exceeded, so only these make sense
+  const actionOptions = useMemo(
+    () =>
+      actionTypeOptions
+        .filter((o) => [ActionType.ACTION_TYPE_BLOCK, ActionType.ACTION_TYPE_LOG].includes(o.value))
+        .map((o) =>
+          o.value === ActionType.ACTION_TYPE_BLOCK
+            ? { ...o, description: t('blockDescription') }
+            : o,
+        ),
+    [actionTypeOptions, t],
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <SecRuleFields
         value={value}
         onChange={onChange}
         idPrefix={idPrefix}
-        actionOptions={RATE_LIMIT_ACTION_OPTIONS}
+        actionOptions={actionOptions}
       />
 
       <div className="grid gap-2 mt-2">
-        <Label>Rate limit</Label>
-        <p className="text-sm text-muted-foreground">
-          Requests matching the condition are counted per client IP over a sliding window.
-        </p>
+        <Label>{t('rateLimit')}</Label>
+        <p className="text-sm text-muted-foreground">{t('rateLimitHint')}</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="grid gap-2 content-start">
-            <Label htmlFor={`${idPrefix}-max-requests`}>Max requests</Label>
+            <Label htmlFor={`${idPrefix}-max-requests`}>{t('maxRequests')}</Label>
             <Input
               id={`${idPrefix}-max-requests`}
               type="number"
@@ -144,7 +149,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
             />
           </div>
           <div className="grid gap-2 content-start">
-            <Label htmlFor={`${idPrefix}-time-window`}>Time window</Label>
+            <Label htmlFor={`${idPrefix}-time-window`}>{t('timeWindow')}</Label>
             <Input
               id={`${idPrefix}-time-window`}
               placeholder="1m"
@@ -153,21 +158,19 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
               value={value.timeWindow}
               onChange={(e) => onChange({ timeWindow: e.target.value })}
             />
-            <p className="text-sm text-muted-foreground">e.g. 10s, 1m, 1h</p>
+            <p className="text-sm text-muted-foreground">{t('timeWindowHint')}</p>
           </div>
           <div className="grid gap-2 content-start">
-            <Label htmlFor={`${idPrefix}-timeout`}>Block timeout</Label>
+            <Label htmlFor={`${idPrefix}-timeout`}>{t('blockTimeout')}</Label>
             <Input
               id={`${idPrefix}-timeout`}
-              placeholder="Optional, e.g. 10m"
+              placeholder={t('blockTimeoutPlaceholder')}
               spellCheck={false}
               autoComplete="off"
               value={value.timeout}
               onChange={(e) => onChange({ timeout: e.target.value })}
             />
-            <p className="text-sm text-muted-foreground">
-              How long a client stays blocked after exceeding the limit.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('blockTimeoutHint')}</p>
           </div>
         </div>
       </div>

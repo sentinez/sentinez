@@ -3,5 +3,6 @@ packages:
   - "packages/*"
 allowBuilds:
   '@parcel/watcher': true
+  '@swc/core': false
   esbuild: true
   unrs-resolver: true

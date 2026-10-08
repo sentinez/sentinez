@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
@@ -22,6 +23,9 @@ import { useEffect, useState } from 'react';
 const UPDATE_MASK = 'name,description,expr,action,status,priority';
 
 export default function EditSecRulePage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations('SecRule');
+  const tc = useTranslations('Common');
+  const tv = useTranslations('Validation');
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,7 +61,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
           expr: r?.expr ?? createEmptyExpression(),
         });
       } catch (err: any) {
-        toast.error('Failed to load rule details');
+        toast.error(t('loadDetailFailed'));
       } finally {
         setLoading(false);
       }
@@ -67,7 +71,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
 
   const handleSave = async () => {
     if (!id) return;
-    const error = validateSecRuleForm(form);
+    const error = validateSecRuleForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -90,10 +94,10 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
         },
         UPDATE_MASK,
       );
-      toast.success('Rule updated successfully');
+      toast.success(t('updated'));
       router.back();
     } catch (err: any) {
-      toast.error('Failed to save rule');
+      toast.error(t('saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -105,13 +109,13 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
 
   return (
     <PageLayout>
-      <PageLayoutHeader title="Edit Rule" subtitle="Modify security rule configuration and logic.">
+      <PageLayoutHeader title={t('editTitle')} subtitle={t('editSubtitle')}>
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleSave}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? tc('saving') : tc('save')}
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            {tc('cancel')}
           </Button>
         </div>
       </PageLayoutHeader>

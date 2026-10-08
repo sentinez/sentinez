@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import {
@@ -15,13 +16,16 @@ import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/pa
 import { useState } from 'react';
 
 export default function CreateRateLimitPage() {
+  const t = useTranslations('RateLimiter');
+  const tc = useTranslations('Common');
+  const tv = useTranslations('Validation');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<RateLimitFormValue>(createEmptyRateLimitForm);
   const patchForm = (patch: Partial<RateLimitFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   const handleCreate = async () => {
-    const error = validateRateLimitForm(form);
+    const error = validateRateLimitForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -30,10 +34,10 @@ export default function CreateRateLimitPage() {
     setSaving(true);
     try {
       await createRateLimit(rateLimitOf(form));
-      toast.success('Rate limit rule created successfully');
+      toast.success(t('created'));
       router.back();
     } catch {
-      toast.error('Failed to create rate limit rule');
+      toast.error(t('createFailed'));
     } finally {
       setSaving(false);
     }
@@ -41,16 +45,13 @@ export default function CreateRateLimitPage() {
 
   return (
     <PageLayout>
-      <PageLayoutHeader
-        title="Create Rate Limit"
-        subtitle="Limit how many matching requests a client can send in a time window."
-      >
+      <PageLayoutHeader title={t('createTitle')} subtitle={t('createSubtitle')}>
         <div className="flex justify-start gap-2">
           <Button disabled={saving} onClick={handleCreate}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? tc('saving') : tc('save')}
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            {tc('cancel')}
           </Button>
         </div>
       </PageLayoutHeader>

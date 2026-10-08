@@ -5,53 +5,65 @@ import '@sentinez/ui/custom.css';
 
 import { Providers } from '@/components/providers';
 import { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getTranslations } from 'next-intl/server';
 import LoadingEffect from '@/components/loading-effect';
 
 const fontSans = Roboto({
-  subsets: ['latin'],
+  subsets: ['latin', 'vietnamese'],
   variable: '--font-sans',
 });
 
 const fontMono = Roboto_Mono({
-  subsets: ['latin'],
+  subsets: ['latin', 'vietnamese'],
   variable: '--font-mono',
 });
 
-export const metadata: Metadata = {
-  title: 'Sentinéz — On Your Side',
-  description: 'Security and protection for modern applications.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('Metadata');
+  const title = t('title');
+  const description = t('description');
 
-  openGraph: {
-    title: 'Sentinéz — On Your Side',
-    description: 'Security and protection for modern applications.',
-    url: 'https://s6z.io.vn/',
-    siteName: 'Sentinéz',
-    type: 'website',
-    images: [
-      {
-        url: 'https://s6z.io.vn/images/sntz.png',
-        width: 720,
-        height: 720,
-        alt: 'Sentinéz — On Your Side',
-      },
-    ],
-  },
+  return {
+    title,
+    description,
 
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Sentinéz — On Your Side',
-    description: 'Security and protection for modern applications.',
-    images: ['https://s6z.io.vn/images/sntz.png'],
-  },
-};
+    openGraph: {
+      title,
+      description,
+      url: 'https://s6z.io.vn/',
+      siteName: 'Sentinéz',
+      type: 'website',
+      images: [
+        {
+          url: 'https://s6z.io.vn/images/sntz.png',
+          width: 720,
+          height: 720,
+          alt: title,
+        },
+      ],
+    },
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://s6z.io.vn/images/sntz.png'],
+    },
+  };
+}
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}>
-        <Providers>
-          <LoadingEffect>{children}</LoadingEffect>
-        </Providers>
+        <NextIntlClientProvider>
+          <Providers>
+            <LoadingEffect>{children}</LoadingEffect>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

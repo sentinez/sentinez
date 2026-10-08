@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -14,6 +13,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@sentinez/ui/components/button';
 import { Checkbox } from '@sentinez/ui/components/checkbox';
@@ -37,7 +37,9 @@ import {
 } from '@sentinez/ui/components/table';
 import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
-import { useApi } from '@/hooks/use-api';
+import { usePagedList } from '@/hooks/use-paged-list';
+import { TablePagination } from '@/components/table-pagination';
+import type { Pages } from '@/lib/api/pages';
 import { listResources, type TenantResource } from '@/lib/api/tenant';
 
 // "PLAN_STANDARD" -> "standard", "STATUS_ACTIVE" -> "active"
@@ -60,10 +62,13 @@ export type Payment = {
   name: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
+
+export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   {
     accessorKey: 'name',
-    header: ({ column }) => <div className="w-full">Name</div>,
+    meta: { label: t('name') },
+    header: ({ column }) => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full lowercase truncate">
         <a
@@ -77,7 +82,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'status',
-    header: () => <div>Status</div>,
+    meta: { label: t('status') },
+    header: () => <div>{t('status')}</div>,
     cell: ({ row }) => (
       <div className="capitalize">
         <BadgeStatus status={row.getValue('status')} value={row.getValue('status')} />
@@ -86,7 +92,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'unique visitor',
-    header: () => <div className="w-full">Unique Visitor</div>,
+    meta: { label: t('uniqueVisitor') },
+    header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
     cell: () => (
       <div className="w-full max-h-16 overflow-hidden flex items-center">
         <UniqueVisitorChart />
@@ -95,7 +102,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'plan',
-    header: () => <div className="w-full text-right">Plan</div>,
+    meta: { label: t('plan') },
+    header: () => <div className="w-full text-right">{t('plan')}</div>,
     cell: ({ row }) => {
       return <div className="w-full text-right font-medium capitalize">{row.getValue('plan')}</div>;
     },
@@ -113,7 +121,7 @@ export const columns: ColumnDef<Payment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id)}>
-              Copy resource ID
+              {t('copyResourceId')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -123,12 +131,23 @@ export const columns: ColumnDef<Payment>[] = [
 ];
 
 export function ResourceTable() {
+  const t = useTranslations('Domain');
+  const tc = useTranslations('Common');
+  const columns = React.useMemo(() => getColumns(t), [t]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const { data: list } = useApi(listResources, {});
-  const data = React.useMemo(() => (list?.resources ?? []).map(rowOf), [list]);
+  const fetchPage = React.useCallback(async (page: Pages, signal: AbortSignal) => {
+    const list = await listResources({ page }, { signal });
+    if (!list) throw new Error('list resources failed');
+    return { items: list.resources ?? [], total: Number(list.total ?? 0) };
+  }, []);
+  const { items, total, pagination, setPagination, pageCount } = usePagedList(
+    fetchPage,
+    t('loadFailed'),
+  );
+  const data = React.useMemo(() => items.map(rowOf), [items]);
 
   const table = useReactTable({
     data,
@@ -136,7 +155,9 @@ export function ResourceTable() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -146,6 +167,7 @@ export function ResourceTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   });
 
@@ -153,7 +175,7 @@ export function ResourceTable() {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter names..."
+          placeholder={tc('filterNames')}
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
           onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
           className="max-w-sm"
@@ -161,7 +183,7 @@ export function ResourceTable() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
+              {tc('columns')} <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -176,7 +198,7 @@ export function ResourceTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id}
+                    {column.columnDef.meta?.label ?? column.id}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -214,33 +236,14 @@ export function ResourceTable() {
             ) : (
               <TableRow className="max-h-fit">
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {tc('noResults')}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <TablePagination table={table} total={total} />
     </div>
   );
 }

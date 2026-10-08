@@ -2,6 +2,7 @@
 
 import { Button } from '@sentinez/ui/components/button';
 import { ChevronLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -17,11 +18,12 @@ export interface PageLayoutHeaderProps {
 
 export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeaderProps) {
   const router = useRouter();
+  const t = useTranslations('Common');
 
   return (
     <div className="flex max-w-7xl p-2.25 sticky top-11.25 bg-white border-b z-2 items-center">
       <div className="h-full items-center flex">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <Button variant="ghost" size="icon" aria-label={t('back')} onClick={() => router.back()}>
           <ChevronLeft className="w-5 h-5" />
         </Button>
       </div>

@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -40,20 +39,30 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listRateLimits, deleteRateLimit } from '@/lib/api/security';
+import { useTranslations } from 'next-intl';
+import { listRateLimitsWithTotal, type Pages, deleteRateLimit } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { RateLimit } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { statusLabel } from '@/lib/type/security';
-import { formatRateLimit } from '../components';
+import { TablePagination } from '@/components/table-pagination';
+import { usePagedList } from '@/hooks/use-paged-list';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateLimit>[] => [
+type RateLimiterTranslator = ReturnType<typeof useTranslations<'RateLimiter'>>;
+type CommonTranslator = ReturnType<typeof useTranslations<'Common'>>;
+
+export const getColumns = (
+  t: RateLimiterTranslator,
+  tc: CommonTranslator,
+  onDelete: (rule: RateLimit) => void,
+): ColumnDef<RateLimit>[] => [
   {
     id: 'name',
     accessorFn: (r) => r.ingressRuntime?.name ?? '',
     size: 220,
-    header: () => <div className="w-full">Name</div>,
+    meta: { label: t('name') },
+    header: () => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full truncate">
         <Link
@@ -68,7 +77,8 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
   {
     accessorKey: 'description',
     size: 0, // auto: takes the remaining width
-    header: () => <div>Description</div>,
+    meta: { label: t('description') },
+    header: () => <div>{t('description')}</div>,
     cell: ({ row }) => (
       <div className="truncate" title={row.original.ingressRuntime?.description}>
         {row.original.ingressRuntime?.description}
@@ -78,19 +88,29 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
   {
     id: 'limit',
     size: 150,
-    header: () => <div>Limit</div>,
-    cell: ({ row }) => <div className="truncate tabular-nums">{formatRateLimit(row.original)}</div>,
+    meta: { label: t('limit') },
+    header: () => <div>{t('limit')}</div>,
+    cell: ({ row }) => (
+      <div className="truncate tabular-nums">
+        {t('limitValue', {
+          max: row.original.maxRequests,
+          window: row.original.timeWindow || '?',
+        })}
+      </div>
+    ),
   },
   {
     id: 'timeout',
     size: 120,
-    header: () => <div>Block timeout</div>,
+    meta: { label: t('blockTimeout') },
+    header: () => <div>{t('blockTimeout')}</div>,
     cell: ({ row }) => <div className="truncate tabular-nums">{row.original.timeout || '—'}</div>,
   },
   {
     accessorKey: 'status',
     size: 120,
-    header: () => <div>Status</div>,
+    meta: { label: t('status') },
+    header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
       const s = statusLabel(row.original.ingressRuntime?.status);
       return (
@@ -103,7 +123,8 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
   {
     accessorKey: 'priority',
     size: 100,
-    header: () => <div className="w-full text-right">Priority</div>,
+    meta: { label: t('priority') },
+    header: () => <div className="w-full text-right">{t('priority')}</div>,
     cell: ({ row }) => {
       return <div className="w-full text-right">{row.original.ingressRuntime?.priority}</div>;
     },
@@ -124,10 +145,10 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(row.original.ingressRuntime?.id || '')}
             >
-              Copy Rule ID
+              {t('copyRuleId')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
-              Delete
+              {tc('delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -137,8 +158,8 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
 ];
 
 export default function View() {
-  const [rules, setRules] = useState<RateLimit[]>([]);
-  const [loading, setLoading] = useState(true);
+  const t = useTranslations('RateLimiter');
+  const tc = useTranslations('Common');
   const [deleting, setDeleting] = useState<RateLimit | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
@@ -147,21 +168,19 @@ export default function View() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchRules = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await listRateLimits();
-      setRules(data);
-    } catch {
-      toast.error('Failed to load rate limit rules');
-    } finally {
-      setLoading(false);
-    }
+  const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
+    const res = await listRateLimitsWithTotal({ page }, { signal });
+    return { items: res.rateLimits, total: res.total };
   }, []);
-
-  useEffect(() => {
-    fetchRules();
-  }, [fetchRules]);
+  const {
+    items: rules,
+    total,
+    loading,
+    pagination,
+    setPagination,
+    pageCount,
+    refresh,
+  } = usePagedList(fetchPage, t('loadFailed'));
 
   const handleDelete = async () => {
     const id = deleting?.ingressRuntime?.id;
@@ -169,17 +188,17 @@ export default function View() {
     setDeletingBusy(true);
     try {
       await deleteRateLimit(id);
-      toast.success('Rate limit rule deleted successfully');
+      toast.success(t('deleted'));
       setDeleting(null);
-      fetchRules();
+      refresh();
     } catch {
-      toast.error('Failed to delete rate limit rule');
+      toast.error(t('deleteFailed'));
     } finally {
       setDeletingBusy(false);
     }
   };
 
-  const columns = useMemo(() => getColumns(setDeleting), []);
+  const columns = useMemo(() => getColumns(t, tc, setDeleting), [t, tc]);
 
   const table = useReactTable<RateLimit>({
     data: rules,
@@ -187,7 +206,9 @@ export default function View() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -197,19 +218,17 @@ export default function View() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   });
 
   return (
     <PageLayout>
-      <PageLayoutHeader
-        title="Rate Limiter Rule"
-        subtitle="Limit how often clients can hit matching requests."
-      >
+      <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}>
         <Button size="sm" asChild>
           <Link href="./rate-limiter/new">
             <PlusIcon className="w-4 h-4" />
-            Create
+            {tc('create')}
           </Link>
         </Button>
       </PageLayoutHeader>
@@ -218,7 +237,7 @@ export default function View() {
         <div className="w-full">
           <div className="flex items-center py-4">
             <Input
-              placeholder="Filter names..."
+              placeholder={tc('filterNames')}
               value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
               onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
               className="max-w-sm"
@@ -226,7 +245,7 @@ export default function View() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  Columns <ChevronDown />
+                  {tc('columns')} <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -241,7 +260,7 @@ export default function View() {
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) => column.toggleVisibility(!!value)}
                       >
-                        {column.id}
+                        {column.columnDef.meta?.label ?? column.id}
                       </DropdownMenuCheckboxItem>
                     );
                   })}
@@ -276,7 +295,7 @@ export default function View() {
                 {loading ? (
                   <TableRow className="max-h-fit">
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                      Loading...
+                      {tc('loading')}
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (
@@ -292,51 +311,31 @@ export default function View() {
                 ) : (
                   <TableRow className="max-h-fit">
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
+                      {tc('noResults')}
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <TablePagination table={table} total={total} />
         </div>
       </PageLayoutContent>
 
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete rate limit rule</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{deleting?.ingressRuntime?.name}&quot;? This
-              action cannot be undone.
+              {tc('deleteConfirm', { name: deleting?.ingressRuntime?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button variant="destructive" disabled={deletingBusy} onClick={handleDelete}>
-              {deletingBusy ? 'Deleting...' : 'Delete'}
+              {deletingBusy ? tc('deleting') : tc('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

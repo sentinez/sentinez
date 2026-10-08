@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useFormatter, useTranslations } from 'next-intl';
 import Language from './language';
 
 type PreviewHeaderProps = {
@@ -6,6 +7,9 @@ type PreviewHeaderProps = {
 };
 
 export default function PreviewHeader(props: PreviewHeaderProps) {
+  const t = useTranslations('Header');
+  const format = useFormatter();
+
   return (
     <div
       className="flex w-full items-start bg-background text-foreground"
@@ -32,13 +36,13 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
             </span>
             <span className="hidden text-muted-foreground sm:inline">·</span>
             <p className="hidden text-xs text-muted-foreground sm:block">
-              Welcome back, {props.username}
+              {t('welcome', { name: props.username })}
             </p>
           </div>
 
           <div className="flex items-center gap-5">
             <span className="text-xs text-muted-foreground transition-colors hover:text-foreground">
-              {new Date().toDateString()}
+              {format.dateTime(new Date(), { dateStyle: 'full' })}
             </span>
 
             <Language />
