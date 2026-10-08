@@ -83,7 +83,7 @@ Có ba dạng SecRule trong proto:
 ## 4.4 CDN rule
 
 `types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` nằm trong
-`setting.controller.cdn`. Mỗi namespace giữ **một** CDN rule active (rule sau
+`setting.delivery.cdn`. Mỗi namespace giữ **một** CDN rule active (rule sau
 ghi đè rule trước). Node `CDN` chỉ cache khi rule active và expression khớp.
 Cache là `patrickmn/go-cache` TTL 1h, chỉ lưu response có status `< 400`.
 

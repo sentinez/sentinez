@@ -28,8 +28,9 @@ message Setting {
   Metadata metadata = 1;      // @gotags: yaml:"metadata"
   Server server = 2;          // @gotags: yaml:"server"
   Security security = 3;      // @gotags: yaml:"security"
-  Controller controller = 4;  // @gotags: yaml:"controller"
+  TrafficControl traffic_control = 4;  // @gotags: yaml:"traffic_control"
   Personal personal = 5;      // @gotags: yaml:"personal"
+  Delivery delivery = 6;      // @gotags: yaml:"delivery"
 }
 
 // Metadata used for observability and debugging:
@@ -91,7 +92,11 @@ message RateLimit {
 }
 
 // Controller for systems using a virtual waiting room or throttling:
-message Controller {
+message TrafficControl {
+
+}
+
+message Delivery {
   repeated sentinez.types.cdn.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
 }
 

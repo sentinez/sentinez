@@ -97,12 +97,16 @@ export interface Setting {
   security?:
     | Security
     | undefined;
-  /** @gotags: yaml:"controller" */
-  controller?:
-    | Controller
+  /** @gotags: yaml:"traffic_control" */
+  trafficControl?:
+    | TrafficControl
     | undefined;
   /** @gotags: yaml:"personal" */
-  personal?: Personal | undefined;
+  personal?:
+    | Personal
+    | undefined;
+  /** @gotags: yaml:"delivery" */
+  delivery?: Delivery | undefined;
 }
 
 /** Metadata used for observability and debugging: */
@@ -175,7 +179,10 @@ export interface RateLimit {
 }
 
 /** Controller for systems using a virtual waiting room or throttling: */
-export interface Controller {
+export interface TrafficControl {
+}
+
+export interface Delivery {
   /** @gotags: yaml:"cdn" */
   cdn: CDN[];
 }
@@ -192,7 +199,14 @@ export interface Upstream {
 }
 
 function createBaseSetting(): Setting {
-  return { metadata: undefined, server: undefined, security: undefined, controller: undefined, personal: undefined };
+  return {
+    metadata: undefined,
+    server: undefined,
+    security: undefined,
+    trafficControl: undefined,
+    personal: undefined,
+    delivery: undefined,
+  };
 }
 
 export const Setting: MessageFns<Setting> = {
@@ -206,11 +220,14 @@ export const Setting: MessageFns<Setting> = {
     if (message.security !== undefined) {
       Security.encode(message.security, writer.uint32(26).fork()).join();
     }
-    if (message.controller !== undefined) {
-      Controller.encode(message.controller, writer.uint32(34).fork()).join();
+    if (message.trafficControl !== undefined) {
+      TrafficControl.encode(message.trafficControl, writer.uint32(34).fork()).join();
     }
     if (message.personal !== undefined) {
       Personal.encode(message.personal, writer.uint32(42).fork()).join();
+    }
+    if (message.delivery !== undefined) {
+      Delivery.encode(message.delivery, writer.uint32(50).fork()).join();
     }
     return writer;
   },
@@ -257,7 +274,7 @@ export const Setting: MessageFns<Setting> = {
               break;
             }
 
-            message.controller = Controller.decode(reader, reader.uint32());
+            message.trafficControl = TrafficControl.decode(reader, reader.uint32());
             continue;
           }
           case 5: {
@@ -266,6 +283,14 @@ export const Setting: MessageFns<Setting> = {
             }
 
             message.personal = Personal.decode(reader, reader.uint32());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.delivery = Delivery.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -285,8 +310,13 @@ export const Setting: MessageFns<Setting> = {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
       security: isSet(object.security) ? Security.fromJSON(object.security) : undefined,
-      controller: isSet(object.controller) ? Controller.fromJSON(object.controller) : undefined,
+      trafficControl: isSet(object.trafficControl)
+        ? TrafficControl.fromJSON(object.trafficControl)
+        : isSet(object.traffic_control)
+        ? TrafficControl.fromJSON(object.traffic_control)
+        : undefined,
       personal: isSet(object.personal) ? Personal.fromJSON(object.personal) : undefined,
+      delivery: isSet(object.delivery) ? Delivery.fromJSON(object.delivery) : undefined,
     };
   },
 
@@ -301,11 +331,14 @@ export const Setting: MessageFns<Setting> = {
     if (message.security !== undefined) {
       obj.security = Security.toJSON(message.security);
     }
-    if (message.controller !== undefined) {
-      obj.controller = Controller.toJSON(message.controller);
+    if (message.trafficControl !== undefined) {
+      obj.trafficControl = TrafficControl.toJSON(message.trafficControl);
     }
     if (message.personal !== undefined) {
       obj.personal = Personal.toJSON(message.personal);
+    }
+    if (message.delivery !== undefined) {
+      obj.delivery = Delivery.toJSON(message.delivery);
     }
     return obj;
   },
@@ -324,11 +357,14 @@ export const Setting: MessageFns<Setting> = {
     message.security = (object.security !== undefined && object.security !== null)
       ? Security.fromPartial(object.security)
       : undefined;
-    message.controller = (object.controller !== undefined && object.controller !== null)
-      ? Controller.fromPartial(object.controller)
+    message.trafficControl = (object.trafficControl !== undefined && object.trafficControl !== null)
+      ? TrafficControl.fromPartial(object.trafficControl)
       : undefined;
     message.personal = (object.personal !== undefined && object.personal !== null)
       ? Personal.fromPartial(object.personal)
+      : undefined;
+    message.delivery = (object.delivery !== undefined && object.delivery !== null)
+      ? Delivery.fromPartial(object.delivery)
       : undefined;
     return message;
   },
@@ -1149,19 +1185,16 @@ export const RateLimit: MessageFns<RateLimit> = {
   },
 };
 
-function createBaseController(): Controller {
-  return { cdn: [] };
+function createBaseTrafficControl(): TrafficControl {
+  return {};
 }
 
-export const Controller: MessageFns<Controller> = {
-  encode(message: Controller, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.cdn) {
-      CDN.encode(v!, writer.uint32(10).fork()).join();
-    }
+export const TrafficControl: MessageFns<TrafficControl> = {
+  encode(_: TrafficControl, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Controller {
+  decode(input: BinaryReader | Uint8Array, length?: number): TrafficControl {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1170,7 +1203,62 @@ export const Controller: MessageFns<Controller> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseController();
+      const message = createBaseTrafficControl();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): TrafficControl {
+    return {};
+  },
+
+  toJSON(_: TrafficControl): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<TrafficControl>, I>>(base?: I): TrafficControl {
+    return TrafficControl.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<TrafficControl>, I>>(_: I): TrafficControl {
+    const message = createBaseTrafficControl();
+    return message;
+  },
+};
+
+function createBaseDelivery(): Delivery {
+  return { cdn: [] };
+}
+
+export const Delivery: MessageFns<Delivery> = {
+  encode(message: Delivery, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.cdn) {
+      CDN.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Delivery {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDelivery();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1194,11 +1282,11 @@ export const Controller: MessageFns<Controller> = {
     }
   },
 
-  fromJSON(object: any): Controller {
+  fromJSON(object: any): Delivery {
     return { cdn: globalThis.Array.isArray(object?.cdn) ? object.cdn.map((e: any) => CDN.fromJSON(e)) : [] };
   },
 
-  toJSON(message: Controller): unknown {
+  toJSON(message: Delivery): unknown {
     const obj: any = {};
     if (message.cdn?.length) {
       obj.cdn = message.cdn.map((e) => CDN.toJSON(e));
@@ -1206,11 +1294,11 @@ export const Controller: MessageFns<Controller> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Controller>, I>>(base?: I): Controller {
-    return Controller.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Delivery>, I>>(base?: I): Delivery {
+    return Delivery.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Controller>, I>>(object: I): Controller {
-    const message = createBaseController();
+  fromPartial<I extends Exact<DeepPartial<Delivery>, I>>(object: I): Delivery {
+    const message = createBaseDelivery();
     message.cdn = object.cdn?.map((e) => CDN.fromPartial(e)) || [];
     return message;
   },

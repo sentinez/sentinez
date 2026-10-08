@@ -150,7 +150,8 @@ setting:
       - timeWindow: 5s
         maxRequests: 50
         timeout: 5s
-  controller:
+  traffic_control: {}
+  delivery:
     cdn:
       - rule:
           name: cache GET

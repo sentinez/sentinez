@@ -662,20 +662,6 @@
       },
       "title": "A logical condition expression"
     },
-    "v1Controller": {
-      "type": "object",
-      "properties": {
-        "cdn": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1CDN"
-          },
-          "title": "@gotags: yaml:\"cdn\""
-        }
-      },
-      "title": "Controller for systems using a virtual waiting room or throttling:"
-    },
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
@@ -706,6 +692,19 @@
     },
     "v1DeleteResourceResponse": {
       "type": "object"
+    },
+    "v1Delivery": {
+      "type": "object",
+      "properties": {
+        "cdn": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CDN"
+          },
+          "title": "@gotags: yaml:\"cdn\""
+        }
+      }
     },
     "v1Expression": {
       "type": "object",
@@ -979,13 +978,17 @@
           "$ref": "#/definitions/v1Security",
           "title": "@gotags: yaml:\"security\""
         },
-        "controller": {
-          "$ref": "#/definitions/v1Controller",
-          "title": "@gotags: yaml:\"controller\""
+        "trafficControl": {
+          "$ref": "#/definitions/v1TrafficControl",
+          "title": "@gotags: yaml:\"traffic_control\""
         },
         "personal": {
           "$ref": "#/definitions/v1Personal",
           "title": "@gotags: yaml:\"personal\""
+        },
+        "delivery": {
+          "$ref": "#/definitions/v1Delivery",
+          "title": "@gotags: yaml:\"delivery\""
         }
       },
       "title": "Setting edge setting per user"
@@ -997,6 +1000,10 @@
           "type": "string"
         }
       }
+    },
+    "v1TrafficControl": {
+      "type": "object",
+      "title": "Controller for systems using a virtual waiting room or throttling:"
     },
     "v1UpdateResourceRequest": {
       "type": "object",
