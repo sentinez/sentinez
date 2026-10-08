@@ -40,7 +40,8 @@ func Standard(c *runner.Context[edge.Server]) {
 	c.Inject(stdhttpx.NewServer)
 
 	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetOptions(corehttp.WithOnStdConnect(transport.OnStandardConnect))
+		server.SetOptions(
+			corehttp.WithOnStdConnect(transport.OnStandardConnect))
 
 		return nil
 	})

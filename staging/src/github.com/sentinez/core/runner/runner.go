@@ -18,12 +18,12 @@
 package runner
 
 import (
-	"slices"
 	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
