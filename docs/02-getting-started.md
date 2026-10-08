@@ -97,7 +97,7 @@ They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
 | Variable | Used by | Meaning |
 |---|---|---|
 | `SENZ_HOSTNAME` | edge, IAM | Edge root domain (`sentinez.vn`); WebAuthn RP ID |
-| `SENZ_ADDRESS` | all | Listen address. Edge defaults to `0.0.0.0:443`; apiserver defaults to `:9000` when empty |
+| `SENZ_ADDRESS` | all | Listen address. Edge defaults to `0.0.0.0:443` and listens on both TCP and UDP (HTTP/3) at that address; apiserver defaults to `:9000` when empty |
 | `SENZ_SECRET_KEY` | IAM | HMAC key for signing JWTs, **must be base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Allowed WebAuthn origin (console URL) |
 | `SENZ_POSTGRES_URI` | control plane | PostgreSQL DSN (pgxpool) |

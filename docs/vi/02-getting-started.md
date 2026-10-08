@@ -95,7 +95,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | Biến | Dùng ở | Ý nghĩa |
 |---|---|---|
 | `SENZ_HOSTNAME` | edge, IAM | Domain gốc của edge (`sentinez.vn`); RP ID cho WebAuthn |
-| `SENZ_ADDRESS` | tất cả | Địa chỉ listen. Edge mặc định `0.0.0.0:443`, apiserver mặc định `:9000` nếu rỗng |
+| `SENZ_ADDRESS` | tất cả | Địa chỉ listen. Edge mặc định `0.0.0.0:443` và lắng nghe cả TCP lẫn UDP (HTTP/3) trên địa chỉ đó, apiserver mặc định `:9000` nếu rỗng |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Origin được phép cho WebAuthn (URL console) |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |

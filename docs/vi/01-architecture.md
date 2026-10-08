@@ -23,7 +23,7 @@ cảnh báo chưa đảm bảo tương thích ngược trước v1.0.0.
                        │
              ┌─────────▼─────────┐        Olric cluster (memberlist)
              │   szedge (HTTPS)  │◄──────► chia sẻ edge Setting giữa các node
-             │  Hertz + chain    │
+             │ HTTP/3+TCP, chain │
              └─────────┬─────────┘
                        │ reverse proxy
                        ▼
@@ -109,12 +109,16 @@ Thư mục cấp root:
 
 ### Request của người dùng cuối (data path)
 
-1. TCP accept tại `network.Listener` → bọc thành `network.Conn` có `Id` ngẫu
-   nhiên 8 byte (hex).
+1. Edge lắng nghe trên cùng một địa chỉ qua TCP (HTTP/1.1, HTTP/2) và UDP
+   (HTTP/3 / QUIC). Response TCP có `Alt-Svc` để client chuyển sang HTTP/3 ở
+   các request sau. TCP accept tại `network.StdListener` → bọc thành
+   `network.StdConn` có `Id` ngẫu nhiên 8 byte (hex).
 2. TLS ClientHello → `transport.TLSConfig` tính JA4 fingerprint và lưu vào
    `shared/store/ja4` theo `conn.Id`.
-3. `OnConnect` gắn `netpb.Transport{ConnId, ServerName}` vào `context`.
-4. Hertz gọi handler → tạo `httphz.Context` (lấy từ pool), gán fingerprint.
+3. `OnStdConnect` gắn `netpb.Transport{ConnId, ServerName}` vào `context`
+   (chỉ TCP; request HTTP/3 hiện chưa có fingerprint).
+4. Server (mặc định `quichttpx`) gọi handler → tạo `httpx.Context` (lấy từ
+   pool), gán fingerprint.
 5. Chain middleware chạy theo thứ tự `TRACE → LOG → DMA → CDN → LMT → ROM →
    STC → RUL → WAF → ROU` (xem [03-edge.md](03-edge.md)).
 6. `ROU` tìm location theo longest-prefix, rewrite path, set header, gọi
@@ -138,7 +142,7 @@ console. Xem [12-known-issues.md](12-known-issues.md).
 | Lĩnh vực | Thư viện |
 |---|---|
 | DI / lifecycle | `go.uber.org/fx` |
-| HTTP edge | `cloudwego/hertz` (+ `hertz-contrib/http2`, `reverseproxy`), có bản `net/http` thay thế |
+| HTTP edge | Mặc định `quic-go/quic-go` (`http3`) + `net/http`; `cloudwego/hertz` (+ `hertz-contrib/http2`, `reverseproxy`) làm phương án thay thế |
 | REST ↔ gRPC | `grpc-ecosystem/grpc-gateway/v2` |
 | WAF | `corazawaf/coraza/v3` + OWASP CRS v4.16/v4.17 |
 | Fingerprint TLS | `exaring/ja4plus` |

@@ -85,7 +85,16 @@ Có ba dạng SecRule trong proto:
 `types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` nằm trong
 `setting.delivery.cdn`. Mỗi namespace giữ **một** CDN rule active (rule sau
 ghi đè rule trước). Node `CDN` chỉ cache khi rule active và expression khớp.
-Cache là `patrickmn/go-cache` TTL 1h, chỉ lưu response có status `< 400`.
+Cache là `patrickmn/go-cache` TTL 1h.
+
+- Key: `method + scheme + host + path + query + Accept-Encoding` (body được
+  lưu nguyên dạng upstream đã nén, ví dụ gzip hoặc br).
+- Chỉ lưu response có thể trả lại cho client khác: status đúng `200`, body
+  đã được giữ lại và khác rỗng (body trên 4 MiB không được giữ), không có
+  `Set-Cookie`, và `Cache-Control` không chứa `no-store`, `private` hay
+  `no-cache`.
+- Không lưu `Alt-Svc`, vì server tự thêm header này vào mọi response.
+- Khi hit, status code được ghi trước body.
 
 ## 4.5 Rate limiter
 

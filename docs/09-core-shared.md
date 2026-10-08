@@ -30,7 +30,8 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (default `localhost:4317`), service name
 - `corehttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
-  `WithOnConnect`, `WithListener`.
+  `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
+  `WithQuicListener` (`http3.QUICListener`).
 - `DecoreServer(conf, s)`: a decorator that prints the ASCII banner
   (`console.INFO`) before listening.
 - Error helpers: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
@@ -73,7 +74,7 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (default `localhost:4317`), service name
 | `errorx` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
 | `perms` | `Allow(XMethod, ControlPlane)` |
 | `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — all with prefixes |
+| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — all with prefixes; results are copied out of the pooled buffer |
 | `bytesconv` | Fork of fasthttp/Hertz: zero-copy `B2s`/`S2b`, character tables, number parsing |
 | `jsonx` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
 | `protobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |
@@ -110,8 +111,10 @@ when `level >= verbosity`.
 |---|---|
 | `pkg/apps/**/config` | Singleton `Config()`: parses flags + loads env + attaches `XMeta` |
 | `pkg/apps/**/flags` | Service-specific flags, default `--env_file` |
-| `pkg/network` | `Listen` (Conns with IDs), `StandardTransporter` (30s dial timeout), `GetInterface` |
-| `pkg/network/httpx/std` | `corehttp.Server`/`Context`/`ReverseProxy` implemented with `net/http` |
+| `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN), `StandardTransporter` (30s dial timeout), `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
+| `pkg/network/httpx` | `corehttp.Context` and `ReverseProxy` implemented with `net/http`, shared by both servers below |
+| `pkg/network/httpx/std` | `corehttp.Server` on `net/http` (TCP) |
+| `pkg/network/httpx/quic` | `corehttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pools for `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
@@ -129,7 +132,7 @@ Hertz adapter for `corehttp`:
   `hertz-contrib/reverseproxy`, with functional options (`WithTLS`,
   `WithTimeout`, `WithStreamResponseBody`, ...).
 - `net/std`: transport/connection forked from Hertz (CloudWeGo license) to
-  expose `TLSConn` so the original `network.Conn` can be recovered.
+  expose `TLSConn` so the original `network.StdConn` can be recovered.
 
 ## 9.8 `tools`
 
