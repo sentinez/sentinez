@@ -9,6 +9,8 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { domain } = await params;
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+
   return (
     <PageLayout>
       <PageLayoutHeader

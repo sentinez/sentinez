@@ -37,15 +37,21 @@ import {
 } from '@sentinez/ui/components/table';
 import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
+import { useApi } from '@/hooks/use-api';
+import { listResources, type TenantResource } from '@/lib/api/tenant';
 
-const data: Payment[] = [
-  {
-    id: 'm5gr84i9',
-    plan: 'standard',
-    status: 'active',
-    name: 'badcheese.s6z.io.vn',
-  },
-];
+// "PLAN_STANDARD" -> "standard", "STATUS_ACTIVE" -> "active"
+const enumLabel = (v: string | undefined, prefix: string) =>
+  (v ?? '').replace(prefix, '').toLowerCase();
+
+function rowOf(r: TenantResource): Payment {
+  return {
+    id: r.id ?? '',
+    plan: enumLabel(r.plan, 'PLAN_'),
+    status: enumLabel(r.status, 'STATUS_') as Payment['status'],
+    name: r.resourceDomain ?? '',
+  };
+}
 
 export type Payment = {
   id: string;
@@ -107,7 +113,7 @@ export const columns: ColumnDef<Payment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id)}>
-              Copy payment ID
+              Copy resource ID
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -121,6 +127,8 @@ export function ResourceTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const { data: list } = useApi(listResources, {});
+  const data = React.useMemo(() => (list?.resources ?? []).map(rowOf), [list]);
 
   const table = useReactTable({
     data,
