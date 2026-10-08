@@ -39,22 +39,33 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { listSecRulesWithTotal, type Pages, deleteSecRule } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { Badge } from '@sentinez/ui/components/badge';
 import { SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { ACTION_TYPE_BADGE_VARIANT, ACTION_TYPE_LABEL, statusLabel } from '@/lib/type/security';
+import { ACTION_TYPE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
+import { useSecurityOptions } from '@/hooks/use-security-options';
 import { TablePagination } from '@/components/table-pagination';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useMemo, useState } from 'react';
 
-export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule>[] => [
+type SecRuleTranslator = ReturnType<typeof useTranslations<'SecRule'>>;
+type CommonTranslator = ReturnType<typeof useTranslations<'Common'>>;
+
+export const getColumns = (
+  t: SecRuleTranslator,
+  tc: CommonTranslator,
+  actionTypeLabel: (type: ActionType) => string,
+  onDelete: (rule: SecRule) => void,
+): ColumnDef<SecRule>[] => [
   {
     accessorKey: 'name',
     size: 220,
-    header: ({ column }) => <div className="w-full">Name</div>,
+    meta: { label: t('name') },
+    header: ({ column }) => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full truncate">
         <Link
@@ -69,7 +80,8 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
   {
     accessorKey: 'description',
     size: 0, // auto: takes the remaining width
-    header: () => <div>Description</div>,
+    meta: { label: t('description') },
+    header: () => <div>{t('description')}</div>,
     cell: ({ row }) => (
       <div className="truncate" title={row.original.ingressRuntime?.description}>
         {row.original.ingressRuntime?.description}
@@ -79,15 +91,16 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
   {
     id: 'action',
     size: 140,
-    header: () => <div>Action</div>,
+    meta: { label: t('action') },
+    header: () => <div>{t('action')}</div>,
     cell: ({ row }) => {
       const action = row.original.ingressRuntime?.action;
       const type = action?.type ?? ActionType.ACTION_TYPE_UNSPECIFIED;
-      const label = ACTION_TYPE_LABEL[type];
+      const label = actionTypeLabel(type);
       const params = action?.params ? JSON.stringify(action.params) : undefined;
       return (
         <div className="truncate" title={params}>
-          <Badge variant={ACTION_TYPE_BADGE_VARIANT[type]}>{label ?? 'Unknown'}</Badge>
+          <Badge variant={ACTION_TYPE_BADGE_VARIANT[type]}>{label}</Badge>
         </div>
       );
     },
@@ -95,7 +108,8 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
   {
     accessorKey: 'status',
     size: 120,
-    header: () => <div>Status</div>,
+    meta: { label: t('status') },
+    header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
       const s = statusLabel(row.original.ingressRuntime?.status);
       return (
@@ -108,7 +122,8 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
   {
     accessorKey: 'priority',
     size: 100,
-    header: () => <div className="w-full text-right">Priority</div>,
+    meta: { label: t('priority') },
+    header: () => <div className="w-full text-right">{t('priority')}</div>,
     cell: ({ row }) => {
       return <div className="w-full text-right">{row.original.ingressRuntime?.priority}</div>;
     },
@@ -129,10 +144,10 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(row.original.ingressRuntime?.id || '')}
             >
-              Copy Rule ID
+              {t('copyRuleId')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
-              Delete
+              {tc('delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -142,6 +157,9 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
 ];
 
 export default function View() {
+  const t = useTranslations('SecRule');
+  const tc = useTranslations('Common');
+  const { actionTypeLabel } = useSecurityOptions();
   const [deleting, setDeleting] = useState<SecRule | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
@@ -162,7 +180,7 @@ export default function View() {
     setPagination,
     pageCount,
     refresh,
-  } = usePagedList(fetchPage, 'Failed to load SecRules');
+  } = usePagedList(fetchPage, t('loadFailed'));
 
   const handleDelete = async () => {
     const id = deleting?.ingressRuntime?.id;
@@ -170,17 +188,20 @@ export default function View() {
     setDeletingBusy(true);
     try {
       await deleteSecRule(id);
-      toast.success('SecRule deleted successfully');
+      toast.success(t('deleted'));
       setDeleting(null);
       refresh();
     } catch (err: any) {
-      toast.error('Failed to delete SecRule');
+      toast.error(t('deleteFailed'));
     } finally {
       setDeletingBusy(false);
     }
   };
 
-  const columns = useMemo(() => getColumns(setDeleting), []);
+  const columns = useMemo(
+    () => getColumns(t, tc, actionTypeLabel, setDeleting),
+    [t, tc, actionTypeLabel],
+  );
 
   const table = useReactTable<SecRule>({
     data: rules,
@@ -206,11 +227,11 @@ export default function View() {
 
   return (
     <PageLayout>
-      <PageLayoutHeader title="Security Rule" subtitle="Manage active security rules.">
+      <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}>
         <Button size="sm" asChild>
           <Link href="./sec-rule/new">
             <PlusIcon className="w-4 h-4" />
-            Create
+            {tc('create')}
           </Link>
         </Button>
       </PageLayoutHeader>
@@ -219,7 +240,7 @@ export default function View() {
         <div className="w-full">
           <div className="flex items-center py-4">
             <Input
-              placeholder="Filter names..."
+              placeholder={tc('filterNames')}
               value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
               onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
               className="max-w-sm"
@@ -227,7 +248,7 @@ export default function View() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  Columns <ChevronDown />
+                  {tc('columns')} <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -242,7 +263,7 @@ export default function View() {
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) => column.toggleVisibility(!!value)}
                       >
-                        {column.id}
+                        {column.columnDef.meta?.label ?? column.id}
                       </DropdownMenuCheckboxItem>
                     );
                   })}
@@ -277,7 +298,7 @@ export default function View() {
                 {loading ? (
                   <TableRow className="max-h-fit">
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                      Loading...
+                      {tc('loading')}
                     </TableCell>
                   </TableRow>
                 ) : table.getRowModel().rows?.length ? (
@@ -293,7 +314,7 @@ export default function View() {
                 ) : (
                   <TableRow className="max-h-fit">
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
+                      {tc('noResults')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -307,18 +328,17 @@ export default function View() {
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete SecRule</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{deleting?.ingressRuntime?.name}&quot;? This
-              action cannot be undone.
+              {tc('deleteConfirm', { name: deleting?.ingressRuntime?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="secondary" onClick={() => setDeleting(null)}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button variant="destructive" disabled={deletingBusy} onClick={handleDelete}>
-              {deletingBusy ? 'Deleting...' : 'Delete'}
+              {deletingBusy ? tc('deleting') : tc('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

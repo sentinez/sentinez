@@ -1,9 +1,12 @@
 import { Button } from '@sentinez/ui/components/button';
 import { MoveLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function NotFound() {
+  const t = useTranslations('NotFound');
+
   return (
     <div className="flex flex-col gap-2 items-center justify-center h-screen">
       <div className="flex flex-col gap-5">
@@ -11,13 +14,13 @@ export default function NotFound() {
           <Image src="/assets/sntz.png" alt="sen" width={150} height={150} loading="eager" />
           <div className=" flex flex-col gap-2">
             <div className="font-medium text-7xl font-mono mx-2">404</div>
-            <div className="font-medium text-2xl font-mono mx-2">Not Found!</div>
+            <div className="font-medium text-2xl font-mono mx-2">{t('title')}</div>
           </div>
         </div>
         <div className="flex justify-end">
           <Link href="/console">
             <Button size="sm" variant="default">
-              <MoveLeft /> Back to home
+              <MoveLeft /> {t('backHome')}
             </Button>
           </Link>
         </div>

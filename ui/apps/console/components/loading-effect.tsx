@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Progress } from '@sentinez/ui/components/progress';
 import { Field, FieldLabel } from '@sentinez/ui/components/field';
+import { useTranslations } from 'next-intl';
 
 export default function LoadingEffect({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,8 @@ export default function LoadingEffect({ children }: { children: ReactNode }) {
 }
 
 export function IsLoading({ timeout }: { timeout: number }) {
+  const t = useTranslations('Loading');
+
   useEffect(() => {
     const start = performance.now();
     // setInterval (not requestAnimationFrame) so progress still advances
@@ -82,9 +85,7 @@ export function IsLoading({ timeout }: { timeout: number }) {
         {/* <div className="font-medium font-mono text-foreground">The Sentinéz is loading...</div> */}
         <Field className="w-full max-w-sm">
           <FieldLabel htmlFor="progress-upload">
-            <span className="font-medium font-sans text-foreground">
-              The Sentinéz is loading...
-            </span>
+            <span className="font-medium font-sans text-foreground">{t('text')}</span>
             {/* <span className="ml-auto">{progress}%</span> */}
           </FieldLabel>
           <Progress value={progress} id="progress-upload" />

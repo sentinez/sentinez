@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import { Card, CardContent } from '@sentinez/ui/components/card';
@@ -12,6 +13,8 @@ import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
 
 export function PasskeyRegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth');
+  const te = useTranslations('Errors');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,21 +22,21 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
   async function handleRegisterPasskey(e: React.ChangeEvent) {
     e.preventDefault();
     if (!email) {
-      toast.warning('Input Required', 'Please enter your email address.');
+      toast.warning(t('inputRequired'), t('enterEmail'));
       return;
     }
 
     try {
       setIsLoading(true);
       await PasskeyRegister({ emailOrUsername: email });
-      toast.success('Registration Successful', 'Passkey registered successfully! Please sign in.');
+      toast.success(t('registerSuccess'), t('registerSuccessDescription'));
       router.push('/auth/passkey/login');
     } catch (err: any) {
       console.error('Passkey registration error:', err);
       if (err.name === 'NotAllowedError') {
-        toast.error('Registration Cancelled', 'The passkey registration prompt was cancelled.');
+        toast.error(t('registerCancelled'), t('registerCancelledDescription'));
       } else {
-        handleStatusError(err);
+        handleStatusError(err, te);
       }
     } finally {
       setIsLoading(false);
@@ -48,7 +51,7 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -60,13 +63,13 @@ export function PasskeyRegisterForm({ className, ...props }: React.ComponentProp
                   />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? 'Registering...' : 'Register Passkey'}
+                  {isLoading ? t('registering') : t('registerPasskey')}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Already have an account? <br />
+                {t('hasAccount')} <br />
                 <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  Sign in
+                  {t('signIn')}
                 </a>
               </div>
             </div>

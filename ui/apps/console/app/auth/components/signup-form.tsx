@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -16,23 +17,24 @@ import Image from 'next/image';
 import { PasskeyRegister } from '@/lib/api/iam/passkey';
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     if (!email) {
-      alert('Please enter your email first');
+      alert(t('enterEmailFirst'));
       return;
     }
 
     try {
       setIsLoading(true);
       await PasskeyRegister({ emailOrUsername: email });
-      alert('Account created successfully!');
+      alert(t('accountCreated'));
     } catch (err: any) {
       console.error(err);
-      alert('Sign up failed: ' + err.message);
+      alert(t('signUpFailed', { message: err.message }));
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +61,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'div'>)
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -71,13 +73,13 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'div'>)
                   />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? 'Creating account…' : 'Sign Up'}
+                  {isLoading ? t('creatingAccount') : t('signUpButton')}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Already have an account? <br />
+                {t('hasAccount')} <br />
                 <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  Sign in
+                  {t('signIn')}
                 </a>
               </div>
             </div>

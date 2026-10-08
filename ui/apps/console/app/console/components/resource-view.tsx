@@ -17,6 +17,7 @@ import IsLoading from '@sentinez/ui/components/common/loading';
 import { Button } from '@sentinez/ui/components/button';
 import { ResourceVisitorChart } from './chart';
 import { useState } from 'react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 type Props = {
   domain: string;
@@ -25,6 +26,18 @@ type Props = {
 export function ResourceView({ domain }: Props) {
   const { data: resource, isLoading, error } = useApi(getResourceByDomain, domain);
   const [showJson, setShowJson] = useState(false);
+  const t = useTranslations('Resource');
+  const tc = useTranslations('Common');
+  const format = useFormatter();
+  // Rendered after the client-side fetch, so the browser's time zone is safe to use
+  const formatDate = (iso?: string) =>
+    iso
+      ? format.dateTime(new Date(iso), {
+          dateStyle: 'medium',
+          timeStyle: 'medium',
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
+      : tc('notAvailable');
 
   if (isLoading) {
     return <IsLoading />;
@@ -33,9 +46,12 @@ export function ResourceView({ domain }: Props) {
   if (error || !resource) {
     return (
       <div className="p-8 flex flex-col items-center justify-center text-center space-y-4">
-        <div className="text-muted-foreground">{error?.message || 'Resource unavailable'}</div>
+        <div className="text-muted-foreground">{error?.message || t('unavailable')}</div>
         <p className="text-sm text-muted-foreground max-w-xs">
-          The domain <strong>{domain}</strong> might be incorrect or have been removed.
+          {t.rich('unavailableHint', {
+            domain,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
       </div>
     );
@@ -63,28 +79,28 @@ export function ResourceView({ domain }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Overview</CardTitle>
-            <CardDescription>General information about the resource</CardDescription>
+            <CardTitle>{t('overview')}</CardTitle>
+            <CardDescription>{t('overviewDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">ID:</span>
+              <span className="font-semibold text-sm">{t('id')}</span>
               <span className="col-span-2 text-sm break-all">{resource.id}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">Name:</span>
+              <span className="font-semibold text-sm">{t('name')}</span>
               <span className="col-span-2 text-sm">{resource.resourceName}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">Domain:</span>
+              <span className="font-semibold text-sm">{t('domain')}</span>
               <span className="col-span-2 text-sm">{resource.resourceDomain}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">Plan:</span>
+              <span className="font-semibold text-sm">{t('plan')}</span>
               <span className="col-span-2 text-sm">{resource.plan}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">Status:</span>
+              <span className="font-semibold text-sm">{t('status')}</span>
               <span className="col-span-2 text-sm">{resource.status}</span>
             </div>
           </CardContent>
@@ -92,25 +108,17 @@ export function ResourceView({ domain }: Props) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Metadata</CardTitle>
-            <CardDescription>Timestamps and management data</CardDescription>
+            <CardTitle>{t('metadata')}</CardTitle>
+            <CardDescription>{t('metadataDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <span className="font-semibold text-sm">Created At:</span>
-              <span className="col-span-2 text-sm">
-                {resource.metadata?.createdAt
-                  ? new Date(resource.metadata.createdAt).toLocaleString()
-                  : 'N/A'}
-              </span>
+              <span className="font-semibold text-sm">{t('createdAt')}</span>
+              <span className="col-span-2 text-sm">{formatDate(resource.metadata?.createdAt)}</span>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <span className="font-semibold text-sm">Updated At:</span>
-              <span className="col-span-2 text-sm">
-                {resource.metadata?.updatedAt
-                  ? new Date(resource.metadata.updatedAt).toLocaleString()
-                  : 'N/A'}
-              </span>
+              <span className="font-semibold text-sm">{t('updatedAt')}</span>
+              <span className="col-span-2 text-sm">{formatDate(resource.metadata?.updatedAt)}</span>
             </div>
           </CardContent>
         </Card>
@@ -118,8 +126,8 @@ export function ResourceView({ domain }: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Unique Visitors</CardTitle>
-          <CardDescription>Unique visitors per hour over the last 24 hours</CardDescription>
+          <CardTitle>{t('uniqueVisitors')}</CardTitle>
+          <CardDescription>{t('uniqueVisitorsDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResourceVisitorChart />
@@ -129,8 +137,8 @@ export function ResourceView({ domain }: Props) {
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="grid gap-1.5">
-            <CardTitle>Settings (Raw JSON)</CardTitle>
-            <CardDescription>Edge configurations applied to this resource</CardDescription>
+            <CardTitle>{t('settings')}</CardTitle>
+            <CardDescription>{t('settingsDescription')}</CardDescription>
           </div>
           {resource.resourceSetting && (
             <Button
@@ -139,23 +147,21 @@ export function ResourceView({ domain }: Props) {
               aria-expanded={showJson}
               onClick={() => setShowJson((v) => !v)}
             >
-              {showJson ? 'Hide JSON' : 'Show JSON'}
+              {showJson ? t('hideJson') : t('showJson')}
             </Button>
           )}
         </CardHeader>
         <CardContent>
           {!resource.resourceSetting ? (
             <div className="text-sm text-muted-foreground p-4 border rounded-md">
-              No settings applied.
+              {t('noSettings')}
             </div>
           ) : showJson ? (
             <pre className="bg-muted text-foreground p-4 rounded-md overflow-x-auto text-xs min-h-[300px]">
               {JSON.stringify(resource.resourceSetting, null, 2)}
             </pre>
           ) : (
-            <div className="text-sm text-muted-foreground">
-              Hidden. Click &quot;Show JSON&quot; to view the raw setting.
-            </div>
+            <div className="text-sm text-muted-foreground">{t('hiddenJson')}</div>
           )}
         </CardContent>
       </Card>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import { Card, CardContent } from '@sentinez/ui/components/card';
@@ -13,6 +14,8 @@ import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth');
+  const te = useTranslations('Errors');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,14 +23,14 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
   async function handleLoginPasskey(e: React.ChangeEvent) {
     e.preventDefault();
     if (!email) {
-      toast.warning('Input Required', 'Please enter your email address.');
+      toast.warning(t('inputRequired'), t('enterEmail'));
       return;
     }
 
     try {
       setIsLoading(true);
       const resp = await PasskeyLogin({ emailOrUsername: email });
-      toast.success('Login Successful', 'Welcome back to Sentinéz!');
+      toast.success(t('loginSuccess'), t('welcome'));
 
       if (resp?.accessToken) {
         localStorage.setItem(SENTINEZ_ACCESS_TOKEN_KEY, resp.accessToken);
@@ -45,9 +48,9 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
     } catch (err: any) {
       console.error('Passkey login error:', err);
       if (err.name === 'NotAllowedError') {
-        toast.error('Passkey Cancelled', 'The passkey authentication prompt was cancelled.');
+        toast.error(t('passkeyCancelled'), t('passkeyCancelledDescription'));
       } else {
-        handleStatusError(err);
+        handleStatusError(err, te);
       }
     } finally {
       setIsLoading(false);
@@ -62,7 +65,7 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -74,13 +77,13 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
                   />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? 'Authenticating...' : 'Login'}
+                  {isLoading ? t('authenticating') : t('login')}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Do not have an account? <br />
+                {t('noAccount')} <br />
                 <a href="/auth/passkey/register" className="underline underline-offset-4">
-                  Register
+                  {t('register')}
                 </a>
               </div>
             </div>

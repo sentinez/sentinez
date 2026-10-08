@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@sentinez/ui/components/select';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { PAGE_SIZE_OPTIONS } from '@/hooks/use-paged-list';
 
 interface Props<T> {
@@ -20,6 +21,7 @@ interface Props<T> {
 
 /** Footer for a table with manualPagination (see usePagedList) */
 export function TablePagination<T>({ table, total }: Props<T>) {
+  const t = useTranslations('Pagination');
   const { pageIndex, pageSize } = table.getState().pagination;
   const from = total === 0 ? 0 : pageIndex * pageSize + 1;
   const to = Math.min(total, (pageIndex + 1) * pageSize);
@@ -27,11 +29,11 @@ export function TablePagination<T>({ table, total }: Props<T>) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
       <div className="text-sm text-muted-foreground tabular-nums">
-        {from}–{to} of {total}
+        {t('range', { from, to, total })}
       </div>
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows per page</span>
+          <span className="text-sm text-muted-foreground">{t('rowsPerPage')}</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
@@ -52,14 +54,14 @@ export function TablePagination<T>({ table, total }: Props<T>) {
           </Select>
         </div>
         <div className="text-sm tabular-nums">
-          Page {pageIndex + 1} of {table.getPageCount()}
+          {t('page', { page: pageIndex + 1, count: table.getPageCount() })}
         </div>
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="First page"
+            aria-label={t('first')}
             onClick={() => table.firstPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -69,7 +71,7 @@ export function TablePagination<T>({ table, total }: Props<T>) {
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="Previous page"
+            aria-label={t('previous')}
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -79,7 +81,7 @@ export function TablePagination<T>({ table, total }: Props<T>) {
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="Next page"
+            aria-label={t('next')}
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
@@ -89,7 +91,7 @@ export function TablePagination<T>({ table, total }: Props<T>) {
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="Last page"
+            aria-label={t('last')}
             onClick={() => table.lastPage()}
             disabled={!table.getCanNextPage()}
           >

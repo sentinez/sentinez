@@ -14,9 +14,13 @@ import {
   Signal,
   Globe,
 } from 'lucide-react';
+import type messages from '@/messages/en.json';
+
+export type NavTitleKey = keyof (typeof messages)['Nav'];
 
 export interface NavItem {
-  title: string;
+  /** Key in the "Nav" messages namespace */
+  titleKey: NavTitleKey;
   url: string;
   icon?: any;
   isActive?: boolean;
@@ -44,19 +48,19 @@ export const dashboard: {
   ],
   rootNavMain: [
     {
-      title: 'Console',
+      titleKey: 'console',
       url: '/console/domain',
       icon: Gamepad2,
       isActive: true,
       items: [
         {
-          title: 'Domains',
+          titleKey: 'domains',
           url: '/console/domain',
           icon: Globe,
           items: [],
         },
         {
-          title: 'Member',
+          titleKey: 'member',
           url: '/console/member',
           icon: Building2,
           items: [],
@@ -66,80 +70,80 @@ export const dashboard: {
   ],
   domainNavMain: [
     {
-      title: 'Tenant',
+      titleKey: 'tenant',
       url: '/console/tenant/resource',
       icon: User,
       isActive: true,
       items: [
         {
-          title: 'Resource',
+          titleKey: 'resource',
           url: '/console/tenant/resource',
           icon: Server,
         },
       ],
     },
     {
-      title: 'Delivery',
+      titleKey: 'delivery',
       url: '/console/delivery/cdn',
       icon: Truck,
       isActive: false,
       items: [
         {
-          title: 'CDN',
+          titleKey: 'cdn',
           url: '/console/delivery/cdn',
           icon: Globe,
         },
       ],
     },
     {
-      title: 'Security',
+      titleKey: 'security',
       url: '/console/security/rate-limiter',
       icon: Shield,
       isActive: false,
       items: [
         {
-          title: 'Rate limiter',
+          titleKey: 'rateLimiter',
           url: '/console/security/rate-limiter',
           icon: Signal,
         },
         {
-          title: 'SecRule',
+          titleKey: 'secRule',
           url: '/console/security/sec-rule',
           icon: ShieldCheck,
         },
         {
-          title: 'Rulesets',
+          titleKey: 'rulesets',
           url: '/console/security/rulesets',
           icon: BrickWallFire,
         },
       ],
     },
     {
-      title: 'Analytic',
+      titleKey: 'analytic',
       url: '/console/analytic/logs',
       icon: Activity,
       isActive: false,
       items: [
         {
-          title: 'Logs',
+          titleKey: 'logs',
           url: '/console/analytic/logs',
           icon: SquareActivity,
           isActive: true,
           items: [
             {
-              title: 'SecRule',
+              titleKey: 'secRule',
               url: '/console/analytic/logs/security/sec-rule',
               icon: ShieldCheck,
             },
             {
-              title: 'Rulesets',
+              titleKey: 'rulesets',
               url: '/console/analytic/logs/security/rulesets',
               icon: BrickWallFire,
             },
           ],
         },
         {
-          title: 'Activity',
+          titleKey: 'activity',
           url: '/console/analytic/activity',
           icon: ShieldAlert,
         },

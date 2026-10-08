@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -19,6 +20,8 @@ import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const t = useTranslations('Auth');
+  const te = useTranslations('Errors');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,14 +31,14 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     e.preventDefault();
 
     if (!email || !password) {
-      toast.warning('Input Required', 'Please enter both email and password.');
+      toast.warning(t('inputRequired'), t('enterEmailPassword'));
       return;
     }
 
     try {
       setIsLoading(true);
       const res = await Login({ emailOrUsername: email, password });
-      toast.success('Login Successful', 'Welcome back to Sentinez!');
+      toast.success(t('loginSuccess'), t('welcome'));
 
       if (res.accessToken) {
         localStorage.setItem(SENTINEZ_ACCESS_TOKEN_KEY, res.accessToken);
@@ -52,7 +55,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
       router.push('/console');
     } catch (error: any) {
       console.error('Login error:', error);
-      handleStatusError(error);
+      handleStatusError(error, te);
     } finally {
       setIsLoading(false);
     }
@@ -62,17 +65,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Login</CardTitle>
-          <CardDescription className=" text-center">
-            Login with your Sentinez account
-          </CardDescription>
+          <CardTitle className="text-xl">{t('login')}</CardTitle>
+          <CardDescription className=" text-center">{t('loginDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('email')}</Label>
                   <Input
                     id="email"
                     placeholder="m@example.com"
@@ -84,9 +85,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 </div>
                 <div className="grid gap-3">
                   <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('password')}</Label>
                     <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-                      Forgot your password?
+                      {t('forgotPassword')}
                     </a>
                   </div>
                   <Input
@@ -99,19 +100,19 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   />
                 </div>
                 <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? t('loggingIn') : t('login')}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account? <br />
+                {t('noAccount')} <br />
                 <a href="/auth/signup" className="underline underline-offset-4">
-                  Sign up
+                  {t('signUp')}
                 </a>
                 <br />
-                or
+                {t('or')}
                 <br />
                 <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  Passkey
+                  {t('passkey')}
                 </a>
               </div>
             </div>

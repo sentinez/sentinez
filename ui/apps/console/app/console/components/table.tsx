@@ -13,6 +13,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@sentinez/ui/components/button';
 import { Checkbox } from '@sentinez/ui/components/checkbox';
@@ -61,10 +62,13 @@ export type Payment = {
   name: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
+
+export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   {
     accessorKey: 'name',
-    header: ({ column }) => <div className="w-full">Name</div>,
+    meta: { label: t('name') },
+    header: ({ column }) => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full lowercase truncate">
         <a
@@ -78,7 +82,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'status',
-    header: () => <div>Status</div>,
+    meta: { label: t('status') },
+    header: () => <div>{t('status')}</div>,
     cell: ({ row }) => (
       <div className="capitalize">
         <BadgeStatus status={row.getValue('status')} value={row.getValue('status')} />
@@ -87,7 +92,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'unique visitor',
-    header: () => <div className="w-full">Unique Visitor</div>,
+    meta: { label: t('uniqueVisitor') },
+    header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
     cell: () => (
       <div className="w-full max-h-16 overflow-hidden flex items-center">
         <UniqueVisitorChart />
@@ -96,7 +102,8 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: 'plan',
-    header: () => <div className="w-full text-right">Plan</div>,
+    meta: { label: t('plan') },
+    header: () => <div className="w-full text-right">{t('plan')}</div>,
     cell: ({ row }) => {
       return <div className="w-full text-right font-medium capitalize">{row.getValue('plan')}</div>;
     },
@@ -114,7 +121,7 @@ export const columns: ColumnDef<Payment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id)}>
-              Copy resource ID
+              {t('copyResourceId')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -124,6 +131,9 @@ export const columns: ColumnDef<Payment>[] = [
 ];
 
 export function ResourceTable() {
+  const t = useTranslations('Domain');
+  const tc = useTranslations('Common');
+  const columns = React.useMemo(() => getColumns(t), [t]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -135,7 +145,7 @@ export function ResourceTable() {
   }, []);
   const { items, total, pagination, setPagination, pageCount } = usePagedList(
     fetchPage,
-    'Failed to load resources',
+    t('loadFailed'),
   );
   const data = React.useMemo(() => items.map(rowOf), [items]);
 
@@ -165,7 +175,7 @@ export function ResourceTable() {
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter names..."
+          placeholder={tc('filterNames')}
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
           onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
           className="max-w-sm"
@@ -173,7 +183,7 @@ export function ResourceTable() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
+              {tc('columns')} <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -188,7 +198,7 @@ export function ResourceTable() {
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id}
+                    {column.columnDef.meta?.label ?? column.id}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -226,7 +236,7 @@ export function ResourceTable() {
             ) : (
               <TableRow className="max-h-fit">
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {tc('noResults')}
                 </TableCell>
               </TableRow>
             )}

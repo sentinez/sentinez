@@ -1,20 +1,24 @@
+import type { useTranslations } from 'next-intl';
 import { toast } from '@/lib/toast';
+
+export type ErrorsTranslator = ReturnType<typeof useTranslations<'Errors'>>;
 
 /**
  * Handle API status errors and show notifications.
  * This function is safe to call on both client and server.
+ * `t` comes from `useTranslations('Errors')` in the caller.
  */
-export const handleStatusError = (error: any) => {
+export const handleStatusError = (error: any, t: ErrorsTranslator) => {
   if (typeof window === 'undefined') return;
 
   const status = error.response?.status;
   const message = error.response?.data?.message || error.message;
 
   if (status === 404) {
-    toast.error('Not Found', 'The requested resource could not be located.');
+    toast.error(t('notFound'), t('notFoundDescription'));
   } else if (status >= 500) {
-    toast.error('Server Error', 'An internal server error occurred. Please try again later.');
+    toast.error(t('server'), t('serverDescription'));
   } else {
-    toast.error('Error', message || 'An unexpected error occurred.');
+    toast.error(t('generic'), message || t('unexpected'));
   }
 };

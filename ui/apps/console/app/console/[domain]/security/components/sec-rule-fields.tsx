@@ -5,6 +5,7 @@ import { Label } from '@sentinez/ui/components/label';
 import { Textarea } from '@sentinez/ui/components/textarea';
 import { Button } from '@sentinez/ui/components/button';
 import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -14,13 +15,8 @@ import {
 } from '@sentinez/ui/components/select';
 import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import {
-  ACTIONS_WITHOUT_VALUE,
-  ACTION_TYPE_OPTIONS,
-  PRIORITY_OPTIONS,
-  STATUS_OPTIONS,
-  SelectOption,
-} from '@/lib/type/security';
+import { ACTIONS_WITHOUT_VALUE, SelectOption } from '@/lib/type/security';
+import { useSecurityOptions } from '@/hooks/use-security-options';
 import { QueryBuilder } from './query-builder';
 
 export interface ParamRow {
@@ -43,6 +39,8 @@ export const DEFAULT_PRIORITY = 50;
 
 const MAP_ACTIONS = [ActionType.ACTION_TYPE_SET_TAG, ActionType.ACTION_TYPE_MODIFY_HEADER];
 
+export type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
+
 /** Rows -> params (proto Action.params) */
 export function actionParamsOf(f: SecRuleFormValue): Record<string, string> | undefined {
   if (ACTIONS_WITHOUT_VALUE.includes(f.action)) return undefined;
@@ -64,12 +62,10 @@ export function paramRowsOf(action: ActionType, params?: Record<string, any>): P
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateSecRuleForm(f: SecRuleFormValue): string | null {
-  if (!f.name || !f.description) return 'Fields name and description are required';
+export function validateSecRuleForm(f: SecRuleFormValue, t: ValidationTranslator): string | null {
+  if (!f.name || !f.description) return t('nameDescriptionRequired');
   if (ACTIONS_WITHOUT_VALUE.includes(f.action) || actionParamsOf(f)) return null;
-  return MAP_ACTIONS.includes(f.action)
-    ? 'At least one key and value is required'
-    : 'Action value is required';
+  return MAP_ACTIONS.includes(f.action) ? t('keyValueRequired') : t('actionValueRequired');
 }
 
 interface Props {
@@ -129,23 +125,25 @@ function KeyValueRows({
   valuePlaceholder: string;
   idPrefix: string;
 }) {
+  const t = useTranslations('SecRuleFields');
+  const tc = useTranslations('Common');
   const list = rows.length ? rows : [{ key: '', value: '' }];
   const update = (i: number, patch: Partial<ParamRow>) =>
     onChange(list.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
   return (
     <div className="grid gap-2">
-      <Label>Action value</Label>
+      <Label>{t('actionValue')}</Label>
       {list.map((r, i) => (
         <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
           <Input
-            aria-label={`${keyLabel} ${i + 1}`}
+            aria-label={t('keyN', { key: keyLabel, n: i + 1 })}
             id={`${idPrefix}-key-${i}`}
             placeholder={keyPlaceholder}
             value={r.key}
             onChange={(e) => update(i, { key: e.target.value })}
           />
           <Input
-            aria-label={`Value ${i + 1}`}
+            aria-label={t('valueN', { n: i + 1 })}
             placeholder={valuePlaceholder}
             value={r.value}
             onChange={(e) => update(i, { value: e.target.value })}
@@ -154,7 +152,7 @@ function KeyValueRows({
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Remove"
+            aria-label={tc('remove')}
             disabled={list.length === 1 && !r.key && !r.value}
             onClick={() => onChange(list.filter((_, idx) => idx !== i))}
           >
@@ -170,7 +168,7 @@ function KeyValueRows({
           onClick={() => onChange([...list, { key: '', value: '' }])}
         >
           <PlusIcon className="w-4 h-4" />
-          Add
+          {tc('add')}
         </Button>
       </div>
     </div>
@@ -178,23 +176,13 @@ function KeyValueRows({
 }
 
 /** Form fields matching v1SecRule in security.swagger.json */
-export function SecRuleFields({
-  value,
-  onChange,
-  idPrefix = 'rule',
-  actionOptions = ACTION_TYPE_OPTIONS,
-}: Props) {
+export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOptions }: Props) {
+  const t = useTranslations('SecRuleFields');
+  const options = useSecurityOptions();
   // keep a rule's existing custom priority selectable
-  const priorityOptions = PRIORITY_OPTIONS.some((o) => o.value === value.priority)
-    ? PRIORITY_OPTIONS
-    : [
-        ...PRIORITY_OPTIONS,
-        {
-          label: `Custom (${value.priority})`,
-          value: value.priority,
-          description: 'Custom priority.',
-        },
-      ];
+  const priorityOptions = options.priorityOptions.some((o) => o.value === value.priority)
+    ? options.priorityOptions
+    : [...options.priorityOptions, options.customPriorityOption(value.priority)];
 
   const needsValue = !ACTIONS_WITHOUT_VALUE.includes(value.action);
   const isHeader = value.action === ActionType.ACTION_TYPE_MODIFY_HEADER;
@@ -203,19 +191,19 @@ export function SecRuleFields({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-2">
-        <Label htmlFor={`${idPrefix}-name`}>Name</Label>
+        <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
         <Input
           id={`${idPrefix}-name`}
-          placeholder="Rule Name"
+          placeholder={t('namePlaceholder')}
           value={value.name}
           onChange={(e) => onChange({ name: e.target.value })}
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor={`${idPrefix}-description`}>Description</Label>
+        <Label htmlFor={`${idPrefix}-description`}>{t('description')}</Label>
         <Textarea
           id={`${idPrefix}-description`}
-          placeholder="Description"
+          placeholder={t('description')}
           value={value.description}
           onChange={(e) => onChange({ description: e.target.value })}
         />
@@ -223,13 +211,13 @@ export function SecRuleFields({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <OptionSelect
-          label="Status"
+          label={t('status')}
           value={value.status}
-          options={STATUS_OPTIONS}
+          options={options.statusOptions}
           onChange={(status) => onChange({ status })}
         />
         <OptionSelect
-          label="Priority"
+          label={t('priority')}
           value={value.priority}
           options={priorityOptions}
           onChange={(priority) => onChange({ priority })}
@@ -237,16 +225,16 @@ export function SecRuleFields({
       </div>
 
       <div className="grid gap-2 mt-2">
-        <Label>Condition Logic</Label>
+        <Label>{t('conditionLogic')}</Label>
         <div className="-mx-1">
           <QueryBuilder value={value.expr} onValueChange={(expr) => onChange({ expr })} />
         </div>
       </div>
 
       <OptionSelect
-        label="Action"
+        label={t('action')}
         value={value.action}
-        options={actionOptions}
+        options={actionOptions ?? options.actionTypeOptions}
         onChange={(action) => onChange({ action, actionParams: [] })}
       />
 
@@ -256,13 +244,13 @@ export function SecRuleFields({
             idPrefix={idPrefix}
             rows={value.actionParams}
             onChange={(actionParams) => onChange({ actionParams })}
-            keyLabel={isHeader ? 'Header name' : 'Tag key'}
+            keyLabel={isHeader ? t('headerName') : t('tagKey')}
             keyPlaceholder={isHeader ? 'X-Custom-Header' : 'tag-key'}
-            valuePlaceholder={isHeader ? 'header value' : 'tag value'}
+            valuePlaceholder={isHeader ? t('headerValuePlaceholder') : t('tagValuePlaceholder')}
           />
         ) : (
           <div className="grid gap-2">
-            <Label htmlFor={`${idPrefix}-action-value`}>Action value</Label>
+            <Label htmlFor={`${idPrefix}-action-value`}>{t('actionValue')}</Label>
             <Input
               id={`${idPrefix}-action-value`}
               placeholder={

@@ -4,8 +4,8 @@ import { LoginForm } from '@/app/auth/components/login-form';
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-
-const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
+import { useTranslations } from 'next-intl';
+import Language from '@/components/language';
 
 const MULTI_LANG_TEXTS = [
   'On Your Side', // US — English
@@ -22,6 +22,8 @@ const MULTI_LANG_TEXTS = [
 ];
 
 export default function View({ children }: { children: ReactNode }) {
+  const t = useTranslations('Auth');
+  const tagline = t('tagline');
   const [displayed, setDisplayed] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
   const [langIndex, setLangIndex] = useState(0);
@@ -29,15 +31,15 @@ export default function View({ children }: { children: ReactNode }) {
   useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
-      if (i < TYPEWRITER_TEXT.length) {
-        setDisplayed(TYPEWRITER_TEXT.slice(0, i + 1));
+      if (i < tagline.length) {
+        setDisplayed(tagline.slice(0, i + 1));
         i++;
       } else {
         clearInterval(interval);
       }
     }, 38);
     return () => clearInterval(interval);
-  }, []);
+  }, [tagline]);
 
   useEffect(() => {
     const blink = setInterval(() => {
@@ -56,7 +58,7 @@ export default function View({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
+        <div className="flex items-center justify-between gap-2">
           <a
             href="#"
             className="flex items-center gap-1 font-bold [font-family:'Phudu',sans-serif]"
@@ -66,6 +68,7 @@ export default function View({ children }: { children: ReactNode }) {
             </div>
             <span className="text-[#0504aa] items-center text-xl">SENTINÉZ</span>
           </a>
+          <Language />
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">{children}</div>
