@@ -88,7 +88,7 @@ There are three SecRule shapes in the protos:
 ## 4.4 CDN rules
 
 `types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` lives in
-`setting.controller.cdn`. Each namespace keeps **one** active CDN rule (a
+`setting.delivery.cdn`. Each namespace keeps **one** active CDN rule (a
 later rule overwrites an earlier one). The `CDN` node only caches when the
 rule is active and its expression matches. The cache is
 `patrickmn/go-cache` with a 1h TTL and only stores responses with status

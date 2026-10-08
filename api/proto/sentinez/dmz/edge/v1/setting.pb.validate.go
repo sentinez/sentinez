@@ -70,10 +70,10 @@ func (m *Setting) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetController()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetTrafficControl()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingValidationError{
-				field:  "Controller",
+				field:  "TrafficControl",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -84,6 +84,16 @@ func (m *Setting) Validate() error {
 		if err := v.Validate(); err != nil {
 			return SettingValidationError{
 				field:  "Personal",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetDelivery()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingValidationError{
+				field:  "Delivery",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -726,9 +736,74 @@ var _ interface {
 	ErrorName() string
 } = RateLimitValidationError{}
 
-// Validate checks the field values on Controller with the rules defined in the
+// Validate checks the field values on TrafficControl with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *TrafficControl) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// TrafficControlValidationError is the validation error returned by
+// TrafficControl.Validate if the designated constraints aren't met.
+type TrafficControlValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TrafficControlValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TrafficControlValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TrafficControlValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TrafficControlValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TrafficControlValidationError) ErrorName() string { return "TrafficControlValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TrafficControlValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTrafficControl.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TrafficControlValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TrafficControlValidationError{}
+
+// Validate checks the field values on Delivery with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Controller) Validate() error {
+func (m *Delivery) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -738,7 +813,7 @@ func (m *Controller) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ControllerValidationError{
+				return DeliveryValidationError{
 					field:  fmt.Sprintf("Cdn[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -751,9 +826,9 @@ func (m *Controller) Validate() error {
 	return nil
 }
 
-// ControllerValidationError is the validation error returned by
-// Controller.Validate if the designated constraints aren't met.
-type ControllerValidationError struct {
+// DeliveryValidationError is the validation error returned by
+// Delivery.Validate if the designated constraints aren't met.
+type DeliveryValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -761,22 +836,22 @@ type ControllerValidationError struct {
 }
 
 // Field function returns field value.
-func (e ControllerValidationError) Field() string { return e.field }
+func (e DeliveryValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ControllerValidationError) Reason() string { return e.reason }
+func (e DeliveryValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ControllerValidationError) Cause() error { return e.cause }
+func (e DeliveryValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ControllerValidationError) Key() bool { return e.key }
+func (e DeliveryValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ControllerValidationError) ErrorName() string { return "ControllerValidationError" }
+func (e DeliveryValidationError) ErrorName() string { return "DeliveryValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ControllerValidationError) Error() string {
+func (e DeliveryValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -788,14 +863,14 @@ func (e ControllerValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sController.%s: %s%s",
+		"invalid %sDelivery.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ControllerValidationError{}
+var _ error = DeliveryValidationError{}
 
 var _ interface {
 	Field() string
@@ -803,7 +878,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ControllerValidationError{}
+} = DeliveryValidationError{}
 
 // Validate checks the field values on Personal with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

@@ -163,7 +163,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
-		for _, cdn := range s.GetController().GetCdn() {
+		for _, cdn := range s.GetDelivery().GetCdn() {
 			if cdn.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 				continue
 			}

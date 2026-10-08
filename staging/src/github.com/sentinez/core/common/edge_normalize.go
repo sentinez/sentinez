@@ -33,12 +33,12 @@ const (
 )
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
-	normalizeEdgeController(edge.GetController())
+	normalizeEdgeDelivery(edge.GetDelivery())
 	normalizeEdgeSecurity(edge.GetSecurity())
 }
 
-func normalizeEdgeController(controller *edgepb.Controller) {
-	for _, cdn := range controller.GetCdn() {
+func normalizeEdgeDelivery(delivery *edgepb.Delivery) {
+	for _, cdn := range delivery.GetCdn() {
 		cdn.RuleRuntime = toCDN(cdn.GetRule())
 	}
 }

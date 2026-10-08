@@ -14,6 +14,9 @@ import { getResourceByDomain } from '@/lib/api/tenant';
 import { useApi } from '@/hooks/use-api';
 import { Loader2 } from 'lucide-react';
 import IsLoading from '@sentinez/ui/components/common/loading';
+import { Button } from '@sentinez/ui/components/button';
+import { ResourceVisitorChart } from './chart';
+import { useState } from 'react';
 
 type Props = {
   domain: string;
@@ -21,6 +24,7 @@ type Props = {
 
 export function ResourceView({ domain }: Props) {
   const { data: resource, isLoading, error } = useApi(getResourceByDomain, domain);
+  const [showJson, setShowJson] = useState(false);
 
   if (isLoading) {
     return <IsLoading />;
@@ -114,17 +118,43 @@ export function ResourceView({ domain }: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Settings (Raw JSON)</CardTitle>
-          <CardDescription>Edge configurations applied to this resource</CardDescription>
+          <CardTitle>Unique Visitors</CardTitle>
+          <CardDescription>Unique visitors per hour over the last 24 hours</CardDescription>
         </CardHeader>
         <CardContent>
-          {resource.resourceSetting ? (
+          <ResourceVisitorChart />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
+          <div className="grid gap-1.5">
+            <CardTitle>Settings (Raw JSON)</CardTitle>
+            <CardDescription>Edge configurations applied to this resource</CardDescription>
+          </div>
+          {resource.resourceSetting && (
+            <Button
+              variant="outline"
+              size="sm"
+              aria-expanded={showJson}
+              onClick={() => setShowJson((v) => !v)}
+            >
+              {showJson ? 'Hide JSON' : 'Show JSON'}
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          {!resource.resourceSetting ? (
+            <div className="text-sm text-muted-foreground p-4 border rounded-md">
+              No settings applied.
+            </div>
+          ) : showJson ? (
             <pre className="bg-muted text-foreground p-4 rounded-md overflow-x-auto text-xs min-h-[300px]">
               {JSON.stringify(resource.resourceSetting, null, 2)}
             </pre>
           ) : (
-            <div className="text-sm text-muted-foreground p-4 border rounded-md">
-              No settings applied.
+            <div className="text-sm text-muted-foreground">
+              Hidden. Click &quot;Show JSON&quot; to view the raw setting.
             </div>
           )}
         </CardContent>

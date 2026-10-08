@@ -128,17 +128,26 @@ setting:
         timeout: 5s
 
   # ----------------------------------------------------------
-  # CONTROLLER — THROTTLING, WAITING ROOM
+  # TRAFFIC CONTROL — THROTTLING, WAITING ROOM
   # ----------------------------------------------------------
   # Controls request flow, concurrency limits, and queuing
   # during high-traffic periods.
   # ----------------------------------------------------------
-  controller:
+  traffic_control:
     # maxConcurrent: 500               # Maximum concurrent users
     # waitingRoom:
     #   message: "Server is busy, please wait..."  # Message shown to waiting users
-      cdn:
-       - rule:
+    {}
+
+  # ----------------------------------------------------------
+  # DELIVERY — CDN, CACHING
+  # ----------------------------------------------------------
+  # Content delivery rules: which requests are cached at
+  # the edge.
+  # ----------------------------------------------------------
+  delivery:
+    cdn:
+      - rule:
           name: cache request with condition
           status: STATUS_ACTIVE
           expr:
