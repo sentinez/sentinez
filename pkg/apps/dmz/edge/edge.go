@@ -18,6 +18,7 @@ package edge
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 
 	corecmn "github.com/sentinez/core/common"
 	corehttp "github.com/sentinez/core/http"
@@ -120,20 +121,51 @@ func (s *Server) Start() error {
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
-	l, err := network.Listen(addr, network.WithTCP())
+	tlsConf, err := newTLSConfig(certFile, keyFile)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = l.Close() }()
+
+	stdLis, err := network.StdListen(addr, network.WithTCP())
+	if err != nil {
+		return err
+	}
+	defer func() { _ = stdLis.Close() }()
+
+	quicLis, err := network.QuicListen(addr, network.WithTLSConfig(tlsConf))
+	if err != nil {
+		return err
+	}
+	defer func() { _ = quicLis.Close() }()
 
 	opts := []corehttp.ServerOption{
 		corehttp.WithCertificate(certFile, keyFile),
-		corehttp.WithTLSConfig(&tls.Config{
-			GetConfigForClient: transport.TLSConfig,
-			MinVersion:         tls.VersionTLS13,
-		}),
-		corehttp.WithListener(l),
+		corehttp.WithTLSConfig(tlsConf),
+		corehttp.WithStdListener(stdLis),
+		corehttp.WithQuicListener(quicLis),
 	}
 
 	return s.core.ListenAndServe(addr, append(opts, s.options...)...)
+}
+
+// newTLSConfig loads the certificate up front: the QUIC listener clones the
+// config when it is created, so certificates added later are never served.
+func newTLSConfig(certFile, keyFile string) (*tls.Config, error) {
+	conf := &tls.Config{
+		GetConfigForClient: transport.TLSConfig,
+		MinVersion:         tls.VersionTLS13,
+	}
+
+	if certFile == "" || keyFile == "" {
+		return conf, nil
+	}
+
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, fmt.Errorf("load certificate: %w", err)
+	}
+
+	conf.Certificates = []tls.Certificate{cert}
+
+	return conf, nil
 }

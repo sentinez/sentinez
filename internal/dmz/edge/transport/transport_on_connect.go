@@ -41,7 +41,7 @@ func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 		return ctx
 	}
 
-	netConn, ok := tlsConn.NetConn().(*network.Conn)
+	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
 		zlog.Debugf("transport: type: %s",
 			reflect.TypeOf(tlsConn.NetConn()).String())
@@ -63,7 +63,7 @@ func OnStandardConnect(ctx context.Context, conn net.Conn) context.Context {
 		return ctx
 	}
 
-	netConn, ok := tlsConn.NetConn().(*network.Conn)
+	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
 		zlog.Debugf("transport: type: %s",
 			reflect.TypeOf(tlsConn.NetConn()).String())

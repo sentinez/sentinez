@@ -65,7 +65,7 @@ setting:
       - location: /api
         proxyRewrite: /
         proxyPass:
-          - server: shark-app-8dkwp.ondigitalocean.app
+          - server: finorio.demo.nextjstemplates.com
             protocol: PROXY_PROTOCOL_HTTPS
         proxySetHeaders:
           X-Original-Path: $request_uri
@@ -124,7 +124,7 @@ setting:
 
     limiters:
       - timeWindow: 5s
-        maxRequests: 50
+        maxRequests: 500
         timeout: 5s
 
   # ----------------------------------------------------------

@@ -48,7 +48,7 @@ func init() {
 }
 
 func reverseProxy(c *runner.Context[edge.Server]) {
-	engine.Hertz(c)
+	engine.Quic(c)
 
 	c.Inject(
 		config.Config,

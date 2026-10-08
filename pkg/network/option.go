@@ -17,32 +17,37 @@ package network
 import (
 	"crypto/tls"
 	"net"
-	"net/http"
-	"time"
 
-	"github.com/quic-go/quic-go/http3"
+	"github.com/quic-go/quic-go"
 )
 
-func StandardTransporter() http.RoundTripper {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
+type Network string
 
-	transport.DialContext = (&net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
-	}).DialContext
+type Option struct {
+	network      string
+	onStdAccept  func(conn net.Conn) error
+	onQuicAccept func(conn *quic.Conn) error
 
-	return transport
+	tlsConf  *tls.Config
+	quicConf *quic.Config
 }
 
-func QuicTransporter(serverName string) http.RoundTripper {
-	return &http3.Transport{
-		TLSClientConfig: &tls.Config{
-			MinVersion: tls.VersionTLS13,
-			ServerName: serverName,
-		},
+type NetworkOption func(*Option)
+
+func WithTCP() NetworkOption {
+	return func(o *Option) {
+		o.network = "tcp"
 	}
 }
 
-func GetInterface(name string) (*net.Interface, error) {
-	return net.InterfaceByName(name)
+func WithOnAccept(fn func(conn net.Conn) error) NetworkOption {
+	return func(o *Option) {
+		o.onStdAccept = fn
+	}
+}
+
+func WithTLSConfig(tls *tls.Config) NetworkOption {
+	return func(o *Option) {
+		o.tlsConf = tls
+	}
 }

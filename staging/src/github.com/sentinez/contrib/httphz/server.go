@@ -123,10 +123,10 @@ func (s *XServer) initialize(addr string, opt *corehttp.Option) error {
 		server.WithTraceLevel(stats.LevelDisabled),
 		server.WithALPN(true),
 		server.WithH2C(true),
-		server.WithListener(opt.Listener),
+		server.WithListener(opt.StdListener),
 		server.WithOnConnect(
 			func(ctx context.Context, conn network.Conn) context.Context {
-				return opt.OnConnect(ctx, conn)
+				return opt.OnStdConnect(ctx, conn)
 			},
 		),
 		server.WithTransport(func(options *config.Options) network.Transporter {

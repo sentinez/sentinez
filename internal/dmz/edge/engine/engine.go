@@ -22,6 +22,7 @@ import (
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	quichttpx "github.com/sentinez/sentinez/pkg/network/httpx/quic"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )
 
@@ -29,7 +30,7 @@ func Hertz(c *runner.Context[edge.Server]) {
 	c.Inject(httphz.NewServer)
 
 	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetOptions(corehttp.WithOnConnect(transport.OnHertzConnect))
+		server.SetOptions(corehttp.WithOnStdConnect(transport.OnHertzConnect))
 
 		return nil
 	})
@@ -39,7 +40,18 @@ func Standard(c *runner.Context[edge.Server]) {
 	c.Inject(stdhttpx.NewServer)
 
 	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetOptions(corehttp.WithOnConnect(transport.OnStandardConnect))
+		server.SetOptions(corehttp.WithOnStdConnect(transport.OnStandardConnect))
+
+		return nil
+	})
+}
+
+func Quic(c *runner.Context[edge.Server]) {
+	c.Inject(quichttpx.NewServer)
+
+	c.OnStart(func(_ context.Context, server *edge.Server) error {
+		server.SetOptions(
+			corehttp.WithOnStdConnect(transport.OnStandardConnect))
 
 		return nil
 	})

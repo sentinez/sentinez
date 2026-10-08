@@ -20,20 +20,20 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/manager"
-	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )
 
 func Handler(ctx corehttp.Context) error {
-	stdCtx, ok := ctx.Unwrap().(*stdhttpx.Context)
+	hCtx, ok := ctx.Unwrap().(*httpx.Context)
 	if !ok {
 		zlog.Error("wshandlers.Handler: context protocol not supported")
 		return errorx.StatusInternalError
 	}
 
-	conn, err := stdCtx.Upgrade()
+	conn, err := hCtx.Upgrade()
 	if err != nil {
 		zlog.Errorf("wshandlers.Handler upgrade error: %v", err)
 		return err

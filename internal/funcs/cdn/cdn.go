@@ -16,6 +16,8 @@ package cdn
 
 import (
 	"bytes"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/sentinez/core/common/bytestr"
@@ -28,6 +30,13 @@ import (
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
+)
+
+const (
+	_headerAcceptEncoding = "Accept-Encoding"
+	_headerAltSvc         = "Alt-Svc"
+	_headerCacheControl   = "Cache-Control"
+	_headerSetCookie      = "Set-Cookie"
 )
 
 func NewCache(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
@@ -87,8 +96,9 @@ func (c *Cache) caching(
 
 	ctx.SetResponseHeader(bytestr.HeaderXCache, bytestr.HitCache)
 	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
-	ctx.SetBody(bytes.Clone(resp.Body))
+	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(resp.StatusCode)
+	ctx.SetBody(bytes.Clone(resp.Body))
 
 	return nil
 }
@@ -106,6 +116,8 @@ func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
 	_, _ = keyBuffer.Write(ctx.Host())
 	_, _ = keyBuffer.Write(ctx.Path())
 	_, _ = keyBuffer.Write(ctx.QueryStr())
+	// The cached body is stored as encoded by the upstream (gzip, br, ...).
+	_, _ = keyBuffer.Write(ctx.Header([]byte(_headerAcceptEncoding)))
 
 	return keyBuffer
 }
@@ -116,7 +128,8 @@ func (c *Cache) setCache(
 		return
 	}
 
-	if ctx.StatusCode() >= 400 {
+	headers := ctx.ResponseHeader()
+	if !cacheable(ctx, headers) {
 		return
 	}
 
@@ -126,11 +139,41 @@ func (c *Cache) setCache(
 		Headers:    make(map[string][][]byte),
 	}
 
-	for k, vs := range ctx.ResponseHeader() {
+	for k, vs := range headers {
+		// Alt-Svc describes the edge listener, not the content; the server
+		// sets it on every response, so caching it would duplicate it.
+		if k == _headerAltSvc {
+			continue
+		}
+
 		for _, v := range vs {
 			cr.Headers[k] = append(cr.Headers[k], bytes.Clone(v))
 		}
 	}
 
 	c.cached.Set(key, cr)
+}
+
+// cacheable reports whether a response can be replayed to other clients.
+// Only complete 200 responses are stored: 206/304 bodies are partial or
+// empty, and an empty body means it was not captured (e.g. too large).
+func cacheable(ctx corehttp.Context, headers map[string][][]byte) bool {
+	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
+		return false
+	}
+
+	if len(headers[_headerSetCookie]) > 0 {
+		return false
+	}
+
+	for _, v := range headers[_headerCacheControl] {
+		cc := strings.ToLower(string(v))
+		if strings.Contains(cc, "no-store") ||
+			strings.Contains(cc, "private") ||
+			strings.Contains(cc, "no-cache") {
+			return false
+		}
+	}
+
+	return true
 }

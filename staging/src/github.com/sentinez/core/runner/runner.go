@@ -18,6 +18,7 @@
 package runner
 
 import (
+	"slices"
 	"context"
 	"errors"
 	"fmt"
@@ -132,8 +133,8 @@ func stop(apps []*fx.App) error {
 	defer cancel()
 
 	var errs []error
-	for i := len(apps) - 1; i >= 0; i-- {
-		if err := apps[i].Stop(ctx); err != nil {
+	for i, app := range slices.Backward(apps) {
+		if err := app.Stop(ctx); err != nil {
 			errs = append(errs, fmt.Errorf("runner: stop app %d: %w", i, err))
 		}
 	}
