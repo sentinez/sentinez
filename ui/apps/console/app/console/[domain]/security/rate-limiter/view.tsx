@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -40,13 +39,15 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listRateLimits, deleteRateLimit } from '@/lib/api/security';
+import { listRateLimitsWithTotal, type Pages, deleteRateLimit } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { RateLimit } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { statusLabel } from '@/lib/type/security';
 import { formatRateLimit } from '../components';
+import { TablePagination } from '@/components/table-pagination';
+import { usePagedList } from '@/hooks/use-paged-list';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateLimit>[] => [
   {
@@ -137,8 +138,6 @@ export const getColumns = (onDelete: (rule: RateLimit) => void): ColumnDef<RateL
 ];
 
 export default function View() {
-  const [rules, setRules] = useState<RateLimit[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<RateLimit | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
@@ -147,21 +146,19 @@ export default function View() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchRules = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await listRateLimits();
-      setRules(data);
-    } catch {
-      toast.error('Failed to load rate limit rules');
-    } finally {
-      setLoading(false);
-    }
+  const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
+    const res = await listRateLimitsWithTotal({ page }, { signal });
+    return { items: res.rateLimits, total: res.total };
   }, []);
-
-  useEffect(() => {
-    fetchRules();
-  }, [fetchRules]);
+  const {
+    items: rules,
+    total,
+    loading,
+    pagination,
+    setPagination,
+    pageCount,
+    refresh,
+  } = usePagedList(fetchPage, 'Failed to load rate limit rules');
 
   const handleDelete = async () => {
     const id = deleting?.ingressRuntime?.id;
@@ -171,7 +168,7 @@ export default function View() {
       await deleteRateLimit(id);
       toast.success('Rate limit rule deleted successfully');
       setDeleting(null);
-      fetchRules();
+      refresh();
     } catch {
       toast.error('Failed to delete rate limit rule');
     } finally {
@@ -187,7 +184,9 @@ export default function View() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -197,6 +196,7 @@ export default function View() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   });
 
@@ -299,26 +299,7 @@ export default function View() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <TablePagination table={table} total={total} />
         </div>
       </PageLayoutContent>
 

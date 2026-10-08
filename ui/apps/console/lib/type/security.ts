@@ -85,6 +85,21 @@ export const ACTION_TYPE_LABEL: Record<ActionType, string> = {
   [ActionType.UNRECOGNIZED]: 'Unknown',
 };
 
+/** shadcn Badge variant per action, used in rule tables */
+export const ACTION_TYPE_BADGE_VARIANT: Record<
+  ActionType,
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
+  [ActionType.ACTION_TYPE_UNSPECIFIED]: 'outline',
+  [ActionType.ACTION_TYPE_BLOCK]: 'destructive',
+  [ActionType.ACTION_TYPE_LOG]: 'secondary',
+  [ActionType.ACTION_TYPE_MODIFY_HEADER]: 'outline',
+  [ActionType.ACTION_TYPE_REDIRECT]: 'outline',
+  [ActionType.ACTION_TYPE_SET_TAG]: 'outline',
+  [ActionType.ACTION_TYPE_ROUTE_TO]: 'default',
+  [ActionType.UNRECOGNIZED]: 'outline',
+};
+
 export interface SelectOption<T> {
   label: string;
   value: T;

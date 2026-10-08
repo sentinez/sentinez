@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -37,7 +36,9 @@ import {
 } from '@sentinez/ui/components/table';
 import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
-import { useApi } from '@/hooks/use-api';
+import { usePagedList } from '@/hooks/use-paged-list';
+import { TablePagination } from '@/components/table-pagination';
+import type { Pages } from '@/lib/api/pages';
 import { listResources, type TenantResource } from '@/lib/api/tenant';
 
 // "PLAN_STANDARD" -> "standard", "STATUS_ACTIVE" -> "active"
@@ -127,8 +128,16 @@ export function ResourceTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const { data: list } = useApi(listResources, {});
-  const data = React.useMemo(() => (list?.resources ?? []).map(rowOf), [list]);
+  const fetchPage = React.useCallback(async (page: Pages, signal: AbortSignal) => {
+    const list = await listResources({ page }, { signal });
+    if (!list) throw new Error('list resources failed');
+    return { items: list.resources ?? [], total: Number(list.total ?? 0) };
+  }, []);
+  const { items, total, pagination, setPagination, pageCount } = usePagedList(
+    fetchPage,
+    'Failed to load resources',
+  );
+  const data = React.useMemo(() => items.map(rowOf), [items]);
 
   const table = useReactTable({
     data,
@@ -136,7 +145,9 @@ export function ResourceTable() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -146,6 +157,7 @@ export function ResourceTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   });
 
@@ -221,26 +233,7 @@ export function ResourceTable() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <TablePagination table={table} total={total} />
     </div>
   );
 }

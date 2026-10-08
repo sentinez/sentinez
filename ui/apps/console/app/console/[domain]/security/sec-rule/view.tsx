@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
@@ -40,13 +39,16 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
-import { listSecRules, deleteSecRule } from '@/lib/api/security';
+import { listSecRulesWithTotal, type Pages, deleteSecRule } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
+import { Badge } from '@sentinez/ui/components/badge';
 import { SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
-import { Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { statusLabel } from '@/lib/type/security';
+import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
+import { ACTION_TYPE_BADGE_VARIANT, ACTION_TYPE_LABEL, statusLabel } from '@/lib/type/security';
+import { TablePagination } from '@/components/table-pagination';
+import { usePagedList } from '@/hooks/use-paged-list';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule>[] => [
   {
@@ -73,6 +75,22 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
         {row.original.ingressRuntime?.description}
       </div>
     ),
+  },
+  {
+    id: 'action',
+    size: 140,
+    header: () => <div>Action</div>,
+    cell: ({ row }) => {
+      const action = row.original.ingressRuntime?.action;
+      const type = action?.type ?? ActionType.ACTION_TYPE_UNSPECIFIED;
+      const label = ACTION_TYPE_LABEL[type];
+      const params = action?.params ? JSON.stringify(action.params) : undefined;
+      return (
+        <div className="truncate" title={params}>
+          <Badge variant={ACTION_TYPE_BADGE_VARIANT[type]}>{label ?? 'Unknown'}</Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'status',
@@ -124,8 +142,6 @@ export const getColumns = (onDelete: (rule: SecRule) => void): ColumnDef<SecRule
 ];
 
 export default function View() {
-  const [rules, setRules] = useState<SecRule[]>([]);
-  const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<SecRule | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
@@ -134,21 +150,19 @@ export default function View() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchRules = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await listSecRules();
-      setRules(data);
-    } catch (err: any) {
-      toast.error('Failed to load SecRules');
-    } finally {
-      setLoading(false);
-    }
+  const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
+    const res = await listSecRulesWithTotal({ page }, { signal });
+    return { items: res.secRules, total: res.total };
   }, []);
-
-  useEffect(() => {
-    fetchRules();
-  }, [fetchRules]);
+  const {
+    items: rules,
+    total,
+    loading,
+    pagination,
+    setPagination,
+    pageCount,
+    refresh,
+  } = usePagedList(fetchPage, 'Failed to load SecRules');
 
   const handleDelete = async () => {
     const id = deleting?.ingressRuntime?.id;
@@ -158,7 +172,7 @@ export default function View() {
       await deleteSecRule(id);
       toast.success('SecRule deleted successfully');
       setDeleting(null);
-      fetchRules();
+      refresh();
     } catch (err: any) {
       toast.error('Failed to delete SecRule');
     } finally {
@@ -174,7 +188,9 @@ export default function View() {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -184,6 +200,7 @@ export default function View() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   });
 
@@ -283,26 +300,7 @@ export default function View() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <TablePagination table={table} total={total} />
         </div>
       </PageLayoutContent>
 

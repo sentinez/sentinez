@@ -453,7 +453,7 @@ export function DomainSidebarInset({ children }: { children: ReactNode }) {
 
   return (
     <SidebarInset>
-      <div className="min-h-screen">
+      <div className="flex min-h-screen flex-col">
         <PreviewHeader username={user.name} />
         <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
           <SidebarTrigger className="-ml-1 cursor-pointer" />

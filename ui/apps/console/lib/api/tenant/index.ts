@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
+import { type Pages, pageQuery, paginate } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -33,6 +34,7 @@ export type CreateResourceRequest = Omit<TenantResource, 'id' | 'metadata'>;
 export type UpdateResourceRequest = Omit<TenantResource, 'metadata' | 'resourceSetting'>;
 
 export interface ListResourcesParams {
+  page?: Pages;
   resourceDomain?: string;
   resourceName?: string;
   status?: TenantStatus;
@@ -126,7 +128,23 @@ export const SAMPLE_RESOURCES: TenantResource[] = [
   },
 ];
 
-let sampleStore: TenantResource[] = [...SAMPLE_RESOURCES];
+const PLANS: TenantPlan[] = ['PLAN_FREE', 'PLAN_STANDARD', 'PLAN_PRO'];
+
+// Extra generated resources so the list has several pages to page through
+const generatedResources: TenantResource[] = Array.from({ length: 20 }, (_, i) => {
+  const n = i + 1;
+  const day = String(1 + (n % 28)).padStart(2, '0');
+  return {
+    metadata: { createdAt: `2026-08-${day}T00:00:00Z`, updatedAt: `2026-09-${day}T00:00:00Z` },
+    id: `0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
+    resourceDomain: `site${n}.example.com`,
+    resourceName: `site${n}`,
+    status: n % 4 === 0 ? 'STATUS_DISABLE' : 'STATUS_ACTIVE',
+    plan: PLANS[n % PLANS.length],
+  };
+});
+
+let sampleStore: TenantResource[] = [...SAMPLE_RESOURCES, ...generatedResources];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -196,10 +214,11 @@ export async function listResources(params?: ListResourcesParams, options?: ApiO
   return orNull('listing resources', () =>
     withFallback<ListResourcesResult>('listResources', () => {
       const resources = filterSample(params);
-      return { total: String(resources.length), resources };
+      return { total: String(resources.length), resources: paginate(resources, params?.page) };
     })(async () => {
+      const { page, ...filters } = params ?? {};
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resources`, {
-        params,
+        params: { ...filters, ...pageQuery(page) },
         signal: options?.signal,
       });
       return resp.data ?? {};
