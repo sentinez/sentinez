@@ -16,27 +16,12 @@ package server
 
 import (
 	"context"
-	"net/http"
-
-	_ "net/http/pprof"
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 )
-
-// func init enables the pprof HTTP server for profiling purposes.
-// Uncomment this block to expose runtime profiling data at :6060.
-//
-// Example:
-//
-//	go tool pprof http://localhost:6060/debug/pprof/profile
-func init() {
-	go func() {
-		_ = http.ListenAndServe(":6060", nil)
-	}()
-}
 
 func Edge(c *runner.Context[edge.Server]) {
 	c.Inject(
