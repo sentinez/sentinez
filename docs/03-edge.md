@@ -9,7 +9,7 @@ Relevant source:
 |---|---|
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
-| [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine choice: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
+| [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
 | [internal/funcs/](../internal/funcs/) | Middleware chain nodes |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
@@ -21,28 +21,31 @@ Relevant source:
 ## 3.1 Startup
 
 ```
-main: runner.Main(NewApp(reverseProxy), NewApp(api))
- ├─ reverseProxy
- │   ├─ engine.Quic(c)         → Inject(quichttpx.NewServer); OnStart: SetOptions(WithOnStdConnect(OnStandardConnect))
- │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+main: runner.Main(NewApp(edgeServer), NewApp(grpcServer))
+ ├─ edgeServer
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)
- └─ api
+ └─ grpcServer
      ├─ Inject(config.Config, edge.NewService)
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
-edge.New(conf, setting, server)
+edge.NewServer(conf, setting)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
- └─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
+ ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
+ └─ switch conf.Flag.Engine                 // --engine
+     hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
+     quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
+     std, other → engine.Standard(conf)    → stdhttpx.NewServer + WithOnStdConnect(OnStandardConnect)
 
 Server.Start()
  ├─ initialize()
  │   ├─ mem.Start(conf)        → cluster.Start: olric.New + db.Start (goroutine)
- │   ├─ mem.LoadServer(core)   → for each Setting: routes, reverse proxies, CDN, SecRule, limiter, WAF
- │   └─ core.Handle(http.Init(conf, mem).Handle)
+ │   ├─ mem.LoadServer(server) → for each Setting: routes, reverse proxies, CDN, SecRule, limiter, WAF
+ │   └─ server.Handle(http.Init(conf, mem).Handle)
  ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
  ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
  ├─ network.QuicListen(same addr, WithTLSConfig)    // UDP
- └─ core.ListenAndServe(addr,
+ └─ server.ListenAndServe(addr,
         WithCertificate(cert, key), WithTLSConfig(tlsConf),
         WithStdListener(tcp), WithQuicListener(udp), + options (OnStdConnect))
 ```
@@ -295,14 +298,28 @@ All maps use `shared/sync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 `edgepb.EdgeService` has `Status` and `EvaluateRuleset`
 ([internal/dmz/edge/api/api.go](../internal/dmz/edge/api/api.go)), packaged
-as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). It is currently
-**not started** by the edge `main`, and `EvaluateRuleset` evaluates an empty
-`Expression`.
+as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). `main` starts it as
+the `grpcServer` app on `defaults.EdgeAddress`; `EvaluateRuleset` evaluates an
+empty `Expression`.
 
 ## 3.10 Choosing the engine
 
-`main` calls `engine.Quic(c)`. To switch, replace it with `engine.Hertz(c)`
-(Hertz, TCP only) or `engine.Standard(c)` (`net/http`, TCP only). The
+The engine is picked at startup with the `--engine` flag (default `quic`);
+`edge.NewServer` switches on `conf.Flag.Engine`:
+
+| `--engine` | Constructor | Server | Protocols |
+|---|---|---|---|
+| `quic` (default) | `engine.Quic` | `quichttpx.Server` | HTTP/3 (UDP) + HTTP/1.1/2 (TCP), needs a certificate |
+| `hertz` | `engine.Hertz` | `httphz.XServer` | HTTP/1.1/2 (TCP only) |
+| `std` | `engine.Standard` | `stdhttpx.Server` (`net/http`) | HTTP/1.1/2 (TCP only) |
+
+```sh
+./cmd/szedge/v1/bin/main --engine=hertz ...
+```
+
+Values outside `std|hertz|quic` are rejected by protovalidate when flags are
+parsed; an empty value falls back to `Standard`. The startup log shows the
+engine in use (`https[quic] running on 0.0.0.0:7443`). The
 `stdhttpx.Server` sets 15s read/write and 120s idle timeouts when TLS is on,
 and uses `ConnContext` for `OnStdConnect`. The edge `Server.Start` always
 opens both the TCP and the UDP listener, whichever engine is used.

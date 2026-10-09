@@ -9,7 +9,7 @@ Mã nguồn liên quan:
 |---|---|
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
 | [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, nạp YAML |
-| [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Chọn HTTP engine: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
+| [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
 | [internal/funcs/](../../internal/funcs/) | Các node của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
@@ -21,28 +21,31 @@ Mã nguồn liên quan:
 ## 3.1 Khởi động
 
 ```
-main: runner.Main(NewApp(reverseProxy), NewApp(api))
- ├─ reverseProxy
- │   ├─ engine.Quic(c)         → Inject(quichttpx.NewServer); OnStart: SetOptions(WithOnStdConnect(OnStandardConnect))
- │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+main: runner.Main(NewApp(edgeServer), NewApp(grpcServer))
+ ├─ edgeServer
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)
- └─ api
+ └─ grpcServer
      ├─ Inject(config.Config, edge.NewService)
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
-edge.New(conf, setting, server)
+edge.NewServer(conf, setting)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
- └─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map + DMap
+ ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map + DMap
+ └─ switch conf.Flag.Engine                 // --engine
+     hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
+     quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
+     std, khác → engine.Standard(conf)     → stdhttpx.NewServer + WithOnStdConnect(OnStandardConnect)
 
 Server.Start()
  ├─ initialize()
  │   ├─ mem.Start(conf)        → cluster.Start: olric.New + db.Start (goroutine)
- │   ├─ mem.LoadServer(core)   → với mỗi Setting: route, reverse proxy, CDN, SecRule, limiter, WAF
- │   └─ core.Handle(http.Init(conf, mem).Handle)
+ │   ├─ mem.LoadServer(server) → với mỗi Setting: route, reverse proxy, CDN, SecRule, limiter, WAF
+ │   └─ server.Handle(http.Init(conf, mem).Handle)
  ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
  ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
  ├─ network.QuicListen(cùng addr, WithTLSConfig)    // UDP
- └─ core.ListenAndServe(addr,
+ └─ server.ListenAndServe(addr,
         WithCertificate(cert, key), WithTLSConfig(tlsConf),
         WithStdListener(tcp), WithQuicListener(udp), + options (OnStdConnect))
 ```
@@ -285,14 +288,28 @@ Mọi map dùng `shared/sync.Map[K,V]` (bọc `sync.Map` có generic).
 
 `edgepb.EdgeService` có `Status` và `EvaluateRuleset`
 ([internal/dmz/edge/api/api.go](../../internal/dmz/edge/api/api.go)), đóng gói
-trong `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). Hiện **không được
-khởi chạy** trong `main` của edge; `EvaluateRuleset` đang đánh giá một
-`Expression` rỗng.
+trong `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). `main` khởi chạy nó
+qua app `grpcServer` trên `defaults.EdgeAddress`; `EvaluateRuleset` đang đánh
+giá một `Expression` rỗng.
 
 ## 3.10 Chọn engine
 
-`main` gọi `engine.Quic(c)`. Để đổi, thay bằng `engine.Hertz(c)` (Hertz, chỉ
-TCP) hoặc `engine.Standard(c)` (`net/http`, chỉ TCP). Server `stdhttpx.Server`
+Engine được chọn lúc khởi động bằng flag `--engine` (mặc định `quic`);
+`edge.NewServer` switch theo `conf.Flag.Engine`:
+
+| `--engine` | Constructor | Server | Giao thức |
+|---|---|---|---|
+| `quic` (mặc định) | `engine.Quic` | `quichttpx.Server` | HTTP/3 (UDP) + HTTP/1.1/2 (TCP), bắt buộc có certificate |
+| `hertz` | `engine.Hertz` | `httphz.XServer` | HTTP/1.1/2 (chỉ TCP) |
+| `std` | `engine.Standard` | `stdhttpx.Server` (`net/http`) | HTTP/1.1/2 (chỉ TCP) |
+
+```sh
+./cmd/szedge/v1/bin/main --engine=hertz ...
+```
+
+Giá trị ngoài `std|hertz|quic` bị protovalidate từ chối khi parse flag; giá
+trị rỗng sẽ fallback về `Standard`. Log khởi động hiển thị engine đang dùng
+(`https[quic] running on 0.0.0.0:7443`). Server `stdhttpx.Server`
 đặt timeout Read/Write 15s, Idle 120s khi có TLS, và dùng `ConnContext` cho
 `OnStdConnect`. `Server.Start` của edge luôn mở cả listener TCP lẫn UDP, bất
 kể dùng engine nào.

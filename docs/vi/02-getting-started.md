@@ -61,7 +61,8 @@ make sz.edge.run
 ```
 
 `make sz.edge.run` truyền `--cert_file`, `--cert_key_file`,
-`--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`. Edge yêu cầu
+`--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`, `--engine=quic`.
+Edge yêu cầu
 `SENZ_HOSTNAME` khớp domain gốc: request tới `badcheese.<SENZ_HOSTNAME>` sẽ
 dùng cấu hình `server.name: badcheese`. Edge còn mở pprof ở `:6060`.
 
@@ -124,6 +125,7 @@ validate bằng protovalidate.
 | `--proxy_config` | `./proxy.yaml` | — | edge |
 | `--cert_file` | `./_wildcard.sentinez.vn+1.pem` | — | edge |
 | `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` | — | edge |
+| `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, xem [03-edge.md](03-edge.md#310-chọn-engine)) |
 
 `--mode` còn quyết định tiền tố tên bảng DB (`dev_sentinez_iam_users`, ...)
 và bật log của fx khi bằng `dev`.

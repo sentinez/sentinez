@@ -41,7 +41,7 @@ have not been reproduced. Remove an entry once it is fixed.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.
-- The `EdgeService` gRPC server is not started; `EvaluateRuleset` evaluates
+- `EdgeService.EvaluateRuleset` evaluates
   an empty `Expression` (always matches) and ignores `ruleset_id`.
 - SecRule actions other than `BLOCK` are not executed; operators
   `GT/GTE/LT/LTE` are not implemented.
