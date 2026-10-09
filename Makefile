@@ -126,7 +126,8 @@ sz.edge.run: sz.edge.build
 		--cert_file=cmd/szedge/v1/is.s6z.io.vn.cert \
 		--cert_key_file=cmd/szedge/v1/is.s6z.io.vn.key \
 		--proxy_config=./cmd/szedge/v1/proxy.yaml \
-		--env_file=./cmd/szedge/v1/.env
+		--env_file=./cmd/szedge/v1/.env \
+		--engine=quic
 
 sz.edge.image.build: TAG ?= sentinez/edge
 sz.edge.image.build:

@@ -26,6 +26,9 @@ const (
 	HeaderXCache           = "X-Cache"
 	HeaderCacheControl     = "Cache-Control"
 	HeaderTransferEncoding = "Transfer-Encoding"
+	HeaderAcceptEncoding   = "Accept-Encoding"
+	HeaderAltSvc           = "Alt-Svc"
+	HeaderSetCookie        = "Set-Cookie"
 
 	ValueNotFound            = "Not found"
 	ValueInternalServerError = "Internal server error"

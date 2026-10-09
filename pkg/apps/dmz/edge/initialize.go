@@ -24,10 +24,10 @@ func (s *Server) initialize(appConf *settingpb.Config) error {
 	s.mem.Start(appConf)
 
 	// init cache repository
-	s.mem.LoadServer(s.core)
+	s.mem.LoadServer(s.server)
 
 	income := http.NewHandler(appConf, s.mem)
-	s.core.Handle(income.Handle)
+	s.server.Handle(income.Handle)
 
 	return nil
 }

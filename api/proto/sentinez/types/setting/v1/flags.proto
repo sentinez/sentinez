@@ -35,4 +35,5 @@ message Flag {
   string proxy_config = 4;
   string cert_file = 5;
   string cert_key_file = 6;
+  string engine = 7 [(buf.validate.field).string.pattern = "^(std|hertz|quic)$"];
 }

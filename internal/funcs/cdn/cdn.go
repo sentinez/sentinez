@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	httpconst "github.com/sentinez/core/http/const"
 	corerule "github.com/sentinez/core/rules"
 	"github.com/sentinez/core/storage/cache/mem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -30,13 +31,6 @@ import (
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
-)
-
-const (
-	_headerAcceptEncoding = "Accept-Encoding"
-	_headerAltSvc         = "Alt-Svc"
-	_headerCacheControl   = "Cache-Control"
-	_headerSetCookie      = "Set-Cookie"
 )
 
 func NewCache(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
@@ -117,7 +111,7 @@ func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
 	_, _ = keyBuffer.Write(ctx.Path())
 	_, _ = keyBuffer.Write(ctx.QueryStr())
 	// The cached body is stored as encoded by the upstream (gzip, br, ...).
-	_, _ = keyBuffer.Write(ctx.Header([]byte(_headerAcceptEncoding)))
+	_, _ = keyBuffer.Write(ctx.Header(bytestr.HeaderAcceptEncoding))
 
 	return keyBuffer
 }
@@ -142,7 +136,7 @@ func (c *Cache) setCache(
 	for k, vs := range headers {
 		// Alt-Svc describes the edge listener, not the content; the server
 		// sets it on every response, so caching it would duplicate it.
-		if k == _headerAltSvc {
+		if k == httpconst.HeaderAltSvc {
 			continue
 		}
 
@@ -162,11 +156,11 @@ func cacheable(ctx corehttp.Context, headers map[string][][]byte) bool {
 		return false
 	}
 
-	if len(headers[_headerSetCookie]) > 0 {
+	if len(headers[httpconst.HeaderSetCookie]) > 0 {
 		return false
 	}
 
-	for _, v := range headers[_headerCacheControl] {
+	for _, v := range headers[httpconst.HeaderCacheControl] {
 		cc := strings.ToLower(string(v))
 		if strings.Contains(cc, "no-store") ||
 			strings.Contains(cc, "private") ||

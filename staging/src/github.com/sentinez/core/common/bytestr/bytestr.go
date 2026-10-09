@@ -44,6 +44,9 @@ var (
 	HeaderCacheControl     = []byte(httpconst.HeaderCacheControl)
 	HeaderUpgrade          = []byte(httpconst.HeaderUpgrade)
 	HeaderXCache           = []byte(httpconst.HeaderXCache)
+	HeaderAcceptEncoding   = []byte(httpconst.HeaderAcceptEncoding)
+	HeaderAltSvc           = []byte(httpconst.HeaderAltSvc)
+	HeaderSetCookie        = []byte(httpconst.HeaderSetCookie)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)
 	ValueTextPlain = []byte(httpconst.ValueTextPlain)

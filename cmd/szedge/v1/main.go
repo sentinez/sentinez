@@ -20,7 +20,6 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 	edge "github.com/sentinez/sentinez/pkg/apps/dmz/edge"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
@@ -47,13 +46,11 @@ func init() {
 	}()
 }
 
-func reverseProxy(c *runner.Context[edge.Server]) {
-	engine.Quic(c)
-
+func edgeServer(c *runner.Context[edge.Server]) {
 	c.Inject(
 		config.Config,
 		edgeyaml.LoadSetting,
-		edge.New,
+		edge.NewServer,
 	)
 
 	c.Serve(func(_ context.Context, server *edge.Server) error {
@@ -85,7 +82,7 @@ func grpcServer(c *runner.Context[edge.Service]) {
 // and registers their start/stop hooks with the runner framework.
 func main() {
 	runner.New(config.Config(), core.Code).Main(
-		runner.NewApp(reverseProxy),
+		runner.NewApp(edgeServer),
 		runner.NewApp(grpcServer),
 	)
 }

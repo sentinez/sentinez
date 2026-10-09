@@ -28,14 +28,16 @@ var _ Server = (*server)(nil)
 
 func DecoreServer(conf *settingpb.Config, s Server) Server {
 	return &server{
-		meta: conf.GetMeta(),
-		s:    s,
+		s:      s,
+		meta:   conf.GetMeta(),
+		engine: conf.GetFlag().GetEngine(),
 	}
 }
 
 type server struct {
-	meta *typepb.XMeta
-	s    Server
+	meta   *typepb.XMeta
+	s      Server
+	engine string
 }
 
 // AcceptReverse implements [Server].
@@ -58,11 +60,11 @@ func (s *server) ListenAndServe(addr string, opts ...ServerOption) error {
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		host, port, _ := net.SplitHostPort(addr)
 		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-			fmt.Sprintf("running on https %s:%s", host, port))
+			fmt.Sprintf("https[%s] running on %s:%s", s.engine, host, port))
 	} else {
 		host, port, _ := net.SplitHostPort(addr)
 		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
-			fmt.Sprintf("running on http %s:%s", host, port))
+			fmt.Sprintf("http[%s] running on %s:%s", s.engine, host, port))
 	}
 
 	return s.s.ListenAndServe(addr, opts...)
