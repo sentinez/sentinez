@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stdhttpx
+package httpx
 
 import (
 	"bytes"
@@ -57,6 +57,13 @@ var (
 	})
 )
 
+// _maxCapturedBody bounds how much of a proxied response is kept for
+// ResponseBody; larger responses are streamed through but not captured.
+const _maxCapturedBody = 4 << 20
+
+// _maxPooledBodyBuf drops oversized buffers instead of pooling them.
+const _maxPooledBodyBuf = 64 << 10
+
 var upgrade = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		_ = r       // Ignore the request for origin check
@@ -90,7 +97,9 @@ type Context struct {
 	req         *http.Request
 	resp        http.ResponseWriter
 	respBodyBuf bytes.Buffer
-	ectx        *edgepb.Context
+	// bodyOverflow is set once a captured body exceeds _maxCapturedBody.
+	bodyOverflow bool
+	ectx         *edgepb.Context
 }
 
 // X implements [corehttp.Context].
@@ -250,10 +259,16 @@ func (c *Context) RemoteAddr() []byte {
 // ResetResponse implements corehttp.Context.
 func (c *Context) ResetResponse() {
 	c.respBodyBuf.Reset()
+	c.bodyOverflow = false
 }
 
-// ResponseBody implements corehttp.Context.
+// ResponseBody implements corehttp.Context. It returns nil when the body
+// was too large to capture.
 func (c *Context) ResponseBody() []byte {
+	if c.bodyOverflow {
+		return nil
+	}
+
 	return c.respBodyBuf.Bytes()
 }
 
@@ -277,7 +292,8 @@ func (c *Context) SetPath(path []byte) {
 	c.req.URL.Path = string(path)
 	c.req.URL.RawPath = string(path)
 
-	c.ectx.Request.Path = path
+	// Callers may pass pooled buffers; keep a copy.
+	c.ectx.Request.Path = bytes.Clone(path)
 }
 
 func (c *Context) SetHost(host []byte) {
@@ -463,6 +479,22 @@ func (c *Context) Scheme() string {
 	return scheme
 }
 
+// captureBody keeps a copy of a proxied response body for ResponseBody.
+func (c *Context) captureBody(b []byte) {
+	if c.bodyOverflow {
+		return
+	}
+
+	if c.respBodyBuf.Len()+len(b) > _maxCapturedBody {
+		c.bodyOverflow = true
+		c.respBodyBuf.Reset()
+
+		return
+	}
+
+	_, _ = c.respBodyBuf.Write(b)
+}
+
 func (c *Context) Request() *http.Request {
 	return c.req
 }
@@ -481,6 +513,10 @@ func (c *Context) Close() error {
 	c.ectx.Request.Reset()
 
 	c.respBodyBuf.Reset()
+	c.bodyOverflow = false
+	if c.respBodyBuf.Cap() > _maxPooledBodyBuf {
+		c.respBodyBuf = bytes.Buffer{}
+	}
 
 	ctxPool.Put(c)
 

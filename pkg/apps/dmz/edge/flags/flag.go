@@ -36,6 +36,7 @@ func Parse() *settingpb.Flag {
 		flagx.Get().EnvFile = "./.env"
 		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
 		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
+		flagx.Get().Engine = "quic"
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
 			flagx.Get().GetEnvFile(), "environment variables config file")
@@ -48,6 +49,9 @@ func Parse() *settingpb.Flag {
 
 		pflag.StringVar(&flagx.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
 			flagx.Get().GetCertKeyFile(), "TLS certificate key")
+
+		pflag.StringVar(&flagx.Get().Engine, settingpb.XFlag_Engine,
+			flagx.Get().GetEngine(), "HTTP server engine")
 
 		flagx.Parse(edgepb.GetMetaEdge())
 	})

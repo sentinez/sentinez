@@ -26,6 +26,7 @@ import (
 	"github.com/sentinez/sentinez/internal/funcs/secure"
 	"github.com/sentinez/sentinez/internal/funcs/static"
 	"github.com/sentinez/sentinez/internal/funcs/trace"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/zlog"
 )
@@ -92,7 +93,7 @@ func TestHandleChain(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet,
 		"https://badcheese.is.s6z.io.vn:7443/", nil)
 	w := httptest.NewRecorder()
-	ctx := stdhttpx.NewContext(req, w)
+	ctx := httpx.NewContext(req, w)
 
 	zlog.SetLogLevel(zlog.LevelInfo)
 

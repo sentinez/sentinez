@@ -16,14 +16,14 @@ package stdhttpx
 
 import (
 	"context"
-	"crypto/tls"
-	"net"
 	"net/http"
+	"slices"
 	"time"
 
 	corehttp "github.com/sentinez/core/http"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 )
 
 var _ corehttp.Server = (*Server)(nil)
@@ -44,7 +44,7 @@ type Server struct {
 
 // AcceptReverse implements [corehttp.Server].
 func (s *Server) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
-	return NewReverseProxy(target)
+	return httpx.NewReverseProxy(target, network.StandardTransporter())
 }
 
 func (s *Server) Use(
@@ -57,10 +57,6 @@ func (s *Server) Handle(fn corehttp.RequestHandler) {
 	s.mux.Handle("/", Convert(chain(fn, s.mdw...)))
 }
 
-func (s *Server) TLS(tlsFn func(*tls.ClientHelloInfo) (*tls.Config, error)) {
-	s.core.TLSConfig.GetConfigForClient = tlsFn
-}
-
 func (s *Server) ListenAndServe(
 	addr string, opts ...corehttp.ServerOption) error {
 	for _, opt := range opts {
@@ -70,7 +66,7 @@ func (s *Server) ListenAndServe(
 	s.core.Addr = addr
 	s.core.Handler = s.mux
 
-	s.onAcceptConn(s.opt.OnConnect)
+	s.onAcceptConn()
 
 	if s.opt.CertFile != "" && s.opt.CertKeyFile != "" {
 		s.core.IdleTimeout = 120 * time.Second
@@ -84,14 +80,12 @@ func (s *Server) ListenAndServe(
 	return s.listenAndServe()
 }
 
-func (s *Server) onAcceptConn(func(context.Context, net.Conn) context.Context) {
-	if s.opt.OnConnect == nil {
+func (s *Server) onAcceptConn() {
+	if s.opt.OnStdConnect == nil {
 		return
 	}
 
-	s.core.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
-		return s.opt.OnConnect(ctx, c)
-	}
+	s.core.ConnContext = s.opt.OnStdConnect
 }
 
 func (s *Server) listenAndServe() error {
@@ -99,17 +93,17 @@ func (s *Server) listenAndServe() error {
 		s.core.Addr = ":http"
 	}
 
-	if s.opt.Listener == nil {
-		l, err := network.Listen(s.core.Addr, network.WithTCP())
+	if s.opt.StdListener == nil {
+		l, err := network.StdListen(s.core.Addr, network.WithTCP())
 		if err != nil {
 			return err
 		}
 		defer func() { _ = l.Close() }()
 
-		s.opt.Listener = l
+		s.opt.StdListener = l
 	}
 
-	return s.core.Serve(s.opt.Listener)
+	return s.core.Serve(s.opt.StdListener)
 }
 
 func (s *Server) listenAndServeTLS(certFile, keyFile string) error {
@@ -117,17 +111,17 @@ func (s *Server) listenAndServeTLS(certFile, keyFile string) error {
 		s.core.Addr = ":https"
 	}
 
-	if s.opt.Listener == nil {
-		l, err := network.Listen(s.core.Addr, network.WithTCP())
+	if s.opt.StdListener == nil {
+		l, err := network.StdListen(s.core.Addr, network.WithTCP())
 		if err != nil {
 			return err
 		}
 		defer func() { _ = l.Close() }()
 
-		s.opt.Listener = l
+		s.opt.StdListener = l
 	}
 
-	return s.core.ServeTLS(s.opt.Listener, certFile, keyFile)
+	return s.core.ServeTLS(s.opt.StdListener, certFile, keyFile)
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
@@ -138,8 +132,8 @@ func chain(
 	h corehttp.RequestHandler,
 	m ...func(corehttp.RequestHandler) corehttp.RequestHandler,
 ) corehttp.RequestHandler {
-	for i := len(m) - 1; i >= 0; i-- {
-		h = m[i](h)
+	for _, v := range slices.Backward(m) {
+		h = v(h)
 	}
 
 	return h

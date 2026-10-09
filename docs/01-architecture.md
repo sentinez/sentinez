@@ -24,7 +24,7 @@ README warns that backward compatibility is not guaranteed before v1.0.0.
                        │
              ┌─────────▼─────────┐        Olric cluster (memberlist)
              │   szedge (HTTPS)  │◄──────► shares edge Settings between nodes
-             │  Hertz + chain    │
+             │ HTTP/3+TCP, chain │
              └─────────┬─────────┘
                        │ reverse proxy
                        ▼
@@ -110,14 +110,16 @@ Top-level directories:
 
 ### End-user request (data path)
 
-1. TCP accept in `network.Listener` → wrapped as a `network.Conn` with a
-   random 8-byte hex `Id`.
+1. The edge listens on the same address over TCP (HTTP/1.1, HTTP/2) and UDP
+   (HTTP/3 / QUIC). TCP responses carry `Alt-Svc`, so clients move to HTTP/3
+   on later requests. A TCP accept in `network.StdListener` is wrapped as a
+   `network.StdConn` with a random 8-byte hex `Id`.
 2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint and
    stores it in `shared/store/ja4` keyed by `conn.Id`.
-3. `OnConnect` puts `netpb.Transport{ConnId, ServerName}` into the
-   `context`.
-4. Hertz calls the handler → an `httphz.Context` is taken from a pool and
-   given the fingerprint.
+3. `OnStdConnect` puts `netpb.Transport{ConnId, ServerName}` into the
+   `context` (TCP only; HTTP/3 requests have no fingerprint yet).
+4. The server (`quichttpx` by default) calls the handler → an `httpx.Context`
+   is taken from a pool and given the fingerprint.
 5. The middleware chain runs in order `TRACE → LOG → DMA → CDN → LMT → ROM →
    STC → RUL → WAF → ROU` (see [03-edge.md](03-edge.md)).
 6. `ROU` finds the location by longest prefix, rewrites the path, sets
@@ -142,7 +144,7 @@ data in the DB only serves the console. See
 | Area | Library |
 |---|---|
 | DI / lifecycle | `go.uber.org/fx` |
-| Edge HTTP | `cloudwego/hertz` (+ `hertz-contrib/http2`, `reverseproxy`), with a `net/http` alternative |
+| Edge HTTP | `quic-go/quic-go` (`http3`) + `net/http` by default; `cloudwego/hertz` (+ `hertz-contrib/http2`, `reverseproxy`) as an alternative |
 | REST ↔ gRPC | `grpc-ecosystem/grpc-gateway/v2` |
 | WAF | `corazawaf/coraza/v3` + OWASP CRS v4.16/v4.17 |
 | TLS fingerprint | `exaring/ja4plus` |

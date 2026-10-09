@@ -12,7 +12,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | 3 | [internal/cluster/cluster.go](../../internal/cluster/cluster.go) `newConfig` | Khi có cả membership và discovery address hợp lệ, hàm `return conf` trước khi gán `conf.Started` | `dictReady` không bao giờ được báo → DMap không khởi tạo; sau 1024 lần `Put`, goroutine gọi sẽ bị block |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` sửa trường của proxy dùng chung | Target WebSocket dài thêm sau mỗi request, có data race |
 | 8 | [contrib/httphz/server.go](../../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | Vòng `fn = s.chains[i](fn)` nằm **trong** handler, gán lại biến capture | Mỗi request bọc thêm middleware một lần nữa (hiện chưa lộ vì edge không gọi `Use`) |
-| 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy`; ghép path không chuẩn hoá | Location không có upstream gây panic; không cân bằng tải; có thể sinh `//path` |
+| 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy` | Location không có upstream gây panic; không cân bằng tải |
 | 10 | [internal/memory/memory.go](../../internal/memory/memory.go) `LoadRulesets` | Bỏ qua nội dung `rulesets[]`; luôn CRS v4.16.0 + flag RCE; kiểm tra status bị comment | Không cấu hình được phiên bản/nhóm rule; SQLi (942) không bao giờ bật |
 | 11 | [internal/funcs/logging/logging.go](../../internal/funcs/logging/logging.go) | Gọi `bpf.LookupBandwidth` mỗi request, nhưng object eBPF chỉ được nạp trong tiến trình dataplane | Luôn lỗi/0, tốn chi phí và log `Infof` ở mọi request |
 | 12 | [internal/bpf/security.go](../../internal/bpf/security.go) `BlockCIDR` | Ghi `ip` bằng `binary.BigEndian.Uint32` trong khi XDP tra bằng `saddr` thô (thứ tự byte mạng trong bộ nhớ) | Trên máy little-endian khoá không khớp, CIDR bị chặn không có tác dụng *(cần xác minh)*. Hàm hiện chưa được gọi |
@@ -27,9 +27,10 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | S3 | IAM `loginAdmin` | So mật khẩu admin dạng plaintext, không constant-time; admin không có giới hạn đăng nhập sai |
 | S4 | Middleware `Logging` (apiserver) | Đọc toàn bộ body và log ở mức debug khi lỗi — có thể ghi mật khẩu từ `/iam/login` vào log |
 | S5 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) `init` | pprof luôn mở ở `:6060` (compose cũng publish port này) |
-| S6 | [pkg/network/httpx/std/context.go](../../pkg/network/httpx/std/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
+| S6 | [pkg/network/httpx/context.go](../../pkg/network/httpx/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | Image đóng gói cặp cert/key từ thư mục source |
-| S8 | `stdhttpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Standard`) |
+| S8 | `httpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Quic` và `Standard`, tức mặc định) |
+| S9 | [internal/dmz/edge/engine/engine.go](../../internal/dmz/edge/engine/engine.go) `Quic` | Không đặt hook `OnQuicConnect`, và `transport.TLSConfig` chỉ tính fingerprint cho `*network.StdConn` → request HTTP/3 không có JA4 fingerprint lẫn `netpb.Transport`; client có thể né rule dựa trên fingerprint bằng cách dùng HTTP/3 |
 
 ## 12.3 Chức năng chưa hoàn thiện
 
@@ -39,14 +40,15 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `szcentraldata`: `main()` rỗng. `AnalyticService` không được mount vào
   apiserver. Discovery Consul (`WithDiscorvery`, `VisitToEndpoint`) có code
   nhưng chưa bật.
-- `EdgeService` gRPC không được khởi chạy; `EvaluateRuleset` đánh giá
+- `EdgeService.EvaluateRuleset` đánh giá
   `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
 - SecRule action ngoài `BLOCK` chưa thực thi; toán tử `GT/GTE/LT/LTE` chưa cài.
 - Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/storage/{keyval,
   clickhouse,kafka,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
-- `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` và
-  `stdhttpx.Shutdown` là no-op.
+- `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
+- `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
+  chưa được dùng (không có option nào set `onQuicAccept`).
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` khai báo nhưng chưa dùng.
 
 ## 12.4 Vấn đề nhỏ / vệ sinh code

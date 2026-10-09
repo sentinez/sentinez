@@ -113,7 +113,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 		locationBytes := bytesconv.S2b(route.GetLocation())
 		rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
 
-		if bytes.HasPrefix(path, locationBytes) {
+		if matchLocation(path, locationBytes) {
 			zlog.Debugf(
 				"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
 				namespace, route.GetProxyRewrite(), route.GetProxyPass(),
@@ -129,8 +129,8 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 				buffer.Put(remainingPath)
 			}()
 
-			remainingPath.Write(rewriteBytes)
-			remainingPath.Write(bytes.TrimPrefix(path, locationBytes))
+			joinRewrite(remainingPath, rewriteBytes,
+				bytes.TrimPrefix(path, locationBytes))
 
 			ctx.SetPath(remainingPath.Bytes())
 
@@ -152,4 +152,28 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 	}
 
 	return "", errorx.F("not found: %s", path)
+}
+
+// matchLocation reports whether path is under location on a segment
+// boundary, so "/api" matches "/api" and "/api/x" but not "/apix".
+func matchLocation(path, location []byte) bool {
+	if !bytes.HasPrefix(path, location) {
+		return false
+	}
+
+	return len(path) == len(location) ||
+		bytes.HasSuffix(location, []byte("/")) ||
+		path[len(location)] == '/'
+}
+
+// joinRewrite writes rewrite+rest without doubling the slash between them,
+// e.g. rewrite "/" and rest "/x" give "/x" rather than "//x".
+func joinRewrite(dst *bytes.Buffer, rewrite, rest []byte) {
+	if bytes.HasSuffix(rewrite, []byte("/")) &&
+		bytes.HasPrefix(rest, []byte("/")) {
+		rest = rest[1:]
+	}
+
+	dst.Write(rewrite)
+	dst.Write(rest)
 }

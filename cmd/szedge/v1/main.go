@@ -16,24 +16,14 @@
 package main
 
 import (
-	"context"
-
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
-	edge "github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	"github.com/sentinez/sentinez/cmd/szedge/v1/server"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
-	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 
 	"net/http"
 	_ "net/http/pprof"
 )
-
-//
-// The main package is the entrypoint for the Sentinez Edge Proxy service.
-// It initializes the DMZ HTTP proxy server, the Edge Engine (gRPC handler),
-// and manages their lifecycles using the internal runner framework.
-//
 
 // func init enables the pprof HTTP server for profiling purposes.
 // Uncomment this block to expose runtime profiling data at :6060.
@@ -47,45 +37,12 @@ func init() {
 	}()
 }
 
-func reverseProxy(c *runner.Context[edge.Server]) {
-	engine.Hertz(c)
-
-	c.Inject(
-		config.Config,
-		edgeyaml.LoadSetting,
-		edge.New,
-	)
-
-	c.Serve(func(_ context.Context, server *edge.Server) error {
-		return server.Start()
-	})
-
-	c.OnStop(func(ctx context.Context, server *edge.Server) error {
-		return server.Shutdown(ctx)
-	})
-}
-
-func grpcServer(c *runner.Context[edge.Service]) {
-	c.Inject(
-		config.Config,
-		edge.NewService,
-	)
-
-	c.Serve(func(_ context.Context, server *edge.Service) error {
-		return server.Start()
-	})
-
-	c.OnStop(func(ctx context.Context, server *edge.Service) error {
-		return server.Shutdown(ctx)
-	})
-}
-
 // main is the entrypoint of the Edge application.
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
 	runner.New(config.Config(), core.Code).Main(
-		runner.NewApp(reverseProxy),
-		runner.NewApp(grpcServer),
+		runner.NewApp(server.Edge),
+		runner.NewApp(server.GRPC),
 	)
 }

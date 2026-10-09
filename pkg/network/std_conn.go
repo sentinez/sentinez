@@ -22,22 +22,22 @@ import (
 	"github.com/sentinez/shared/store/ja4"
 )
 
-func newConn(conn net.Conn) *Conn {
+func newStdConn(conn net.Conn) *StdConn {
 	id := make([]byte, 8)
 	_, _ = rand.Read(id)
 
-	return &Conn{
+	return &StdConn{
 		Id:   hex.EncodeToString(id),
 		Conn: conn,
 	}
 }
 
-type Conn struct {
+type StdConn struct {
 	net.Conn
 	Id string
 }
 
-func (c *Conn) Close() error {
+func (c *StdConn) Close() error {
 	if c == nil || c.Conn == nil {
 		return nil
 	}

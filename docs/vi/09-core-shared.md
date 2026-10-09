@@ -30,7 +30,8 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service na
 - `corehttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
-  `WithOnConnect`, `WithListener`.
+  `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
+  `WithQuicListener` (`http3.QUICListener`).
 - `DecoreServer(conf, s)`: decorator in banner ASCII (`console.INFO`) trước
   khi listen.
 - Helper trả lỗi: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
@@ -73,7 +74,7 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service na
 | `errorx` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
 | `perms` | `Allow(XMethod, ControlPlane)` |
 | `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — đều có prefix |
+| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
 | `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
 | `jsonx` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
 | `protobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
@@ -109,8 +110,10 @@ khi `level >= verbosity`.
 |---|---|
 | `pkg/apps/**/config` | `Config()` singleton: parse flag + nạp env + gắn `XMeta` |
 | `pkg/apps/**/flags` | Flag riêng của service, giá trị mặc định `--env_file` |
-| `pkg/network` | `Listen` (Conn có ID), `StandardTransporter` (dial timeout 30s), `GetInterface` |
-| `pkg/network/httpx/std` | Cài đặt `corehttp.Server`/`Context`/`ReverseProxy` bằng `net/http` |
+| `pkg/network` | `StdListen` (TCP, `StdConn` có ID), `QuicListen` (UDP, cần `WithTLSConfig`, thêm ALPN `h3`), `StandardTransporter` (dial timeout 30s), `QuicTransporter` (client HTTP/3, chưa dùng), `GetInterface` |
+| `pkg/network/httpx` | Cài đặt `corehttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
+| `pkg/network/httpx/std` | `corehttp.Server` trên `net/http` (TCP) |
+| `pkg/network/httpx/quic` | `corehttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
@@ -128,7 +131,7 @@ Adapter Hertz cho `corehttp`:
   `hertz-contrib/reverseproxy`, với option kiểu functional (`WithTLS`,
   `WithTimeout`, `WithStreamResponseBody`, ...).
 - `net/std`: transport/connection fork từ Hertz (license CloudWeGo) để lộ
-  `TLSConn` cho việc lấy `network.Conn` gốc.
+  `TLSConn` cho việc lấy `network.StdConn` gốc.
 
 ## 9.8 `tools`
 

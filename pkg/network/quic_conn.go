@@ -1,4 +1,4 @@
-// Copyright 2026 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transport
+package network
 
 import (
-	"crypto/tls"
-
-	"github.com/exaring/ja4plus"
-	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/store/ja4"
-	"github.com/sentinez/shared/zlog"
+	"github.com/quic-go/quic-go"
 )
 
-func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
-	zlog.Infof("SNI: %s", chi.ServerName)
+func newQuicConn(conn *quic.Conn) *QuicConn {
+	return &QuicConn{
+		Conn: conn,
+	}
+}
 
-	conn, ok := chi.Conn.(*network.StdConn)
-	if ok {
-		fingerprint := ja4plus.JA4(chi)
-		zlog.Debugf("transport: generate fingerprint %s", fingerprint)
+type QuicConn struct {
+	*quic.Conn
+}
 
-		ja4.Set(conn.Id, fingerprint)
-
-		zlog.Infof("transport: found fingerprint %s", fingerprint)
+func (c *QuicConn) Close() error {
+	if c == nil || c.Conn == nil {
+		return nil
 	}
 
-	return nil, nil
+	<-c.Conn.Context().Done()
+
+	return nil
 }

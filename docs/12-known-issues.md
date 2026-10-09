@@ -13,7 +13,7 @@ have not been reproduced. Remove an entry once it is fixed.
 | 3 | [internal/cluster/cluster.go](../internal/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; after 1024 `Put`s the caller goroutine blocks |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` mutates a field of a shared proxy | The WebSocket target grows with every request, and there is a data race |
 | 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
-| 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy`; path join is not normalized | A location without upstreams panics; no load balancing; may produce `//path` |
+| 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
 | 10 | [internal/memory/memory.go](../internal/memory/memory.go) `LoadRulesets` | Ignores the contents of `rulesets[]`; always CRS v4.16.0 + the RCE flag; the status check is commented out | The rule version/groups cannot be configured; SQLi (942) is never enabled |
 | 11 | [internal/funcs/logging/logging.go](../internal/funcs/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
 | 12 | [internal/bpf/security.go](../internal/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
@@ -28,9 +28,10 @@ have not been reproduced. Remove an entry once it is fixed.
 | S3 | IAM `loginAdmin` | Compares the admin password in plaintext, not in constant time; no limit on failed admin logins |
 | S4 | apiserver `Logging` middleware | Reads the whole body and debug-logs it on error — can write passwords from `/iam/login` to the logs |
 | S5 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) `init` | pprof is always open on `:6060` (compose also publishes this port) |
-| S6 | [pkg/network/httpx/std/context.go](../pkg/network/httpx/std/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
+| S6 | [pkg/network/httpx/context.go](../pkg/network/httpx/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | The image bakes in the cert/key pair from the source tree |
-| S8 | `stdhttpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Standard` mode) |
+| S8 | `httpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Quic` and `Standard` modes, i.e. the default) |
+| S9 | [internal/dmz/edge/engine/engine.go](../internal/dmz/edge/engine/engine.go) `Quic` | No `OnQuicConnect` hook is set and `transport.TLSConfig` only fingerprints `*network.StdConn` → HTTP/3 requests have no JA4 fingerprint or `netpb.Transport`; clients can avoid fingerprint-based rules by using HTTP/3 |
 
 ## 12.3 Unfinished features
 
@@ -40,15 +41,16 @@ have not been reproduced. Remove an entry once it is fixed.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.
-- The `EdgeService` gRPC server is not started; `EvaluateRuleset` evaluates
+- `EdgeService.EvaluateRuleset` evaluates
   an empty `Expression` (always matches) and ignores `ruleset_id`.
 - SecRule actions other than `BLOCK` are not executed; operators
   `GT/GTE/LT/LTE` are not implemented.
 - Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/storage/{keyval,
   clickhouse,kafka,elastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
-- `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` and
-  `stdhttpx.Shutdown` are no-ops.
+- `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
+- `network.QuicTransporter` and the `onQuicAccept` listener hook exist but
+  nothing uses them (no option sets `onQuicAccept`).
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` are declared but unused.
 
 ## 12.4 Minor issues / code hygiene

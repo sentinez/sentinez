@@ -18,6 +18,9 @@ import (
 	"context"
 	"crypto/tls"
 	"net"
+
+	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/http3"
 )
 
 type Option struct {
@@ -25,8 +28,12 @@ type Option struct {
 	CertKeyFile string
 	TLSConfig   *tls.Config
 	ServerName  []byte
-	OnConnect   func(context.Context, net.Conn) context.Context
-	Listener    net.Listener
+
+	OnStdConnect func(context.Context, net.Conn) context.Context
+	StdListener  net.Listener
+
+	OnQuicConnect func(context.Context, *quic.Conn) context.Context
+	QuicListener  http3.QUICListener
 }
 
 type ServerOption func(opt *Option)
@@ -62,24 +69,45 @@ func WithServerName(name []byte) ServerOption {
 	}
 }
 
-func WithOnConnect(
+func WithOnStdConnect(
 	fn func(context.Context, net.Conn) context.Context) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return
 		}
 
-		opt.OnConnect = fn
+		opt.OnStdConnect = fn
 	}
 }
 
-func WithListener(ln net.Listener) ServerOption {
+func WithStdListener(ln net.Listener) ServerOption {
 	return func(opt *Option) {
 		if opt == nil {
 			return
 		}
 
-		opt.Listener = ln
+		opt.StdListener = ln
+	}
+}
+
+func WithOnQuicConnect(
+	fn func(context.Context, *quic.Conn) context.Context) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.OnQuicConnect = fn
+	}
+}
+
+func WithQuicListener(ln http3.QUICListener) ServerOption {
+	return func(opt *Option) {
+		if opt == nil {
+			return
+		}
+
+		opt.QuicListener = ln
 	}
 }
 

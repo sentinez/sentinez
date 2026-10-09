@@ -47,6 +47,7 @@ type Flag struct {
 	ProxyConfig   string `protobuf:"bytes,4,opt,name=proxy_config,json=proxyConfig,proto3" json:"proxy_config,omitempty"`
 	CertFile      string `protobuf:"bytes,5,opt,name=cert_file,json=certFile,proto3" json:"cert_file,omitempty"`
 	CertKeyFile   string `protobuf:"bytes,6,opt,name=cert_key_file,json=certKeyFile,proto3" json:"cert_key_file,omitempty"`
+	Engine        string `protobuf:"bytes,7,opt,name=engine,proto3" json:"engine,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,18 +124,26 @@ func (x *Flag) GetCertKeyFile() string {
 	return ""
 }
 
+func (x *Flag) GetEngine() string {
+	if x != nil {
+		return x.Engine
+	}
+	return ""
+}
+
 var File_sentinez_types_setting_v1_flags_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_setting_v1_flags_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/setting/v1/flags.proto\x12\x19sentinez.types.setting.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\x84\x02\n" +
+	"%sentinez/types/setting/v1/flags.proto\x12\x19sentinez.types.setting.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xb7\x02\n" +
 	"\x04Flag\x126\n" +
 	"\benv_mode\x18\x01 \x01(\tB\x1b\xbaH\x18r\x162\x14^(dev|prod|sandbox)$R\aenvMode\x12=\n" +
 	"\tlog_level\x18\x02 \x01(\tB \xbaH\x1dr\x1b2\x19^(debug|info|warn|error)$R\blogLevel\x12\x19\n" +
 	"\benv_file\x18\x03 \x01(\tR\aenvFile\x12!\n" +
 	"\fproxy_config\x18\x04 \x01(\tR\vproxyConfig\x12\x1b\n" +
 	"\tcert_file\x18\x05 \x01(\tR\bcertFile\x12\"\n" +
-	"\rcert_key_file\x18\x06 \x01(\tR\vcertKeyFile:\x06\xca\xf3\x18\x02\x10\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\rcert_key_file\x18\x06 \x01(\tR\vcertKeyFile\x121\n" +
+	"\x06engine\x18\a \x01(\tB\x19\xbaH\x16r\x142\x12^(std|hertz|quic)$R\x06engine:\x06\xca\xf3\x18\x02\x10\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_flags_proto_rawDescOnce sync.Once

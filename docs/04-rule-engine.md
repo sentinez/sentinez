@@ -91,8 +91,16 @@ There are three SecRule shapes in the protos:
 `setting.delivery.cdn`. Each namespace keeps **one** active CDN rule (a
 later rule overwrites an earlier one). The `CDN` node only caches when the
 rule is active and its expression matches. The cache is
-`patrickmn/go-cache` with a 1h TTL and only stores responses with status
-`< 400`.
+`patrickmn/go-cache` with a 1h TTL.
+
+- Key: `method + scheme + host + path + query + Accept-Encoding` (the body
+  is stored as encoded by the upstream, e.g. gzip or br).
+- Only responses that can be replayed to other clients are stored: status
+  exactly `200`, a non-empty captured body (bodies over 4 MiB are not
+  captured), no `Set-Cookie`, and no `Cache-Control` containing `no-store`,
+  `private` or `no-cache`.
+- `Alt-Svc` is not stored, since the server adds it to every response.
+- On a hit the status code is written before the body.
 
 ## 4.5 Rate limiter
 

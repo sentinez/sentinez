@@ -15,32 +15,25 @@
 package engine
 
 import (
-	"context"
-
 	"github.com/sentinez/contrib/httphz"
 	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/core/runner"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
-	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	quichttpx "github.com/sentinez/sentinez/pkg/network/httpx/quic"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )
 
-func Hertz(c *runner.Context[edge.Server]) {
-	c.Inject(httphz.NewServer)
-
-	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetOptions(corehttp.WithOnConnect(transport.OnHertzConnect))
-
-		return nil
-	})
+func Hertz(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+	return httphz.NewServer(conf),
+		corehttp.WithOnStdConnect(transport.OnHertzConnect)
 }
 
-func Standard(c *runner.Context[edge.Server]) {
-	c.Inject(stdhttpx.NewServer)
+func Standard(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+	return stdhttpx.NewServer(conf),
+		corehttp.WithOnStdConnect(transport.OnStandardConnect)
+}
 
-	c.OnStart(func(_ context.Context, server *edge.Server) error {
-		server.SetOptions(corehttp.WithOnConnect(transport.OnStandardConnect))
-
-		return nil
-	})
+func Quic(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+	return quichttpx.NewServer(conf),
+		corehttp.WithOnStdConnect(transport.OnStandardConnect)
 }

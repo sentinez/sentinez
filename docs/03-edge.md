@@ -9,60 +9,99 @@ Relevant source:
 |---|---|
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
-| [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine choice: `Hertz` (default) or `Standard` (`net/http`) |
+| [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
 | [internal/funcs/](../internal/funcs/) | Middleware chain nodes |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [internal/cluster/](../internal/cluster/) | Embedded Olric + generic `DMap[T]` |
 | [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `corehttp.Context` + reverse proxy |
-| [pkg/network/](../pkg/network/) | Listener/Conn with IDs, `net/http` transport, `stdhttpx` variant |
+| [pkg/network/](../pkg/network/) | TCP (`StdListener`/`StdConn`, with IDs) and QUIC (`QuicListener`) listeners, `net/http` transport |
+| [pkg/network/httpx/](../pkg/network/httpx/) | Shared `net/http` `Context` + `ReverseProxy`; servers in `std/` (`stdhttpx`) and `quic/` (`quichttpx`) |
 
 ## 3.1 Startup
 
 ```
-main: runner.Main(NewApp(reverseProxy), NewApp(api))
- ├─ reverseProxy
- │   ├─ engine.Hertz(c)        → Inject(httphz.NewServer); OnStart: SetOptions(WithOnConnect(OnHertzConnect))
- │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.New)
+main: runner.Main(NewApp(edgeServer), NewApp(grpcServer))
+ ├─ edgeServer
+ │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)
- └─ api
+ └─ grpcServer
      ├─ Inject(config.Config, edge.NewService)
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
-edge.New(conf, setting, server)
+edge.NewServer(conf, setting)
  ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
- └─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
+ ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
+ └─ switch conf.Flag.Engine                 // --engine
+     hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
+     quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
+     std, other → engine.Standard(conf)    → stdhttpx.NewServer + WithOnStdConnect(OnStandardConnect)
 
 Server.Start()
  ├─ initialize()
  │   ├─ mem.Start(conf)        → cluster.Start: olric.New + db.Start (goroutine)
- │   ├─ mem.LoadServer(core)   → for each Setting: routes, reverse proxies, CDN, SecRule, limiter, WAF
- │   └─ core.Handle(http.Init(conf, mem).Handle)
- ├─ network.Listen(SENZ_ADDRESS | 0.0.0.0:443)
- └─ core.ListenAndServe(addr,
-        WithCertificate(cert, key),
-        WithTLSConfig{GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3},
-        WithListener(l), + options (OnConnect))
+ │   ├─ mem.LoadServer(server) → for each Setting: routes, reverse proxies, CDN, SecRule, limiter, WAF
+ │   └─ server.Handle(http.Init(conf, mem).Handle)
+ ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
+ ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
+ ├─ network.QuicListen(same addr, WithTLSConfig)    // UDP
+ └─ server.ListenAndServe(addr,
+        WithCertificate(cert, key), WithTLSConfig(tlsConf),
+        WithStdListener(tcp), WithQuicListener(udp), + options (OnStdConnect))
 ```
+
+The certificate is loaded into the `tls.Config` **before** the listeners are
+created: `QuicListen` clones the config (via `http3.ConfigureTLSConfig`, which
+also adds the `h3` ALPN), so certificates added later would never be served.
+QUIC has no plaintext mode, so the QUIC engine fails with
+`quic: tls certificate required` when no certificate is configured.
+
+### QUIC engine (default)
+
+[pkg/network/httpx/quic/server.go](../pkg/network/httpx/quic/server.go)
+(`quichttpx.Server`) serves on the same address:
+
+- **HTTP/3 over UDP** with `quic-go/http3` (`ServeListener`, 120s idle
+  timeout).
+- **HTTP/1.1 and HTTP/2 over TCP** with `net/http` (`ServeTLS`, 120s idle,
+  10s read-header timeout). Every TCP response gets an `Alt-Svc` header
+  (`http3.Server.SetQUICHeaders`), so clients switch to HTTP/3 on their next
+  request — clients always reach TCP first, so both listeners are required.
+
+Both servers run in an `errgroup`; when either exits, the other is closed.
+`Shutdown` shuts both down. Requests on both protocols go through the same
+`http.ServeMux` and the same middleware chain, using the shared
+`httpx.Context`. QUIC is only terminated at the edge: `AcceptReverse` uses
+`network.StandardTransporter()`, so upstreams are reached over TCP
+(HTTP/1.1 or HTTP/2). `network.QuicTransporter` (an `http3.Transport`)
+exists but is not used.
+
+### Hertz engine
 
 The Hertz server ([httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go))
 enables ALPN, H2C, HTTP/2 (`AddProtocol("h2", ...)`) and body streaming, and
 uses a `net/std` transport forked from Hertz. Every route goes to
-`NoRoute(handler)` — a single handler for all paths.
+`NoRoute(handler)` — a single handler for all paths. It only uses the TCP
+listener (`opt.StdListener`).
 
 ## 3.2 Fingerprints & connection context
 
-1. `network.Listener.Accept` wraps the `net.Conn` as `*network.Conn{Id}` (8
-   random bytes, hex).
+1. `network.StdListener.Accept` wraps the `net.Conn` as
+   `*network.StdConn{Id}` (8 random bytes, hex).
 2. `transport.TLSConfig(chi)` (the `GetConfigForClient` callback) computes
    `ja4plus.JA4(chi)` and calls `ja4.Set(conn.Id, fp)` — an in-memory cache
    with a 24h TTL.
-3. `OnHertzConnect` / `OnStandardConnect` unwrap `TLSConn → tls.Conn →
-   network.Conn` and put `netpb.Transport{ConnId, ServerName(SNI)}` into the
+3. `OnHertzConnect` / `OnStandardConnect` (registered with
+   `WithOnStdConnect`) unwrap `TLSConn → tls.Conn → network.StdConn` and put `netpb.Transport{ConnId, ServerName(SNI)}` into the
    `context`.
 4. `httphz.NewContext` reads the transport from the context and sets
    `Request.Fingerprint = ja4.Get(connId)`.
-5. `network.Conn.Close` removes the fingerprint from the cache.
+5. `network.StdConn.Close` removes the fingerprint from the cache.
+
+This only applies to TCP connections. For HTTP/3, `chi.Conn` is not a
+`*network.StdConn` and the QUIC engine sets no `OnQuicConnect` hook, so
+HTTP/3 requests carry no JA4 fingerprint and no `netpb.Transport` (see
+[12-known-issues.md](12-known-issues.md)).
 
 ## 3.3 `corehttp.Context`
 
@@ -77,14 +116,22 @@ There are three implementations:
 | Implementation | File | Used for |
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
-| `stdhttpx.Context` | `pkg/network/httpx/std/context.go` | Edge in `Standard` mode, realtime |
+| `httpx.Context` | `pkg/network/httpx/context.go` | Edge in `Quic` (HTTP/3 and TCP) and `Standard` modes, realtime |
 | `corehttpreq.RequestContext` | `core/http/request/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
 
 Contexts come from a `sync.Pool` and are returned in `Close()`.
 
 `RequestIP()`: the Hertz version uses Hertz's `ClientIP()`; the `net/http`
-version prefers `X-Forwarded-For` (first entry) → `X-Real-IP` →
+version (`httpx.Context`) prefers `X-Forwarded-For` (first entry) → `X-Real-IP` →
 `RemoteAddr`.
+
+`httpx.Context.ResponseBody()` returns what the reverse proxy actually
+received from the upstream: `httpx.ReverseProxy` wraps the `ResponseWriter`
+in a `recordWriter` that records the status code and copies the body (up to
+4 MiB; larger bodies are streamed through but not captured, and
+`ResponseBody()` returns `nil`). Pooled contexts drop body buffers larger
+than 64 KiB. `SetPath` copies the path, since callers may pass pooled
+buffers.
 
 ## 3.4 Middleware chain
 
@@ -100,7 +147,7 @@ and logs them once, at the stage that produced them.
 | 0 | — | `trace.Trace` | Generates request ID `senz:req:<xid>`, sets header `X-Request-Id` |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`). Also looks up eBPF bandwidth by IP |
 | 2 | `DMA` | `secure.DomainBased` | Host must be `<ns>.<SENZ_HOSTNAME>` (single level, port stripped). Otherwise → `403`. Sets `X().Namespace = ns` |
-| 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store responses with status `< 400` (TTL 1h) |
+| 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 4 | `LMT` | `ratelimiter.Limiter` | `limiter.Allow(IP)`; exceeded → `429` |
 | 5 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
 | 6 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
@@ -188,9 +235,10 @@ Notes:
   `proxyRewrite`, and **sorts by `location` length, descending**, for
   nginx-style longest-prefix matching.
 - `Match(ctx)`: loads the routes for the namespace, finds the first location
-  that is a prefix of the path, sets the new path to
-  `rewrite + (path − location)`, sets headers, and returns
-  `proxyPass[0].server`.
+  that matches the path **on a segment boundary** (`/api` matches `/api` and
+  `/api/x` but not `/apix`; a location ending in `/` matches any path under
+  it), sets the new path to `rewrite + (path − location)` without doubling
+  the `/` between them, sets headers, and returns `proxyPass[0].server`.
 
 Examples:
 
@@ -198,10 +246,10 @@ Examples:
 |---|---|---|---|
 | `/` | `/` | `/about` | `/about` |
 | `/api` | `/v1` | `/api/users` | `/v1/users` |
-| `/api` | `/` | `/api/users` | `//users` (plain concatenation, no normalization) |
-
-The join is plain string concatenation, so `proxyRewrite: /` with a location
-other than `/` produces `//`. See [12-known-issues.md](12-known-issues.md).
+| `/api` | `/` | `/api/users` | `/users` |
+| `/api` | `/` | `/api` | `/` |
+| `/api` | `/v1/` | `/api/users` | `/v1/users` |
+| `/api` | — | `/apix` | not matched by `/api` |
 
 A reverse proxy is created once per `upstream.server` in
 `MemStore.LoadReverseProxy` via `server.AcceptReverse(target)`:
@@ -209,8 +257,11 @@ A reverse proxy is created once per `upstream.server` in
 - Hertz (`proxyhz.ReverseProxy`): two clients (TLS / plain); the director
   rewrites the URI with `JoinURLPath` and sets `Host` to the upstream host.
   Requests with `Upgrade: websocket` go to `WSReverseProxy`.
-- `net/http` (`stdhttpx.ReverseProxy`): `httputil.NewSingleHostReverseProxy`
-  with a 30s dial timeout.
+- `net/http` (`httpx.ReverseProxy`, used by the `Quic` and `Standard`
+  engines): `httputil.NewSingleHostReverseProxy` with the given
+  `http.RoundTripper` (`network.StandardTransporter()`, 30s dial timeout).
+  The writer is wrapped so the context sees the upstream status and body;
+  `Unwrap` keeps `Flush`/`Hijack` reachable for streaming and upgrades.
 
 ## 3.7 Memory store
 
@@ -247,12 +298,28 @@ All maps use `shared/sync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 `edgepb.EdgeService` has `Status` and `EvaluateRuleset`
 ([internal/dmz/edge/api/api.go](../internal/dmz/edge/api/api.go)), packaged
-as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). It is currently
-**not started** by the edge `main`, and `EvaluateRuleset` evaluates an empty
-`Expression`.
+as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). `main` starts it as
+the `grpcServer` app on `defaults.EdgeAddress`; `EvaluateRuleset` evaluates an
+empty `Expression`.
 
-## 3.10 `net/http` mode
+## 3.10 Choosing the engine
 
-To replace Hertz with the standard library, change `engine.Hertz(c)` to
-`engine.Standard(c)` in `main`. The `stdhttpx.Server` sets 15s read/write
-and 120s idle timeouts when TLS is on, and uses `ConnContext` for OnConnect.
+The engine is picked at startup with the `--engine` flag (default `quic`);
+`edge.NewServer` switches on `conf.Flag.Engine`:
+
+| `--engine` | Constructor | Server | Protocols |
+|---|---|---|---|
+| `quic` (default) | `engine.Quic` | `quichttpx.Server` | HTTP/3 (UDP) + HTTP/1.1/2 (TCP), needs a certificate |
+| `hertz` | `engine.Hertz` | `httphz.XServer` | HTTP/1.1/2 (TCP only) |
+| `std` | `engine.Standard` | `stdhttpx.Server` (`net/http`) | HTTP/1.1/2 (TCP only) |
+
+```sh
+./cmd/szedge/v1/bin/main --engine=hertz ...
+```
+
+Values outside `std|hertz|quic` are rejected by protovalidate when flags are
+parsed; an empty value falls back to `Standard`. The startup log shows the
+engine in use (`https[quic] running on 0.0.0.0:7443`). The
+`stdhttpx.Server` sets 15s read/write and 120s idle timeouts when TLS is on,
+and uses `ConnContext` for `OnStdConnect`. The edge `Server.Start` always
+opens both the TCP and the UDP listener, whichever engine is used.

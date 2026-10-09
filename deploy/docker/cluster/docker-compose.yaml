@@ -11,6 +11,7 @@ services:
       - sentinez-net
     ports:
       - "7443:7443"
+      - "7443:7443/udp"
 
   sentinez.dmz.edge.02:
     image: sentinez/edge:latest
@@ -26,6 +27,7 @@ services:
       - sentinez-edge-01
     ports:
       - "8443:8443"
+      - "8443:8443/udp"
 
 networks:
   sentinez-net:

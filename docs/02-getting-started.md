@@ -62,7 +62,8 @@ make sz.edge.run
 ```
 
 `make sz.edge.run` passes `--cert_file`, `--cert_key_file`,
-`--proxy_config=./cmd/szedge/v1/proxy.yaml` and `--env_file`. The edge needs
+`--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file` and
+`--engine=quic`. The edge needs
 `SENZ_HOSTNAME` to match the root domain: a request to
 `badcheese.<SENZ_HOSTNAME>` uses the config with `server.name: badcheese`.
 The edge also opens pprof on `:6060`.
@@ -97,7 +98,7 @@ They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
 | Variable | Used by | Meaning |
 |---|---|---|
 | `SENZ_HOSTNAME` | edge, IAM | Edge root domain (`sentinez.vn`); WebAuthn RP ID |
-| `SENZ_ADDRESS` | all | Listen address. Edge defaults to `0.0.0.0:443`; apiserver defaults to `:9000` when empty |
+| `SENZ_ADDRESS` | all | Listen address. Edge defaults to `0.0.0.0:443` and listens on both TCP and UDP (HTTP/3) at that address; apiserver defaults to `:9000` when empty |
 | `SENZ_SECRET_KEY` | IAM | HMAC key for signing JWTs, **must be base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Allowed WebAuthn origin (console URL) |
 | `SENZ_POSTGRES_URI` | control plane | PostgreSQL DSN (pgxpool) |
@@ -126,6 +127,7 @@ validated with protovalidate.
 | `--proxy_config` | `./proxy.yaml` | — | edge |
 | `--cert_file` | `./_wildcard.sentinez.vn+1.pem` | — | edge |
 | `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` | — | edge |
+| `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, see [03-edge.md](03-edge.md#310-choosing-the-engine)) |
 
 `--mode` also sets the DB table prefix (`dev_sentinez_iam_users`, ...) and
 enables fx logging when it is `dev`.

@@ -61,7 +61,8 @@ make sz.edge.run
 ```
 
 `make sz.edge.run` truyền `--cert_file`, `--cert_key_file`,
-`--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`. Edge yêu cầu
+`--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`, `--engine=quic`.
+Edge yêu cầu
 `SENZ_HOSTNAME` khớp domain gốc: request tới `badcheese.<SENZ_HOSTNAME>` sẽ
 dùng cấu hình `server.name: badcheese`. Edge còn mở pprof ở `:6060`.
 
@@ -95,7 +96,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | Biến | Dùng ở | Ý nghĩa |
 |---|---|---|
 | `SENZ_HOSTNAME` | edge, IAM | Domain gốc của edge (`sentinez.vn`); RP ID cho WebAuthn |
-| `SENZ_ADDRESS` | tất cả | Địa chỉ listen. Edge mặc định `0.0.0.0:443`, apiserver mặc định `:9000` nếu rỗng |
+| `SENZ_ADDRESS` | tất cả | Địa chỉ listen. Edge mặc định `0.0.0.0:443` và lắng nghe cả TCP lẫn UDP (HTTP/3) trên địa chỉ đó, apiserver mặc định `:9000` nếu rỗng |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Origin được phép cho WebAuthn (URL console) |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |
@@ -124,6 +125,7 @@ validate bằng protovalidate.
 | `--proxy_config` | `./proxy.yaml` | — | edge |
 | `--cert_file` | `./_wildcard.sentinez.vn+1.pem` | — | edge |
 | `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` | — | edge |
+| `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, xem [03-edge.md](03-edge.md#310-chọn-engine)) |
 
 `--mode` còn quyết định tiền tố tên bảng DB (`dev_sentinez_iam_users`, ...)
 và bật log của fx khi bằng `dev`.

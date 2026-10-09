@@ -73,7 +73,8 @@ func NewXID(prefix []byte) string {
 	buf.Write(prefix)
 	buf.Write(bytesconv.S2b(guid.String()))
 
-	res := bytesconv.B2s(buf.Bytes())
+	// Copy: the buffer goes back to the pool and is overwritten later.
+	res := buf.String()
 	bufPool.Put(buf)
 
 	return res
@@ -88,7 +89,8 @@ func NewTimeID(prefix []byte, unixtime uint64) string {
 	buf.Write(prefix)
 	buf.WriteString(ulidStr)
 
-	res := bytesconv.B2s(buf.Bytes())
+	// Copy: the buffer goes back to the pool and is overwritten later.
+	res := buf.String()
 	bufPool.Put(buf)
 
 	return res

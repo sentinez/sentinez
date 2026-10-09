@@ -20,29 +20,8 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-type Network string
-
-type Option struct {
-	network  string
-	onAccept func(conn net.Conn) error
-}
-
-type NetworkOption func(*Option)
-
-func WithTCP() NetworkOption {
-	return func(o *Option) {
-		o.network = "tcp"
-	}
-}
-
-func WithOnAccept(fn func(conn net.Conn) error) NetworkOption {
-	return func(o *Option) {
-		o.onAccept = fn
-	}
-}
-
-func Listen(addr string, opts ...NetworkOption) (*Listener, error) {
-	listener := &Listener{}
+func StdListen(addr string, opts ...NetworkOption) (*StdListener, error) {
+	listener := &StdListener{}
 
 	for _, opt := range opts {
 		opt(&listener.opt)
@@ -62,21 +41,21 @@ func Listen(addr string, opts ...NetworkOption) (*Listener, error) {
 	return listener, nil
 }
 
-type Listener struct {
+type StdListener struct {
 	net.Listener
 	opt Option
 }
 
-func (l *Listener) Accept() (net.Conn, error) {
+func (l *StdListener) Accept() (net.Conn, error) {
 	conn, err := l.Listener.Accept()
 	if err != nil {
 		return nil, err
 	}
 
-	connWrapper := newConn(conn)
+	connWrapper := newStdConn(conn)
 
-	if l.opt.onAccept != nil {
-		if err := l.opt.onAccept(connWrapper); err != nil {
+	if l.opt.onStdAccept != nil {
+		if err := l.opt.onStdAccept(connWrapper); err != nil {
 			return nil, err
 		}
 	}

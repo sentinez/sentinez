@@ -18,12 +18,13 @@ import (
 	"net/http"
 
 	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/shared/zlog"
 )
 
 func HandlerFunc(path string, handler corehttp.RequestHandler) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		ctx := NewContext(r, w)
+		ctx := httpx.NewContext(r, w)
 
 		_ = handler(ctx)
 
@@ -64,7 +65,7 @@ func Convert(handler corehttp.RequestHandler) http.HandlerFunc {
 func StandardConverter(handler corehttp.RequestHandler,
 	resp http.ResponseWriter, req *http.Request) {
 
-	ctx := NewContext(req, resp)
+	ctx := httpx.NewContext(req, resp)
 
 	if err := handler(ctx); err != nil {
 		http.Error(resp, err.Error(), ctx.StatusCode())
