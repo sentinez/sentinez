@@ -17,7 +17,17 @@ import { getRateLimit, updateRateLimit } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
-const UPDATE_MASK = 'name,description,expr,action,status,priority,time_window,max_requests,timeout';
+const UPDATE_MASK = [
+  'name',
+  'description',
+  'expr',
+  'action',
+  'status',
+  'priority',
+  'time_window',
+  'max_requests',
+  'timeout',
+];
 
 export default function EditRateLimitPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('RateLimiter');
@@ -35,7 +45,8 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
       try {
         const { id } = await params;
         setId(id);
-        setForm(rateLimitFormOf(await getRateLimit(id)));
+        const { rateLimit } = await getRateLimit({ id });
+        if (rateLimit) setForm(rateLimitFormOf(rateLimit));
       } catch {
         toast.error(t('loadDetailFailed'));
       } finally {
@@ -55,7 +66,7 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
 
     setSaving(true);
     try {
-      await updateRateLimit(id, rateLimitOf(form, id), UPDATE_MASK);
+      await updateRateLimit({ id, rateLimit: rateLimitOf(form, id), updateMask: UPDATE_MASK });
       toast.success(t('updated'));
       router.back();
     } catch {

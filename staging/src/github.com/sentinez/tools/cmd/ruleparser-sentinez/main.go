@@ -18,7 +18,9 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"flag"
+	"fmt"
 	"go/format"
 	"log"
 	"os"
@@ -56,7 +58,13 @@ func normalizeVersion(input string) string {
 	return input
 }
 
-func generateRulesGoFile(outputPath string, data *rulepb.CoreRulesets) error {
+// ruleFile is the data rendered by the rules template.
+type ruleFile struct {
+	*rulepb.CoreRulesets
+	Infos []*rulepb.RuleInfo
+}
+
+func generateRulesGoFile(outputPath string, data *ruleFile) error {
 
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -103,24 +111,26 @@ func PascalCaseFileName(filePath string) string {
 	return result.String()
 }
 
-func parse(filePath string) *rulepb.CoreRulesets {
-
+func parse(filePath string) (*ruleFile, error) {
 	result, err := ruleparser.Parse(filePath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	data, err := json.Marshal(result)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	rules := rulepb.CoreRulesets{Name: PascalCaseFileName(filePath)}
 	if err = json.Unmarshal(data, &rules); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &rules
+	return &ruleFile{
+		CoreRulesets: &rules,
+		Infos:        ruleInfos(filePath, result.Rules),
+	}, nil
 }
 
 func normalizeFineName(file string) string {
@@ -135,25 +145,76 @@ func normalizeFineName(file string) string {
 	return strings.ReplaceAll(name[0], "-", "_")
 }
 
-func main() {
+// expandFiles resolves each pattern (e.g. "rules/*.conf") into a sorted,
+// de-duplicated list of matching files.
+func expandFiles(patterns []string) ([]string, error) {
+	var files []string
+	seen := make(map[string]struct{})
+	for _, pattern := range patterns {
+		matches, err := filepath.Glob(pattern)
+		if err != nil {
+			return nil, fmt.Errorf("glob %q: %w", pattern, err)
+		}
+		if len(matches) == 0 {
+			return nil, fmt.Errorf("no file matches %q", pattern)
+		}
+		for _, match := range matches {
+			if _, ok := seen[match]; ok {
+				continue
+			}
+			seen[match] = struct{}{}
+			files = append(files, match)
+		}
+	}
+	return files, nil
+}
+
+func generate(out, file string) error {
+	rules, err := parse(file)
+	if err != nil {
+		return fmt.Errorf("parse %s: %w", file, err)
+	}
+
+	name := filepath.Join(out, normalizeFineName(file))
+	err = generateRulesGoFile(name+".sentinez_rules.gen.go", rules)
+	if err != nil {
+		return fmt.Errorf("generate %s: %w", file, err)
+	}
+	return nil
+}
+
+func run() error {
 	var out, file = "", ""
 	flag.StringVar(&out, "out", out, "directory for the generated rules file")
-	flag.StringVar(&file, "file", file, "coreruleset configuration file")
+	flag.StringVar(&file, "file", file,
+		"coreruleset config file or glob pattern (e.g. 'rules/*.conf')")
 	flag.Parse()
 
-	if file == "" {
-		log.Fatal("missing input coreruleset file config path")
+	// Positional args cover patterns already expanded by the shell.
+	patterns := flag.Args()
+	if file != "" {
+		patterns = append([]string{file}, patterns...)
+	}
+	if len(patterns) == 0 {
+		return errors.New("missing input coreruleset file config path")
 	}
 
-	if out != "" {
-		out = out + "/"
-	}
-
-	rules := parse(file)
-
-	name := out + normalizeFineName(file)
-	err := generateRulesGoFile(name+".sentinez_rules.gen.go", rules)
+	files, err := expandFiles(patterns)
 	if err != nil {
-		panic(err)
+		return err
+	}
+
+	for _, f := range files {
+		if err := generate(out, f); err != nil {
+			return err
+		}
+		log.Printf("generated %s", f)
+	}
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
 }

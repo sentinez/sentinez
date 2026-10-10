@@ -29,7 +29,7 @@ func notFound(requestId string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display: flex; align-items: center; padding: 2rem;\"><img src=\"https://i.imgur.com/GXItvHZ.png\" alt=\"Logo\" style=\"max-width: 120px; margin-right: 2rem;\"><div><h1>404 Not Found</h1><p>The page you are looking for could not be found.</p><pre>X-Request-ID ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display: flex; align-items: center; padding: 2rem;\"><img src=\"/cdn/sentinez/public/sntz.png\" alt=\"Logo\" style=\"max-width: 120px; margin-right: 2rem;\"><div><h1>404 Not Found</h1><p>The page you are looking for could not be found.</p><pre>X-Request-ID ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

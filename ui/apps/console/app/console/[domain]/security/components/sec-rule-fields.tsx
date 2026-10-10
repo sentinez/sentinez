@@ -13,11 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
+import { ActionValue, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import {
+  ActionType,
+  Expression,
+  actionTypeFromJSON,
+  actionTypeToJSON,
+} from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ACTIONS_WITHOUT_VALUE, SelectOption } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { QueryBuilder } from './query-builder';
+import { QueryBuilder, createEmptyExpression } from './query-builder';
 
 export interface ParamRow {
   key: string;
@@ -41,30 +47,76 @@ const MAP_ACTIONS = [ActionType.ACTION_TYPE_SET_TAG, ActionType.ACTION_TYPE_MODI
 
 export type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
 
-/** Rows -> params (proto Action.params) */
-export function actionParamsOf(f: SecRuleFormValue): Record<string, string> | undefined {
+/** Rows -> ActionValue: Set Tag / Modify Header use mapValue, other actions strValue */
+export function actionValueOf(f: SecRuleFormValue): ActionValue | undefined {
   if (ACTIONS_WITHOUT_VALUE.includes(f.action)) return undefined;
   if (MAP_ACTIONS.includes(f.action)) {
     const entries = f.actionParams
       .filter((r) => r.key.trim() && r.value.trim())
       .map((r) => [r.key.trim(), r.value] as const);
-    return entries.length ? Object.fromEntries(entries) : undefined;
+    return entries.length ? { strValue: '', mapValue: Object.fromEntries(entries) } : undefined;
   }
   const v = f.actionParams[0]?.value?.trim();
-  return v ? { value: v } : undefined;
+  return v ? { strValue: v, mapValue: {} } : undefined;
 }
 
-/** params (proto Action.params) -> rows */
-export function paramRowsOf(action: ActionType, params?: Record<string, any>): ParamRow[] {
-  const entries = Object.entries(params ?? {});
-  if (MAP_ACTIONS.includes(action)) return entries.map(([key, v]) => ({ key, value: String(v) }));
-  return entries.length ? [{ key: 'value', value: String(params?.value ?? entries[0]![1]) }] : [];
+/** ActionValue -> rows */
+export function paramRowsOf(action: ActionType, v?: ActionValue): ParamRow[] {
+  const entries = Object.entries(v?.mapValue ?? {});
+  if (MAP_ACTIONS.includes(action)) return entries.map(([key, value]) => ({ key, value }));
+  const value = v?.strValue || entries[0]?.[1];
+  return value ? [{ key: 'value', value }] : [];
+}
+
+/** SecRule.action (ActionType name) -> ActionType, defaulting to Block */
+export function actionTypeOf(action?: string): ActionType {
+  return action ? actionTypeFromJSON(action) : ActionType.ACTION_TYPE_BLOCK;
+}
+
+export function createEmptySecRuleForm(): SecRuleFormValue {
+  return {
+    name: '',
+    description: '',
+    priority: DEFAULT_PRIORITY,
+    status: Status.STATUS_ACTIVE,
+    action: ActionType.ACTION_TYPE_BLOCK,
+    actionParams: [],
+    expr: createEmptyExpression(),
+  };
+}
+
+/** SecRule (API) -> form value */
+export function secRuleFormOf(r: SecRule): SecRuleFormValue {
+  const action = actionTypeOf(r.action);
+  return {
+    name: r.name,
+    description: r.description,
+    priority: r.priority || DEFAULT_PRIORITY,
+    status: r.status || Status.STATUS_ACTIVE,
+    action,
+    actionParams: paramRowsOf(action, r.actionValue),
+    expr: r.expr ?? createEmptyExpression(),
+  };
+}
+
+/** Form value -> SecRule (API) */
+export function secRuleOf(f: SecRuleFormValue, id = ''): SecRule {
+  return {
+    id,
+    name: f.name,
+    description: f.description,
+    priority: f.priority,
+    status: f.status,
+    expr: f.expr,
+    action: actionTypeToJSON(f.action),
+    actionValue: actionValueOf(f),
+  };
 }
 
 /** Returns an error message, or null when the form is valid */
 export function validateSecRuleForm(f: SecRuleFormValue, t: ValidationTranslator): string | null {
   if (!f.name || !f.description) return t('nameDescriptionRequired');
-  if (ACTIONS_WITHOUT_VALUE.includes(f.action) || actionParamsOf(f)) return null;
+  if (ACTIONS_WITHOUT_VALUE.includes(f.action) || actionValueOf(f)) return null;
   return MAP_ACTIONS.includes(f.action) ? t('keyValueRequired') : t('actionValueRequired');
 }
 

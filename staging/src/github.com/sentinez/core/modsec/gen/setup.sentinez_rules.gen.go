@@ -100,6 +100,130 @@ var Setup = map[string]*rulepb.CoreRule{
 	"900990": R900990(),
 }
 
+// SetupInfo is the catalog of the rules above that have an ID.
+var SetupInfo = []*rulepb.RuleInfo{
+	{
+		Id:       900000,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900001,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900010,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900100,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900110,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900115,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900120,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900130,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900200,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900220,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900230,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900240,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900250,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900255,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900280,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900300,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900310,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900320,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900330,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900340,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900350,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900400,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900950,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+	{
+		Id:       900990,
+		Category: rulepb.Category_CATEGORY_UNSPECIFIED,
+		System:   true,
+	},
+}
+
 // SetupMaker_0 returns rule without ID
 func SetupMaker_0() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
@@ -249,7 +373,7 @@ func R900200() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900200"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_methods=GET HEAD POST OPTIONS'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900200"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.allowed_methods=GET HEAD POST OPTIONS"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIwMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfbWV0aG9kcz1HRVQgSEVBRCBQT1NUIE9QVElPTlMnIg==",
 		Level:         "",
@@ -261,7 +385,7 @@ func R900220() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900220"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json|'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900220"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json|"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIyMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGU9fGFwcGxpY2F0aW9uL3gtd3d3LWZvcm0tdXJsZW5jb2RlZHwgfG11bHRpcGFydC9mb3JtLWRhdGF8IHxtdWx0aXBhcnQvcmVsYXRlZHwgfHRleHQveG1sfCB8YXBwbGljYXRpb24veG1sfCB8YXBwbGljYXRpb24vc29hcCt4bWx8IHxhcHBsaWNhdGlvbi9qc29ufCB8YXBwbGljYXRpb24vY2xvdWRldmVudHMranNvbnwgfGFwcGxpY2F0aW9uL2Nsb3VkZXZlbnRzLWJhdGNoK2pzb258JyI=",
 		Level:         "",
@@ -273,7 +397,7 @@ func R900230() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900230"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_http_versions=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0 HTTP/3 HTTP/3.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900230"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.allowed_http_versions=HTTP/1.0 HTTP/1.1 HTTP/2 HTTP/2.0 HTTP/3 HTTP/3.0"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDIzMCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfaHR0cF92ZXJzaW9ucz1IVFRQLzEuMCBIVFRQLzEuMSBIVFRQLzIgSFRUUC8yLjAgSFRUUC8zIEhUVFAvMy4wJyI=",
 		Level:         "",
@@ -285,7 +409,7 @@ func R900240() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900240"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_extensions=.asa/ .asax/ .ascx/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .rdb/ .resources/ .resx/ .sql/ .swp/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900240"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.restricted_extensions=.asa/ .asax/ .ascx/ .backup/ .bak/ .bat/ .cdx/ .cer/ .cfg/ .cmd/ .com/ .config/ .conf/ .cs/ .csproj/ .csr/ .dat/ .db/ .dbf/ .dll/ .dos/ .htr/ .htw/ .ida/ .idc/ .idq/ .inc/ .ini/ .key/ .licx/ .lnk/ .log/ .mdb/ .old/ .pass/ .pdb/ .pol/ .printer/ .pwd/ .rdb/ .resources/ .resx/ .sql/ .swp/ .sys/ .vb/ .vbs/ .vbproj/ .vsdisco/ .webinfo/ .xsd/ .xsx/"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI0MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfZXh0ZW5zaW9ucz0uYXNhLyAuYXNheC8gLmFzY3gvIC5iYWNrdXAvIC5iYWsvIC5iYXQvIC5jZHgvIC5jZXIvIC5jZmcvIC5jbWQvIC5jb20vIC5jb25maWcvIC5jb25mLyAuY3MvIC5jc3Byb2ovIC5jc3IvIC5kYXQvIC5kYi8gLmRiZi8gLmRsbC8gLmRvcy8gLmh0ci8gLmh0dy8gLmlkYS8gLmlkYy8gLmlkcS8gLmluYy8gLmluaS8gLmtleS8gLmxpY3gvIC5sbmsvIC5sb2cvIC5tZGIvIC5vbGQvIC5wYXNzLyAucGRiLyAucG9sLyAucHJpbnRlci8gLnB3ZC8gLnJkYi8gLnJlc291cmNlcy8gLnJlc3gvIC5zcWwvIC5zd3AvIC5zeXMvIC52Yi8gLnZicy8gLnZicHJvai8gLnZzZGlzY28vIC53ZWJpbmZvLyAueHNkLyAueHN4Lyci",
 		Level:         "",
@@ -297,7 +421,7 @@ func R900250() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900250"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_basic=/content-encoding/ /proxy/ /lock-token/ /content-range/ /if/ /x-http-method-override/ /x-http-method/ /x-method-override/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900250"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.restricted_headers_basic=/content-encoding/ /proxy/ /lock-token/ /content-range/ /if/ /x-http-method-override/ /x-http-method/ /x-method-override/"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19iYXNpYz0vY29udGVudC1lbmNvZGluZy8gL3Byb3h5LyAvbG9jay10b2tlbi8gL2NvbnRlbnQtcmFuZ2UvIC9pZi8gL3gtaHR0cC1tZXRob2Qtb3ZlcnJpZGUvIC94LWh0dHAtbWV0aG9kLyAveC1tZXRob2Qtb3ZlcnJpZGUvJyI=",
 		Level:         "",
@@ -309,7 +433,7 @@ func R900255() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900255"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.restricted_headers_extended=/accept-charset/'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900255"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.restricted_headers_extended=/accept-charset/"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI1NSxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LnJlc3RyaWN0ZWRfaGVhZGVyc19leHRlbmRlZD0vYWNjZXB0LWNoYXJzZXQvJyI=",
 		Level:         "",
@@ -321,7 +445,7 @@ func R900280() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"900280"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"'tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1| |iso-8859-15| |windows-1252|'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"900280"}, Phase: []string{"1"}, T: []string{"none"}, Setvar: []string{"tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1| |iso-8859-15| |windows-1252|"}},
 		},
 		Configuration: "U2VjQWN0aW9uIFwKICAgImlkOjkwMDI4MCxcCiAgIHBoYXNlOjEsXAogICBwYXNzLFwKICAgdDpub25lLFwKICAgbm9sb2csXAogICBzZXR2YXI6J3R4LmFsbG93ZWRfcmVxdWVzdF9jb250ZW50X3R5cGVfY2hhcnNldD18dXRmLTh8IHxpc28tODg1OS0xfCB8aXNvLTg4NTktMTV8IHx3aW5kb3dzLTEyNTJ8JyI=",
 		Level:         "",

@@ -127,24 +127,30 @@ func (l *TreeShapeListener) ExitStmt(_ *parser.StmtContext) {
 
 func (l *TreeShapeListener) EnterAction(ctx *parser.ActionContext) {
 	latest := len(l.results.Rules) - 1
-	mapp := l.results.Rules[latest].current.Fields
+	fields := l.results.Rules[latest].current.Fields
 	action := strings.SplitN(ctx.GetText(), ":", 2)
-	if len(action) > 1 {
-		_, ok := mapp[action[0]]
-		if !ok {
-			mapp[action[0]] = []string{}
-		}
-		mapp[action[0]] = append(mapp[action[0]], strings.TrimSpace(action[1]))
-
-		processed := strings.TrimSuffix(strings.TrimPrefix(action[1], "'"), "'")
-		if action[0] == "ver" && l.results.Version == "" {
-			l.results.Version = processed
-		}
-		if strings.Contains(action[1], "paranoia-level") {
-			l.results.Rules[latest].Level = processed
-		}
-
+	if len(action) < 2 {
+		return
 	}
+
+	key, value := action[0], unquote(action[1])
+	fields[key] = append(fields[key], value)
+
+	if key == "ver" && l.results.Version == "" {
+		l.results.Version = value
+	}
+	if strings.Contains(value, "paranoia-level") {
+		l.results.Rules[latest].Level = value
+	}
+}
+
+// unquote trims spaces and one pair of surrounding single quotes.
+func unquote(value string) string {
+	value = strings.TrimSpace(value)
+	if len(value) >= 2 && value[0] == '\'' && value[len(value)-1] == '\'' {
+		return value[1 : len(value)-1]
+	}
+	return value
 }
 
 func (l *TreeShapeListener) EnterAction_with_params(

@@ -21,6 +21,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corers "github.com/sentinez/core/rulesets"
 	"github.com/sentinez/sentinez"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	ssync "github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
@@ -48,15 +49,20 @@ type Rulesets struct {
 	space *ssync.Map[string, coraza.WAF]
 }
 
-func (rs *Rulesets) Store(namespace string, flag corers.Flag) error {
+func (rs *Rulesets) Store(
+	namespace string, setting *corerulesetpb.CoreRuleset,
+) error {
 
 	if rs == nil {
 		return nil
 	}
 
-	version, fs := sentinez.WAF4160()
+	version, fs := sentinez.WAF4170()
+	if corers.VersionOf(setting.GetVersion()) == corers.WAF4160 {
+		version, fs = sentinez.WAF4160()
+	}
 
-	waf, err := corers.NewWAF(version, fs, flag)
+	waf, err := corers.NewWAF(version, fs, setting)
 	if err != nil {
 		return err
 	}

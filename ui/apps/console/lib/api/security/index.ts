@@ -1,17 +1,39 @@
-import { RateLimit, SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { RateLimit, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import {
+  CreateRateLimitRequest,
+  CreateRateLimitResponse,
+  CreateSecRuleRequest,
+  CreateSecRuleResponse,
+  DeleteRateLimitRequest,
+  DeleteRateLimitResponse,
+  DeleteSecRuleRequest,
+  DeleteSecRuleResponse,
+  GetRateLimitRequest,
+  GetRateLimitResponse,
+  GetSecRuleRequest,
+  GetSecRuleResponse,
+  ListRateLimitsRequest,
+  ListRateLimitsResponse,
+  ListSecRulesRequest,
+  ListSecRulesResponse,
+  StatusResponse,
+  UpdateRateLimitRequest,
+  UpdateRateLimitResponse,
+  UpdateSecRuleRequest,
+  UpdateSecRuleResponse,
+} from '@sentinez/proto/sentinez/apps/security/v1/security';
 import {
   ActionType,
   FieldSource,
   Operator,
-  actionTypeFromJSON,
   actionTypeToJSON,
   Expression,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { Status, statusFromJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
-import { type Pages, pageQuery as pagesQuery, paginate } from '@/lib/api/pages';
+import { type Pages, paginate, toQuery } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -20,124 +42,6 @@ export interface ApiOptions {
 }
 
 export type { Pages };
-
-/** Wire format of `v1ActionValue` in security.swagger.json */
-export interface SecurityActionValue {
-  strValue?: string;
-  mapValue?: Record<string, string>;
-}
-
-/** Wire format of `v1SecRule` in security.swagger.json */
-export interface SecuritySecRule {
-  metadata?: { createdAt?: string; updatedAt?: string };
-  id?: string;
-  name?: string;
-  description?: string;
-  expr?: unknown;
-  action?: string;
-  actionValue?: SecurityActionValue;
-  status?: string;
-  priority?: number;
-}
-
-/** Wire format of `v1RateLimit` in security.swagger.json */
-export interface SecurityRateLimit extends SecuritySecRule {
-  timeWindow?: string;
-  /** int64, serialized as a string */
-  maxRequests?: string;
-  timeout?: string;
-}
-
-export interface ListSecRulesParams {
-  page?: Pages;
-  ids?: string[];
-}
-
-export interface ListSecRulesResult {
-  secRules: SecRule[];
-  total: number;
-}
-
-export type ListRateLimitsParams = ListSecRulesParams;
-
-export interface ListRateLimitsResult {
-  rateLimits: RateLimit[];
-  total: number;
-}
-
-export interface StatusResponse {
-  msg?: string;
-}
-
-// proto Action.params <-> swagger actionValue (mapValue); a lone strValue is exposed as params.value
-function actionParamsFromWire(v?: SecurityActionValue): Record<string, any> | undefined {
-  if (v?.mapValue && Object.keys(v.mapValue).length) return { ...v.mapValue };
-  if (v?.strValue) return { value: v.strValue };
-  return undefined;
-}
-
-function actionValueToWire(params?: Record<string, any>): SecurityActionValue | undefined {
-  const keys = Object.keys(params ?? {});
-  if (!params || !keys.length) return undefined;
-  if (keys.length === 1 && keys[0] === 'value') return { strValue: String(params.value) };
-  return { mapValue: Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])) };
-}
-
-function fromWire(rule: SecuritySecRule): SecRule {
-  return {
-    ingressRuntime: {
-      id: rule.id ?? '',
-      name: rule.name ?? '',
-      description: rule.description ?? '',
-      priority: rule.priority ?? 0,
-      status: statusFromJSON(rule.status ?? 'STATUS_UNSPECIFIED'),
-      expr: rule.expr ? Expression.fromJSON(rule.expr) : undefined,
-      action: rule.action
-        ? { type: actionTypeFromJSON(rule.action), params: actionParamsFromWire(rule.actionValue) }
-        : undefined,
-    },
-  } as SecRule;
-}
-
-function toWire(data: SecRule): SecuritySecRule {
-  const r = data.ingressRuntime;
-  return {
-    id: r?.id || undefined,
-    name: r?.name,
-    description: r?.description,
-    priority: r?.priority,
-    status: statusToJSON(r?.status ?? Status.STATUS_UNSPECIFIED),
-    expr: r?.expr ? Expression.toJSON(r.expr) : undefined,
-    action: r?.action
-      ? actionTypeToJSON(r.action.type ?? ActionType.ACTION_TYPE_UNSPECIFIED)
-      : undefined,
-    actionValue: actionValueToWire(r?.action?.params),
-  };
-}
-
-function rateLimitFromWire(rl: SecurityRateLimit): RateLimit {
-  return {
-    ingressRuntime: fromWire(rl).ingressRuntime,
-    timeWindow: rl.timeWindow ?? '',
-    maxRequests: Number(rl.maxRequests ?? 0),
-    timeout: rl.timeout ?? '',
-  } as RateLimit;
-}
-
-function rateLimitToWire(data: RateLimit): SecurityRateLimit {
-  return {
-    ...toWire({ ingressRuntime: data.ingressRuntime } as SecRule),
-    timeWindow: data.timeWindow,
-    maxRequests: String(data.maxRequests ?? 0),
-    timeout: data.timeout || undefined,
-  };
-}
-
-function pageQuery(params?: ListSecRulesParams): Record<string, unknown> {
-  const query = pagesQuery(params?.page);
-  if (params?.ids?.length) query.ids = params.ids;
-  return query;
-}
 
 // ---- Sample data, used as fallback when the API call fails ----
 
@@ -149,10 +53,15 @@ const sampleRule = (
   status: Status,
   expr: Expression,
   action: ActionType = ActionType.ACTION_TYPE_BLOCK,
-): SecRule =>
-  ({
-    ingressRuntime: { id, name, description, priority, status, expr, action: { type: action } },
-  }) as SecRule;
+): SecRule => ({
+  id,
+  name,
+  description,
+  priority,
+  status,
+  expr,
+  action: actionTypeToJSON(action),
+});
 
 const cond = (source: FieldSource, operator: Operator, value: unknown, key = '') => ({
   id: Math.random().toString(36).slice(2, 9),
@@ -280,7 +189,7 @@ const sampleRateLimit = (
   timeWindow: string,
   maxRequests: number,
   timeout: string,
-): RateLimit => ({ ingressRuntime: rule.ingressRuntime, timeWindow, maxRequests, timeout });
+): RateLimit => ({ ...rule, timeWindow, maxRequests, timeout });
 
 export const SAMPLE_RATE_LIMITS: RateLimit[] = [
   sampleRateLimit(
@@ -372,193 +281,181 @@ function withFallback<T>(label: string, fallback: () => T) {
   };
 }
 
+const byIds = <T extends { id: string }>(list: T[], ids?: string[]) =>
+  ids?.length ? list.filter((r) => ids.includes(r.id)) : list;
+
 // GET /security/secrules
 export async function listSecRules(
-  params?: ListSecRulesParams,
+  req: Partial<ListSecRulesRequest> = {},
   options?: ApiOptions,
-): Promise<SecRule[]> {
-  const resp = await listSecRulesWithTotal(params, options);
-  return resp.secRules;
-}
-
-export async function listSecRulesWithTotal(
-  params?: ListSecRulesParams,
-  options?: ApiOptions,
-): Promise<ListSecRulesResult> {
+): Promise<ListSecRulesResponse> {
   return withFallback('listSecRules', () => {
-    const list = params?.ids?.length
-      ? sampleStore.filter((r) => params.ids!.includes(r.ingressRuntime?.id ?? ''))
-      : sampleStore;
-    return { secRules: paginate(list, params?.page), total: list.length };
+    const list = byIds(sampleStore, req.ids);
+    return { secRules: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/secrules`, {
-      params: pageQuery(params),
+      params: toQuery(ListSecRulesRequest.toJSON(ListSecRulesRequest.fromPartial(req))),
       // repeat `ids` key (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    const list: SecuritySecRule[] = resp.data?.secRules ?? [];
-    return { secRules: list.map(fromWire), total: Number(resp.data?.total ?? list.length) };
+    return ListSecRulesResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/secrule/{id}
-export async function getSecRule(id: string, options?: ApiOptions): Promise<SecRule> {
-  return withFallback(
-    'getSecRule',
-    () => sampleStore.find((r) => r.ingressRuntime?.id === id) ?? sampleStore[0]!,
-  )(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`, {
-      signal: options?.signal,
-    });
-    return fromWire(resp.data?.secRule ?? {});
+export async function getSecRule(
+  req: GetSecRuleRequest,
+  options?: ApiOptions,
+): Promise<GetSecRuleResponse> {
+  return withFallback<GetSecRuleResponse>('getSecRule', () => ({
+    secRule: sampleStore.find((r) => r.id === req.id) ?? sampleStore[0],
+  }))(async () => {
+    const endpoint = `${API_BASE_PATH}/security/secrule/${encodeURIComponent(req.id)}`;
+    const resp = await axios.get(endpoint, { signal: options?.signal });
+    return GetSecRuleResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // POST /security/secrule
-export async function createSecRule(data: SecRule, options?: ApiOptions): Promise<string> {
+export async function createSecRule(
+  req: CreateSecRuleRequest,
+  options?: ApiOptions,
+): Promise<CreateSecRuleResponse> {
   return withFallback('createSecRule', () => {
     const id = `sample-rule-${Date.now()}`;
-    sampleStore = [...sampleStore, { ingressRuntime: { ...data.ingressRuntime!, id } } as SecRule];
-    return id;
+    sampleStore = [...sampleStore, SecRule.fromPartial({ ...req.secRule, id })];
+    return { id };
   })(async () => {
     const resp = await axios.post(
       `${API_BASE_PATH}/security/secrule`,
-      { secRule: toWire(data) },
+      CreateSecRuleRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return resp.data?.id ?? '';
+    return CreateSecRuleResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // PUT /security/secrule/{id}
 export async function updateSecRule(
-  id: string,
-  data: SecRule,
-  updateMask?: string,
+  req: UpdateSecRuleRequest,
   options?: ApiOptions,
-): Promise<SecRule> {
-  const next = { ingressRuntime: { ...data.ingressRuntime!, id } } as SecRule;
-  return withFallback('updateSecRule', () => {
-    sampleStore = sampleStore.map((r) => (r.ingressRuntime?.id === id ? next : r));
-    return next;
+): Promise<UpdateSecRuleResponse> {
+  return withFallback<UpdateSecRuleResponse>('updateSecRule', () => {
+    const next = SecRule.fromPartial({ ...req.secRule, id: req.id });
+    sampleStore = sampleStore.map((r) => (r.id === req.id ? next : r));
+    return { secRule: next };
   })(async () => {
     const resp = await axios.put(
-      `${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`,
-      { secRule: toWire(next), updateMask },
+      `${API_BASE_PATH}/security/secrule/${encodeURIComponent(req.id)}`,
+      UpdateSecRuleRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return fromWire(resp.data?.secRule ?? {});
+    return UpdateSecRuleResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // DELETE /security/secrule/{id}
-export async function deleteSecRule(id: string, options?: ApiOptions): Promise<void> {
-  return withFallback<void>('deleteSecRule', () => {
-    sampleStore = sampleStore.filter((r) => r.ingressRuntime?.id !== id);
+export async function deleteSecRule(
+  req: DeleteSecRuleRequest,
+  options?: ApiOptions,
+): Promise<DeleteSecRuleResponse> {
+  return withFallback<DeleteSecRuleResponse>('deleteSecRule', () => {
+    sampleStore = sampleStore.filter((r) => r.id !== req.id);
+    return {};
   })(async () => {
-    await axios.delete(`${API_BASE_PATH}/security/secrule/${encodeURIComponent(id)}`, {
-      signal: options?.signal,
-    });
+    const endpoint = `${API_BASE_PATH}/security/secrule/${encodeURIComponent(req.id)}`;
+    const resp = await axios.delete(endpoint, { signal: options?.signal });
+    return DeleteSecRuleResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/ratelimits
 export async function listRateLimits(
-  params?: ListRateLimitsParams,
+  req: Partial<ListRateLimitsRequest> = {},
   options?: ApiOptions,
-): Promise<RateLimit[]> {
-  const resp = await listRateLimitsWithTotal(params, options);
-  return resp.rateLimits;
-}
-
-export async function listRateLimitsWithTotal(
-  params?: ListRateLimitsParams,
-  options?: ApiOptions,
-): Promise<ListRateLimitsResult> {
+): Promise<ListRateLimitsResponse> {
   return withFallback('listRateLimits', () => {
-    const list = params?.ids?.length
-      ? sampleRateLimitStore.filter((r) => params.ids!.includes(r.ingressRuntime?.id ?? ''))
-      : sampleRateLimitStore;
-    return { rateLimits: paginate(list, params?.page), total: list.length };
+    const list = byIds(sampleRateLimitStore, req.ids);
+    return { rateLimits: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/ratelimits`, {
-      params: pageQuery(params),
+      params: toQuery(ListRateLimitsRequest.toJSON(ListRateLimitsRequest.fromPartial(req))),
       // repeat `ids` key (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    const list: SecurityRateLimit[] = resp.data?.rateLimits ?? [];
-    return {
-      rateLimits: list.map(rateLimitFromWire),
-      total: Number(resp.data?.total ?? list.length),
-    };
+    return ListRateLimitsResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/ratelimit/{id}
-export async function getRateLimit(id: string, options?: ApiOptions): Promise<RateLimit> {
-  return withFallback(
-    'getRateLimit',
-    () => sampleRateLimitStore.find((r) => r.ingressRuntime?.id === id) ?? sampleRateLimitStore[0]!,
-  )(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(id)}`, {
-      signal: options?.signal,
-    });
-    return rateLimitFromWire(resp.data?.rateLimit ?? {});
+export async function getRateLimit(
+  req: GetRateLimitRequest,
+  options?: ApiOptions,
+): Promise<GetRateLimitResponse> {
+  return withFallback<GetRateLimitResponse>('getRateLimit', () => ({
+    rateLimit: sampleRateLimitStore.find((r) => r.id === req.id) ?? sampleRateLimitStore[0],
+  }))(async () => {
+    const endpoint = `${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(req.id)}`;
+    const resp = await axios.get(endpoint, { signal: options?.signal });
+    return GetRateLimitResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // POST /security/ratelimit
-export async function createRateLimit(data: RateLimit, options?: ApiOptions): Promise<string> {
+export async function createRateLimit(
+  req: CreateRateLimitRequest,
+  options?: ApiOptions,
+): Promise<CreateRateLimitResponse> {
   return withFallback('createRateLimit', () => {
     const id = `sample-ratelimit-${Date.now()}`;
     sampleRateLimitStore = [
       ...sampleRateLimitStore,
-      { ...data, ingressRuntime: { ...data.ingressRuntime!, id } },
+      RateLimit.fromPartial({ ...req.rateLimit, id }),
     ];
-    return id;
+    return { id };
   })(async () => {
     const resp = await axios.post(
       `${API_BASE_PATH}/security/ratelimit`,
-      { rateLimit: rateLimitToWire(data) },
+      CreateRateLimitRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return resp.data?.id ?? '';
+    return CreateRateLimitResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // PUT /security/ratelimit/{id}
 export async function updateRateLimit(
-  id: string,
-  data: RateLimit,
-  updateMask?: string,
+  req: UpdateRateLimitRequest,
   options?: ApiOptions,
-): Promise<RateLimit> {
-  const next: RateLimit = { ...data, ingressRuntime: { ...data.ingressRuntime!, id } };
-  return withFallback('updateRateLimit', () => {
-    sampleRateLimitStore = sampleRateLimitStore.map((r) =>
-      r.ingressRuntime?.id === id ? next : r,
-    );
-    return next;
+): Promise<UpdateRateLimitResponse> {
+  return withFallback<UpdateRateLimitResponse>('updateRateLimit', () => {
+    const next = RateLimit.fromPartial({ ...req.rateLimit, id: req.id });
+    sampleRateLimitStore = sampleRateLimitStore.map((r) => (r.id === req.id ? next : r));
+    return { rateLimit: next };
   })(async () => {
     const resp = await axios.put(
-      `${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(id)}`,
-      { rateLimit: rateLimitToWire(next), updateMask },
+      `${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(req.id)}`,
+      UpdateRateLimitRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return rateLimitFromWire(resp.data?.rateLimit ?? {});
+    return UpdateRateLimitResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // DELETE /security/ratelimit/{id}
-export async function deleteRateLimit(id: string, options?: ApiOptions): Promise<void> {
-  return withFallback<void>('deleteRateLimit', () => {
-    sampleRateLimitStore = sampleRateLimitStore.filter((r) => r.ingressRuntime?.id !== id);
+export async function deleteRateLimit(
+  req: DeleteRateLimitRequest,
+  options?: ApiOptions,
+): Promise<DeleteRateLimitResponse> {
+  return withFallback<DeleteRateLimitResponse>('deleteRateLimit', () => {
+    sampleRateLimitStore = sampleRateLimitStore.filter((r) => r.id !== req.id);
+    return {};
   })(async () => {
-    await axios.delete(`${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(id)}`, {
-      signal: options?.signal,
-    });
+    const endpoint = `${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(req.id)}`;
+    const resp = await axios.delete(endpoint, { signal: options?.signal });
+    return DeleteRateLimitResponse.fromJSON(resp.data ?? {});
   });
 }
 
@@ -568,6 +465,6 @@ export async function getSecurityStatus(options?: ApiOptions): Promise<StatusRes
     msg: 'sample: security service OK',
   }))(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/status`, { signal: options?.signal });
-    return resp.data ?? {};
+    return StatusResponse.fromJSON(resp.data ?? {});
   });
 }

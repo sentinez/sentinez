@@ -12,32 +12,28 @@ import {
 } from '@sentinez/ui/components/select';
 import { PlusIcon, Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type {
-  CreateResourceRequest,
-  TenantPlan,
-  TenantResource,
-  TenantStatus,
-} from '@/lib/api/tenant';
-
-type Protocol = 'PROXY_PROTOCOL_HTTP' | 'PROXY_PROTOCOL_HTTPS';
+import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import type { CreateResourceRequest } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
+import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Plan, Status } from '@sentinez/proto/sentinez/types/v1/known';
 
 export interface OriginRow {
   server: string;
-  protocol: Protocol;
+  protocol: ProxyProtocol;
 }
 
 export interface ResourceFormValue {
   resourceName: string;
   resourceDomain: string;
-  plan: TenantPlan;
-  status: TenantStatus;
+  plan: Plan;
+  status: Status;
   /** Path the origins serve, e.g. "/" */
   location: string;
   /** Empty means the backend applies its default edge setting */
   origins: OriginRow[];
 }
 
-interface Option<T extends string> {
+interface Option<T extends number> {
   label: string;
   value: T;
   description?: string;
@@ -47,32 +43,32 @@ type FieldsTranslator = ReturnType<typeof useTranslations<'ResourceFields'>>;
 type StatusTranslator = ReturnType<typeof useTranslations<'Enum.status'>>;
 type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
 
-const planOptions = (t: FieldsTranslator): Option<TenantPlan>[] => [
-  { label: t('planFree'), value: 'PLAN_FREE', description: t('planFreeDescription') },
+const planOptions = (t: FieldsTranslator): Option<Plan>[] => [
+  { label: t('planFree'), value: Plan.PLAN_FREE, description: t('planFreeDescription') },
   {
     label: t('planStandard'),
-    value: 'PLAN_STANDARD',
+    value: Plan.PLAN_STANDARD,
     description: t('planStandardDescription'),
   },
-  { label: t('planPro'), value: 'PLAN_PRO', description: t('planProDescription') },
+  { label: t('planPro'), value: Plan.PLAN_PRO, description: t('planProDescription') },
 ];
 
-const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<TenantStatus>[] => [
+const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<Status>[] => [
   {
     label: ts('active'),
-    value: 'STATUS_ACTIVE',
+    value: Status.STATUS_ACTIVE,
     description: t('statusActiveDescription'),
   },
   {
     label: ts('disable'),
-    value: 'STATUS_DISABLE',
+    value: Status.STATUS_DISABLE,
     description: t('statusDisableDescription'),
   },
 ];
 
-const PROTOCOL_OPTIONS: Option<Protocol>[] = [
-  { label: 'HTTPS', value: 'PROXY_PROTOCOL_HTTPS' },
-  { label: 'HTTP', value: 'PROXY_PROTOCOL_HTTP' },
+const PROTOCOL_OPTIONS: Option<ProxyProtocol>[] = [
+  { label: 'HTTPS', value: ProxyProtocol.PROXY_PROTOCOL_HTTPS },
+  { label: 'HTTP', value: ProxyProtocol.PROXY_PROTOCOL_HTTP },
 ];
 
 // Patterns from tenant.proto / setting.proto (buf.validate)
@@ -85,26 +81,28 @@ export function createEmptyResourceForm(): ResourceFormValue {
   return {
     resourceName: '',
     resourceDomain: '',
-    plan: 'PLAN_FREE',
-    status: 'STATUS_ACTIVE',
+    plan: Plan.PLAN_FREE,
+    status: Status.STATUS_ACTIVE,
     location: '/',
     origins: [],
   };
 }
 
-/** TenantResource (API) -> form value */
-export function resourceFormOf(r: TenantResource): ResourceFormValue {
+/** Resource (API) -> form value */
+export function resourceFormOf(r: Resource): ResourceFormValue {
   const loc = r.resourceSetting?.server?.locations?.[0];
   return {
-    resourceName: r.resourceName ?? '',
-    resourceDomain: r.resourceDomain ?? '',
-    plan: r.plan ?? 'PLAN_FREE',
-    status: r.status ?? 'STATUS_ACTIVE',
-    location: loc?.location ?? '/',
-    origins: (loc?.proxyPass ?? []).map((u: any) => ({
-      server: u.server ?? '',
+    resourceName: r.resourceName,
+    resourceDomain: r.resourceDomain,
+    plan: r.plan || Plan.PLAN_FREE,
+    status: r.status || Status.STATUS_ACTIVE,
+    location: loc?.location || '/',
+    origins: (loc?.proxyPass ?? []).map((u) => ({
+      server: u.server,
       protocol:
-        u.protocol === 'PROXY_PROTOCOL_HTTP' ? 'PROXY_PROTOCOL_HTTP' : 'PROXY_PROTOCOL_HTTPS',
+        u.protocol === ProxyProtocol.PROXY_PROTOCOL_HTTP
+          ? ProxyProtocol.PROXY_PROTOCOL_HTTP
+          : ProxyProtocol.PROXY_PROTOCOL_HTTPS,
     })),
   };
 }
@@ -132,7 +130,7 @@ export function resourceOf(f: ResourceFormValue): CreateResourceRequest {
                     server: o.server.trim(),
                     protocol: o.protocol,
                   })),
-                  balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+                  balanceStrategy: BalanceStrategy.BALANCE_STRATEGY_ROUND_ROBIN,
                   proxySetHeaders: {},
                 },
               ],
@@ -161,7 +159,7 @@ export function validateResourceForm(f: ResourceFormValue, t: ValidationTranslat
   return null;
 }
 
-function OptionSelect<T extends string>({
+function OptionSelect<T extends number>({
   label,
   value,
   options,
@@ -176,13 +174,13 @@ function OptionSelect<T extends string>({
   return (
     <div className="grid gap-2 content-start">
       <Label>{label}</Label>
-      <Select value={value} onValueChange={(v) => onChange(v as T)}>
+      <Select value={String(value)} onValueChange={(v) => onChange(Number(v) as T)}>
         <SelectTrigger className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
+            <SelectItem key={o.value} value={String(o.value)}>
               {o.label}
             </SelectItem>
           ))}
@@ -213,15 +211,15 @@ function OriginRows({
       {rows.map((row, i) => (
         <div key={i} className="flex gap-2">
           <Select
-            value={row.protocol}
-            onValueChange={(v) => patchRow(i, { protocol: v as Protocol })}
+            value={String(row.protocol)}
+            onValueChange={(v) => patchRow(i, { protocol: Number(v) as ProxyProtocol })}
           >
             <SelectTrigger className="w-28 shrink-0" aria-label={t('protocol')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {PROTOCOL_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
+                <SelectItem key={o.value} value={String(o.value)}>
                   {o.label}
                 </SelectItem>
               ))}
@@ -252,7 +250,9 @@ function OriginRows({
         variant="outline"
         size="sm"
         className="w-fit"
-        onClick={() => onChange([...rows, { server: '', protocol: 'PROXY_PROTOCOL_HTTPS' }])}
+        onClick={() =>
+          onChange([...rows, { server: '', protocol: ProxyProtocol.PROXY_PROTOCOL_HTTPS }])
+        }
       >
         <PlusIcon className="w-4 h-4" />
         {t('addOrigin')}

@@ -24,7 +24,6 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corelimiter "github.com/sentinez/core/limiter"
 	corerule "github.com/sentinez/core/rules"
-	corers "github.com/sentinez/core/rulesets"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -241,24 +240,12 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
-	var (
-		flag = corers.ReqAppAttackRCE
-	)
+	ns := s.GetServer().GetName()
 
-	for _, r := range s.GetSecurity().GetRulesets() {
-		_ = r
-		// if r.GetIngressFull().GetStatus() != typepb.Status_STATUS_ACTIVE {
-		// 	zlog.Infof("edge:waf: ignore '%s'", s.GetServer().GetName())
-		// 	continue
-		// }
-
-		ns := s.GetServer().GetName()
-
-		err := m.rulesets.Store(ns, flag)
-		if err != nil {
-			zlog.Errorf("edge: init coraza.WAF error: %v", err)
-			return err
-		}
+	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
+	if err != nil {
+		zlog.Errorf("edge: init coraza.WAF error: %v", err)
+		return err
 	}
 
 	return nil

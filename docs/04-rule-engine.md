@@ -185,6 +185,8 @@ score), IP, domain, transaction ID, request ID, time.
 
 ### Enabling the WAF for a namespace
 
-`MemStore.LoadRulesets` creates a WAF for each entry in the namespace's
-`security.rulesets[]`. It currently always uses **CRS v4.16.0** with the
-`ReqAppAttackRCE` flag and does not read options from the config.
+`MemStore.LoadRulesets` creates one WAF per namespace from
+`security.core_ruleset` (version, mode, paranoia levels, thresholds,
+categories, exclusions, overrides — see
+[03-edge.md](03-edge.md#35-proxyyaml-configuration)). `version` selects the
+embedded CRS files: `VERSION_V4_16_0`, otherwise **v4.17.0**.

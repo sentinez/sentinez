@@ -35,6 +35,31 @@ var {{ .Name }} = map[string]*rulepb.CoreRule{
 	{{ end }}
 }
 
+// {{ .Name }}Info is the catalog of the rules above that have an ID.
+var {{ .Name }}Info = []*rulepb.RuleInfo{
+	{{- range .Infos }}
+	{
+		Id: {{ .Id }},
+		Category: rulepb.Category_{{ .Category }},
+		{{- if .ParanoiaLevel }}
+		ParanoiaLevel: {{ .ParanoiaLevel }},
+		{{- end }}
+		{{- if .Severity }}
+		Severity: {{ printf "%q" .Severity }},
+		{{- end }}
+		{{- if .Msg }}
+		Msg: {{ printf "%q" .Msg }},
+		{{- end }}
+		{{- if .Tags }}
+		Tags: []string{ {{ range .Tags }}{{ printf "%q" . }},{{ end }} },
+		{{- end }}
+		{{- if .System }}
+		System: true,
+		{{- end }}
+	},
+	{{- end }}
+}
+
 {{ range $i, $rule := .Rules }}
 {{- $ids := $rule.Actions.Fields.Id }}
 {{- if $ids }}

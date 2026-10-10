@@ -15,13 +15,21 @@
 package corers
 
 import (
+	"fmt"
 	"io/fs"
 
 	"github.com/corazawaf/coraza/v3"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
-func NewWAF(version Version, rootFs fs.FS, flag Flag) (coraza.WAF, error) {
-	rule := GenerateRulesets(version, flag)
+// NewWAF builds a coraza.WAF from the CRS setting of a server.
+func NewWAF(
+	version Version, rootFs fs.FS, setting *corerulesetpb.CoreRuleset,
+) (coraza.WAF, error) {
+	rule, err := GenerateRulesets(version, setting)
+	if err != nil {
+		return nil, fmt.Errorf("generate rulesets: %w", err)
+	}
 
 	conf := coraza.NewWAFConfig().WithRootFS(rootFs).WithDirectives(rule)
 

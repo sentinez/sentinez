@@ -11,7 +11,9 @@ import { Badge } from '@sentinez/ui/components/badge';
 import { Separator } from '@sentinez/ui/components/separator';
 import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { getResourceByDomain } from '@/lib/api/tenant';
+import { Status, planToJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { useApi } from '@/hooks/use-api';
+import { Setting } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Loader2 } from 'lucide-react';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Button } from '@sentinez/ui/components/button';
@@ -24,15 +26,16 @@ type Props = {
 };
 
 export function ResourceView({ domain }: Props) {
-  const { data: resource, isLoading, error } = useApi(getResourceByDomain, domain);
+  const { data, isLoading, error } = useApi(getResourceByDomain, { resourceDomain: domain });
+  const resource = data?.resource;
   const [showJson, setShowJson] = useState(false);
   const t = useTranslations('Resource');
   const tc = useTranslations('Common');
   const format = useFormatter();
   // Rendered after the client-side fetch, so the browser's time zone is safe to use
-  const formatDate = (iso?: string) =>
-    iso
-      ? format.dateTime(new Date(iso), {
+  const formatDate = (date?: Date) =>
+    date
+      ? format.dateTime(date, {
           dateStyle: 'medium',
           timeStyle: 'medium',
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -67,10 +70,10 @@ export function ResourceView({ domain }: Props) {
           </p>
         </div>
         <Badge
-          variant={resource.status === 'STATUS_ACTIVE' ? 'default' : 'secondary'}
+          variant={resource.status === Status.STATUS_ACTIVE ? 'default' : 'secondary'}
           className="text-sm"
         >
-          {resource.status}
+          {statusToJSON(resource.status)}
         </Badge>
       </div>
 
@@ -97,11 +100,11 @@ export function ResourceView({ domain }: Props) {
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
               <span className="font-semibold text-sm">{t('plan')}</span>
-              <span className="col-span-2 text-sm">{resource.plan}</span>
+              <span className="col-span-2 text-sm">{planToJSON(resource.plan)}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
               <span className="font-semibold text-sm">{t('status')}</span>
-              <span className="col-span-2 text-sm">{resource.status}</span>
+              <span className="col-span-2 text-sm">{statusToJSON(resource.status)}</span>
             </div>
           </CardContent>
         </Card>
@@ -158,7 +161,7 @@ export function ResourceView({ domain }: Props) {
             </div>
           ) : showJson ? (
             <pre className="bg-muted text-foreground p-4 rounded-md overflow-x-auto text-xs min-h-[300px]">
-              {JSON.stringify(resource.resourceSetting, null, 2)}
+              {JSON.stringify(Setting.toJSON(resource.resourceSetting), null, 2)}
             </pre>
           ) : (
             <div className="text-sm text-muted-foreground">{t('hiddenJson')}</div>

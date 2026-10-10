@@ -40,9 +40,9 @@ import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { listRateLimitsWithTotal, type Pages, deleteRateLimit } from '@/lib/api/security';
+import { listRateLimits, type Pages, deleteRateLimit } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { RateLimit } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { RateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import { statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
 import { usePagedList } from '@/hooks/use-paged-list';
@@ -59,7 +59,7 @@ export const getColumns = (
 ): ColumnDef<RateLimit>[] => [
   {
     id: 'name',
-    accessorFn: (r) => r.ingressRuntime?.name ?? '',
+    accessorFn: (r) => r.name,
     size: 220,
     meta: { label: t('name') },
     header: () => <div className="w-full">{t('name')}</div>,
@@ -67,9 +67,9 @@ export const getColumns = (
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rate-limiter/${row.original.ingressRuntime?.id}`}
+          href={`./rate-limiter/${row.original.id}`}
         >
-          {row.original.ingressRuntime?.name}
+          {row.original.name}
         </Link>
       </div>
     ),
@@ -80,8 +80,8 @@ export const getColumns = (
     meta: { label: t('description') },
     header: () => <div>{t('description')}</div>,
     cell: ({ row }) => (
-      <div className="truncate" title={row.original.ingressRuntime?.description}>
-        {row.original.ingressRuntime?.description}
+      <div className="truncate" title={row.original.description}>
+        {row.original.description}
       </div>
     ),
   },
@@ -112,7 +112,7 @@ export const getColumns = (
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.ingressRuntime?.status);
+      const s = statusLabel(row.original.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s} value={s} />
@@ -126,7 +126,7 @@ export const getColumns = (
     meta: { label: t('priority') },
     header: () => <div className="w-full text-right">{t('priority')}</div>,
     cell: ({ row }) => {
-      return <div className="w-full text-right">{row.original.ingressRuntime?.priority}</div>;
+      return <div className="w-full text-right">{row.original.priority}</div>;
     },
   },
   {
@@ -142,9 +142,7 @@ export const getColumns = (
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(row.original.ingressRuntime?.id || '')}
-            >
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id || '')}>
               {t('copyRuleId')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
@@ -169,7 +167,7 @@ export default function View() {
   const [rowSelection, setRowSelection] = useState({});
 
   const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
-    const res = await listRateLimitsWithTotal({ page }, { signal });
+    const res = await listRateLimits({ page }, { signal });
     return { items: res.rateLimits, total: res.total };
   }, []);
   const {
@@ -183,11 +181,11 @@ export default function View() {
   } = usePagedList(fetchPage, t('loadFailed'));
 
   const handleDelete = async () => {
-    const id = deleting?.ingressRuntime?.id;
+    const id = deleting?.id;
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteRateLimit(id);
+      await deleteRateLimit({ id });
       toast.success(t('deleted'));
       setDeleting(null);
       refresh();
@@ -327,7 +325,7 @@ export default function View() {
           <DialogHeader>
             <DialogTitle>{t('deleteTitle')}</DialogTitle>
             <DialogDescription>
-              {tc('deleteConfirm', { name: deleting?.ingressRuntime?.name ?? '' })}
+              {tc('deleteConfirm', { name: deleting?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
