@@ -11,6 +11,3 @@ const DefaultVersion = ""
 var DefaultOrder = []func() *rulepb.CoreRule{}
 
 var Default = map[string]*rulepb.CoreRule{}
-
-// DefaultInfo is the catalog of the rules above that have an ID.
-var DefaultInfo = []*rulepb.RuleInfo{}

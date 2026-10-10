@@ -42,8 +42,41 @@ type versionGroups struct {
 var _versionGroups = map[Version]versionGroups{
 	WAF4160: {
 		request: []ruleGroup{
+			{ReqCommonExceptions, rulev4160.Request905CommonExceptionsOrder},
+			{ReqMethodEnforcement, rulev4160.Request911MethodEnforcementOrder},
+			{ReqScannerDetection, rulev4160.Request913ScannerDetectionOrder},
+			{
+				ReqProtocolEnforcement,
+				rulev4160.Request920ProtocolEnforcementOrder,
+			},
+			{ReqProtocolAttack, rulev4160.Request921ProtocolAttackOrder},
+			{ReqMultipartAttack, rulev4160.Request922MultipartAttackOrder},
+			{ReqAppAttackLFI, rulev4160.Request930ApplicationAttackLfiOrder},
+			{ReqAppAttackRFI, rulev4160.Request931ApplicationAttackRfiOrder},
 			{ReqAppAttackRCE, rulev4160.Request932ApplicationAttackRceOrder},
+			{ReqAppAttackPHP, rulev4160.Request933ApplicationAttackPhpOrder},
+			{
+				ReqAppAttackGeneric,
+				rulev4160.Request934ApplicationAttackGenericOrder,
+			},
+			{ReqAppAttackXSS, rulev4160.Request941ApplicationAttackXssOrder},
 			{ReqAppAttackSQLI, rulev4160.Request942ApplicationAttackSqliOrder},
+			{
+				ReqAppAttackSessionFixation,
+				rulev4160.Request943ApplicationAttackSessionFixationOrder,
+			},
+			{ReqAppAttackJava, rulev4160.Request944ApplicationAttackJavaOrder},
+		},
+		// CRS 4.16.0 has no RESPONSE-956-DATA-LEAKAGES-RUBY
+		response: []ruleGroup{
+			{RespDataLeakages, rulev4160.Response950DataLeakagesOrder},
+			{RespDataLeakagesSQL, rulev4160.Response951DataLeakagesSqlOrder},
+			{RespDataLeakagesJava, rulev4160.Response952DataLeakagesJavaOrder},
+			{RespDataLeakagesPHP, rulev4160.Response953DataLeakagesPhpOrder},
+			{RespDataLeakagesIIS, rulev4160.Response954DataLeakagesIisOrder},
+			{RespWebShells, rulev4160.Response955WebShellsOrder},
+			{0, rulev4160.Response959BlockingEvaluationOrder},
+			{0, rulev4160.Response980CorrelationOrder},
 		},
 	},
 	WAF4170: {

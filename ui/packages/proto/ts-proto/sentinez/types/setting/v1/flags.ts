@@ -18,10 +18,11 @@ export interface Flag {
   proxyConfig: string;
   certFile: string;
   certKeyFile: string;
+  engine: string;
 }
 
 function createBaseFlag(): Flag {
-  return { envMode: "", logLevel: "", envFile: "", proxyConfig: "", certFile: "", certKeyFile: "" };
+  return { envMode: "", logLevel: "", envFile: "", proxyConfig: "", certFile: "", certKeyFile: "", engine: "" };
 }
 
 export const Flag: MessageFns<Flag> = {
@@ -43,6 +44,9 @@ export const Flag: MessageFns<Flag> = {
     }
     if (message.certKeyFile !== "") {
       writer.uint32(50).string(message.certKeyFile);
+    }
+    if (message.engine !== "") {
+      writer.uint32(58).string(message.engine);
     }
     return writer;
   },
@@ -108,6 +112,14 @@ export const Flag: MessageFns<Flag> = {
             message.certKeyFile = reader.string();
             continue;
           }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.engine = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -152,6 +164,7 @@ export const Flag: MessageFns<Flag> = {
         : isSet(object.cert_key_file)
         ? globalThis.String(object.cert_key_file)
         : "",
+      engine: isSet(object.engine) ? globalThis.String(object.engine) : "",
     };
   },
 
@@ -175,6 +188,9 @@ export const Flag: MessageFns<Flag> = {
     if (message.certKeyFile !== "") {
       obj.certKeyFile = message.certKeyFile;
     }
+    if (message.engine !== "") {
+      obj.engine = message.engine;
+    }
     return obj;
   },
 
@@ -189,6 +205,7 @@ export const Flag: MessageFns<Flag> = {
     message.proxyConfig = object.proxyConfig ?? "";
     message.certFile = object.certFile ?? "";
     message.certKeyFile = object.certKeyFile ?? "";
+    message.engine = object.engine ?? "";
     return message;
   },
 };

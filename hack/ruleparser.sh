@@ -15,14 +15,6 @@
 # limitations under the License.
 
 ruleparser-sentinez \
-    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
-    -file deploy/ruleroot/v4-16-0/REQUEST-932-APPLICATION-ATTACK-RCE.conf
-
-ruleparser-sentinez \
-    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
-    -file deploy/ruleroot/v4-16-0/REQUEST-942-APPLICATION-ATTACK-SQLI.conf
-
-ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen \
     -file deploy/ruleroot/setup.conf
 
@@ -31,16 +23,8 @@ ruleparser-sentinez \
     -file deploy/ruleroot/default.conf
 
 ruleparser-sentinez \
-    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
-    -file deploy/ruleroot/v4-16-0/REQUEST-901-INITIALIZATION.conf
-
-ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen \
     -file deploy/ruleroot/REQUEST-901-INITIALIZATION.conf
-
-ruleparser-sentinez \
-    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
-    -file deploy/ruleroot/v4-16-0/REQUEST-949-BLOCKING-EVALUATION.conf
 
 ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen \
@@ -49,6 +33,10 @@ ruleparser-sentinez \
 ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen \
     -file deploy/ruleroot/audit.conf
+
+ruleparser-sentinez \
+    -out staging/src/github.com/sentinez/core/modsec/gen/v4-16-0 \
+    -file deploy/ruleroot/v4-16-0/*.conf
 
 ruleparser-sentinez \
     -out staging/src/github.com/sentinez/core/modsec/gen/v4-17-0 \
