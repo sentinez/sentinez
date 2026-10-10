@@ -86,7 +86,8 @@ See [05-dataplane-ebpf.md](05-dataplane-ebpf.md).
 cd ui && pnpm install && pnpm dev   # turbo dev for console/web
 ```
 
-The console reads `NEXT_PUBLIC_BASE_PATH` (default `http://localhost:8080`).
+The console calls `/api`, which its Next.js server forwards to
+`API_BASE_PATH` (server-only, default `http://localhost:8080`).
 
 ## 2.3 Environment variables
 

@@ -6,21 +6,18 @@ import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import {
-  DEFAULT_PRIORITY,
   SecRuleFields,
   SecRuleFormValue,
-  actionParamsOf,
-  createEmptyExpression,
-  paramRowsOf,
+  createEmptySecRuleForm,
+  secRuleFormOf,
+  secRuleOf,
   validateSecRuleForm,
 } from '../../components';
-import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { getSecRule, updateSecRule } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
-const UPDATE_MASK = 'name,description,expr,action,status,priority';
+const UPDATE_MASK = ['name', 'description', 'expr', 'action', 'status', 'priority'];
 
 export default function EditSecRulePage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('SecRule');
@@ -31,15 +28,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
   const [saving, setSaving] = useState(false);
   const [id, setId] = useState<string | null>(null);
 
-  const [form, setForm] = useState<SecRuleFormValue>({
-    name: '',
-    description: '',
-    priority: DEFAULT_PRIORITY,
-    actionParams: [],
-    status: Status.STATUS_ACTIVE,
-    action: ActionType.ACTION_TYPE_BLOCK,
-    expr: createEmptyExpression(),
-  });
+  const [form, setForm] = useState<SecRuleFormValue>(createEmptySecRuleForm);
   const patchForm = (patch: Partial<SecRuleFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   useEffect(() => {
@@ -47,19 +36,8 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
       try {
         const { id } = await params;
         setId(id);
-        const r = (await getSecRule(id)).ingressRuntime;
-        setForm({
-          name: r?.name || '',
-          description: r?.description || '',
-          priority: r?.priority || DEFAULT_PRIORITY,
-          status: r?.status ?? Status.STATUS_ACTIVE,
-          action: r?.action?.type ?? ActionType.ACTION_TYPE_BLOCK,
-          actionParams: paramRowsOf(
-            r?.action?.type ?? ActionType.ACTION_TYPE_BLOCK,
-            r?.action?.params,
-          ),
-          expr: r?.expr ?? createEmptyExpression(),
-        });
+        const { secRule } = await getSecRule({ id });
+        if (secRule) setForm(secRuleFormOf(secRule));
       } catch (err: any) {
         toast.error(t('loadDetailFailed'));
       } finally {
@@ -79,21 +57,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
 
     setSaving(true);
     try {
-      await updateSecRule(
-        id,
-        {
-          ingressRuntime: {
-            id,
-            name: form.name,
-            description: form.description,
-            priority: form.priority,
-            status: form.status,
-            expr: form.expr,
-            action: { type: form.action, params: actionParamsOf(form) },
-          },
-        },
-        UPDATE_MASK,
-      );
+      await updateSecRule({ id, secRule: secRuleOf(form, id), updateMask: UPDATE_MASK });
       toast.success(t('updated'));
       router.back();
     } catch (err: any) {

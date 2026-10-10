@@ -40,18 +40,19 @@ import BadgeStatus from '@/components/badge-status';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { TablePagination } from '@/components/table-pagination';
 import type { Pages } from '@/lib/api/pages';
-import { listResources, type TenantResource } from '@/lib/api/tenant';
+import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import { planToJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
+import { listResources } from '@/lib/api/tenant';
 
 // "PLAN_STANDARD" -> "standard", "STATUS_ACTIVE" -> "active"
-const enumLabel = (v: string | undefined, prefix: string) =>
-  (v ?? '').replace(prefix, '').toLowerCase();
+const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
 
-function rowOf(r: TenantResource): Payment {
+function rowOf(r: Resource): Payment {
   return {
-    id: r.id ?? '',
-    plan: enumLabel(r.plan, 'PLAN_'),
-    status: enumLabel(r.status, 'STATUS_') as Payment['status'],
-    name: r.resourceDomain ?? '',
+    id: r.id,
+    plan: enumLabel(planToJSON(r.plan), 'PLAN_'),
+    status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
+    name: r.resourceDomain,
   };
 }
 
@@ -141,7 +142,7 @@ export function ResourceTable() {
   const fetchPage = React.useCallback(async (page: Pages, signal: AbortSignal) => {
     const list = await listResources({ page }, { signal });
     if (!list) throw new Error('list resources failed');
-    return { items: list.resources ?? [], total: Number(list.total ?? 0) };
+    return { items: list.resources, total: list.total };
   }, []);
   const { items, total, pagination, setPagination, pageCount } = usePagedList(
     fetchPage,

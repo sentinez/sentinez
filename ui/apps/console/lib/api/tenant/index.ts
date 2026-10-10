@@ -1,7 +1,23 @@
+import { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import {
+  CreateResourceRequest,
+  CreateResourceResponse,
+  DeleteResourceRequest,
+  DeleteResourceResponse,
+  GetResourceByDomainRequest,
+  GetResourceByDomainResponse,
+  GetResourceRequest,
+  GetResourceResponse,
+  ListResourceRequest,
+  ListResourceResponse,
+  UpdateResourceRequest,
+  UpdateResourceResponse,
+} from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
+import { Plan, Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
-import { type Pages, pageQuery, paginate } from '@/lib/api/pages';
+import { paginate, toQuery } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -9,49 +25,12 @@ export interface ApiOptions {
   signal?: AbortSignal;
 }
 
-/** Wire value of `typesv1Status` in tenant.swagger.json */
-export type TenantStatus = 'STATUS_UNSPECIFIED' | 'STATUS_ACTIVE' | 'STATUS_DISABLE';
-
-/** Wire value of `v1Plan` in tenant.swagger.json */
-export type TenantPlan = 'PLAN_UNSPECIFIED' | 'PLAN_FREE' | 'PLAN_STANDARD' | 'PLAN_PRO';
-
-/** Wire format of `v1Resource` in tenant.swagger.json */
-export interface TenantResource {
-  metadata?: { createdAt?: string; updatedAt?: string };
-  id?: string;
-  /** `v1Setting` (edge setting) as JSON, see Setting.fromJSON */
-  resourceSetting?: Record<string, any>;
-  resourceDomain?: string;
-  resourceName?: string;
-  status?: TenantStatus;
-  plan?: TenantPlan;
-}
-
-/** Wire format of `v1CreateResourceRequest` in tenant.swagger.json */
-export type CreateResourceRequest = Omit<TenantResource, 'id' | 'metadata'>;
-
-/** Wire format of `v1UpdateResourceRequest` in tenant.swagger.json */
-export type UpdateResourceRequest = Omit<TenantResource, 'metadata' | 'resourceSetting'>;
-
-export interface ListResourcesParams {
-  page?: Pages;
-  resourceDomain?: string;
-  resourceName?: string;
-  status?: TenantStatus;
-  plan?: TenantPlan;
-}
-
-/** Wire format of `v1ListResourceResponse` in tenant.swagger.json (total is int64) */
-export interface ListResourcesResult {
-  total?: string;
-  resources?: TenantResource[];
-}
-
 // ─── Sample data (used only when USE_SAMPLE is true) ─────────────────────────
 
 const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ server, protocol });
 
-export const SAMPLE_RESOURCES: TenantResource[] = [
+// Written as proto JSON (the wire format), parsed with Resource.fromJSON
+export const SAMPLE_RESOURCES: Resource[] = [
   {
     metadata: { createdAt: '2026-09-01T08:00:00Z', updatedAt: '2026-10-05T10:30:00Z' },
     id: '0199a6f0-4c1e-7a2b-9d3e-000000000001',
@@ -126,25 +105,28 @@ export const SAMPLE_RESOURCES: TenantResource[] = [
     status: 'STATUS_DISABLE',
     plan: 'PLAN_FREE',
   },
-];
+].map((r) => Resource.fromJSON(r));
 
-const PLANS: TenantPlan[] = ['PLAN_FREE', 'PLAN_STANDARD', 'PLAN_PRO'];
+const PLANS = [Plan.PLAN_FREE, Plan.PLAN_STANDARD, Plan.PLAN_PRO];
 
 // Extra generated resources so the list has several pages to page through
-const generatedResources: TenantResource[] = Array.from({ length: 20 }, (_, i) => {
+const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
   const n = i + 1;
   const day = String(1 + (n % 28)).padStart(2, '0');
   return {
-    metadata: { createdAt: `2026-08-${day}T00:00:00Z`, updatedAt: `2026-09-${day}T00:00:00Z` },
+    metadata: {
+      createdAt: new Date(`2026-08-${day}T00:00:00Z`),
+      updatedAt: new Date(`2026-09-${day}T00:00:00Z`),
+    },
     id: `0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
     resourceDomain: `site${n}.example.com`,
     resourceName: `site${n}`,
-    status: n % 4 === 0 ? 'STATUS_DISABLE' : 'STATUS_ACTIVE',
-    plan: PLANS[n % PLANS.length],
+    status: n % 4 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
+    plan: PLANS[n % PLANS.length] ?? Plan.PLAN_FREE,
   };
 });
 
-let sampleStore: TenantResource[] = [...SAMPLE_RESOURCES, ...generatedResources];
+let sampleStore: Resource[] = [...SAMPLE_RESOURCES, ...generatedResources];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -169,109 +151,119 @@ async function orNull<T>(label: string, run: () => Promise<T>): Promise<T | null
   }
 }
 
-function filterSample(params?: ListResourcesParams): TenantResource[] {
+function filterSample(req: Partial<ListResourceRequest>): Resource[] {
   return sampleStore.filter(
     (r) =>
-      (!params?.resourceDomain || r.resourceDomain === params.resourceDomain) &&
-      (!params?.resourceName || r.resourceName === params.resourceName) &&
-      (!params?.status || params.status === 'STATUS_UNSPECIFIED' || r.status === params.status) &&
-      (!params?.plan || params.plan === 'PLAN_UNSPECIFIED' || r.plan === params.plan),
+      (!req.resourceDomain || r.resourceDomain === req.resourceDomain) &&
+      (!req.resourceName || r.resourceName === req.resourceName) &&
+      (!req.status || r.status === req.status) &&
+      (!req.plan || r.plan === req.plan),
   );
 }
 
 // GET /tenant/resource?id=
-export async function getResource(id: string, options?: ApiOptions) {
+export async function getResource(req: Partial<GetResourceRequest>, options?: ApiOptions) {
   return orNull('fetching resource', () =>
-    withFallback<TenantResource | null>(
-      'getResource',
-      () => sampleStore.find((r) => r.id === id) ?? null,
-    )(async () => {
+    withFallback<GetResourceResponse>('getResource', () => ({
+      resource: sampleStore.find((r) => r.id === req.id),
+    }))(async () => {
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resource`, {
-        params: { id },
+        params: toQuery(GetResourceRequest.toJSON(GetResourceRequest.fromPartial(req))),
         signal: options?.signal,
       });
-      return resp.data?.resource ?? null;
+      return GetResourceResponse.fromJSON(resp.data ?? {});
     }),
   );
 }
 
 // GET /tenant/resource/{resourceDomain}
-export async function getResourceByDomain(domain: string, options?: ApiOptions) {
+export async function getResourceByDomain(req: GetResourceByDomainRequest, options?: ApiOptions) {
   return orNull('fetching resource by domain', () =>
-    withFallback<TenantResource | null>(
-      'getResourceByDomain',
-      () => sampleStore.find((r) => r.resourceDomain === domain) ?? null,
-    )(async () => {
-      const endpoint = `${API_BASE_PATH}/tenant/resource/${encodeURIComponent(domain)}`;
-      const resp = await axios.get(endpoint, { signal: options?.signal });
-      return resp.data?.resource ?? null;
+    withFallback<GetResourceByDomainResponse>('getResourceByDomain', () => ({
+      resource: sampleStore.find((r) => r.resourceDomain === req.resourceDomain),
+    }))(async () => {
+      const domain = encodeURIComponent(req.resourceDomain);
+      const resp = await axios.get(`${API_BASE_PATH}/tenant/resource/${domain}`, {
+        signal: options?.signal,
+      });
+      return GetResourceByDomainResponse.fromJSON(resp.data ?? {});
     }),
   );
 }
 
 // GET /tenant/resources
-export async function listResources(params?: ListResourcesParams, options?: ApiOptions) {
+export async function listResources(req: Partial<ListResourceRequest> = {}, options?: ApiOptions) {
   return orNull('listing resources', () =>
-    withFallback<ListResourcesResult>('listResources', () => {
-      const resources = filterSample(params);
-      return { total: String(resources.length), resources: paginate(resources, params?.page) };
+    withFallback<ListResourceResponse>('listResources', () => {
+      const resources = filterSample(req);
+      return { total: resources.length, resources: paginate(resources, req.page) };
     })(async () => {
-      const { page, ...filters } = params ?? {};
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resources`, {
-        params: { ...filters, ...pageQuery(page) },
+        params: toQuery(ListResourceRequest.toJSON(ListResourceRequest.fromPartial(req))),
         signal: options?.signal,
       });
-      return resp.data ?? {};
+      return ListResourceResponse.fromJSON(resp.data ?? {});
     }),
   );
 }
 
 // POST /tenant/resource
 export async function createResource(
-  data: CreateResourceRequest,
+  req: CreateResourceRequest,
   options?: ApiOptions,
-): Promise<TenantResource> {
-  return withFallback('createResource', () => {
-    const now = new Date().toISOString();
-    const created: TenantResource = {
-      ...data,
+): Promise<CreateResourceResponse> {
+  return withFallback<CreateResourceResponse>('createResource', () => {
+    const now = new Date();
+    const created: Resource = {
+      ...req,
       id: crypto.randomUUID(),
       metadata: { createdAt: now, updatedAt: now },
     };
     sampleStore = [...sampleStore, created];
-    return created;
+    return { resource: created };
   })(async () => {
-    const resp = await axios.post(`${API_BASE_PATH}/tenant/resource`, data, {
-      signal: options?.signal,
-    });
-    return resp.data?.resource ?? {};
+    const resp = await axios.post(
+      `${API_BASE_PATH}/tenant/resource`,
+      CreateResourceRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return CreateResourceResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // PUT /tenant/resource
 export async function updateResource(
-  data: UpdateResourceRequest,
+  req: UpdateResourceRequest,
   options?: ApiOptions,
-): Promise<void> {
-  return withFallback<void>('updateResource', () => {
+): Promise<UpdateResourceResponse> {
+  return withFallback<UpdateResourceResponse>('updateResource', () => {
     sampleStore = sampleStore.map((r) =>
-      r.id === data.id
-        ? { ...r, ...data, metadata: { ...r.metadata, updatedAt: new Date().toISOString() } }
-        : r,
+      r.id === req.id ? { ...r, ...req, metadata: { ...r.metadata, updatedAt: new Date() } } : r,
     );
+    return {};
   })(async () => {
-    await axios.put(`${API_BASE_PATH}/tenant/resource`, data, { signal: options?.signal });
+    const resp = await axios.put(
+      `${API_BASE_PATH}/tenant/resource`,
+      UpdateResourceRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return UpdateResourceResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // DELETE /tenant/resource?id=
-export async function deleteResource(id: string, options?: ApiOptions): Promise<void> {
-  return withFallback<void>('deleteResource', () => {
-    sampleStore = sampleStore.filter((r) => r.id !== id);
+export async function deleteResource(
+  req: DeleteResourceRequest,
+  options?: ApiOptions,
+): Promise<DeleteResourceResponse> {
+  return withFallback<DeleteResourceResponse>('deleteResource', () => {
+    sampleStore = sampleStore.filter((r) => r.id !== req.id);
+    return {};
   })(async () => {
-    await axios.delete(`${API_BASE_PATH}/tenant/resource`, {
-      params: { id },
+    const resp = await axios.delete(`${API_BASE_PATH}/tenant/resource`, {
+      params: toQuery(DeleteResourceRequest.toJSON(req)),
       signal: options?.signal,
     });
+    return DeleteResourceResponse.fromJSON(resp.data ?? {});
   });
 }

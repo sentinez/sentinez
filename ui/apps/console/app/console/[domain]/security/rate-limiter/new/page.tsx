@@ -33,7 +33,7 @@ export default function CreateRateLimitPage() {
 
     setSaving(true);
     try {
-      await createRateLimit(rateLimitOf(form));
+      await createRateLimit({ rateLimit: rateLimitOf(form) });
       toast.success(t('created'));
       router.back();
     } catch {

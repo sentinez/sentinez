@@ -2,22 +2,20 @@
 
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
-import { RateLimit } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { RateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import {
-  DEFAULT_PRIORITY,
   SecRuleFields,
   SecRuleFormValue,
   ValidationTranslator,
-  actionParamsOf,
-  paramRowsOf,
+  createEmptySecRuleForm,
+  secRuleFormOf,
+  secRuleOf,
   validateSecRuleForm,
 } from './sec-rule-fields';
-import { createEmptyExpression } from './query-builder';
 
 export interface RateLimitFormValue extends SecRuleFormValue {
   /** Go duration string, e.g. "10s" */
@@ -31,32 +29,13 @@ export interface RateLimitFormValue extends SecRuleFormValue {
 const DURATION_RE = /^(?:\d+(?:\.\d+)?(?:ns|us|µs|ms|s|m|h))+$/;
 
 export function createEmptyRateLimitForm(): RateLimitFormValue {
-  return {
-    name: '',
-    description: '',
-    priority: DEFAULT_PRIORITY,
-    status: Status.STATUS_ACTIVE,
-    action: ActionType.ACTION_TYPE_BLOCK,
-    actionParams: [],
-    expr: createEmptyExpression(),
-    timeWindow: '1m',
-    maxRequests: 100,
-    timeout: '',
-  };
+  return { ...createEmptySecRuleForm(), timeWindow: '1m', maxRequests: 100, timeout: '' };
 }
 
 /** RateLimit (API) -> form value */
 export function rateLimitFormOf(rl: RateLimit): RateLimitFormValue {
-  const r = rl.ingressRuntime;
-  const action = r?.action?.type ?? ActionType.ACTION_TYPE_BLOCK;
   return {
-    name: r?.name || '',
-    description: r?.description || '',
-    priority: r?.priority || DEFAULT_PRIORITY,
-    status: r?.status ?? Status.STATUS_ACTIVE,
-    action,
-    actionParams: paramRowsOf(action, r?.action?.params),
-    expr: r?.expr ?? createEmptyExpression(),
+    ...secRuleFormOf(rl),
     timeWindow: rl.timeWindow,
     maxRequests: rl.maxRequests,
     timeout: rl.timeout,
@@ -66,19 +45,11 @@ export function rateLimitFormOf(rl: RateLimit): RateLimitFormValue {
 /** Form value -> RateLimit (API) */
 export function rateLimitOf(f: RateLimitFormValue, id = ''): RateLimit {
   return {
-    ingressRuntime: {
-      id,
-      name: f.name,
-      description: f.description,
-      status: f.status,
-      priority: f.priority,
-      expr: f.expr,
-      action: { type: f.action, params: actionParamsOf(f) },
-    },
+    ...secRuleOf(f, id),
     timeWindow: f.timeWindow.trim(),
     maxRequests: f.maxRequests,
     timeout: f.timeout.trim(),
-  } as RateLimit;
+  };
 }
 
 /** Returns an error message, or null when the form is valid */

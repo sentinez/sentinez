@@ -50,8 +50,9 @@ export default function Loading() {
   page.tsx        # 1500 ms delay -> <View />
   loading.tsx
   view.tsx        # list: @tanstack/react-table, filter, column toggle, pagination, delete dialog
-  new/page.tsx    # create form -> create<X>() -> toast + router.back()
-  [id]/page.tsx   # load get<X>(id) -> same form -> update<X>(id, data, UPDATE_MASK)
+  new/page.tsx    # create form -> create<X>({ x: xOf(form) }) -> toast + router.back()
+  [id]/page.tsx   # get<X>({ id }) -> xFormOf(res.x) -> same form
+                  #   -> update<X>({ id, x: xOf(form, id), updateMask: UPDATE_MASK })
   [id]/loading.tsx
 ```
 
@@ -59,8 +60,14 @@ export default function Loading() {
   `PageLayoutContent` from `@/components/page-layout`. Forms sit in
   `<div className="max-w-3xl mx-auto py-4">`.
 - The list links to `./<resource>/<id>` and `./<resource>/new`.
-- Table columns that read nested fields (e.g. `ingressRuntime.name`) use
-  `id` + `accessorFn`, not `accessorKey`, so the name filter works.
+- Rows are the proto models from `@sentinez/proto/sentinez/apps/<domain>/v1/model`
+  (e.g. `SecRule`, `RateLimit`, `Resource`), as returned by `lib/api`. Columns that
+  read nested fields use `id` + `accessorFn`, not `accessorKey`, so the name filter works.
+- The list fetches through `usePagedList`:
+  `const res = await listX({ page }, { signal }); return { items: res.xs, total: res.total };`
+  and deletes with `deleteX({ id })`.
+- Enum fields are numbers: compare against the enum (`Status.STATUS_ACTIVE`); enum
+  names sent as strings (`SecRule.action`) are parsed with `actionTypeFromJSON`.
 - Status uses `statusLabel()` from `@/lib/type/security` with `BadgeStatus`.
 
 ## 3. Forms
@@ -68,9 +75,15 @@ export default function Loading() {
 - Put shared form fields and helpers in the section's `components/` folder and export
   them from `components/index.ts`: a `XxxFormValue` type, `createEmptyXxxForm()`,
   `xxxFormOf(apiModel)`, `xxxOf(form, id?)`, and `validateXxxForm()` that returns an
-  error string or `null`.
-- Reuse existing field components instead of copying them. Example: `RateLimitFields`
-  wraps `SecRuleFields` and adds its own inputs.
+  error string or `null`. `apiModel` / the return of `xxxOf` is the proto model type
+  (see `secRuleFormOf` / `secRuleOf` in `sec-rule-fields.tsx`).
+- `UPDATE_MASK` is a `string[]` of proto field names (`['name', 'time_window']`), the
+  type of `updateMask` in the generated request.
+- Reuse existing field components and helpers instead of copying them. Example:
+  `RateLimitFields` wraps `SecRuleFields`, and `rateLimitFormOf` / `rateLimitOf` spread
+  `secRuleFormOf` / `secRuleOf`.
+- Selects over proto enums (numbers) use `value={String(v)}` and
+  `onValueChange={(v) => onChange(Number(v) as Plan)}`.
 - Validation mirrors the backend (proto `buf.validate` + service checks), and errors are
   shown with `toast.error(msg)`.
 - Pages keep the form state as `useState<XxxFormValue>` with a

@@ -84,7 +84,8 @@ Xem [05-dataplane-ebpf.md](05-dataplane-ebpf.md).
 cd ui && pnpm install && pnpm dev   # turbo dev cho console/web
 ```
 
-Console đọc `NEXT_PUBLIC_BASE_PATH` (mặc định `http://localhost:8080`).
+Console gọi `/api`, server Next.js chuyển tiếp tới `API_BASE_PATH`
+(chỉ có ở server, mặc định `http://localhost:8080`).
 
 ## 2.3 Biến môi trường
 

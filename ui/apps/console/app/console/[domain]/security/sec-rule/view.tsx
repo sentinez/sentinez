@@ -40,11 +40,15 @@ import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { listSecRulesWithTotal, type Pages, deleteSecRule } from '@/lib/api/security';
+import { listSecRules, type Pages, deleteSecRule } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { Badge } from '@sentinez/ui/components/badge';
-import { SecRule } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
-import { ActionType, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
+import { ActionValue, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import {
+  ActionType,
+  Expression,
+  actionTypeFromJSON,
+} from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { ACTION_TYPE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { TablePagination } from '@/components/table-pagination';
@@ -70,9 +74,9 @@ export const getColumns = (
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./sec-rule/${row.original.ingressRuntime?.id}`}
+          href={`./sec-rule/${row.original.id}`}
         >
-          {row.original.ingressRuntime?.name}
+          {row.original.name}
         </Link>
       </div>
     ),
@@ -83,8 +87,8 @@ export const getColumns = (
     meta: { label: t('description') },
     header: () => <div>{t('description')}</div>,
     cell: ({ row }) => (
-      <div className="truncate" title={row.original.ingressRuntime?.description}>
-        {row.original.ingressRuntime?.description}
+      <div className="truncate" title={row.original.description}>
+        {row.original.description}
       </div>
     ),
   },
@@ -94,10 +98,10 @@ export const getColumns = (
     meta: { label: t('action') },
     header: () => <div>{t('action')}</div>,
     cell: ({ row }) => {
-      const action = row.original.ingressRuntime?.action;
-      const type = action?.type ?? ActionType.ACTION_TYPE_UNSPECIFIED;
+      const { action, actionValue } = row.original;
+      const type = action ? actionTypeFromJSON(action) : ActionType.ACTION_TYPE_UNSPECIFIED;
       const label = actionTypeLabel(type);
-      const params = action?.params ? JSON.stringify(action.params) : undefined;
+      const params = actionValue ? JSON.stringify(ActionValue.toJSON(actionValue)) : undefined;
       return (
         <div className="truncate" title={params}>
           <Badge variant={ACTION_TYPE_BADGE_VARIANT[type]}>{label}</Badge>
@@ -111,7 +115,7 @@ export const getColumns = (
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.ingressRuntime?.status);
+      const s = statusLabel(row.original.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s as any} value={s} />
@@ -125,7 +129,7 @@ export const getColumns = (
     meta: { label: t('priority') },
     header: () => <div className="w-full text-right">{t('priority')}</div>,
     cell: ({ row }) => {
-      return <div className="w-full text-right">{row.original.ingressRuntime?.priority}</div>;
+      return <div className="w-full text-right">{row.original.priority}</div>;
     },
   },
   {
@@ -141,9 +145,7 @@ export const getColumns = (
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(row.original.ingressRuntime?.id || '')}
-            >
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id || '')}>
               {t('copyRuleId')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
@@ -169,7 +171,7 @@ export default function View() {
   const [rowSelection, setRowSelection] = useState({});
 
   const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
-    const res = await listSecRulesWithTotal({ page }, { signal });
+    const res = await listSecRules({ page }, { signal });
     return { items: res.secRules, total: res.total };
   }, []);
   const {
@@ -183,11 +185,11 @@ export default function View() {
   } = usePagedList(fetchPage, t('loadFailed'));
 
   const handleDelete = async () => {
-    const id = deleting?.ingressRuntime?.id;
+    const id = deleting?.id;
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteSecRule(id);
+      await deleteSecRule({ id });
       toast.success(t('deleted'));
       setDeleting(null);
       refresh();
@@ -330,7 +332,7 @@ export default function View() {
           <DialogHeader>
             <DialogTitle>{t('deleteTitle')}</DialogTitle>
             <DialogDescription>
-              {tc('deleteConfirm', { name: deleting?.ingressRuntime?.name ?? '' })}
+              {tc('deleteConfirm', { name: deleting?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
