@@ -1,4 +1,4 @@
-go run cmd/ruleparser-sentinez/main.go \
+go run ./cmd/ruleparser-sentinez \
  -out gen/sentinezrules \
  -file testdata/REQUEST-932-APPLICATION-ATTACK-RCE.conf
 

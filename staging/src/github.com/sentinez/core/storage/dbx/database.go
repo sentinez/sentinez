@@ -70,12 +70,22 @@ type ExecResult interface {
 }
 
 type Table struct {
-	Column ColumnM
-	Table  string
+	Column  ColumnM
+	Indexes []Index
+	Table   string
 }
 
 type Option func(*Table)
 
 type ColumnType string
+
+// IndexMethod access method of an index, ex: GIN.
+type IndexMethod string
+
+// Index a single column index, created when the table is synced.
+type Index struct {
+	Column string
+	Method IndexMethod
+}
 
 type ColumnM map[string]ColumnType

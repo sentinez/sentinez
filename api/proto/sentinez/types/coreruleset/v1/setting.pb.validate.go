@@ -309,8 +309,6 @@ func (m *Exclusion) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Location
-
 	for idx, item := range m.GetTargets() {
 		_, _ = idx, item
 
@@ -324,6 +322,16 @@ func (m *Exclusion) Validate() error {
 			}
 		}
 
+	}
+
+	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExclusionValidationError{
+				field:  "Expr",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
 
 	return nil
@@ -464,7 +472,15 @@ func (m *RuleOverride) Validate() error {
 
 	// no validation rules for State
 
-	// no validation rules for Location
+	if v, ok := interface{}(m.GetExpr()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleOverrideValidationError{
+				field:  "Expr",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }

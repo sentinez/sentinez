@@ -20,15 +20,17 @@ import (
 	"regexp"
 	"strings"
 
+	crslang "github.com/coreruleset/crslang/types"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // IDs of the rules generated from a setting, kept below the CRS range
 // (900000-999999) so they never collide with a CRS rule.
 const (
-	_settingRuleID  = 899000
-	_locationRuleID = 899001
+	_settingRuleID = 899000
+	_scopedRuleID  = 899001
 )
 
 // ErrInvalidSetting a setting value cannot be mapped to a directive.
@@ -43,7 +45,6 @@ var (
 	)
 	_tagRe      = regexp.MustCompile(`^[A-Za-z0-9_./-]+$`)
 	_variableRe = regexp.MustCompile(`^[A-Z_]+(:[^\s"'\\,;|]+)?$`)
-	_locationRe = regexp.MustCompile(`^/[A-Za-z0-9_.~!$&()*+,;=:@%/-]*$`)
 )
 
 // nolint:lll
@@ -116,14 +117,15 @@ func blockingLevel(s *corerulesetpb.CoreRuleset) uint32 {
 	return max(s.GetParanoiaLevel(), 1)
 }
 
-// ruleStates global (not location scoped) rule state overrides by rule ID.
+// ruleStates global (not expression scoped) rule state overrides by rule
+// ID.
 func ruleStates(
 	s *corerulesetpb.CoreRuleset,
 ) map[uint32]corerulesetpb.RuleState {
 	states := make(map[uint32]corerulesetpb.RuleState, len(s.GetOverrides()))
 
 	for _, o := range s.GetOverrides() {
-		if o.GetLocation() == "" {
+		if !hasExpr(o.GetExpr()) {
 			states[o.GetId()] = o.GetState()
 		}
 	}
@@ -168,10 +170,6 @@ func validateRequest(r *corerulesetpb.RequestPolicy) error {
 }
 
 func validateExclusion(e *corerulesetpb.Exclusion) error {
-	if err := validateLocation(e.GetLocation()); err != nil {
-		return err
-	}
-
 	for _, tag := range e.GetTags() {
 		if !_tagRe.MatchString(tag) {
 			return fmt.Errorf("%w: tag %q", ErrInvalidSetting, tag)
@@ -186,17 +184,15 @@ func validateExclusion(e *corerulesetpb.Exclusion) error {
 		}
 	}
 
-	return nil
+	_, err := exprChains(e.GetExpr())
+
+	return err
 }
 
-// validateOverride only removing a rule can be scoped to a location, the
-// other states rewrite the rule itself when the rulesets are loaded.
+// validateOverride only removing a rule can be scoped to an expression,
+// the other states rewrite the rule itself when the rulesets are loaded.
 func validateOverride(o *corerulesetpb.RuleOverride) error {
-	if err := validateLocation(o.GetLocation()); err != nil {
-		return err
-	}
-
-	if o.GetLocation() == "" {
+	if !hasExpr(o.GetExpr()) {
 		return nil
 	}
 
@@ -204,25 +200,19 @@ func validateOverride(o *corerulesetpb.RuleOverride) error {
 	case corerulesetpb.RuleState_RULE_STATE_DETECTION_ONLY,
 		corerulesetpb.RuleState_RULE_STATE_ENABLED:
 		return fmt.Errorf(
-			"%w: rule %d state %s cannot be scoped to location %q",
-			ErrInvalidSetting, o.GetId(), o.GetState(), o.GetLocation(),
+			"%w: rule %d state %s cannot be scoped to an expression",
+			ErrInvalidSetting, o.GetId(), o.GetState(),
 		)
 	}
 
-	return nil
-}
+	_, err := exprChains(o.GetExpr())
 
-func validateLocation(location string) error {
-	if location != "" && !_locationRe.MatchString(location) {
-		return fmt.Errorf("%w: location %q", ErrInvalidSetting, location)
-	}
-
-	return nil
+	return err
 }
 
 // setupDirectives maps the setting to the directives overriding setup.conf
-// plus the location scoped exclusions. They are loaded after the setup
-// rules and before REQUEST-901-INITIALIZATION.
+// plus the exclusions and overrides scoped to an expression. They are
+// loaded after the setup rules and before REQUEST-901-INITIALIZATION.
 func setupDirectives(s *corerulesetpb.CoreRuleset) string {
 	var sb strings.Builder
 
@@ -237,7 +227,7 @@ func setupDirectives(s *corerulesetpb.CoreRuleset) string {
 		"SecAction \"id:%d,phase:1,pass,t:none,nolog,%s\"\n",
 		_settingRuleID, strings.Join(setupVars(s), ","),
 	)
-	writeLocationRules(&sb, s)
+	writeScopedRules(&sb, s)
 
 	return sb.String()
 }
@@ -314,26 +304,24 @@ func thresholdVars(t *corerulesetpb.AnomalyThreshold) []string {
 	return vars
 }
 
-// writeLocationRules exclusions and overrides scoped to a path prefix are
+// writeScopedRules exclusions and overrides scoped to an expression are
 // applied per transaction with ctl actions.
-func writeLocationRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
-	id := _locationRuleID
+func writeScopedRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
+	id := _scopedRuleID
 
-	write := func(location string, ctls []string) {
-		if location == "" || len(ctls) == 0 {
+	write := func(expr *rulepb.Expression, ctls []string) {
+		if !hasExpr(expr) {
 			return
 		}
 
-		fmt.Fprintf(sb,
-			"SecRule REQUEST_FILENAME \"@beginsWith %s\" "+
-				"\"id:%d,phase:1,pass,t:none,nolog,%s\"\n",
-			location, id, strings.Join(ctls, ","),
-		)
-		id++
+		for _, rule := range scopedRules(id, expr, ctls) {
+			sb.WriteString(rule.ToSeclang())
+			id++
+		}
 	}
 
 	for _, e := range s.GetExclusions() {
-		write(e.GetLocation(), exclusionCtls(e))
+		write(e.GetExpr(), exclusionCtls(e))
 	}
 
 	for _, o := range s.GetOverrides() {
@@ -341,39 +329,117 @@ func writeLocationRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
 			continue
 		}
 
-		write(o.GetLocation(), []string{
-			fmt.Sprintf("ctl:ruleRemoveById=%d", o.GetId()),
+		write(o.GetExpr(), []string{
+			fmt.Sprintf("ruleRemoveById=%d", o.GetId()),
 		})
 	}
 }
 
+// scopedRules the rules applying the ctls to the transactions matching
+// expr, IDs starting at id. The expression is translated to SecLang: one
+// chain per conjunction of its conditions.
+func scopedRules(
+	id int, expr *rulepb.Expression, ctls []string,
+) []crslang.ChainableDirective {
+	// The setting is validated before any directive is generated.
+	chains, err := exprChains(expr)
+	if err != nil || len(ctls) == 0 {
+		return nil
+	}
+
+	rules := make([]crslang.ChainableDirective, 0, len(chains))
+	for i, chain := range chains {
+		rules = append(rules, chainRule(id+i, chain, ctls))
+	}
+
+	return rules
+}
+
+// chainRule chains the links into one rule running the ctls when they
+// all match. The ctls sit on the last link: the actions of the others
+// run as soon as their own link matches.
+func chainRule(
+	id int, links []*crslang.SecRule, ctls []string,
+) crslang.ChainableDirective {
+	apply := make([]crslang.Action, 0, len(ctls))
+	for _, ctl := range ctls {
+		apply = append(apply, crslang.ActionWithParam{"ctl": ctl})
+	}
+
+	if len(links) == 0 {
+		action := crslang.NewSecAction()
+		action.Transformations.Transformations = []crslang.Transformation{
+			crslang.None,
+		}
+		setHead(action.Metadata, action.Actions, id)
+		action.Actions.NonDisruptiveActions = append(
+			action.Actions.NonDisruptiveActions, apply...,
+		)
+
+		return action
+	}
+
+	for i, link := range links[:len(links)-1] {
+		link.Actions.FlowActions = []crslang.Action{
+			crslang.ActionOnly(crslang.Chain.String()),
+		}
+		link.ChainedRule = links[i+1]
+	}
+
+	setHead(links[0].Metadata, links[0].Actions, id)
+
+	last := links[len(links)-1].Actions
+	last.NonDisruptiveActions = append(last.NonDisruptiveActions, apply...)
+
+	return links[0]
+}
+
+// setHead ID, phase and actions of the first rule of a chain.
+func setHead(
+	meta *crslang.SecRuleMetadata, actions *crslang.SeclangActions, id int,
+) {
+	meta.Id = id
+	meta.Phase = "1"
+	actions.DisruptiveAction = crslang.ActionOnly(crslang.Pass.String())
+	actions.NonDisruptiveActions = []crslang.Action{
+		crslang.ActionOnly(crslang.NoLog.String()),
+	}
+}
+
+// hasExpr reports whether the expression scopes a setting to the requests
+// matching it, empty = every request.
+func hasExpr(expr *rulepb.Expression) bool {
+	return len(expr.GetOrCondition()) > 0
+}
+
+// exclusionCtls parameters of the ctl actions applying the exclusion.
 func exclusionCtls(e *corerulesetpb.Exclusion) []string {
 	ctls := make([]string, 0, len(e.GetTags())+len(e.GetTargets()))
 
 	for _, tag := range e.GetTags() {
-		ctls = append(ctls, "ctl:ruleRemoveByTag="+tag)
+		ctls = append(ctls, "ruleRemoveByTag="+tag)
 	}
 
 	for _, t := range e.GetTargets() {
 		ctls = append(ctls, fmt.Sprintf(
-			"ctl:ruleRemoveTargetById=%d;%s", t.GetRuleId(), t.GetVariable(),
+			"ruleRemoveTargetById=%d;%s", t.GetRuleId(), t.GetVariable(),
 		))
 	}
 
 	return ctls
 }
 
-// globalDirectives maps the exclusions and overrides without a location
-// to configure-time directives. They change rules already defined, so
-// they are loaded after every ruleset; loaded reports whether a rule ID
-// is part of the loaded rulesets.
+// globalDirectives maps the exclusions and overrides without an
+// expression to configure-time directives. They change rules already
+// defined, so they are loaded after every ruleset; loaded reports whether
+// a rule ID is part of the loaded rulesets.
 func globalDirectives(
 	s *corerulesetpb.CoreRuleset, loaded func(id uint32) bool,
 ) string {
 	var sb strings.Builder
 
 	for _, e := range s.GetExclusions() {
-		if e.GetLocation() != "" {
+		if hasExpr(e.GetExpr()) {
 			continue
 		}
 
@@ -394,7 +460,7 @@ func globalDirectives(
 	}
 
 	for _, o := range s.GetOverrides() {
-		if o.GetLocation() == "" &&
+		if !hasExpr(o.GetExpr()) &&
 			o.GetState() == corerulesetpb.RuleState_RULE_STATE_DISABLED {
 			fmt.Fprintf(&sb, "SecRuleRemoveById %d\n", o.GetId())
 		}

@@ -21,6 +21,8 @@ import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 import "sentinez/types/rule/v1/rule.proto";
+import "sentinez/types/coreruleset/v1/setting.proto";
+
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 
@@ -80,4 +82,20 @@ message RateLimit {
 message ActionValue {
   string str_value = 1;
   map<string, string> map_value = 2;
+}
+
+message CoreRuleset {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  sentinez.types.v1.Metadata metadata = 1;
+
+  string id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.security.coreruleset." }
+  }];
+
+  string name = 3;
+  string description = 4;
+
+  sentinez.types.coreruleset.v1.CoreRuleset content = 5;
 }

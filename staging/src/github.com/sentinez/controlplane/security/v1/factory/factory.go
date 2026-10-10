@@ -18,6 +18,7 @@ import (
 	"context"
 
 	securityhdl "github.com/sentinez/controlplane/security/v1/handler"
+	"github.com/sentinez/controlplane/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/security/v1/repos/secrule"
 	securitysvc "github.com/sentinez/controlplane/security/v1/service"
@@ -49,5 +50,12 @@ func NewDefaultService(ctx context.Context,
 		zlog.Fatalf("failed to init ratelimit repo: %v", err)
 	}
 
-	return securitysvc.New(appConf, secRuleRepo, rateLimitRepo)
+	coreRulesetRepo, err := coreruleset.New(ctx, appConf)
+	if err != nil {
+		zlog.Fatalf("failed to init coreruleset repo: %v", err)
+	}
+
+	return securitysvc.New(
+		appConf, secRuleRepo, rateLimitRepo, coreRulesetRepo,
+	)
 }

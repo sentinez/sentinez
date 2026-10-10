@@ -7,6 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CDN } from "../../../types/cdn/v1/rule";
+import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
 import { SecRule as SecRule1, SecRuleLite } from "../../../types/secrule/v1/engine";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
@@ -141,15 +142,14 @@ export interface Location_ProxySetHeadersEntry {
 
 /** Security user-specific WAF, rate limiting, or bot protection rules */
 export interface Security {
-  /** @gotags: yaml:"rulesets" */
-  rulesets: Rulesets[];
+  /** @gotags: yaml:"core_ruleset" */
+  coreRuleset?:
+    | CoreRuleset
+    | undefined;
   /** @gotags: yaml:"sec_rules" */
   secRules: SecRule[];
   /** @gotags: yaml:"limiters" */
   limiters: RateLimit[];
-}
-
-export interface Rulesets {
 }
 
 export interface SecRule {
@@ -785,13 +785,13 @@ export const Location_ProxySetHeadersEntry: MessageFns<Location_ProxySetHeadersE
 };
 
 function createBaseSecurity(): Security {
-  return { rulesets: [], secRules: [], limiters: [] };
+  return { coreRuleset: undefined, secRules: [], limiters: [] };
 }
 
 export const Security: MessageFns<Security> = {
   encode(message: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.rulesets) {
-      Rulesets.encode(v!, writer.uint32(10).fork()).join();
+    if (message.coreRuleset !== undefined) {
+      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
     }
     for (const v of message.secRules) {
       SecRule.encode(v!, writer.uint32(18).fork()).join();
@@ -820,7 +820,7 @@ export const Security: MessageFns<Security> = {
               break;
             }
 
-            message.rulesets.push(Rulesets.decode(reader, reader.uint32()));
+            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -853,7 +853,11 @@ export const Security: MessageFns<Security> = {
 
   fromJSON(object: any): Security {
     return {
-      rulesets: globalThis.Array.isArray(object?.rulesets) ? object.rulesets.map((e: any) => Rulesets.fromJSON(e)) : [],
+      coreRuleset: isSet(object.coreRuleset)
+        ? CoreRuleset.fromJSON(object.coreRuleset)
+        : isSet(object.core_ruleset)
+        ? CoreRuleset.fromJSON(object.core_ruleset)
+        : undefined,
       secRules: globalThis.Array.isArray(object?.secRules)
         ? object.secRules.map((e: any) => SecRule.fromJSON(e))
         : globalThis.Array.isArray(object?.sec_rules)
@@ -867,8 +871,8 @@ export const Security: MessageFns<Security> = {
 
   toJSON(message: Security): unknown {
     const obj: any = {};
-    if (message.rulesets?.length) {
-      obj.rulesets = message.rulesets.map((e) => Rulesets.toJSON(e));
+    if (message.coreRuleset !== undefined) {
+      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
     }
     if (message.secRules?.length) {
       obj.secRules = message.secRules.map((e) => SecRule.toJSON(e));
@@ -884,61 +888,11 @@ export const Security: MessageFns<Security> = {
   },
   fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
-    message.rulesets = object.rulesets?.map((e) => Rulesets.fromPartial(e)) || [];
+    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
+      ? CoreRuleset.fromPartial(object.coreRuleset)
+      : undefined;
     message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
     message.limiters = object.limiters?.map((e) => RateLimit.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseRulesets(): Rulesets {
-  return {};
-}
-
-export const Rulesets: MessageFns<Rulesets> = {
-  encode(_: Rulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): Rulesets {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
-    if (previousRecursionDepth >= 100) {
-      throw new globalThis.Error("protobuf decode recursion limit exceeded");
-    }
-    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
-    try {
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRulesets();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    } finally {
-      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
-    }
-  },
-
-  fromJSON(_: any): Rulesets {
-    return {};
-  },
-
-  toJSON(_: Rulesets): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<Rulesets>, I>>(base?: I): Rulesets {
-    return Rulesets.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<Rulesets>, I>>(_: I): Rulesets {
-    const message = createBaseRulesets();
     return message;
   },
 };

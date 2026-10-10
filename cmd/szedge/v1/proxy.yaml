@@ -98,7 +98,7 @@ setting:
       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
       # ENGINE_MODE_ON (block)
       mode: ENGINE_MODE_ON
-      # VERSION_V4_16_0 (RCE, SQLi only) | VERSION_V4_17_0 (default)
+      # VERSION_V4_16_0 (no 956 Ruby group) | VERSION_V4_17_0 (default)
       version: VERSION_V4_17_0
 
       # 1 (fewest false positives) .. 4 (strictest).
@@ -150,24 +150,54 @@ setting:
         #   - application/x-www-form-urlencoded
         #   - multipart/form-data
 
-      # False-positive tuning. Without a location it applies to the
-      # whole namespace, with one only to that path prefix.
+      # False-positive tuning. Without an expression it applies to
+      # the whole namespace, with one only to the requests matching
+      # it (same syntax as sec_rules; the BODY, JA4 and TLS sources
+      # are not supported).
       exclusions:
         # Skip every SQLi rule under /api/search.
-        - location: /api/search
-          tags: [attack-sqli]
+        - tags: [attack-sqli]
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_PATH
+                    operator: OPERATOR_PREFIX
+                    value: "/api/search"
         # Do not inspect the "password" argument with rule 942100.
         - targets:
             - ruleId: 942100
               variable: ARGS:password
+        # Skip the RCE rules for POSTs coming from 10.0.0.10.
+        - tags: [attack-rce]
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_IP
+                    key: "10.0.0.10"
+                    operator: OPERATOR_EQ
+                    value: "10.0.0.10"
 
-      # Per-rule state. DETECTION_ONLY and ENABLED cannot be scoped
-      # to a location.
+                - condition:
+                    source: FIELD_SOURCE_METHOD
+                    key: "POST"
+                    operator: OPERATOR_EQ
+                    value: "POST"
+
+      # Per-rule state. Only DISABLED can be scoped to an expression
+      # (same as exclusions), the other states are global.
       overrides:
         # Remove the rule under /webhook only.
         - id: 920420
           state: RULE_STATE_DISABLED
-          location: /webhook
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_PATH
+                    operator: OPERATOR_PREFIX
+                    value: "/webhook"
         # Keep logging the rule, never count it toward blocking.
         - id: 942430
           state: RULE_STATE_DETECTION_ONLY

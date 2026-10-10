@@ -20,6 +20,522 @@
     "application/json"
   ],
   "paths": {
+    "/security/coreruleset": {
+      "post": {
+        "summary": "CreateCoreRuleset creates a new OWASP CRS configuration",
+        "operationId": "SecurityService_CreateCoreRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateCoreRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateCoreRulesetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/coreruleset/{id}": {
+      "get": {
+        "summary": "GetCoreRuleset retrieves an OWASP CRS configuration by ID",
+        "operationId": "SecurityService_GetCoreRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCoreRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteCoreRuleset removes an OWASP CRS configuration by ID",
+        "operationId": "SecurityService_DeleteCoreRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteCoreRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateCoreRuleset updates an existing OWASP CRS configuration",
+        "operationId": "SecurityService_UpdateCoreRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateCoreRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateCoreRulesetBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/corerulesets": {
+      "get": {
+        "summary": "ListCoreRulesets lists OWASP CRS configurations, filtered by their\nname or by the fields of their content",
+        "operationId": "SecurityService_ListCoreRulesets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListCoreRulesetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "name",
+            "description": "Case-insensitive part of the name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "modes",
+            "description": " - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ENGINE_MODE_UNSPECIFIED",
+                "ENGINE_MODE_OFF",
+                "ENGINE_MODE_DETECTION_ONLY",
+                "ENGINE_MODE_ON"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "versions",
+            "description": " - VERSION_UNSPECIFIED: = latest supported",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "VERSION_UNSPECIFIED",
+                "VERSION_V4_16_0",
+                "VERSION_V4_17_0"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "statuses",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "STATUS_UNSPECIFIED",
+                "STATUS_ACTIVE",
+                "STATUS_DISABLE"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "paranoiaLevel",
+            "description": "content.paranoia_level, 0 = any.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "categories",
+            "description": "Rule groups all listed in content.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CATEGORY_UNSPECIFIED",
+                "CATEGORY_COMMON_EXCEPTIONS",
+                "CATEGORY_METHOD_ENFORCEMENT",
+                "CATEGORY_SCANNER_DETECTION",
+                "CATEGORY_PROTOCOL_ENFORCEMENT",
+                "CATEGORY_PROTOCOL_ATTACK",
+                "CATEGORY_MULTIPART_ATTACK",
+                "CATEGORY_LFI",
+                "CATEGORY_RFI",
+                "CATEGORY_RCE",
+                "CATEGORY_PHP",
+                "CATEGORY_GENERIC",
+                "CATEGORY_XSS",
+                "CATEGORY_SQLI",
+                "CATEGORY_SESSION_FIXATION",
+                "CATEGORY_JAVA",
+                "CATEGORY_DATA_LEAKAGES",
+                "CATEGORY_DATA_LEAKAGES_SQL",
+                "CATEGORY_DATA_LEAKAGES_JAVA",
+                "CATEGORY_DATA_LEAKAGES_PHP",
+                "CATEGORY_DATA_LEAKAGES_IIS",
+                "CATEGORY_WEB_SHELLS",
+                "CATEGORY_DATA_LEAKAGES_RUBY"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "exclusionTags",
+            "description": "Tags excluded by content.exclusions.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "exclusionRuleIds",
+            "description": "Rules with a variable excluded by content.exclusions.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "overrideRuleIds",
+            "description": "Rules with a state changed by content.overrides.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/crs/rules": {
+      "get": {
+        "summary": "ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset\ncan exclude or override, with their tags",
+        "operationId": "SecurityService_ListRuleInfos",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRuleInfosResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "version",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "VERSION_UNSPECIFIED",
+              "VERSION_V4_16_0",
+              "VERSION_V4_17_0"
+            ],
+            "default": "VERSION_UNSPECIFIED"
+          },
+          {
+            "name": "search",
+            "description": "Case-insensitive part of the message or of a tag, or the leading\ndigits of the ID (ex: \"9421\").",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "categories",
+            "description": " - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CATEGORY_UNSPECIFIED",
+                "CATEGORY_COMMON_EXCEPTIONS",
+                "CATEGORY_METHOD_ENFORCEMENT",
+                "CATEGORY_SCANNER_DETECTION",
+                "CATEGORY_PROTOCOL_ENFORCEMENT",
+                "CATEGORY_PROTOCOL_ATTACK",
+                "CATEGORY_MULTIPART_ATTACK",
+                "CATEGORY_LFI",
+                "CATEGORY_RFI",
+                "CATEGORY_RCE",
+                "CATEGORY_PHP",
+                "CATEGORY_GENERIC",
+                "CATEGORY_XSS",
+                "CATEGORY_SQLI",
+                "CATEGORY_SESSION_FIXATION",
+                "CATEGORY_JAVA",
+                "CATEGORY_DATA_LEAKAGES",
+                "CATEGORY_DATA_LEAKAGES_SQL",
+                "CATEGORY_DATA_LEAKAGES_JAVA",
+                "CATEGORY_DATA_LEAKAGES_PHP",
+                "CATEGORY_DATA_LEAKAGES_IIS",
+                "CATEGORY_WEB_SHELLS",
+                "CATEGORY_DATA_LEAKAGES_RUBY"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "paranoiaLevels",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "severities",
+            "description": "CRITICAL, ERROR, WARNING, NOTICE; case-insensitive.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "tags",
+            "description": "Tags the rule all carries, ex: \"attack-sqli\".",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includeSystem",
+            "description": "System rules (init, evaluation, flow control) cannot be overridden,\nthey are left out unless asked for.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/crs/rules/{id}": {
+      "get": {
+        "summary": "GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID",
+        "operationId": "SecurityService_GetRuleInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRuleInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "version",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "VERSION_UNSPECIFIED",
+              "VERSION_V4_16_0",
+              "VERSION_V4_17_0"
+            ],
+            "default": "VERSION_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
     "/security/ratelimit": {
       "post": {
         "summary": "CreateRateLimit creates a new rate limit rule",
@@ -415,6 +931,17 @@
     }
   },
   "definitions": {
+    "SecurityServiceUpdateCoreRulesetBody": {
+      "type": "object",
+      "properties": {
+        "coreRuleset": {
+          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        },
+        "updateMask": {
+          "type": "string"
+        }
+      }
+    },
     "SecurityServiceUpdateRateLimitBody": {
       "type": "object",
       "properties": {
@@ -434,6 +961,26 @@
         },
         "updateMask": {
           "type": "string"
+        }
+      }
+    },
+    "appssecurityv1CoreRuleset": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "content": {
+          "$ref": "#/definitions/typescorerulesetv1CoreRuleset"
         }
       }
     },
@@ -489,6 +1036,65 @@
       },
       "title": "A complete rule definition"
     },
+    "typescorerulesetv1CoreRuleset": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        },
+        "version": {
+          "$ref": "#/definitions/v1Version",
+          "title": "@gotags: yaml:\"version\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
+        },
+        "detectionParanoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
+        },
+        "threshold": {
+          "$ref": "#/definitions/v1AnomalyThreshold",
+          "title": "@gotags: yaml:\"threshold\""
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Category"
+          },
+          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
+        },
+        "request": {
+          "$ref": "#/definitions/v1RequestPolicy",
+          "title": "@gotags: yaml:\"request\""
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Exclusion"
+          },
+          "title": "@gotags: yaml:\"exclusions\""
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleOverride"
+          },
+          "title": "@gotags: yaml:\"overrides\""
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status",
+          "title": "@gotags: yaml:\"status\""
+        }
+      },
+      "description": "CoreRuleset OWASP CRS configuration of a server (namespace)."
+    },
     "typesv1Status": {
       "type": "string",
       "enum": [
@@ -531,6 +1137,56 @@
         }
       }
     },
+    "v1AnomalyThreshold": {
+      "type": "object",
+      "properties": {
+        "inbound": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"inbound\""
+        },
+        "outbound": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"outbound\""
+        },
+        "earlyBlocking": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"earlyBlocking\""
+        }
+      },
+      "description": "AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default."
+    },
+    "v1Category": {
+      "type": "string",
+      "enum": [
+        "CATEGORY_UNSPECIFIED",
+        "CATEGORY_COMMON_EXCEPTIONS",
+        "CATEGORY_METHOD_ENFORCEMENT",
+        "CATEGORY_SCANNER_DETECTION",
+        "CATEGORY_PROTOCOL_ENFORCEMENT",
+        "CATEGORY_PROTOCOL_ATTACK",
+        "CATEGORY_MULTIPART_ATTACK",
+        "CATEGORY_LFI",
+        "CATEGORY_RFI",
+        "CATEGORY_RCE",
+        "CATEGORY_PHP",
+        "CATEGORY_GENERIC",
+        "CATEGORY_XSS",
+        "CATEGORY_SQLI",
+        "CATEGORY_SESSION_FIXATION",
+        "CATEGORY_JAVA",
+        "CATEGORY_DATA_LEAKAGES",
+        "CATEGORY_DATA_LEAKAGES_SQL",
+        "CATEGORY_DATA_LEAKAGES_JAVA",
+        "CATEGORY_DATA_LEAKAGES_PHP",
+        "CATEGORY_DATA_LEAKAGES_IIS",
+        "CATEGORY_WEB_SHELLS",
+        "CATEGORY_DATA_LEAKAGES_RUBY"
+      ],
+      "default": "CATEGORY_UNSPECIFIED",
+      "description": "Category CRS rule group, 1:1 with corers.Flag.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956"
+    },
     "v1Condition": {
       "type": "object",
       "properties": {
@@ -558,6 +1214,22 @@
         }
       },
       "title": "A logical condition expression"
+    },
+    "v1CreateCoreRulesetRequest": {
+      "type": "object",
+      "properties": {
+        "coreRuleset": {
+          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        }
+      }
+    },
+    "v1CreateCoreRulesetResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
     },
     "v1CreateRateLimitRequest": {
       "type": "object",
@@ -591,11 +1263,65 @@
         }
       }
     },
+    "v1DeleteCoreRulesetResponse": {
+      "type": "object"
+    },
     "v1DeleteRateLimitResponse": {
       "type": "object"
     },
     "v1DeleteSecRuleResponse": {
       "type": "object"
+    },
+    "v1EngineMode": {
+      "type": "string",
+      "enum": [
+        "ENGINE_MODE_UNSPECIFIED",
+        "ENGINE_MODE_OFF",
+        "ENGINE_MODE_DETECTION_ONLY",
+        "ENGINE_MODE_ON"
+      ],
+      "default": "ENGINE_MODE_UNSPECIFIED",
+      "title": "- ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block"
+    },
+    "v1Exclusion": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"tags\""
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExclusionTarget"
+          },
+          "title": "@gotags: yaml:\"targets\""
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression",
+          "description": "Applies only to the requests matching the expression, empty = every\nrequest (global). It is translated to SecLang rules: the body, JA4\nand TLS sources are not supported.\n\n@gotags: yaml:\"expr\""
+        }
+      },
+      "description": "Exclusion false-positive tuning by tag or rule target."
+    },
+    "v1ExclusionTarget": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"ruleId\""
+        },
+        "variable": {
+          "type": "string",
+          "title": "@gotags: yaml:\"variable\""
+        }
+      },
+      "description": "ExclusionTarget removes a variable from a rule, ex: 942100 ARGS:password."
     },
     "v1Expression": {
       "type": "object",
@@ -626,6 +1352,14 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
+    "v1GetCoreRulesetResponse": {
+      "type": "object",
+      "properties": {
+        "coreRuleset": {
+          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        }
+      }
+    },
     "v1GetRateLimitResponse": {
       "type": "object",
       "properties": {
@@ -634,11 +1368,35 @@
         }
       }
     },
+    "v1GetRuleInfoResponse": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/definitions/v1RuleInfo"
+        }
+      }
+    },
     "v1GetSecRuleResponse": {
       "type": "object",
       "properties": {
         "secRule": {
           "$ref": "#/definitions/v1SecRule"
+        }
+      }
+    },
+    "v1ListCoreRulesetsResponse": {
+      "type": "object",
+      "properties": {
+        "coreRulesets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/appssecurityv1CoreRuleset"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
@@ -655,6 +1413,23 @@
         "total": {
           "type": "string",
           "format": "int64"
+        }
+      }
+    },
+    "v1ListRuleInfosResponse": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleInfo"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "int64",
+          "description": "Number of rules matching the filters, whatever the page."
         }
       }
     },
@@ -768,6 +1543,104 @@
         }
       }
     },
+    "v1RequestPolicy": {
+      "type": "object",
+      "properties": {
+        "bodyAccess": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"bodyAccess\""
+        },
+        "bodyLimitBytes": {
+          "type": "string",
+          "format": "int64",
+          "description": "SecRequestBodyLimit, 0 = default.\n\n@gotags: yaml:\"bodyLimitBytes\""
+        },
+        "allowedMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"allowedMethods\""
+        },
+        "allowedContentTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"allowedContentTypes\""
+        }
+      },
+      "description": "RequestPolicy request handling directives and CRS setup variables."
+    },
+    "v1RuleInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"id\""
+        },
+        "category": {
+          "$ref": "#/definitions/v1Category",
+          "title": "@gotags: yaml:\"category\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"paranoiaLevel\""
+        },
+        "severity": {
+          "type": "string",
+          "title": "@gotags: yaml:\"severity\""
+        },
+        "msg": {
+          "type": "string",
+          "title": "@gotags: yaml:\"msg\""
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"tags\""
+        },
+        "system": {
+          "type": "boolean",
+          "description": "System rules (init, evaluation, skip markers) cannot be overridden.\n\n@gotags: yaml:\"system\""
+        }
+      },
+      "description": "RuleInfo catalog entry of a CRS rule, used by the console."
+    },
+    "v1RuleOverride": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"id\""
+        },
+        "state": {
+          "$ref": "#/definitions/v1RuleState",
+          "title": "@gotags: yaml:\"state\""
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression",
+          "description": "Applies only to the requests matching the expression, empty = every\nrequest (global). Only RULE_STATE_DISABLED can be scoped. Same\ntranslation and limits as Exclusion.expr.\n\n@gotags: yaml:\"expr\""
+        }
+      },
+      "description": "RuleOverride changes the state of a single CRS rule."
+    },
+    "v1RuleState": {
+      "type": "string",
+      "enum": [
+        "RULE_STATE_UNSPECIFIED",
+        "RULE_STATE_DISABLED",
+        "RULE_STATE_DETECTION_ONLY",
+        "RULE_STATE_ENABLED"
+      ],
+      "default": "RULE_STATE_UNSPECIFIED",
+      "title": "- RULE_STATE_DISABLED: removed (ctl:ruleRemoveById)\n - RULE_STATE_DETECTION_ONLY: logged, not counted toward blocking\n - RULE_STATE_ENABLED: forced on above paranoia_level"
+    },
     "v1SecRule": {
       "type": "object",
       "properties": {
@@ -809,6 +1682,14 @@
         }
       }
     },
+    "v1UpdateCoreRulesetResponse": {
+      "type": "object",
+      "properties": {
+        "coreRuleset": {
+          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        }
+      }
+    },
     "v1UpdateRateLimitResponse": {
       "type": "object",
       "properties": {
@@ -824,6 +1705,16 @@
           "$ref": "#/definitions/v1SecRule"
         }
       }
+    },
+    "v1Version": {
+      "type": "string",
+      "enum": [
+        "VERSION_UNSPECIFIED",
+        "VERSION_V4_16_0",
+        "VERSION_V4_17_0"
+      ],
+      "default": "VERSION_UNSPECIFIED",
+      "title": "- VERSION_UNSPECIFIED: = latest supported"
     }
   },
   "securityDefinitions": {

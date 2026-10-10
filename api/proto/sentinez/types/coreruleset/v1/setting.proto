@@ -17,6 +17,7 @@ syntax = "proto3";
 package sentinez.types.coreruleset.v1;
 
 import "buf/validate/validate.proto";
+import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpb";
@@ -71,13 +72,13 @@ message RequestPolicy {
 
 // Exclusion false-positive tuning by tag or rule target.
 message Exclusion {
-  // Path prefix, empty = global.
-  string location = 1 [
-    (buf.validate.field).string = { pattern: "^(/.*)?$" }
-  ];  // @gotags: yaml:"location"
+  repeated string tags = 1;              // @gotags: yaml:"tags"
+  repeated ExclusionTarget targets = 2;  // @gotags: yaml:"targets"
 
-  repeated string tags = 2;              // @gotags: yaml:"tags"
-  repeated ExclusionTarget targets = 3;  // @gotags: yaml:"targets"
+  // Applies only to the requests matching the expression, empty = every
+  // request (global). It is translated to SecLang rules: the body, JA4
+  // and TLS sources are not supported.
+  sentinez.types.rule.v1.Expression expr = 3;  // @gotags: yaml:"expr"
 }
 
 // ExclusionTarget removes a variable from a rule, ex: 942100 ARGS:password.
@@ -99,10 +100,10 @@ message RuleOverride {
 
   RuleState state = 2;  // @gotags: yaml:"state"
 
-  // Path prefix, empty = global.
-  string location = 3 [
-    (buf.validate.field).string = { pattern: "^(/.*)?$" }
-  ];  // @gotags: yaml:"location"
+  // Applies only to the requests matching the expression, empty = every
+  // request (global). Only RULE_STATE_DISABLED can be scoped. Same
+  // translation and limits as Exclusion.expr.
+  sentinez.types.rule.v1.Expression expr = 3;  // @gotags: yaml:"expr"
 }
 
 // RuleInfo catalog entry of a CRS rule, used by the console.

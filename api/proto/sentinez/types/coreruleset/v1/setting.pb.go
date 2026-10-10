@@ -22,6 +22,7 @@ package corerulesetpb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -555,11 +556,13 @@ func (x *RequestPolicy) GetAllowedContentTypes() []string {
 
 // Exclusion false-positive tuning by tag or rule target.
 type Exclusion struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Path prefix, empty = global.
-	Location      string             `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty"` // @gotags: yaml:"location"
-	Tags          []string           `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty"`         // @gotags: yaml:"tags"
-	Targets       []*ExclusionTarget `protobuf:"bytes,3,rep,name=targets,proto3" json:"targets,omitempty"`   // @gotags: yaml:"targets"
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Tags    []string               `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty"`       // @gotags: yaml:"tags"
+	Targets []*ExclusionTarget     `protobuf:"bytes,2,rep,name=targets,proto3" json:"targets,omitempty"` // @gotags: yaml:"targets"
+	// Applies only to the requests matching the expression, empty = every
+	// request (global). It is translated to SecLang rules: the body, JA4
+	// and TLS sources are not supported.
+	Expr          *v11.Expression `protobuf:"bytes,3,opt,name=expr,proto3" json:"expr,omitempty"` // @gotags: yaml:"expr"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -594,13 +597,6 @@ func (*Exclusion) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_coreruleset_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Exclusion) GetLocation() string {
-	if x != nil {
-		return x.Location
-	}
-	return ""
-}
-
 func (x *Exclusion) GetTags() []string {
 	if x != nil {
 		return x.Tags
@@ -611,6 +607,13 @@ func (x *Exclusion) GetTags() []string {
 func (x *Exclusion) GetTargets() []*ExclusionTarget {
 	if x != nil {
 		return x.Targets
+	}
+	return nil
+}
+
+func (x *Exclusion) GetExpr() *v11.Expression {
+	if x != nil {
+		return x.Expr
 	}
 	return nil
 }
@@ -673,8 +676,10 @@ type RuleOverride struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // @gotags: yaml:"id"
 	State RuleState              `protobuf:"varint,2,opt,name=state,proto3,enum=sentinez.types.coreruleset.v1.RuleState" json:"state,omitempty"` // @gotags: yaml:"state"
-	// Path prefix, empty = global.
-	Location      string `protobuf:"bytes,3,opt,name=location,proto3" json:"location,omitempty"` // @gotags: yaml:"location"
+	// Applies only to the requests matching the expression, empty = every
+	// request (global). Only RULE_STATE_DISABLED can be scoped. Same
+	// translation and limits as Exclusion.expr.
+	Expr          *v11.Expression `protobuf:"bytes,3,opt,name=expr,proto3" json:"expr,omitempty"` // @gotags: yaml:"expr"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -723,11 +728,11 @@ func (x *RuleOverride) GetState() RuleState {
 	return RuleState_RULE_STATE_UNSPECIFIED
 }
 
-func (x *RuleOverride) GetLocation() string {
+func (x *RuleOverride) GetExpr() *v11.Expression {
 	if x != nil {
-		return x.Location
+		return x.Expr
 	}
-	return ""
+	return nil
 }
 
 // RuleInfo catalog entry of a CRS rule, used by the console.
@@ -828,7 +833,7 @@ var File_sentinez_types_coreruleset_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_coreruleset_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"+sentinez/types/coreruleset/v1/setting.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\"\xb3\x05\n" +
+	"+sentinez/types/coreruleset/v1/setting.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\xb3\x05\n" +
 	"\vCoreRuleset\x12=\n" +
 	"\x04mode\x18\x01 \x01(\x0e2).sentinez.types.coreruleset.v1.EngineModeR\x04mode\x12@\n" +
 	"\aversion\x18\x02 \x01(\x0e2&.sentinez.types.coreruleset.v1.VersionR\aversion\x12.\n" +
@@ -854,22 +859,20 @@ const file_sentinez_types_coreruleset_v1_setting_proto_rawDesc = "" +
 	"bodyAccess\x121\n" +
 	"\x10body_limit_bytes\x18\x02 \x01(\x03B\a\xbaH\x04\"\x02(\x00R\x0ebodyLimitBytes\x12'\n" +
 	"\x0fallowed_methods\x18\x03 \x03(\tR\x0eallowedMethods\x122\n" +
-	"\x15allowed_content_types\x18\x04 \x03(\tR\x13allowedContentTypes\"\x96\x01\n" +
-	"\tExclusion\x12+\n" +
-	"\blocation\x18\x01 \x01(\tB\x0f\xbaH\fr\n" +
-	"2\b^(/.*)?$R\blocation\x12\x12\n" +
-	"\x04tags\x18\x02 \x03(\tR\x04tags\x12H\n" +
-	"\atargets\x18\x03 \x03(\v2..sentinez.types.coreruleset.v1.ExclusionTargetR\atargets\"^\n" +
+	"\x15allowed_content_types\x18\x04 \x03(\tR\x13allowedContentTypes\"\xa1\x01\n" +
+	"\tExclusion\x12\x12\n" +
+	"\x04tags\x18\x01 \x03(\tR\x04tags\x12H\n" +
+	"\atargets\x18\x02 \x03(\v2..sentinez.types.coreruleset.v1.ExclusionTargetR\atargets\x126\n" +
+	"\x04expr\x18\x03 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\"^\n" +
 	"\x0fExclusionTarget\x12&\n" +
 	"\arule_id\x18\x01 \x01(\rB\r\xbaH\n" +
 	"*\b\x18\xbf\x84=(\xa0\xf76R\x06ruleId\x12#\n" +
-	"\bvariable\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bvariable\"\x9a\x01\n" +
+	"\bvariable\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bvariable\"\xa5\x01\n" +
 	"\fRuleOverride\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\rB\r\xbaH\n" +
 	"*\b\x18\xbf\x84=(\xa0\xf76R\x02id\x12>\n" +
-	"\x05state\x18\x02 \x01(\x0e2(.sentinez.types.coreruleset.v1.RuleStateR\x05state\x12+\n" +
-	"\blocation\x18\x03 \x01(\tB\x0f\xbaH\fr\n" +
-	"2\b^(/.*)?$R\blocation\"\xe0\x01\n" +
+	"\x05state\x18\x02 \x01(\x0e2(.sentinez.types.coreruleset.v1.RuleStateR\x05state\x126\n" +
+	"\x04expr\x18\x03 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\"\xe0\x01\n" +
 	"\bRuleInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12C\n" +
 	"\bcategory\x18\x02 \x01(\x0e2'.sentinez.types.coreruleset.v1.CategoryR\bcategory\x12%\n" +
@@ -946,6 +949,7 @@ var file_sentinez_types_coreruleset_v1_setting_proto_goTypes = []any{
 	(*RuleOverride)(nil),     // 9: sentinez.types.coreruleset.v1.RuleOverride
 	(*RuleInfo)(nil),         // 10: sentinez.types.coreruleset.v1.RuleInfo
 	(v1.Status)(0),           // 11: sentinez.types.v1.Status
+	(*v11.Expression)(nil),   // 12: sentinez.types.rule.v1.Expression
 }
 var file_sentinez_types_coreruleset_v1_setting_proto_depIdxs = []int32{
 	0,  // 0: sentinez.types.coreruleset.v1.CoreRuleset.mode:type_name -> sentinez.types.coreruleset.v1.EngineMode
@@ -957,13 +961,15 @@ var file_sentinez_types_coreruleset_v1_setting_proto_depIdxs = []int32{
 	9,  // 6: sentinez.types.coreruleset.v1.CoreRuleset.overrides:type_name -> sentinez.types.coreruleset.v1.RuleOverride
 	11, // 7: sentinez.types.coreruleset.v1.CoreRuleset.status:type_name -> sentinez.types.v1.Status
 	8,  // 8: sentinez.types.coreruleset.v1.Exclusion.targets:type_name -> sentinez.types.coreruleset.v1.ExclusionTarget
-	3,  // 9: sentinez.types.coreruleset.v1.RuleOverride.state:type_name -> sentinez.types.coreruleset.v1.RuleState
-	2,  // 10: sentinez.types.coreruleset.v1.RuleInfo.category:type_name -> sentinez.types.coreruleset.v1.Category
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 9: sentinez.types.coreruleset.v1.Exclusion.expr:type_name -> sentinez.types.rule.v1.Expression
+	3,  // 10: sentinez.types.coreruleset.v1.RuleOverride.state:type_name -> sentinez.types.coreruleset.v1.RuleState
+	12, // 11: sentinez.types.coreruleset.v1.RuleOverride.expr:type_name -> sentinez.types.rule.v1.Expression
+	2,  // 12: sentinez.types.coreruleset.v1.RuleInfo.category:type_name -> sentinez.types.coreruleset.v1.Category
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_coreruleset_v1_setting_proto_init() }

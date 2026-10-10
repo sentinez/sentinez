@@ -97,6 +97,48 @@ func (h *Security) ListRateLimits(ctx context.Context,
 	return h.service.ListRateLimits(ctx, req)
 }
 
+func (h *Security) CreateCoreRuleset(ctx context.Context,
+	req *securitypb.CreateCoreRulesetRequest,
+) (*securitypb.CreateCoreRulesetResponse, error) {
+	return h.service.CreateCoreRuleset(ctx, req)
+}
+
+func (h *Security) GetCoreRuleset(ctx context.Context,
+	req *securitypb.GetCoreRulesetRequest,
+) (*securitypb.GetCoreRulesetResponse, error) {
+	return h.service.GetCoreRuleset(ctx, req)
+}
+
+func (h *Security) UpdateCoreRuleset(ctx context.Context,
+	req *securitypb.UpdateCoreRulesetRequest,
+) (*securitypb.UpdateCoreRulesetResponse, error) {
+	return h.service.UpdateCoreRuleset(ctx, req)
+}
+
+func (h *Security) DeleteCoreRuleset(ctx context.Context,
+	req *securitypb.DeleteCoreRulesetRequest,
+) (*securitypb.DeleteCoreRulesetResponse, error) {
+	return h.service.DeleteCoreRuleset(ctx, req)
+}
+
+func (h *Security) ListCoreRulesets(ctx context.Context,
+	req *securitypb.ListCoreRulesetsRequest,
+) (*securitypb.ListCoreRulesetsResponse, error) {
+	return h.service.ListCoreRulesets(ctx, req)
+}
+
+func (h *Security) GetRuleInfo(ctx context.Context,
+	req *securitypb.GetRuleInfoRequest,
+) (*securitypb.GetRuleInfoResponse, error) {
+	return h.service.GetRuleInfo(ctx, req)
+}
+
+func (h *Security) ListRuleInfos(ctx context.Context,
+	req *securitypb.ListRuleInfosRequest,
+) (*securitypb.ListRuleInfosResponse, error) {
+	return h.service.ListRuleInfos(ctx, req)
+}
+
 func (h *Security) Status(ctx context.Context,
 	req *securitypb.StatusRequest,
 ) (*securitypb.StatusResponse, error) {

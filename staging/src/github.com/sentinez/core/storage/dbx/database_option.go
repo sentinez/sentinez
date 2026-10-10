@@ -33,3 +33,15 @@ func WithTable(name string) Option {
 		o.Table = name
 	}
 }
+
+// WithIndexes indexes created along with the table, ex: a GIN index on a
+// JSONB column queried by containment.
+func WithIndexes(indexes ...Index) Option {
+	return func(o *Table) {
+		if o == nil {
+			return
+		}
+
+		o.Indexes = append(o.Indexes, indexes...)
+	}
+}
