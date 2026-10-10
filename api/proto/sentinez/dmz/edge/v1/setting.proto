@@ -18,6 +18,7 @@ package sentinez.dmz.edge.v1;
 
 import "sentinez/types/secrule/v1/engine.proto";
 import "sentinez/types/cdn/v1/rule.proto";
+import "sentinez/types/coreruleset/v1/setting.proto";
 
 import "buf/validate/validate.proto";
 
@@ -61,12 +62,9 @@ message Location {
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-  repeated Rulesets rulesets = 1;   // @gotags: yaml:"rulesets"
+  sentinez.types.coreruleset.v1.CoreRuleset core_ruleset = 1; // @gotags: yaml:"core_ruleset"
   repeated SecRule sec_rules = 2;     // @gotags: yaml:"sec_rules"
   repeated RateLimit limiters = 3;  // @gotags: yaml:"limiters"
-}
-
-message Rulesets {
 }
 
 message SecRule {

@@ -67,13 +67,13 @@
             "901450"
           ],
           "msg": [
-            "'Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}'"
+            "Sampling: Disable the rule engine based on sampling_percentage %{TX.sampling_percentage} and random number %{TX.sampling_rnd100}"
           ],
           "phase": [
             "1"
           ],
           "ver": [
-            "'OWASP_CRS/4.0.0-rc1'"
+            "OWASP_CRS/4.0.0-rc1"
           ]
         },
         "children": null
@@ -89,19 +89,19 @@
             "932205"
           ],
           "logdata": [
-            "'Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}'"
+            "Matched Data: %{TX.2} found within %{TX.932205_MATCHED_VAR_NAME}: %{MATCHED_VAR}"
           ],
           "msg": [
-            "'RCE Bypass Technique'"
+            "RCE Bypass Technique"
           ],
           "phase": [
             "1"
           ],
           "setvar": [
-            "'tx.932205_matched_var_name=%{matched_var_name}'"
+            "tx.932205_matched_var_name=%{matched_var_name}"
           ],
           "severity": [
-            "'CRITICAL'"
+            "CRITICAL"
           ],
           "t": [
             "none",
@@ -109,17 +109,17 @@
             "urlDecodeUni"
           ],
           "tag": [
-            "'application-multi'",
-            "'language-multi'",
-            "'platform-multi'",
-            "'attack-rce'",
-            "'paranoia-level/2'",
-            "'OWASP_CRS'",
-            "'capec/1000/152/248/88'",
-            "'PCI/6.5.2'"
+            "application-multi",
+            "language-multi",
+            "platform-multi",
+            "attack-rce",
+            "paranoia-level/2",
+            "OWASP_CRS",
+            "capec/1000/152/248/88",
+            "PCI/6.5.2"
           ],
           "ver": [
-            "'OWASP_CRS/4.0.1-dev'"
+            "OWASP_CRS/4.0.1-dev"
           ]
         },
         "children": {
@@ -142,8 +142,8 @@
               "statement": "SecRule TX:1 \"@rx \\s\" \\\n                \"t:none,t:urlDecodeUni,\\\n                setvar:'tx.rce_score=+%{tx.critical_anomaly_score}',\\\n                setvar:'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'\"",
               "fields": {
                 "setvar": [
-                  "'tx.rce_score=+%{tx.critical_anomaly_score}'",
-                  "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"
+                  "tx.rce_score=+%{tx.critical_anomaly_score}",
+                  "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"
                 ],
                 "t": [
                   "none",

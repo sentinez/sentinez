@@ -396,19 +396,14 @@ func (m *Security) Validate() error {
 		return nil
 	}
 
-	for idx, item := range m.GetRulesets() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return SecurityValidationError{
-					field:  fmt.Sprintf("Rulesets[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
+	if v, ok := interface{}(m.GetCoreRuleset()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SecurityValidationError{
+				field:  "CoreRuleset",
+				reason: "embedded message failed validation",
+				cause:  err,
 			}
 		}
-
 	}
 
 	for idx, item := range m.GetSecRules() {
@@ -497,70 +492,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SecurityValidationError{}
-
-// Validate checks the field values on Rulesets with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Rulesets) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	return nil
-}
-
-// RulesetsValidationError is the validation error returned by
-// Rulesets.Validate if the designated constraints aren't met.
-type RulesetsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e RulesetsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e RulesetsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e RulesetsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e RulesetsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e RulesetsValidationError) ErrorName() string { return "RulesetsValidationError" }
-
-// Error satisfies the builtin error interface
-func (e RulesetsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sRulesets.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = RulesetsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = RulesetsValidationError{}
 
 // Validate checks the field values on SecRule with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

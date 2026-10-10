@@ -92,7 +92,88 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    rulesets:
+    # OWASP Core Rule Set (CRS), one configuration per namespace.
+    core_ruleset:
+      status: STATUS_ACTIVE
+      # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
+      # ENGINE_MODE_ON (block)
+      mode: ENGINE_MODE_ON
+      # VERSION_V4_16_0 (RCE, SQLi only) | VERSION_V4_17_0 (default)
+      version: VERSION_V4_17_0
+
+      # 1 (fewest false positives) .. 4 (strictest).
+      paranoiaLevel: 1
+      # Rules up to this level are logged but only count toward
+      # blocking up to paranoiaLevel. 0 = same as paranoiaLevel.
+      detectionParanoiaLevel: 2
+
+      # Anomaly score needed to block; a critical match scores 5.
+      # 0 keeps the value of setup.conf (inbound 10, outbound 5).
+      threshold:
+        inbound: 5
+        outbound: 4
+        earlyBlocking: true
+
+      # Enabled rule groups, empty = all.
+      categories:
+        - CATEGORY_METHOD_ENFORCEMENT    # 911
+        - CATEGORY_SCANNER_DETECTION     # 913
+        - CATEGORY_PROTOCOL_ENFORCEMENT  # 920
+        - CATEGORY_PROTOCOL_ATTACK       # 921
+        - CATEGORY_LFI                   # 930
+        - CATEGORY_RFI                   # 931
+        - CATEGORY_RCE                   # 932
+        - CATEGORY_XSS                   # 941
+        - CATEGORY_SQLI                  # 942
+        # - CATEGORY_COMMON_EXCEPTIONS   # 905
+        # - CATEGORY_MULTIPART_ATTACK    # 922
+        # - CATEGORY_PHP                 # 933
+        # - CATEGORY_GENERIC             # 934
+        # - CATEGORY_SESSION_FIXATION    # 943
+        # - CATEGORY_JAVA                # 944
+        # - CATEGORY_DATA_LEAKAGES       # 950 (response)
+        # - CATEGORY_DATA_LEAKAGES_SQL   # 951 (response)
+        # - CATEGORY_DATA_LEAKAGES_JAVA  # 952 (response)
+        # - CATEGORY_DATA_LEAKAGES_PHP   # 953 (response)
+        # - CATEGORY_DATA_LEAKAGES_IIS   # 954 (response)
+        # - CATEGORY_WEB_SHELLS          # 955 (response)
+        # - CATEGORY_DATA_LEAKAGES_RUBY  # 956 (response)
+
+      request:
+        # Inspect request bodies (POST forms, JSON, XML).
+        bodyAccess: true
+        bodyLimitBytes: 13107200  # 12.5 MiB, 0 = default
+        allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+        # Empty keeps the content types of setup.conf.
+        # allowedContentTypes:
+        #   - application/json
+        #   - application/x-www-form-urlencoded
+        #   - multipart/form-data
+
+      # False-positive tuning. Without a location it applies to the
+      # whole namespace, with one only to that path prefix.
+      exclusions:
+        # Skip every SQLi rule under /api/search.
+        - location: /api/search
+          tags: [attack-sqli]
+        # Do not inspect the "password" argument with rule 942100.
+        - targets:
+            - ruleId: 942100
+              variable: ARGS:password
+
+      # Per-rule state. DETECTION_ONLY and ENABLED cannot be scoped
+      # to a location.
+      overrides:
+        # Remove the rule under /webhook only.
+        - id: 920420
+          state: RULE_STATE_DISABLED
+          location: /webhook
+        # Keep logging the rule, never count it toward blocking.
+        - id: 942430
+          state: RULE_STATE_DETECTION_ONLY
+        # Force a paranoia level 2 rule on at paranoiaLevel 1.
+        - id: 942130
+          state: RULE_STATE_ENABLED
 
     sec_rules:
       - ingress:

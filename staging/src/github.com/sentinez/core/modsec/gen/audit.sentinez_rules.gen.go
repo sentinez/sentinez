@@ -11,3 +11,6 @@ const AuditVersion = ""
 var AuditOrder = []func() *rulepb.CoreRule{}
 
 var Audit = map[string]*rulepb.CoreRule{}
+
+// AuditInfo is the catalog of the rules above that have an ID.
+var AuditInfo = []*rulepb.RuleInfo{}

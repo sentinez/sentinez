@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/core/runner"
-	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 )
 

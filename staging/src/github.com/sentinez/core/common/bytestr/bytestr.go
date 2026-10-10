@@ -31,6 +31,7 @@ var (
 	TooManyRequests     = []byte("Too many requests")
 	BadRequest          = []byte("Bad request")
 	HitCache            = []byte("HIT")
+	MethodNotAllowed    = []byte(httpconst.ValueMethodNotAllowed)
 )
 
 var (
@@ -47,8 +48,16 @@ var (
 	HeaderAcceptEncoding   = []byte(httpconst.HeaderAcceptEncoding)
 	HeaderAltSvc           = []byte(httpconst.HeaderAltSvc)
 	HeaderSetCookie        = []byte(httpconst.HeaderSetCookie)
+	HeaderETag             = []byte(httpconst.HeaderETag)
+	HeaderIfNoneMatch      = []byte(httpconst.HeaderIfNoneMatch)
+	HeaderContentLength    = []byte(httpconst.HeaderContentLength)
+	HeaderAllow            = []byte(httpconst.HeaderAllow)
+	HeaderXContentTypeOpts = []byte(httpconst.HeaderXContentTypeOpts)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)
 	ValueTextPlain = []byte(httpconst.ValueTextPlain)
 	ValueTextHTML  = []byte(httpconst.ValueTextHTML)
+	ValueNoSniff   = []byte(httpconst.ValueNoSniff)
+
+	ValueAllowGetHead = []byte(httpconst.ValueAllowGetHead)
 )

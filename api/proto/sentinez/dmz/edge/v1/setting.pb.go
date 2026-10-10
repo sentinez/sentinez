@@ -22,8 +22,9 @@ package edgepb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
-	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
+	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -387,9 +388,9 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rulesets      []*Rulesets            `protobuf:"bytes,1,rep,name=rulesets,proto3" json:"rulesets,omitempty" yaml:"rulesets"`                 // @gotags: yaml:"rulesets"
-	SecRules      []*SecRule             `protobuf:"bytes,2,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty" yaml:"sec_rules"` // @gotags: yaml:"sec_rules"
-	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"`                 // @gotags: yaml:"limiters"
+	CoreRuleset   *v1.CoreRuleset        `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty" yaml:"core_ruleset"` // @gotags: yaml:"core_ruleset"
+	SecRules      []*SecRule             `protobuf:"bytes,2,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty" yaml:"sec_rules"`          // @gotags: yaml:"sec_rules"
+	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"`                          // @gotags: yaml:"limiters"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -424,9 +425,9 @@ func (*Security) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Security) GetRulesets() []*Rulesets {
+func (x *Security) GetCoreRuleset() *v1.CoreRuleset {
 	if x != nil {
-		return x.Rulesets
+		return x.CoreRuleset
 	}
 	return nil
 }
@@ -445,53 +446,17 @@ func (x *Security) GetLimiters() []*RateLimit {
 	return nil
 }
 
-type Rulesets struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Rulesets) Reset() {
-	*x = Rulesets{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Rulesets) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Rulesets) ProtoMessage() {}
-
-func (x *Rulesets) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Rulesets.ProtoReflect.Descriptor instead.
-func (*Rulesets) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{5}
-}
-
 type SecRule struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Ingress        *v1.SecRuleLite        `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
-	IngressRuntime *v1.SecRule            `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	Ingress        *v11.SecRuleLite       `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
+	IngressRuntime *v11.SecRule           `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SecRule) Reset() {
 	*x = SecRule{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -503,7 +468,7 @@ func (x *SecRule) String() string {
 func (*SecRule) ProtoMessage() {}
 
 func (x *SecRule) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,17 +481,17 @@ func (x *SecRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecRule.ProtoReflect.Descriptor instead.
 func (*SecRule) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *SecRule) GetIngress() *v1.SecRuleLite {
+func (x *SecRule) GetIngress() *v11.SecRuleLite {
 	if x != nil {
 		return x.Ingress
 	}
 	return nil
 }
 
-func (x *SecRule) GetIngressRuntime() *v1.SecRule {
+func (x *SecRule) GetIngressRuntime() *v11.SecRule {
 	if x != nil {
 		return x.IngressRuntime
 	}
@@ -535,8 +500,8 @@ func (x *SecRule) GetIngressRuntime() *v1.SecRule {
 
 type RateLimit struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Ingress        *v1.SecRuleLite        `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
-	IngressRuntime *v1.SecRule            `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	Ingress        *v11.SecRuleLite       `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
+	IngressRuntime *v11.SecRule           `protobuf:"bytes,2,opt,name=ingress_runtime,json=ingressRuntime,proto3" json:"ingress_runtime,omitempty" yaml:"-"` // @gotags: yaml:"-"
 	TimeWindow     string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`            //@gotags: yaml:"timeWindow"
 	MaxRequests    int64                  `protobuf:"varint,12,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty" yaml:"maxRequests"`        //@gotags: yaml:"maxRequests"
 	Timeout        string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                    //@gotags: yaml:"timeout"
@@ -546,7 +511,7 @@ type RateLimit struct {
 
 func (x *RateLimit) Reset() {
 	*x = RateLimit{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -558,7 +523,7 @@ func (x *RateLimit) String() string {
 func (*RateLimit) ProtoMessage() {}
 
 func (x *RateLimit) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -571,17 +536,17 @@ func (x *RateLimit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RateLimit.ProtoReflect.Descriptor instead.
 func (*RateLimit) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *RateLimit) GetIngress() *v1.SecRuleLite {
+func (x *RateLimit) GetIngress() *v11.SecRuleLite {
 	if x != nil {
 		return x.Ingress
 	}
 	return nil
 }
 
-func (x *RateLimit) GetIngressRuntime() *v1.SecRule {
+func (x *RateLimit) GetIngressRuntime() *v11.SecRule {
 	if x != nil {
 		return x.IngressRuntime
 	}
@@ -618,7 +583,7 @@ type TrafficControl struct {
 
 func (x *TrafficControl) Reset() {
 	*x = TrafficControl{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -630,7 +595,7 @@ func (x *TrafficControl) String() string {
 func (*TrafficControl) ProtoMessage() {}
 
 func (x *TrafficControl) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -643,19 +608,19 @@ func (x *TrafficControl) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TrafficControl.ProtoReflect.Descriptor instead.
 func (*TrafficControl) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{8}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
 type Delivery struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cdn           []*v11.CDN             `protobuf:"bytes,1,rep,name=cdn,proto3" json:"cdn,omitempty" yaml:"cdn"` // @gotags: yaml:"cdn"
+	Cdn           []*v12.CDN             `protobuf:"bytes,1,rep,name=cdn,proto3" json:"cdn,omitempty" yaml:"cdn"` // @gotags: yaml:"cdn"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Delivery) Reset() {
 	*x = Delivery{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -667,7 +632,7 @@ func (x *Delivery) String() string {
 func (*Delivery) ProtoMessage() {}
 
 func (x *Delivery) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -680,10 +645,10 @@ func (x *Delivery) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Delivery.ProtoReflect.Descriptor instead.
 func (*Delivery) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{9}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *Delivery) GetCdn() []*v11.CDN {
+func (x *Delivery) GetCdn() []*v12.CDN {
 	if x != nil {
 		return x.Cdn
 	}
@@ -699,7 +664,7 @@ type Personal struct {
 
 func (x *Personal) Reset() {
 	*x = Personal{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -711,7 +676,7 @@ func (x *Personal) String() string {
 func (*Personal) ProtoMessage() {}
 
 func (x *Personal) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -724,7 +689,7 @@ func (x *Personal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Personal.ProtoReflect.Descriptor instead.
 func (*Personal) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{10}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{9}
 }
 
 type Upstream struct {
@@ -737,7 +702,7 @@ type Upstream struct {
 
 func (x *Upstream) Reset() {
 	*x = Upstream{}
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[11]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +714,7 @@ func (x *Upstream) String() string {
 func (*Upstream) ProtoMessage() {}
 
 func (x *Upstream) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[11]
+	mi := &file_sentinez_dmz_edge_v1_setting_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +727,7 @@ func (x *Upstream) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Upstream.ProtoReflect.Descriptor instead.
 func (*Upstream) Descriptor() ([]byte, []int) {
-	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{11}
+	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Upstream) GetServer() string {
@@ -783,7 +748,7 @@ var File_sentinez_dmz_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a&sentinez/types/secrule/v1/engine.proto\x1a sentinez/types/cdn/v1/rule.proto\x1a\x1bbuf/validate/validate.proto\"\xfe\x02\n" +
+	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a&sentinez/types/secrule/v1/engine.proto\x1a sentinez/types/cdn/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\x1a\x1bbuf/validate/validate.proto\"\xfe\x02\n" +
 	"\aSetting\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x124\n" +
 	"\x06server\x18\x02 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\x12:\n" +
@@ -805,13 +770,11 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x11proxy_set_headers\x18\x05 \x03(\v23.sentinez.dmz.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbf\x01\n" +
-	"\bSecurity\x12:\n" +
-	"\brulesets\x18\x01 \x03(\v2\x1e.sentinez.dmz.edge.v1.RulesetsR\brulesets\x12:\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\x01\n" +
+	"\bSecurity\x12M\n" +
+	"\fcore_ruleset\x18\x01 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\vcoreRuleset\x12:\n" +
 	"\tsec_rules\x18\x02 \x03(\v2\x1d.sentinez.dmz.edge.v1.SecRuleR\bsecRules\x12;\n" +
-	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\n" +
-	"\n" +
-	"\bRulesets\"\x98\x01\n" +
+	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\x98\x01\n" +
 	"\aSecRule\x12@\n" +
 	"\aingress\x18\x01 \x01(\v2&.sentinez.types.secrule.v1.SecRuleLiteR\aingress\x12K\n" +
 	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\"\xe8\x02\n" +
@@ -851,41 +814,41 @@ func file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP() []byte {
 }
 
 var file_sentinez_dmz_edge_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
-	(BalanceStrategy)(0),   // 0: sentinez.dmz.edge.v1.BalanceStrategy
-	(ProxyProtocol)(0),     // 1: sentinez.dmz.edge.v1.ProxyProtocol
-	(*Setting)(nil),        // 2: sentinez.dmz.edge.v1.Setting
-	(*Metadata)(nil),       // 3: sentinez.dmz.edge.v1.Metadata
-	(*Server)(nil),         // 4: sentinez.dmz.edge.v1.Server
-	(*Location)(nil),       // 5: sentinez.dmz.edge.v1.Location
-	(*Security)(nil),       // 6: sentinez.dmz.edge.v1.Security
-	(*Rulesets)(nil),       // 7: sentinez.dmz.edge.v1.Rulesets
-	(*SecRule)(nil),        // 8: sentinez.dmz.edge.v1.SecRule
-	(*RateLimit)(nil),      // 9: sentinez.dmz.edge.v1.RateLimit
-	(*TrafficControl)(nil), // 10: sentinez.dmz.edge.v1.TrafficControl
-	(*Delivery)(nil),       // 11: sentinez.dmz.edge.v1.Delivery
-	(*Personal)(nil),       // 12: sentinez.dmz.edge.v1.Personal
-	(*Upstream)(nil),       // 13: sentinez.dmz.edge.v1.Upstream
-	nil,                    // 14: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	(*v1.SecRuleLite)(nil), // 15: sentinez.types.secrule.v1.SecRuleLite
-	(*v1.SecRule)(nil),     // 16: sentinez.types.secrule.v1.SecRule
-	(*v11.CDN)(nil),        // 17: sentinez.types.cdn.v1.CDN
+	(BalanceStrategy)(0),    // 0: sentinez.dmz.edge.v1.BalanceStrategy
+	(ProxyProtocol)(0),      // 1: sentinez.dmz.edge.v1.ProxyProtocol
+	(*Setting)(nil),         // 2: sentinez.dmz.edge.v1.Setting
+	(*Metadata)(nil),        // 3: sentinez.dmz.edge.v1.Metadata
+	(*Server)(nil),          // 4: sentinez.dmz.edge.v1.Server
+	(*Location)(nil),        // 5: sentinez.dmz.edge.v1.Location
+	(*Security)(nil),        // 6: sentinez.dmz.edge.v1.Security
+	(*SecRule)(nil),         // 7: sentinez.dmz.edge.v1.SecRule
+	(*RateLimit)(nil),       // 8: sentinez.dmz.edge.v1.RateLimit
+	(*TrafficControl)(nil),  // 9: sentinez.dmz.edge.v1.TrafficControl
+	(*Delivery)(nil),        // 10: sentinez.dmz.edge.v1.Delivery
+	(*Personal)(nil),        // 11: sentinez.dmz.edge.v1.Personal
+	(*Upstream)(nil),        // 12: sentinez.dmz.edge.v1.Upstream
+	nil,                     // 13: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	(*v1.CoreRuleset)(nil),  // 14: sentinez.types.coreruleset.v1.CoreRuleset
+	(*v11.SecRuleLite)(nil), // 15: sentinez.types.secrule.v1.SecRuleLite
+	(*v11.SecRule)(nil),     // 16: sentinez.types.secrule.v1.SecRule
+	(*v12.CDN)(nil),         // 17: sentinez.types.cdn.v1.CDN
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	3,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
 	4,  // 1: sentinez.dmz.edge.v1.Setting.server:type_name -> sentinez.dmz.edge.v1.Server
 	6,  // 2: sentinez.dmz.edge.v1.Setting.security:type_name -> sentinez.dmz.edge.v1.Security
-	10, // 3: sentinez.dmz.edge.v1.Setting.traffic_control:type_name -> sentinez.dmz.edge.v1.TrafficControl
-	12, // 4: sentinez.dmz.edge.v1.Setting.personal:type_name -> sentinez.dmz.edge.v1.Personal
-	11, // 5: sentinez.dmz.edge.v1.Setting.delivery:type_name -> sentinez.dmz.edge.v1.Delivery
+	9,  // 3: sentinez.dmz.edge.v1.Setting.traffic_control:type_name -> sentinez.dmz.edge.v1.TrafficControl
+	11, // 4: sentinez.dmz.edge.v1.Setting.personal:type_name -> sentinez.dmz.edge.v1.Personal
+	10, // 5: sentinez.dmz.edge.v1.Setting.delivery:type_name -> sentinez.dmz.edge.v1.Delivery
 	5,  // 6: sentinez.dmz.edge.v1.Server.locations:type_name -> sentinez.dmz.edge.v1.Location
-	13, // 7: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
+	12, // 7: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
 	0,  // 8: sentinez.dmz.edge.v1.Location.balance_strategy:type_name -> sentinez.dmz.edge.v1.BalanceStrategy
-	14, // 9: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	7,  // 10: sentinez.dmz.edge.v1.Security.rulesets:type_name -> sentinez.dmz.edge.v1.Rulesets
-	8,  // 11: sentinez.dmz.edge.v1.Security.sec_rules:type_name -> sentinez.dmz.edge.v1.SecRule
-	9,  // 12: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
+	13, // 9: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	14, // 10: sentinez.dmz.edge.v1.Security.core_ruleset:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
+	7,  // 11: sentinez.dmz.edge.v1.Security.sec_rules:type_name -> sentinez.dmz.edge.v1.SecRule
+	8,  // 12: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
 	15, // 13: sentinez.dmz.edge.v1.SecRule.ingress:type_name -> sentinez.types.secrule.v1.SecRuleLite
 	16, // 14: sentinez.dmz.edge.v1.SecRule.ingress_runtime:type_name -> sentinez.types.secrule.v1.SecRule
 	15, // 15: sentinez.dmz.edge.v1.RateLimit.ingress:type_name -> sentinez.types.secrule.v1.SecRuleLite
@@ -910,7 +873,7 @@ func file_sentinez_dmz_edge_v1_setting_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_setting_proto_rawDesc), len(file_sentinez_dmz_edge_v1_setting_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   13,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

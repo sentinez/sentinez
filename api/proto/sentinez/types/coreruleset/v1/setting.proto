@@ -1,0 +1,170 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.types.coreruleset.v1;
+
+import "buf/validate/validate.proto";
+import "sentinez/types/v1/known.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpb";
+
+// CoreRuleset OWASP CRS configuration of a server (namespace).
+message CoreRuleset {
+  EngineMode mode = 1;  // @gotags: yaml:"mode"
+  Version version = 2;  // @gotags: yaml:"version"
+
+  // tx.blocking_paranoia_level, 0 = default (1).
+  uint32 paranoia_level = 3 [
+    (buf.validate.field).uint32 = { lte: 4 }
+  ];  // @gotags: yaml:"paranoiaLevel"
+
+  // tx.detection_paranoia_level, 0 = same as paranoia_level.
+  uint32 detection_paranoia_level = 4 [
+    (buf.validate.field).uint32 = { lte: 4 }
+  ];  // @gotags: yaml:"detectionParanoiaLevel"
+
+  AnomalyThreshold threshold = 5;  // @gotags: yaml:"threshold"
+
+  // Enabled rule groups, empty = all.
+  repeated Category categories = 6 [
+    (buf.validate.field).repeated = { unique: true }
+  ];  // @gotags: yaml:"categories"
+
+  RequestPolicy request = 7;             // @gotags: yaml:"request"
+  repeated Exclusion exclusions = 8;     // @gotags: yaml:"exclusions"
+  repeated RuleOverride overrides = 9;   // @gotags: yaml:"overrides"
+  sentinez.types.v1.Status status = 10; // @gotags: yaml:"status"
+}
+
+// AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default.
+message AnomalyThreshold {
+  uint32 inbound = 1;       // @gotags: yaml:"inbound"
+  uint32 outbound = 2;      // @gotags: yaml:"outbound"
+  bool early_blocking = 3;  // @gotags: yaml:"earlyBlocking"
+}
+
+// RequestPolicy request handling directives and CRS setup variables.
+message RequestPolicy {
+  bool body_access = 1;  // @gotags: yaml:"bodyAccess"
+
+  // SecRequestBodyLimit, 0 = default.
+  int64 body_limit_bytes = 2 [
+    (buf.validate.field).int64 = { gte: 0 }
+  ];  // @gotags: yaml:"bodyLimitBytes"
+
+  repeated string allowed_methods = 3;        // @gotags: yaml:"allowedMethods"
+  repeated string allowed_content_types = 4;  // @gotags: yaml:"allowedContentTypes"
+}
+
+// Exclusion false-positive tuning by tag or rule target.
+message Exclusion {
+  // Path prefix, empty = global.
+  string location = 1 [
+    (buf.validate.field).string = { pattern: "^(/.*)?$" }
+  ];  // @gotags: yaml:"location"
+
+  repeated string tags = 2;              // @gotags: yaml:"tags"
+  repeated ExclusionTarget targets = 3;  // @gotags: yaml:"targets"
+}
+
+// ExclusionTarget removes a variable from a rule, ex: 942100 ARGS:password.
+message ExclusionTarget {
+  uint32 rule_id = 1 [
+    (buf.validate.field).uint32 = { gte: 900000, lte: 999999 }
+  ];  // @gotags: yaml:"ruleId"
+
+  string variable = 2 [
+    (buf.validate.field).string = { min_len: 1 }
+  ];  // @gotags: yaml:"variable"
+}
+
+// RuleOverride changes the state of a single CRS rule.
+message RuleOverride {
+  uint32 id = 1 [
+    (buf.validate.field).uint32 = { gte: 900000, lte: 999999 }
+  ];  // @gotags: yaml:"id"
+
+  RuleState state = 2;  // @gotags: yaml:"state"
+
+  // Path prefix, empty = global.
+  string location = 3 [
+    (buf.validate.field).string = { pattern: "^(/.*)?$" }
+  ];  // @gotags: yaml:"location"
+}
+
+// RuleInfo catalog entry of a CRS rule, used by the console.
+message RuleInfo {
+  uint32 id = 1;              // @gotags: yaml:"id"
+  Category category = 2;      // @gotags: yaml:"category"
+  uint32 paranoia_level = 3;  // @gotags: yaml:"paranoiaLevel"
+  string severity = 4;        // @gotags: yaml:"severity"
+  string msg = 5;             // @gotags: yaml:"msg"
+  repeated string tags = 6;   // @gotags: yaml:"tags"
+
+  // System rules (init, evaluation, skip markers) cannot be overridden.
+  bool system = 7;  // @gotags: yaml:"system"
+}
+
+enum EngineMode {
+  ENGINE_MODE_UNSPECIFIED = 0;     // = OFF
+  ENGINE_MODE_OFF = 1;
+  ENGINE_MODE_DETECTION_ONLY = 2;  // log only, never block
+  ENGINE_MODE_ON = 3;
+}
+
+enum Version {
+  VERSION_UNSPECIFIED = 0;  // = latest supported
+  VERSION_V4_16_0 = 1;
+  VERSION_V4_17_0 = 2;
+}
+
+// Category CRS rule group, 1:1 with corers.Flag.
+enum Category {
+  CATEGORY_UNSPECIFIED = 0;
+
+  // ====== REQUEST PHASE ======
+  CATEGORY_COMMON_EXCEPTIONS = 1;     // 905
+  CATEGORY_METHOD_ENFORCEMENT = 2;    // 911
+  CATEGORY_SCANNER_DETECTION = 3;     // 913
+  CATEGORY_PROTOCOL_ENFORCEMENT = 4;  // 920
+  CATEGORY_PROTOCOL_ATTACK = 5;       // 921
+  CATEGORY_MULTIPART_ATTACK = 6;      // 922
+  CATEGORY_LFI = 7;                   // 930
+  CATEGORY_RFI = 8;                   // 931
+  CATEGORY_RCE = 9;                   // 932
+  CATEGORY_PHP = 10;                  // 933
+  CATEGORY_GENERIC = 11;              // 934
+  CATEGORY_XSS = 12;                  // 941
+  CATEGORY_SQLI = 13;                 // 942
+  CATEGORY_SESSION_FIXATION = 14;     // 943
+  CATEGORY_JAVA = 15;                 // 944
+
+  // ====== RESPONSE PHASE ======
+  CATEGORY_DATA_LEAKAGES = 20;       // 950
+  CATEGORY_DATA_LEAKAGES_SQL = 21;   // 951
+  CATEGORY_DATA_LEAKAGES_JAVA = 22;  // 952
+  CATEGORY_DATA_LEAKAGES_PHP = 23;   // 953
+  CATEGORY_DATA_LEAKAGES_IIS = 24;   // 954
+  CATEGORY_WEB_SHELLS = 25;          // 955
+  CATEGORY_DATA_LEAKAGES_RUBY = 26;  // 956
+}
+
+enum RuleState {
+  RULE_STATE_UNSPECIFIED = 0;
+  RULE_STATE_DISABLED = 1;        // removed (ctl:ruleRemoveById)
+  RULE_STATE_DETECTION_ONLY = 2;  // logged, not counted toward blocking
+  RULE_STATE_ENABLED = 3;         // forced on above paranoia_level
+}

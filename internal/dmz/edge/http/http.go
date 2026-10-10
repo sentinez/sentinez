@@ -47,6 +47,8 @@ func NewHandler(appConf *settingpb.Config, ms *memory.MemStore) corechains.Chain
 
 	curr = curr.SetNext(trace.Wrap("DMA", secure.NewDomainBased(hostname, ms)))
 
+	curr = curr.SetNext(trace.Wrap("PUB", cdn.NewPublic(ll, ms)))
+
 	curr = curr.SetNext(trace.Wrap("CDN", cdn.NewCache(ll, ms)))
 
 	curr = curr.SetNext(trace.Wrap("LMT", ratelimiter.NewLimiter(ll, ms)))
