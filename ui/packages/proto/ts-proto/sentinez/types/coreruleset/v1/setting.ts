@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Expression } from "../../rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../v1/known";
 
 export const protobufPackage = "sentinez.types.coreruleset.v1";
@@ -379,12 +380,16 @@ export interface RequestPolicy {
 
 /** Exclusion false-positive tuning by tag or rule target. */
 export interface Exclusion {
-  /** Path prefix, empty = global. */
-  location: string;
   /** @gotags: yaml:"tags" */
   tags: string[];
   /** @gotags: yaml:"targets" */
   targets: ExclusionTarget[];
+  /**
+   * Applies only to the requests matching the expression, empty = every
+   * request (global). It is translated to SecLang rules: the body, JA4
+   * and TLS sources are not supported.
+   */
+  expr?: Expression | undefined;
 }
 
 /** ExclusionTarget removes a variable from a rule, ex: 942100 ARGS:password. */
@@ -401,8 +406,12 @@ export interface RuleOverride {
   id: number;
   /** @gotags: yaml:"state" */
   state: RuleState;
-  /** Path prefix, empty = global. */
-  location: string;
+  /**
+   * Applies only to the requests matching the expression, empty = every
+   * request (global). Only RULE_STATE_DISABLED can be scoped. Same
+   * translation and limits as Exclusion.expr.
+   */
+  expr?: Expression | undefined;
 }
 
 /** RuleInfo catalog entry of a CRS rule, used by the console. */
@@ -914,19 +923,19 @@ export const RequestPolicy: MessageFns<RequestPolicy> = {
 };
 
 function createBaseExclusion(): Exclusion {
-  return { location: "", tags: [], targets: [] };
+  return { tags: [], targets: [], expr: undefined };
 }
 
 export const Exclusion: MessageFns<Exclusion> = {
   encode(message: Exclusion, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.location !== "") {
-      writer.uint32(10).string(message.location);
-    }
     for (const v of message.tags) {
-      writer.uint32(18).string(v!);
+      writer.uint32(10).string(v!);
     }
     for (const v of message.targets) {
-      ExclusionTarget.encode(v!, writer.uint32(26).fork()).join();
+      ExclusionTarget.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.expr !== undefined) {
+      Expression.encode(message.expr, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -949,7 +958,7 @@ export const Exclusion: MessageFns<Exclusion> = {
               break;
             }
 
-            message.location = reader.string();
+            message.tags.push(reader.string());
             continue;
           }
           case 2: {
@@ -957,7 +966,7 @@ export const Exclusion: MessageFns<Exclusion> = {
               break;
             }
 
-            message.tags.push(reader.string());
+            message.targets.push(ExclusionTarget.decode(reader, reader.uint32()));
             continue;
           }
           case 3: {
@@ -965,7 +974,7 @@ export const Exclusion: MessageFns<Exclusion> = {
               break;
             }
 
-            message.targets.push(ExclusionTarget.decode(reader, reader.uint32()));
+            message.expr = Expression.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -982,24 +991,24 @@ export const Exclusion: MessageFns<Exclusion> = {
 
   fromJSON(object: any): Exclusion {
     return {
-      location: isSet(object.location) ? globalThis.String(object.location) : "",
       tags: globalThis.Array.isArray(object?.tags) ? object.tags.map((e: any) => globalThis.String(e)) : [],
       targets: globalThis.Array.isArray(object?.targets)
         ? object.targets.map((e: any) => ExclusionTarget.fromJSON(e))
         : [],
+      expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
     };
   },
 
   toJSON(message: Exclusion): unknown {
     const obj: any = {};
-    if (message.location !== "") {
-      obj.location = message.location;
-    }
     if (message.tags?.length) {
       obj.tags = message.tags;
     }
     if (message.targets?.length) {
       obj.targets = message.targets.map((e) => ExclusionTarget.toJSON(e));
+    }
+    if (message.expr !== undefined) {
+      obj.expr = Expression.toJSON(message.expr);
     }
     return obj;
   },
@@ -1009,9 +1018,11 @@ export const Exclusion: MessageFns<Exclusion> = {
   },
   fromPartial<I extends Exact<DeepPartial<Exclusion>, I>>(object: I): Exclusion {
     const message = createBaseExclusion();
-    message.location = object.location ?? "";
     message.tags = object.tags?.map((e) => e) || [];
     message.targets = object.targets?.map((e) => ExclusionTarget.fromPartial(e)) || [];
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? Expression.fromPartial(object.expr)
+      : undefined;
     return message;
   },
 };
@@ -1106,7 +1117,7 @@ export const ExclusionTarget: MessageFns<ExclusionTarget> = {
 };
 
 function createBaseRuleOverride(): RuleOverride {
-  return { id: 0, state: 0, location: "" };
+  return { id: 0, state: 0, expr: undefined };
 }
 
 export const RuleOverride: MessageFns<RuleOverride> = {
@@ -1117,8 +1128,8 @@ export const RuleOverride: MessageFns<RuleOverride> = {
     if (message.state !== 0) {
       writer.uint32(16).int32(message.state);
     }
-    if (message.location !== "") {
-      writer.uint32(26).string(message.location);
+    if (message.expr !== undefined) {
+      Expression.encode(message.expr, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -1157,7 +1168,7 @@ export const RuleOverride: MessageFns<RuleOverride> = {
               break;
             }
 
-            message.location = reader.string();
+            message.expr = Expression.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1176,7 +1187,7 @@ export const RuleOverride: MessageFns<RuleOverride> = {
     return {
       id: isSet(object.id) ? globalThis.Number(object.id) : 0,
       state: isSet(object.state) ? ruleStateFromJSON(object.state) : 0,
-      location: isSet(object.location) ? globalThis.String(object.location) : "",
+      expr: isSet(object.expr) ? Expression.fromJSON(object.expr) : undefined,
     };
   },
 
@@ -1188,8 +1199,8 @@ export const RuleOverride: MessageFns<RuleOverride> = {
     if (message.state !== 0) {
       obj.state = ruleStateToJSON(message.state);
     }
-    if (message.location !== "") {
-      obj.location = message.location;
+    if (message.expr !== undefined) {
+      obj.expr = Expression.toJSON(message.expr);
     }
     return obj;
   },
@@ -1201,7 +1212,9 @@ export const RuleOverride: MessageFns<RuleOverride> = {
     const message = createBaseRuleOverride();
     message.id = object.id ?? 0;
     message.state = object.state ?? 0;
-    message.location = object.location ?? "";
+    message.expr = (object.expr !== undefined && object.expr !== null)
+      ? Expression.fromPartial(object.expr)
+      : undefined;
     return message;
   },
 };

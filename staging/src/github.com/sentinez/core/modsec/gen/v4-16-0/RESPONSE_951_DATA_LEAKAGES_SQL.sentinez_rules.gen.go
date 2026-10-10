@@ -97,12 +97,204 @@ var Response951DataLeakagesSql = map[string]*rulepb.CoreRule{
 	"Response951DataLeakagesSqlMaker_27": Response951DataLeakagesSqlMaker_27(),
 }
 
+// Response951DataLeakagesSqlInfo is the catalog of the rules above that have an ID.
+var Response951DataLeakagesSqlInfo = []*rulepb.RuleInfo{
+	{
+		Id:       951010,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL"},
+		System:   true,
+	},
+	{
+		Id:       951011,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951012,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951100,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"application-multi", "language-multi", "platform-multi", "attack-disclosure", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+		System:   true,
+	},
+	{
+		Id:            951110,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Microsoft Access SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-msaccess", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951120,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Oracle SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-oracle", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951130,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "DB2 SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-db2", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951140,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "EMC SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-emc", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951150,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "firebird SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-firebird", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951160,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Frontbase SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-frontbase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951170,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "hsqldb SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-hsqldb", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951180,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "informix SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-informix", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951190,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "ingres SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-ingres", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951200,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "interbase SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-interbase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951210,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "maxDB SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-maxdb", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951220,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "mssql SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-mssql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951230,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "mysql SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-mysql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951240,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "postgres SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-pgsql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951250,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "sqlite SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-sqlite", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:            951260,
+		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Sybase SQL Information Leakage",
+		Tags:          []string{"application-multi", "language-multi", "platform-sybase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"},
+	},
+	{
+		Id:       951013,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951014,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951015,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951016,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951017,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       951018,
+		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+}
+
 // R951010 returns rule with ID 951010
 func R951010() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1MTAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1MS1EQVRBLUxFQUtBR0VTLVNRTCI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951010"}, Phase: []string{"4"}, Tag: []string{"'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951010"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1MTAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1MS1EQVRBLUxFQUtBR0VTLVNRTCI=",
 		Level:         "",
@@ -114,7 +306,7 @@ func R951011() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTUxMDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951011"}, Phase: []string{"3"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951011"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTUxMDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -126,7 +318,7 @@ func R951012() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTUxMDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951012"}, Phase: []string{"4"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951012"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTUxMDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -138,7 +330,7 @@ func R951100() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICIhQHBtRnJvbUZpbGUgc3FsLWVycm9ycy5kYXRhIiBcCiAgICAiaWQ6OTUxMTAwLFwKICAgIHBoYXNlOjQsXAogICAgcGFzcyxcCiAgICB0Om5vbmUsXAogICAgbm9sb2csXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2tpcEFmdGVyOkVORC1TUUwtRVJST1ItTUFUQ0gtUEwxIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951100"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-multi'", "'attack-disclosure'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951100"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-multi", "attack-disclosure", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICIhQHBtRnJvbUZpbGUgc3FsLWVycm9ycy5kYXRhIiBcCiAgICAiaWQ6OTUxMTAwLFwKICAgIHBoYXNlOjQsXAogICAgcGFzcyxcCiAgICB0Om5vbmUsXAogICAgbm9sb2csXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2tpcEFmdGVyOkVORC1TUUwtRVJST1ItTUFUQ0gtUEwxIg==",
 		Level:         "",
@@ -150,7 +342,7 @@ func R951110() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkpFVCBEYXRhYmFzZSBFbmdpbmV8QWNjZXNzIERhdGFiYXNlIEVuZ2luZXxcW01pY3Jvc29mdFxdXFtPREJDIE1pY3Jvc29mdCBBY2Nlc3MgRHJpdmVyXF0pIiBcCiAgICAiaWQ6OTUxMTEwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidNaWNyb3NvZnQgQWNjZXNzIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbXNhY2Nlc3MnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951110"}, Msg: []string{"'Microsoft Access SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-msaccess'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951110"}, Msg: []string{"Microsoft Access SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-msaccess", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkpFVCBEYXRhYmFzZSBFbmdpbmV8QWNjZXNzIERhdGFiYXNlIEVuZ2luZXxcW01pY3Jvc29mdFxdXFtPREJDIE1pY3Jvc29mdCBBY2Nlc3MgRHJpdmVyXF0pIiBcCiAgICAiaWQ6OTUxMTEwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidNaWNyb3NvZnQgQWNjZXNzIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbXNhY2Nlc3MnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -162,7 +354,7 @@ func R951120() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKVxiT1JBLVswLTldWzAtOV1bMC05XVswLTldWzAtOV06fGphdmFcLnNxbFwuU1FMRXhjZXB0aW9ufE9yYWNsZSg/OiBlcnJvfFteXChcKV17MCwyMH1Ecml2ZSlyfFdhcm5pbmcuezEsMTB9byg/OmNpXy57MSwzMH18cmFfLnsxLDIwfSkiIFwKICAgICJpZDo5NTExMjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J09yYWNsZSBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLW9yYWNsZScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951120"}, Msg: []string{"'Oracle SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-oracle'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951120"}, Msg: []string{"Oracle SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-oracle", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKVxiT1JBLVswLTldWzAtOV1bMC05XVswLTldWzAtOV06fGphdmFcLnNxbFwuU1FMRXhjZXB0aW9ufE9yYWNsZSg/OiBlcnJvfFteXChcKV17MCwyMH1Ecml2ZSlyfFdhcm5pbmcuezEsMTB9byg/OmNpXy57MSwzMH18cmFfLnsxLDIwfSkiIFwKICAgICJpZDo5NTExMjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J09yYWNsZSBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLW9yYWNsZScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -174,7 +366,7 @@ func R951130() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkRCMiBTUUwgZXJyb3I6fFxbSUJNXF1cW0NMSSBEcml2ZXJcXVxbREIyLzYwMDBcXXxDTEkgRHJpdmVyLipEQjJ8REIyIFNRTCBlcnJvcnxkYjJfXHcrXCgpIiBcCiAgICAiaWQ6OTUxMTMwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidEQjIgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1kYjInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951130"}, Msg: []string{"'DB2 SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-db2'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951130"}, Msg: []string{"DB2 SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-db2", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkRCMiBTUUwgZXJyb3I6fFxbSUJNXF1cW0NMSSBEcml2ZXJcXVxbREIyLzYwMDBcXXxDTEkgRHJpdmVyLipEQjJ8REIyIFNRTCBlcnJvcnxkYjJfXHcrXCgpIiBcCiAgICAiaWQ6OTUxMTMwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidEQjIgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1kYjInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -186,7 +378,7 @@ func R951140() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOlxbRE1fUVVFUllfRV9TWU5UQVhcXXxoYXMgb2NjdXJyZWQgaW4gdGhlIHZpY2luaXR5IG9mOikiIFwKICAgICJpZDo5NTExNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J0VNQyBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLWVtYycsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951140"}, Msg: []string{"'EMC SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-emc'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951140"}, Msg: []string{"EMC SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-emc", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOlxbRE1fUVVFUllfRV9TWU5UQVhcXXxoYXMgb2NjdXJyZWQgaW4gdGhlIHZpY2luaXR5IG9mOikiIFwKICAgICJpZDo5NTExNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J0VNQyBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLWVtYycsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -198,7 +390,7 @@ func R951150() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKUR5bmFtaWMgU1FMIEVycm9yIiBcCiAgICAiaWQ6OTUxMTUwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidmaXJlYmlyZCBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLWZpcmViaXJkJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVNRTCcsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYvNTQnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTYuMC1kZXYnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5zcWxfaW5qZWN0aW9uX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951150"}, Msg: []string{"'firebird SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-firebird'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951150"}, Msg: []string{"firebird SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-firebird", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKUR5bmFtaWMgU1FMIEVycm9yIiBcCiAgICAiaWQ6OTUxMTUwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidmaXJlYmlyZCBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLWZpcmViaXJkJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVNRTCcsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYvNTQnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTYuMC1kZXYnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5zcWxfaW5qZWN0aW9uX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -210,7 +402,7 @@ func R951160() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKUV4Y2VwdGlvbiAoPzpjb25kaXRpb24gKT9cZCtcLiBUcmFuc2FjdGlvbiByb2xsYmFja1wuIiBcCiAgICAiaWQ6OTUxMTYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidGcm9udGJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1mcm9udGJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951160"}, Msg: []string{"'Frontbase SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-frontbase'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951160"}, Msg: []string{"Frontbase SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-frontbase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKUV4Y2VwdGlvbiAoPzpjb25kaXRpb24gKT9cZCtcLiBUcmFuc2FjdGlvbiByb2xsYmFja1wuIiBcCiAgICAiaWQ6OTUxMTYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidGcm9udGJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1mcm9udGJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -222,7 +414,7 @@ func R951170() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKW9yZ1wuaHNxbGRiXC5qZGJjIiBcCiAgICAiaWQ6OTUxMTcwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidoc3FsZGIgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1oc3FsZGInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951170"}, Msg: []string{"'hsqldb SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-hsqldb'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951170"}, Msg: []string{"hsqldb SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-hsqldb", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKW9yZ1wuaHNxbGRiXC5qZGJjIiBcCiAgICAiaWQ6OTUxMTcwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidoc3FsZGIgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1oc3FsZGInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -234,7 +426,7 @@ func R951180() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkFuIGlsbGVnYWwgY2hhcmFjdGVyIGhhcyBiZWVuIGZvdW5kIGluIHRoZSBzdGF0ZW1lbnR8Y29tXC5pbmZvcm1peFwuamRiY3xFeGNlcHRpb24uKkluZm9ybWl4KSIgXAogICAgImlkOjk1MTE4MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonaW5mb3JtaXggU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbmZvcm1peCcsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951180"}, Msg: []string{"'informix SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-informix'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951180"}, Msg: []string{"informix SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-informix", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOkFuIGlsbGVnYWwgY2hhcmFjdGVyIGhhcyBiZWVuIGZvdW5kIGluIHRoZSBzdGF0ZW1lbnR8Y29tXC5pbmZvcm1peFwuamRiY3xFeGNlcHRpb24uKkluZm9ybWl4KSIgXAogICAgImlkOjk1MTE4MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonaW5mb3JtaXggU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbmZvcm1peCcsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -246,7 +438,7 @@ func R951190() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOldhcm5pbmcuKmluZ3Jlc198SW5ncmVzIFNRTFNUQVRFfEluZ3Jlc1xXLipEcml2ZXIpIiBcCiAgICAiaWQ6OTUxMTkwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidpbmdyZXMgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbmdyZXMnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951190"}, Msg: []string{"'ingres SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-ingres'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951190"}, Msg: []string{"ingres SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-ingres", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOldhcm5pbmcuKmluZ3Jlc198SW5ncmVzIFNRTFNUQVRFfEluZ3Jlc1xXLipEcml2ZXIpIiBcCiAgICAiaWQ6OTUxMTkwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidpbmdyZXMgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbmdyZXMnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -258,7 +450,7 @@ func R951200() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOjxiPldhcm5pbmc8L2I+OiBpYmFzZV98VW5leHBlY3RlZCBlbmQgb2YgY29tbWFuZCBpbiBzdGF0ZW1lbnQpIiBcCiAgICAiaWQ6OTUxMjAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidpbnRlcmJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbnRlcmJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951200"}, Msg: []string{"'interbase SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-interbase'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951200"}, Msg: []string{"interbase SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-interbase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOjxiPldhcm5pbmc8L2I+OiBpYmFzZV98VW5leHBlY3RlZCBlbmQgb2YgY29tbWFuZCBpbiBzdGF0ZW1lbnQpIiBcCiAgICAiaWQ6OTUxMjAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidpbnRlcmJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1pbnRlcmJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -270,7 +462,7 @@ func R951210() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOlNRTCBlcnJvci4qUE9TWzAtOV0rLip8V2FybmluZy4qbWF4ZGIuKikiIFwKICAgICJpZDo5NTEyMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J21heERCIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbWF4ZGInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951210"}, Msg: []string{"'maxDB SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-maxdb'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951210"}, Msg: []string{"maxDB SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-maxdb", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pOlNRTCBlcnJvci4qUE9TWzAtOV0rLip8V2FybmluZy4qbWF4ZGIuKikiIFwKICAgICJpZDo5NTEyMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J21heERCIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbWF4ZGInLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -282,7 +474,7 @@ func R951220() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OlN5c3RlbVwuRGF0YVwuT2xlRGJcLk9sZURiRXhjZXB0aW9ufFxbTWljcm9zb2Z0XF1cW09EQkMgU1FMIFNlcnZlciBEcml2ZXJcXXxcW01hY3JvbWVkaWFcXVxbU1FMU2VydmVyIEpEQkMgRHJpdmVyXF18XFtTcWxFeGNlcHRpb258U3lzdGVtXC5EYXRhXC5TcWxDbGllbnRcLlNxbEV4Y2VwdGlvbnxVbmNsb3NlZCBxdW90YXRpb24gbWFyayBhZnRlciB0aGUgY2hhcmFjdGVyIHN0cmluZ3wnODAwNDBlMTQnfG1zc3FsX3F1ZXJ5XChcKXxNaWNyb3NvZnQgT0xFIERCIFByb3ZpZGVyIGZvciBPREJDIERyaXZlcnN8TWljcm9zb2Z0IE9MRSBEQiBQcm92aWRlciBmb3IgU1FMIFNlcnZlcnxJbmNvcnJlY3Qgc3ludGF4IG5lYXJ8U2ludGF4aXMgaW5jb3JyZWN0YSBjZXJjYSBkZXxTeW50YXggZXJyb3IgaW4gc3RyaW5nIGluIHF1ZXJ5IGV4cHJlc3Npb258UHJvY2VkdXJlIG9yIGZ1bmN0aW9uICcuezEsMTI4fScgZXhwZWN0cyBwYXJhbWV0ZXJ8VW5jbG9zZWQgcXVvdGF0aW9uIG1hcmsgYmVmb3JlIHRoZSBjaGFyYWN0ZXIgc3RyaW5nfFN5bnRheCBlcnJvciAuKiBpbiBxdWVyeSBleHByZXNzaW9ufERhdGEgdHlwZSBtaXNtYXRjaCBpbiBjcml0ZXJpYSBleHByZXNzaW9uXC58QURPREJcLkZpZWxkIFwoMHg4MDBBMEJDRFwpfHRoZSB1c2VkIHNlbGVjdCBzdGF0ZW1lbnRzIGhhdmUgZGlmZmVyZW50IG51bWJlciBvZiBjb2x1bW5zfE9MRSBEQi4qU1FMIFNlcnZlcnxXYXJuaW5nLiptc3NxbF8uKnxEcml2ZXIuKlNRTFsgXy1dKlNlcnZlcnxFeGNlcHRpb24uKlxXU3lzdGVtXC5EYXRhXC5TcWxDbGllbnRcLnxDb252ZXJzaW9uIGZhaWxlZCB3aGVuIGNvbnZlcnRpbmcgdGhlIHZhcmNoYXIgdmFsdWUgLio/IHRvIGRhdGEgdHlwZSBpbnRcLikiIFwKICAgICJpZDo5NTEyMjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J21zc3FsIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbXNzcWwnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951220"}, Msg: []string{"'mssql SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-mssql'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951220"}, Msg: []string{"mssql SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-mssql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OlN5c3RlbVwuRGF0YVwuT2xlRGJcLk9sZURiRXhjZXB0aW9ufFxbTWljcm9zb2Z0XF1cW09EQkMgU1FMIFNlcnZlciBEcml2ZXJcXXxcW01hY3JvbWVkaWFcXVxbU1FMU2VydmVyIEpEQkMgRHJpdmVyXF18XFtTcWxFeGNlcHRpb258U3lzdGVtXC5EYXRhXC5TcWxDbGllbnRcLlNxbEV4Y2VwdGlvbnxVbmNsb3NlZCBxdW90YXRpb24gbWFyayBhZnRlciB0aGUgY2hhcmFjdGVyIHN0cmluZ3wnODAwNDBlMTQnfG1zc3FsX3F1ZXJ5XChcKXxNaWNyb3NvZnQgT0xFIERCIFByb3ZpZGVyIGZvciBPREJDIERyaXZlcnN8TWljcm9zb2Z0IE9MRSBEQiBQcm92aWRlciBmb3IgU1FMIFNlcnZlcnxJbmNvcnJlY3Qgc3ludGF4IG5lYXJ8U2ludGF4aXMgaW5jb3JyZWN0YSBjZXJjYSBkZXxTeW50YXggZXJyb3IgaW4gc3RyaW5nIGluIHF1ZXJ5IGV4cHJlc3Npb258UHJvY2VkdXJlIG9yIGZ1bmN0aW9uICcuezEsMTI4fScgZXhwZWN0cyBwYXJhbWV0ZXJ8VW5jbG9zZWQgcXVvdGF0aW9uIG1hcmsgYmVmb3JlIHRoZSBjaGFyYWN0ZXIgc3RyaW5nfFN5bnRheCBlcnJvciAuKiBpbiBxdWVyeSBleHByZXNzaW9ufERhdGEgdHlwZSBtaXNtYXRjaCBpbiBjcml0ZXJpYSBleHByZXNzaW9uXC58QURPREJcLkZpZWxkIFwoMHg4MDBBMEJDRFwpfHRoZSB1c2VkIHNlbGVjdCBzdGF0ZW1lbnRzIGhhdmUgZGlmZmVyZW50IG51bWJlciBvZiBjb2x1bW5zfE9MRSBEQi4qU1FMIFNlcnZlcnxXYXJuaW5nLiptc3NxbF8uKnxEcml2ZXIuKlNRTFsgXy1dKlNlcnZlcnxFeGNlcHRpb24uKlxXU3lzdGVtXC5EYXRhXC5TcWxDbGllbnRcLnxDb252ZXJzaW9uIGZhaWxlZCB3aGVuIGNvbnZlcnRpbmcgdGhlIHZhcmNoYXIgdmFsdWUgLio/IHRvIGRhdGEgdHlwZSBpbnRcLikiIFwKICAgICJpZDo5NTEyMjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J21zc3FsIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tbXNzcWwnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -294,7 +486,7 @@ func R951230() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OnN1cHBsaWVkIGFyZ3VtZW50IGlzIG5vdCBhIHZhbGlkIHxTUUwgc3ludGF4LiopTXlTUUx8Q29sdW1uIGNvdW50IGRvZXNuJ3QgbWF0Y2goPzogdmFsdWUgY291bnQgYXQgcm93KT98bXlzcWxfZmV0Y2hfYXJyYXlcKFwpfG9uIE15U1FMIHJlc3VsdCBpbmRleHxZb3UgaGF2ZSBhbiBlcnJvciBpbiB5b3VyIFNRTCBzeW50YXgoPzo7fCBuZWFyKXxNeVMoPzpRTCBzZXJ2ZXIgdmVyc2lvbiBmb3IgdGhlIHJpZ2h0IHN5bnRheCB0byB1c2V8cWxDbGllbnRcLil8XFtNeVNRTFxdXFtPREJDfCg/OlRhYmxlICdbXiddKycgZG9lc24ndCBleGlzfHZhbGlkIE15U1FMIHJlc3VsKXR8V2FybmluZy57MSwxMH1teXNxbF8oPzpbXChcKV9hLXpdezEsMjZ9KT98KD86RVJST1IgWzAtOV17NH0gXChbMC05YS16XXs1fVwpfFhQQVRIIHN5bnRheCBlcnJvcik6IiBcCiAgICAiaWQ6OTUxMjMwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidteXNxbCBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLW15c3FsJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVNRTCcsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYvNTQnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTYuMC1kZXYnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5zcWxfaW5qZWN0aW9uX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951230"}, Msg: []string{"'mysql SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-mysql'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951230"}, Msg: []string{"mysql SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-mysql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OnN1cHBsaWVkIGFyZ3VtZW50IGlzIG5vdCBhIHZhbGlkIHxTUUwgc3ludGF4LiopTXlTUUx8Q29sdW1uIGNvdW50IGRvZXNuJ3QgbWF0Y2goPzogdmFsdWUgY291bnQgYXQgcm93KT98bXlzcWxfZmV0Y2hfYXJyYXlcKFwpfG9uIE15U1FMIHJlc3VsdCBpbmRleHxZb3UgaGF2ZSBhbiBlcnJvciBpbiB5b3VyIFNRTCBzeW50YXgoPzo7fCBuZWFyKXxNeVMoPzpRTCBzZXJ2ZXIgdmVyc2lvbiBmb3IgdGhlIHJpZ2h0IHN5bnRheCB0byB1c2V8cWxDbGllbnRcLil8XFtNeVNRTFxdXFtPREJDfCg/OlRhYmxlICdbXiddKycgZG9lc24ndCBleGlzfHZhbGlkIE15U1FMIHJlc3VsKXR8V2FybmluZy57MSwxMH1teXNxbF8oPzpbXChcKV9hLXpdezEsMjZ9KT98KD86RVJST1IgWzAtOV17NH0gXChbMC05YS16XXs1fVwpfFhQQVRIIHN5bnRheCBlcnJvcik6IiBcCiAgICAiaWQ6OTUxMjMwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidteXNxbCBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLW15c3FsJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVNRTCcsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYvNTQnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTYuMC1kZXYnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5zcWxfaW5qZWN0aW9uX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -306,7 +498,7 @@ func R951240() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKVAoPzpvc3RncmVTUUwoPzogcXVlcnkgZmFpbGVkOnwuezEsMjB9RVJST1IpfEc6OlthLXpdKkVycm9yKXwoPzpwZ18oPzpxdWVyeXxleGVjKVwoXCkgXFt8b3JnXC5wb3N0Z3Jlc3FsXC51dGlsXC5QU1FMRXhjZXB0aW9uKTp8V2FybmluZy57MSwyMH1cYnBnXy4qfHZhbGlkIFBvc3RncmVTUUwgcmVzdWx0fE5wZ3NxbFwufFN1cHBsaWVkIGFyZ3VtZW50IGlzIG5vdCBhIHZhbGlkIFBvc3RncmVTUUwgLio/IHJlc291cmNlfCg/OlVuYWJsZSB0byBjb25uZWN0IHRvIFBvc3RncmVTUUwgc2VydnxpbnZhbGlkIGlucHV0IHN5bnRheCBmb3IgaW50ZWcpZXIiIFwKICAgICJpZDo5NTEyNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3Bvc3RncmVzIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tcGdzcWwnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951240"}, Msg: []string{"'postgres SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-pgsql'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951240"}, Msg: []string{"postgres SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-pgsql", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKVAoPzpvc3RncmVTUUwoPzogcXVlcnkgZmFpbGVkOnwuezEsMjB9RVJST1IpfEc6OlthLXpdKkVycm9yKXwoPzpwZ18oPzpxdWVyeXxleGVjKVwoXCkgXFt8b3JnXC5wb3N0Z3Jlc3FsXC51dGlsXC5QU1FMRXhjZXB0aW9uKTp8V2FybmluZy57MSwyMH1cYnBnXy4qfHZhbGlkIFBvc3RncmVTUUwgcmVzdWx0fE5wZ3NxbFwufFN1cHBsaWVkIGFyZ3VtZW50IGlzIG5vdCBhIHZhbGlkIFBvc3RncmVTUUwgLio/IHJlc291cmNlfCg/OlVuYWJsZSB0byBjb25uZWN0IHRvIFBvc3RncmVTUUwgc2VydnxpbnZhbGlkIGlucHV0IHN5bnRheCBmb3IgaW50ZWcpZXIiIFwKICAgICJpZDo5NTEyNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3Bvc3RncmVzIFNRTCBJbmZvcm1hdGlvbiBMZWFrYWdlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tcGdzcWwnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -318,7 +510,7 @@ func R951250() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/Oldhcm5pbmcuKnNxbGl0ZV8uKnxXYXJuaW5nLipTUUxpdGUzOjp8U1FMaXRlL0pEQkNEcml2ZXJ8U1FMaXRlXC5FeGNlcHRpb258U3lzdGVtXC5EYXRhXC5TUUxpdGVcLlNRTGl0ZUV4Y2VwdGlvbikiIFwKICAgICJpZDo5NTEyNTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3NxbGl0ZSBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLXNxbGl0ZScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951250"}, Msg: []string{"'sqlite SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-sqlite'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951250"}, Msg: []string{"sqlite SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-sqlite", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/Oldhcm5pbmcuKnNxbGl0ZV8uKnxXYXJuaW5nLipTUUxpdGUzOjp8U1FMaXRlL0pEQkNEcml2ZXJ8U1FMaXRlXC5FeGNlcHRpb258U3lzdGVtXC5EYXRhXC5TUUxpdGVcLlNRTGl0ZUV4Y2VwdGlvbikiIFwKICAgICJpZDo5NTEyNTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3NxbGl0ZSBTUUwgSW5mb3JtYXRpb24gTGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLW11bHRpJyxcCiAgICB0YWc6J3BsYXRmb3JtLXNxbGl0ZScsXAogICAgdGFnOidhdHRhY2stZGlzY2xvc3VyZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvREFUQS1MRUFLQUdFUy1TUUwnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2LzU0JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguc3FsX2luamVjdGlvbl9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -330,7 +522,7 @@ func R951260() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OlN5YmFzZSBtZXNzYWdlOnxXYXJuaW5nLnsyLDIwfXN5YmFzZXxTeWJhc2UuKlNlcnZlciBtZXNzYWdlLiopIiBcCiAgICAiaWQ6OTUxMjYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTeWJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1zeWJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951260"}, Msg: []string{"'Sybase SQL Information Leakage'"}, Phase: []string{"4"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-sybase'", "'attack-disclosure'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/DATA-LEAKAGES-SQL'", "'capec/1000/118/116/54'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'", "'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951260"}, Msg: []string{"Sybase SQL Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-multi", "platform-sybase", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-SQL", "capec/1000/118/116/54"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}", "tx.sql_injection_score=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OlN5YmFzZSBtZXNzYWdlOnxXYXJuaW5nLnsyLDIwfXN5YmFzZXxTeWJhc2UuKlNlcnZlciBtZXNzYWdlLiopIiBcCiAgICAiaWQ6OTUxMjYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTeWJhc2UgU1FMIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1zeWJhc2UnLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtU1FMJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTE4LzExNi81NCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LnNxbF9pbmplY3Rpb25fc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -354,7 +546,7 @@ func R951013() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTUxMDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951013"}, Phase: []string{"3"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951013"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTUxMDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -366,7 +558,7 @@ func R951014() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTUxMDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951014"}, Phase: []string{"4"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951014"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTUxMDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -378,7 +570,7 @@ func R951015() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTUxMDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951015"}, Phase: []string{"3"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951015"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTUxMDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -390,7 +582,7 @@ func R951016() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTUxMDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951016"}, Phase: []string{"4"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951016"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTUxMDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -402,7 +594,7 @@ func R951017() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTUxMDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951017"}, Phase: []string{"3"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951017"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTUxMDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",
@@ -414,7 +606,7 @@ func R951018() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTUxMDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"951018"}, Phase: []string{"4"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"951018"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTUxMDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTEtREFUQS1MRUFLQUdFUy1TUUwi",
 		Level:         "",

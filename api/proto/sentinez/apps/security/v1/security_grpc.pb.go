@@ -33,17 +33,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SecurityService_CreateSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/CreateSecRule"
-	SecurityService_GetSecRule_FullMethodName      = "/sentinez.apps.security.v1.SecurityService/GetSecRule"
-	SecurityService_UpdateSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/UpdateSecRule"
-	SecurityService_DeleteSecRule_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/DeleteSecRule"
-	SecurityService_ListSecRules_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/ListSecRules"
-	SecurityService_CreateRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateRateLimit"
-	SecurityService_GetRateLimit_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetRateLimit"
-	SecurityService_UpdateRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateRateLimit"
-	SecurityService_DeleteRateLimit_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteRateLimit"
-	SecurityService_ListRateLimits_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListRateLimits"
-	SecurityService_Status_FullMethodName          = "/sentinez.apps.security.v1.SecurityService/Status"
+	SecurityService_CreateSecRule_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/CreateSecRule"
+	SecurityService_GetSecRule_FullMethodName        = "/sentinez.apps.security.v1.SecurityService/GetSecRule"
+	SecurityService_UpdateSecRule_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/UpdateSecRule"
+	SecurityService_DeleteSecRule_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/DeleteSecRule"
+	SecurityService_ListSecRules_FullMethodName      = "/sentinez.apps.security.v1.SecurityService/ListSecRules"
+	SecurityService_CreateRateLimit_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/CreateRateLimit"
+	SecurityService_GetRateLimit_FullMethodName      = "/sentinez.apps.security.v1.SecurityService/GetRateLimit"
+	SecurityService_UpdateRateLimit_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/UpdateRateLimit"
+	SecurityService_DeleteRateLimit_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/DeleteRateLimit"
+	SecurityService_ListRateLimits_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/ListRateLimits"
+	SecurityService_CreateCoreRuleset_FullMethodName = "/sentinez.apps.security.v1.SecurityService/CreateCoreRuleset"
+	SecurityService_GetCoreRuleset_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/GetCoreRuleset"
+	SecurityService_UpdateCoreRuleset_FullMethodName = "/sentinez.apps.security.v1.SecurityService/UpdateCoreRuleset"
+	SecurityService_DeleteCoreRuleset_FullMethodName = "/sentinez.apps.security.v1.SecurityService/DeleteCoreRuleset"
+	SecurityService_ListCoreRulesets_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListCoreRulesets"
+	SecurityService_GetRuleInfo_FullMethodName       = "/sentinez.apps.security.v1.SecurityService/GetRuleInfo"
+	SecurityService_ListRuleInfos_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/ListRuleInfos"
+	SecurityService_Status_FullMethodName            = "/sentinez.apps.security.v1.SecurityService/Status"
 )
 
 // SecurityServiceClient is the client API for SecurityService service.
@@ -72,6 +79,22 @@ type SecurityServiceClient interface {
 	DeleteRateLimit(ctx context.Context, in *DeleteRateLimitRequest, opts ...grpc.CallOption) (*DeleteRateLimitResponse, error)
 	// ListRateLimits lists rate limit rules with optional filters
 	ListRateLimits(ctx context.Context, in *ListRateLimitsRequest, opts ...grpc.CallOption) (*ListRateLimitsResponse, error)
+	// CreateCoreRuleset creates a new OWASP CRS configuration
+	CreateCoreRuleset(ctx context.Context, in *CreateCoreRulesetRequest, opts ...grpc.CallOption) (*CreateCoreRulesetResponse, error)
+	// GetCoreRuleset retrieves an OWASP CRS configuration by ID
+	GetCoreRuleset(ctx context.Context, in *GetCoreRulesetRequest, opts ...grpc.CallOption) (*GetCoreRulesetResponse, error)
+	// UpdateCoreRuleset updates an existing OWASP CRS configuration
+	UpdateCoreRuleset(ctx context.Context, in *UpdateCoreRulesetRequest, opts ...grpc.CallOption) (*UpdateCoreRulesetResponse, error)
+	// DeleteCoreRuleset removes an OWASP CRS configuration by ID
+	DeleteCoreRuleset(ctx context.Context, in *DeleteCoreRulesetRequest, opts ...grpc.CallOption) (*DeleteCoreRulesetResponse, error)
+	// ListCoreRulesets lists OWASP CRS configurations, filtered by their
+	// name or by the fields of their content
+	ListCoreRulesets(ctx context.Context, in *ListCoreRulesetsRequest, opts ...grpc.CallOption) (*ListCoreRulesetsResponse, error)
+	// GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
+	GetRuleInfo(ctx context.Context, in *GetRuleInfoRequest, opts ...grpc.CallOption) (*GetRuleInfoResponse, error)
+	// ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
+	// can exclude or override, with their tags
+	ListRuleInfos(ctx context.Context, in *ListRuleInfosRequest, opts ...grpc.CallOption) (*ListRuleInfosResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -184,6 +207,76 @@ func (c *securityServiceClient) ListRateLimits(ctx context.Context, in *ListRate
 	return out, nil
 }
 
+func (c *securityServiceClient) CreateCoreRuleset(ctx context.Context, in *CreateCoreRulesetRequest, opts ...grpc.CallOption) (*CreateCoreRulesetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateCoreRulesetResponse)
+	err := c.cc.Invoke(ctx, SecurityService_CreateCoreRuleset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) GetCoreRuleset(ctx context.Context, in *GetCoreRulesetRequest, opts ...grpc.CallOption) (*GetCoreRulesetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCoreRulesetResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetCoreRuleset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) UpdateCoreRuleset(ctx context.Context, in *UpdateCoreRulesetRequest, opts ...grpc.CallOption) (*UpdateCoreRulesetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateCoreRulesetResponse)
+	err := c.cc.Invoke(ctx, SecurityService_UpdateCoreRuleset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) DeleteCoreRuleset(ctx context.Context, in *DeleteCoreRulesetRequest, opts ...grpc.CallOption) (*DeleteCoreRulesetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteCoreRulesetResponse)
+	err := c.cc.Invoke(ctx, SecurityService_DeleteCoreRuleset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) ListCoreRulesets(ctx context.Context, in *ListCoreRulesetsRequest, opts ...grpc.CallOption) (*ListCoreRulesetsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCoreRulesetsResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListCoreRulesets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) GetRuleInfo(ctx context.Context, in *GetRuleInfoRequest, opts ...grpc.CallOption) (*GetRuleInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRuleInfoResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetRuleInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *securityServiceClient) ListRuleInfos(ctx context.Context, in *ListRuleInfosRequest, opts ...grpc.CallOption) (*ListRuleInfosResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRuleInfosResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRuleInfos_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
@@ -220,6 +313,22 @@ type SecurityServiceServer interface {
 	DeleteRateLimit(context.Context, *DeleteRateLimitRequest) (*DeleteRateLimitResponse, error)
 	// ListRateLimits lists rate limit rules with optional filters
 	ListRateLimits(context.Context, *ListRateLimitsRequest) (*ListRateLimitsResponse, error)
+	// CreateCoreRuleset creates a new OWASP CRS configuration
+	CreateCoreRuleset(context.Context, *CreateCoreRulesetRequest) (*CreateCoreRulesetResponse, error)
+	// GetCoreRuleset retrieves an OWASP CRS configuration by ID
+	GetCoreRuleset(context.Context, *GetCoreRulesetRequest) (*GetCoreRulesetResponse, error)
+	// UpdateCoreRuleset updates an existing OWASP CRS configuration
+	UpdateCoreRuleset(context.Context, *UpdateCoreRulesetRequest) (*UpdateCoreRulesetResponse, error)
+	// DeleteCoreRuleset removes an OWASP CRS configuration by ID
+	DeleteCoreRuleset(context.Context, *DeleteCoreRulesetRequest) (*DeleteCoreRulesetResponse, error)
+	// ListCoreRulesets lists OWASP CRS configurations, filtered by their
+	// name or by the fields of their content
+	ListCoreRulesets(context.Context, *ListCoreRulesetsRequest) (*ListCoreRulesetsResponse, error)
+	// GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
+	GetRuleInfo(context.Context, *GetRuleInfoRequest) (*GetRuleInfoResponse, error)
+	// ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
+	// can exclude or override, with their tags
+	ListRuleInfos(context.Context, *ListRuleInfosRequest) (*ListRuleInfosResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -260,6 +369,27 @@ func (UnimplementedSecurityServiceServer) DeleteRateLimit(context.Context, *Dele
 }
 func (UnimplementedSecurityServiceServer) ListRateLimits(context.Context, *ListRateLimitsRequest) (*ListRateLimitsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRateLimits not implemented")
+}
+func (UnimplementedSecurityServiceServer) CreateCoreRuleset(context.Context, *CreateCoreRulesetRequest) (*CreateCoreRulesetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateCoreRuleset not implemented")
+}
+func (UnimplementedSecurityServiceServer) GetCoreRuleset(context.Context, *GetCoreRulesetRequest) (*GetCoreRulesetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCoreRuleset not implemented")
+}
+func (UnimplementedSecurityServiceServer) UpdateCoreRuleset(context.Context, *UpdateCoreRulesetRequest) (*UpdateCoreRulesetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateCoreRuleset not implemented")
+}
+func (UnimplementedSecurityServiceServer) DeleteCoreRuleset(context.Context, *DeleteCoreRulesetRequest) (*DeleteCoreRulesetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteCoreRuleset not implemented")
+}
+func (UnimplementedSecurityServiceServer) ListCoreRulesets(context.Context, *ListCoreRulesetsRequest) (*ListCoreRulesetsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCoreRulesets not implemented")
+}
+func (UnimplementedSecurityServiceServer) GetRuleInfo(context.Context, *GetRuleInfoRequest) (*GetRuleInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRuleInfo not implemented")
+}
+func (UnimplementedSecurityServiceServer) ListRuleInfos(context.Context, *ListRuleInfosRequest) (*ListRuleInfosResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRuleInfos not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -464,6 +594,132 @@ func _SecurityService_ListRateLimits_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_CreateCoreRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCoreRulesetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).CreateCoreRuleset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_CreateCoreRuleset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).CreateCoreRuleset(ctx, req.(*CreateCoreRulesetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_GetCoreRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCoreRulesetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).GetCoreRuleset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_GetCoreRuleset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).GetCoreRuleset(ctx, req.(*GetCoreRulesetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_UpdateCoreRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCoreRulesetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).UpdateCoreRuleset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_UpdateCoreRuleset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).UpdateCoreRuleset(ctx, req.(*UpdateCoreRulesetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_DeleteCoreRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCoreRulesetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).DeleteCoreRuleset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_DeleteCoreRuleset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).DeleteCoreRuleset(ctx, req.(*DeleteCoreRulesetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_ListCoreRulesets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCoreRulesetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ListCoreRulesets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_ListCoreRulesets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ListCoreRulesets(ctx, req.(*ListCoreRulesetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_GetRuleInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRuleInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).GetRuleInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_GetRuleInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).GetRuleInfo(ctx, req.(*GetRuleInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SecurityService_ListRuleInfos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRuleInfosRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ListRuleInfos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_ListRuleInfos_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ListRuleInfos(ctx, req.(*ListRuleInfosRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
@@ -528,6 +784,34 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRateLimits",
 			Handler:    _SecurityService_ListRateLimits_Handler,
+		},
+		{
+			MethodName: "CreateCoreRuleset",
+			Handler:    _SecurityService_CreateCoreRuleset_Handler,
+		},
+		{
+			MethodName: "GetCoreRuleset",
+			Handler:    _SecurityService_GetCoreRuleset_Handler,
+		},
+		{
+			MethodName: "UpdateCoreRuleset",
+			Handler:    _SecurityService_UpdateCoreRuleset_Handler,
+		},
+		{
+			MethodName: "DeleteCoreRuleset",
+			Handler:    _SecurityService_DeleteCoreRuleset_Handler,
+		},
+		{
+			MethodName: "ListCoreRulesets",
+			Handler:    _SecurityService_ListCoreRulesets_Handler,
+		},
+		{
+			MethodName: "GetRuleInfo",
+			Handler:    _SecurityService_GetRuleInfo_Handler,
+		},
+		{
+			MethodName: "ListRuleInfos",
+			Handler:    _SecurityService_ListRuleInfos_Handler,
 		},
 		{
 			MethodName: "Status",

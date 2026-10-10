@@ -29,3 +29,10 @@ const (
 	Bool      dbx.ColumnType = "BOOLEAN"
 	JSONB     dbx.ColumnType = "JSONB"
 )
+
+const (
+	BTree dbx.IndexMethod = "BTREE"
+	// GIN indexes the keys and values of a JSONB column, it serves the
+	// containment operator (@>).
+	GIN dbx.IndexMethod = "GIN"
+)

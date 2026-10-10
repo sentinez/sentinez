@@ -82,12 +82,176 @@ var Request944ApplicationAttackJava = map[string]*rulepb.CoreRule{
 	"Request944ApplicationAttackJavaMaker_22": Request944ApplicationAttackJavaMaker_22(),
 }
 
+// Request944ApplicationAttackJavaInfo is the catalog of the rules above that have an ID.
+var Request944ApplicationAttackJavaInfo = []*rulepb.RuleInfo{
+	{
+		Id:       944011,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       944012,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:            944100,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Suspicious Java class detected",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"},
+	},
+	{
+		Id:            944110,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Java process spawn (CVE-2017-9805)",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944120,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Java serialization (CVE-2015-4852)",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944130,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Suspicious Java class detected",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944140,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Java Injection Attack: Java Script File Upload Found",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-injection-java", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/242"},
+	},
+	{
+		Id:            944150,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Potential Remote Command Execution: Log4j / Log4shell",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"},
+	},
+	{
+		Id:       944013,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       944014,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:            944151,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Potential Remote Command Execution: Log4j / Log4shell",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"},
+	},
+	{
+		Id:            944200,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Magic bytes Detected, probable java serialization in use",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944210,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Magic bytes Detected Base64 Encoded, probable java serialization in use",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944240,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Java serialization (CVE-2015-4852)",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944250,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Suspicious Java method detected",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:            944260,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 2,
+		Severity:      "CRITICAL",
+		Msg:           "Remote Command Execution: Malicious class-loading payload",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:       944015,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       944016,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:            944300,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 3,
+		Severity:      "CRITICAL",
+		Msg:           "Base64 encoded string matched suspicious keyword",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/3", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"},
+	},
+	{
+		Id:       944017,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       944018,
+		Category: rulepb.Category_CATEGORY_JAVA,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:            944152,
+		Category:      rulepb.Category_CATEGORY_JAVA,
+		ParanoiaLevel: 4,
+		Severity:      "CRITICAL",
+		Msg:           "Potential Remote Command Execution: Log4j / Log4shell",
+		Tags:          []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/4", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"},
+	},
+}
+
 // R944011 returns rule with ID 944011
 func R944011() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTQ0MDExLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944011"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944011"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTQ0MDExLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -99,7 +263,7 @@ func R944012() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTQ0MDEyLHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944012"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944012"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTQ0MDEyLHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -111,7 +275,7 @@ func R944100() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IGphdmFcLmxhbmdcLig/OnJ1bnRpbWV8cHJvY2Vzc2J1aWxkZXIpIiBcCiAgICAiaWQ6OTQ0MTAwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBTdXNwaWNpb3VzIEphdmEgY2xhc3MgZGV0ZWN0ZWQnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8xMzcvNicsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944100"}, Msg: []string{"'Remote Command Execution: Suspicious Java class detected'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/137/6'"}, T: []string{"none", "lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944100"}, Msg: []string{"Remote Command Execution: Suspicious Java class detected"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"}, T: []string{"none", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IGphdmFcLmxhbmdcLig/OnJ1bnRpbWV8cHJvY2Vzc2J1aWxkZXIpIiBcCiAgICAiaWQ6OTQ0MTAwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBTdXNwaWNpb3VzIEphdmEgY2xhc3MgZGV0ZWN0ZWQnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8xMzcvNicsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -123,7 +287,7 @@ func R944110() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/OnJ1bnRpbWV8cHJvY2Vzc2J1aWxkZXIpIiBcCiAgICAiaWQ6OTQ0MTEwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHByb2Nlc3Mgc3Bhd24gKENWRS0yMDE3LTk4MDUpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgY2hhaW4i",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944110"}, Msg: []string{"'Remote Command Execution: Java process spawn (CVE-2017-9805)'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"none", "lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944110"}, Msg: []string{"Remote Command Execution: Java process spawn (CVE-2017-9805)"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"none", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/OnJ1bnRpbWV8cHJvY2Vzc2J1aWxkZXIpIiBcCiAgICAiaWQ6OTQ0MTEwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHByb2Nlc3Mgc3Bhd24gKENWRS0yMDE3LTk4MDUpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgY2hhaW4iClNlY1J1bGUgTUFUQ0hFRF9WQVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzp1bm1hcnNoYWxsZXJ8YmFzZTY0ZGF0YXxqYXZhXC4pIiBcCiAgICAgICAgInNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICAgICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -135,7 +299,7 @@ func R944120() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsb25ldHJhbnNmb3JtZXJ8Zm9yY2xvc3VyZXxpbnN0YW50aWF0ZWZhY3Rvcnl8aW5zdGFudGlhdGV0cmFuc2Zvcm1lcnxpbnZva2VydHJhbnNmb3JtZXJ8cHJvdG90eXBlY2xvbmVmYWN0b3J5fHByb3RvdHlwZXNlcmlhbGl6YXRpb25mYWN0b3J5fHdoaWxlY2xvc3VyZXxnZXRwcm9wZXJ0eXxmaWxld3JpdGVyfHhtbGRlY29kZXIpIiBcCiAgICAiaWQ6OTQ0MTIwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHNlcmlhbGl6YXRpb24gKENWRS0yMDE1LTQ4NTIpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgY2hhaW4i",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944120"}, Msg: []string{"'Remote Command Execution: Java serialization (CVE-2015-4852)'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"none", "lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944120"}, Msg: []string{"Remote Command Execution: Java serialization (CVE-2015-4852)"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"none", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsb25ldHJhbnNmb3JtZXJ8Zm9yY2xvc3VyZXxpbnN0YW50aWF0ZWZhY3Rvcnl8aW5zdGFudGlhdGV0cmFuc2Zvcm1lcnxpbnZva2VydHJhbnNmb3JtZXJ8cHJvdG90eXBlY2xvbmVmYWN0b3J5fHByb3RvdHlwZXNlcmlhbGl6YXRpb25mYWN0b3J5fHdoaWxlY2xvc3VyZXxnZXRwcm9wZXJ0eXxmaWxld3JpdGVyfHhtbGRlY29kZXIpIiBcCiAgICAiaWQ6OTQ0MTIwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHNlcmlhbGl6YXRpb24gKENWRS0yMDE1LTQ4NTIpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgY2hhaW4iClNlY1J1bGUgTUFUQ0hFRF9WQVJTICJAcnggKD86cnVudGltZXxwcm9jZXNzYnVpbGRlcikiIFwKICAgICAgICAic2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgICAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -147,7 +311,7 @@ func R944130() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9GSUxFTkFNRXxSRVFVRVNUX0hFQURFUlN8WE1MOi8qfFhNTDovL0AqIFwKICAgICJAcG1Gcm9tRmlsZSBqYXZhLWNsYXNzZXMuZGF0YSIgXAogICAgImlkOjk0NDEzMCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1N1c3BpY2lvdXMgSmF2YSBjbGFzcyBkZXRlY3RlZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle01BVENIRURfVkFSfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzI0OCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944130"}, Msg: []string{"'Suspicious Java class detected'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944130"}, Msg: []string{"Suspicious Java class detected"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9GSUxFTkFNRXxSRVFVRVNUX0hFQURFUlN8WE1MOi8qfFhNTDovL0AqIFwKICAgICJAcG1Gcm9tRmlsZSBqYXZhLWNsYXNzZXMuZGF0YSIgXAogICAgImlkOjk0NDEzMCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1N1c3BpY2lvdXMgSmF2YSBjbGFzcyBkZXRlY3RlZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle01BVENIRURfVkFSfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzI0OCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -159,7 +323,7 @@ func R944140() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBGSUxFU3xSRVFVRVNUX0hFQURFUlM6WC1GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WF9GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WC5GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WC1GaWxlLU5hbWUgIkByeCAuKlwuKD86anNwfGpzcHgpXC4qJCIgXAogICAgImlkOjk0NDE0MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonSmF2YSBJbmplY3Rpb24gQXR0YWNrOiBKYXZhIFNjcmlwdCBGaWxlIFVwbG9hZCBGb3VuZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9OiAle01BVENIRURfVkFSfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1pbmplY3Rpb24tamF2YScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQyJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944140"}, Msg: []string{"'Java Injection Attack: Java Script File Upload Found'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-injection-java'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/242'"}, T: []string{"none", "lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}: %{MATCHED_VAR}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944140"}, Msg: []string{"Java Injection Attack: Java Script File Upload Found"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-injection-java", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/242"}, T: []string{"none", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}: %{MATCHED_VAR}"}},
 		},
 		Configuration: "U2VjUnVsZSBGSUxFU3xSRVFVRVNUX0hFQURFUlM6WC1GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WF9GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WC5GaWxlbmFtZXxSRVFVRVNUX0hFQURFUlM6WC1GaWxlLU5hbWUgIkByeCAuKlwuKD86anNwfGpzcHgpXC4qJCIgXAogICAgImlkOjk0NDE0MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonSmF2YSBJbmplY3Rpb24gQXR0YWNrOiBKYXZhIFNjcmlwdCBGaWxlIFVwbG9hZCBGb3VuZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9OiAle01BVENIRURfVkFSfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1pbmplY3Rpb24tamF2YScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQyJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -171,7 +335,7 @@ func R944150() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pKD86W15cfV17MCwxNX0oPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pfGpuZGl8Y3R4KSIgXAogICAgImlkOjk0NDE1MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6bm9uZSx0OnVybERlY29kZVVuaSx0OmpzRGVjb2RlLHQ6aHRtbEVudGl0eURlY29kZSxcCiAgICBsb2csXAogICAgbXNnOidQb3RlbnRpYWwgUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBMb2c0aiAvIExvZzRzaGVsbCcsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzEzNy82JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944150"}, Msg: []string{"'Potential Remote Command Execution: Log4j / Log4shell'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/137/6'"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944150"}, Msg: []string{"Potential Remote Command Execution: Log4j / Log4shell"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pKD86W15cfV17MCwxNX0oPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pfGpuZGl8Y3R4KSIgXAogICAgImlkOjk0NDE1MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6bm9uZSx0OnVybERlY29kZVVuaSx0OmpzRGVjb2RlLHQ6aHRtbEVudGl0eURlY29kZSxcCiAgICBsb2csXAogICAgbXNnOidQb3RlbnRpYWwgUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBMb2c0aiAvIExvZzRzaGVsbCcsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzEzNy82JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -183,7 +347,7 @@ func R944013() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTQ0MDEzLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944013"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944013"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTQ0MDEzLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -195,7 +359,7 @@ func R944014() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTQ0MDE0LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944014"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944014"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTQ0MDE0LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -207,7 +371,7 @@ func R944151() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pKD86W15cfV0qKD86XCR8JmRvbGxhcjs/KSg/Olx7fCZsKD86YnJhY2V8Y3ViKTs/KXxqbmRpfGN0eCkiIFwKICAgICJpZDo5NDQxNTEsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Om5vbmUsdDp1cmxEZWNvZGVVbmksdDpqc0RlY29kZSx0Omh0bWxFbnRpdHlEZWNvZGUsXAogICAgbG9nLFwKICAgIG1zZzonUG90ZW50aWFsIFJlbW90ZSBDb21tYW5kIEV4ZWN1dGlvbjogTG9nNGogLyBMb2c0c2hlbGwnLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzInLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8xMzcvNicsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944151"}, Msg: []string{"'Potential Remote Command Execution: Log4j / Log4shell'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/137/6'"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944151"}, Msg: []string{"Potential Remote Command Execution: Log4j / Log4shell"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pKD86W15cfV0qKD86XCR8JmRvbGxhcjs/KSg/Olx7fCZsKD86YnJhY2V8Y3ViKTs/KXxqbmRpfGN0eCkiIFwKICAgICJpZDo5NDQxNTEsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Om5vbmUsdDp1cmxEZWNvZGVVbmksdDpqc0RlY29kZSx0Omh0bWxFbnRpdHlEZWNvZGUsXAogICAgbG9nLFwKICAgIG1zZzonUG90ZW50aWFsIFJlbW90ZSBDb21tYW5kIEV4ZWN1dGlvbjogTG9nNGogLyBMb2c0c2hlbGwnLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzInLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8xMzcvNicsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/2",
@@ -219,7 +383,7 @@ func R944200() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IFx4YWNceGVkXHgwMFx4MDUiIFwKICAgICJpZDo5NDQyMDAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICBtc2c6J01hZ2ljIGJ5dGVzIERldGVjdGVkLCBwcm9iYWJsZSBqYXZhIHNlcmlhbGl6YXRpb24gaW4gdXNlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944200"}, Msg: []string{"'Magic bytes Detected, probable java serialization in use'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944200"}, Msg: []string{"Magic bytes Detected, probable java serialization in use"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IFx4YWNceGVkXHgwMFx4MDUiIFwKICAgICJpZDo5NDQyMDAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICBtc2c6J01hZ2ljIGJ5dGVzIERldGVjdGVkLCBwcm9iYWJsZSBqYXZhIHNlcmlhbGl6YXRpb24gaW4gdXNlJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/2",
@@ -231,7 +395,7 @@ func R944210() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OnJPMEFCUXxLenRBQVV8Q3M3UUFGKSIgXAogICAgImlkOjk0NDIxMCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIG1zZzonTWFnaWMgYnl0ZXMgRGV0ZWN0ZWQgQmFzZTY0IEVuY29kZWQsIHByb2JhYmxlIGphdmEgc2VyaWFsaXphdGlvbiBpbiB1c2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzInLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8yNDgnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwyPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944210"}, Msg: []string{"'Magic bytes Detected Base64 Encoded, probable java serialization in use'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944210"}, Msg: []string{"Magic bytes Detected Base64 Encoded, probable java serialization in use"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OnJPMEFCUXxLenRBQVV8Q3M3UUFGKSIgXAogICAgImlkOjk0NDIxMCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIG1zZzonTWFnaWMgYnl0ZXMgRGV0ZWN0ZWQgQmFzZTY0IEVuY29kZWQsIHByb2JhYmxlIGphdmEgc2VyaWFsaXphdGlvbiBpbiB1c2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzInLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8yNDgnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwyPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/2",
@@ -243,7 +407,7 @@ func R944240() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsb25ldHJhbnNmb3JtZXJ8Zm9yY2xvc3VyZXxpbnN0YW50aWF0ZWZhY3Rvcnl8aW5zdGFudGlhdGV0cmFuc2Zvcm1lcnxpbnZva2VydHJhbnNmb3JtZXJ8cHJvdG90eXBlY2xvbmVmYWN0b3J5fHByb3RvdHlwZXNlcmlhbGl6YXRpb25mYWN0b3J5fHdoaWxlY2xvc3VyZXxnZXRwcm9wZXJ0eXxmaWxld3JpdGVyfHhtbGRlY29kZXIpIiBcCiAgICAiaWQ6OTQ0MjQwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHNlcmlhbGl6YXRpb24gKENWRS0yMDE1LTQ4NTIpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944240"}, Msg: []string{"'Remote Command Execution: Java serialization (CVE-2015-4852)'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"none", "lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944240"}, Msg: []string{"Remote Command Execution: Java serialization (CVE-2015-4852)"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"none", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsb25ldHJhbnNmb3JtZXJ8Zm9yY2xvc3VyZXxpbnN0YW50aWF0ZWZhY3Rvcnl8aW5zdGFudGlhdGV0cmFuc2Zvcm1lcnxpbnZva2VydHJhbnNmb3JtZXJ8cHJvdG90eXBlY2xvbmVmYWN0b3J5fHByb3RvdHlwZXNlcmlhbGl6YXRpb25mYWN0b3J5fHdoaWxlY2xvc3VyZXxnZXRwcm9wZXJ0eXxmaWxld3JpdGVyfHhtbGRlY29kZXIpIiBcCiAgICAiaWQ6OTQ0MjQwLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6bG93ZXJjYXNlLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBKYXZhIHNlcmlhbGl6YXRpb24gKENWRS0yMDE1LTQ4NTIpJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/2",
@@ -255,7 +419,7 @@ func R944250() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IGphdmFcYi4rKD86cnVudGltZXxwcm9jZXNzYnVpbGRlcikiIFwKICAgICJpZDo5NDQyNTAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Omxvd2VyY2FzZSxcCiAgICBtc2c6J1JlbW90ZSBDb21tYW5kIEV4ZWN1dGlvbjogU3VzcGljaW91cyBKYXZhIG1ldGhvZCBkZXRlY3RlZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle01BVENIRURfVkFSfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMicsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzI0OCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944250"}, Msg: []string{"'Remote Command Execution: Suspicious Java method detected'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"lowercase"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944250"}, Msg: []string{"Remote Command Execution: Suspicious Java method detected"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4IGphdmFcYi4rKD86cnVudGltZXxwcm9jZXNzYnVpbGRlcikiIFwKICAgICJpZDo5NDQyNTAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Omxvd2VyY2FzZSxcCiAgICBtc2c6J1JlbW90ZSBDb21tYW5kIEV4ZWN1dGlvbjogU3VzcGljaW91cyBKYXZhIG1ldGhvZCBkZXRlY3RlZCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle01BVENIRURfVkFSfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1qYXZhJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMicsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0FUVEFDSy1KQVZBJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMTUyLzI0OCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgucmNlX3Njb3JlPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyxcCiAgICBzZXR2YXI6J3R4LmluYm91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/2",
@@ -267,7 +431,7 @@ func R944260() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsYXNzXC5tb2R1bGVcLmNsYXNzTG9hZGVyXC5yZXNvdXJjZXNcLmNvbnRleHRcLnBhcmVudFwucGlwZWxpbmV8c3ByaW5nZnJhbWV3b3JrXC5jb250ZXh0XC5zdXBwb3J0XC5GaWxlU3lzdGVtWG1sQXBwbGljYXRpb25Db250ZXh0KSIgXAogICAgImlkOjk0NDI2MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6dXJsRGVjb2RlVW5pLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBNYWxpY2lvdXMgY2xhc3MtbG9hZGluZyBwYXlsb2FkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944260"}, Msg: []string{"'Remote Command Execution: Malicious class-loading payload'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/2'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"urlDecodeUni"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944260"}, Msg: []string{"Remote Command Execution: Malicious class-loading payload"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"urlDecodeUni"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNsYXNzXC5tb2R1bGVcLmNsYXNzTG9hZGVyXC5yZXNvdXJjZXNcLmNvbnRleHRcLnBhcmVudFwucGlwZWxpbmV8c3ByaW5nZnJhbWV3b3JrXC5jb250ZXh0XC5zdXBwb3J0XC5GaWxlU3lzdGVtWG1sQXBwbGljYXRpb25Db250ZXh0KSIgXAogICAgImlkOjk0NDI2MCxcCiAgICBwaGFzZToyLFwKICAgIGJsb2NrLFwKICAgIHQ6dXJsRGVjb2RlVW5pLFwKICAgIG1zZzonUmVtb3RlIENvbW1hbmQgRXhlY3V0aW9uOiBNYWxpY2lvdXMgY2xhc3MtbG9hZGluZyBwYXlsb2FkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7TUFUQ0hFRF9WQVJ9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8yJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMjQ4JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5yY2Vfc2NvcmU9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMj0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/2",
@@ -279,7 +443,7 @@ func R944015() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTQ0MDE1LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944015"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944015"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTQ0MDE1LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -291,7 +455,7 @@ func R944016() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTQ0MDE2LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944016"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944016"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTQ0MDE2LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -303,7 +467,7 @@ func R944300() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNuVnVkR2x0WlF8SEoxYm5ScGJXVXxCeWRXNTBhVzFsfGNISnZZMlZ6YzJKMWFXeGtaWEl8SEJ5YjJObGMzTmlkV2xzWkdWeXxCd2NtOWpaWE56WW5WcGJHUmxjZ3xZMnh2Ym1WMGNtRnVjMlp2Y20xbGNnfEdOc2IyNWxkSEpoYm5ObWIzSnRaWEl8QmpiRzl1WlhSeVlXNXpabTl5YldWeXxabTl5WTJ4dmMzVnlaUXxHWnZjbU5zYjNOMWNtVXxCbWIzSmpiRzl6ZFhKbHxhVzV6ZEdGdWRHbGhkR1ZtWVdOMGIzSjV8R2x1YzNSaGJuUnBZWFJsWm1GamRHOXllUXxCcGJuTjBZVzUwYVdGMFpXWmhZM1J2Y25rfGFXNXpkR0Z1ZEdsaGRHVjBjbUZ1YzJadmNtMWxjZ3xHbHVjM1JoYm5ScFlYUmxkSEpoYm5ObWIzSnRaWEl8QnBibk4wWVc1MGFXRjBaWFJ5WVc1elptOXliV1Z5fGFXNTJiMnRsY25SeVlXNXpabTl5YldWeXxHbHVkbTlyWlhKMGNtRnVjMlp2Y20xbGNnfEJwYm5admEyVnlkSEpoYm5ObWIzSnRaWEl8Y0hKdmRHOTBlWEJsWTJ4dmJtVm1ZV04wYjNKNXxIQnliM1J2ZEhsd1pXTnNiMjVsWm1GamRHOXllUXxCd2NtOTBiM1I1Y0dWamJHOXVaV1poWTNSdmNua3xjSEp2ZEc5MGVYQmxjMlZ5YVdGc2FYcGhkR2x2Ym1aaFkzUnZjbmt8SEJ5YjNSdmRIbHdaWE5sY21saGJHbDZZWFJwYjI1bVlXTjBiM0o1fEJ3Y205MGIzUjVjR1Z6WlhKcFlXeHBlbUYwYVc5dVptRmpkRzl5ZVF8ZDJocGJHVmpiRzl6ZFhKbHxIZG9hV3hsWTJ4dmMzVnlaUXxCM2FHbHNaV05zYjNOMWNtVSkiIFwKICAgICJpZDo5NDQzMDAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Om5vbmUsXAogICAgbXNnOidCYXNlNjQgZW5jb2RlZCBzdHJpbmcgbWF0Y2hlZCBzdXNwaWNpb3VzIGtleXdvcmQnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzMnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8yNDgnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwzPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944300"}, Msg: []string{"'Base64 encoded string matched suspicious keyword'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/3'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/248'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl3=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944300"}, Msg: []string{"Base64 encoded string matched suspicious keyword"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/3", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/248"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl3=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBBUkdTfEFSR1NfTkFNRVN8UkVRVUVTVF9DT09LSUVTfFJFUVVFU1RfQ09PS0lFU19OQU1FU3xSRVFVRVNUX0JPRFl8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiBcCiAgICAiQHJ4ICg/OmNuVnVkR2x0WlF8SEoxYm5ScGJXVXxCeWRXNTBhVzFsfGNISnZZMlZ6YzJKMWFXeGtaWEl8SEJ5YjJObGMzTmlkV2xzWkdWeXxCd2NtOWpaWE56WW5WcGJHUmxjZ3xZMnh2Ym1WMGNtRnVjMlp2Y20xbGNnfEdOc2IyNWxkSEpoYm5ObWIzSnRaWEl8QmpiRzl1WlhSeVlXNXpabTl5YldWeXxabTl5WTJ4dmMzVnlaUXxHWnZjbU5zYjNOMWNtVXxCbWIzSmpiRzl6ZFhKbHxhVzV6ZEdGdWRHbGhkR1ZtWVdOMGIzSjV8R2x1YzNSaGJuUnBZWFJsWm1GamRHOXllUXxCcGJuTjBZVzUwYVdGMFpXWmhZM1J2Y25rfGFXNXpkR0Z1ZEdsaGRHVjBjbUZ1YzJadmNtMWxjZ3xHbHVjM1JoYm5ScFlYUmxkSEpoYm5ObWIzSnRaWEl8QnBibk4wWVc1MGFXRjBaWFJ5WVc1elptOXliV1Z5fGFXNTJiMnRsY25SeVlXNXpabTl5YldWeXxHbHVkbTlyWlhKMGNtRnVjMlp2Y20xbGNnfEJwYm5admEyVnlkSEpoYm5ObWIzSnRaWEl8Y0hKdmRHOTBlWEJsWTJ4dmJtVm1ZV04wYjNKNXxIQnliM1J2ZEhsd1pXTnNiMjVsWm1GamRHOXllUXxCd2NtOTBiM1I1Y0dWamJHOXVaV1poWTNSdmNua3xjSEp2ZEc5MGVYQmxjMlZ5YVdGc2FYcGhkR2x2Ym1aaFkzUnZjbmt8SEJ5YjNSdmRIbHdaWE5sY21saGJHbDZZWFJwYjI1bVlXTjBiM0o1fEJ3Y205MGIzUjVjR1Z6WlhKcFlXeHBlbUYwYVc5dVptRmpkRzl5ZVF8ZDJocGJHVmpiRzl6ZFhKbHxIZG9hV3hsWTJ4dmMzVnlaUXxCM2FHbHNaV05zYjNOMWNtVSkiIFwKICAgICJpZDo5NDQzMDAsXAogICAgcGhhc2U6MixcCiAgICBibG9jayxcCiAgICB0Om5vbmUsXAogICAgbXNnOidCYXNlNjQgZW5jb2RlZCBzdHJpbmcgbWF0Y2hlZCBzdXNwaWNpb3VzIGtleXdvcmQnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtNQVRDSEVEX1ZBUn0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtamF2YScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzMnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9BVFRBQ0stSkFWQScsXAogICAgdGFnOidjYXBlYy8xMDAwLzE1Mi8yNDgnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGwzPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/3",
@@ -315,7 +479,7 @@ func R944017() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTQ0MDE3LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944017"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944017"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTQ0MDE3LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -327,7 +491,7 @@ func R944018() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTQ0MDE4LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944018"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.17.0'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944018"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTQ0MDE4LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFUVVFU1QtOTQ0LUFQUExJQ0FUSU9OLUFUVEFDSy1KQVZBIg==",
 		Level:         "",
@@ -339,7 +503,7 @@ func R944152() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pIiBcCiAgICAiaWQ6OTQ0MTUyLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6dXJsRGVjb2RlVW5pLHQ6anNEZWNvZGUsdDpodG1sRW50aXR5RGVjb2RlLFwKICAgIGxvZyxcCiAgICBtc2c6J1BvdGVudGlhbCBSZW1vdGUgQ29tbWFuZCBFeGVjdXRpb246IExvZzRqIC8gTG9nNHNoZWxsJyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC80JyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMTM3LzYnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGw0PSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"944152"}, Msg: []string{"'Potential Remote Command Execution: Log4j / Log4shell'"}, Phase: []string{"2"}, Tag: []string{"'application-multi'", "'language-java'", "'platform-multi'", "'attack-rce'", "'paranoia-level/4'", "'OWASP_CRS'", "'OWASP_CRS/ATTACK-JAVA'", "'capec/1000/152/137/6'"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"'OWASP_CRS/4.17.0'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.rce_score=+%{tx.critical_anomaly_score}'", "'tx.inbound_anomaly_score_pl4=+%{tx.critical_anomaly_score}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"944152"}, Msg: []string{"Potential Remote Command Execution: Log4j / Log4shell"}, Phase: []string{"2"}, Tag: []string{"application-multi", "language-java", "platform-multi", "attack-rce", "paranoia-level/4", "OWASP_CRS", "OWASP_CRS/ATTACK-JAVA", "capec/1000/152/137/6"}, T: []string{"none", "urlDecodeUni", "jsDecode", "htmlEntityDecode"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.rce_score=+%{tx.critical_anomaly_score}", "tx.inbound_anomaly_score_pl4=+%{tx.critical_anomaly_score}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVFVRVNUX0xJTkV8QVJHU3xBUkdTX05BTUVTfFJFUVVFU1RfQ09PS0lFU3xSRVFVRVNUX0NPT0tJRVNfTkFNRVN8UkVRVUVTVF9IRUFERVJTfFhNTDovKnxYTUw6Ly9AKiAiQHJ4ICg/aSkoPzpcJHwmZG9sbGFyOz8pKD86XHt8JmwoPzpicmFjZXxjdWIpOz8pIiBcCiAgICAiaWQ6OTQ0MTUyLFwKICAgIHBoYXNlOjIsXAogICAgYmxvY2ssXAogICAgdDpub25lLHQ6dXJsRGVjb2RlVW5pLHQ6anNEZWNvZGUsdDpodG1sRW50aXR5RGVjb2RlLFwKICAgIGxvZyxcCiAgICBtc2c6J1BvdGVudGlhbCBSZW1vdGUgQ29tbWFuZCBFeGVjdXRpb246IExvZzRqIC8gTG9nNHNoZWxsJyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLWphdmEnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC80JyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvQVRUQUNLLUpBVkEnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xNTIvMTM3LzYnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4LnJjZV9zY29yZT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfScsXAogICAgc2V0dmFyOid0eC5pbmJvdW5kX2Fub21hbHlfc2NvcmVfcGw0PSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/4",

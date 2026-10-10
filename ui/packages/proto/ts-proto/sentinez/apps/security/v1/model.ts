@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { CoreRuleset as CoreRuleset1 } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
@@ -50,6 +51,14 @@ export interface ActionValue {
 export interface ActionValue_MapValueEntry {
   key: string;
   value: string;
+}
+
+export interface CoreRuleset {
+  metadata?: Metadata | undefined;
+  id: string;
+  name: string;
+  description: string;
+  content?: CoreRuleset1 | undefined;
 }
 
 function createBaseSecRule(): SecRule {
@@ -758,6 +767,143 @@ export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = 
     const message = createBaseActionValue_MapValueEntry();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
+    return message;
+  },
+};
+
+function createBaseCoreRuleset(): CoreRuleset {
+  return { metadata: undefined, id: "", name: "", description: "", content: undefined };
+}
+
+export const CoreRuleset: MessageFns<CoreRuleset> = {
+  encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
+    if (message.content !== undefined) {
+      CoreRuleset1.encode(message.content, writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CoreRuleset {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCoreRuleset();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.metadata = Metadata.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.content = CoreRuleset1.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CoreRuleset {
+    return {
+      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      content: isSet(object.content) ? CoreRuleset1.fromJSON(object.content) : undefined,
+    };
+  },
+
+  toJSON(message: CoreRuleset): unknown {
+    const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = Metadata.toJSON(message.metadata);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.content !== undefined) {
+      obj.content = CoreRuleset1.toJSON(message.content);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CoreRuleset>, I>>(base?: I): CoreRuleset {
+    return CoreRuleset.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
+    const message = createBaseCoreRuleset();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.content = (object.content !== undefined && object.content !== null)
+      ? CoreRuleset1.fromPartial(object.content)
+      : undefined;
     return message;
   },
 };

@@ -13,6 +13,7 @@ require (
 	github.com/antlr4-go/antlr/v4 v4.13.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/corazawaf/coraza/v3 v3.3.3
+	github.com/coreruleset/crslang v0.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -21,6 +22,7 @@ require (
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sentinez/shared v0.0.0-00010101000000-000000000000
 	github.com/sony/gobreaker v1.0.0
+	github.com/stretchr/testify v1.12.1
 	go.uber.org/fx v1.24.0
 	golang.org/x/sync v0.23.0
 	google.golang.org/grpc v1.83.2
@@ -79,6 +81,8 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v4 v4.0.0-rc.3 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
 	golang.org/x/net v0.59.0 // indirect

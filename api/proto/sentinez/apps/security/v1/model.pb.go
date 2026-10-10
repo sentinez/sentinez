@@ -22,6 +22,7 @@ package securitypb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -333,11 +334,87 @@ func (x *ActionValue) GetMapValue() map[string]string {
 	return nil
 }
 
+type CoreRuleset struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Content       *v12.CoreRuleset       `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CoreRuleset) Reset() {
+	*x = CoreRuleset{}
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CoreRuleset) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CoreRuleset) ProtoMessage() {}
+
+func (x *CoreRuleset) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CoreRuleset.ProtoReflect.Descriptor instead.
+func (*CoreRuleset) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CoreRuleset) GetMetadata() *v1.Metadata {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *CoreRuleset) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CoreRuleset) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CoreRuleset) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CoreRuleset) GetContent() *v12.CoreRuleset {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
 var File_sentinez_apps_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\"\x9d\x03\n" +
+	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\x9d\x03\n" +
 	"\aSecRule\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x121\n" +
 	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.security.secrules.R\x02id\x12\x12\n" +
@@ -368,7 +445,13 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x02\n" +
+	"\vCoreRuleset\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x124\n" +
+	"\x02id\x18\x02 \x01(\tB$\xbaH!\xc8\x01\x01r\x1c:\x1asenz.security.coreruleset.R\x02id\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12D\n" +
+	"\acontent\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\acontent:\x06\xca\xf3\x18\x02\b\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_apps_security_v1_model_proto_rawDescOnce sync.Once
@@ -382,31 +465,35 @@ func file_sentinez_apps_security_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_security_v1_model_proto_rawDescData
 }
 
-var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_sentinez_apps_security_v1_model_proto_goTypes = []any{
-	(*SecRule)(nil),        // 0: sentinez.apps.security.v1.SecRule
-	(*RateLimit)(nil),      // 1: sentinez.apps.security.v1.RateLimit
-	(*ActionValue)(nil),    // 2: sentinez.apps.security.v1.ActionValue
-	nil,                    // 3: sentinez.apps.security.v1.ActionValue.MapValueEntry
-	(*v1.Metadata)(nil),    // 4: sentinez.types.v1.Metadata
-	(*v11.Expression)(nil), // 5: sentinez.types.rule.v1.Expression
-	(v1.Status)(0),         // 6: sentinez.types.v1.Status
+	(*SecRule)(nil),         // 0: sentinez.apps.security.v1.SecRule
+	(*RateLimit)(nil),       // 1: sentinez.apps.security.v1.RateLimit
+	(*ActionValue)(nil),     // 2: sentinez.apps.security.v1.ActionValue
+	(*CoreRuleset)(nil),     // 3: sentinez.apps.security.v1.CoreRuleset
+	nil,                     // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
+	(*v1.Metadata)(nil),     // 5: sentinez.types.v1.Metadata
+	(*v11.Expression)(nil),  // 6: sentinez.types.rule.v1.Expression
+	(v1.Status)(0),          // 7: sentinez.types.v1.Status
+	(*v12.CoreRuleset)(nil), // 8: sentinez.types.coreruleset.v1.CoreRuleset
 }
 var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
-	4, // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.Metadata
-	5, // 1: sentinez.apps.security.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
-	2, // 2: sentinez.apps.security.v1.SecRule.action_value:type_name -> sentinez.apps.security.v1.ActionValue
-	6, // 3: sentinez.apps.security.v1.SecRule.status:type_name -> sentinez.types.v1.Status
-	4, // 4: sentinez.apps.security.v1.RateLimit.metadata:type_name -> sentinez.types.v1.Metadata
-	5, // 5: sentinez.apps.security.v1.RateLimit.expr:type_name -> sentinez.types.rule.v1.Expression
-	2, // 6: sentinez.apps.security.v1.RateLimit.action_value:type_name -> sentinez.apps.security.v1.ActionValue
-	6, // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
-	3, // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	5,  // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.Metadata
+	6,  // 1: sentinez.apps.security.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
+	2,  // 2: sentinez.apps.security.v1.SecRule.action_value:type_name -> sentinez.apps.security.v1.ActionValue
+	7,  // 3: sentinez.apps.security.v1.SecRule.status:type_name -> sentinez.types.v1.Status
+	5,  // 4: sentinez.apps.security.v1.RateLimit.metadata:type_name -> sentinez.types.v1.Metadata
+	6,  // 5: sentinez.apps.security.v1.RateLimit.expr:type_name -> sentinez.types.rule.v1.Expression
+	2,  // 6: sentinez.apps.security.v1.RateLimit.action_value:type_name -> sentinez.apps.security.v1.ActionValue
+	7,  // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
+	4,  // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
+	5,  // 9: sentinez.apps.security.v1.CoreRuleset.metadata:type_name -> sentinez.types.v1.Metadata
+	8,  // 10: sentinez.apps.security.v1.CoreRuleset.content:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_security_v1_model_proto_init() }
@@ -420,7 +507,7 @@ func file_sentinez_apps_security_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_security_v1_model_proto_rawDesc), len(file_sentinez_apps_security_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

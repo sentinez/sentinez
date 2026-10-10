@@ -19,12 +19,28 @@ var Request905CommonExceptions = map[string]*rulepb.CoreRule{
 	"905110": R905110(),
 }
 
+// Request905CommonExceptionsInfo is the catalog of the rules above that have an ID.
+var Request905CommonExceptionsInfo = []*rulepb.RuleInfo{
+	{
+		Id:       905100,
+		Category: rulepb.Category_CATEGORY_COMMON_EXCEPTIONS,
+		Tags:     []string{"application-multi", "language-multi", "platform-apache", "attack-generic", "OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       905110,
+		Category: rulepb.Category_CATEGORY_COMMON_EXCEPTIONS,
+		Tags:     []string{"application-multi", "language-multi", "platform-apache", "attack-generic", "OWASP_CRS"},
+		System:   true,
+	},
+}
+
 // R905100 returns rule with ID 905100
 func R905100() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX0xJTkUgIkBzdHJlcSBHRVQgLyIgXAogICAgImlkOjkwNTEwMCxcCiAgICBwaGFzZToxLFwKICAgIHBhc3MsXAogICAgdDpub25lLFwKICAgIG5vbG9nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tYXBhY2hlJyxcCiAgICB0YWc6J2F0dGFjay1nZW5lcmljJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgY2hhaW4i",
-			Fields:    &rulepb.RuleActionField{Id: []string{"905100"}, Phase: []string{"1"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-apache'", "'attack-generic'", "'OWASP_CRS'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"905100"}, Phase: []string{"1"}, Tag: []string{"application-multi", "language-multi", "platform-apache", "attack-generic", "OWASP_CRS"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVFVRVNUX0xJTkUgIkBzdHJlcSBHRVQgLyIgXAogICAgImlkOjkwNTEwMCxcCiAgICBwaGFzZToxLFwKICAgIHBhc3MsXAogICAgdDpub25lLFwKICAgIG5vbG9nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tYXBhY2hlJyxcCiAgICB0YWc6J2F0dGFjay1nZW5lcmljJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgY2hhaW4iClNlY1J1bGUgUkVNT1RFX0FERFIgIkBpcE1hdGNoIDEyNy4wLjAuMSw6OjEiIFwKICAgICAgICAidDpub25lLFwKICAgICAgICBjdGw6cnVsZVJlbW92ZUJ5VGFnPU9XQVNQX0NSUyxcCiAgICAgICAgY3RsOmF1ZGl0RW5naW5lPU9mZiI=",
 		Level:         "",
@@ -36,7 +52,7 @@ func R905110() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRU1PVEVfQUREUiAiQGlwTWF0Y2ggMTI3LjAuMC4xLDo6MSIgXAogICAgImlkOjkwNTExMCxcCiAgICBwaGFzZToxLFwKICAgIHBhc3MsXAogICAgdDpub25lLFwKICAgIG5vbG9nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tYXBhY2hlJyxcCiAgICB0YWc6J2F0dGFjay1nZW5lcmljJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgY2hhaW4i",
-			Fields:    &rulepb.RuleActionField{Id: []string{"905110"}, Phase: []string{"1"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-apache'", "'attack-generic'", "'OWASP_CRS'"}, T: []string{"none"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"905110"}, Phase: []string{"1"}, Tag: []string{"application-multi", "language-multi", "platform-apache", "attack-generic", "OWASP_CRS"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBSRU1PVEVfQUREUiAiQGlwTWF0Y2ggMTI3LjAuMC4xLDo6MSIgXAogICAgImlkOjkwNTExMCxcCiAgICBwaGFzZToxLFwKICAgIHBhc3MsXAogICAgdDpub25lLFwKICAgIG5vbG9nLFwKICAgIHRhZzonYXBwbGljYXRpb24tbXVsdGknLFwKICAgIHRhZzonbGFuZ3VhZ2UtbXVsdGknLFwKICAgIHRhZzoncGxhdGZvcm0tYXBhY2hlJyxcCiAgICB0YWc6J2F0dGFjay1nZW5lcmljJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsXAogICAgY2hhaW4iClNlY1J1bGUgUkVRVUVTVF9IRUFERVJTOlVzZXItQWdlbnQgIkBlbmRzV2l0aCAoaW50ZXJuYWwgZHVtbXkgY29ubmVjdGlvbikiIFwKICAgICAgICAidDpub25lLFwKICAgICAgICBjaGFpbiIKU2VjUnVsZSBSRVFVRVNUX0xJTkUgIkByeCBeKD86R0VUIC98T1BUSU9OUyBcKikgSFRUUC9bMTJdXC5bMDFdJCIgXAogICAgICAgICAgICAidDpub25lLFwKICAgICAgICAgICAgY3RsOnJ1bGVSZW1vdmVCeVRhZz1PV0FTUF9DUlMsXAogICAgICAgICAgICBjdGw6YXVkaXRFbmdpbmU9T2ZmIg==",
 		Level:         "",

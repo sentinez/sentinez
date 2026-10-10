@@ -43,12 +43,72 @@ var Request911MethodEnforcement = map[string]*rulepb.CoreRule{
 	"Request911MethodEnforcementMaker_9": Request911MethodEnforcementMaker_9(),
 }
 
+// Request911MethodEnforcementInfo is the catalog of the rules above that have an ID.
+var Request911MethodEnforcementInfo = []*rulepb.RuleInfo{
+	{
+		Id:       911011,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911012,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:            911100,
+		Category:      rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		ParanoiaLevel: 1,
+		Severity:      "CRITICAL",
+		Msg:           "Method is not allowed by policy",
+		Tags:          []string{"application-multi", "language-multi", "platform-multi", "attack-generic", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/METHOD-ENFORCEMENT", "capec/1000/210/272/220/274", "PCI/12.1"},
+	},
+	{
+		Id:       911013,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911014,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911015,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911016,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911017,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+	{
+		Id:       911018,
+		Category: rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
+		Tags:     []string{"OWASP_CRS"},
+		System:   true,
+	},
+}
+
 // R911011 returns rule with ID 911011
 func R911011() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTExMDExLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911011"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911011"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTExMDExLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -60,7 +120,7 @@ func R911012() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTExMDEyLHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911012"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911012"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTExMDEyLHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -72,7 +132,7 @@ func R911100() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVFVRVNUX01FVEhPRCAiIUB3aXRoaW4gJXt0eC5hbGxvd2VkX21ldGhvZHN9IiBcCiAgICAiaWQ6OTExMTAwLFwKICAgIHBoYXNlOjEsXAogICAgYmxvY2ssXAogICAgbXNnOidNZXRob2QgaXMgbm90IGFsbG93ZWQgYnkgcG9saWN5JyxcCiAgICBsb2dkYXRhOicle01BVENIRURfVkFSfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stZ2VuZXJpYycsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvTUVUSE9ELUVORk9SQ0VNRU5UJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjEwLzI3Mi8yMjAvMjc0JyxcCiAgICB0YWc6J1BDSS8xMi4xJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911100"}, Msg: []string{"'Method is not allowed by policy'"}, Phase: []string{"1"}, Tag: []string{"'application-multi'", "'language-multi'", "'platform-multi'", "'attack-generic'", "'paranoia-level/1'", "'OWASP_CRS'", "'OWASP_CRS/METHOD-ENFORCEMENT'", "'capec/1000/210/272/220/274'", "'PCI/12.1'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}, Severity: []string{"'CRITICAL'"}, Setvar: []string{"'tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}'"}, Logdata: []string{"'%{MATCHED_VAR}'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911100"}, Msg: []string{"Method is not allowed by policy"}, Phase: []string{"1"}, Tag: []string{"application-multi", "language-multi", "platform-multi", "attack-generic", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/METHOD-ENFORCEMENT", "capec/1000/210/272/220/274", "PCI/12.1"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.inbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"%{MATCHED_VAR}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVFVRVNUX01FVEhPRCAiIUB3aXRoaW4gJXt0eC5hbGxvd2VkX21ldGhvZHN9IiBcCiAgICAiaWQ6OTExMTAwLFwKICAgIHBoYXNlOjEsXAogICAgYmxvY2ssXAogICAgbXNnOidNZXRob2QgaXMgbm90IGFsbG93ZWQgYnkgcG9saWN5JyxcCiAgICBsb2dkYXRhOicle01BVENIRURfVkFSfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1tdWx0aScsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stZ2VuZXJpYycsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvTUVUSE9ELUVORk9SQ0VNRU5UJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjEwLzI3Mi8yMjAvMjc0JyxcCiAgICB0YWc6J1BDSS8xMi4xJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE2LjAtZGV2JyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHguaW5ib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -84,7 +144,7 @@ func R911013() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTExMDEzLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911013"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911013"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTExMDEzLHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -96,7 +156,7 @@ func R911014() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTExMDE0LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911014"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911014"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTExMDE0LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -108,7 +168,7 @@ func R911015() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTExMDE1LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911015"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911015"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTExMDE1LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -120,7 +180,7 @@ func R911016() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTExMDE2LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911016"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911016"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTExMDE2LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -132,7 +192,7 @@ func R911017() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTExMDE3LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911017"}, Phase: []string{"1"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911017"}, Phase: []string{"1"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTExMDE3LHBoYXNlOjEscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",
@@ -144,7 +204,7 @@ func R911018() *rulepb.CoreRule {
 	return &rulepb.CoreRule{
 		Actions: &rulepb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTExMDE4LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
-			Fields:    &rulepb.RuleActionField{Id: []string{"911018"}, Phase: []string{"2"}, Tag: []string{"'OWASP_CRS'"}, Ver: []string{"'OWASP_CRS/4.16.0-dev'"}},
+			Fields:    &rulepb.RuleActionField{Id: []string{"911018"}, Phase: []string{"2"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.16.0-dev"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTExMDE4LHBoYXNlOjIscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNi4wLWRldicsc2tpcEFmdGVyOkVORC1SRVFVRVNULTkxMS1NRVRIT0QtRU5GT1JDRU1FTlQi",
 		Level:         "",

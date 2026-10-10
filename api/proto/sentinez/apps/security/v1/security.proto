@@ -21,6 +21,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/security/v1/model.proto";
+import "sentinez/types/coreruleset/v1/setting.proto";
+import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
@@ -135,6 +137,68 @@ service SecurityService {
     };
   }
 
+  // ── CoreRuleset ───────────────────────────────────────────────────────────
+
+  // CreateCoreRuleset creates a new OWASP CRS configuration
+  rpc CreateCoreRuleset(CreateCoreRulesetRequest)
+      returns (CreateCoreRulesetResponse) {
+    option (google.api.http) = {
+      post: "/security/coreruleset"
+      body: "*"
+    };
+  }
+
+  // GetCoreRuleset retrieves an OWASP CRS configuration by ID
+  rpc GetCoreRuleset(GetCoreRulesetRequest)
+      returns (GetCoreRulesetResponse) {
+    option (google.api.http) = {
+      get: "/security/coreruleset/{id}"
+    };
+  }
+
+  // UpdateCoreRuleset updates an existing OWASP CRS configuration
+  rpc UpdateCoreRuleset(UpdateCoreRulesetRequest)
+      returns (UpdateCoreRulesetResponse) {
+    option (google.api.http) = {
+      put: "/security/coreruleset/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteCoreRuleset removes an OWASP CRS configuration by ID
+  rpc DeleteCoreRuleset(DeleteCoreRulesetRequest)
+      returns (DeleteCoreRulesetResponse) {
+    option (google.api.http) = {
+      delete: "/security/coreruleset/{id}"
+    };
+  }
+
+  // ListCoreRulesets lists OWASP CRS configurations, filtered by their
+  // name or by the fields of their content
+  rpc ListCoreRulesets(ListCoreRulesetsRequest)
+      returns (ListCoreRulesetsResponse) {
+    option (google.api.http) = {
+      get: "/security/corerulesets"
+    };
+  }
+
+  // ── RuleInfo (OWASP CRS rule catalog) ─────────────────────────────────────
+
+  // GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
+  rpc GetRuleInfo(GetRuleInfoRequest) returns (GetRuleInfoResponse) {
+    option (google.api.http) = {
+      get: "/security/crs/rules/{id}"
+    };
+  }
+
+  // ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
+  // can exclude or override, with their tags
+  rpc ListRuleInfos(ListRuleInfosRequest) returns (ListRuleInfosResponse) {
+    option (google.api.http) = {
+      get: "/security/crs/rules"
+    };
+  }
+
   // ── Status ────────────────────────────────────────────────────────────────
 
   // Status returns the health status of the security service
@@ -234,6 +298,124 @@ message ListRateLimitsRequest {
 
 message ListRateLimitsResponse {
   repeated RateLimit rate_limits = 1;
+  int64 total = 2;
+}
+
+// ── CoreRuleset Messages ─────────────────────────────────────────────────
+
+message CreateCoreRulesetRequest {
+  CoreRuleset core_ruleset = 1 [(buf.validate.field).required = true];
+}
+
+message CreateCoreRulesetResponse {
+  string id = 1;
+}
+
+message GetCoreRulesetRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetCoreRulesetResponse {
+  CoreRuleset core_ruleset = 1;
+}
+
+message UpdateCoreRulesetRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  CoreRuleset core_ruleset = 2 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateCoreRulesetResponse {
+  CoreRuleset core_ruleset = 1;
+}
+
+message DeleteCoreRulesetRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteCoreRulesetResponse {}
+
+// ListCoreRulesetsRequest every filter set must match (AND); the values
+// of a repeated filter are alternatives (OR) unless stated otherwise.
+message ListCoreRulesetsRequest {
+  sentinez.types.v1.Pages page = 1;
+
+  // Case-insensitive part of the name.
+  string name = 2;
+
+  repeated string ids = 10;
+
+  // ── Filters on the fields of content ──
+
+  repeated sentinez.types.coreruleset.v1.EngineMode modes = 20;
+  repeated sentinez.types.coreruleset.v1.Version versions = 21;
+  repeated sentinez.types.v1.Status statuses = 22;
+
+  // content.paranoia_level, 0 = any.
+  uint32 paranoia_level = 23 [(buf.validate.field).uint32 = { lte: 4 }];
+
+  // Rule groups all listed in content.categories.
+  repeated sentinez.types.coreruleset.v1.Category categories = 24;
+
+  // Tags excluded by content.exclusions.
+  repeated string exclusion_tags = 25;
+
+  // Rules with a variable excluded by content.exclusions.
+  repeated uint32 exclusion_rule_ids = 26;
+
+  // Rules with a state changed by content.overrides.
+  repeated uint32 override_rule_ids = 27;
+}
+
+message ListCoreRulesetsResponse {
+  repeated CoreRuleset core_rulesets = 1;
+  int64 total = 2;
+}
+
+// ── RuleInfo Messages ────────────────────────────────────────────────────
+
+message GetRuleInfoRequest {
+  uint32 id = 1 [(buf.validate.field).uint32 = { gte: 900000, lte: 999999 }];
+
+  // CRS version of the catalog, unspecified = latest supported.
+  sentinez.types.coreruleset.v1.Version version = 2;
+}
+
+message GetRuleInfoResponse {
+  sentinez.types.coreruleset.v1.RuleInfo rule = 1;
+}
+
+// ListRuleInfosRequest every filter set must match (AND); the values of
+// a repeated filter are alternatives (OR) unless stated otherwise.
+message ListRuleInfosRequest {
+  sentinez.types.v1.Pages page = 1;
+
+  // CRS version of the catalog, unspecified = latest supported.
+  sentinez.types.coreruleset.v1.Version version = 2;
+
+  // Case-insensitive part of the message or of a tag, or the leading
+  // digits of the ID (ex: "9421").
+  string search = 3;
+
+  repeated uint32 ids = 10;
+  repeated sentinez.types.coreruleset.v1.Category categories = 11;
+  repeated uint32 paranoia_levels = 12;
+
+  // CRITICAL, ERROR, WARNING, NOTICE; case-insensitive.
+  repeated string severities = 13;
+
+  // Tags the rule all carries, ex: "attack-sqli".
+  repeated string tags = 14;
+
+  // System rules (init, evaluation, flow control) cannot be overridden,
+  // they are left out unless asked for.
+  bool include_system = 15;
+}
+
+message ListRuleInfosResponse {
+  repeated sentinez.types.coreruleset.v1.RuleInfo rules = 1;
+
+  // Number of rules matching the filters, whatever the page.
   int64 total = 2;
 }
 

@@ -38,5 +38,13 @@ func syncOption(ctx context.Context,
 		}
 	}
 
+	// after the columns: an index needs its column
+	for _, index := range option.Indexes {
+		createIndexStmt := stmt.CreateIndex(option.Table, index)
+		if _, err := pool.Exec(ctx, createIndexStmt); err != nil {
+			return fmt.Errorf("create index err: %w", err)
+		}
+	}
+
 	return nil
 }

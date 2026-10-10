@@ -42,3 +42,11 @@ const (
 	RateLimit_MaxRequests = "max_requests"
 	RateLimit_Timeout     = "timeout"
 )
+
+const (
+	CoreRuleset_Metadata    = "metadata"
+	CoreRuleset_Id          = "id"
+	CoreRuleset_Name        = "name"
+	CoreRuleset_Description = "description"
+	CoreRuleset_Content     = "content"
+)

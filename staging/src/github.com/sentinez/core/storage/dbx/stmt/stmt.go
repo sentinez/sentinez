@@ -16,6 +16,7 @@ package stmt
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/sentinez/core/storage/dbx"
 )
@@ -33,6 +34,12 @@ const (
 		ALTER TABLE %s
 		ADD COLUMN IF NOT EXISTS %s %s
 	`
+
+	// index name: <table>_<column>_<method>_idx
+	createIndexStmt = `
+		CREATE INDEX IF NOT EXISTS %s_%s_%s_idx
+		ON %s USING %s (%s)
+	`
 )
 
 func CreateTable(tableName string) string {
@@ -42,4 +49,13 @@ func CreateTable(tableName string) string {
 func AddColumn(tableName string,
 	columnName string, columnType dbx.ColumnType) string {
 	return fmt.Sprintf(addColumnStmt, tableName, columnName, columnType)
+}
+
+func CreateIndex(tableName string, index dbx.Index) string {
+	method := string(index.Method)
+
+	return fmt.Sprintf(createIndexStmt,
+		tableName, index.Column, strings.ToLower(method),
+		tableName, method, index.Column,
+	)
 }
