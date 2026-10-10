@@ -177,8 +177,40 @@ setting:
         proxySetHeaders:
           X-Real-IP: $remote_addr
   security:
-    rulesets:                    # có phần tử → bật CRS cho namespace
-    rules:                       # SecRule (dạng Lite)
+    core_ruleset:                # OWASP CRS, mỗi namespace một cấu hình
+      status: STATUS_ACTIVE
+      mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
+      version: VERSION_V4_17_0   # VERSION_V4_16_0 (chỉ RCE, SQLi) | VERSION_V4_17_0 (mặc định)
+      paranoiaLevel: 1           # 1 (ít false positive nhất) .. 4 (chặt nhất)
+      detectionParanoiaLevel: 2  # log tới mức này, chặn tới paranoiaLevel; 0 = bằng nhau
+      threshold:                 # điểm anomaly để chặn, 0 = giá trị setup.conf
+        inbound: 5
+        outbound: 4
+        earlyBlocking: true
+      categories:                # nhóm rule được bật, rỗng = tất cả
+        - CATEGORY_RCE           # 932
+        - CATEGORY_XSS           # 941
+        - CATEGORY_SQLI          # 942
+      request:
+        bodyAccess: true         # kiểm tra request body
+        bodyLimitBytes: 13107200 # 12.5 MiB, 0 = mặc định
+        allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+        # allowedContentTypes: [application/json]   # rỗng = giá trị setup.conf
+      exclusions:                # tinh chỉnh false positive
+        - location: /api/search  # bỏ rule SQLi dưới prefix này
+          tags: [attack-sqli]
+        - targets:               # không có location = cả namespace
+            - ruleId: 942100
+              variable: ARGS:password
+      overrides:                 # trạng thái từng rule
+        - id: 920420
+          state: RULE_STATE_DISABLED        # chỉ gỡ dưới /webhook
+          location: /webhook
+        - id: 942430
+          state: RULE_STATE_DETECTION_ONLY  # chỉ log, không tính điểm
+        - id: 942130
+          state: RULE_STATE_ENABLED         # ép bật dù trên paranoiaLevel
+    sec_rules:                   # SecRule (dạng Lite)
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -193,7 +225,7 @@ setting:
             type: ACTION_TYPE_BLOCK
     limiters:
       - timeWindow: 5s
-        maxRequests: 50
+        maxRequests: 500
         timeout: 5s
   traffic_control: {}
   delivery:
@@ -207,6 +239,24 @@ setting:
 
 Ghi chú:
 
+- `security.core_ruleset` là một `coreruleset.v1.CoreRuleset`
+  ([setting.proto](../../api/proto/sentinez/types/coreruleset/v1/setting.proto)).
+  `version` chọn bộ rule nhúng trong binary (`VERSION_V4_16_0` chỉ có nhóm RCE
+  và SQLi; không đặt = `VERSION_V4_17_0`). `paranoiaLevel` và
+  `detectionParanoiaLevel` giới hạn 0–4; rule ID trong `exclusions` và
+  `overrides` phải nằm trong 900000–999999; `location` phải bắt đầu bằng `/`.
+- Giá trị `categories` ánh xạ 1:1 với file CRS: nhóm request
+  `COMMON_EXCEPTIONS` (905), `METHOD_ENFORCEMENT` (911), `SCANNER_DETECTION`
+  (913), `PROTOCOL_ENFORCEMENT` (920), `PROTOCOL_ATTACK` (921),
+  `MULTIPART_ATTACK` (922), `LFI` (930), `RFI` (931), `RCE` (932), `PHP`
+  (933), `GENERIC` (934), `XSS` (941), `SQLI` (942), `SESSION_FIXATION`
+  (943), `JAVA` (944); nhóm response `DATA_LEAKAGES` (950),
+  `DATA_LEAKAGES_SQL` (951), `DATA_LEAKAGES_JAVA` (952), `DATA_LEAKAGES_PHP`
+  (953), `DATA_LEAKAGES_IIS` (954), `WEB_SHELLS` (955), `DATA_LEAKAGES_RUBY`
+  (956). Tất cả đều có tiền tố `CATEGORY_`.
+- `overrides[].state`: `RULE_STATE_DISABLED` có thể giới hạn theo `location`;
+  `RULE_STATE_DETECTION_ONLY` và `RULE_STATE_ENABLED` luôn áp dụng cho cả
+  namespace.
 - Phần "Lite" (`SecRuleLite`, `cdn.RuleLite`, `ExpressionLite`) dùng chuỗi
   cho `source/operator/status/value`. `NormalizeEdgeSetting` chuyển sang bản
   runtime (`SecRule`, `cdn.Rule`, `Expression`) với enum thật, `value` thành

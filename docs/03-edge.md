@@ -184,8 +184,40 @@ setting:
         proxySetHeaders:
           X-Real-IP: $remote_addr
   security:
-    rulesets:                    # any entry → enables CRS for the namespace
-    rules:                       # SecRules (Lite form)
+    core_ruleset:                # OWASP CRS, one configuration per namespace
+      status: STATUS_ACTIVE
+      mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
+      version: VERSION_V4_17_0   # VERSION_V4_16_0 (RCE, SQLi only) | VERSION_V4_17_0 (default)
+      paranoiaLevel: 1           # 1 (fewest false positives) .. 4 (strictest)
+      detectionParanoiaLevel: 2  # log up to this level, block up to paranoiaLevel; 0 = same
+      threshold:                 # anomaly score needed to block, 0 = setup.conf value
+        inbound: 5
+        outbound: 4
+        earlyBlocking: true
+      categories:                # enabled rule groups, empty = all
+        - CATEGORY_RCE           # 932
+        - CATEGORY_XSS           # 941
+        - CATEGORY_SQLI          # 942
+      request:
+        bodyAccess: true         # inspect request bodies
+        bodyLimitBytes: 13107200 # 12.5 MiB, 0 = default
+        allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+        # allowedContentTypes: [application/json]   # empty = setup.conf value
+      exclusions:                # false-positive tuning
+        - location: /api/search  # skip SQLi rules under this prefix
+          tags: [attack-sqli]
+        - targets:               # no location = whole namespace
+            - ruleId: 942100
+              variable: ARGS:password
+      overrides:                 # per-rule state
+        - id: 920420
+          state: RULE_STATE_DISABLED        # removed under /webhook only
+          location: /webhook
+        - id: 942430
+          state: RULE_STATE_DETECTION_ONLY  # logged, never counted
+        - id: 942130
+          state: RULE_STATE_ENABLED         # forced on above paranoiaLevel
+    sec_rules:                   # SecRules (Lite form)
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -200,7 +232,7 @@ setting:
             type: ACTION_TYPE_BLOCK
     limiters:
       - timeWindow: 5s
-        maxRequests: 50
+        maxRequests: 500
         timeout: 5s
   traffic_control: {}
   delivery:
@@ -214,6 +246,24 @@ setting:
 
 Notes:
 
+- `security.core_ruleset` is a `coreruleset.v1.CoreRuleset`
+  ([setting.proto](../api/proto/sentinez/types/coreruleset/v1/setting.proto)).
+  `version` picks the embedded rule files (`VERSION_V4_16_0` only ships the
+  RCE and SQLi groups; unset = `VERSION_V4_17_0`). `paranoiaLevel` and
+  `detectionParanoiaLevel` are limited to 0–4; rule IDs in `exclusions` and
+  `overrides` must be in 900000–999999; `location` must start with `/`.
+- `categories` values map 1:1 to the CRS files: request groups
+  `COMMON_EXCEPTIONS` (905), `METHOD_ENFORCEMENT` (911), `SCANNER_DETECTION`
+  (913), `PROTOCOL_ENFORCEMENT` (920), `PROTOCOL_ATTACK` (921),
+  `MULTIPART_ATTACK` (922), `LFI` (930), `RFI` (931), `RCE` (932), `PHP`
+  (933), `GENERIC` (934), `XSS` (941), `SQLI` (942), `SESSION_FIXATION`
+  (943), `JAVA` (944); response groups `DATA_LEAKAGES` (950),
+  `DATA_LEAKAGES_SQL` (951), `DATA_LEAKAGES_JAVA` (952), `DATA_LEAKAGES_PHP`
+  (953), `DATA_LEAKAGES_IIS` (954), `WEB_SHELLS` (955), `DATA_LEAKAGES_RUBY`
+  (956). All are prefixed with `CATEGORY_`.
+- `overrides[].state`: `RULE_STATE_DISABLED` can be scoped to a `location`;
+  `RULE_STATE_DETECTION_ONLY` and `RULE_STATE_ENABLED` always apply to the
+  whole namespace.
 - The "Lite" types (`SecRuleLite`, `cdn.RuleLite`, `ExpressionLite`) use
   strings for `source/operator/status/value`. `NormalizeEdgeSetting` converts
   them to the runtime types (`SecRule`, `cdn.Rule`, `Expression`) with real

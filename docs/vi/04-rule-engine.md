@@ -178,6 +178,8 @@ transaction ID, request ID, thời gian.
 
 ### Bật WAF cho namespace
 
-`MemStore.LoadRulesets` tạo WAF cho mỗi phần tử `security.rulesets[]` của
-namespace. Hiện tại luôn dùng **CRS v4.16.0** và flag `ReqAppAttackRCE`, chưa
-đọc tuỳ chọn từ cấu hình.
+`MemStore.LoadRulesets` tạo một WAF cho mỗi namespace từ
+`security.core_ruleset` (version, mode, paranoia level, threshold, categories,
+exclusions, overrides — xem [03-edge.md](03-edge.md#35-cấu-hình-proxyyaml)).
+`version` chọn bộ CRS nhúng trong binary: `VERSION_V4_16_0`, còn lại là
+**v4.17.0**.
