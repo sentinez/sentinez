@@ -1,27 +1,42 @@
-import { RateLimit, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { CoreRuleset, RateLimit, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import {
+  CreateCoreRulesetRequest,
+  CreateCoreRulesetResponse,
   CreateRateLimitRequest,
   CreateRateLimitResponse,
   CreateSecRuleRequest,
   CreateSecRuleResponse,
+  DeleteCoreRulesetRequest,
+  DeleteCoreRulesetResponse,
   DeleteRateLimitRequest,
   DeleteRateLimitResponse,
   DeleteSecRuleRequest,
   DeleteSecRuleResponse,
+  GetCoreRulesetRequest,
+  GetCoreRulesetResponse,
   GetRateLimitRequest,
   GetRateLimitResponse,
+  GetRuleInfoRequest,
+  GetRuleInfoResponse,
   GetSecRuleRequest,
   GetSecRuleResponse,
+  ListCoreRulesetsRequest,
+  ListCoreRulesetsResponse,
   ListRateLimitsRequest,
   ListRateLimitsResponse,
+  ListRuleInfosRequest,
+  ListRuleInfosResponse,
   ListSecRulesRequest,
   ListSecRulesResponse,
   StatusResponse,
+  UpdateCoreRulesetRequest,
+  UpdateCoreRulesetResponse,
   UpdateRateLimitRequest,
   UpdateRateLimitResponse,
   UpdateSecRuleRequest,
   UpdateSecRuleResponse,
 } from '@sentinez/proto/sentinez/apps/security/v1/security';
+import { RuleInfo } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
 import {
   ActionType,
   FieldSource,
@@ -269,6 +284,168 @@ let sampleRateLimitStore: RateLimit[] = [
   ),
 ];
 
+export const SAMPLE_CORE_RULESETS: CoreRuleset[] = [
+  {
+    id: 'sample-coreruleset-1',
+    name: 'Default protection',
+    description: 'Sample: blocking, paranoia level 1, every rule group',
+    content: {
+      mode: 'ENGINE_MODE_ON',
+      version: 'VERSION_V4_17_0',
+      paranoiaLevel: 1,
+      threshold: { inbound: 5, outbound: 4 },
+      request: { bodyAccess: true, allowedMethods: ['GET', 'HEAD', 'POST', 'OPTIONS'] },
+      status: 'STATUS_ACTIVE',
+    },
+  },
+  {
+    id: 'sample-coreruleset-2',
+    name: 'Strict API',
+    description: 'Sample: paranoia level 3, SQLi/XSS/RCE only, tuned exclusions and overrides',
+    content: {
+      mode: 'ENGINE_MODE_ON',
+      version: 'VERSION_V4_17_0',
+      paranoiaLevel: 3,
+      detectionParanoiaLevel: 4,
+      threshold: { inbound: 5, outbound: 4, earlyBlocking: true },
+      categories: ['CATEGORY_RCE', 'CATEGORY_XSS', 'CATEGORY_SQLI'],
+      request: {
+        bodyAccess: true,
+        bodyLimitBytes: '1048576',
+        allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedContentTypes: ['application/json'],
+      },
+      exclusions: [
+        { tags: ['attack-protocol'] },
+        { targets: [{ ruleId: 942100, variable: 'ARGS:password' }] },
+      ],
+      overrides: [
+        { id: 942100, state: 'RULE_STATE_DETECTION_ONLY' },
+        { id: 941100, state: 'RULE_STATE_DISABLED' },
+      ],
+      status: 'STATUS_ACTIVE',
+    },
+  },
+  {
+    id: 'sample-coreruleset-3',
+    name: 'Staging (detection only)',
+    description: 'Sample: logs matches without blocking, disabled',
+    content: {
+      mode: 'ENGINE_MODE_DETECTION_ONLY',
+      version: 'VERSION_V4_16_0',
+      paranoiaLevel: 2,
+      status: 'STATUS_DISABLE',
+    },
+  },
+].map(CoreRuleset.fromJSON);
+
+let sampleCoreRulesetStore: CoreRuleset[] = [...SAMPLE_CORE_RULESETS];
+
+export const SAMPLE_RULE_INFOS: RuleInfo[] = [
+  {
+    id: 901100,
+    category: 'CATEGORY_UNSPECIFIED',
+    msg: 'Initialization',
+    system: true,
+  },
+  {
+    id: 911100,
+    category: 'CATEGORY_METHOD_ENFORCEMENT',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'Method is not allowed by policy',
+    tags: ['attack-generic', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 920350,
+    category: 'CATEGORY_PROTOCOL_ENFORCEMENT',
+    paranoiaLevel: 1,
+    severity: 'WARNING',
+    msg: 'Host header is a numeric IP address',
+    tags: ['attack-protocol', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 930120,
+    category: 'CATEGORY_LFI',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'OS File Access Attempt',
+    tags: ['attack-lfi', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 932100,
+    category: 'CATEGORY_RCE',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'Remote Command Execution: Unix Command Injection',
+    tags: ['attack-rce', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 941100,
+    category: 'CATEGORY_XSS',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'XSS Attack Detected via libinjection',
+    tags: ['attack-xss', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 942100,
+    category: 'CATEGORY_SQLI',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'SQL Injection Attack Detected via libinjection',
+    tags: ['attack-sqli', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+  {
+    id: 942430,
+    category: 'CATEGORY_SQLI',
+    paranoiaLevel: 2,
+    severity: 'WARNING',
+    msg: 'Restricted SQL Character Anomaly Detection (args): # of special characters exceeded (12)',
+    tags: ['attack-sqli', 'paranoia-level/2', 'OWASP_CRS'],
+  },
+  {
+    id: 951110,
+    category: 'CATEGORY_DATA_LEAKAGES_SQL',
+    paranoiaLevel: 1,
+    severity: 'CRITICAL',
+    msg: 'Microsoft Access SQL Information Leakage',
+    tags: ['attack-disclosure', 'paranoia-level/1', 'OWASP_CRS'],
+  },
+].map(RuleInfo.fromJSON);
+
+const anyOf = <T>(filter: T[] | undefined, value: T) => !filter?.length || filter.includes(value);
+
+const includesText = (text: string, part?: string) =>
+  !part || text.toLowerCase().includes(part.toLowerCase());
+
+const filterCoreRulesets = (req: Partial<ListCoreRulesetsRequest>) =>
+  byIds(sampleCoreRulesetStore, req.ids).filter(
+    (r) =>
+      includesText(r.name, req.name) &&
+      anyOf(req.modes, r.content?.mode) &&
+      anyOf(req.versions, r.content?.version) &&
+      anyOf(req.statuses, r.content?.status) &&
+      (!req.paranoiaLevel || r.content?.paranoiaLevel === req.paranoiaLevel),
+  );
+
+const filterRuleInfos = (req: Partial<ListRuleInfosRequest>) =>
+  SAMPLE_RULE_INFOS.filter(
+    (r) =>
+      (req.includeSystem || !r.system) &&
+      anyOf(req.ids, r.id) &&
+      anyOf(req.categories, r.category) &&
+      anyOf(req.paranoiaLevels, r.paranoiaLevel) &&
+      anyOf(
+        req.severities?.map((s) => s.toUpperCase()),
+        r.severity,
+      ) &&
+      (req.tags ?? []).every((tag) => r.tags.includes(tag)) &&
+      (includesText(r.msg, req.search) ||
+        r.tags.some((tag) => includesText(tag, req.search)) ||
+        String(r.id).startsWith(req.search ?? '')),
+  );
+
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
     try {
@@ -456,6 +633,131 @@ export async function deleteRateLimit(
     const endpoint = `${API_BASE_PATH}/security/ratelimit/${encodeURIComponent(req.id)}`;
     const resp = await axios.delete(endpoint, { signal: options?.signal });
     return DeleteRateLimitResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/corerulesets
+export async function listCoreRulesets(
+  req: Partial<ListCoreRulesetsRequest> = {},
+  options?: ApiOptions,
+): Promise<ListCoreRulesetsResponse> {
+  return withFallback('listCoreRulesets', () => {
+    const list = filterCoreRulesets(req);
+    return { coreRulesets: paginate(list, req.page), total: list.length };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/security/corerulesets`, {
+      params: toQuery(ListCoreRulesetsRequest.toJSON(ListCoreRulesetsRequest.fromPartial(req))),
+      // repeat the keys of repeated filters (collectionFormat: multi)
+      paramsSerializer: { indexes: null },
+      signal: options?.signal,
+    });
+    return ListCoreRulesetsResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/coreruleset/{id}
+export async function getCoreRuleset(
+  req: GetCoreRulesetRequest,
+  options?: ApiOptions,
+): Promise<GetCoreRulesetResponse> {
+  return withFallback<GetCoreRulesetResponse>('getCoreRuleset', () => ({
+    coreRuleset: sampleCoreRulesetStore.find((r) => r.id === req.id) ?? sampleCoreRulesetStore[0],
+  }))(async () => {
+    const endpoint = `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`;
+    const resp = await axios.get(endpoint, { signal: options?.signal });
+    return GetCoreRulesetResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// POST /security/coreruleset
+export async function createCoreRuleset(
+  req: CreateCoreRulesetRequest,
+  options?: ApiOptions,
+): Promise<CreateCoreRulesetResponse> {
+  return withFallback('createCoreRuleset', () => {
+    const id = `sample-coreruleset-${Date.now()}`;
+    sampleCoreRulesetStore = [
+      ...sampleCoreRulesetStore,
+      CoreRuleset.fromPartial({ ...req.coreRuleset, id }),
+    ];
+    return { id };
+  })(async () => {
+    const resp = await axios.post(
+      `${API_BASE_PATH}/security/coreruleset`,
+      CreateCoreRulesetRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return CreateCoreRulesetResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// PUT /security/coreruleset/{id}
+export async function updateCoreRuleset(
+  req: UpdateCoreRulesetRequest,
+  options?: ApiOptions,
+): Promise<UpdateCoreRulesetResponse> {
+  return withFallback<UpdateCoreRulesetResponse>('updateCoreRuleset', () => {
+    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id });
+    sampleCoreRulesetStore = sampleCoreRulesetStore.map((r) => (r.id === req.id ? next : r));
+    return { coreRuleset: next };
+  })(async () => {
+    const resp = await axios.put(
+      `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`,
+      UpdateCoreRulesetRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return UpdateCoreRulesetResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// DELETE /security/coreruleset/{id}
+export async function deleteCoreRuleset(
+  req: DeleteCoreRulesetRequest,
+  options?: ApiOptions,
+): Promise<DeleteCoreRulesetResponse> {
+  return withFallback<DeleteCoreRulesetResponse>('deleteCoreRuleset', () => {
+    sampleCoreRulesetStore = sampleCoreRulesetStore.filter((r) => r.id !== req.id);
+    return {};
+  })(async () => {
+    const endpoint = `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`;
+    const resp = await axios.delete(endpoint, { signal: options?.signal });
+    return DeleteCoreRulesetResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/crs/rules
+export async function listRuleInfos(
+  req: Partial<ListRuleInfosRequest> = {},
+  options?: ApiOptions,
+): Promise<ListRuleInfosResponse> {
+  return withFallback('listRuleInfos', () => {
+    const list = filterRuleInfos(req);
+    return { rules: paginate(list, req.page), total: list.length };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/security/crs/rules`, {
+      params: toQuery(ListRuleInfosRequest.toJSON(ListRuleInfosRequest.fromPartial(req))),
+      // repeat the keys of repeated filters (collectionFormat: multi)
+      paramsSerializer: { indexes: null },
+      signal: options?.signal,
+    });
+    return ListRuleInfosResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/crs/rules/{id}
+export async function getRuleInfo(
+  req: Partial<GetRuleInfoRequest> & Pick<GetRuleInfoRequest, 'id'>,
+  options?: ApiOptions,
+): Promise<GetRuleInfoResponse> {
+  return withFallback<GetRuleInfoResponse>('getRuleInfo', () => ({
+    rule: SAMPLE_RULE_INFOS.find((r) => r.id === req.id),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/security/crs/rules/${req.id}`, {
+      // `id` is the path param: zero it so toJSON leaves it out of the query
+      params: toQuery(GetRuleInfoRequest.toJSON(GetRuleInfoRequest.fromPartial({ ...req, id: 0 }))),
+      signal: options?.signal,
+    });
+    return GetRuleInfoResponse.fromJSON(resp.data ?? {});
   });
 }
 
