@@ -87,8 +87,8 @@ func (c *Client) RegisterWithTTL(
 	return c.consul.Agent().ServiceRegister(reg)
 }
 
-func (c *Client) SendHeartbeat(checkID string) error {
-	return c.consul.Agent().PassTTL("service:"+checkID, "alive")
+func (c *Client) SendHeartbeat(checkId string) error {
+	return c.consul.Agent().PassTTL("service:"+checkId, "alive")
 }
 
 func (c *Client) Discover(name string) ([]Instance, error) {

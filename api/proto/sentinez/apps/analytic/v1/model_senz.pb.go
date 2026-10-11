@@ -3,21 +3,11 @@
 
 package analyticpb
 
-import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
 const (
-	Activity_Metadata      = "metadata"
-	Activity_Id            = "id"
-	Activity_UniqueVisitor = "unique_visitor"
+	Activity_OwnerCreatedAt  = "owner_created_at"
+	Activity_OwnerUpdatedAt  = "owner_updated_at"
+	Activity_OwnerResourceId = "owner_resource_id"
+	Activity_OwnerTenantId   = "owner_tenant_id"
+	Activity_Id              = "id"
+	Activity_UniqueVisitor   = "unique_visitor"
 )

@@ -27,7 +27,7 @@ type Store interface {
 	GetSession(token string) (*webauthn.SessionData, bool)
 	SaveSession(token string, data *webauthn.SessionData)
 	DeleteSession(token string)
-	GenSessionID() (string, error)
+	GenSessionId() (string, error)
 	GetOrCreateAccount(email string) (*iampb.Account, error)
 	GetAndDeleteAccount(email string) (*iampb.Account, error)
 }

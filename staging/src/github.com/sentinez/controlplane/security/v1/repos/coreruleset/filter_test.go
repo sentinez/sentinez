@@ -47,7 +47,7 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "resource ids",
 			give:     &listReq{ResourceIds: []string{"a", "b"}},
-			wantSQL:  "SELECT 1 WHERE resource_id IN (?,?)",
+			wantSQL:  "SELECT 1 WHERE owner_resource_id IN (?,?)",
 			wantArgs: []any{"a", "b"},
 		},
 		{

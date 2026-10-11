@@ -15,7 +15,7 @@ import { useTranslations } from 'next-intl';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import type { CreateResourceRequest } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
 import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
-import { Plan, Status } from '@sentinez/proto/sentinez/types/v1/known';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 
 export interface OriginRow {
   server: string;
@@ -25,7 +25,6 @@ export interface OriginRow {
 export interface ResourceFormValue {
   resourceName: string;
   resourceDomain: string;
-  plan: Plan;
   status: Status;
   /** Path the origins serve, e.g. "/" */
   location: string;
@@ -42,16 +41,6 @@ interface Option<T extends number> {
 type FieldsTranslator = ReturnType<typeof useTranslations<'ResourceFields'>>;
 type StatusTranslator = ReturnType<typeof useTranslations<'Enum.status'>>;
 type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
-
-const planOptions = (t: FieldsTranslator): Option<Plan>[] => [
-  { label: t('planFree'), value: Plan.PLAN_FREE, description: t('planFreeDescription') },
-  {
-    label: t('planStandard'),
-    value: Plan.PLAN_STANDARD,
-    description: t('planStandardDescription'),
-  },
-  { label: t('planPro'), value: Plan.PLAN_PRO, description: t('planProDescription') },
-];
 
 const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<Status>[] => [
   {
@@ -81,7 +70,6 @@ export function createEmptyResourceForm(): ResourceFormValue {
   return {
     resourceName: '',
     resourceDomain: '',
-    plan: Plan.PLAN_FREE,
     status: Status.STATUS_ACTIVE,
     location: '/',
     origins: [],
@@ -94,7 +82,6 @@ export function resourceFormOf(r: Resource): ResourceFormValue {
   return {
     resourceName: r.resourceName,
     resourceDomain: r.resourceDomain,
-    plan: r.plan || Plan.PLAN_FREE,
     status: r.status || Status.STATUS_ACTIVE,
     location: loc?.location || '/',
     origins: (loc?.proxyPass ?? []).map((u) => ({
@@ -114,7 +101,6 @@ export function resourceOf(f: ResourceFormValue): CreateResourceRequest {
   return {
     resourceName: name,
     resourceDomain: f.resourceDomain.trim(),
-    plan: f.plan,
     status: f.status,
     resourceSetting:
       origins.length === 0
@@ -301,12 +287,6 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <OptionSelect
-          label={t('plan')}
-          value={value.plan}
-          options={planOptions(t)}
-          onChange={(plan) => onChange({ plan })}
-        />
         <OptionSelect
           label={t('status')}
           value={value.status}

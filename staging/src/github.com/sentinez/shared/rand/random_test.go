@@ -23,7 +23,7 @@ import (
 
 // Returned IDs must not alias the pooled buffer: later calls would
 // overwrite them in place.
-func TestIDStableAfterNextCall(t *testing.T) {
+func TestIdStableAfterNextCall(t *testing.T) {
 	tests := []struct {
 		name    string
 		give    func() string
@@ -31,12 +31,12 @@ func TestIDStableAfterNextCall(t *testing.T) {
 	}{
 		{
 			name:    "xid",
-			give:    func() string { return NewXID([]byte("senz:req:")) },
+			give:    func() string { return NewXId([]byte("senz:req:")) },
 			wantPfx: "senz:req:",
 		},
 		{
 			name:    "time id",
-			give:    func() string { return NewTimeID([]byte("senz:t:"), 1) },
+			give:    func() string { return NewTimeId([]byte("senz:t:"), 1) },
 			wantPfx: "senz:t:",
 		},
 	}

@@ -23,7 +23,7 @@ export default function CreateRulesetPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   // The new row belongs to the resource of this domain
-  const { resourceId } = useResourceId();
+  const { resourceId, tenantId } = useResourceId();
   const [form, setForm] = useState<CoreRulesetFormValue>(createEmptyCoreRulesetForm);
   const patchForm = (patch: Partial<CoreRulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -37,7 +37,7 @@ export default function CreateRulesetPage() {
     setSaving(true);
     try {
       await createCoreRuleset({
-        coreRuleset: { ...coreRulesetOf(form), metadata: { resourceId } },
+        coreRuleset: { ...coreRulesetOf(form), owner: { resourceId, tenantId } },
       });
       toast.success(t('created'));
       router.back();

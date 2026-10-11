@@ -23,7 +23,7 @@ export default function CreateRateLimitPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   // The new row belongs to the resource of this domain
-  const { resourceId } = useResourceId();
+  const { resourceId, tenantId } = useResourceId();
   const [form, setForm] = useState<RateLimitFormValue>(createEmptyRateLimitForm);
   const patchForm = (patch: Partial<RateLimitFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -36,7 +36,7 @@ export default function CreateRateLimitPage() {
 
     setSaving(true);
     try {
-      await createRateLimit({ rateLimit: { ...rateLimitOf(form), metadata: { resourceId } } });
+      await createRateLimit({ rateLimit: { ...rateLimitOf(form), owner: { resourceId, tenantId } } });
       toast.success(t('created'));
       router.back();
     } catch {

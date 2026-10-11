@@ -74,7 +74,7 @@ func (m *Resource) Validate() error {
 
 	// no validation rules for Status
 
-	// no validation rules for Plan
+	// no validation rules for TenantId
 
 	return nil
 }
@@ -132,3 +132,81 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ResourceValidationError{}
+
+// Validate checks the field values on Tenant with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Tenant) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TenantValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Plan
+
+	return nil
+}
+
+// TenantValidationError is the validation error returned by Tenant.Validate if
+// the designated constraints aren't met.
+type TenantValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TenantValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TenantValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TenantValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TenantValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TenantValidationError) ErrorName() string { return "TenantValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TenantValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTenant.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TenantValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TenantValidationError{}

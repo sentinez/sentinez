@@ -178,7 +178,7 @@ func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	}
 
 	return &rulepb.Condition{
-		Id:       rand.NewNanoID(condPrefix),
+		Id:       rand.NewNanoId(condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -192,7 +192,7 @@ func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 	}
 
 	return &rulepb.Rule{
-		Id:        rand.NewNanoID(rulePrefix),
+		Id:        rand.NewNanoId(rulePrefix),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

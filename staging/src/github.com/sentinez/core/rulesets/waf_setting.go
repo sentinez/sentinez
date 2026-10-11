@@ -29,8 +29,8 @@ import (
 // IDs of the rules generated from a setting, kept below the CRS range
 // (900000-999999) so they never collide with a CRS rule.
 const (
-	_settingRuleID = 899000
-	_scopedRuleID  = 899001
+	_settingRuleId = 899000
+	_scopedRuleId  = 899001
 )
 
 // ErrInvalidSetting a setting value cannot be mapped to a directive.
@@ -216,7 +216,7 @@ func setupDirectives(s *corerulesetpb.CoreRuleset) string {
 	writeRequestPolicy(&sb, s.GetRequest())
 	fmt.Fprintf(&sb,
 		"SecAction \"id:%d,phase:1,pass,t:none,nolog,%s\"\n",
-		_settingRuleID, strings.Join(setupVars(s), ","),
+		_settingRuleId, strings.Join(setupVars(s), ","),
 	)
 	writeScopedRules(&sb, s)
 
@@ -298,7 +298,7 @@ func thresholdVars(t *corerulesetpb.AnomalyThreshold) []string {
 // writeScopedRules exclusions and overrides scoped to an expression are
 // applied per transaction with ctl actions.
 func writeScopedRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
-	id := _scopedRuleID
+	id := _scopedRuleId
 
 	write := func(expr *rulepb.Expression, ctls []string) {
 		if !hasExpr(expr) {

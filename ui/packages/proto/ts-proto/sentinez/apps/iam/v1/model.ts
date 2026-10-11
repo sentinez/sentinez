@@ -37,6 +37,7 @@ export interface AccountResponse {
 export interface User {
   metadata?: Metadata | undefined;
   id: string;
+  tenantIds: string[];
   fullName: string;
   email: string;
   controlPlane: ControlPlane;
@@ -421,7 +422,7 @@ export const AccountResponse: MessageFns<AccountResponse> = {
 };
 
 function createBaseUser(): User {
-  return { metadata: undefined, id: "", fullName: "", email: "", controlPlane: 0 };
+  return { metadata: undefined, id: "", tenantIds: [], fullName: "", email: "", controlPlane: 0 };
 }
 
 export const User: MessageFns<User> = {
@@ -431,6 +432,9 @@ export const User: MessageFns<User> = {
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
+    }
+    for (const v of message.tenantIds) {
+      writer.uint32(26).string(v!);
     }
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
@@ -473,6 +477,14 @@ export const User: MessageFns<User> = {
             message.id = reader.string();
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.tenantIds.push(reader.string());
+            continue;
+          }
           case 10: {
             if (tag !== 82) {
               break;
@@ -513,6 +525,11 @@ export const User: MessageFns<User> = {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
       fullName: isSet(object.fullName)
         ? globalThis.String(object.fullName)
         : isSet(object.full_name)
@@ -535,6 +552,9 @@ export const User: MessageFns<User> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
+    }
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
     }
@@ -556,6 +576,7 @@ export const User: MessageFns<User> = {
       ? Metadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
     message.fullName = object.fullName ?? "";
     message.email = object.email ?? "";
     message.controlPlane = object.controlPlane ?? 0;

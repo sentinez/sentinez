@@ -42,26 +42,26 @@ func Handler(ctx corehttp.Context) error {
 
 	zlog.Debugf("wshandlers.Handler full path %s", ctx.Path())
 
-	clientID := ctx.Query([]byte("id"))
-	if len(clientID) == 0 {
+	clientId := ctx.Query([]byte("id"))
+	if len(clientId) == 0 {
 		zlog.Error("wshandlers.Handler missing client ID")
 		return errorx.StatusInvalidData
 	}
 
-	realtimemnt.Manager().AddClient(bytesconv.B2s(clientID), conn)
-	defer realtimemnt.Manager().RemoveClient(bytesconv.B2s(clientID))
+	realtimemnt.Manager().AddClient(bytesconv.B2s(clientId), conn)
+	defer realtimemnt.Manager().RemoveClient(bytesconv.B2s(clientId))
 
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			zlog.Errorf("wshandlers.Handler read error from %s: %v",
-				clientID, err)
+				clientId, err)
 			break
 		}
 
-		zlog.Debugf("wshandlers.Handler received from %s: %s", clientID, msg)
+		zlog.Debugf("wshandlers.Handler received from %s: %s", clientId, msg)
 		realtimemnt.Manager().
-			Broadcast(fmt.Appendf(nil, "From %s: %s", clientID, msg))
+			Broadcast(fmt.Appendf(nil, "From %s: %s", clientId, msg))
 	}
 
 	return nil

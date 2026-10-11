@@ -5,9 +5,9 @@ import { getResourceByDomain } from '@/lib/api/tenant';
 import { useApi } from '@/hooks/use-api';
 
 /**
- * The id of the resource behind the `[domain]` route segment, the
- * `metadata.resourceId` of the rows that belong to it. Empty while loading or
- * when the domain has no resource.
+ * The id of the resource behind the `[domain]` route segment and of its
+ * tenant: the `owner.resourceId` / `owner.tenantId` of the rows that belong
+ * to it. Empty while loading or when the domain has no resource.
  */
 export function useResourceId() {
   const { domain = '' } = useParams<{ domain?: string }>();
@@ -15,5 +15,9 @@ export function useResourceId() {
     resourceDomain: decodeURIComponent(domain),
   });
 
-  return { resourceId: data?.resource?.id ?? '', isLoading };
+  return {
+    resourceId: data?.resource?.id ?? '',
+    tenantId: data?.resource?.tenantId ?? '',
+    isLoading,
+  };
 }

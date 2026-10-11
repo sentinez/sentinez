@@ -18,7 +18,6 @@ import (
 	"strings"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/storage/dbx"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -42,7 +41,8 @@ func listConditions(
 	}
 
 	if ids := req.GetResourceIds(); len(ids) > 0 {
-		conds = append(conds, sq.Eq{dbx.FieldResourceID: ids})
+		conds = append(conds,
+			sq.Eq{securitypb.CoreRuleset_OwnerResourceId: ids})
 	}
 
 	if name := req.GetName(); name != "" {

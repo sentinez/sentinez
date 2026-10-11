@@ -44,7 +44,7 @@ func (srv *SecurityService) mapRateLimit(_ context.Context,
 		TimeWindow:  dbRL.GetTimeWindow(),
 		MaxRequests: dbRL.GetMaxRequests(),
 		Timeout:     dbRL.GetTimeout(),
-		Metadata:    dbRL.GetMetadata(),
+		Owner:       dbRL.GetOwner(),
 	}
 }
 

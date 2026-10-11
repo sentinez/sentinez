@@ -9,12 +9,12 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CoreRuleset as CoreRuleset1 } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
-import { ResourceMetadata } from "../../../types/v1/model";
+import { Owner } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
 export interface SecRule {
-  metadata?: ResourceMetadata | undefined;
+  owner?: Owner | undefined;
   id: string;
   name: string;
   description: string;
@@ -26,7 +26,7 @@ export interface SecRule {
 }
 
 export interface RateLimit {
-  metadata?: ResourceMetadata | undefined;
+  owner?: Owner | undefined;
   id: string;
   name: string;
   description: string;
@@ -54,7 +54,7 @@ export interface ActionValue_MapValueEntry {
 }
 
 export interface CoreRuleset {
-  metadata?: ResourceMetadata | undefined;
+  owner?: Owner | undefined;
   id: string;
   name: string;
   description: string;
@@ -63,7 +63,7 @@ export interface CoreRuleset {
 
 function createBaseSecRule(): SecRule {
   return {
-    metadata: undefined,
+    owner: undefined,
     id: "",
     name: "",
     description: "",
@@ -77,8 +77,8 @@ function createBaseSecRule(): SecRule {
 
 export const SecRule: MessageFns<SecRule> = {
   encode(message: SecRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metadata !== undefined) {
-      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    if (message.owner !== undefined) {
+      Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -125,7 +125,7 @@ export const SecRule: MessageFns<SecRule> = {
               break;
             }
 
-            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
+            message.owner = Owner.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -206,7 +206,7 @@ export const SecRule: MessageFns<SecRule> = {
 
   fromJSON(object: any): SecRule {
     return {
-      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
+      owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -224,8 +224,8 @@ export const SecRule: MessageFns<SecRule> = {
 
   toJSON(message: SecRule): unknown {
     const obj: any = {};
-    if (message.metadata !== undefined) {
-      obj.metadata = ResourceMetadata.toJSON(message.metadata);
+    if (message.owner !== undefined) {
+      obj.owner = Owner.toJSON(message.owner);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -259,9 +259,7 @@ export const SecRule: MessageFns<SecRule> = {
   },
   fromPartial<I extends Exact<DeepPartial<SecRule>, I>>(object: I): SecRule {
     const message = createBaseSecRule();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? ResourceMetadata.fromPartial(object.metadata)
-      : undefined;
+    message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
@@ -280,7 +278,7 @@ export const SecRule: MessageFns<SecRule> = {
 
 function createBaseRateLimit(): RateLimit {
   return {
-    metadata: undefined,
+    owner: undefined,
     id: "",
     name: "",
     description: "",
@@ -297,8 +295,8 @@ function createBaseRateLimit(): RateLimit {
 
 export const RateLimit: MessageFns<RateLimit> = {
   encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metadata !== undefined) {
-      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    if (message.owner !== undefined) {
+      Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -354,7 +352,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
+            message.owner = Owner.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -459,7 +457,7 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   fromJSON(object: any): RateLimit {
     return {
-      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
+      owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -488,8 +486,8 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   toJSON(message: RateLimit): unknown {
     const obj: any = {};
-    if (message.metadata !== undefined) {
-      obj.metadata = ResourceMetadata.toJSON(message.metadata);
+    if (message.owner !== undefined) {
+      obj.owner = Owner.toJSON(message.owner);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -532,9 +530,7 @@ export const RateLimit: MessageFns<RateLimit> = {
   },
   fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
     const message = createBaseRateLimit();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? ResourceMetadata.fromPartial(object.metadata)
-      : undefined;
+    message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
@@ -772,13 +768,13 @@ export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = 
 };
 
 function createBaseCoreRuleset(): CoreRuleset {
-  return { metadata: undefined, id: "", name: "", description: "", content: undefined };
+  return { owner: undefined, id: "", name: "", description: "", content: undefined };
 }
 
 export const CoreRuleset: MessageFns<CoreRuleset> = {
   encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metadata !== undefined) {
-      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    if (message.owner !== undefined) {
+      Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -813,7 +809,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
               break;
             }
 
-            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
+            message.owner = Owner.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -862,7 +858,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
 
   fromJSON(object: any): CoreRuleset {
     return {
-      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
+      owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -872,8 +868,8 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
 
   toJSON(message: CoreRuleset): unknown {
     const obj: any = {};
-    if (message.metadata !== undefined) {
-      obj.metadata = ResourceMetadata.toJSON(message.metadata);
+    if (message.owner !== undefined) {
+      obj.owner = Owner.toJSON(message.owner);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -895,9 +891,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
   },
   fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
     const message = createBaseCoreRuleset();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? ResourceMetadata.fromPartial(object.metadata)
-      : undefined;
+    message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";

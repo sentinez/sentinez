@@ -3,19 +3,6 @@
 
 package iampb
 
-import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
 const (
 	Account_Metadata       = "metadata"
 	Account_Id             = "id"
@@ -31,6 +18,7 @@ const (
 const (
 	User_Metadata     = "metadata"
 	User_Id           = "id"
+	User_TenantIds    = "tenant_ids"
 	User_FullName     = "full_name"
 	User_Email        = "email"
 	User_ControlPlane = "control_plane"

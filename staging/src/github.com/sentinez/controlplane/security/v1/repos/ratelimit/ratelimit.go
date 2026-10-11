@@ -50,17 +50,18 @@ func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
 	storage, err := postgres.New[securitypb.RateLimit](ctx, appConf,
 		dbx.WithTable(tables.SecurityRateLimits),
 		dbx.WithColumns(dbx.ColumnM{
-			securitypb.RateLimit_Id:          postgres.String,
-			securitypb.RateLimit_Name:        postgres.String,
-			securitypb.RateLimit_Description: postgres.String,
-			securitypb.RateLimit_Expr:        postgres.JSONB,
-			securitypb.RateLimit_Status:      postgres.Int4,
-			securitypb.RateLimit_Priority:    postgres.Int4,
-			securitypb.RateLimit_Action:      postgres.String,
-			securitypb.RateLimit_TimeWindow:  postgres.String,
-			securitypb.RateLimit_MaxRequests: postgres.Int8,
-			securitypb.RateLimit_Timeout:     postgres.String,
-			dbx.FieldResourceID:              postgres.String,
+			securitypb.RateLimit_Id:              postgres.String,
+			securitypb.RateLimit_Name:            postgres.String,
+			securitypb.RateLimit_Description:     postgres.String,
+			securitypb.RateLimit_Expr:            postgres.JSONB,
+			securitypb.RateLimit_Status:          postgres.Int4,
+			securitypb.RateLimit_Priority:        postgres.Int4,
+			securitypb.RateLimit_Action:          postgres.String,
+			securitypb.RateLimit_TimeWindow:      postgres.String,
+			securitypb.RateLimit_MaxRequests:     postgres.Int8,
+			securitypb.RateLimit_Timeout:         postgres.String,
+			securitypb.RateLimit_OwnerResourceId: postgres.String,
+			securitypb.RateLimit_OwnerTenantId:   postgres.String,
 		}),
 	)
 	if err != nil {
@@ -89,7 +90,8 @@ func buildListQuery(builder sq.SelectBuilder,
 		builder = builder.Where(sq.Eq{securitypb.RateLimit_Id: req.GetIds()})
 	}
 	if ids := req.GetResourceIds(); len(ids) > 0 {
-		builder = builder.Where(sq.Eq{dbx.FieldResourceID: ids})
+		builder = builder.Where(
+			sq.Eq{securitypb.RateLimit_OwnerResourceId: ids})
 	}
 	return builder
 }
@@ -139,19 +141,20 @@ func (r *RateLimit) total(
 
 func (r *RateLimit) Create(ctx context.Context,
 	model *securitypb.RateLimit) (*securitypb.RateLimit, error) {
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecurityRateLimits))
+	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityRateLimits))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.RateLimit_Id:          model.GetId(),
-		securitypb.RateLimit_Name:        model.GetName(),
-		securitypb.RateLimit_Description: model.GetDescription(),
-		securitypb.RateLimit_Expr:        model.GetExpr(),
-		securitypb.RateLimit_Status:      model.GetStatus(),
-		securitypb.RateLimit_Priority:    model.GetPriority(),
-		securitypb.RateLimit_Action:      model.GetAction(),
-		securitypb.RateLimit_TimeWindow:  model.GetTimeWindow(),
-		securitypb.RateLimit_MaxRequests: model.GetMaxRequests(),
-		securitypb.RateLimit_Timeout:     model.GetTimeout(),
-		dbx.FieldResourceID:              model.GetMetadata().GetResourceId(),
+		securitypb.RateLimit_Id:              model.GetId(),
+		securitypb.RateLimit_Name:            model.GetName(),
+		securitypb.RateLimit_Description:     model.GetDescription(),
+		securitypb.RateLimit_Expr:            model.GetExpr(),
+		securitypb.RateLimit_Status:          model.GetStatus(),
+		securitypb.RateLimit_Priority:        model.GetPriority(),
+		securitypb.RateLimit_Action:          model.GetAction(),
+		securitypb.RateLimit_TimeWindow:      model.GetTimeWindow(),
+		securitypb.RateLimit_MaxRequests:     model.GetMaxRequests(),
+		securitypb.RateLimit_Timeout:         model.GetTimeout(),
+		securitypb.RateLimit_OwnerResourceId: model.GetOwner().GetResourceId(),
+		securitypb.RateLimit_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -207,9 +210,10 @@ func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.RateLimit_TimeWindow,
 		securitypb.RateLimit_MaxRequests,
 		securitypb.RateLimit_Timeout,
-		postgres.SelectResourceID,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		postgres.SelectCoalesce(securitypb.RateLimit_OwnerResourceId),
+		postgres.SelectCoalesce(securitypb.RateLimit_OwnerTenantId),
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -228,7 +232,7 @@ func scan(rows dbx.Rows) ([]*securitypb.RateLimit, error) {
 func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 	var (
 		createdAt, updatedAt time.Time
-		resourceID           string
+		resourceId, tenantId string
 		model                securitypb.RateLimit
 	)
 
@@ -243,7 +247,8 @@ func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 		&model.TimeWindow,
 		&model.MaxRequests,
 		&model.Timeout,
-		&resourceID,
+		&resourceId,
+		&tenantId,
 		&createdAt,
 		&updatedAt,
 	)
@@ -251,8 +256,9 @@ func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 		return nil, err
 	}
 
-	model.Metadata = &typepb.ResourceMetadata{
-		ResourceId: resourceID,
+	model.Owner = &typepb.Owner{
+		ResourceId: resourceId,
+		TenantId:   tenantId,
 		CreatedAt:  timestamppb.New(createdAt),
 		UpdatedAt:  timestamppb.New(updatedAt),
 	}

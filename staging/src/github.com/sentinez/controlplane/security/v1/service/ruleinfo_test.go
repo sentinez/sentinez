@@ -30,7 +30,7 @@ import (
 
 type listRules = securitypb.ListRuleInfosRequest
 
-func listRuleIDs(t *testing.T, req *listRules) ([]uint32, int64) {
+func listRuleIds(t *testing.T, req *listRules) ([]uint32, int64) {
 	t.Helper()
 
 	resp, err := New(nil, nil, nil, nil).
@@ -52,19 +52,19 @@ func TestListRuleInfos(t *testing.T) {
 	tests := []struct {
 		name      string
 		give      *listRules
-		wantIDs   []uint32
+		wantIds   []uint32
 		wantTotal int64
 	}{
 		{
 			name:      "ids",
 			give:      &listRules{Ids: []uint32{942100, 941100, 1}},
-			wantIDs:   []uint32{941100, 942100},
+			wantIds:   []uint32{941100, 942100},
 			wantTotal: 2,
 		},
 		{
 			name:      "system rules are left out",
 			give:      &listRules{Ids: []uint32{901001, 942100}},
-			wantIDs:   []uint32{942100},
+			wantIds:   []uint32{942100},
 			wantTotal: 1,
 		},
 		{
@@ -72,19 +72,19 @@ func TestListRuleInfos(t *testing.T) {
 			give: &listRules{
 				Ids: []uint32{901001, 942100}, IncludeSystem: true,
 			},
-			wantIDs:   []uint32{901001, 942100},
+			wantIds:   []uint32{901001, 942100},
 			wantTotal: 2,
 		},
 		{
 			name:      "search by message",
 			give:      &listRules{Search: "via LIBINJECTION", Categories: sqli},
-			wantIDs:   []uint32{942100, 942101},
+			wantIds:   []uint32{942100, 942101},
 			wantTotal: 2,
 		},
 		{
 			name:      "search by id prefix",
 			give:      &listRules{Search: "94210"},
-			wantIDs:   []uint32{942100, 942101},
+			wantIds:   []uint32{942100, 942101},
 			wantTotal: 2,
 		},
 		{
@@ -97,7 +97,7 @@ func TestListRuleInfos(t *testing.T) {
 				Search:         "9421",
 				Page:           &typepb.Pages{Index: 1, Size: 2},
 			},
-			wantIDs:   []uint32{942100, 942140},
+			wantIds:   []uint32{942100, 942140},
 			wantTotal: 6,
 		},
 		{
@@ -105,7 +105,7 @@ func TestListRuleInfos(t *testing.T) {
 			give: &listRules{
 				Search: "94210", Page: &typepb.Pages{Index: 2, Size: 1},
 			},
-			wantIDs:   []uint32{942101},
+			wantIds:   []uint32{942101},
 			wantTotal: 2,
 		},
 		{
@@ -113,7 +113,7 @@ func TestListRuleInfos(t *testing.T) {
 			give: &listRules{
 				Search: "94210", Page: &typepb.Pages{Index: 9, Size: 5},
 			},
-			wantIDs:   []uint32{},
+			wantIds:   []uint32{},
 			wantTotal: 2,
 		},
 		{
@@ -124,20 +124,20 @@ func TestListRuleInfos(t *testing.T) {
 					corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 				},
 			},
-			wantIDs: []uint32{},
+			wantIds: []uint32{},
 		},
 		{
 			name:    "tag not carried",
 			give:    &listRules{Tags: []string{"attack-sqli", "attack-xss"}},
-			wantIDs: []uint32{},
+			wantIds: []uint32{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotIDs, gotTotal := listRuleIDs(t, tt.give)
+			gotIds, gotTotal := listRuleIds(t, tt.give)
 
-			assert.Equal(t, tt.wantIDs, gotIDs)
+			assert.Equal(t, tt.wantIds, gotIds)
 			assert.Equal(t, tt.wantTotal, gotTotal)
 		})
 	}

@@ -6,24 +6,24 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { ResourceMetadata } from "../../../types/v1/model";
+import { Owner } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.analytic.v1";
 
 export interface Activity {
-  metadata?: ResourceMetadata | undefined;
+  owner?: Owner | undefined;
   id: string;
   uniqueVisitor: number[];
 }
 
 function createBaseActivity(): Activity {
-  return { metadata: undefined, id: "", uniqueVisitor: [] };
+  return { owner: undefined, id: "", uniqueVisitor: [] };
 }
 
 export const Activity: MessageFns<Activity> = {
   encode(message: Activity, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metadata !== undefined) {
-      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    if (message.owner !== undefined) {
+      Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -54,7 +54,7 @@ export const Activity: MessageFns<Activity> = {
               break;
             }
 
-            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
+            message.owner = Owner.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -97,7 +97,7 @@ export const Activity: MessageFns<Activity> = {
 
   fromJSON(object: any): Activity {
     return {
-      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
+      owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       uniqueVisitor: globalThis.Array.isArray(object?.uniqueVisitor)
         ? object.uniqueVisitor.map((e: any) => globalThis.Number(e))
@@ -109,8 +109,8 @@ export const Activity: MessageFns<Activity> = {
 
   toJSON(message: Activity): unknown {
     const obj: any = {};
-    if (message.metadata !== undefined) {
-      obj.metadata = ResourceMetadata.toJSON(message.metadata);
+    if (message.owner !== undefined) {
+      obj.owner = Owner.toJSON(message.owner);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -126,9 +126,7 @@ export const Activity: MessageFns<Activity> = {
   },
   fromPartial<I extends Exact<DeepPartial<Activity>, I>>(object: I): Activity {
     const message = createBaseActivity();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? ResourceMetadata.fromPartial(object.metadata)
-      : undefined;
+    message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.uniqueVisitor = object.uniqueVisitor?.map((e) => e) || [];
     return message;

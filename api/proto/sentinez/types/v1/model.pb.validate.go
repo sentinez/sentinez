@@ -187,17 +187,16 @@ var _ interface {
 	ErrorName() string
 } = MetadataValidationError{}
 
-// Validate checks the field values on ResourceMetadata with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *ResourceMetadata) Validate() error {
+// Validate checks the field values on Owner with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Owner) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ResourceMetadataValidationError{
+			return OwnerValidationError{
 				field:  "CreatedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -207,7 +206,7 @@ func (m *ResourceMetadata) Validate() error {
 
 	if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ResourceMetadataValidationError{
+			return OwnerValidationError{
 				field:  "UpdatedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -217,12 +216,14 @@ func (m *ResourceMetadata) Validate() error {
 
 	// no validation rules for ResourceId
 
+	// no validation rules for TenantId
+
 	return nil
 }
 
-// ResourceMetadataValidationError is the validation error returned by
-// ResourceMetadata.Validate if the designated constraints aren't met.
-type ResourceMetadataValidationError struct {
+// OwnerValidationError is the validation error returned by Owner.Validate if
+// the designated constraints aren't met.
+type OwnerValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -230,22 +231,22 @@ type ResourceMetadataValidationError struct {
 }
 
 // Field function returns field value.
-func (e ResourceMetadataValidationError) Field() string { return e.field }
+func (e OwnerValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ResourceMetadataValidationError) Reason() string { return e.reason }
+func (e OwnerValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ResourceMetadataValidationError) Cause() error { return e.cause }
+func (e OwnerValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ResourceMetadataValidationError) Key() bool { return e.key }
+func (e OwnerValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ResourceMetadataValidationError) ErrorName() string { return "ResourceMetadataValidationError" }
+func (e OwnerValidationError) ErrorName() string { return "OwnerValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ResourceMetadataValidationError) Error() string {
+func (e OwnerValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -257,14 +258,14 @@ func (e ResourceMetadataValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sResourceMetadata.%s: %s%s",
+		"invalid %sOwner.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ResourceMetadataValidationError{}
+var _ error = OwnerValidationError{}
 
 var _ interface {
 	Field() string
@@ -272,4 +273,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ResourceMetadataValidationError{}
+} = OwnerValidationError{}

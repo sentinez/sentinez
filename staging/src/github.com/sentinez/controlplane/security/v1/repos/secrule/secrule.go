@@ -47,14 +47,15 @@ func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
 		dbx.WithTable(tables.SecuritySecRules),
 		dbx.WithColumns(dbx.ColumnM{
-			securitypb.SecRule_Id:          postgres.String,
-			securitypb.SecRule_Name:        postgres.String,
-			securitypb.SecRule_Description: postgres.String,
-			securitypb.SecRule_Expr:        postgres.JSONB,
-			securitypb.SecRule_Status:      postgres.Int4,
-			securitypb.SecRule_Priority:    postgres.Int4,
-			securitypb.SecRule_Action:      postgres.JSONB,
-			dbx.FieldResourceID:            postgres.String,
+			securitypb.SecRule_Id:              postgres.String,
+			securitypb.SecRule_Name:            postgres.String,
+			securitypb.SecRule_Description:     postgres.String,
+			securitypb.SecRule_Expr:            postgres.JSONB,
+			securitypb.SecRule_Status:          postgres.Int4,
+			securitypb.SecRule_Priority:        postgres.Int4,
+			securitypb.SecRule_Action:          postgres.JSONB,
+			securitypb.SecRule_OwnerResourceId: postgres.String,
+			securitypb.SecRule_OwnerTenantId:   postgres.String,
 		}),
 	)
 	if err != nil {
@@ -82,7 +83,8 @@ func buildListQuery(builder sq.SelectBuilder,
 		builder = builder.Where(sq.Eq{securitypb.SecRule_Id: req.GetIds()})
 	}
 	if ids := req.GetResourceIds(); len(ids) > 0 {
-		builder = builder.Where(sq.Eq{dbx.FieldResourceID: ids})
+		builder = builder.Where(
+			sq.Eq{securitypb.SecRule_OwnerResourceId: ids})
 	}
 	return builder
 }
@@ -132,16 +134,17 @@ func (r *SecRule) total(
 
 func (r *SecRule) Create(ctx context.Context,
 	model *securitypb.SecRule) (*securitypb.SecRule, error) {
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecuritySecRules))
+	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecuritySecRules))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.SecRule_Id:          model.GetId(),
-		securitypb.SecRule_Name:        model.GetName(),
-		securitypb.SecRule_Description: model.GetDescription(),
-		securitypb.SecRule_Expr:        model.GetExpr(),
-		securitypb.SecRule_Status:      model.GetStatus(),
-		securitypb.SecRule_Priority:    model.GetPriority(),
-		securitypb.SecRule_Action:      model.GetAction(),
-		dbx.FieldResourceID:            model.GetMetadata().GetResourceId(),
+		securitypb.SecRule_Id:              model.GetId(),
+		securitypb.SecRule_Name:            model.GetName(),
+		securitypb.SecRule_Description:     model.GetDescription(),
+		securitypb.SecRule_Expr:            model.GetExpr(),
+		securitypb.SecRule_Status:          model.GetStatus(),
+		securitypb.SecRule_Priority:        model.GetPriority(),
+		securitypb.SecRule_Action:          model.GetAction(),
+		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
+		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -197,9 +200,10 @@ func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.SecRule_Status,
 		securitypb.SecRule_Priority,
 		securitypb.SecRule_Action,
-		postgres.SelectResourceID,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		postgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
+		postgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -218,7 +222,7 @@ func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
 func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 	var (
 		createdAt, updatedAt time.Time
-		resourceID           string
+		resourceId, tenantId string
 		model                securitypb.SecRule
 	)
 
@@ -230,7 +234,8 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		&model.Status,
 		&model.Priority,
 		&model.Action,
-		&resourceID,
+		&resourceId,
+		&tenantId,
 		&createdAt,
 		&updatedAt,
 	)
@@ -238,8 +243,9 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		return nil, err
 	}
 
-	model.Metadata = &typepb.ResourceMetadata{
-		ResourceId: resourceID,
+	model.Owner = &typepb.Owner{
+		ResourceId: resourceId,
+		TenantId:   tenantId,
 		CreatedAt:  timestamppb.New(createdAt),
 		UpdatedAt:  timestamppb.New(updatedAt),
 	}

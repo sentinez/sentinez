@@ -3,50 +3,46 @@
 
 package securitypb
 
-import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
+const (
+	SecRule_OwnerCreatedAt  = "owner_created_at"
+	SecRule_OwnerUpdatedAt  = "owner_updated_at"
+	SecRule_OwnerResourceId = "owner_resource_id"
+	SecRule_OwnerTenantId   = "owner_tenant_id"
+	SecRule_Id              = "id"
+	SecRule_Name            = "name"
+	SecRule_Description     = "description"
+	SecRule_Expr            = "expr"
+	SecRule_Action          = "action"
+	SecRule_ActionValue     = "action_value"
+	SecRule_Status          = "status"
+	SecRule_Priority        = "priority"
 )
 
 const (
-	SecRule_Metadata    = "metadata"
-	SecRule_Id          = "id"
-	SecRule_Name        = "name"
-	SecRule_Description = "description"
-	SecRule_Expr        = "expr"
-	SecRule_Action      = "action"
-	SecRule_ActionValue = "action_value"
-	SecRule_Status      = "status"
-	SecRule_Priority    = "priority"
+	RateLimit_OwnerCreatedAt  = "owner_created_at"
+	RateLimit_OwnerUpdatedAt  = "owner_updated_at"
+	RateLimit_OwnerResourceId = "owner_resource_id"
+	RateLimit_OwnerTenantId   = "owner_tenant_id"
+	RateLimit_Id              = "id"
+	RateLimit_Name            = "name"
+	RateLimit_Description     = "description"
+	RateLimit_Expr            = "expr"
+	RateLimit_Action          = "action"
+	RateLimit_ActionValue     = "action_value"
+	RateLimit_Status          = "status"
+	RateLimit_Priority        = "priority"
+	RateLimit_TimeWindow      = "time_window"
+	RateLimit_MaxRequests     = "max_requests"
+	RateLimit_Timeout         = "timeout"
 )
 
 const (
-	RateLimit_Metadata    = "metadata"
-	RateLimit_Id          = "id"
-	RateLimit_Name        = "name"
-	RateLimit_Description = "description"
-	RateLimit_Expr        = "expr"
-	RateLimit_Action      = "action"
-	RateLimit_ActionValue = "action_value"
-	RateLimit_Status      = "status"
-	RateLimit_Priority    = "priority"
-	RateLimit_TimeWindow  = "time_window"
-	RateLimit_MaxRequests = "max_requests"
-	RateLimit_Timeout     = "timeout"
-)
-
-const (
-	CoreRuleset_Metadata    = "metadata"
-	CoreRuleset_Id          = "id"
-	CoreRuleset_Name        = "name"
-	CoreRuleset_Description = "description"
-	CoreRuleset_Content     = "content"
+	CoreRuleset_OwnerCreatedAt  = "owner_created_at"
+	CoreRuleset_OwnerUpdatedAt  = "owner_updated_at"
+	CoreRuleset_OwnerResourceId = "owner_resource_id"
+	CoreRuleset_OwnerTenantId   = "owner_tenant_id"
+	CoreRuleset_Id              = "id"
+	CoreRuleset_Name            = "name"
+	CoreRuleset_Description     = "description"
+	CoreRuleset_Content         = "content"
 )

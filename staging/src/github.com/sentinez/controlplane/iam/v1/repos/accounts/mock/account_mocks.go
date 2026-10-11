@@ -8,9 +8,9 @@ import (
 	"context"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
+	"github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	"github.com/sentinez/core/storage/dbx/postgres"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )

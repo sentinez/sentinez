@@ -518,7 +518,7 @@
         "userId": {
           "type": "string"
         },
-        "plane": {
+        "controlPlane": {
           "$ref": "#/definitions/v1ControlPlane"
         }
       }
@@ -746,6 +746,12 @@
         },
         "id": {
           "type": "string"
+        },
+        "tenantIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "fullName": {
           "type": "string"

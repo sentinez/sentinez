@@ -88,7 +88,6 @@ func (svc *Service) CreateResource(ctx context.Context,
 		ResourceDomain:  req.GetResourceDomain(),
 		ResourceName:    req.GetResourceName(),
 		Status:          req.GetStatus(),
-		Plan:            req.GetPlan(),
 	}
 
 	if resource.GetResourceSetting() == nil {
@@ -128,7 +127,6 @@ func (svc *Service) UpdateResource(ctx context.Context,
 		ResourceDomain: req.GetResourceDomain(),
 		ResourceName:   req.GetResourceName(),
 		Status:         req.GetStatus(),
-		Plan:           req.GetPlan(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("resource.Update: %w", err)

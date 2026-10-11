@@ -113,8 +113,8 @@
     "v1Activity": {
       "type": "object",
       "properties": {
-        "metadata": {
-          "$ref": "#/definitions/v1ResourceMetadata"
+        "owner": {
+          "$ref": "#/definitions/v1Owner"
         },
         "id": {
           "type": "string"
@@ -144,6 +144,25 @@
         }
       }
     },
+    "v1Owner": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        }
+      }
+    },
     "v1Pages": {
       "type": "object",
       "properties": {
@@ -157,22 +176,6 @@
         },
         "total": {
           "type": "boolean"
-        }
-      }
-    },
-    "v1ResourceMetadata": {
-      "type": "object",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "resourceId": {
-          "type": "string"
         }
       }
     },

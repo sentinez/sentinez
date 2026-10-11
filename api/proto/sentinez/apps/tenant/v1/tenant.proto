@@ -170,7 +170,6 @@ message UpdateResourceRequest {
   string resource_name = 3
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   sentinez.types.v1.Status status = 4;
-  sentinez.types.v1.Plan plan = 5;
 }
 
 message UpdateResourceResponse {}
@@ -182,7 +181,6 @@ message CreateResourceRequest {
   string resource_name = 3
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   sentinez.types.v1.Status status = 4;
-  sentinez.types.v1.Plan plan = 5;
 }
 
 message CreateResourceResponse {
@@ -192,7 +190,6 @@ message CreateResourceResponse {
 message ListResourceRequest {
   sentinez.types.v1.Pages page = 1;
   sentinez.types.v1.Status status = 2;
-  sentinez.types.v1.Plan plan = 3;
   string resource_name = 4
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string resource_domain = 5

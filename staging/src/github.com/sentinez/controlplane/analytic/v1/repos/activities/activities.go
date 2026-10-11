@@ -51,9 +51,10 @@ func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
 	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
 		dbx.WithTable(tables.AnalyticActivities),
 		dbx.WithColumns(dbx.ColumnM{
-			analyticpb.Activity_Id:            postgres.String,
-			dbx.FieldResourceID:               postgres.String,
-			analyticpb.Activity_UniqueVisitor: postgres.IntArr,
+			analyticpb.Activity_Id:              postgres.String,
+			analyticpb.Activity_OwnerResourceId: postgres.String,
+			analyticpb.Activity_OwnerTenantId:   postgres.String,
+			analyticpb.Activity_UniqueVisitor:   postgres.IntArr,
 		}),
 	)
 	if err != nil {
@@ -83,7 +84,7 @@ func buildListQuery(builder sq.SelectBuilder,
 	}
 
 	if ids := req.GetResourceIds(); len(ids) > 0 {
-		builder = builder.Where(sq.Eq{dbx.FieldResourceID: ids})
+		builder = builder.Where(sq.Eq{analyticpb.Activity_OwnerResourceId: ids})
 	}
 
 	return builder
@@ -141,12 +142,12 @@ func (a *Activities) total(
 func (a *Activities) Create(ctx context.Context,
 	activity *analyticpb.Activity) (*analyticpb.Activity, error) {
 
-	activity.Id = rand.NewID(table.NewPrimaryKey(tables.AnalyticActivities))
-	resourceID := activity.GetMetadata().GetResourceId()
+	activity.Id = rand.NewId(table.NewPrimaryKey(tables.AnalyticActivities))
 	query := postgres.InsertBuilder(a.storage, postgres.M{
-		analyticpb.Activity_Id:            activity.GetId(),
-		dbx.FieldResourceID:               resourceID,
-		analyticpb.Activity_UniqueVisitor: activity.GetUniqueVisitor(),
+		analyticpb.Activity_Id:              activity.GetId(),
+		analyticpb.Activity_OwnerResourceId: activity.GetOwner().GetResourceId(),
+		analyticpb.Activity_OwnerTenantId:   activity.GetOwner().GetTenantId(),
+		analyticpb.Activity_UniqueVisitor:   activity.GetUniqueVisitor(),
 	})
 
 	if _, err := a.storage.Insert(ctx, query); err != nil {
@@ -174,10 +175,6 @@ func (a *Activities) Update(ctx context.Context,
 
 	query := postgres.UpdateBuilder(a.storage, activity.GetId())
 
-	if resourceID := activity.GetMetadata().GetResourceId(); resourceID != "" {
-		query = query.Set(dbx.FieldResourceID, resourceID)
-	}
-
 	if len(activity.GetUniqueVisitor()) > 0 {
 		query = query.Set(
 			analyticpb.Activity_UniqueVisitor, activity.GetUniqueVisitor())
@@ -194,10 +191,11 @@ func (a *Activities) Update(ctx context.Context,
 func (a *Activities) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(a.storage, page,
 		analyticpb.Activity_Id,
-		postgres.SelectResourceID,
+		postgres.SelectCoalesce(analyticpb.Activity_OwnerResourceId),
+		postgres.SelectCoalesce(analyticpb.Activity_OwnerTenantId),
 		analyticpb.Activity_UniqueVisitor,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -219,13 +217,14 @@ func scan(rows dbx.Rows) ([]*analyticpb.Activity, error) {
 func scanOne(row dbx.Row) (*analyticpb.Activity, error) {
 	var (
 		createdAt, updatedAt time.Time
-		resourceID           string
+		resourceId, tenantId string
 		activity             analyticpb.Activity
 	)
 
 	err := row.Scan(
 		&activity.Id,
-		&resourceID,
+		&resourceId,
+		&tenantId,
 		&activity.UniqueVisitor,
 		&createdAt,
 		&updatedAt,
@@ -234,8 +233,9 @@ func scanOne(row dbx.Row) (*analyticpb.Activity, error) {
 		return nil, err
 	}
 
-	activity.Metadata = &typepb.ResourceMetadata{
-		ResourceId: resourceID,
+	activity.Owner = &typepb.Owner{
+		TenantId:   tenantId,
+		ResourceId: resourceId,
 		CreatedAt:  timestamppb.New(createdAt),
 		UpdatedAt:  timestamppb.New(updatedAt),
 	}

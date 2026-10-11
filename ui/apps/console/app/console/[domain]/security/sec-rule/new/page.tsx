@@ -23,7 +23,7 @@ export default function CreateSecRulePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   // The new row belongs to the resource of this domain
-  const { resourceId } = useResourceId();
+  const { resourceId, tenantId } = useResourceId();
   const [form, setForm] = useState<SecRuleFormValue>(createEmptySecRuleForm);
   const patchForm = (patch: Partial<SecRuleFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -36,7 +36,7 @@ export default function CreateSecRulePage() {
 
     setSaving(true);
     try {
-      await createSecRule({ secRule: { ...secRuleOf(form), metadata: { resourceId } } });
+      await createSecRule({ secRule: { ...secRuleOf(form), owner: { resourceId, tenantId } } });
       toast.success(t('created'));
       router.back();
     } catch (err: any) {

@@ -47,12 +47,12 @@ import {
   Expression,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import type { ResourceMetadata } from '@sentinez/proto/sentinez/types/v1/model';
+import type { Owner } from '@sentinez/proto/sentinez/types/v1/model';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { type Pages, paginate, toQuery } from '@/lib/api/pages';
-import { SAMPLE_RESOURCES } from '@/lib/api/tenant';
+import { SAMPLE_RESOURCES, SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -67,9 +67,12 @@ export type { Pages };
 // Sample rows belong to the first sample resources of lib/api/tenant
 const SAMPLE_RESOURCE_IDS = SAMPLE_RESOURCES.slice(0, 2).map((r) => r.id);
 
-const ofResource = <T extends { metadata?: ResourceMetadata }>(item: T, n = 0): T => ({
+const ofResource = <T extends { owner?: Owner }>(item: T, n = 0): T => ({
   ...item,
-  metadata: { resourceId: SAMPLE_RESOURCE_IDS[n % SAMPLE_RESOURCE_IDS.length] ?? '' },
+  owner: {
+    resourceId: SAMPLE_RESOURCE_IDS[n % SAMPLE_RESOURCE_IDS.length] ?? '',
+    tenantId: SAMPLE_TENANT_ID,
+  },
 });
 
 const sampleRule = (
@@ -489,8 +492,8 @@ function withFallback<T>(label: string, fallback: () => T) {
 const byIds = <T extends { id: string }>(list: T[], ids?: string[]) =>
   ids?.length ? list.filter((r) => ids.includes(r.id)) : list;
 
-const byResources = <T extends { metadata?: ResourceMetadata }>(list: T[], ids?: string[]) =>
-  ids?.length ? list.filter((r) => ids.includes(r.metadata?.resourceId ?? '')) : list;
+const byResources = <T extends { owner?: Owner }>(list: T[], ids?: string[]) =>
+  ids?.length ? list.filter((r) => ids.includes(r.owner?.resourceId ?? '')) : list;
 
 // GET /security/secrules
 export async function listSecRules(
@@ -550,9 +553,9 @@ export async function updateSecRule(
   options?: ApiOptions,
 ): Promise<UpdateSecRuleResponse> {
   return withFallback<UpdateSecRuleResponse>('updateSecRule', () => {
-    // The resource of a row never changes
-    const metadata = sampleStore.find((r) => r.id === req.id)?.metadata;
-    const next = SecRule.fromPartial({ ...req.secRule, id: req.id, metadata });
+    // The owner of a row never changes
+    const owner = sampleStore.find((r) => r.id === req.id)?.owner;
+    const next = SecRule.fromPartial({ ...req.secRule, id: req.id, owner });
     sampleStore = sampleStore.map((r) => (r.id === req.id ? next : r));
     return { secRule: next };
   })(async () => {
@@ -641,8 +644,8 @@ export async function updateRateLimit(
   options?: ApiOptions,
 ): Promise<UpdateRateLimitResponse> {
   return withFallback<UpdateRateLimitResponse>('updateRateLimit', () => {
-    const metadata = sampleRateLimitStore.find((r) => r.id === req.id)?.metadata;
-    const next = RateLimit.fromPartial({ ...req.rateLimit, id: req.id, metadata });
+    const owner = sampleRateLimitStore.find((r) => r.id === req.id)?.owner;
+    const next = RateLimit.fromPartial({ ...req.rateLimit, id: req.id, owner });
     sampleRateLimitStore = sampleRateLimitStore.map((r) => (r.id === req.id ? next : r));
     return { rateLimit: next };
   })(async () => {
@@ -731,8 +734,8 @@ export async function updateCoreRuleset(
   options?: ApiOptions,
 ): Promise<UpdateCoreRulesetResponse> {
   return withFallback<UpdateCoreRulesetResponse>('updateCoreRuleset', () => {
-    const metadata = sampleCoreRulesetStore.find((r) => r.id === req.id)?.metadata;
-    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id, metadata });
+    const owner = sampleCoreRulesetStore.find((r) => r.id === req.id)?.owner;
+    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id, owner });
     sampleCoreRulesetStore = sampleCoreRulesetStore.map((r) => (r.id === req.id ? next : r));
     return { coreRuleset: next };
   })(async () => {

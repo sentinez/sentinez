@@ -168,7 +168,7 @@ func TestInjection_ForbiddenPage(t *testing.T) {
 	assert.NotContains(t, rec.Body.String(), "handled")
 }
 
-func TestInjection_GeneratesRequestID(t *testing.T) {
+func TestInjection_GeneratesRequestId(t *testing.T) {
 	t.Parallel()
 
 	req := httptest.NewRequest(

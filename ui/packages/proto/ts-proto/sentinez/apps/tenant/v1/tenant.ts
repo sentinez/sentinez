@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Setting } from "../../../dmz/edge/v1/setting";
-import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
+import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
 import { Resource } from "./model";
 
@@ -42,7 +42,6 @@ export interface UpdateResourceRequest {
   resourceDomain: string;
   resourceName: string;
   status: Status;
-  plan: Plan;
 }
 
 export interface UpdateResourceResponse {
@@ -53,7 +52,6 @@ export interface CreateResourceRequest {
   resourceDomain: string;
   resourceName: string;
   status: Status;
-  plan: Plan;
 }
 
 export interface CreateResourceResponse {
@@ -63,7 +61,6 @@ export interface CreateResourceResponse {
 export interface ListResourceRequest {
   page?: Pages | undefined;
   status: Status;
-  plan: Plan;
   resourceName: string;
   resourceDomain: string;
 }
@@ -496,7 +493,7 @@ export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
 };
 
 function createBaseUpdateResourceRequest(): UpdateResourceRequest {
-  return { id: "", resourceDomain: "", resourceName: "", status: 0, plan: 0 };
+  return { id: "", resourceDomain: "", resourceName: "", status: 0 };
 }
 
 export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
@@ -512,9 +509,6 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     }
     if (message.status !== 0) {
       writer.uint32(32).int32(message.status);
-    }
-    if (message.plan !== 0) {
-      writer.uint32(40).int32(message.plan);
     }
     return writer;
   },
@@ -564,14 +558,6 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
             message.status = reader.int32() as any;
             continue;
           }
-          case 5: {
-            if (tag !== 40) {
-              break;
-            }
-
-            message.plan = reader.int32() as any;
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -598,7 +584,6 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
         ? globalThis.String(object.resource_name)
         : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
     };
   },
 
@@ -616,9 +601,6 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
-    if (message.plan !== 0) {
-      obj.plan = planToJSON(message.plan);
-    }
     return obj;
   },
 
@@ -631,7 +613,6 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
-    message.plan = object.plan ?? 0;
     return message;
   },
 };
@@ -689,7 +670,7 @@ export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
 };
 
 function createBaseCreateResourceRequest(): CreateResourceRequest {
-  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0, plan: 0 };
+  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0 };
 }
 
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
@@ -705,9 +686,6 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     }
     if (message.status !== 0) {
       writer.uint32(32).int32(message.status);
-    }
-    if (message.plan !== 0) {
-      writer.uint32(40).int32(message.plan);
     }
     return writer;
   },
@@ -757,14 +735,6 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
             message.status = reader.int32() as any;
             continue;
           }
-          case 5: {
-            if (tag !== 40) {
-              break;
-            }
-
-            message.plan = reader.int32() as any;
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -795,7 +765,6 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
         ? globalThis.String(object.resource_name)
         : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
     };
   },
 
@@ -813,9 +782,6 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
-    if (message.plan !== 0) {
-      obj.plan = planToJSON(message.plan);
-    }
     return obj;
   },
 
@@ -830,7 +796,6 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
-    message.plan = object.plan ?? 0;
     return message;
   },
 };
@@ -905,7 +870,7 @@ export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
 };
 
 function createBaseListResourceRequest(): ListResourceRequest {
-  return { page: undefined, status: 0, plan: 0, resourceName: "", resourceDomain: "" };
+  return { page: undefined, status: 0, resourceName: "", resourceDomain: "" };
 }
 
 export const ListResourceRequest: MessageFns<ListResourceRequest> = {
@@ -915,9 +880,6 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     }
     if (message.status !== 0) {
       writer.uint32(16).int32(message.status);
-    }
-    if (message.plan !== 0) {
-      writer.uint32(24).int32(message.plan);
     }
     if (message.resourceName !== "") {
       writer.uint32(34).string(message.resourceName);
@@ -957,14 +919,6 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
             message.status = reader.int32() as any;
             continue;
           }
-          case 3: {
-            if (tag !== 24) {
-              break;
-            }
-
-            message.plan = reader.int32() as any;
-            continue;
-          }
           case 4: {
             if (tag !== 34) {
               break;
@@ -997,7 +951,6 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
       resourceName: isSet(object.resourceName)
         ? globalThis.String(object.resourceName)
         : isSet(object.resource_name)
@@ -1019,9 +972,6 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
-    if (message.plan !== 0) {
-      obj.plan = planToJSON(message.plan);
-    }
     if (message.resourceName !== "") {
       obj.resourceName = message.resourceName;
     }
@@ -1038,7 +988,6 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     const message = createBaseListResourceRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.status = object.status ?? 0;
-    message.plan = object.plan ?? 0;
     message.resourceName = object.resourceName ?? "";
     message.resourceDomain = object.resourceDomain ?? "";
     return message;

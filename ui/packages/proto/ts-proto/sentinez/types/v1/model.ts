@@ -21,10 +21,11 @@ export interface Metadata {
   updatedAt?: Date | undefined;
 }
 
-export interface ResourceMetadata {
+export interface Owner {
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
   resourceId: string;
+  tenantId: string;
 }
 
 function createBasePages(): Pages {
@@ -221,12 +222,12 @@ export const Metadata: MessageFns<Metadata> = {
   },
 };
 
-function createBaseResourceMetadata(): ResourceMetadata {
-  return { createdAt: undefined, updatedAt: undefined, resourceId: "" };
+function createBaseOwner(): Owner {
+  return { createdAt: undefined, updatedAt: undefined, resourceId: "", tenantId: "" };
 }
 
-export const ResourceMetadata: MessageFns<ResourceMetadata> = {
-  encode(message: ResourceMetadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Owner: MessageFns<Owner> = {
+  encode(message: Owner, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.createdAt !== undefined) {
       Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(10).fork()).join();
     }
@@ -236,10 +237,13 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
     if (message.resourceId !== "") {
       writer.uint32(26).string(message.resourceId);
     }
+    if (message.tenantId !== "") {
+      writer.uint32(34).string(message.tenantId);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ResourceMetadata {
+  decode(input: BinaryReader | Uint8Array, length?: number): Owner {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -248,7 +252,7 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseResourceMetadata();
+      const message = createBaseOwner();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -276,6 +280,14 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
             message.resourceId = reader.string();
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -288,7 +300,7 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
     }
   },
 
-  fromJSON(object: any): ResourceMetadata {
+  fromJSON(object: any): Owner {
     return {
       createdAt: isSet(object.createdAt)
         ? fromJsonTimestamp(object.createdAt)
@@ -305,10 +317,15 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
         : isSet(object.resource_id)
         ? globalThis.String(object.resource_id)
         : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
     };
   },
 
-  toJSON(message: ResourceMetadata): unknown {
+  toJSON(message: Owner): unknown {
     const obj: any = {};
     if (message.createdAt !== undefined) {
       obj.createdAt = message.createdAt.toISOString();
@@ -319,17 +336,21 @@ export const ResourceMetadata: MessageFns<ResourceMetadata> = {
     if (message.resourceId !== "") {
       obj.resourceId = message.resourceId;
     }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ResourceMetadata>, I>>(base?: I): ResourceMetadata {
-    return ResourceMetadata.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Owner>, I>>(base?: I): Owner {
+    return Owner.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ResourceMetadata>, I>>(object: I): ResourceMetadata {
-    const message = createBaseResourceMetadata();
+  fromPartial<I extends Exact<DeepPartial<Owner>, I>>(object: I): Owner {
+    const message = createBaseOwner();
     message.createdAt = object.createdAt ?? undefined;
     message.updatedAt = object.updatedAt ?? undefined;
     message.resourceId = object.resourceId ?? "";
+    message.tenantId = object.tenantId ?? "";
     return message;
   },
 };

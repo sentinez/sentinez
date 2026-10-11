@@ -39,7 +39,7 @@ type Trace struct {
 }
 
 func (t *Trace) Handle(ctx corehttp.Context) error {
-	requestId := rand.NewXID(core.PrefixXRequestIdBytes)
+	requestId := rand.NewXId(core.PrefixXRequestIdBytes)
 	ctx.SetRequestId(requestId)
 
 	return t.HandleNext(ctx)

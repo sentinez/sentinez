@@ -74,7 +74,7 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service na
 | `errorx` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
 | `perms` | `Allow(XMethod, ControlPlane)` |
 | `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
+| `rand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
 | `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
 | `jsonx` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
 | `protobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |

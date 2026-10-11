@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { type Pages, paginate, toQuery } from '@/lib/api/pages';
+import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -23,10 +24,11 @@ const visitorSeries = (seed: number, length = 24): number[] =>
   Array.from({ length }, (_, i) => Math.round(50 + seed * 10 + 40 * Math.sin((i + seed) / 3)));
 
 const sampleActivity = (n: number, resource: string, createdAt: string): Activity => ({
-  metadata: {
+  owner: {
     createdAt: new Date(createdAt),
     updatedAt: new Date(createdAt),
-    resourceId: `senz.analytic.resources.${resource}`,
+    resourceId: `senz.tenant.resources.${resource}`,
+    tenantId: SAMPLE_TENANT_ID,
   },
   id: `senz.analytic.activity.sample-${n}`,
   uniqueVisitor: visitorSeries(n),
@@ -61,7 +63,7 @@ function filterSample(req: Partial<ListActivitiesRequest>): Activity[] {
   return SAMPLE_ACTIVITIES.filter(
     (a) =>
       (!req.ids?.length || req.ids.includes(a.id)) &&
-      (!req.resourceIds?.length || req.resourceIds.includes(a.metadata?.resourceId ?? '')),
+      (!req.resourceIds?.length || req.resourceIds.includes(a.owner?.resourceId ?? '')),
   );
 }
 

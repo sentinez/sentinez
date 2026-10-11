@@ -36,7 +36,7 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 - Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
   `postgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
   cung cấp `WithTX(ss)`.
-- ID bản ghi: `rand.NewID(table.NewPrimaryKey(name))` =
+- ID bản ghi: `rand.NewId(table.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
 Tên bảng ([core/common/tables](../../staging/src/github.com/sentinez/core/common/tables/tables.go)):

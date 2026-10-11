@@ -126,7 +126,7 @@ func (p *postgres[T]) Select(ctx context.Context,
 
 func (p *postgres[T]) Delete(ctx context.Context, id string) error {
 	builder := sq.Delete(p.tableName).Where(sq.Eq{
-		dbx.FieldID: id,
+		"id": id,
 	})
 
 	_, err := p.Exec(ctx, builder)

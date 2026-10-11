@@ -25,7 +25,8 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/analyt
 message Activity {
   option (sentinez.types.v1.x_message).database_model = true;
 
-  sentinez.types.v1.ResourceMetadata metadata = 1;
+  sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
+  
   string id = 2 [(buf.validate.field) = {
     required: true
     string: { prefix: "senz.analytic.activity." }

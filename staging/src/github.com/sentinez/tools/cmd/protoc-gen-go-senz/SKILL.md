@@ -80,6 +80,29 @@ const (
 )
 ```
 
+### 4. Flattened Field Constants
+A message field annotated with `(sentinez.types.v1.x_field).flatten = true` gets no constant of its own; instead the plugin emits one constant per field of the nested message, named `<field>_<nested field>`. It applies to both `export_field` and `database_model` constants, and nests when the inner field is flattened too. The option is ignored on scalar, `repeated` and `map` fields, and a recursive message is not expanded a second time.
+
+**Example Protobuf:**
+```protobuf
+message SecRule {
+  option (sentinez.types.v1.x_message).database_model = true;
+  sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
+  string id = 2;
+}
+```
+
+**Generated Go:**
+```go
+const (
+	SecRule_OwnerCreatedAt  = "owner_created_at"
+	SecRule_OwnerUpdatedAt  = "owner_updated_at"
+	SecRule_OwnerResourceId = "owner_resource_id"
+	SecRule_OwnerTenantId   = "owner_tenant_id"
+	SecRule_Id              = "id"
+)
+```
+
 ## Usage
 
 Install the plugin so `protoc-gen-go-senz` is on `PATH` (`cd staging/src/github.com/sentinez/tools && go install ./cmd/protoc-gen-go-senz`), then use it as a standard `protoc` plugin. Each `api/proto/sentinez/**/v1/generate.sh` already does this:
@@ -88,9 +111,9 @@ Install the plugin so `protoc-gen-go-senz` is on `PATH` (`cd staging/src/github.
 protoc --go-senz_out="$SENTINEZ_GEN_OUT" "$(pwd)"/*.proto
 ```
 
-It creates `<file>_senz.pb.go` next to the other generated files (e.g. `api/proto/sentinez/apps/iam/v1/iam_senz.pb.go`). Never edit it by hand. Generated files import `typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`, which defines `XMeta`, `XMessage`, `XMethod`, `Zone` and `Console` (`types/v1/options.proto`, `known.proto`).
+It creates `<file>_senz.pb.go` next to the other generated files (e.g. `api/proto/sentinez/apps/iam/v1/iam_senz.pb.go`). Never edit it by hand. Generated files import `typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`, which defines `XMeta`, `XMessage`, `XField`, `XMethod`, `Zone` and `Console` (`types/v1/options.proto`, `known.proto`).
 
-### 4. Method Metadata Accessors
+### 5. Method Metadata Accessors
 For methods annotated with `(sentinez.types.v1.x_method)`, the plugin generates a function returning the method metadata.
 If `ignore` is false and `consoles` is empty, no getter is generated. `Ignore: true` is emitted only when set, and `Consoles` only when non-empty. Handlers use these getters for permission checks, e.g. `ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())`.
 

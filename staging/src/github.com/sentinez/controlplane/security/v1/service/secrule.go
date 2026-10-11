@@ -66,7 +66,7 @@ func (srv *SecurityService) mapSecRule(_ context.Context,
 		Action:      dbRB.GetAction(),
 		Status:      dbRB.GetStatus(),
 		Priority:    dbRB.GetPriority(),
-		Metadata:    dbRB.GetMetadata(),
+		Owner:       dbRB.GetOwner(),
 	}
 }
 

@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	_ typepb.Empty
 	_ fmt.Stringer
 	_ proto.Message
 )

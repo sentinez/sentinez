@@ -78,6 +78,7 @@ Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-styl
 **Style**
 - Imports in two groups: stdlib, then everything else. Group related decls only.
 - Packages: lowercase, short, singular, no `util`/`common`. Don't shadow builtins.
+- Identifiers are spelled `Id`, not `ID` (`resourceId`, `tenantId`, `UserId`), matching the protobuf-generated names (`GetResourceId()`, `Activity_OwnerResourceId`). This overrides the usual Go initialism rule.
 - Order: types/consts/vars, `NewXxx`, exported methods, then helpers; roughly call order.
 - `var x T` for zero values, `&T{Field: ...}` (named fields) over `new(T)`; return `nil` not `[]T{}`; check `len(s) == 0`.
 - No naked bool params (`f(true /* isLocal */)`); use raw string literals; `f`-suffix for printf-style funcs.

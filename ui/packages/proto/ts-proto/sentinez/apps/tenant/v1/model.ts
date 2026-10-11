@@ -19,6 +19,12 @@ export interface Resource {
   resourceDomain: string;
   resourceName: string;
   status: Status;
+  tenantId: string;
+}
+
+export interface Tenant {
+  metadata?: Metadata | undefined;
+  id: string;
   plan: Plan;
 }
 
@@ -30,7 +36,7 @@ function createBaseResource(): Resource {
     resourceDomain: "",
     resourceName: "",
     status: 0,
-    plan: 0,
+    tenantId: "",
   };
 }
 
@@ -54,8 +60,8 @@ export const Resource: MessageFns<Resource> = {
     if (message.status !== 0) {
       writer.uint32(48).int32(message.status);
     }
-    if (message.plan !== 0) {
-      writer.uint32(56).int32(message.plan);
+    if (message.tenantId !== "") {
+      writer.uint32(58).string(message.tenantId);
     }
     return writer;
   },
@@ -122,11 +128,11 @@ export const Resource: MessageFns<Resource> = {
             continue;
           }
           case 7: {
-            if (tag !== 56) {
+            if (tag !== 58) {
               break;
             }
 
-            message.plan = reader.int32() as any;
+            message.tenantId = reader.string();
             continue;
           }
         }
@@ -161,7 +167,11 @@ export const Resource: MessageFns<Resource> = {
         ? globalThis.String(object.resource_name)
         : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
     };
   },
 
@@ -185,8 +195,8 @@ export const Resource: MessageFns<Resource> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
-    if (message.plan !== 0) {
-      obj.plan = planToJSON(message.plan);
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
     }
     return obj;
   },
@@ -206,6 +216,109 @@ export const Resource: MessageFns<Resource> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
+    message.tenantId = object.tenantId ?? "";
+    return message;
+  },
+};
+
+function createBaseTenant(): Tenant {
+  return { metadata: undefined, id: "", plan: 0 };
+}
+
+export const Tenant: MessageFns<Tenant> = {
+  encode(message: Tenant, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(24).int32(message.plan);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Tenant {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseTenant();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.metadata = Metadata.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.plan = reader.int32() as any;
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Tenant {
+    return {
+      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+    };
+  },
+
+  toJSON(message: Tenant): unknown {
+    const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = Metadata.toJSON(message.metadata);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Tenant>, I>>(base?: I): Tenant {
+    return Tenant.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Tenant>, I>>(object: I): Tenant {
+    const message = createBaseTenant();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.id = object.id ?? "";
     message.plan = object.plan ?? 0;
     return message;
   },
