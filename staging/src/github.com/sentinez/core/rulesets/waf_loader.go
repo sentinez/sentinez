@@ -39,8 +39,8 @@ type versionGroups struct {
 	response []ruleGroup
 }
 
-var _versionGroups = map[Version]versionGroups{
-	WAF4160: {
+var _versionGroups = map[corerulesetpb.Version]versionGroups{
+	corerulesetpb.Version_VERSION_V4_16_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4160.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4160.Request911MethodEnforcementOrder},
@@ -79,7 +79,7 @@ var _versionGroups = map[Version]versionGroups{
 			{0, rulev4160.Response980CorrelationOrder},
 		},
 	},
-	WAF4170: {
+	corerulesetpb.Version_VERSION_V4_17_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4170.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4170.Request911MethodEnforcementOrder},
@@ -124,7 +124,7 @@ var _versionGroups = map[Version]versionGroups{
 // directives) loaded into coraza. A setting that is not active, or with
 // the engine off, maps to a rule engine without any ruleset.
 func GenerateRulesets(
-	version Version, setting *corerulesetpb.CoreRuleset,
+	version corerulesetpb.Version, setting *corerulesetpb.CoreRuleset,
 ) (string, error) {
 	if !settingEnabled(setting) {
 		return "SecRuleEngine Off\n", nil

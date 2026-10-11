@@ -17,12 +17,14 @@ export const PAGE_SIZE_OPTIONS = [10, 20, 50];
  * Server-side pagination for list tables: loads one page at a time through
  * `fetchPage` (memoize it with useCallback) and refetches when the page,
  * page size or `fetchPage` changes. The table keeps a 0-based pageIndex; the
- * API gets a 1-based `page.index`.
+ * API gets a 1-based `page.index`. While `enabled` is false nothing is fetched
+ * and the list stays loading (e.g. a filter the request needs is not known yet).
  */
 export function usePagedList<T>(
   fetchPage: (page: Pages, signal: AbortSignal) => Promise<PagedResult<T>>,
   errorMessage: string,
   initialPageSize = 10,
+  enabled = true,
 ) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -34,6 +36,7 @@ export function usePagedList<T>(
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     const { pageIndex, pageSize } = pagination;
     setLoading(true);
@@ -56,7 +59,7 @@ export function usePagedList<T>(
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [fetchPage, errorMessage, pagination, reloadKey]);
+  }, [fetchPage, errorMessage, pagination, reloadKey, enabled]);
 
   const refresh = useCallback(() => setReloadKey((k) => k + 1), []);
   const pageCount = Math.max(1, Math.ceil(total / pagination.pageSize));

@@ -60,6 +60,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
 			securitypb.RateLimit_TimeWindow:  postgres.String,
 			securitypb.RateLimit_MaxRequests: postgres.Int8,
 			securitypb.RateLimit_Timeout:     postgres.String,
+			dbx.FieldResourceID:              postgres.String,
 		}),
 	)
 	if err != nil {
@@ -87,6 +88,9 @@ func buildListQuery(builder sq.SelectBuilder,
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(sq.Eq{securitypb.RateLimit_Id: req.GetIds()})
 	}
+	if ids := req.GetResourceIds(); len(ids) > 0 {
+		builder = builder.Where(sq.Eq{dbx.FieldResourceID: ids})
+	}
 	return builder
 }
 
@@ -109,13 +113,28 @@ func (r *RateLimit) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = r.storage.Total(ctx)
+		total, err = r.total(ctx, req)
 		if err != nil {
 			return nil, 0, err
 		}
 	}
 
 	return models, total, nil
+}
+
+// total counts the rows matching the list filters.
+func (r *RateLimit) total(
+	ctx context.Context, req *securitypb.ListRateLimitsRequest,
+) (int64, error) {
+	builder := buildListQuery(
+		sq.Select("COUNT(*)").From(r.storage.Table()), req)
+
+	var total int64
+	if err := r.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func (r *RateLimit) Create(ctx context.Context,
@@ -132,6 +151,7 @@ func (r *RateLimit) Create(ctx context.Context,
 		securitypb.RateLimit_TimeWindow:  model.GetTimeWindow(),
 		securitypb.RateLimit_MaxRequests: model.GetMaxRequests(),
 		securitypb.RateLimit_Timeout:     model.GetTimeout(),
+		dbx.FieldResourceID:              model.GetMetadata().GetResourceId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -187,6 +207,7 @@ func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.RateLimit_TimeWindow,
 		securitypb.RateLimit_MaxRequests,
 		securitypb.RateLimit_Timeout,
+		postgres.SelectResourceID,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -207,6 +228,7 @@ func scan(rows dbx.Rows) ([]*securitypb.RateLimit, error) {
 func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 	var (
 		createdAt, updatedAt time.Time
+		resourceID           string
 		model                securitypb.RateLimit
 	)
 
@@ -221,6 +243,7 @@ func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 		&model.TimeWindow,
 		&model.MaxRequests,
 		&model.Timeout,
+		&resourceID,
 		&createdAt,
 		&updatedAt,
 	)
@@ -228,9 +251,10 @@ func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
 		return nil, err
 	}
 
-	model.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
+	model.Metadata = &typepb.ResourceMetadata{
+		ResourceId: resourceID,
+		CreatedAt:  timestamppb.New(createdAt),
+		UpdatedAt:  timestamppb.New(updatedAt),
 	}
 
 	return &model, nil

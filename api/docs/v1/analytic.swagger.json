@@ -114,12 +114,9 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/v1Metadata"
+          "$ref": "#/definitions/v1ResourceMetadata"
         },
         "id": {
-          "type": "string"
-        },
-        "resourceId": {
           "type": "string"
         },
         "uniqueVisitor": {
@@ -147,19 +144,6 @@
         }
       }
     },
-    "v1Metadata": {
-      "type": "object",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
     "v1Pages": {
       "type": "object",
       "properties": {
@@ -173,6 +157,22 @@
         },
         "total": {
           "type": "boolean"
+        }
+      }
+    },
+    "v1ResourceMetadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
         }
       }
     },

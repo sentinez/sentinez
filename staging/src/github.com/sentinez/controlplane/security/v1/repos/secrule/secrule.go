@@ -54,6 +54,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 			securitypb.SecRule_Status:      postgres.Int4,
 			securitypb.SecRule_Priority:    postgres.Int4,
 			securitypb.SecRule_Action:      postgres.JSONB,
+			dbx.FieldResourceID:            postgres.String,
 		}),
 	)
 	if err != nil {
@@ -80,6 +81,9 @@ func buildListQuery(builder sq.SelectBuilder,
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(sq.Eq{securitypb.SecRule_Id: req.GetIds()})
 	}
+	if ids := req.GetResourceIds(); len(ids) > 0 {
+		builder = builder.Where(sq.Eq{dbx.FieldResourceID: ids})
+	}
 	return builder
 }
 
@@ -102,13 +106,28 @@ func (r *SecRule) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = r.storage.Total(ctx)
+		total, err = r.total(ctx, req)
 		if err != nil {
 			return nil, 0, err
 		}
 	}
 
 	return models, total, nil
+}
+
+// total counts the rows matching the list filters.
+func (r *SecRule) total(
+	ctx context.Context, req *securitypb.ListSecRulesRequest,
+) (int64, error) {
+	builder := buildListQuery(
+		sq.Select("COUNT(*)").From(r.storage.Table()), req)
+
+	var total int64
+	if err := r.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func (r *SecRule) Create(ctx context.Context,
@@ -122,6 +141,7 @@ func (r *SecRule) Create(ctx context.Context,
 		securitypb.SecRule_Status:      model.GetStatus(),
 		securitypb.SecRule_Priority:    model.GetPriority(),
 		securitypb.SecRule_Action:      model.GetAction(),
+		dbx.FieldResourceID:            model.GetMetadata().GetResourceId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -177,6 +197,7 @@ func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.SecRule_Status,
 		securitypb.SecRule_Priority,
 		securitypb.SecRule_Action,
+		postgres.SelectResourceID,
 		dbx.FieldCreatedAt,
 		dbx.FieldUpdatedAt,
 	)
@@ -197,6 +218,7 @@ func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
 func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 	var (
 		createdAt, updatedAt time.Time
+		resourceID           string
 		model                securitypb.SecRule
 	)
 
@@ -208,6 +230,7 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		&model.Status,
 		&model.Priority,
 		&model.Action,
+		&resourceID,
 		&createdAt,
 		&updatedAt,
 	)
@@ -215,9 +238,10 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		return nil, err
 	}
 
-	model.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
+	model.Metadata = &typepb.ResourceMetadata{
+		ResourceId: resourceID,
+		CreatedAt:  timestamppb.New(createdAt),
+		UpdatedAt:  timestamppb.New(updatedAt),
 	}
 
 	return &model, nil

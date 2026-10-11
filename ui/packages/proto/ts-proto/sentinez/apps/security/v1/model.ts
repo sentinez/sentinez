@@ -9,12 +9,12 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CoreRuleset as CoreRuleset1 } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
-import { Metadata } from "../../../types/v1/model";
+import { ResourceMetadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
 export interface SecRule {
-  metadata?: Metadata | undefined;
+  metadata?: ResourceMetadata | undefined;
   id: string;
   name: string;
   description: string;
@@ -26,7 +26,7 @@ export interface SecRule {
 }
 
 export interface RateLimit {
-  metadata?: Metadata | undefined;
+  metadata?: ResourceMetadata | undefined;
   id: string;
   name: string;
   description: string;
@@ -54,7 +54,7 @@ export interface ActionValue_MapValueEntry {
 }
 
 export interface CoreRuleset {
-  metadata?: Metadata | undefined;
+  metadata?: ResourceMetadata | undefined;
   id: string;
   name: string;
   description: string;
@@ -78,7 +78,7 @@ function createBaseSecRule(): SecRule {
 export const SecRule: MessageFns<SecRule> = {
   encode(message: SecRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
-      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -125,7 +125,7 @@ export const SecRule: MessageFns<SecRule> = {
               break;
             }
 
-            message.metadata = Metadata.decode(reader, reader.uint32());
+            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -206,7 +206,7 @@ export const SecRule: MessageFns<SecRule> = {
 
   fromJSON(object: any): SecRule {
     return {
-      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -225,7 +225,7 @@ export const SecRule: MessageFns<SecRule> = {
   toJSON(message: SecRule): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
-      obj.metadata = Metadata.toJSON(message.metadata);
+      obj.metadata = ResourceMetadata.toJSON(message.metadata);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -260,7 +260,7 @@ export const SecRule: MessageFns<SecRule> = {
   fromPartial<I extends Exact<DeepPartial<SecRule>, I>>(object: I): SecRule {
     const message = createBaseSecRule();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
+      ? ResourceMetadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
@@ -298,7 +298,7 @@ function createBaseRateLimit(): RateLimit {
 export const RateLimit: MessageFns<RateLimit> = {
   encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
-      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -354,7 +354,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.metadata = Metadata.decode(reader, reader.uint32());
+            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -459,7 +459,7 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   fromJSON(object: any): RateLimit {
     return {
-      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -489,7 +489,7 @@ export const RateLimit: MessageFns<RateLimit> = {
   toJSON(message: RateLimit): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
-      obj.metadata = Metadata.toJSON(message.metadata);
+      obj.metadata = ResourceMetadata.toJSON(message.metadata);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -533,7 +533,7 @@ export const RateLimit: MessageFns<RateLimit> = {
   fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
     const message = createBaseRateLimit();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
+      ? ResourceMetadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
@@ -778,7 +778,7 @@ function createBaseCoreRuleset(): CoreRuleset {
 export const CoreRuleset: MessageFns<CoreRuleset> = {
   encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
-      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
@@ -813,7 +813,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
               break;
             }
 
-            message.metadata = Metadata.decode(reader, reader.uint32());
+            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -862,7 +862,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
 
   fromJSON(object: any): CoreRuleset {
     return {
-      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
@@ -873,7 +873,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
   toJSON(message: CoreRuleset): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
-      obj.metadata = Metadata.toJSON(message.metadata);
+      obj.metadata = ResourceMetadata.toJSON(message.metadata);
     }
     if (message.id !== "") {
       obj.id = message.id;
@@ -896,7 +896,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
   fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
     const message = createBaseCoreRuleset();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
+      ? ResourceMetadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";

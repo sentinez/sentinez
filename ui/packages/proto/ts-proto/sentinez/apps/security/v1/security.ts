@@ -61,6 +61,8 @@ export interface DeleteSecRuleResponse {
 export interface ListSecRulesRequest {
   page?: Pages | undefined;
   ids: string[];
+  /** metadata.resource_id of the rows, any of them. */
+  resourceIds: string[];
 }
 
 export interface ListSecRulesResponse {
@@ -104,6 +106,8 @@ export interface DeleteRateLimitResponse {
 export interface ListRateLimitsRequest {
   page?: Pages | undefined;
   ids: string[];
+  /** metadata.resource_id of the rows, any of them. */
+  resourceIds: string[];
 }
 
 export interface ListRateLimitsResponse {
@@ -155,6 +159,8 @@ export interface ListCoreRulesetsRequest {
   /** Case-insensitive part of the name. */
   name: string;
   ids: string[];
+  /** metadata.resource_id of the rows, any of them. */
+  resourceIds: string[];
   modes: EngineMode[];
   versions: Version[];
   statuses: Status[];
@@ -846,7 +852,7 @@ export const DeleteSecRuleResponse: MessageFns<DeleteSecRuleResponse> = {
 };
 
 function createBaseListSecRulesRequest(): ListSecRulesRequest {
-  return { page: undefined, ids: [] };
+  return { page: undefined, ids: [], resourceIds: [] };
 }
 
 export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
@@ -856,6 +862,9 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
     }
     for (const v of message.ids) {
       writer.uint32(82).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(90).string(v!);
     }
     return writer;
   },
@@ -889,6 +898,14 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
             message.ids.push(reader.string());
             continue;
           }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -905,6 +922,11 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -916,6 +938,9 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
     if (message.ids?.length) {
       obj.ids = message.ids;
     }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
     return obj;
   },
 
@@ -926,6 +951,7 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
     const message = createBaseListSecRulesRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
     return message;
   },
 };
@@ -1609,7 +1635,7 @@ export const DeleteRateLimitResponse: MessageFns<DeleteRateLimitResponse> = {
 };
 
 function createBaseListRateLimitsRequest(): ListRateLimitsRequest {
-  return { page: undefined, ids: [] };
+  return { page: undefined, ids: [], resourceIds: [] };
 }
 
 export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
@@ -1619,6 +1645,9 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     }
     for (const v of message.ids) {
       writer.uint32(82).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(90).string(v!);
     }
     return writer;
   },
@@ -1652,6 +1681,14 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
             message.ids.push(reader.string());
             continue;
           }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1668,6 +1705,11 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -1679,6 +1721,9 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     if (message.ids?.length) {
       obj.ids = message.ids;
     }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
     return obj;
   },
 
@@ -1689,6 +1734,7 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     const message = createBaseListRateLimitsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
     return message;
   },
 };
@@ -2376,6 +2422,7 @@ function createBaseListCoreRulesetsRequest(): ListCoreRulesetsRequest {
     page: undefined,
     name: "",
     ids: [],
+    resourceIds: [],
     modes: [],
     versions: [],
     statuses: [],
@@ -2397,6 +2444,9 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     }
     for (const v of message.ids) {
       writer.uint32(82).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(90).string(v!);
     }
     writer.uint32(162).fork();
     for (const v of message.modes) {
@@ -2472,6 +2522,14 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
             }
 
             message.ids.push(reader.string());
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
             continue;
           }
           case 20: {
@@ -2615,6 +2673,11 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
       modes: globalThis.Array.isArray(object?.modes) ? object.modes.map((e: any) => engineModeFromJSON(e)) : [],
       versions: globalThis.Array.isArray(object?.versions) ? object.versions.map((e: any) => versionFromJSON(e)) : [],
       statuses: globalThis.Array.isArray(object?.statuses) ? object.statuses.map((e: any) => statusFromJSON(e)) : [],
@@ -2655,6 +2718,9 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     if (message.ids?.length) {
       obj.ids = message.ids;
     }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
     if (message.modes?.length) {
       obj.modes = message.modes.map((e) => engineModeToJSON(e));
     }
@@ -2690,6 +2756,7 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.name = object.name ?? "";
     message.ids = object.ids?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.modes = object.modes?.map((e) => e) || [];
     message.versions = object.versions?.map((e) => e) || [];
     message.statuses = object.statuses?.map((e) => e) || [];

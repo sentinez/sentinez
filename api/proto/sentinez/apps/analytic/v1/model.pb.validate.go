@@ -52,8 +52,6 @@ func (m *Activity) Validate() error {
 
 	// no validation rules for Id
 
-	// no validation rules for ResourceId
-
 	return nil
 }
 

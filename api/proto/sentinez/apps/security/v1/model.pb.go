@@ -41,7 +41,7 @@ const (
 
 type SecRule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata      *v1.ResourceMetadata   `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -84,7 +84,7 @@ func (*SecRule) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *SecRule) GetMetadata() *v1.Metadata {
+func (x *SecRule) GetMetadata() *v1.ResourceMetadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -149,7 +149,7 @@ func (x *SecRule) GetPriority() int32 {
 
 type RateLimit struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Metadata    *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata    *v1.ResourceMetadata   `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id          string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name        string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -198,7 +198,7 @@ func (*RateLimit) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RateLimit) GetMetadata() *v1.Metadata {
+func (x *RateLimit) GetMetadata() *v1.ResourceMetadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -336,7 +336,7 @@ func (x *ActionValue) GetMapValue() map[string]string {
 
 type CoreRuleset struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata      *v1.ResourceMetadata   `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -375,7 +375,7 @@ func (*CoreRuleset) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CoreRuleset) GetMetadata() *v1.Metadata {
+func (x *CoreRuleset) GetMetadata() *v1.ResourceMetadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -414,9 +414,9 @@ var File_sentinez_apps_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\x9d\x03\n" +
-	"\aSecRule\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x121\n" +
+	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\xa5\x03\n" +
+	"\aSecRule\x12?\n" +
+	"\bmetadata\x18\x01 \x01(\v2#.sentinez.types.v1.ResourceMetadataR\bmetadata\x121\n" +
 	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.security.secrules.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
@@ -424,9 +424,9 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
 	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xef\x04\n" +
-	"\tRateLimit\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x123\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xf7\x04\n" +
+	"\tRateLimit\x12?\n" +
+	"\bmetadata\x18\x01 \x01(\v2#.sentinez.types.v1.ResourceMetadataR\bmetadata\x123\n" +
 	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.ratelimits.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
@@ -445,9 +445,9 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x02\n" +
-	"\vCoreRuleset\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x124\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x88\x02\n" +
+	"\vCoreRuleset\x12?\n" +
+	"\bmetadata\x18\x01 \x01(\v2#.sentinez.types.v1.ResourceMetadataR\bmetadata\x124\n" +
 	"\x02id\x18\x02 \x01(\tB$\xbaH!\xc8\x01\x01r\x1c:\x1asenz.security.coreruleset.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12D\n" +
@@ -467,27 +467,27 @@ func file_sentinez_apps_security_v1_model_proto_rawDescGZIP() []byte {
 
 var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_sentinez_apps_security_v1_model_proto_goTypes = []any{
-	(*SecRule)(nil),         // 0: sentinez.apps.security.v1.SecRule
-	(*RateLimit)(nil),       // 1: sentinez.apps.security.v1.RateLimit
-	(*ActionValue)(nil),     // 2: sentinez.apps.security.v1.ActionValue
-	(*CoreRuleset)(nil),     // 3: sentinez.apps.security.v1.CoreRuleset
-	nil,                     // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
-	(*v1.Metadata)(nil),     // 5: sentinez.types.v1.Metadata
-	(*v11.Expression)(nil),  // 6: sentinez.types.rule.v1.Expression
-	(v1.Status)(0),          // 7: sentinez.types.v1.Status
-	(*v12.CoreRuleset)(nil), // 8: sentinez.types.coreruleset.v1.CoreRuleset
+	(*SecRule)(nil),             // 0: sentinez.apps.security.v1.SecRule
+	(*RateLimit)(nil),           // 1: sentinez.apps.security.v1.RateLimit
+	(*ActionValue)(nil),         // 2: sentinez.apps.security.v1.ActionValue
+	(*CoreRuleset)(nil),         // 3: sentinez.apps.security.v1.CoreRuleset
+	nil,                         // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
+	(*v1.ResourceMetadata)(nil), // 5: sentinez.types.v1.ResourceMetadata
+	(*v11.Expression)(nil),      // 6: sentinez.types.rule.v1.Expression
+	(v1.Status)(0),              // 7: sentinez.types.v1.Status
+	(*v12.CoreRuleset)(nil),     // 8: sentinez.types.coreruleset.v1.CoreRuleset
 }
 var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
-	5,  // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.Metadata
+	5,  // 0: sentinez.apps.security.v1.SecRule.metadata:type_name -> sentinez.types.v1.ResourceMetadata
 	6,  // 1: sentinez.apps.security.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
 	2,  // 2: sentinez.apps.security.v1.SecRule.action_value:type_name -> sentinez.apps.security.v1.ActionValue
 	7,  // 3: sentinez.apps.security.v1.SecRule.status:type_name -> sentinez.types.v1.Status
-	5,  // 4: sentinez.apps.security.v1.RateLimit.metadata:type_name -> sentinez.types.v1.Metadata
+	5,  // 4: sentinez.apps.security.v1.RateLimit.metadata:type_name -> sentinez.types.v1.ResourceMetadata
 	6,  // 5: sentinez.apps.security.v1.RateLimit.expr:type_name -> sentinez.types.rule.v1.Expression
 	2,  // 6: sentinez.apps.security.v1.RateLimit.action_value:type_name -> sentinez.apps.security.v1.ActionValue
 	7,  // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
 	4,  // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
-	5,  // 9: sentinez.apps.security.v1.CoreRuleset.metadata:type_name -> sentinez.types.v1.Metadata
+	5,  // 9: sentinez.apps.security.v1.CoreRuleset.metadata:type_name -> sentinez.types.v1.ResourceMetadata
 	8,  // 10: sentinez.apps.security.v1.CoreRuleset.content:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
 	11, // [11:11] is the sub-list for method output_type
 	11, // [11:11] is the sub-list for method input_type

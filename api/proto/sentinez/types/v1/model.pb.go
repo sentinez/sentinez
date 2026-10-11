@@ -148,6 +148,66 @@ func (x *Metadata) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type ResourceMetadata struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,3,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResourceMetadata) Reset() {
+	*x = ResourceMetadata{}
+	mi := &file_sentinez_types_v1_model_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceMetadata) ProtoMessage() {}
+
+func (x *ResourceMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_v1_model_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceMetadata.ProtoReflect.Descriptor instead.
+func (*ResourceMetadata) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_model_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ResourceMetadata) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ResourceMetadata) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *ResourceMetadata) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
 var File_sentinez_types_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_v1_model_proto_rawDesc = "" +
@@ -161,7 +221,14 @@ const file_sentinez_types_v1_model_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01\"\xb1\x01\n" +
+	"\x10ResourceMetadata\x129\n" +
+	"\n" +
+	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1f\n" +
+	"\vresource_id\x18\x03 \x01(\tR\n" +
+	"resourceId:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
 
 var (
 	file_sentinez_types_v1_model_proto_rawDescOnce sync.Once
@@ -175,20 +242,23 @@ func file_sentinez_types_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_model_proto_rawDescData
 }
 
-var file_sentinez_types_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_types_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_types_v1_model_proto_goTypes = []any{
 	(*Pages)(nil),                 // 0: sentinez.types.v1.Pages
 	(*Metadata)(nil),              // 1: sentinez.types.v1.Metadata
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(*ResourceMetadata)(nil),      // 2: sentinez.types.v1.ResourceMetadata
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_sentinez_types_v1_model_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
-	2, // 1: sentinez.types.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: sentinez.types.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
+	3, // 1: sentinez.types.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
+	3, // 2: sentinez.types.v1.ResourceMetadata.created_at:type_name -> google.protobuf.Timestamp
+	3, // 3: sentinez.types.v1.ResourceMetadata.updated_at:type_name -> google.protobuf.Timestamp
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_model_proto_init() }
@@ -203,7 +273,7 @@ func file_sentinez_types_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_model_proto_rawDesc), len(file_sentinez_types_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

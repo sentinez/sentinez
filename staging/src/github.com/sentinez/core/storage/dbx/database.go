@@ -25,6 +25,8 @@ const (
 	FieldID        = "id"
 	FieldCreatedAt = "created_at"
 	FieldUpdatedAt = "updated_at"
+	// FieldResourceID column of types.v1.ResourceMetadata.resource_id.
+	FieldResourceID = "resource_id"
 )
 
 type ScanOneFn[T any] func(Row) (*T, error)

@@ -51,8 +51,10 @@ import { EngineMode } from '@sentinez/proto/sentinez/types/coreruleset/v1/settin
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ENGINE_MODE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
+import { TableSkeletonRows } from '@/components/table-skeleton';
 import { useDebounced } from '@/hooks/use-debounced';
 import { usePagedList } from '@/hooks/use-paged-list';
+import { useResourceId } from '@/hooks/use-resource-id';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -204,11 +206,15 @@ export default function View() {
   const [mode, setMode] = useState(EngineMode.ENGINE_MODE_UNSPECIFIED);
   const [status, setStatus] = useState(Status.STATUS_UNSPECIFIED);
 
+  // Only the rows of the resource of this domain
+  const { resourceId, isLoading: resourceLoading } = useResourceId();
   const fetchPage = useCallback(
     async (page: Pages, signal: AbortSignal) => {
+      if (!resourceId) return { items: [], total: 0 };
       const res = await listCoreRulesets(
         {
           page,
+          resourceIds: [resourceId],
           name: nameQuery.trim(),
           modes: mode ? [mode] : [],
           statuses: status ? [status] : [],
@@ -217,7 +223,7 @@ export default function View() {
       );
       return { items: res.coreRulesets, total: res.total };
     },
-    [nameQuery, mode, status],
+    [resourceId, nameQuery, mode, status],
   );
   const {
     items: rulesets,
@@ -227,7 +233,7 @@ export default function View() {
     setPagination,
     pageCount,
     refresh,
-  } = usePagedList(fetchPage, t('loadFailed'));
+  } = usePagedList(fetchPage, t('loadFailed'), 10, !resourceLoading);
 
   // A new filter starts again from the first page
   useEffect(() => {
@@ -249,6 +255,9 @@ export default function View() {
       setDeletingBusy(false);
     }
   };
+
+  // Skeleton rows cover the debounce wait as well as the request itself
+  const searching = loading || name !== nameQuery;
 
   const columns = useMemo(() => getColumns(t, tc, options, setDeleting), [t, tc, options]);
 
@@ -366,13 +375,9 @@ export default function View() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow className="max-h-fit">
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      {tc('loading')}
-                    </TableCell>
-                  </TableRow>
+              <TableBody aria-busy={searching}>
+                {searching ? (
+                  <TableSkeletonRows table={table} />
                 ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id} className="max-h-fit">

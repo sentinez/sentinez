@@ -15,6 +15,7 @@
       <excludeFolder url="file://$MODULE_DIR$/api/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/docs/node_modules" />
       <excludeFolder url="file://$MODULE_DIR$/ui" />
+      <excludeFolder url="file://$MODULE_DIR$/_submodules" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

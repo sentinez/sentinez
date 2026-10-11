@@ -73,15 +73,6 @@ var _categoryFlags = map[corerulesetpb.Category]Flag{
 	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY:   RespDataLeakagesRuby,
 }
 
-// VersionOf maps the setting version, unspecified = latest supported.
-func VersionOf(v corerulesetpb.Version) Version {
-	if v == corerulesetpb.Version_VERSION_V4_16_0 {
-		return WAF4160
-	}
-
-	return WAF4170
-}
-
 // FlagOf maps the enabled categories to rule group flags, empty = all.
 func FlagOf(categories []corerulesetpb.Category) Flag {
 	var flag Flag

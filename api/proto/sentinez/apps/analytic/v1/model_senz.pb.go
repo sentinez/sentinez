@@ -19,6 +19,5 @@ var (
 const (
 	Activity_Metadata      = "metadata"
 	Activity_Id            = "id"
-	Activity_ResourceId    = "resource_id"
 	Activity_UniqueVisitor = "unique_visitor"
 )

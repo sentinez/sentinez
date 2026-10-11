@@ -39,6 +39,7 @@ import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { TablePagination } from '@/components/table-pagination';
+import { TableSkeletonRows } from '@/components/table-skeleton';
 import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { planToJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
@@ -144,7 +145,7 @@ export function ResourceTable() {
     if (!list) throw new Error('list resources failed');
     return { items: list.resources, total: list.total };
   }, []);
-  const { items, total, pagination, setPagination, pageCount } = usePagedList(
+  const { items, total, loading, pagination, setPagination, pageCount } = usePagedList(
     fetchPage,
     t('loadFailed'),
   );
@@ -223,8 +224,10 @@ export function ResourceTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
+          <TableBody aria-busy={loading}>
+            {loading ? (
+              <TableSkeletonRows table={table} />
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="max-h-fit">
                   {row.getVisibleCells().map((cell) => (

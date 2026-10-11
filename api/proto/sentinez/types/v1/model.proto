@@ -33,3 +33,11 @@ message Metadata {
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;
 }
+
+message ResourceMetadata {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  string resource_id = 3;
+}

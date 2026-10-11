@@ -259,6 +259,9 @@ message DeleteSecRuleResponse {}
 message ListSecRulesRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
+
+  // metadata.resource_id of the rows, any of them.
+  repeated string resource_ids = 11;
 }
 
 message ListSecRulesResponse {
@@ -303,6 +306,9 @@ message DeleteRateLimitResponse {}
 message ListRateLimitsRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
+
+  // metadata.resource_id of the rows, any of them.
+  repeated string resource_ids = 11;
 }
 
 message ListRateLimitsResponse {
@@ -353,6 +359,9 @@ message ListCoreRulesetsRequest {
   string name = 2;
 
   repeated string ids = 10;
+
+  // metadata.resource_id of the rows, any of them.
+  repeated string resource_ids = 11;
 
   // ── Filters on the fields of content ──
 

@@ -23,9 +23,12 @@ const visitorSeries = (seed: number, length = 24): number[] =>
   Array.from({ length }, (_, i) => Math.round(50 + seed * 10 + 40 * Math.sin((i + seed) / 3)));
 
 const sampleActivity = (n: number, resource: string, createdAt: string): Activity => ({
-  metadata: { createdAt: new Date(createdAt), updatedAt: new Date(createdAt) },
+  metadata: {
+    createdAt: new Date(createdAt),
+    updatedAt: new Date(createdAt),
+    resourceId: `senz.analytic.resources.${resource}`,
+  },
   id: `senz.analytic.activity.sample-${n}`,
-  resourceId: `senz.analytic.resources.${resource}`,
   uniqueVisitor: visitorSeries(n),
 });
 
@@ -58,7 +61,7 @@ function filterSample(req: Partial<ListActivitiesRequest>): Activity[] {
   return SAMPLE_ACTIVITIES.filter(
     (a) =>
       (!req.ids?.length || req.ids.includes(a.id)) &&
-      (!req.resourceIds?.length || req.resourceIds.includes(a.resourceId)),
+      (!req.resourceIds?.length || req.resourceIds.includes(a.metadata?.resourceId ?? '')),
   );
 }
 

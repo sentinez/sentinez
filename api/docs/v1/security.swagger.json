@@ -207,6 +207,17 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "resourceIds",
+            "description": "metadata.resource_id of the rows, any of them.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
             "name": "modes",
             "description": " - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
             "in": "query",
@@ -786,6 +797,17 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "metadata.resource_id of the rows, any of them.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -971,6 +993,17 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "metadata.resource_id of the rows, any of them.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -1040,7 +1073,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/v1Metadata"
+          "$ref": "#/definitions/v1ResourceMetadata"
         },
         "id": {
           "type": "string"
@@ -1539,19 +1572,6 @@
         }
       }
     },
-    "v1Metadata": {
-      "type": "object",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
     "v1Operator": {
       "type": "string",
       "enum": [
@@ -1591,7 +1611,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/v1Metadata"
+          "$ref": "#/definitions/v1ResourceMetadata"
         },
         "id": {
           "type": "string"
@@ -1661,6 +1681,22 @@
         }
       },
       "description": "RequestPolicy request handling directives and CRS setup variables."
+    },
+    "v1ResourceMetadata": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        }
+      }
     },
     "v1RuleInfo": {
       "type": "object",
@@ -1749,7 +1785,7 @@
       "type": "object",
       "properties": {
         "metadata": {
-          "$ref": "#/definitions/v1Metadata"
+          "$ref": "#/definitions/v1ResourceMetadata"
         },
         "id": {
           "type": "string"

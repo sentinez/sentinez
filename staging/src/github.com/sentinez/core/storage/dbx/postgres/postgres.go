@@ -27,6 +27,10 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
+// SelectResourceID selects the resource_id column, rows written before
+// the column was added hold NULL and are read as an empty string.
+const SelectResourceID = "COALESCE(" + dbx.FieldResourceID + ", '')"
+
 type M map[string]any
 
 type Client interface {

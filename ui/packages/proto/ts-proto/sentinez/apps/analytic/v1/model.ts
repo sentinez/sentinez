@@ -6,31 +6,27 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Metadata } from "../../../types/v1/model";
+import { ResourceMetadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.analytic.v1";
 
 export interface Activity {
-  metadata?: Metadata | undefined;
+  metadata?: ResourceMetadata | undefined;
   id: string;
-  resourceId: string;
   uniqueVisitor: number[];
 }
 
 function createBaseActivity(): Activity {
-  return { metadata: undefined, id: "", resourceId: "", uniqueVisitor: [] };
+  return { metadata: undefined, id: "", uniqueVisitor: [] };
 }
 
 export const Activity: MessageFns<Activity> = {
   encode(message: Activity, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.metadata !== undefined) {
-      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+      ResourceMetadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
-    }
-    if (message.resourceId !== "") {
-      writer.uint32(26).string(message.resourceId);
     }
     writer.uint32(58).fork();
     for (const v of message.uniqueVisitor) {
@@ -58,7 +54,7 @@ export const Activity: MessageFns<Activity> = {
               break;
             }
 
-            message.metadata = Metadata.decode(reader, reader.uint32());
+            message.metadata = ResourceMetadata.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -67,14 +63,6 @@ export const Activity: MessageFns<Activity> = {
             }
 
             message.id = reader.string();
-            continue;
-          }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.resourceId = reader.string();
             continue;
           }
           case 7: {
@@ -109,13 +97,8 @@ export const Activity: MessageFns<Activity> = {
 
   fromJSON(object: any): Activity {
     return {
-      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      metadata: isSet(object.metadata) ? ResourceMetadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      resourceId: isSet(object.resourceId)
-        ? globalThis.String(object.resourceId)
-        : isSet(object.resource_id)
-        ? globalThis.String(object.resource_id)
-        : "",
       uniqueVisitor: globalThis.Array.isArray(object?.uniqueVisitor)
         ? object.uniqueVisitor.map((e: any) => globalThis.Number(e))
         : globalThis.Array.isArray(object?.unique_visitor)
@@ -127,13 +110,10 @@ export const Activity: MessageFns<Activity> = {
   toJSON(message: Activity): unknown {
     const obj: any = {};
     if (message.metadata !== undefined) {
-      obj.metadata = Metadata.toJSON(message.metadata);
+      obj.metadata = ResourceMetadata.toJSON(message.metadata);
     }
     if (message.id !== "") {
       obj.id = message.id;
-    }
-    if (message.resourceId !== "") {
-      obj.resourceId = message.resourceId;
     }
     if (message.uniqueVisitor?.length) {
       obj.uniqueVisitor = message.uniqueVisitor.map((e) => Math.round(e));
@@ -147,10 +127,9 @@ export const Activity: MessageFns<Activity> = {
   fromPartial<I extends Exact<DeepPartial<Activity>, I>>(object: I): Activity {
     const message = createBaseActivity();
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
+      ? ResourceMetadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
-    message.resourceId = object.resourceId ?? "";
     message.uniqueVisitor = object.uniqueVisitor?.map((e) => e) || [];
     return message;
   },
