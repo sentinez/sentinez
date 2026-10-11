@@ -20,6 +20,8 @@ import { Button } from '@sentinez/ui/components/button';
 import { ResourceVisitorChart } from './chart';
 import { useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
+import BadgeStatus from '@/components/badge-status';
+import { statusLabel } from '@/lib/type/security';
 
 type Props = {
   domain: string;
@@ -31,15 +33,16 @@ export function ResourceView({ domain }: Props) {
   const [showJson, setShowJson] = useState(false);
   const t = useTranslations('Resource');
   const tc = useTranslations('Common');
+  const ts = useTranslations('Enum.status');
   const format = useFormatter();
   // Rendered after the client-side fetch, so the browser's time zone is safe to use
   const formatDate = (date?: Date) =>
     date
       ? format.dateTime(date, {
-          dateStyle: 'medium',
-          timeStyle: 'medium',
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        })
+        dateStyle: 'medium',
+        timeStyle: 'medium',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
       : tc('notAvailable');
 
   if (isLoading) {
@@ -69,12 +72,7 @@ export function ResourceView({ domain }: Props) {
             {resource.resourceDomain} &mdash; {resource.id}
           </p>
         </div>
-        <Badge
-          variant={resource.status === Status.STATUS_ACTIVE ? 'default' : 'secondary'}
-          className="text-sm"
-        >
-          {statusToJSON(resource.status)}
-        </Badge>
+        <BadgeStatus status={statusLabel(resource.status)} value={statusLabel(resource.status)} />
       </div>
 
       <Separator />

@@ -1,3 +1,9 @@
+import {
+  Category,
+  EngineMode,
+  RuleState,
+  Version,
+} from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
 import { ActionType, FieldSource, Operator } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 
@@ -126,4 +132,88 @@ export const ACTION_TYPES: ActionType[] = [
   ActionType.ACTION_TYPE_REDIRECT,
   ActionType.ACTION_TYPE_SET_TAG,
   ActionType.ACTION_TYPE_ROUTE_TO,
+];
+
+// ─── OWASP Core Rule Set ─────────────────────────────────────────────────────
+
+/** Selectable engine modes (key into Enum.engineMode / Enum.engineModeDescription) */
+export const ENGINE_MODES = [
+  { key: 'on', value: EngineMode.ENGINE_MODE_ON },
+  { key: 'detectionOnly', value: EngineMode.ENGINE_MODE_DETECTION_ONLY },
+  { key: 'off', value: EngineMode.ENGINE_MODE_OFF },
+] as const;
+
+/** shadcn Badge variant per engine mode, used in the rulesets table */
+export const ENGINE_MODE_BADGE_VARIANT: Record<EngineMode, 'default' | 'secondary' | 'outline'> = {
+  [EngineMode.ENGINE_MODE_UNSPECIFIED]: 'outline',
+  [EngineMode.ENGINE_MODE_OFF]: 'outline',
+  [EngineMode.ENGINE_MODE_DETECTION_ONLY]: 'secondary',
+  [EngineMode.ENGINE_MODE_ON]: 'default',
+  [EngineMode.UNRECOGNIZED]: 'outline',
+};
+
+/** Pinned CRS versions, newest first; VERSION_UNSPECIFIED means "latest supported" */
+export const CRS_VERSIONS = [
+  { label: '4.17.0', value: Version.VERSION_V4_17_0 },
+  { label: '4.16.0', value: Version.VERSION_V4_16_0 },
+] as const;
+
+/** CRS rule groups in rule-ID order (key into Enum.crsCategory); `code` is the ID prefix */
+export const CRS_CATEGORIES = [
+  { key: 'commonExceptions', code: 905, value: Category.CATEGORY_COMMON_EXCEPTIONS },
+  { key: 'methodEnforcement', code: 911, value: Category.CATEGORY_METHOD_ENFORCEMENT },
+  { key: 'scannerDetection', code: 913, value: Category.CATEGORY_SCANNER_DETECTION },
+  { key: 'protocolEnforcement', code: 920, value: Category.CATEGORY_PROTOCOL_ENFORCEMENT },
+  { key: 'protocolAttack', code: 921, value: Category.CATEGORY_PROTOCOL_ATTACK },
+  { key: 'multipartAttack', code: 922, value: Category.CATEGORY_MULTIPART_ATTACK },
+  { key: 'lfi', code: 930, value: Category.CATEGORY_LFI },
+  { key: 'rfi', code: 931, value: Category.CATEGORY_RFI },
+  { key: 'rce', code: 932, value: Category.CATEGORY_RCE },
+  { key: 'php', code: 933, value: Category.CATEGORY_PHP },
+  { key: 'generic', code: 934, value: Category.CATEGORY_GENERIC },
+  { key: 'xss', code: 941, value: Category.CATEGORY_XSS },
+  { key: 'sqli', code: 942, value: Category.CATEGORY_SQLI },
+  { key: 'sessionFixation', code: 943, value: Category.CATEGORY_SESSION_FIXATION },
+  { key: 'java', code: 944, value: Category.CATEGORY_JAVA },
+  { key: 'dataLeakages', code: 950, value: Category.CATEGORY_DATA_LEAKAGES },
+  { key: 'dataLeakagesSql', code: 951, value: Category.CATEGORY_DATA_LEAKAGES_SQL },
+  { key: 'dataLeakagesJava', code: 952, value: Category.CATEGORY_DATA_LEAKAGES_JAVA },
+  { key: 'dataLeakagesPhp', code: 953, value: Category.CATEGORY_DATA_LEAKAGES_PHP },
+  { key: 'dataLeakagesIis', code: 954, value: Category.CATEGORY_DATA_LEAKAGES_IIS },
+  { key: 'webShells', code: 955, value: Category.CATEGORY_WEB_SHELLS },
+  { key: 'dataLeakagesRuby', code: 956, value: Category.CATEGORY_DATA_LEAKAGES_RUBY },
+] as const;
+
+/** HTTP methods offered for RequestPolicy.allowed_methods */
+export const HTTP_METHODS = [
+  'GET',
+  'HEAD',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  'OPTIONS',
+  'CONNECT',
+  'TRACE',
+];
+
+/** Rule groups from this ID prefix on inspect the response */
+export const CRS_RESPONSE_CODE = 950;
+
+/** Selectable rule states (key into Enum.ruleState / Enum.ruleStateDescription) */
+export const RULE_STATES = [
+  { key: 'disabled', value: RuleState.RULE_STATE_DISABLED },
+  { key: 'detectionOnly', value: RuleState.RULE_STATE_DETECTION_ONLY },
+  { key: 'enabled', value: RuleState.RULE_STATE_ENABLED },
+] as const;
+
+/** Bounds of a CRS rule ID (buf.validate on ExclusionTarget.rule_id / RuleOverride.id) */
+export const CRS_RULE_ID_MIN = 900000;
+export const CRS_RULE_ID_MAX = 999999;
+
+/** Expression sources the edge cannot translate to SecLang for a scoped exclusion / override */
+export const CRS_UNSUPPORTED_SOURCES: FieldSource[] = [
+  FieldSource.FIELD_SOURCE_BODY,
+  FieldSource.FIELD_SOURCE_JA4,
+  FieldSource.FIELD_SOURCE_TLS,
 ];

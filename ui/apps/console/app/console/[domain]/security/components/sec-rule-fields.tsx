@@ -128,7 +128,7 @@ interface Props {
   actionOptions?: SelectOption<ActionType>[];
 }
 
-function OptionSelect<T extends number>({
+export function OptionSelect<T extends number>({
   label,
   value,
   options,

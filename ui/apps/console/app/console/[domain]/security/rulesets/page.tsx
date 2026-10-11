@@ -1,17 +1,6 @@
-'use client';
+import View from './view';
 
-import { useTranslations } from 'next-intl';
-import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-
-export default function Page() {
-  const t = useTranslations('Rulesets');
-
-  return (
-    <PageLayout>
-      <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}></PageLayoutHeader>
-      <PageLayoutContent>
-        <span></span>
-      </PageLayoutContent>
-    </PageLayout>
-  );
+export default async function Page() {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  return <View />;
 }
