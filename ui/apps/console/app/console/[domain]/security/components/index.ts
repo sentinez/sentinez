@@ -5,3 +5,4 @@ export * from './core-ruleset-form';
 export * from './core-ruleset-rules';
 export * from './core-ruleset-fields';
 export * from './rule-picker';
+export * from './tag-picker';

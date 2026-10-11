@@ -16,6 +16,7 @@ package securitysvc
 
 import (
 	"context"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -59,6 +60,38 @@ func (srv *SecurityService) ListRuleInfos(_ context.Context,
 	return &securitypb.ListRuleInfosResponse{
 		Rules: pageOf(rules, req.GetPage()),
 		Total: int64(len(rules)),
+	}, nil
+}
+
+// ListRuleTags lists the tags of the OWASP CRS catalog, sorted by name
+func (srv *SecurityService) ListRuleTags(_ context.Context,
+	req *securitypb.ListRuleTagsRequest,
+) (*securitypb.ListRuleTagsResponse, error) {
+	search := strings.ToLower(strings.TrimSpace(req.GetSearch()))
+	counts := make(map[string]uint32)
+
+	for _, rule := range catalog.Rules(req.GetVersion()) {
+		if rule.GetSystem() && !req.GetIncludeSystem() {
+			continue
+		}
+
+		for _, tag := range rule.GetTags() {
+			if strings.Contains(strings.ToLower(tag), search) {
+				counts[tag]++
+			}
+		}
+	}
+
+	tags := make([]*securitypb.RuleTag, 0, len(counts))
+	for _, name := range slices.Sorted(maps.Keys(counts)) {
+		tags = append(tags, &securitypb.RuleTag{
+			Name: name, RuleCount: counts[name],
+		})
+	}
+
+	return &securitypb.ListRuleTagsResponse{
+		Tags:  pageOf(tags, req.GetPage()),
+		Total: int64(len(tags)),
 	}, nil
 }
 
@@ -118,19 +151,17 @@ func matchSearch(rule *corerulesetpb.RuleInfo, search string) bool {
 	})
 }
 
-// pageOf the page of the rules, everything without a page size.
-func pageOf(
-	rules []*corerulesetpb.RuleInfo, page *typepb.Pages,
-) []*corerulesetpb.RuleInfo {
+// pageOf the page of the items, everything without a page size.
+func pageOf[T any](items []T, page *typepb.Pages) []T {
 	size := int(page.GetSize())
 	if size <= 0 {
-		return rules
+		return items
 	}
 
 	offset := query.GetOffset(int(page.GetIndex()), size)
-	if offset >= len(rules) {
+	if offset >= len(items) {
 		return nil
 	}
 
-	return rules[offset:min(offset+size, len(rules))]
+	return items[offset:min(offset+size, len(items))]
 }

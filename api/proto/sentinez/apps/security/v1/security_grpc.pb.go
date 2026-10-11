@@ -50,6 +50,7 @@ const (
 	SecurityService_ListCoreRulesets_FullMethodName  = "/sentinez.apps.security.v1.SecurityService/ListCoreRulesets"
 	SecurityService_GetRuleInfo_FullMethodName       = "/sentinez.apps.security.v1.SecurityService/GetRuleInfo"
 	SecurityService_ListRuleInfos_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/ListRuleInfos"
+	SecurityService_ListRuleTags_FullMethodName      = "/sentinez.apps.security.v1.SecurityService/ListRuleTags"
 	SecurityService_Status_FullMethodName            = "/sentinez.apps.security.v1.SecurityService/Status"
 )
 
@@ -95,6 +96,10 @@ type SecurityServiceClient interface {
 	// ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
 	// can exclude or override, with their tags
 	ListRuleInfos(ctx context.Context, in *ListRuleInfosRequest, opts ...grpc.CallOption) (*ListRuleInfosResponse, error)
+	// ListRuleTags lists the tags carried by the rules of the OWASP CRS
+	// catalog: the values a CoreRuleset can exclude, or ListRuleInfos can
+	// filter by
+	ListRuleTags(ctx context.Context, in *ListRuleTagsRequest, opts ...grpc.CallOption) (*ListRuleTagsResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -277,6 +282,16 @@ func (c *securityServiceClient) ListRuleInfos(ctx context.Context, in *ListRuleI
 	return out, nil
 }
 
+func (c *securityServiceClient) ListRuleTags(ctx context.Context, in *ListRuleTagsRequest, opts ...grpc.CallOption) (*ListRuleTagsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRuleTagsResponse)
+	err := c.cc.Invoke(ctx, SecurityService_ListRuleTags_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
@@ -329,6 +344,10 @@ type SecurityServiceServer interface {
 	// ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
 	// can exclude or override, with their tags
 	ListRuleInfos(context.Context, *ListRuleInfosRequest) (*ListRuleInfosResponse, error)
+	// ListRuleTags lists the tags carried by the rules of the OWASP CRS
+	// catalog: the values a CoreRuleset can exclude, or ListRuleInfos can
+	// filter by
+	ListRuleTags(context.Context, *ListRuleTagsRequest) (*ListRuleTagsResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -390,6 +409,9 @@ func (UnimplementedSecurityServiceServer) GetRuleInfo(context.Context, *GetRuleI
 }
 func (UnimplementedSecurityServiceServer) ListRuleInfos(context.Context, *ListRuleInfosRequest) (*ListRuleInfosResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRuleInfos not implemented")
+}
+func (UnimplementedSecurityServiceServer) ListRuleTags(context.Context, *ListRuleTagsRequest) (*ListRuleTagsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRuleTags not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -720,6 +742,24 @@ func _SecurityService_ListRuleInfos_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_ListRuleTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRuleTagsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ListRuleTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_ListRuleTags_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ListRuleTags(ctx, req.(*ListRuleTagsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
@@ -812,6 +852,10 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRuleInfos",
 			Handler:    _SecurityService_ListRuleInfos_Handler,
+		},
+		{
+			MethodName: "ListRuleTags",
+			Handler:    _SecurityService_ListRuleTags_Handler,
 		},
 		{
 			MethodName: "Status",

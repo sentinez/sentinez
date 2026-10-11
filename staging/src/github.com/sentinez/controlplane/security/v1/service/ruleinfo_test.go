@@ -16,6 +16,7 @@ package securitysvc
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
@@ -140,6 +141,84 @@ func TestListRuleInfos(t *testing.T) {
 			assert.Equal(t, tt.wantTotal, gotTotal)
 		})
 	}
+}
+
+type listTags = securitypb.ListRuleTagsRequest
+
+func listTagNames(t *testing.T, req *listTags) ([]string, int64) {
+	t.Helper()
+
+	resp, err := New(nil, nil, nil, nil).
+		ListRuleTags(context.Background(), req)
+	require.NoError(t, err)
+
+	names := make([]string, 0, len(resp.GetTags()))
+	for _, tag := range resp.GetTags() {
+		require.NotZero(t, tag.GetRuleCount())
+		names = append(names, tag.GetName())
+	}
+
+	return names, resp.GetTotal()
+}
+
+func TestListRuleTags(t *testing.T) {
+	tests := []struct {
+		name      string
+		give      *listTags
+		wantNames []string
+		wantTotal int64
+	}{
+		{
+			name:      "search is case-insensitive",
+			give:      &listTags{Search: "ATTACK-SQL"},
+			wantNames: []string{"OWASP_CRS/ATTACK-SQLI", "attack-sqli"},
+			wantTotal: 2,
+		},
+		{
+			name: "page of the sorted tags",
+			give: &listTags{
+				Search: "paranoia-level/",
+				Page:   &typepb.Pages{Index: 2, Size: 2},
+			},
+			wantNames: []string{"paranoia-level/3", "paranoia-level/4"},
+			wantTotal: 4,
+		},
+		{name: "no match", give: &listTags{Search: "~"}, wantNames: []string{}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotNames, gotTotal := listTagNames(t, tt.give)
+
+			assert.Equal(t, tt.wantNames, gotNames)
+			assert.Equal(t, tt.wantTotal, gotTotal)
+		})
+	}
+}
+
+func TestListRuleTagsCount(t *testing.T) {
+	srv := New(nil, nil, nil, nil)
+
+	tags, err := srv.ListRuleTags(context.Background(),
+		&listTags{Search: "crs/attack-sqli"})
+	require.NoError(t, err)
+	require.Len(t, tags.GetTags(), 1)
+
+	rules, err := srv.ListRuleInfos(context.Background(),
+		&listRules{Tags: []string{"OWASP_CRS/ATTACK-SQLI"}})
+	require.NoError(t, err)
+
+	assert.Equal(t,
+		rules.GetTotal(), int64(tags.GetTags()[0].GetRuleCount()))
+}
+
+func TestListRuleTagsSystem(t *testing.T) {
+	without, _ := listTagNames(t, &listTags{})
+	with, _ := listTagNames(t, &listTags{IncludeSystem: true})
+
+	require.NotEmpty(t, without)
+	assert.Subset(t, with, without)
+	assert.True(t, slices.IsSorted(without))
 }
 
 func TestGetRuleInfo(t *testing.T) {

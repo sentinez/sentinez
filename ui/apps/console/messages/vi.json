@@ -25,6 +25,7 @@
     "select": "Chọn...",
     "notAvailable": "Không có",
     "back": "Quay lại",
+    "done": "Xong",
     "deleteConfirm": "Bạn có chắc muốn xóa \"{name}\"? Thao tác này không thể hoàn tác."
   },
   "Language": {
@@ -298,6 +299,11 @@
     "pickerSearch": "Tìm theo thông điệp, tag hoặc ID...",
     "allCategories": "Mọi nhóm quy tắc",
     "pickerFailed": "Không tải được danh mục quy tắc CRS",
+    "tagPickerTitle": "Tag của CRS",
+    "tagPickerDescription": "Chọn các tag của phiên bản CRS đã chọn để loại bỏ.",
+    "tagPickerSearch": "Tìm tag...",
+    "tagPickerFailed": "Không tải được danh sách tag CRS",
+    "tagRuleCount": "{count} quy tắc",
     "paranoiaShort": "PL{level}"
   },
   "Enum": {

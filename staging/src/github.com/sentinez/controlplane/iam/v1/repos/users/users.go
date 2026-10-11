@@ -97,7 +97,7 @@ func buildListQuery(builder sq.SelectBuilder,
 func (u *Users) List(ctx context.Context,
 	req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
 
-	builder := postgres.SelectBuilder(u.storage, req.GetPage())
+	builder := u.selectQuery(req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	var total int64

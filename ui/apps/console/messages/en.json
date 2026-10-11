@@ -25,6 +25,7 @@
     "select": "Select...",
     "notAvailable": "N/A",
     "back": "Back",
+    "done": "Done",
     "deleteConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
   },
   "Language": {
@@ -298,6 +299,11 @@
     "pickerSearch": "Search by message, tag or ID...",
     "allCategories": "All rule groups",
     "pickerFailed": "Failed to load the CRS rule catalog",
+    "tagPickerTitle": "CRS tags",
+    "tagPickerDescription": "Pick the tags of the selected CRS version to exclude.",
+    "tagPickerSearch": "Search tags...",
+    "tagPickerFailed": "Failed to load the CRS tags",
+    "tagRuleCount": "{count, plural, one {# rule} other {# rules}}",
     "paranoiaShort": "PL{level}"
   },
   "Enum": {

@@ -27,8 +27,15 @@ import { useSecurityOptions } from '@/hooks/use-security-options';
 import { listRuleInfos } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
 import { isCrsRuleId } from './core-ruleset-form';
+import { cn } from '@sentinez/ui/lib/utils';
 
-const PICKER_PAGE_SIZE = 8;
+export const PICKER_PAGE_SIZE = 8;
+
+const severityVariants = new Map<string, string>([
+  ["CRITICAL", "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"],
+  ["WARNING", "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"],
+  ["INFO", "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"],
+]);
 
 export interface RuleCatalog {
   infos: Map<number, RuleInfo>;
@@ -51,11 +58,56 @@ export function useRuleInfos(ids: number[], version: Version): RuleCatalog {
     listRuleInfos(request, { signal: controller.signal })
       .then((res) => setLoaded({ key, infos: new Map(res.rules.map((r) => [r.id, r])) }))
       // the description is a hint only: leave it out when the catalog is unreachable
-      .catch(() => {});
+      .catch(() => { });
     return () => controller.abort();
   }, [key, version]);
 
   return { infos: loaded.infos, ready: loaded.key === key };
+}
+
+/** Range and previous / next buttons under the list of a picker dialog */
+export function PickerPager({
+  pageIndex,
+  total,
+  onPageChange,
+}: {
+  pageIndex: number;
+  total: number;
+  onPageChange: (pageIndex: number) => void;
+}) {
+  const tp = useTranslations('Pagination');
+  const from = total === 0 ? 0 : pageIndex * PICKER_PAGE_SIZE + 1;
+  const to = Math.min(total, (pageIndex + 1) * PICKER_PAGE_SIZE);
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="text-sm text-muted-foreground tabular-nums">
+        {tp('range', { from, to, total })}
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          aria-label={tp('previous')}
+          disabled={pageIndex === 0}
+          onClick={() => onPageChange(pageIndex - 1)}
+        >
+          <ChevronLeft />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          aria-label={tp('next')}
+          disabled={to >= total}
+          onClick={() => onPageChange(pageIndex + 1)}
+        >
+          <ChevronRight />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 interface Props {
@@ -69,7 +121,6 @@ interface Props {
 export function RulePicker({ version, onSelect, onClose }: Props) {
   const t = useTranslations('CoreRulesetFields');
   const tc = useTranslations('Common');
-  const tp = useTranslations('Pagination');
   const { crsCategoryOptions } = useSecurityOptions();
   const [search, setSearch] = useState('');
   const query = useDebounced(search);
@@ -102,9 +153,6 @@ export function RulePicker({ version, onSelect, onClose }: Props) {
       });
     return () => controller.abort();
   }, [query, category, pageIndex, version, t]);
-
-  const from = total === 0 ? 0 : pageIndex * PICKER_PAGE_SIZE + 1;
-  const to = Math.min(total, (pageIndex + 1) * PICKER_PAGE_SIZE);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -174,7 +222,7 @@ export function RulePicker({ version, onSelect, onClose }: Props) {
                   <Badge variant="outline">{t('paranoiaShort', { level: r.paranoiaLevel })}</Badge>
                 )}
                 {r.severity && (
-                  <Badge variant={r.severity === 'CRITICAL' ? 'destructive' : 'secondary'}>
+                  <Badge className={cn(severityVariants.get(r.severity))}>
                     {r.severity}
                   </Badge>
                 )}
@@ -183,33 +231,7 @@ export function RulePicker({ version, onSelect, onClose }: Props) {
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground tabular-nums">
-            {tp('range', { from, to, total })}
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              aria-label={tp('previous')}
-              disabled={pageIndex === 0}
-              onClick={() => setPageIndex((p) => p - 1)}
-            >
-              <ChevronLeft />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              aria-label={tp('next')}
-              disabled={to >= total}
-              onClick={() => setPageIndex((p) => p + 1)}
-            >
-              <ChevronRight />
-            </Button>
-          </div>
-        </div>
+        <PickerPager pageIndex={pageIndex} total={total} onPageChange={setPageIndex} />
       </DialogContent>
     </Dialog>
   );

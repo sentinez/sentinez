@@ -536,6 +536,78 @@
         ]
       }
     },
+    "/security/crs/tags": {
+      "get": {
+        "summary": "ListRuleTags lists the tags carried by the rules of the OWASP CRS\ncatalog: the values a CoreRuleset can exclude, or ListRuleInfos can\nfilter by",
+        "operationId": "SecurityService_ListRuleTags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRuleTagsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "version",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "VERSION_UNSPECIFIED",
+              "VERSION_V4_16_0",
+              "VERSION_V4_17_0"
+            ],
+            "default": "VERSION_UNSPECIFIED"
+          },
+          {
+            "name": "search",
+            "description": "Case-insensitive part of the tag, ex: \"attack\".",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "includeSystem",
+            "description": "Tags only carried by system rules (init, evaluation, flow control)\nare left out unless asked for, as ListRuleInfos does.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
     "/security/ratelimit": {
       "post": {
         "summary": "CreateRateLimit creates a new rate limit rule",
@@ -1433,6 +1505,24 @@
         }
       }
     },
+    "v1ListRuleTagsResponse": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleTag"
+          },
+          "description": "Sorted by name."
+        },
+        "total": {
+          "type": "string",
+          "format": "int64",
+          "description": "Number of tags matching the filters, whatever the page."
+        }
+      }
+    },
     "v1ListSecRulesResponse": {
       "type": "object",
       "properties": {
@@ -1640,6 +1730,20 @@
       ],
       "default": "RULE_STATE_UNSPECIFIED",
       "title": "- RULE_STATE_DISABLED: removed (ctl:ruleRemoveById)\n - RULE_STATE_DETECTION_ONLY: logged, not counted toward blocking\n - RULE_STATE_ENABLED: forced on above paranoia_level"
+    },
+    "v1RuleTag": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ruleCount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of rules carrying the tag, among the ones the request covers."
+        }
+      },
+      "description": "RuleTag tag of the OWASP CRS catalog, ex: \"attack-sqli\"."
     },
     "v1SecRule": {
       "type": "object",

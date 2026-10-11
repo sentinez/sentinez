@@ -96,7 +96,7 @@ func (a *Activities) List(ctx context.Context,
 	req *analyticpb.ListActivitiesRequest,
 ) (*analyticpb.ListActivitiesResponse, error) {
 
-	builder := postgres.SelectBuilder(a.storage, req.GetPage())
+	builder := a.selectQuery(req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	var total int64
