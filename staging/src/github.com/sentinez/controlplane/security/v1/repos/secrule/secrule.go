@@ -86,7 +86,7 @@ func buildListQuery(builder sq.SelectBuilder,
 func (r *SecRule) List(ctx context.Context,
 	req *securitypb.ListSecRulesRequest,
 ) ([]*securitypb.SecRule, int64, error) {
-	builder := postgres.SelectBuilder(r.storage, req.GetPage())
+	builder := r.selectQuery(req.GetPage())
 	builder = buildListQuery(builder, req)
 
 	var total int64

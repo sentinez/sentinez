@@ -66,7 +66,14 @@ export interface CoreRulesetFormValue {
   overrides: RuleOverrideFormValue[];
 }
 
-const splitList = (text: string) => text.split(/[\s,]+/).filter(Boolean);
+export const splitList = (text: string) => text.split(/[\s,]+/).filter(Boolean);
+
+/** Adds the tag to a list typed in a text field, or removes it when present */
+export function toggleTag(text: string, tag: string) {
+  const tags = splitList(text);
+  const next = tags.includes(tag) ? tags.filter((x) => x !== tag) : [...tags, tag];
+  return next.join(', ');
+}
 
 export const isCrsRuleId = (id: number) =>
   Number.isInteger(id) && id >= CRS_RULE_ID_MIN && id <= CRS_RULE_ID_MAX;

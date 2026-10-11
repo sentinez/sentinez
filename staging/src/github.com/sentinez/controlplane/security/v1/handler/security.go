@@ -139,6 +139,12 @@ func (h *Security) ListRuleInfos(ctx context.Context,
 	return h.service.ListRuleInfos(ctx, req)
 }
 
+func (h *Security) ListRuleTags(ctx context.Context,
+	req *securitypb.ListRuleTagsRequest,
+) (*securitypb.ListRuleTagsResponse, error) {
+	return h.service.ListRuleTags(ctx, req)
+}
+
 func (h *Security) Status(ctx context.Context,
 	req *securitypb.StatusRequest,
 ) (*securitypb.StatusResponse, error) {

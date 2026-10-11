@@ -199,6 +199,15 @@ service SecurityService {
     };
   }
 
+  // ListRuleTags lists the tags carried by the rules of the OWASP CRS
+  // catalog: the values a CoreRuleset can exclude, or ListRuleInfos can
+  // filter by
+  rpc ListRuleTags(ListRuleTagsRequest) returns (ListRuleTagsResponse) {
+    option (google.api.http) = {
+      get: "/security/crs/tags"
+    };
+  }
+
   // ── Status ────────────────────────────────────────────────────────────────
 
   // Status returns the health status of the security service
@@ -416,6 +425,36 @@ message ListRuleInfosResponse {
   repeated sentinez.types.coreruleset.v1.RuleInfo rules = 1;
 
   // Number of rules matching the filters, whatever the page.
+  int64 total = 2;
+}
+
+// RuleTag tag of the OWASP CRS catalog, ex: "attack-sqli".
+message RuleTag {
+  string name = 1;
+
+  // Number of rules carrying the tag, among the ones the request covers.
+  uint32 rule_count = 2;
+}
+
+message ListRuleTagsRequest {
+  sentinez.types.v1.Pages page = 1;
+
+  // CRS version of the catalog, unspecified = latest supported.
+  sentinez.types.coreruleset.v1.Version version = 2;
+
+  // Case-insensitive part of the tag, ex: "attack".
+  string search = 3;
+
+  // Tags only carried by system rules (init, evaluation, flow control)
+  // are left out unless asked for, as ListRuleInfos does.
+  bool include_system = 15;
+}
+
+message ListRuleTagsResponse {
+  // Sorted by name.
+  repeated RuleTag tags = 1;
+
+  // Number of tags matching the filters, whatever the page.
   int64 total = 2;
 }
 

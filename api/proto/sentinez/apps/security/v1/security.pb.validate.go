@@ -37,6 +37,8 @@ var (
 	_ = corerulesetpb.Version(0)
 
 	_ = corerulesetpb.Version(0)
+
+	_ = corerulesetpb.Version(0)
 )
 
 // Validate checks the field values on CreateSecRuleRequest with the rules
@@ -2622,6 +2624,241 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListRuleInfosResponseValidationError{}
+
+// Validate checks the field values on RuleTag with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RuleTag) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Name
+
+	// no validation rules for RuleCount
+
+	return nil
+}
+
+// RuleTagValidationError is the validation error returned by RuleTag.Validate
+// if the designated constraints aren't met.
+type RuleTagValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RuleTagValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RuleTagValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RuleTagValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RuleTagValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RuleTagValidationError) ErrorName() string { return "RuleTagValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RuleTagValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRuleTag.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RuleTagValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RuleTagValidationError{}
+
+// Validate checks the field values on ListRuleTagsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListRuleTagsRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListRuleTagsRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Version
+
+	// no validation rules for Search
+
+	// no validation rules for IncludeSystem
+
+	return nil
+}
+
+// ListRuleTagsRequestValidationError is the validation error returned by
+// ListRuleTagsRequest.Validate if the designated constraints aren't met.
+type ListRuleTagsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListRuleTagsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListRuleTagsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListRuleTagsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListRuleTagsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListRuleTagsRequestValidationError) ErrorName() string {
+	return "ListRuleTagsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListRuleTagsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListRuleTagsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListRuleTagsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListRuleTagsRequestValidationError{}
+
+// Validate checks the field values on ListRuleTagsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListRuleTagsResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetTags() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListRuleTagsResponseValidationError{
+					field:  fmt.Sprintf("Tags[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	return nil
+}
+
+// ListRuleTagsResponseValidationError is the validation error returned by
+// ListRuleTagsResponse.Validate if the designated constraints aren't met.
+type ListRuleTagsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListRuleTagsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListRuleTagsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListRuleTagsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListRuleTagsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListRuleTagsResponseValidationError) ErrorName() string {
+	return "ListRuleTagsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListRuleTagsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListRuleTagsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListRuleTagsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListRuleTagsResponseValidationError{}
 
 // Validate checks the field values on StatusRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error

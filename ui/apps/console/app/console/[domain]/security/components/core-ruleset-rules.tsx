@@ -19,10 +19,13 @@ import {
   createEmptyExclusionTarget,
   createEmptyRuleOverride,
   isCrsRuleId,
+  splitList,
+  toggleTag,
 } from './core-ruleset-form';
 import { QueryBuilder, QueryBuilderEditor } from './query-builder';
 import { RuleCatalog, RulePicker } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
+import { TagPicker } from './tag-picker';
 
 /** A labelled switch with a hint, laid out as one row */
 export function SwitchField({
@@ -101,6 +104,50 @@ function RuleIdField({
             onChange(rule.id);
             setPicking(false);
           }}
+        />
+      )}
+    </div>
+  );
+}
+
+function TagsField({
+  id,
+  value,
+  onChange,
+  version,
+}: {
+  id: string;
+  value: string;
+  onChange: (tags: string) => void;
+  version: Version;
+}) {
+  const t = useTranslations('CoreRulesetFields');
+  const [picking, setPicking] = useState(false);
+
+  return (
+    <div className="grid gap-2">
+      <Label htmlFor={id}>{t('tags')}</Label>
+      <div className="flex gap-2">
+        <Input
+          id={id}
+          placeholder={t('tagsPlaceholder')}
+          spellCheck={false}
+          autoComplete="off"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <Button type="button" variant="outline" onClick={() => setPicking(true)}>
+          <SearchIcon className="w-4 h-4" />
+          {t('browse')}
+        </Button>
+      </div>
+      <p className="text-sm text-muted-foreground">{t('tagsHint')}</p>
+      {picking && (
+        <TagPicker
+          version={version}
+          selected={splitList(value)}
+          onToggle={(tag) => onChange(toggleTag(value, tag))}
+          onClose={() => setPicking(false)}
         />
       )}
     </div>
@@ -258,18 +305,12 @@ export function ExclusionsEditor({
           title={t('exclusionN', { n: i + 1 })}
           onRemove={() => onChange(removeAt(value, i))}
         >
-          <div className="grid gap-2">
-            <Label htmlFor={`${idPrefix}-${i}-tags`}>{t('tags')}</Label>
-            <Input
-              id={`${idPrefix}-${i}-tags`}
-              placeholder={t('tagsPlaceholder')}
-              spellCheck={false}
-              autoComplete="off"
-              value={exclusion.tags}
-              onChange={(e) => onChange(patchAt(value, i, { tags: e.target.value }))}
-            />
-            <p className="text-sm text-muted-foreground">{t('tagsHint')}</p>
-          </div>
+          <TagsField
+            id={`${idPrefix}-${i}-tags`}
+            value={exclusion.tags}
+            onChange={(tags) => onChange(patchAt(value, i, { tags }))}
+            version={version}
+          />
           <ExclusionTargets
             value={exclusion.targets}
             onChange={(targets) => onChange(patchAt(value, i, { targets }))}

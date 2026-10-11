@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.9.0"

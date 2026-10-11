@@ -26,6 +26,8 @@ import {
   ListRateLimitsResponse,
   ListRuleInfosRequest,
   ListRuleInfosResponse,
+  ListRuleTagsRequest,
+  ListRuleTagsResponse,
   ListSecRulesRequest,
   ListSecRulesResponse,
   StatusResponse,
@@ -446,6 +448,19 @@ const filterRuleInfos = (req: Partial<ListRuleInfosRequest>) =>
         String(r.id).startsWith(req.search ?? '')),
   );
 
+const sampleRuleTags = (req: Partial<ListRuleTagsRequest>) => {
+  const counts = new Map<string, number>();
+  for (const rule of SAMPLE_RULE_INFOS) {
+    if (rule.system && !req.includeSystem) continue;
+    for (const tag of rule.tags) {
+      if (includesText(tag, req.search)) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts]
+    .map(([name, ruleCount]) => ({ name, ruleCount }))
+    .sort((a, b) => (a.name < b.name ? -1 : 1));
+};
+
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
     try {
@@ -741,6 +756,23 @@ export async function listRuleInfos(
       signal: options?.signal,
     });
     return ListRuleInfosResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/crs/tags
+export async function listRuleTags(
+  req: Partial<ListRuleTagsRequest> = {},
+  options?: ApiOptions,
+): Promise<ListRuleTagsResponse> {
+  return withFallback('listRuleTags', () => {
+    const list = sampleRuleTags(req);
+    return { tags: paginate(list, req.page), total: list.length };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/security/crs/tags`, {
+      params: toQuery(ListRuleTagsRequest.toJSON(ListRuleTagsRequest.fromPartial(req))),
+      signal: options?.signal,
+    });
+    return ListRuleTagsResponse.fromJSON(resp.data ?? {});
   });
 }
 

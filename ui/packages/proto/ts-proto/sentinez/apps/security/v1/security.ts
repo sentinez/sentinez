@@ -220,6 +220,35 @@ export interface ListRuleInfosResponse {
   total: number;
 }
 
+/** RuleTag tag of the OWASP CRS catalog, ex: "attack-sqli". */
+export interface RuleTag {
+  name: string;
+  /** Number of rules carrying the tag, among the ones the request covers. */
+  ruleCount: number;
+}
+
+export interface ListRuleTagsRequest {
+  page?:
+    | Pages
+    | undefined;
+  /** CRS version of the catalog, unspecified = latest supported. */
+  version: Version;
+  /** Case-insensitive part of the tag, ex: "attack". */
+  search: string;
+  /**
+   * Tags only carried by system rules (init, evaluation, flow control)
+   * are left out unless asked for, as ListRuleInfos does.
+   */
+  includeSystem: boolean;
+}
+
+export interface ListRuleTagsResponse {
+  /** Sorted by name. */
+  tags: RuleTag[];
+  /** Number of tags matching the filters, whatever the page. */
+  total: number;
+}
+
 export interface StatusRequest {
 }
 
@@ -3249,6 +3278,301 @@ export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
   fromPartial<I extends Exact<DeepPartial<ListRuleInfosResponse>, I>>(object: I): ListRuleInfosResponse {
     const message = createBaseListRuleInfosResponse();
     message.rules = object.rules?.map((e) => RuleInfo.fromPartial(e)) || [];
+    message.total = object.total ?? 0;
+    return message;
+  },
+};
+
+function createBaseRuleTag(): RuleTag {
+  return { name: "", ruleCount: 0 };
+}
+
+export const RuleTag: MessageFns<RuleTag> = {
+  encode(message: RuleTag, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.ruleCount !== 0) {
+      writer.uint32(16).uint32(message.ruleCount);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleTag {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRuleTag();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.ruleCount = reader.uint32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): RuleTag {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      ruleCount: isSet(object.ruleCount)
+        ? globalThis.Number(object.ruleCount)
+        : isSet(object.rule_count)
+        ? globalThis.Number(object.rule_count)
+        : 0,
+    };
+  },
+
+  toJSON(message: RuleTag): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.ruleCount !== 0) {
+      obj.ruleCount = Math.round(message.ruleCount);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleTag>, I>>(base?: I): RuleTag {
+    return RuleTag.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleTag>, I>>(object: I): RuleTag {
+    const message = createBaseRuleTag();
+    message.name = object.name ?? "";
+    message.ruleCount = object.ruleCount ?? 0;
+    return message;
+  },
+};
+
+function createBaseListRuleTagsRequest(): ListRuleTagsRequest {
+  return { page: undefined, version: 0, search: "", includeSystem: false };
+}
+
+export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
+  encode(message: ListRuleTagsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    if (message.version !== 0) {
+      writer.uint32(16).int32(message.version);
+    }
+    if (message.search !== "") {
+      writer.uint32(26).string(message.search);
+    }
+    if (message.includeSystem !== false) {
+      writer.uint32(120).bool(message.includeSystem);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleTagsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRuleTagsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.version = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.search = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 120) {
+              break;
+            }
+
+            message.includeSystem = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListRuleTagsRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      version: isSet(object.version) ? versionFromJSON(object.version) : 0,
+      search: isSet(object.search) ? globalThis.String(object.search) : "",
+      includeSystem: isSet(object.includeSystem)
+        ? globalThis.Boolean(object.includeSystem)
+        : isSet(object.include_system)
+        ? globalThis.Boolean(object.include_system)
+        : false,
+    };
+  },
+
+  toJSON(message: ListRuleTagsRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.version !== 0) {
+      obj.version = versionToJSON(message.version);
+    }
+    if (message.search !== "") {
+      obj.search = message.search;
+    }
+    if (message.includeSystem !== false) {
+      obj.includeSystem = message.includeSystem;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRuleTagsRequest>, I>>(base?: I): ListRuleTagsRequest {
+    return ListRuleTagsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRuleTagsRequest>, I>>(object: I): ListRuleTagsRequest {
+    const message = createBaseListRuleTagsRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.version = object.version ?? 0;
+    message.search = object.search ?? "";
+    message.includeSystem = object.includeSystem ?? false;
+    return message;
+  },
+};
+
+function createBaseListRuleTagsResponse(): ListRuleTagsResponse {
+  return { tags: [], total: 0 };
+}
+
+export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
+  encode(message: ListRuleTagsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.tags) {
+      RuleTag.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleTagsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRuleTagsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tags.push(RuleTag.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListRuleTagsResponse {
+    return {
+      tags: globalThis.Array.isArray(object?.tags) ? object.tags.map((e: any) => RuleTag.fromJSON(e)) : [],
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: ListRuleTagsResponse): unknown {
+    const obj: any = {};
+    if (message.tags?.length) {
+      obj.tags = message.tags.map((e) => RuleTag.toJSON(e));
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListRuleTagsResponse>, I>>(base?: I): ListRuleTagsResponse {
+    return ListRuleTagsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListRuleTagsResponse>, I>>(object: I): ListRuleTagsResponse {
+    const message = createBaseListRuleTagsResponse();
+    message.tags = object.tags?.map((e) => RuleTag.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },
