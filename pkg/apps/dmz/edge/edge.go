@@ -125,8 +125,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
 	if err := s.initialize(s.conf); err != nil {
-		zlog.Errorf("failed to initialize: %v", err)
-		return err
+		return fmt.Errorf("edge: initialize: %w", err)
 	}
 
 	var (

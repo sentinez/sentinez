@@ -20,7 +20,6 @@ import (
 
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )
@@ -59,8 +58,8 @@ func (svc *Service) GetResourceByDomain(ctx context.Context,
 	return resp, nil
 }
 
-func (svc *Service) defaultSetting() *edgepb.Setting {
-	st := &edgepb.Setting{}
+func (svc *Service) defaultSetting() *tenantpb.ResourceSetting {
+	st := &tenantpb.ResourceSetting{}
 	return st
 }
 
@@ -123,10 +122,11 @@ func (svc *Service) UpdateResource(ctx context.Context,
 	}
 
 	err = svc.resource.Update(ctx, &tenantpb.Resource{
-		Id:             req.GetId(),
-		ResourceDomain: req.GetResourceDomain(),
-		ResourceName:   req.GetResourceName(),
-		Status:         req.GetStatus(),
+		Id:              req.GetId(),
+		ResourceDomain:  req.GetResourceDomain(),
+		ResourceName:    req.GetResourceName(),
+		Status:          req.GetStatus(),
+		ResourceSetting: req.GetResourceSetting(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("resource.Update: %w", err)

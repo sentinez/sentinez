@@ -27,11 +27,12 @@ import (
 
 	"github.com/cloudwego/gopkg/bufiox"
 	"github.com/cloudwego/gopkg/net/connstate"
-
 	errs "github.com/cloudwego/hertz/pkg/common/errors"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/network"
 )
+
+var errNotTLSConn = errors.New("std: connection is not tls")
 
 type Conn struct {
 	c      net.Conn
@@ -232,11 +233,20 @@ func (c *Conn) HandleSpecificError(err error, rip string) (needIgnore bool) {
 }
 
 func (c *TLSConn) Handshake() error {
-	return c.c.(network.ConnTLSer).Handshake()
+	tc, ok := c.c.(network.ConnTLSer)
+	if !ok {
+		return errNotTLSConn
+	}
+	return tc.Handshake()
 }
 
 func (c *TLSConn) ConnectionState() tls.ConnectionState {
-	return c.c.(network.ConnTLSer).ConnectionState()
+	tc, ok := c.c.(network.ConnTLSer)
+	if !ok {
+		var empty tls.ConnectionState
+		return empty
+	}
+	return tc.ConnectionState()
 }
 
 func newConn(c net.Conn, size int) network.Conn {

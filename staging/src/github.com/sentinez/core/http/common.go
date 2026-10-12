@@ -22,11 +22,11 @@ import (
 	"github.com/sentinez/core/common/render"
 )
 
-var mu sync.Mutex
+var _mu sync.Mutex
 
 func Forbidden(ctx Context) error {
-	mu.Lock()
-	defer mu.Unlock()
+	_mu.Lock()
+	defer _mu.Unlock()
 
 	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
 	if err != nil {
@@ -38,8 +38,8 @@ func Forbidden(ctx Context) error {
 }
 
 func BadRequest(ctx Context) error {
-	mu.Lock()
-	defer mu.Unlock()
+	_mu.Lock()
+	defer _mu.Unlock()
 
 	err := ctx.Render(http.StatusBadRequest, render.BadRequest(ctx.RequestId()))
 	if err != nil {
@@ -51,8 +51,8 @@ func BadRequest(ctx Context) error {
 }
 
 func InternalServerError(ctx Context) error {
-	mu.Lock()
-	defer mu.Unlock()
+	_mu.Lock()
+	defer _mu.Unlock()
 
 	err := ctx.Render(
 		http.StatusInternalServerError, render.InternalError(ctx.RequestId()))
@@ -66,8 +66,8 @@ func InternalServerError(ctx Context) error {
 }
 
 func NotFound(ctx Context) error {
-	mu.Lock()
-	defer mu.Unlock()
+	_mu.Lock()
+	defer _mu.Unlock()
 
 	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
 	if err != nil {
@@ -79,8 +79,8 @@ func NotFound(ctx Context) error {
 }
 
 func TooManyRequests(ctx Context) error {
-	mu.Lock()
-	defer mu.Unlock()
+	_mu.Lock()
+	defer _mu.Unlock()
 
 	err := ctx.Render(http.StatusTooManyRequests,
 		render.TooManyRequests(ctx.RequestId()))

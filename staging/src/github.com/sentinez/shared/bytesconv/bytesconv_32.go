@@ -44,5 +44,5 @@
 package bytesconv
 
 const (
-	maxHexIntChars = 7
+	_maxHexIntChars = 7
 )

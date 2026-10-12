@@ -488,6 +488,16 @@ func (m *UpdateResourceRequest) Validate() error {
 
 	// no validation rules for Status
 
+	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateResourceRequestValidationError{
+				field:  "ResourceSetting",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 

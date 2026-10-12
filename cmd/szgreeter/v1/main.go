@@ -22,14 +22,26 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
+	"github.com/sentinez/shared/zlog"
 )
 
 func main() {
-	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+	if err := run(); err != nil {
+		zlog.Fatal(err)
+	}
+}
+
+func run() error {
+	r, err := runner.New(config.Config, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(), runner.NewApp(app))
 }
 
 func app(c *runner.Context[greeter.Greeter]) {
-	c.Inject(config.Config, greeter.NewService)
+	c.Inject(greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
 		return server.Start()

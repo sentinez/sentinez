@@ -16,20 +16,20 @@
 package edgeflags
 
 import (
+	"fmt"
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/flagx"
-	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
 )
 
-var onceEdge sync.Once
+var _onceEdge sync.Once
 
 // Parse flag args for grpc service
-func Parse() *settingpb.Flag {
-	onceEdge.Do(func() {
+func Parse() (*settingpb.Flag, error) {
+	_onceEdge.Do(func() {
 		flagx.Get().ProxyConfig = "./proxy.yaml"
 		flagx.Get().EnvFile = "./.env"
 		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
@@ -55,8 +55,8 @@ func Parse() *settingpb.Flag {
 	})
 
 	if err := flagx.Validate(flagx.Get()); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get()
+	return flagx.Get(), nil
 }

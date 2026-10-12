@@ -6,10 +6,9 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Setting } from "../../../dmz/edge/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { Resource } from "./model";
+import { Resource, ResourceSetting } from "./model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
 
@@ -42,13 +41,14 @@ export interface UpdateResourceRequest {
   resourceDomain: string;
   resourceName: string;
   status: Status;
+  resourceSetting?: ResourceSetting | undefined;
 }
 
 export interface UpdateResourceResponse {
 }
 
 export interface CreateResourceRequest {
-  resourceSetting?: Setting | undefined;
+  resourceSetting?: ResourceSetting | undefined;
   resourceDomain: string;
   resourceName: string;
   status: Status;
@@ -493,7 +493,7 @@ export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
 };
 
 function createBaseUpdateResourceRequest(): UpdateResourceRequest {
-  return { id: "", resourceDomain: "", resourceName: "", status: 0 };
+  return { id: "", resourceDomain: "", resourceName: "", status: 0, resourceSetting: undefined };
 }
 
 export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
@@ -509,6 +509,9 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     }
     if (message.status !== 0) {
       writer.uint32(32).int32(message.status);
+    }
+    if (message.resourceSetting !== undefined) {
+      ResourceSetting.encode(message.resourceSetting, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -558,6 +561,14 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
             message.status = reader.int32() as any;
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.resourceSetting = ResourceSetting.decode(reader, reader.uint32());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -584,6 +595,11 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
         ? globalThis.String(object.resource_name)
         : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      resourceSetting: isSet(object.resourceSetting)
+        ? ResourceSetting.fromJSON(object.resourceSetting)
+        : isSet(object.resource_setting)
+        ? ResourceSetting.fromJSON(object.resource_setting)
+        : undefined,
     };
   },
 
@@ -601,6 +617,9 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
+    if (message.resourceSetting !== undefined) {
+      obj.resourceSetting = ResourceSetting.toJSON(message.resourceSetting);
+    }
     return obj;
   },
 
@@ -613,6 +632,9 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
+    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
+      ? ResourceSetting.fromPartial(object.resourceSetting)
+      : undefined;
     return message;
   },
 };
@@ -676,7 +698,7 @@ function createBaseCreateResourceRequest(): CreateResourceRequest {
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   encode(message: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.resourceSetting !== undefined) {
-      Setting.encode(message.resourceSetting, writer.uint32(10).fork()).join();
+      ResourceSetting.encode(message.resourceSetting, writer.uint32(10).fork()).join();
     }
     if (message.resourceDomain !== "") {
       writer.uint32(18).string(message.resourceDomain);
@@ -708,7 +730,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
               break;
             }
 
-            message.resourceSetting = Setting.decode(reader, reader.uint32());
+            message.resourceSetting = ResourceSetting.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -750,9 +772,9 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   fromJSON(object: any): CreateResourceRequest {
     return {
       resourceSetting: isSet(object.resourceSetting)
-        ? Setting.fromJSON(object.resourceSetting)
+        ? ResourceSetting.fromJSON(object.resourceSetting)
         : isSet(object.resource_setting)
-        ? Setting.fromJSON(object.resource_setting)
+        ? ResourceSetting.fromJSON(object.resource_setting)
         : undefined,
       resourceDomain: isSet(object.resourceDomain)
         ? globalThis.String(object.resourceDomain)
@@ -771,7 +793,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   toJSON(message: CreateResourceRequest): unknown {
     const obj: any = {};
     if (message.resourceSetting !== undefined) {
-      obj.resourceSetting = Setting.toJSON(message.resourceSetting);
+      obj.resourceSetting = ResourceSetting.toJSON(message.resourceSetting);
     }
     if (message.resourceDomain !== "") {
       obj.resourceDomain = message.resourceDomain;
@@ -791,7 +813,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(object: I): CreateResourceRequest {
     const message = createBaseCreateResourceRequest();
     message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
-      ? Setting.fromPartial(object.resourceSetting)
+      ? ResourceSetting.fromPartial(object.resourceSetting)
       : undefined;
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";

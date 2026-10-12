@@ -29,7 +29,9 @@ import (
 )
 
 // nolint:funlen
-func Register(name string, conf *settingpb.Config) {
+// Register registers the service in consul and sends heartbeats until ctx
+// is done.
+func Register(ctx context.Context, name string, conf *settingpb.Config) {
 	addr, port, err := net.SplitHostPort(conf.Get(settingpb.Senz_SENZ_ADDRESS))
 	if err != nil {
 		zlog.Errorf("failed to split address: %v", err)
@@ -50,7 +52,9 @@ func Register(name string, conf *settingpb.Config) {
 	for {
 		if state := cb.State(); state == gobreaker.StateOpen {
 			zlog.Warnf("breaker is OPEN - waiting %v before retry...", timeout)
-			time.Sleep(timeout)
+			if !sleep(ctx, timeout) {
+				return
+			}
 
 			continue
 		}
@@ -66,24 +70,40 @@ func Register(name string, conf *settingpb.Config) {
 
 		}); err != nil {
 			zlog.Errorf("failed to register service: %v, retrying...", err)
-			time.Sleep(time.Second * 1)
+			if !sleep(ctx, time.Second) {
+				return
+			}
 
 			continue
 		}
 		break
 	}
 
-	startCron(cb, dcvr, serviceId, timeout)
+	<-startCron(ctx, cb, dcvr, serviceId, timeout)
+}
+
+// sleep waits for d, it reports false when ctx is done first.
+func sleep(ctx context.Context, d time.Duration) bool {
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+
+	select {
+	case <-timer.C:
+		return true
+	case <-ctx.Done():
+		return false
+	}
 }
 
 func startCron(
+	ctx context.Context,
 	cb *gobreaker.CircuitBreaker,
 	d *discovery.Discovery,
 	serviceId string,
 	timeout time.Duration,
-) {
+) <-chan struct{} {
 	// Periodic heartbeat, also protected by breaker
-	cron.Start(context.Background(), timeout, func() {
+	return cron.Start(ctx, timeout, func() {
 		if _, err := cb.Execute(func() (any, error) {
 			return nil, d.Heartbeat(serviceId)
 

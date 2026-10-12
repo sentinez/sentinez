@@ -28,18 +28,18 @@ import (
 )
 
 var (
-	once     sync.Once
-	ruleInst *SecRule
+	_once     sync.Once
+	_ruleInst *SecRule
 )
 
 func New() *SecRule {
-	once.Do(func() {
-		ruleInst = &SecRule{
+	_once.Do(func() {
+		_ruleInst = &SecRule{
 			chains: ssync.NewMap[string, []Entry](),
 		}
 	})
 
-	return ruleInst
+	return _ruleInst
 }
 
 // Entry is a compiled rule ready to be evaluated.

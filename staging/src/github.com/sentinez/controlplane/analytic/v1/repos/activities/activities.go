@@ -143,10 +143,11 @@ func (a *Activities) Create(ctx context.Context,
 	activity *analyticpb.Activity) (*analyticpb.Activity, error) {
 
 	activity.Id = rand.NewId(table.NewPrimaryKey(tables.AnalyticActivities))
+	owner := activity.GetOwner()
 	query := postgres.InsertBuilder(a.storage, postgres.M{
 		analyticpb.Activity_Id:              activity.GetId(),
-		analyticpb.Activity_OwnerResourceId: activity.GetOwner().GetResourceId(),
-		analyticpb.Activity_OwnerTenantId:   activity.GetOwner().GetTenantId(),
+		analyticpb.Activity_OwnerResourceId: owner.GetResourceId(),
+		analyticpb.Activity_OwnerTenantId:   owner.GetTenantId(),
 		analyticpb.Activity_UniqueVisitor:   activity.GetUniqueVisitor(),
 	})
 

@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	regexCache sync.Map
+	_regexCache sync.Map
 )
 
 func matchRegex(pattern string, value []byte) bool {
@@ -29,7 +29,7 @@ func matchRegex(pattern string, value []byte) bool {
 	}
 
 	// Try to get from cache
-	if v, ok := regexCache.Load(pattern); ok {
+	if v, ok := _regexCache.Load(pattern); ok {
 		if re, ok := v.(*regexp.Regexp); ok {
 			return re.Match(value)
 		}
@@ -41,6 +41,6 @@ func matchRegex(pattern string, value []byte) bool {
 		return false
 	}
 
-	regexCache.Store(pattern, re)
+	_regexCache.Store(pattern, re)
 	return re.Match(value)
 }

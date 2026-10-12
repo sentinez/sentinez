@@ -39,6 +39,81 @@ var (
 	_ = typepb.Plan(0)
 )
 
+// Validate checks the field values on ResourceSetting with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *ResourceSetting) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ResourceSettingValidationError{
+				field:  "Server",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// ResourceSettingValidationError is the validation error returned by
+// ResourceSetting.Validate if the designated constraints aren't met.
+type ResourceSettingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ResourceSettingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ResourceSettingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ResourceSettingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ResourceSettingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ResourceSettingValidationError) ErrorName() string { return "ResourceSettingValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ResourceSettingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sResourceSetting.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ResourceSettingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ResourceSettingValidationError{}
+
 // Validate checks the field values on Resource with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
 func (m *Resource) Validate() error {
@@ -58,6 +133,8 @@ func (m *Resource) Validate() error {
 
 	// no validation rules for Id
 
+	// no validation rules for TenantId
+
 	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ResourceValidationError{
@@ -73,8 +150,6 @@ func (m *Resource) Validate() error {
 	// no validation rules for ResourceName
 
 	// no validation rules for Status
-
-	// no validation rules for TenantId
 
 	return nil
 }

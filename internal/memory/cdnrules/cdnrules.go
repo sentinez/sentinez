@@ -26,18 +26,18 @@ import (
 )
 
 var (
-	inst *Rule
-	once sync.Once
+	_inst *Rule
+	_once sync.Once
 )
 
 func New() *Rule {
-	once.Do(func() {
-		inst = &Rule{
+	_once.Do(func() {
+		_inst = &Rule{
 			space:   ssync.NewMap[string, corerule.EvalFunc](),
 			cdnRule: ssync.NewMap[string, *cdnpb.CDN](),
 		}
 	})
-	return inst
+	return _inst
 }
 
 type Rule struct {

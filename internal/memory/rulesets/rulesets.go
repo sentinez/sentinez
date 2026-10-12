@@ -29,18 +29,18 @@ import (
 )
 
 var (
-	once         sync.Once
-	rulesetsInst *Rulesets
+	_once         sync.Once
+	_rulesetsInst *Rulesets
 )
 
 func New() *Rulesets {
-	once.Do(func() {
-		rulesetsInst = &Rulesets{
+	_once.Do(func() {
+		_rulesetsInst = &Rulesets{
 			space: ssync.NewMap[string, coraza.WAF](),
 		}
 	})
 
-	return rulesetsInst
+	return _rulesetsInst
 }
 
 type Rulesets struct {

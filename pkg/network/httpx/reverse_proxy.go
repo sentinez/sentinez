@@ -56,7 +56,7 @@ func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 	nctx, ok := ctx.Unwrap().(*Context)
 	if !ok {
 		_ = corehttp.InternalServerError(ctx)
-		zlog.Fatal("request context not supported")
+		zlog.Errorf("request context not supported")
 		return
 	}
 

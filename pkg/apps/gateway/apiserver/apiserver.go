@@ -17,6 +17,7 @@ package apiserver
 
 import (
 	"context"
+	"fmt"
 
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -80,8 +81,7 @@ func (srv *Server) Visit(ctx context.Context,
 // Start the apiserver/gateway app
 func (srv *Server) Start(ctx context.Context) error {
 	if err := srv.Initialize(ctx, srv.conf); err != nil {
-		zlog.Errorf("apiserver: failed to initialize: %v", err)
-		return err
+		return fmt.Errorf("apiserver: initialize: %w", err)
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)

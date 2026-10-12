@@ -17,27 +17,38 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/shared/config"
-
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/flags"
+	"github.com/sentinez/shared/config"
 )
 
 var (
-	once    sync.Once
-	appConf *settingpb.Config
+	_once    sync.Once
+	_appConf *settingpb.Config
+	_loadErr error
 )
 
-func Config() *settingpb.Config {
-	once.Do(func() {
-		flag := flags.Parse()
-		appConf = &settingpb.Config{
-			Meta: greeterpb.GetMetaGreeter(),
-			Flag: flag,
-			Env:  config.LoadEnv(flag.GetEnvFile()),
-		}
-	})
+func Config() (*settingpb.Config, error) {
+	_once.Do(func() { _appConf, _loadErr = load() })
 
-	return appConf
+	return _appConf, _loadErr
+}
+
+func load() (*settingpb.Config, error) {
+	flag, err := flags.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	env, err := config.LoadEnv(flag.GetEnvFile())
+	if err != nil {
+		return nil, err
+	}
+
+	return &settingpb.Config{
+		Meta: greeterpb.GetMetaGreeter(),
+		Flag: flag,
+		Env:  env,
+	}, nil
 }

@@ -48,8 +48,8 @@ import (
 )
 
 const (
-	upperhex = "0123456789ABCDEF"
-	lowerhex = "0123456789abcdef"
+	_upperhex = "0123456789ABCDEF"
+	_lowerhex = "0123456789abcdef"
 )
 
 func LowercaseBytes(b []byte) {
@@ -104,7 +104,7 @@ func AppendIntHex(b []byte, n uint64) []byte {
 	i := len(tmp)
 	for n > 0 {
 		i--
-		tmp[i] = lowerhex[n&0xf]
+		tmp[i] = _lowerhex[n&0xf]
 		n >>= 4
 	}
 	return append(b, tmp[i:]...)
@@ -172,7 +172,7 @@ func AppendQuotedPath(dst, src []byte) []byte {
 
 	for _, c := range src {
 		if QuotedPathShouldEscapeTable[int(c)] != 0 {
-			dst = append(dst, '%', upperhex[c>>4], upperhex[c&15])
+			dst = append(dst, '%', _upperhex[c>>4], _upperhex[c&15])
 		} else {
 			dst = append(dst, c)
 		}
@@ -187,7 +187,7 @@ func AppendQuotedArg(dst, src []byte) []byte {
 		case c == ' ':
 			dst = append(dst, '+')
 		case QuotedArgShouldEscapeTable[int(c)] != 0:
-			dst = append(dst, '%', upperhex[c>>4], upperhex[c&0xf])
+			dst = append(dst, '%', _upperhex[c>>4], _upperhex[c&0xf])
 		default:
 			dst = append(dst, c)
 		}

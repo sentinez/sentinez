@@ -21,14 +21,26 @@ import (
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
+	"github.com/sentinez/shared/zlog"
 )
 
 func main() {
-	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+	if err := run(); err != nil {
+		zlog.Fatal(err)
+	}
+}
+
+func run() error {
+	r, err := runner.New(config.Config, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(), runner.NewApp(app))
 }
 
 func app(c *runner.Context[dataplane.Server]) {
-	c.Inject(config.Config, dataplane.New)
+	c.Inject(dataplane.New)
 
 	c.Serve(func(_ context.Context, server *dataplane.Server) error {
 		return server.Start(dataplane.VETH0)

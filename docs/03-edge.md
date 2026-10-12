@@ -21,7 +21,7 @@ Relevant source:
 ## 3.1 Startup
 
 ```
-main: runner.Main(NewApp(edgeServer), NewApp(grpcServer))
+main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(pprof))
  ├─ edgeServer
  │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)

@@ -24,26 +24,37 @@ import (
 )
 
 var (
-	once    sync.Once
-	appConf *settingpb.Config
+	_once    sync.Once
+	_appConf *settingpb.Config
+	_loadErr error
 )
 
-func Config() *settingpb.Config {
-	once.Do(func() {
-		flag := edgeflags.Parse()
+func Config() (*settingpb.Config, error) {
+	_once.Do(func() { _appConf, _loadErr = load() })
 
-		appConf = &settingpb.Config{
-			Meta: edgepb.GetMetaEdge(),
-			Flag: flag,
-			Env: config.LoadEnv(flag.GetEnvFile(),
-				settingpb.Senz_SENZ_HOSTNAME,
-				settingpb.Senz_SENZ_ADDRESS,
-				settingpb.Senz_SENZ_SECRET_KEY,
-				settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
-				settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
-			),
-		}
-	})
+	return _appConf, _loadErr
+}
 
-	return appConf
+func load() (*settingpb.Config, error) {
+	flag, err := edgeflags.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	env, err := config.LoadEnv(flag.GetEnvFile(),
+		settingpb.Senz_SENZ_HOSTNAME,
+		settingpb.Senz_SENZ_ADDRESS,
+		settingpb.Senz_SENZ_SECRET_KEY,
+		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
+		settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &settingpb.Config{
+		Meta: edgepb.GetMetaEdge(),
+		Flag: flag,
+		Env:  env,
+	}, nil
 }

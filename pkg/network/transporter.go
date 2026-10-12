@@ -24,7 +24,11 @@ import (
 )
 
 func StandardTransporter() http.RoundTripper {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
+	base, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		base = &http.Transport{}
+	}
+	transport := base.Clone()
 
 	transport.DialContext = (&net.Dialer{
 		Timeout:   30 * time.Second,

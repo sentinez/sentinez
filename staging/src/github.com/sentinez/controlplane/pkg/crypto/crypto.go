@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	bearer    = "Bearer "
-	claimsKey = "auth"
-	expKey    = "exp"
+	_bearer    = "Bearer "
+	_claimsKey = "auth"
+	_expKey    = "exp"
 )
 
 func TokenGenerator(payload *typepb.Context) (string, error) {
@@ -47,8 +47,8 @@ func TokenGenerator(payload *typepb.Context) (string, error) {
 	}
 
 	claims := jwt.MapClaims{
-		claimsKey: payload.String(),
-		expKey:    payload.GetExpireAt().AsTime().UTC().Unix(),
+		_claimsKey: payload.String(),
+		_expKey:    payload.GetExpireAt().AsTime().UTC().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -67,7 +67,7 @@ func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 		return nil, false
 	}
 
-	token := strings.TrimPrefix(bearerToken, bearer)
+	token := strings.TrimPrefix(bearerToken, _bearer)
 	jwtToken, err := parseJWT(token, sec)
 	if err != nil {
 		zlog.Debugf("crypto: invalid token: %v", err)
@@ -75,13 +75,18 @@ func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 	}
 
 	if claims, ok := jwtToken.Claims.(jwt.MapClaims); ok && jwtToken.Valid {
-		auth, ok := claims[claimsKey]
+		auth, ok := claims[_claimsKey]
+		if !ok {
+			return nil, false
+		}
+
+		text, ok := auth.(string)
 		if !ok {
 			return nil, false
 		}
 
 		var resp typepb.Context
-		err = prototext.Unmarshal([]byte(auth.(string)), &resp)
+		err = prototext.Unmarshal([]byte(text), &resp)
 		if err != nil {
 			zlog.Debugf("crypto: error when get claims: %v", err)
 			return nil, false

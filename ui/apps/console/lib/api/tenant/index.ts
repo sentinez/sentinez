@@ -61,21 +61,6 @@ export const SAMPLE_RESOURCES: Resource[] = [
           },
         ],
       },
-      security: {
-        limiters: [{ timeWindow: '1m', maxRequests: '100', timeout: '5m' }],
-      },
-      trafficControl: {},
-      delivery: {
-        cdn: [
-          {
-            rule: {
-              name: 'cache GET',
-              status: 'STATUS_ACTIVE',
-            },
-          },
-        ],
-      },
-      personal: {},
     },
   },
   {
@@ -239,7 +224,15 @@ export async function updateResource(
 ): Promise<UpdateResourceResponse> {
   return withFallback<UpdateResourceResponse>('updateResource', () => {
     sampleStore = sampleStore.map((r) =>
-      r.id === req.id ? { ...r, ...req, metadata: { ...r.metadata, updatedAt: new Date() } } : r,
+      r.id === req.id
+        ? {
+            ...r,
+            ...req,
+            // An update without a setting keeps the stored one
+            resourceSetting: req.resourceSetting ?? r.resourceSetting,
+            metadata: { ...r.metadata, updatedAt: new Date() },
+          }
+        : r,
     );
     return {};
   })(async () => {

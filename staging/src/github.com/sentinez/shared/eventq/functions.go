@@ -23,12 +23,12 @@ import (
 // QueueSpace is the size of the queue
 const QueueSpace int = 2
 
-var queue = New[string](QueueSpace)
+var _queue = New[string](QueueSpace)
 
 // Subscribe to the event queue with a names and a handler function
 func Subscribe(ctx context.Context, ns string, hdl func(value string) error) {
 	go func() {
-		ch := queue.Get(ns)
+		ch := _queue.Get(ns)
 
 		for {
 			select {
@@ -60,7 +60,7 @@ func Subscribe(ctx context.Context, ns string, hdl func(value string) error) {
 
 // Publish to the event queue with a names and a value
 func Publish(ns string, value string) {
-	ch := queue.Get(ns)
+	ch := _queue.Get(ns)
 
 	select {
 	case ch <- value:

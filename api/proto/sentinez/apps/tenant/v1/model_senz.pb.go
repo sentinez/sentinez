@@ -6,11 +6,11 @@ package tenantpb
 const (
 	Resource_Metadata        = "metadata"
 	Resource_Id              = "id"
+	Resource_TenantId        = "tenant_id"
 	Resource_ResourceSetting = "resource_setting"
 	Resource_ResourceDomain  = "resource_domain"
 	Resource_ResourceName    = "resource_name"
 	Resource_Status          = "status"
-	Resource_TenantId        = "tenant_id"
 )
 
 const (

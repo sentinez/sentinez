@@ -26,10 +26,10 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-var bufLis *bufconn.Listener
+var _bufLis *bufconn.Listener
 
 func GetListener() *bufconn.Listener {
-	return bufLis
+	return _bufLis
 }
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
@@ -49,6 +49,6 @@ type IAM struct {
 func (im *IAM) Start(_ context.Context) error {
 	iampb.RegisterIdentityAccessManagementServiceServer(im.AsServer(), im.hdl)
 
-	bufLis = bufconn.Listen(local.BufSize)
-	return im.BufServe(bufLis)
+	_bufLis = bufconn.Listen(local.BufSize)
+	return im.BufServe(_bufLis)
 }

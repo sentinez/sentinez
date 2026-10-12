@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-var bufLis *bufconn.Listener
+var _bufLis *bufconn.Listener
 
 func GetListener() *bufconn.Listener {
-	return bufLis
+	return _bufLis
 }
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *CentralData {
@@ -46,6 +46,6 @@ type CentralData struct {
 func (mod *CentralData) Start(_ context.Context) error {
 	pb.RegisterCentralDataServiceServer(mod.AsServer(), mod.hdl)
 
-	bufLis = bufconn.Listen(local.BufSize)
-	return mod.BufServe(bufLis)
+	_bufLis = bufconn.Listen(local.BufSize)
+	return mod.BufServe(_bufLis)
 }

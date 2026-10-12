@@ -13,7 +13,7 @@ import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { getResourceByDomain } from '@/lib/api/tenant';
 import { Status, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { useApi } from '@/hooks/use-api';
-import { Setting } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { ResourceSetting } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { Loader2 } from 'lucide-react';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Button } from '@sentinez/ui/components/button';
@@ -155,7 +155,7 @@ export function ResourceView({ domain }: Props) {
             </div>
           ) : showJson ? (
             <pre className="bg-muted text-foreground p-4 rounded-md overflow-x-auto text-xs min-h-[300px]">
-              {JSON.stringify(Setting.toJSON(resource.resourceSetting), null, 2)}
+              {JSON.stringify(ResourceSetting.toJSON(resource.resourceSetting), null, 2)}
             </pre>
           ) : (
             <div className="text-sm text-muted-foreground">{t('hiddenJson')}</div>

@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-var bufLis *bufconn.Listener
+var _bufLis *bufconn.Listener
 
 func GetListener() *bufconn.Listener {
-	return bufLis
+	return _bufLis
 }
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *Analytic {
@@ -46,6 +46,6 @@ type Analytic struct {
 func (mod *Analytic) Start(_ context.Context) error {
 	pb.RegisterAnalyticServiceServer(mod.AsServer(), mod.hdl)
 
-	bufLis = bufconn.Listen(local.BufSize)
-	return mod.BufServe(bufLis)
+	_bufLis = bufconn.Listen(local.BufSize)
+	return mod.BufServe(_bufLis)
 }

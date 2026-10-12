@@ -24,19 +24,19 @@ import (
 func NewRateLimiter(timeout time.Duration,
 	windowSize time.Duration, limit int64) *RateLimiter {
 	return &RateLimiter{
-		records:    ssync.NewMap[string, *record](),
-		windowSize: windowSize,
-		limit:      limit,
-		timeout:    timeout.Milliseconds(),
+		records:       ssync.NewMap[string, *record](),
+		windowSize:    windowSize,
+		limit:         limit,
+		timeoutMillis: timeout.Milliseconds(),
 	}
 }
 
 type RateLimiter struct {
-	records    *ssync.Map[string, *record]
-	mu         sync.Mutex
-	windowSize time.Duration
-	limit      int64
-	timeout    int64
+	records       *ssync.Map[string, *record]
+	mu            sync.Mutex
+	windowSize    time.Duration
+	limit         int64
+	timeoutMillis int64
 }
 
 // record is the per-key state, so that one key exceeding the limit does
@@ -69,7 +69,7 @@ func (r *RateLimiter) AllowN(key string, now time.Time, n int64) bool {
 	}
 
 	nowMillis := now.UnixMilli()
-	if rec.lastBlocking != 0 && rec.lastBlocking+r.timeout > nowMillis {
+	if rec.lastBlocking != 0 && rec.lastBlocking+r.timeoutMillis > nowMillis {
 		rec.lastBlocking = nowMillis
 		return false
 	}

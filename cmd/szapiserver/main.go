@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/config"
+	"github.com/sentinez/shared/zlog"
 )
 
 // This is the sentinez apiserver application, it will automatically
@@ -38,11 +39,22 @@ import (
 //	make sz.apiserver.run // start sentinez apiserver
 //	make sz.<service>.run // start service
 func main() {
-	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+	if err := run(); err != nil {
+		zlog.Fatal(err)
+	}
+}
+
+func run() error {
+	r, err := runner.New(config.Config, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(), runner.NewApp(app))
 }
 
 func app(c *runner.Context[apiserver.Server]) {
-	c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
+	c.Inject(grpcgateway.NewServer, apiserver.New)
 
 	c.Serve(func(ctx context.Context, server *apiserver.Server) error {
 		return server.Start(ctx)

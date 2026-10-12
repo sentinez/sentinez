@@ -156,13 +156,14 @@ func (r *CoreRuleset) Create(ctx context.Context,
 	}
 
 	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityCoreRulesets))
+	owner := model.GetOwner()
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.CoreRuleset_Id:              model.GetId(),
 		securitypb.CoreRuleset_Name:            model.GetName(),
 		securitypb.CoreRuleset_Description:     model.GetDescription(),
 		securitypb.CoreRuleset_Content:         content,
-		securitypb.CoreRuleset_OwnerResourceId: model.GetOwner().GetResourceId(),
-		securitypb.CoreRuleset_OwnerTenantId:   model.GetOwner().GetTenantId(),
+		securitypb.CoreRuleset_OwnerResourceId: owner.GetResourceId(),
+		securitypb.CoreRuleset_OwnerTenantId:   owner.GetTenantId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {

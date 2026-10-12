@@ -24,11 +24,18 @@ import (
 // - ctx: used to cancel the job when needed
 // - interval: the duration between each job run
 // - job: the function to execute on each interval
-func Start(ctx context.Context, interval time.Duration, job func()) {
+//
+// The returned channel is closed once the job has stopped, after ctx is
+// done.
+func Start(
+	ctx context.Context, interval time.Duration, job func(),
+) <-chan struct{} {
 	ticker := time.NewTicker(interval)
+	done := make(chan struct{})
 	job()
 
 	go func() {
+		defer close(done)
 		defer ticker.Stop()
 
 		for {
@@ -40,4 +47,6 @@ func Start(ctx context.Context, interval time.Duration, job func()) {
 			}
 		}
 	}()
+
+	return done
 }

@@ -17,31 +17,42 @@ package config
 import (
 	"sync"
 
-	"github.com/sentinez/shared/config"
-
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/flags"
+	"github.com/sentinez/shared/config"
 )
 
 var (
-	once    sync.Once
-	appConf *settingpb.Config
+	_once    sync.Once
+	_appConf *settingpb.Config
+	_loadErr error
 )
 
-func Config() *settingpb.Config {
-	once.Do(func() {
-		flag := flags.Parse()
-		appConf = &settingpb.Config{
-			Meta: realtimepb.GetMetaRealtime(),
-			Flag: flag,
-			Env: config.LoadEnv(flag.GetEnvFile(),
-				settingpb.Senz_SENZ_HOSTNAME,
-				settingpb.Senz_SENZ_ADDRESS,
-				settingpb.Senz_SENZ_SECRET_KEY,
-			),
-		}
-	})
+func Config() (*settingpb.Config, error) {
+	_once.Do(func() { _appConf, _loadErr = load() })
 
-	return appConf
+	return _appConf, _loadErr
+}
+
+func load() (*settingpb.Config, error) {
+	flag, err := flags.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	env, err := config.LoadEnv(flag.GetEnvFile(),
+		settingpb.Senz_SENZ_HOSTNAME,
+		settingpb.Senz_SENZ_ADDRESS,
+		settingpb.Senz_SENZ_SECRET_KEY,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &settingpb.Config{
+		Meta: realtimepb.GetMetaRealtime(),
+		Flag: flag,
+		Env:  env,
+	}, nil
 }

@@ -16,6 +16,7 @@ package securityfac
 
 import (
 	"context"
+	"fmt"
 
 	securityhdl "github.com/sentinez/controlplane/security/v1/handler"
 	"github.com/sentinez/controlplane/security/v1/repos/coreruleset"
@@ -24,38 +25,40 @@ import (
 	securitysvc "github.com/sentinez/controlplane/security/v1/service"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
 // NewDefaultHandler initializes the Security handler with its dependencies.
 func NewDefaultHandler(ctx context.Context,
 	appConf *settingpb.Config,
-) securitypb.SecurityServiceServer {
-	service := NewDefaultService(ctx, appConf)
-	return securityhdl.New(service)
+) (securitypb.SecurityServiceServer, error) {
+	service, err := NewDefaultService(ctx, appConf)
+	if err != nil {
+		return nil, err
+	}
+
+	return securityhdl.New(service), nil
 }
 
 // NewDefaultService initializes the Security service.
 func NewDefaultService(ctx context.Context,
 	appConf *settingpb.Config,
-) *securitysvc.SecurityService {
-
+) (*securitysvc.SecurityService, error) {
 	secRuleRepo, err := secrule.New(ctx, appConf)
 	if err != nil {
-		zlog.Fatalf("failed to init secrule repo: %v", err)
+		return nil, fmt.Errorf("secrule repo: %w", err)
 	}
 
 	rateLimitRepo, err := ratelimit.New(ctx, appConf)
 	if err != nil {
-		zlog.Fatalf("failed to init ratelimit repo: %v", err)
+		return nil, fmt.Errorf("ratelimit repo: %w", err)
 	}
 
 	coreRulesetRepo, err := coreruleset.New(ctx, appConf)
 	if err != nil {
-		zlog.Fatalf("failed to init coreruleset repo: %v", err)
+		return nil, fmt.Errorf("coreruleset repo: %w", err)
 	}
 
 	return securitysvc.New(
 		appConf, secRuleRepo, rateLimitRepo, coreRulesetRepo,
-	)
+	), nil
 }

@@ -1,7 +1,22 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package proxyhz
 
 import (
 	"crypto/tls"
+	"fmt"
 	"time"
 )
 
@@ -72,15 +87,15 @@ func WithTLSConfig(config *tls.Config) Option {
 
 // WithTLS build tls.Config with server certFile and keyFile.
 // tlsConfig is nil as default
-func WithTLS(certFile, keyFile string) Option {
+func WithTLS(certFile, keyFile string) (Option, error) {
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		panic("" + err.Error())
+		return nil, fmt.Errorf("load key pair: %w", err)
 	}
 
 	return WithTLSConfig(&tls.Config{
 		Certificates: []tls.Certificate{cert},
-	})
+	}), nil
 }
 
 func WithDebug() Option {

@@ -23,7 +23,6 @@ package tenantpb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -305,13 +304,14 @@ func (*DeleteResourceResponse) Descriptor() ([]byte, []int) {
 }
 
 type UpdateResourceRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ResourceDomain string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
-	ResourceName   string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
-	Status         v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ResourceDomain  string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
+	ResourceName    string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
+	Status          v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	ResourceSetting *ResourceSetting       `protobuf:"bytes,5,opt,name=resource_setting,json=resourceSetting,proto3" json:"resource_setting,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateResourceRequest) Reset() {
@@ -372,6 +372,13 @@ func (x *UpdateResourceRequest) GetStatus() v1.Status {
 	return v1.Status(0)
 }
 
+func (x *UpdateResourceRequest) GetResourceSetting() *ResourceSetting {
+	if x != nil {
+		return x.ResourceSetting
+	}
+	return nil
+}
+
 type UpdateResourceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -410,7 +417,7 @@ func (*UpdateResourceResponse) Descriptor() ([]byte, []int) {
 
 type CreateResourceRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	ResourceSetting *v11.Setting           `protobuf:"bytes,1,opt,name=resource_setting,json=resourceSetting,proto3" json:"resource_setting,omitempty"`
+	ResourceSetting *ResourceSetting       `protobuf:"bytes,1,opt,name=resource_setting,json=resourceSetting,proto3" json:"resource_setting,omitempty"`
 	ResourceDomain  string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	ResourceName    string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
 	Status          v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
@@ -448,7 +455,7 @@ func (*CreateResourceRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *CreateResourceRequest) GetResourceSetting() *v11.Setting {
+func (x *CreateResourceRequest) GetResourceSetting() *ResourceSetting {
 	if x != nil {
 		return x.ResourceSetting
 	}
@@ -724,7 +731,7 @@ var File_sentinez_apps_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
+	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
 	"\x12GetResourceRequest\x120\n" +
 	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x00r\x18:\x16senz.tenant.resources.R\x02id\x12\x18\n" +
 	"\adefault\x18\x02 \x01(\bR\adefault\"k\n" +
@@ -736,15 +743,16 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"I\n" +
 	"\x15DeleteResourceRequest\x120\n" +
 	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\"\x18\n" +
-	"\x16DeleteResourceResponse\"\x96\x02\n" +
+	"\x16DeleteResourceResponse\"\xeb\x02\n" +
 	"\x15UpdateResourceRequest\x120\n" +
 	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12M\n" +
 	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\"\x18\n" +
-	"\x16UpdateResourceResponse\"\xae\x02\n" +
-	"\x15CreateResourceRequest\x12H\n" +
-	"\x10resource_setting\x18\x01 \x01(\v2\x1d.sentinez.dmz.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12S\n" +
+	"\x10resource_setting\x18\x05 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\"\x18\n" +
+	"\x16UpdateResourceResponse\"\xb9\x02\n" +
+	"\x15CreateResourceRequest\x12S\n" +
+	"\x10resource_setting\x18\x01 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\"W\n" +
@@ -808,38 +816,39 @@ var file_sentinez_apps_tenant_v1_tenant_proto_goTypes = []any{
 	(*StatusRequest)(nil),               // 13: sentinez.apps.tenant.v1.StatusRequest
 	(*Resource)(nil),                    // 14: sentinez.apps.tenant.v1.Resource
 	(v1.Status)(0),                      // 15: sentinez.types.v1.Status
-	(*v11.Setting)(nil),                 // 16: sentinez.dmz.edge.v1.Setting
+	(*ResourceSetting)(nil),             // 16: sentinez.apps.tenant.v1.ResourceSetting
 	(*v1.Pages)(nil),                    // 17: sentinez.types.v1.Pages
 }
 var file_sentinez_apps_tenant_v1_tenant_proto_depIdxs = []int32{
 	14, // 0: sentinez.apps.tenant.v1.GetResourceByDomainResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
 	14, // 1: sentinez.apps.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
 	15, // 2: sentinez.apps.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
-	16, // 3: sentinez.apps.tenant.v1.CreateResourceRequest.resource_setting:type_name -> sentinez.dmz.edge.v1.Setting
-	15, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
-	14, // 5: sentinez.apps.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	17, // 6: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
-	15, // 7: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
-	14, // 8: sentinez.apps.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.apps.tenant.v1.Resource
-	13, // 9: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
-	10, // 10: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
-	8,  // 11: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
-	6,  // 12: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
-	4,  // 13: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
-	0,  // 14: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
-	1,  // 15: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
-	12, // 16: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
-	11, // 17: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
-	9,  // 18: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
-	7,  // 19: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
-	5,  // 20: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
-	3,  // 21: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
-	2,  // 22: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
-	16, // [16:23] is the sub-list for method output_type
-	9,  // [9:16] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	16, // 3: sentinez.apps.tenant.v1.UpdateResourceRequest.resource_setting:type_name -> sentinez.apps.tenant.v1.ResourceSetting
+	16, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.resource_setting:type_name -> sentinez.apps.tenant.v1.ResourceSetting
+	15, // 5: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	14, // 6: sentinez.apps.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
+	17, // 7: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
+	15, // 8: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
+	14, // 9: sentinez.apps.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.apps.tenant.v1.Resource
+	13, // 10: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
+	10, // 11: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
+	8,  // 12: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
+	6,  // 13: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
+	4,  // 14: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
+	0,  // 15: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
+	1,  // 16: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
+	12, // 17: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
+	11, // 18: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
+	9,  // 19: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
+	7,  // 20: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
+	5,  // 21: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
+	3,  // 22: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
+	2,  // 23: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_tenant_v1_tenant_proto_init() }

@@ -23,16 +23,16 @@ import (
 type contextKey string
 
 const (
-	transport contextKey = "senz.transport"
+	_transport contextKey = "senz.transport"
 )
 
 func WithTransportValue(
 	parent context.Context, value *netpb.Transport) context.Context {
-	return context.WithValue(parent, transport, value)
+	return context.WithValue(parent, _transport, value)
 }
 
 func GetTransport(ctx context.Context) *netpb.Transport {
-	v, ok := ctx.Value(transport).(*netpb.Transport)
+	v, ok := ctx.Value(_transport).(*netpb.Transport)
 	if !ok {
 		return nil
 	}

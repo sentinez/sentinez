@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sync"
 
 	"github.com/sentinez/core/common/console"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
@@ -37,12 +38,41 @@ type ServiceServer interface {
 type Server struct {
 	server *grpc.Server
 	option Option
+
+	mu     sync.Mutex
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 }
 
 // Shutdown implements ServiceServer.
 func (s *Server) Shutdown(_ context.Context) error {
+	s.mu.Lock()
+	cancel := s.cancel
+	s.mu.Unlock()
+
+	if cancel != nil {
+		cancel()
+	}
+
 	s.server.GracefulStop()
+	s.wg.Wait()
+
 	return nil
+}
+
+// register keeps the service registered in consul until Shutdown.
+func (s *Server) register(conf *settingpb.Config) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	s.mu.Lock()
+	s.cancel = cancel
+	s.mu.Unlock()
+
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		Register(ctx, conf.GetMeta().GetServiceKey(), conf)
+	}()
 }
 
 // AsServer returns the underlying gRPC server.
@@ -69,7 +99,7 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 	}
 
 	if s.option.consul {
-		go Register(conf.GetMeta().GetServiceKey(), conf)
+		s.register(conf)
 	}
 
 	host, port, _ := net.SplitHostPort(addr)

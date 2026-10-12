@@ -35,29 +35,29 @@ import (
 var _ dbx.Database[typepb.Empty] = (*postgres[typepb.Empty])(nil)
 
 var (
-	pool *pgxpool.Pool
-	lock sync.Mutex
+	_pool *pgxpool.Pool
+	_lock sync.Mutex
 )
 
 func getConnPool(conf *settingpb.Config) (*pgxpool.Pool, error) {
-	if pool == nil {
+	if _pool == nil {
 		var err error
-		lock.Lock()
-		defer lock.Unlock()
+		_lock.Lock()
+		defer _lock.Unlock()
 
-		pool, err = storageutils.NewPgxPool(conf)
+		_pool, err = storageutils.NewPgxPool(conf)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return pool, nil
+	return _pool, nil
 }
 
 //nolint:funlen
 func New[T any](ctx context.Context, conf *settingpb.Config,
 	opts ...dbx.Option) (dbx.Database[T], error) {
-	tb := dbx.Table{}
+	var tb dbx.Table
 	for _, opt := range opts {
 		opt(&tb)
 	}

@@ -46,7 +46,7 @@ type TreeShapeListener struct {
 }
 
 func NewTreeShapeListener() *TreeShapeListener {
-	return new(TreeShapeListener)
+	return &TreeShapeListener{}
 }
 
 type CustomErrorListener struct {

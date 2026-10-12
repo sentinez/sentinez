@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	poolWAF = sync.Pool{
+	_poolWAF = sync.Pool{
 		New: func() any {
 			return &Rulesets{}
 		},
@@ -35,7 +35,10 @@ func NewRulesets(ctx corehttp.Context, waf coraza.WAF) *Rulesets {
 		return nil
 	}
 
-	rule := poolWAF.Get().(*Rulesets)
+	rule, ok := _poolWAF.Get().(*Rulesets)
+	if !ok {
+		rule = &Rulesets{}
+	}
 	rule.tx = newTransaction(waf, ctx)
 
 	return rule
@@ -112,7 +115,7 @@ func (rs *Rulesets) Release() {
 	}
 
 	rs.tx = nil
-	poolWAF.Put(rs)
+	_poolWAF.Put(rs)
 }
 
 func (rs *Rulesets) IsRuleEngineOff() bool {

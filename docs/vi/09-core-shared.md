@@ -8,9 +8,8 @@ binary.
 
 | API | Mô tả |
 |---|---|
-| `New(conf, scope)` | Tạo console logger cho gRPC, đặt log level theo `--log_level`, cài OTLP exporter; trả về `*Runner` |
+| `New(conf, scope)` | Tạo console logger cho gRPC, đặt log level theo `--log_level`, cài OTLP exporter; trả về `*Runner` và error |
 | `Runner.Run(ctx, apps...)` | Khởi động các app theo thứ tự, chạy đến khi `ctx` kết thúc, nhận `SIGINT/SIGTERM` hoặc một `Serve` lỗi, rồi dừng chúng theo thứ tự ngược; trả về các lỗi đã gộp |
-| `Runner.Main(apps...)` | `Run` với `context.Background()`; lỗi → `zlog.Fatal` |
 | `NewApp[T](setup...)` | Tạo `*App`; `T` được suy ra từ `setup func(*Context[T])` |
 | `Context.Inject(fns...)` | `fx.Provide` |
 | `Context.Invoke(fn)` | `fx.Invoke` |

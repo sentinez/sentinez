@@ -8,9 +8,8 @@ binary.
 
 | API | Description |
 |---|---|
-| `New(conf, scope)` | Creates the console logger for gRPC, sets the log level from `--log_level`, installs the OTLP exporter; returns a `*Runner` |
+| `New(conf, scope)` | Creates the console logger for gRPC, sets the log level from `--log_level`, installs the OTLP exporter; returns a `*Runner` and an error |
 | `Runner.Run(ctx, apps...)` | Starts the apps in order, serves until `ctx` is done, `SIGINT/SIGTERM`, or a `Serve` fails, then stops them in reverse order; returns the joined errors |
-| `Runner.Main(apps...)` | `Run` with `context.Background()`; on error → `zlog.Fatal` |
 | `NewApp[T](setup...)` | Builds an `*App`; `T` is inferred from `setup func(*Context[T])` |
 | `Context.Inject(fns...)` | `fx.Provide` |
 | `Context.Invoke(fn)` | `fx.Invoke` |

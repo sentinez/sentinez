@@ -46,7 +46,13 @@ type Runner struct {
 }
 
 // New sets up logging and OTLP export for the process.
-func New(appConf *settingpb.Config, scopeName string) *Runner {
+func New(confConstr func() (*settingpb.Config, error),
+	scopeName string) (*Runner, error) {
+	appConf, err := confConstr()
+	if err != nil {
+		return nil, err
+	}
+
 	logging := zlog.NewConsole(scopeName, zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 
@@ -58,17 +64,16 @@ func New(appConf *settingpb.Config, scopeName string) *Runner {
 		r.opts = append(r.opts, fx.NopLogger)
 	}
 
-	r.closers = append(r.closers, setupOTLP(appConf))
+	r.opts = append(r.opts, fx.Provide(confConstr))
 
-	return r
-}
-
-// Main runs apps until a signal or a failure, and exits on error. It is
-// meant to be the whole body of main().
-func (r *Runner) Main(apps ...*App) {
-	if err := r.Run(context.Background(), apps...); err != nil {
-		zlog.Fatal(err)
+	shutdown, err := setupOTLP(appConf)
+	if err != nil {
+		return nil, err
 	}
+
+	r.closers = append(r.closers, shutdown)
+
+	return r, nil
 }
 
 // Run starts apps in order, serves them until ctx is done, a signal is
@@ -154,7 +159,9 @@ func (r *Runner) close() error {
 	return errors.Join(errs...)
 }
 
-func setupOTLP(appConf *settingpb.Config) func(context.Context) error {
+func setupOTLP(
+	appConf *settingpb.Config,
+) (func(context.Context) error, error) {
 	inSecure := true
 	endpoint := appConf.GetDefault(
 		settingpb.Senz_SENZ_OTLP_ENDPOINT, "localhost:4317")
@@ -169,9 +176,9 @@ func setupOTLP(appConf *settingpb.Config) func(context.Context) error {
 		ServiceName: appConf.GetMeta().GetServiceKey(),
 	})
 	if err != nil {
-		zlog.Fatalf("runner.setupOTLP: %v", err)
+		return nil, fmt.Errorf("runner: setup otlp: %w", err)
 	}
 
 	// Export fails without a collector; only ensure shutdown does not hang.
-	return shutdown
+	return shutdown, nil
 }

@@ -21,15 +21,15 @@ import (
 )
 
 var (
-	ja4plus = mem.New[string](time.Hour*24, time.Hour*24)
+	_ja4plus = mem.New[string](time.Hour*24, time.Hour*24)
 )
 
 func Set(connId, fingerprint string) {
-	ja4plus.Set(connId, fingerprint)
+	_ja4plus.Set(connId, fingerprint)
 }
 
 func Get(connId string) string {
-	fp, ok := ja4plus.Get(connId)
+	fp, ok := _ja4plus.Get(connId)
 	if !ok {
 		return ""
 	}
@@ -38,5 +38,5 @@ func Get(connId string) string {
 }
 
 func Delete(connId string) {
-	ja4plus.Del(connId)
+	_ja4plus.Del(connId)
 }

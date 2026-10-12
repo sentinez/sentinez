@@ -35,13 +35,16 @@ type Realtime struct {
 	conf *settingpb.Config
 }
 
-func (r *Realtime) router() {
-	r.core.HandlerFunc("/ws", realtimehdl.Handler)
+func (r *Realtime) router() error {
+	return r.core.HandlerFunc("/ws", realtimehdl.Handler)
 }
 
 func (r *Realtime) Start() error {
 	// register the route with websocket handler
-	r.router()
+	if err := r.router(); err != nil {
+		return err
+	}
+
 	return r.core.ListenAndServe(r.conf.Get(settingpb.Senz_SENZ_ADDRESS))
 }
 

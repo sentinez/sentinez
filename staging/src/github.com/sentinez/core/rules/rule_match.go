@@ -25,9 +25,9 @@ import (
 )
 
 const (
-	bypass    = false
-	matched   = true
-	unmatched = false
+	_bypass    = false
+	_matched   = true
+	_unmatched = false
 )
 
 func matchString(op rulepb.Operator, src, des string) bool {
@@ -45,7 +45,7 @@ func matchString(op rulepb.Operator, src, des string) bool {
 	case rulepb.Operator_OPERATOR_MATCHES:
 		return matchRegex(des, bytesconv.S2b(src))
 	default:
-		return unmatched
+		return _unmatched
 	}
 }
 
@@ -64,7 +64,7 @@ func matchBytes(op rulepb.Operator, src []byte, des string) bool {
 	case rulepb.Operator_OPERATOR_MATCHES:
 		return matchRegex(des, src)
 	default:
-		return unmatched
+		return _unmatched
 	}
 }
 
@@ -95,7 +95,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			// fallback to single key existence check
 			s := val.GetStringValue()
 			if s == "" {
-				return unmatched
+				return _unmatched
 			}
 			_, exist := ctx.Headers()[s]
 			return matchOperator(op, exist)
@@ -104,7 +104,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		des := list.GetValues()
 		src := ctx.Headers()
 		if len(src) == 0 {
-			return unmatched
+			return _unmatched
 		}
 
 		switch op {
@@ -112,20 +112,20 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			for _, v := range des {
 				s := v.GetStringValue()
 				if _, ok := src[s]; !ok {
-					return unmatched
+					return _unmatched
 				}
 			}
-			return matched
+			return _matched
 		case rulepb.Operator_OPERATOR_NOT_IN:
 			for _, v := range des {
 				s := v.GetStringValue()
 				if _, ok := src[s]; ok {
-					return unmatched
+					return _unmatched
 				}
 			}
-			return matched
+			return _matched
 		}
-		return unmatched
+		return _unmatched
 	}
 
 	// If a key is provided, we check its value
@@ -169,7 +169,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			// fallback to single key existence check
 			s := val.GetStringValue()
 			if s == "" {
-				return unmatched
+				return _unmatched
 			}
 			_, exist := ctx.Queries()[s]
 			return matchOperator(op, exist)
@@ -178,7 +178,7 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		des := list.AsSlice()
 		src := ctx.Queries()
 		if len(src) == 0 {
-			return unmatched
+			return _unmatched
 		}
 
 		switch op {
@@ -186,22 +186,22 @@ func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
 					if _, exist := src[ds]; !exist {
-						return unmatched
+						return _unmatched
 					}
 				}
 			}
-			return matched
+			return _matched
 		case rulepb.Operator_OPERATOR_NOT_IN:
 			for _, d := range des {
 				if ds, ok := d.(string); ok {
 					if _, exist := src[ds]; exist {
-						return unmatched
+						return _unmatched
 					}
 				}
 			}
-			return matched
+			return _matched
 		}
-		return unmatched
+		return _unmatched
 	}
 
 	// If a key is provided, we check its value
@@ -268,23 +268,23 @@ func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list != nil {
 			for _, v := range list.GetValues() {
 				if matchIP(src, v.GetStringValue()) {
-					return matched
+					return _matched
 				}
 			}
 		}
-		return unmatched
+		return _unmatched
 	case rulepb.Operator_OPERATOR_NOT_IN:
 		list := cond.GetValue().GetListValue()
 		if list != nil {
 			for _, v := range list.GetValues() {
 				if matchIP(src, v.GetStringValue()) {
-					return unmatched
+					return _unmatched
 				}
 			}
 		}
-		return matched
+		return _matched
 	default:
-		return unmatched
+		return _unmatched
 	}
 }
 
@@ -297,21 +297,21 @@ func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 		if list != nil {
 			for _, v := range list.GetValues() {
 				if bytes.Equal(src, bytesconv.S2b(v.GetStringValue())) {
-					return matched
+					return _matched
 				}
 			}
 		}
-		return unmatched
+		return _unmatched
 	case rulepb.Operator_OPERATOR_NOT_IN:
 		list := cond.GetValue().GetListValue()
 		if list != nil {
 			for _, v := range list.GetValues() {
 				if bytes.Equal(src, bytesconv.S2b(v.GetStringValue())) {
-					return unmatched
+					return _unmatched
 				}
 			}
 		}
-		return matched
+		return _matched
 	default:
 		des := cond.GetValue().GetStringValue()
 		return matchBytes(cond.GetOperator(), src, des)
@@ -331,14 +331,14 @@ func matchSourceTLS(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	case rulepb.Operator_OPERATOR_NE:
 		return src != des
 	default:
-		return unmatched
+		return _unmatched
 	}
 }
 
 func matchSourceJA4(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	src := ctx.JA4()
 	if src == "" {
-		return unmatched
+		return _unmatched
 	}
 	des := cond.GetValue().GetStringValue()
 	return matchString(cond.GetOperator(), src, des)

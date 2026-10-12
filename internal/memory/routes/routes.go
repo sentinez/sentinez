@@ -30,19 +30,19 @@ import (
 )
 
 var (
-	inst   *Router
-	once   sync.Once
-	buffer = ssync.NewPool[bytes.Buffer]()
+	_inst   *Router
+	_once   sync.Once
+	_buffer = ssync.NewPool[bytes.Buffer]()
 )
 
 func New() *Router {
-	once.Do(func() {
-		inst = &Router{
+	_once.Do(func() {
+		_inst = &Router{
 			routes: ssync.NewMap[string, []*edgepb.Location](),
 		}
 	})
 
-	return inst
+	return _inst
 }
 
 type Router struct {
@@ -123,10 +123,10 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 			// path = /api/v1/users, location = /api, rewrite = /v1
 			// remainingPath = /v1 + /v1/users = /v1/v1/users
 
-			remainingPath := buffer.Get()
+			remainingPath := _buffer.Get()
 			defer func() {
 				remainingPath.Reset()
-				buffer.Put(remainingPath)
+				_buffer.Put(remainingPath)
 			}()
 
 			joinRewrite(remainingPath, rewriteBytes,

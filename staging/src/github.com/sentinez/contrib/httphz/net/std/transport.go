@@ -27,7 +27,6 @@ import (
 	"time"
 
 	"github.com/cloudwego/gopkg/net/connstate"
-
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/network"
@@ -167,8 +166,8 @@ func (t *transport) Close() error {
 }
 
 var (
-	shutdownTimeout = 30 * time.Second
-	shutdownTicker  = 10 * time.Millisecond
+	_shutdownTimeout = 30 * time.Second
+	_shutdownTicker  = 10 * time.Millisecond
 
 	errShutdownTimeout = errors.New("shutdown timeout")
 )
@@ -183,7 +182,7 @@ func (t *transport) Shutdown(ctx context.Context) error {
 		_ = ln.Close()
 	}
 
-	tk := time.NewTicker(shutdownTicker)
+	tk := time.NewTicker(_shutdownTicker)
 	defer tk.Stop()
 
 	// make sure t.active is updated correctly under concurrency
@@ -202,7 +201,7 @@ func (t *transport) Shutdown(ctx context.Context) error {
 			if t.updateActive(0) <= 0 {
 				return nil
 			}
-			if now.Sub(t0) > shutdownTimeout {
+			if now.Sub(t0) > _shutdownTimeout {
 				return errShutdownTimeout
 			}
 		case <-ctx.Done():

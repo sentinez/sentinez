@@ -17,6 +17,7 @@ package memory
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -40,12 +41,12 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var store *MemStore
-var once sync.Once
+var _store *MemStore
+var _once sync.Once
 
 func NewMemStore(st *edgepb.Setting) *MemStore {
-	once.Do(func() {
-		store = &MemStore{
+	_once.Do(func() {
+		_store = &MemStore{
 			setting:      settings.New(),
 			limiter:      ratelimiter.New(),
 			reverseProxy: reverseproxy.New(),
@@ -55,12 +56,12 @@ func NewMemStore(st *edgepb.Setting) *MemStore {
 			cdnRules:     cdnrules.New(),
 		}
 
-		if err := store.setting.Store(st); err != nil {
+		if err := _store.setting.Store(st); err != nil {
 			zlog.Errorf("memory: save distribute setting err: %v", err)
 		}
 	})
 
-	return store
+	return _store
 }
 
 type MemStore struct {
@@ -73,8 +74,8 @@ type MemStore struct {
 	cdnRules     *cdnrules.Rule
 }
 
-func (m *MemStore) Start(conf *settingpb.Config) {
-	cluster.Start(conf)
+func (m *MemStore) Start(conf *settingpb.Config) error {
+	return cluster.Start(conf)
 }
 
 func (m *MemStore) Shutdown(ctx context.Context) {
@@ -139,22 +140,17 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 
 func (m *MemStore) LoadServer(server corehttp.Server) {
 	m.setting.Visit(func(s *edgepb.Setting) bool {
-		// routing for each tenant
-		_ = m.LoadRouter(s)
-
-		// load all reverse proxy for target origin
-		_ = m.LoadReverseProxy(server, s)
-
-		_ = m.LoadCDNRule(s)
-
-		// rule config
-		_ = m.LoadSecRule(s)
-
-		// rate limiter rule config
-		_ = m.LoadRateLimiter(s)
-
-		// waf rulesets config
-		_ = m.LoadRulesets(s)
+		err := errors.Join(
+			m.LoadRouter(s),
+			m.LoadReverseProxy(server, s),
+			m.LoadCDNRule(s),
+			m.LoadSecRule(s),
+			m.LoadRateLimiter(s),
+			m.LoadRulesets(s),
+		)
+		if err != nil {
+			zlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
+		}
 
 		return true
 	})
@@ -198,14 +194,12 @@ func (m *MemStore) LoadReverseProxy(
 
 			target, err := protocol.Upstream2Target(upstream)
 			if err != nil {
-				zlog.Warnf("reverse proxy: warn: %v", err)
-				return err
+				return fmt.Errorf("reverse proxy: target: %w", err)
 			}
 
 			rproxy, err := server.AcceptReverse(target)
 			if err != nil {
-				zlog.Errorf("reverse proxy create err: %s", err)
-				return err
+				return fmt.Errorf("reverse proxy: create: %w", err)
 			}
 
 			m.reverseProxy.Store(upstream.GetServer(), rproxy)
@@ -227,8 +221,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 
 		entry, err := newLimiterEntry(l)
 		if err != nil {
-			zlog.Fatalf("edge: rate limiter, parse err: %v", err)
-			return err
+			return fmt.Errorf("rate limiter: parse: %w", err)
 		}
 
 		entries = append(entries, entry)
@@ -244,8 +237,7 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 
 	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
 	if err != nil {
-		zlog.Errorf("edge: init coraza.WAF error: %v", err)
-		return err
+		return fmt.Errorf("rulesets: init coraza waf: %w", err)
 	}
 
 	return nil

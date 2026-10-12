@@ -20,30 +20,30 @@ import (
 )
 
 func TestRateLimiter_BlockIsPerKey(t *testing.T) {
-	lim := NewRateLimiter(time.Second, size, 2)
+	lim := NewRateLimiter(time.Second, _size, 2)
 
 	for _, ok := range []bool{true, true, false} {
-		if got := lim.AllowN("1.1.1.1", t1, 1); got != ok {
+		if got := lim.AllowN("1.1.1.1", _t1, 1); got != ok {
 			t.Fatalf("AllowN(1.1.1.1) = %v, want: %v", got, ok)
 		}
 	}
 
-	if !lim.AllowN("2.2.2.2", t2, 1) {
+	if !lim.AllowN("2.2.2.2", _t2, 1) {
 		t.Errorf("AllowN(2.2.2.2) = false, want: true")
 	}
 }
 
 func TestRateLimiter_BlockUntilTimeout(t *testing.T) {
-	lim := NewRateLimiter(500*time.Millisecond, size, 1)
+	lim := NewRateLimiter(500*time.Millisecond, _size, 1)
 
 	cases := []caseArg{
-		{t1, 1, true},
+		{_t1, 1, true},
 		// exceeds the limit, blocked for 500ms from t2
-		{t2, 1, false},
+		{_t2, 1, false},
 		// still within the timeout of the last rejected request
-		{t5, 1, false},
+		{_t5, 1, false},
 		// timeout elapsed and the window has moved on
-		{t15, 1, true},
+		{_t15, 1, true},
 	}
 
 	for _, c := range cases {

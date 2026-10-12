@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	config = zapcore.EncoderConfig{
+	_config = zapcore.EncoderConfig{
 		TimeKey:       "timestamp",
 		LevelKey:      "level",
 		NameKey:       "name",
@@ -38,8 +38,8 @@ var (
 		EncodeCaller:  zapcore.ShortCallerEncoder,
 	}
 
-	onceSetScope sync.Once
-	onceSetLevel sync.Once
+	_onceSetScope sync.Once
+	_onceSetLevel sync.Once
 )
 
 const (
@@ -87,7 +87,7 @@ func (l Level) Int() int {
 
 // configConsoleLogger creates a new logger.
 func configConsoleLogger(scope string) *zap.Logger {
-	var consoleConf = config
+	var consoleConf = _config
 
 	// Console output
 	consoleEncoder := zapcore.NewConsoleEncoder(consoleConf)
@@ -103,7 +103,7 @@ func configConsoleLogger(scope string) *zap.Logger {
 }
 
 func configJSONLogging(scope string, o loggingOptions) *zap.Logger {
-	var jsonConf = config
+	var jsonConf = _config
 	jsonConf.EncodeTime = zap.NewProductionEncoderConfig().EncodeTime
 	jsonConf.EncodeLevel = zapcore.CapitalLevelEncoder
 
@@ -124,16 +124,16 @@ func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 
 // SetLogLevel set logger default level
 func SetLogLevel(ll Level) {
-	onceSetLevel.Do(func() {
-		consoleLevel = ll
-		console = NewDefaultConsole(consoleLevel)
+	_onceSetLevel.Do(func() {
+		_consoleLevel = ll
+		_console = NewDefaultConsole(_consoleLevel)
 	})
 }
 
 func SetScopeLogLevel(scope string, ll Level) {
-	onceSetScope.Do(func() {
-		consoleLevel = ll
-		console = NewConsole(scope, consoleLevel)
+	_onceSetScope.Do(func() {
+		_consoleLevel = ll
+		_console = NewConsole(scope, _consoleLevel)
 	})
 }
 

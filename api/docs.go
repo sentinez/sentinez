@@ -22,18 +22,18 @@ import (
 var (
 
 	//go:embed docs/swagger
-	swagger embed.FS
+	_swagger embed.FS
 
 	//go:embed docs/v1
-	apiDocsV1 embed.FS
+	_apiDocsV1 embed.FS
 )
 
 func DocsV1() fs.FS {
-	f, _ := fs.Sub(apiDocsV1, "docs/v1")
+	f, _ := fs.Sub(_apiDocsV1, "docs/v1")
 	return f
 }
 
 func Swagger() fs.FS {
-	f, _ := fs.Sub(swagger, "docs/swagger")
+	f, _ := fs.Sub(_swagger, "docs/swagger")
 	return f
 }

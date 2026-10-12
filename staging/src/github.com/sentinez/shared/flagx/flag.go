@@ -16,7 +16,6 @@ package flagx
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 
@@ -29,11 +28,11 @@ import (
 )
 
 var (
-	once sync.Once
+	_once sync.Once
 )
 
-// flags global variable
-var flags = &settingpb.Flag{
+// _flags global variable
+var _flags = &settingpb.Flag{
 	EnvMode:  "dev",
 	LogLevel: "debug",
 }
@@ -45,19 +44,18 @@ func info(meta *typepb.XMeta) string {
 
 // Parse flag args
 func Parse(meta *typepb.XMeta) {
-	once.Do(func() {
+	_once.Do(func() {
 
-		pflag.StringVarP(&flags.EnvMode, "mode", "m",
-			flags.GetEnvMode(), "run mode (dev|prod|sandbox)")
+		pflag.StringVarP(&_flags.EnvMode, "mode", "m",
+			_flags.GetEnvMode(), "run mode (dev|prod|sandbox)")
 
-		pflag.StringVar(&flags.LogLevel, "log_level",
-			flags.GetLogLevel(), "log level (debug|info|warn|error)")
+		pflag.StringVar(&_flags.LogLevel, "log_level",
+			_flags.GetLogLevel(), "log level (debug|info|warn|error)")
 
 		pflag.Usage = func() {
 			fmt.Print(info(meta))
 			fmt.Println("Usage: <service> [Flags]")
 			pflag.PrintDefaults()
-			os.Exit(0)
 		}
 
 		pflag.Parse()
@@ -65,7 +63,7 @@ func Parse(meta *typepb.XMeta) {
 }
 
 func Get() *settingpb.Flag {
-	return flags
+	return _flags
 }
 
 // Validate used to validate flags

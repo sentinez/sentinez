@@ -125,8 +125,14 @@ func (rsc *Resources) Create(
 	return rs, nil
 }
 
+// nolint
 func (rsc *Resources) Update(
 	ctx context.Context, req *tenantpb.Resource) error {
+
+	old, err := rsc.Get(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
 
 	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
 	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
@@ -141,8 +147,29 @@ func (rsc *Resources) Update(
 		q = q.Set(tenantpb.Resource_ResourceName, req.GetResourceName())
 	}
 
-	_, err := rsc.storage.Exec(ctx, q)
-	if err != nil {
+	if req.GetResourceSetting() != nil {
+		reqData := req.GetResourceSetting()
+
+		if old.GetResourceSetting() == nil {
+			old.ResourceSetting = &tenantpb.ResourceSetting{
+				Server: &edgepb.Server{},
+			}
+		}
+
+		updating := old.GetResourceSetting()
+
+		if reqData.GetServer().GetName() != "" {
+			updating.Server.Name = reqData.GetServer().GetName()
+		}
+		if reqData.GetServer().GetLocations() != nil {
+			updating.Server.Locations = reqData.GetServer().GetLocations()
+		}
+
+		st, _ := protox.Marshal(updating)
+		q = q.Set(tenantpb.Resource_ResourceSetting, st)
+	}
+
+	if _, err := rsc.storage.Exec(ctx, q); err != nil {
 		return err
 	}
 
@@ -203,7 +230,7 @@ func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 		return nil, err
 	}
 
-	rsc.ResourceSetting = &edgepb.Setting{}
+	rsc.ResourceSetting = &tenantpb.ResourceSetting{}
 	if err = protox.Unmarshal(st, rsc.ResourceSetting); err != nil {
 		return nil, err
 	}

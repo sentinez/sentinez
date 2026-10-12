@@ -35,9 +35,14 @@ func (q *QueueChannel[T]) Get(namespace string) chan T {
 		return nil
 	}
 
-	ch, _ := q.channels.LoadOrStore(namespace, make(chan T, q.Size))
+	v, _ := q.channels.LoadOrStore(namespace, make(chan T, q.Size))
 
-	return ch.(chan T)
+	ch, ok := v.(chan T)
+	if !ok {
+		return nil
+	}
+
+	return ch
 }
 
 // Close channel queue with names key
@@ -46,10 +51,13 @@ func (q *QueueChannel[T]) Close(namespace string) {
 		return
 	}
 
-	ch, ok := q.channels.Load(namespace)
-	if ok {
-		close(ch.(chan string))
-		q.channels.Delete(namespace)
+	v, ok := q.channels.LoadAndDelete(namespace)
+	if !ok {
+		return
+	}
+
+	if ch, ok := v.(chan T); ok {
+		close(ch)
 	}
 }
 
@@ -60,7 +68,9 @@ func (q *QueueChannel[T]) CloseAll() {
 	}
 
 	q.channels.Range(func(key, value any) bool {
-		close(value.(chan any))
+		if ch, ok := value.(chan T); ok {
+			close(ch)
+		}
 		q.channels.Delete(key)
 		return true
 	})
