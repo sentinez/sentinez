@@ -44,7 +44,7 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
         );
       }
 
-      router.push('/console');
+      router.push('/tenant');
     } catch (err: any) {
       console.error('Passkey login error:', err);
       if (err.name === 'NotAllowedError') {

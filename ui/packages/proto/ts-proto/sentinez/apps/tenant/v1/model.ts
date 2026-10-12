@@ -7,7 +7,17 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Server } from "../../../dmz/edge/v1/setting";
-import { Plan, planFromJSON, planToJSON, Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
+import {
+  Plan,
+  planFromJSON,
+  planToJSON,
+  Role,
+  roleFromJSON,
+  roleToJSON,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+} from "../../../types/v1/known";
 import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
@@ -29,7 +39,17 @@ export interface Resource {
 export interface Tenant {
   metadata?: Metadata | undefined;
   id: string;
+  name: string;
+  description: string;
   plan: Plan;
+}
+
+export interface Member {
+  metadata?: Metadata | undefined;
+  id: string;
+  userId: string;
+  tenantId: string;
+  roles: Role[];
 }
 
 function createBaseResourceSetting(): ResourceSetting {
@@ -295,7 +315,7 @@ export const Resource: MessageFns<Resource> = {
 };
 
 function createBaseTenant(): Tenant {
-  return { metadata: undefined, id: "", plan: 0 };
+  return { metadata: undefined, id: "", name: "", description: "", plan: 0 };
 }
 
 export const Tenant: MessageFns<Tenant> = {
@@ -306,8 +326,14 @@ export const Tenant: MessageFns<Tenant> = {
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
     }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
     if (message.plan !== 0) {
-      writer.uint32(24).int32(message.plan);
+      writer.uint32(40).int32(message.plan);
     }
     return writer;
   },
@@ -342,7 +368,23 @@ export const Tenant: MessageFns<Tenant> = {
             continue;
           }
           case 3: {
-            if (tag !== 24) {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
               break;
             }
 
@@ -365,6 +407,8 @@ export const Tenant: MessageFns<Tenant> = {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
       plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
     };
   },
@@ -376,6 +420,12 @@ export const Tenant: MessageFns<Tenant> = {
     }
     if (message.id !== "") {
       obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
     }
     if (message.plan !== 0) {
       obj.plan = planToJSON(message.plan);
@@ -392,7 +442,162 @@ export const Tenant: MessageFns<Tenant> = {
       ? Metadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
     message.plan = object.plan ?? 0;
+    return message;
+  },
+};
+
+function createBaseMember(): Member {
+  return { metadata: undefined, id: "", userId: "", tenantId: "", roles: [] };
+}
+
+export const Member: MessageFns<Member> = {
+  encode(message: Member, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.userId !== "") {
+      writer.uint32(26).string(message.userId);
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(34).string(message.tenantId);
+    }
+    for (const v of message.roles) {
+      writer.uint32(40).int32(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Member {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseMember();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.metadata = Metadata.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag === 40) {
+              message.roles.push(reader.int32() as any);
+
+              continue;
+            }
+
+            if (tag === 42) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.roles.push(reader.int32() as any);
+              }
+
+              continue;
+            }
+
+            break;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Member {
+    return {
+      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      userId: isSet(object.userId)
+        ? globalThis.String(object.userId)
+        : isSet(object.user_id)
+        ? globalThis.String(object.user_id)
+        : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      roles: globalThis.Array.isArray(object?.roles) ? object.roles.map((e: any) => roleFromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: Member): unknown {
+    const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = Metadata.toJSON(message.metadata);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.roles?.length) {
+      obj.roles = message.roles.map((e) => roleToJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Member>, I>>(base?: I): Member {
+    return Member.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Member>, I>>(object: I): Member {
+    const message = createBaseMember();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.id = object.id ?? "";
+    message.userId = object.userId ?? "";
+    message.tenantId = object.tenantId ?? "";
+    message.roles = object.roles?.map((e) => e) || [];
     return message;
   },
 };

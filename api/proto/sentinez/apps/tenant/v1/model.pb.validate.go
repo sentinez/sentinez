@@ -227,6 +227,10 @@ func (m *Tenant) Validate() error {
 
 	// no validation rules for Id
 
+	// no validation rules for Name
+
+	// no validation rules for Description
+
 	// no validation rules for Plan
 
 	return nil

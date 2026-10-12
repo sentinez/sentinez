@@ -1369,9 +1369,13 @@ func (*DeleteTenantResponse) Descriptor() ([]byte, []int) {
 }
 
 type UpdateTenantRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Plan          v1.Plan                `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Plan  v1.Plan                `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	// name is left unchanged when empty.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// description is left unchanged when empty.
+	Description   string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1420,6 +1424,20 @@ func (x *UpdateTenantRequest) GetPlan() v1.Plan {
 	return v1.Plan(0)
 }
 
+func (x *UpdateTenantRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateTenantRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
 type UpdateTenantResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1459,6 +1477,8 @@ func (*UpdateTenantResponse) Descriptor() ([]byte, []int) {
 type CreateTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Plan          v1.Plan                `protobuf:"varint,1,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1498,6 +1518,20 @@ func (x *CreateTenantRequest) GetPlan() v1.Plan {
 		return x.Plan
 	}
 	return v1.Plan(0)
+}
+
+func (x *CreateTenantRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateTenantRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
 }
 
 type CreateTenantResponse struct {
@@ -1545,9 +1579,11 @@ func (x *CreateTenantResponse) GetTenant() *Tenant {
 }
 
 type ListTenantRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	Plan          v1.Plan                `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Plan  v1.Plan                `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	// Case-insensitive part of the name.
+	Name          string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1594,6 +1630,13 @@ func (x *ListTenantRequest) GetPlan() v1.Plan {
 		return x.Plan
 	}
 	return v1.Plan(0)
+}
+
+func (x *ListTenantRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 type ListTenantResponse struct {
@@ -1720,18 +1763,24 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\">\n" +
 	"\x13DeleteTenantRequest\x12'\n" +
 	"\x02id\x18\x01 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\x02id\"\x16\n" +
-	"\x14DeleteTenantResponse\"x\n" +
+	"\x14DeleteTenantResponse\"\xc1\x01\n" +
 	"\x13UpdateTenantRequest\x12'\n" +
 	"\x02id\x18\x01 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\x02id\x128\n" +
-	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\"\x16\n" +
-	"\x14UpdateTenantResponse\"O\n" +
+	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\x12\x1b\n" +
+	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\x04name\x12*\n" +
+	"\vdescription\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\"\x16\n" +
+	"\x14UpdateTenantResponse\"\x9b\x01\n" +
 	"\x13CreateTenantRequest\x128\n" +
-	"\x04plan\x18\x01 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\"O\n" +
+	"\x04plan\x18\x01 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\x12\x1e\n" +
+	"\x04name\x18\x02 \x01(\tB\n" +
+	"\xbaH\a\xc8\x01\x01r\x02\x18@R\x04name\x12*\n" +
+	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\"O\n" +
 	"\x14CreateTenantResponse\x127\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"x\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"\x95\x01\n" +
 	"\x11ListTenantRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x125\n" +
-	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan\"e\n" +
+	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan\x12\x1b\n" +
+	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\x04name\"e\n" +
 	"\x12ListTenantResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
 	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants2\xa1\x13\n" +

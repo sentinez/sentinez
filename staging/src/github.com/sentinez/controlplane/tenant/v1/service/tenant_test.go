@@ -29,13 +29,21 @@ import (
 )
 
 func TestCreateTenant(t *testing.T) {
-	want := &tenantpb.Tenant{Plan: typepb.Plan_PLAN_FREE}
+	want := &tenantpb.Tenant{
+		Name:        "acme",
+		Description: "acme team",
+		Plan:        typepb.Plan_PLAN_FREE,
+	}
 
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Create(mock.Anything, want).Return(want, nil)
 
 	resp, err := New(nil, nil, repo).CreateTenant(t.Context(),
-		&tenantpb.CreateTenantRequest{Plan: typepb.Plan_PLAN_FREE})
+		&tenantpb.CreateTenantRequest{
+			Name:        "acme",
+			Description: "acme team",
+			Plan:        typepb.Plan_PLAN_FREE,
+		})
 
 	require.NoError(t, err)
 	assert.Equal(t, want, resp.GetTenant())
@@ -84,7 +92,9 @@ func TestDeleteTenantNotFound(t *testing.T) {
 }
 
 func TestUpdateTenant(t *testing.T) {
-	want := &tenantpb.Tenant{Id: _tenantId, Plan: typepb.Plan_PLAN_PRO}
+	want := &tenantpb.Tenant{
+		Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_PRO,
+	}
 
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Get(mock.Anything, _tenantId).
@@ -93,7 +103,7 @@ func TestUpdateTenant(t *testing.T) {
 
 	_, err := New(nil, nil, repo).UpdateTenant(t.Context(),
 		&tenantpb.UpdateTenantRequest{
-			Id: _tenantId, Plan: typepb.Plan_PLAN_PRO,
+			Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_PRO,
 		})
 
 	require.NoError(t, err)

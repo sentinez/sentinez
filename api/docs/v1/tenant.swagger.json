@@ -621,6 +621,13 @@
               "PLAN_PRO"
             ],
             "default": "PLAN_UNSPECIFIED"
+          },
+          {
+            "name": "name",
+            "description": "Case-insensitive part of the name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -775,6 +782,12 @@
       "properties": {
         "plan": {
           "$ref": "#/definitions/v1Plan"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
         }
       }
     },
@@ -1013,6 +1026,12 @@
         "id": {
           "type": "string"
         },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
         "plan": {
           "$ref": "#/definitions/v1Plan"
         }
@@ -1067,6 +1086,14 @@
         },
         "plan": {
           "$ref": "#/definitions/v1Plan"
+        },
+        "name": {
+          "type": "string",
+          "description": "name is left unchanged when empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "description is left unchanged when empty."
         }
       }
     },

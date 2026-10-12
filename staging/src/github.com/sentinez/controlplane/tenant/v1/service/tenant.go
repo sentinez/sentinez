@@ -47,7 +47,9 @@ func (svc *Service) CreateTenant(ctx context.Context,
 ) (*tenantpb.CreateTenantResponse, error) {
 
 	tenant, err := svc.tenant.Create(ctx, &tenantpb.Tenant{
-		Plan: req.GetPlan(),
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Plan:        req.GetPlan(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("tenant.Create: %w", err)
@@ -66,8 +68,10 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 	}
 
 	err := svc.tenant.Update(ctx, &tenantpb.Tenant{
-		Id:   req.GetId(),
-		Plan: req.GetPlan(),
+		Id:          req.GetId(),
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Plan:        req.GetPlan(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("tenant.Update: %w", err)

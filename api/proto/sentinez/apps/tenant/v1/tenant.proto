@@ -422,6 +422,10 @@ message UpdateTenantRequest {
     required: true
     enum: { defined_only: true }
   }];
+  // name is left unchanged when empty.
+  string name = 3 [(buf.validate.field).string.max_len = 64];
+  // description is left unchanged when empty.
+  string description = 4 [(buf.validate.field).string.max_len = 255];
 }
 
 message UpdateTenantResponse {}
@@ -431,6 +435,11 @@ message CreateTenantRequest {
     required: true
     enum: { defined_only: true }
   }];
+  string name = 2 [(buf.validate.field) = {
+    required: true
+    string: { max_len: 64 }
+  }];
+  string description = 3 [(buf.validate.field).string.max_len = 255];
 }
 
 message CreateTenantResponse {
@@ -441,6 +450,8 @@ message ListTenantRequest {
   sentinez.types.v1.Pages page = 1;
   sentinez.types.v1.Plan plan = 2
       [(buf.validate.field).enum.defined_only = true];
+  // Case-insensitive part of the name.
+  string name = 3 [(buf.validate.field).string.max_len = 64];
 }
 
 message ListTenantResponse {

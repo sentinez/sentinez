@@ -62,7 +62,10 @@ message Tenant {
     string: { prefix: "senz.tenants." }
   }];
 
-  sentinez.types.v1.Plan plan = 3;
+  string name = 3;
+  string description = 4;
+
+  sentinez.types.v1.Plan plan = 5;
 }
 
 message Member {

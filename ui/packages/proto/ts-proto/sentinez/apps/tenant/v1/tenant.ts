@@ -6,9 +6,19 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
+import {
+  Plan,
+  planFromJSON,
+  planToJSON,
+  Role,
+  roleFromJSON,
+  roleToJSON,
+  Status,
+  statusFromJSON,
+  statusToJSON,
+} from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { Resource, ResourceSetting } from "./model";
+import { Member, Resource, ResourceSetting, Tenant } from "./model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
 
@@ -75,6 +85,100 @@ export interface StatusResponse {
 }
 
 export interface StatusRequest {
+}
+
+export interface GetMemberRequest {
+  id: string;
+}
+
+export interface GetMemberResponse {
+  member?: Member | undefined;
+}
+
+export interface DeleteMemberRequest {
+  id: string;
+}
+
+export interface DeleteMemberResponse {
+}
+
+export interface UpdateMemberRequest {
+  id: string;
+  /** roles replaces the whole role set of the member. */
+  roles: Role[];
+}
+
+export interface UpdateMemberResponse {
+}
+
+export interface CreateMemberRequest {
+  userId: string;
+  tenantId: string;
+  roles: Role[];
+}
+
+export interface CreateMemberResponse {
+  member?: Member | undefined;
+}
+
+export interface ListMemberRequest {
+  page?: Pages | undefined;
+  tenantId: string;
+  userId: string;
+}
+
+export interface ListMemberResponse {
+  total: number;
+  members: Member[];
+}
+
+export interface GetTenantRequest {
+  id: string;
+}
+
+export interface GetTenantResponse {
+  tenant?: Tenant | undefined;
+}
+
+export interface DeleteTenantRequest {
+  id: string;
+}
+
+export interface DeleteTenantResponse {
+}
+
+export interface UpdateTenantRequest {
+  id: string;
+  plan: Plan;
+  /** name is left unchanged when empty. */
+  name: string;
+  /** description is left unchanged when empty. */
+  description: string;
+}
+
+export interface UpdateTenantResponse {
+}
+
+export interface CreateTenantRequest {
+  plan: Plan;
+  name: string;
+  description: string;
+}
+
+export interface CreateTenantResponse {
+  tenant?: Tenant | undefined;
+}
+
+export interface ListTenantRequest {
+  page?: Pages | undefined;
+  plan: Plan;
+  /** Case-insensitive part of the name. */
+  name: string;
+}
+
+export interface ListTenantResponse {
+  total: number;
+  tenants: Tenant[];
 }
 
 function createBaseGetResourceRequest(): GetResourceRequest {
@@ -1218,6 +1322,1570 @@ export const StatusRequest: MessageFns<StatusRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<StatusRequest>, I>>(_: I): StatusRequest {
     const message = createBaseStatusRequest();
+    return message;
+  },
+};
+
+function createBaseGetMemberRequest(): GetMemberRequest {
+  return { id: "" };
+}
+
+export const GetMemberRequest: MessageFns<GetMemberRequest> = {
+  encode(message: GetMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetMemberRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetMemberRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetMemberRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetMemberRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetMemberRequest>, I>>(base?: I): GetMemberRequest {
+    return GetMemberRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetMemberRequest>, I>>(object: I): GetMemberRequest {
+    const message = createBaseGetMemberRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetMemberResponse(): GetMemberResponse {
+  return { member: undefined };
+}
+
+export const GetMemberResponse: MessageFns<GetMemberResponse> = {
+  encode(message: GetMemberResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.member !== undefined) {
+      Member.encode(message.member, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetMemberResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetMemberResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.member = Member.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetMemberResponse {
+    return { member: isSet(object.member) ? Member.fromJSON(object.member) : undefined };
+  },
+
+  toJSON(message: GetMemberResponse): unknown {
+    const obj: any = {};
+    if (message.member !== undefined) {
+      obj.member = Member.toJSON(message.member);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetMemberResponse>, I>>(base?: I): GetMemberResponse {
+    return GetMemberResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetMemberResponse>, I>>(object: I): GetMemberResponse {
+    const message = createBaseGetMemberResponse();
+    message.member = (object.member !== undefined && object.member !== null)
+      ? Member.fromPartial(object.member)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteMemberRequest(): DeleteMemberRequest {
+  return { id: "" };
+}
+
+export const DeleteMemberRequest: MessageFns<DeleteMemberRequest> = {
+  encode(message: DeleteMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteMemberRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteMemberRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): DeleteMemberRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteMemberRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteMemberRequest>, I>>(base?: I): DeleteMemberRequest {
+    return DeleteMemberRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteMemberRequest>, I>>(object: I): DeleteMemberRequest {
+    const message = createBaseDeleteMemberRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteMemberResponse(): DeleteMemberResponse {
+  return {};
+}
+
+export const DeleteMemberResponse: MessageFns<DeleteMemberResponse> = {
+  encode(_: DeleteMemberResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteMemberResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteMemberResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): DeleteMemberResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteMemberResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteMemberResponse>, I>>(base?: I): DeleteMemberResponse {
+    return DeleteMemberResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteMemberResponse>, I>>(_: I): DeleteMemberResponse {
+    const message = createBaseDeleteMemberResponse();
+    return message;
+  },
+};
+
+function createBaseUpdateMemberRequest(): UpdateMemberRequest {
+  return { id: "", roles: [] };
+}
+
+export const UpdateMemberRequest: MessageFns<UpdateMemberRequest> = {
+  encode(message: UpdateMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    for (const v of message.roles) {
+      writer.uint32(16).int32(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateMemberRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateMemberRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag === 16) {
+              message.roles.push(reader.int32() as any);
+
+              continue;
+            }
+
+            if (tag === 18) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.roles.push(reader.int32() as any);
+              }
+
+              continue;
+            }
+
+            break;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): UpdateMemberRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      roles: globalThis.Array.isArray(object?.roles) ? object.roles.map((e: any) => roleFromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: UpdateMemberRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.roles?.length) {
+      obj.roles = message.roles.map((e) => roleToJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateMemberRequest>, I>>(base?: I): UpdateMemberRequest {
+    return UpdateMemberRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateMemberRequest>, I>>(object: I): UpdateMemberRequest {
+    const message = createBaseUpdateMemberRequest();
+    message.id = object.id ?? "";
+    message.roles = object.roles?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseUpdateMemberResponse(): UpdateMemberResponse {
+  return {};
+}
+
+export const UpdateMemberResponse: MessageFns<UpdateMemberResponse> = {
+  encode(_: UpdateMemberResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateMemberResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateMemberResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): UpdateMemberResponse {
+    return {};
+  },
+
+  toJSON(_: UpdateMemberResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateMemberResponse>, I>>(base?: I): UpdateMemberResponse {
+    return UpdateMemberResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateMemberResponse>, I>>(_: I): UpdateMemberResponse {
+    const message = createBaseUpdateMemberResponse();
+    return message;
+  },
+};
+
+function createBaseCreateMemberRequest(): CreateMemberRequest {
+  return { userId: "", tenantId: "", roles: [] };
+}
+
+export const CreateMemberRequest: MessageFns<CreateMemberRequest> = {
+  encode(message: CreateMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(18).string(message.tenantId);
+    }
+    for (const v of message.roles) {
+      writer.uint32(24).int32(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateMemberRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateMemberRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag === 24) {
+              message.roles.push(reader.int32() as any);
+
+              continue;
+            }
+
+            if (tag === 26) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.roles.push(reader.int32() as any);
+              }
+
+              continue;
+            }
+
+            break;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateMemberRequest {
+    return {
+      userId: isSet(object.userId)
+        ? globalThis.String(object.userId)
+        : isSet(object.user_id)
+        ? globalThis.String(object.user_id)
+        : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      roles: globalThis.Array.isArray(object?.roles) ? object.roles.map((e: any) => roleFromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: CreateMemberRequest): unknown {
+    const obj: any = {};
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.roles?.length) {
+      obj.roles = message.roles.map((e) => roleToJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateMemberRequest>, I>>(base?: I): CreateMemberRequest {
+    return CreateMemberRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateMemberRequest>, I>>(object: I): CreateMemberRequest {
+    const message = createBaseCreateMemberRequest();
+    message.userId = object.userId ?? "";
+    message.tenantId = object.tenantId ?? "";
+    message.roles = object.roles?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseCreateMemberResponse(): CreateMemberResponse {
+  return { member: undefined };
+}
+
+export const CreateMemberResponse: MessageFns<CreateMemberResponse> = {
+  encode(message: CreateMemberResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.member !== undefined) {
+      Member.encode(message.member, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateMemberResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateMemberResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.member = Member.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateMemberResponse {
+    return { member: isSet(object.member) ? Member.fromJSON(object.member) : undefined };
+  },
+
+  toJSON(message: CreateMemberResponse): unknown {
+    const obj: any = {};
+    if (message.member !== undefined) {
+      obj.member = Member.toJSON(message.member);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateMemberResponse>, I>>(base?: I): CreateMemberResponse {
+    return CreateMemberResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateMemberResponse>, I>>(object: I): CreateMemberResponse {
+    const message = createBaseCreateMemberResponse();
+    message.member = (object.member !== undefined && object.member !== null)
+      ? Member.fromPartial(object.member)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseListMemberRequest(): ListMemberRequest {
+  return { page: undefined, tenantId: "", userId: "" };
+}
+
+export const ListMemberRequest: MessageFns<ListMemberRequest> = {
+  encode(message: ListMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(18).string(message.tenantId);
+    }
+    if (message.userId !== "") {
+      writer.uint32(26).string(message.userId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListMemberRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListMemberRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.userId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListMemberRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      userId: isSet(object.userId)
+        ? globalThis.String(object.userId)
+        : isSet(object.user_id)
+        ? globalThis.String(object.user_id)
+        : "",
+    };
+  },
+
+  toJSON(message: ListMemberRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.userId !== "") {
+      obj.userId = message.userId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListMemberRequest>, I>>(base?: I): ListMemberRequest {
+    return ListMemberRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListMemberRequest>, I>>(object: I): ListMemberRequest {
+    const message = createBaseListMemberRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.tenantId = object.tenantId ?? "";
+    message.userId = object.userId ?? "";
+    return message;
+  },
+};
+
+function createBaseListMemberResponse(): ListMemberResponse {
+  return { total: 0, members: [] };
+}
+
+export const ListMemberResponse: MessageFns<ListMemberResponse> = {
+  encode(message: ListMemberResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.members) {
+      Member.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListMemberResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListMemberResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.members.push(Member.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListMemberResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      members: globalThis.Array.isArray(object?.members) ? object.members.map((e: any) => Member.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: ListMemberResponse): unknown {
+    const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.members?.length) {
+      obj.members = message.members.map((e) => Member.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListMemberResponse>, I>>(base?: I): ListMemberResponse {
+    return ListMemberResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListMemberResponse>, I>>(object: I): ListMemberResponse {
+    const message = createBaseListMemberResponse();
+    message.total = object.total ?? 0;
+    message.members = object.members?.map((e) => Member.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetTenantRequest(): GetTenantRequest {
+  return { id: "" };
+}
+
+export const GetTenantRequest: MessageFns<GetTenantRequest> = {
+  encode(message: GetTenantRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetTenantRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetTenantRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetTenantRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetTenantRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetTenantRequest>, I>>(base?: I): GetTenantRequest {
+    return GetTenantRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetTenantRequest>, I>>(object: I): GetTenantRequest {
+    const message = createBaseGetTenantRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetTenantResponse(): GetTenantResponse {
+  return { tenant: undefined };
+}
+
+export const GetTenantResponse: MessageFns<GetTenantResponse> = {
+  encode(message: GetTenantResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tenant !== undefined) {
+      Tenant.encode(message.tenant, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetTenantResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetTenantResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tenant = Tenant.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetTenantResponse {
+    return { tenant: isSet(object.tenant) ? Tenant.fromJSON(object.tenant) : undefined };
+  },
+
+  toJSON(message: GetTenantResponse): unknown {
+    const obj: any = {};
+    if (message.tenant !== undefined) {
+      obj.tenant = Tenant.toJSON(message.tenant);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetTenantResponse>, I>>(base?: I): GetTenantResponse {
+    return GetTenantResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetTenantResponse>, I>>(object: I): GetTenantResponse {
+    const message = createBaseGetTenantResponse();
+    message.tenant = (object.tenant !== undefined && object.tenant !== null)
+      ? Tenant.fromPartial(object.tenant)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteTenantRequest(): DeleteTenantRequest {
+  return { id: "" };
+}
+
+export const DeleteTenantRequest: MessageFns<DeleteTenantRequest> = {
+  encode(message: DeleteTenantRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteTenantRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteTenantRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): DeleteTenantRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteTenantRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteTenantRequest>, I>>(base?: I): DeleteTenantRequest {
+    return DeleteTenantRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteTenantRequest>, I>>(object: I): DeleteTenantRequest {
+    const message = createBaseDeleteTenantRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteTenantResponse(): DeleteTenantResponse {
+  return {};
+}
+
+export const DeleteTenantResponse: MessageFns<DeleteTenantResponse> = {
+  encode(_: DeleteTenantResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteTenantResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteTenantResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): DeleteTenantResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteTenantResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteTenantResponse>, I>>(base?: I): DeleteTenantResponse {
+    return DeleteTenantResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteTenantResponse>, I>>(_: I): DeleteTenantResponse {
+    const message = createBaseDeleteTenantResponse();
+    return message;
+  },
+};
+
+function createBaseUpdateTenantRequest(): UpdateTenantRequest {
+  return { id: "", plan: 0, name: "", description: "" };
+}
+
+export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
+  encode(message: UpdateTenantRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(16).int32(message.plan);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateTenantRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateTenantRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.plan = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): UpdateTenantRequest {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+    };
+  },
+
+  toJSON(message: UpdateTenantRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateTenantRequest>, I>>(base?: I): UpdateTenantRequest {
+    return UpdateTenantRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateTenantRequest>, I>>(object: I): UpdateTenantRequest {
+    const message = createBaseUpdateTenantRequest();
+    message.id = object.id ?? "";
+    message.plan = object.plan ?? 0;
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    return message;
+  },
+};
+
+function createBaseUpdateTenantResponse(): UpdateTenantResponse {
+  return {};
+}
+
+export const UpdateTenantResponse: MessageFns<UpdateTenantResponse> = {
+  encode(_: UpdateTenantResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateTenantResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateTenantResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): UpdateTenantResponse {
+    return {};
+  },
+
+  toJSON(_: UpdateTenantResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateTenantResponse>, I>>(base?: I): UpdateTenantResponse {
+    return UpdateTenantResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateTenantResponse>, I>>(_: I): UpdateTenantResponse {
+    const message = createBaseUpdateTenantResponse();
+    return message;
+  },
+};
+
+function createBaseCreateTenantRequest(): CreateTenantRequest {
+  return { plan: 0, name: "", description: "" };
+}
+
+export const CreateTenantRequest: MessageFns<CreateTenantRequest> = {
+  encode(message: CreateTenantRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.plan !== 0) {
+      writer.uint32(8).int32(message.plan);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateTenantRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateTenantRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.plan = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateTenantRequest {
+    return {
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+    };
+  },
+
+  toJSON(message: CreateTenantRequest): unknown {
+    const obj: any = {};
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateTenantRequest>, I>>(base?: I): CreateTenantRequest {
+    return CreateTenantRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateTenantRequest>, I>>(object: I): CreateTenantRequest {
+    const message = createBaseCreateTenantRequest();
+    message.plan = object.plan ?? 0;
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    return message;
+  },
+};
+
+function createBaseCreateTenantResponse(): CreateTenantResponse {
+  return { tenant: undefined };
+}
+
+export const CreateTenantResponse: MessageFns<CreateTenantResponse> = {
+  encode(message: CreateTenantResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tenant !== undefined) {
+      Tenant.encode(message.tenant, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateTenantResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateTenantResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tenant = Tenant.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateTenantResponse {
+    return { tenant: isSet(object.tenant) ? Tenant.fromJSON(object.tenant) : undefined };
+  },
+
+  toJSON(message: CreateTenantResponse): unknown {
+    const obj: any = {};
+    if (message.tenant !== undefined) {
+      obj.tenant = Tenant.toJSON(message.tenant);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateTenantResponse>, I>>(base?: I): CreateTenantResponse {
+    return CreateTenantResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateTenantResponse>, I>>(object: I): CreateTenantResponse {
+    const message = createBaseCreateTenantResponse();
+    message.tenant = (object.tenant !== undefined && object.tenant !== null)
+      ? Tenant.fromPartial(object.tenant)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseListTenantRequest(): ListTenantRequest {
+  return { page: undefined, plan: 0, name: "" };
+}
+
+export const ListTenantRequest: MessageFns<ListTenantRequest> = {
+  encode(message: ListTenantRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    if (message.plan !== 0) {
+      writer.uint32(16).int32(message.plan);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListTenantRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListTenantRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.plan = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListTenantRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+    };
+  },
+
+  toJSON(message: ListTenantRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListTenantRequest>, I>>(base?: I): ListTenantRequest {
+    return ListTenantRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListTenantRequest>, I>>(object: I): ListTenantRequest {
+    const message = createBaseListTenantRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.plan = object.plan ?? 0;
+    message.name = object.name ?? "";
+    return message;
+  },
+};
+
+function createBaseListTenantResponse(): ListTenantResponse {
+  return { total: 0, tenants: [] };
+}
+
+export const ListTenantResponse: MessageFns<ListTenantResponse> = {
+  encode(message: ListTenantResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.tenants) {
+      Tenant.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListTenantResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListTenantResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tenants.push(Tenant.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListTenantResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      tenants: globalThis.Array.isArray(object?.tenants) ? object.tenants.map((e: any) => Tenant.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: ListTenantResponse): unknown {
+    const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.tenants?.length) {
+      obj.tenants = message.tenants.map((e) => Tenant.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListTenantResponse>, I>>(base?: I): ListTenantResponse {
+    return ListTenantResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListTenantResponse>, I>>(object: I): ListTenantResponse {
+    const message = createBaseListTenantResponse();
+    message.total = object.total ?? 0;
+    message.tenants = object.tenants?.map((e) => Tenant.fromPartial(e)) || [];
     return message;
   },
 };

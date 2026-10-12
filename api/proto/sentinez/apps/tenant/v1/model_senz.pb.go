@@ -14,9 +14,11 @@ const (
 )
 
 const (
-	Tenant_Metadata = "metadata"
-	Tenant_Id       = "id"
-	Tenant_Plan     = "plan"
+	Tenant_Metadata    = "metadata"
+	Tenant_Id          = "id"
+	Tenant_Name        = "name"
+	Tenant_Description = "description"
+	Tenant_Plan        = "plan"
 )
 
 const (

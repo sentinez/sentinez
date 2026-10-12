@@ -16,6 +16,7 @@ package tenantrepo
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -33,6 +34,9 @@ import (
 
 var _ ITenant = (*Tenants)(nil)
 
+// _likeEscaper escapes the wildcards of a LIKE pattern.
+var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
 // nolint
 type ITenant interface {
 	Create(ctx context.Context, tenant *tenantpb.Tenant) (*tenantpb.Tenant, error)
@@ -49,8 +53,10 @@ func New(ctx context.Context, appConf *settingpb.Config) (ITenant, error) {
 	storage, err := postgres.New[tenantpb.Tenant](ctx, appConf,
 		dbx.WithTable(tables.Tenants),
 		dbx.WithColumns(dbx.ColumnM{
-			tenantpb.Tenant_Id:   postgres.String,
-			tenantpb.Tenant_Plan: postgres.Int4,
+			tenantpb.Tenant_Id:          postgres.String,
+			tenantpb.Tenant_Name:        postgres.String,
+			tenantpb.Tenant_Description: postgres.String,
+			tenantpb.Tenant_Plan:        postgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -76,9 +82,11 @@ func (t *Tenants) WithTX(tx *postgres.TxSession) ITenant {
 func (t *Tenants) List(ctx context.Context,
 	req *tenantpb.ListTenantRequest) (*tenantpb.ListTenantResponse, error) {
 
+	conds := listConditions(req)
+
 	builder := t.selectQuery(req.GetPage())
-	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
-		builder = builder.Where(sq.Eq{tenantpb.Tenant_Plan: req.GetPlan()})
+	for _, cond := range conds {
+		builder = builder.Where(cond)
 	}
 
 	query, args, err := builder.ToSql()
@@ -94,7 +102,7 @@ func (t *Tenants) List(ctx context.Context,
 
 	var total int64
 	if req.GetPage().GetTotal() {
-		total, err = t.storage.Total(ctx)
+		total, err = t.total(ctx, conds)
 		if err != nil {
 			return nil, err
 		}
@@ -103,14 +111,51 @@ func (t *Tenants) List(ctx context.Context,
 	return &tenantpb.ListTenantResponse{Tenants: tenants, Total: total}, nil
 }
 
+// total counts the rows matching the list conditions.
+func (t *Tenants) total(
+	ctx context.Context, conds []sq.Sqlizer,
+) (int64, error) {
+	builder := sq.Select("COUNT(*)").From(t.storage.Table())
+	for _, cond := range conds {
+		builder = builder.Where(cond)
+	}
+
+	var total int64
+	if err := t.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+// listConditions maps the filters of the request to WHERE conditions,
+// all of them must match.
+func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
+	var conds []sq.Sqlizer
+
+	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
+		conds = append(conds, sq.Eq{tenantpb.Tenant_Plan: req.GetPlan()})
+	}
+
+	if name := req.GetName(); name != "" {
+		conds = append(conds, sq.ILike{
+			tenantpb.Tenant_Name: "%" + _likeEscaper.Replace(name) + "%",
+		})
+	}
+
+	return conds
+}
+
 // Create implements ITenant.
 func (t *Tenants) Create(ctx context.Context,
 	tenant *tenantpb.Tenant) (*tenantpb.Tenant, error) {
 
 	tenant.Id = rand.NewId(table.NewPrimaryKey(tables.Tenants))
 	query := postgres.InsertBuilder(t.storage, postgres.M{
-		tenantpb.Tenant_Id:   tenant.GetId(),
-		tenantpb.Tenant_Plan: tenant.GetPlan(),
+		tenantpb.Tenant_Id:          tenant.GetId(),
+		tenantpb.Tenant_Name:        tenant.GetName(),
+		tenantpb.Tenant_Description: tenant.GetDescription(),
+		tenantpb.Tenant_Plan:        tenant.GetPlan(),
 	})
 
 	if _, err := t.storage.Insert(ctx, query); err != nil {
@@ -133,10 +178,17 @@ func (t *Tenants) Get(
 	return t.storage.Select(ctx, builder, scanOne)
 }
 
-// Update implements ITenant. Only the plan of a tenant can change.
+// Update implements ITenant. Zero-valued fields are left unchanged.
 func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
 	query := postgres.UpdateBuilder(t.storage, tenant.GetId())
 
+	if tenant.GetName() != "" {
+		query = query.Set(tenantpb.Tenant_Name, tenant.GetName())
+	}
+	if tenant.GetDescription() != "" {
+		query = query.Set(
+			tenantpb.Tenant_Description, tenant.GetDescription())
+	}
 	if tenant.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
 		query = query.Set(tenantpb.Tenant_Plan, tenant.GetPlan())
 	}
@@ -148,6 +200,9 @@ func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
 func (t *Tenants) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(t.storage, page,
 		tenantpb.Tenant_Id,
+		// rows created before these columns existed hold NULL
+		postgres.SelectCoalesce(tenantpb.Tenant_Name),
+		postgres.SelectCoalesce(tenantpb.Tenant_Description),
 		tenantpb.Tenant_Plan,
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
@@ -177,6 +232,8 @@ func scanOne(row dbx.Row) (*tenantpb.Tenant, error) {
 
 	err := row.Scan(
 		&tenant.Id,
+		&tenant.Name,
+		&tenant.Description,
 		&tenant.Plan,
 		&createdAt,
 		&updatedAt,

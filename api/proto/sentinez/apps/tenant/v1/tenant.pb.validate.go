@@ -2110,6 +2110,10 @@ func (m *UpdateTenantRequest) Validate() error {
 
 	// no validation rules for Plan
 
+	// no validation rules for Name
+
+	// no validation rules for Description
+
 	return nil
 }
 
@@ -2245,6 +2249,10 @@ func (m *CreateTenantRequest) Validate() error {
 	}
 
 	// no validation rules for Plan
+
+	// no validation rules for Name
+
+	// no validation rules for Description
 
 	return nil
 }
@@ -2401,6 +2409,8 @@ func (m *ListTenantRequest) Validate() error {
 	}
 
 	// no validation rules for Plan
+
+	// no validation rules for Name
 
 	return nil
 }

@@ -1,22 +1,43 @@
-import { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import { Member, Resource, Tenant } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import {
+  CreateMemberRequest,
+  CreateMemberResponse,
   CreateResourceRequest,
   CreateResourceResponse,
+  CreateTenantRequest,
+  CreateTenantResponse,
+  DeleteMemberRequest,
+  DeleteMemberResponse,
   DeleteResourceRequest,
   DeleteResourceResponse,
+  DeleteTenantRequest,
+  DeleteTenantResponse,
+  GetMemberRequest,
+  GetMemberResponse,
   GetResourceByDomainRequest,
   GetResourceByDomainResponse,
   GetResourceRequest,
   GetResourceResponse,
+  GetTenantRequest,
+  GetTenantResponse,
+  ListMemberRequest,
+  ListMemberResponse,
   ListResourceRequest,
   ListResourceResponse,
+  ListTenantRequest,
+  ListTenantResponse,
+  UpdateMemberRequest,
+  UpdateMemberResponse,
   UpdateResourceRequest,
   UpdateResourceResponse,
+  UpdateTenantRequest,
+  UpdateTenantResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
+import { SAMPLE_USERS } from '@/lib/api/iam/user';
 import { paginate, toQuery } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
@@ -113,6 +134,41 @@ const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
 });
 
 let sampleStore: Resource[] = [...SAMPLE_RESOURCES, ...generatedResources];
+
+// Written as proto JSON (the wire format), parsed with Tenant.fromJSON
+export const SAMPLE_TENANTS: Tenant[] = [
+  {
+    metadata: { createdAt: '2026-08-20T03:00:00Z', updatedAt: '2026-09-30T07:20:00Z' },
+    id: SAMPLE_TENANT_ID,
+    name: 'Sentinez',
+    description: 'Console sample tenant',
+    plan: 'PLAN_PRO',
+  },
+  {
+    metadata: { createdAt: '2026-09-15T06:10:00Z', updatedAt: '2026-09-15T06:10:00Z' },
+    id: 'senz.tenants.0199a6f0-4c1e-7a2b-9d3e-200000000002',
+    name: 'Playground',
+    description: '',
+    plan: 'PLAN_FREE',
+  },
+].map((t) => Tenant.fromJSON(t));
+
+let sampleTenantStore: Tenant[] = [...SAMPLE_TENANTS];
+
+// One member per sample user, all in the sample tenant
+const SAMPLE_MEMBER_ROLES = [['ROLE_ADMIN'], ['ROLE_LEADER'], ['ROLE_MEMBER']];
+
+export const SAMPLE_MEMBERS: Member[] = SAMPLE_USERS.map((user, i) =>
+  Member.fromJSON({
+    metadata: { createdAt: '2026-09-02T08:00:00Z', updatedAt: '2026-09-02T08:00:00Z' },
+    id: `senz.tenant.members.0199a6f0-4c1e-7a2b-9d3e-30000000000${i + 1}`,
+    userId: user.id,
+    tenantId: SAMPLE_TENANT_ID,
+    roles: SAMPLE_MEMBER_ROLES[i % SAMPLE_MEMBER_ROLES.length],
+  }),
+);
+
+let sampleMemberStore: Member[] = [...SAMPLE_MEMBERS];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -259,5 +315,214 @@ export async function deleteResource(
       signal: options?.signal,
     });
     return DeleteResourceResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// ─── Members ─────────────────────────────────────────────────────────────────
+
+// GET /tenant/member?id=
+export async function getMember(
+  req: GetMemberRequest,
+  options?: ApiOptions,
+): Promise<GetMemberResponse> {
+  return withFallback<GetMemberResponse>('getMember', () => ({
+    member: sampleMemberStore.find((m) => m.id === req.id),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/member`, {
+      params: toQuery(GetMemberRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return GetMemberResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /tenant/members
+export async function listMembers(
+  req: Partial<ListMemberRequest> = {},
+  options?: ApiOptions,
+): Promise<ListMemberResponse> {
+  return withFallback<ListMemberResponse>('listMembers', () => {
+    const members = sampleMemberStore.filter(
+      (m) =>
+        (!req.tenantId || m.tenantId === req.tenantId) && (!req.userId || m.userId === req.userId),
+    );
+    return { total: members.length, members: paginate(members, req.page) };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/members`, {
+      params: toQuery(ListMemberRequest.toJSON(ListMemberRequest.fromPartial(req))),
+      signal: options?.signal,
+    });
+    return ListMemberResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// POST /tenant/member
+export async function createMember(
+  req: CreateMemberRequest,
+  options?: ApiOptions,
+): Promise<CreateMemberResponse> {
+  return withFallback<CreateMemberResponse>('createMember', () => {
+    const now = new Date();
+    const created = Member.fromPartial({
+      ...req,
+      id: `senz.tenant.members.${crypto.randomUUID()}`,
+      metadata: { createdAt: now, updatedAt: now },
+    });
+    sampleMemberStore = [...sampleMemberStore, created];
+    return { member: created };
+  })(async () => {
+    const resp = await axios.post(
+      `${API_BASE_PATH}/tenant/member`,
+      CreateMemberRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return CreateMemberResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// PUT /tenant/member
+export async function updateMember(
+  req: UpdateMemberRequest,
+  options?: ApiOptions,
+): Promise<UpdateMemberResponse> {
+  return withFallback<UpdateMemberResponse>('updateMember', () => {
+    sampleMemberStore = sampleMemberStore.map((m) =>
+      m.id === req.id
+        ? { ...m, roles: [...req.roles], metadata: { ...m.metadata, updatedAt: new Date() } }
+        : m,
+    );
+    return {};
+  })(async () => {
+    const resp = await axios.put(
+      `${API_BASE_PATH}/tenant/member`,
+      UpdateMemberRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return UpdateMemberResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// DELETE /tenant/member?id=
+export async function deleteMember(
+  req: DeleteMemberRequest,
+  options?: ApiOptions,
+): Promise<DeleteMemberResponse> {
+  return withFallback<DeleteMemberResponse>('deleteMember', () => {
+    sampleMemberStore = sampleMemberStore.filter((m) => m.id !== req.id);
+    return {};
+  })(async () => {
+    const resp = await axios.delete(`${API_BASE_PATH}/tenant/member`, {
+      params: toQuery(DeleteMemberRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return DeleteMemberResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// ─── Tenants ─────────────────────────────────────────────────────────────────
+
+// GET /tenant/tenant?id=
+export async function getTenant(
+  req: GetTenantRequest,
+  options?: ApiOptions,
+): Promise<GetTenantResponse> {
+  return withFallback<GetTenantResponse>('getTenant', () => ({
+    tenant: sampleTenantStore.find((t) => t.id === req.id),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/tenant`, {
+      params: toQuery(GetTenantRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return GetTenantResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /tenant/tenants
+export async function listTenants(
+  req: Partial<ListTenantRequest> = {},
+  options?: ApiOptions,
+): Promise<ListTenantResponse> {
+  return withFallback<ListTenantResponse>('listTenants', () => {
+    const name = req.name?.toLowerCase();
+    const tenants = sampleTenantStore.filter(
+      (t) => (!req.plan || t.plan === req.plan) && (!name || t.name.toLowerCase().includes(name)),
+    );
+    return { total: tenants.length, tenants: paginate(tenants, req.page) };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/tenants`, {
+      params: toQuery(ListTenantRequest.toJSON(ListTenantRequest.fromPartial(req))),
+      signal: options?.signal,
+    });
+    return ListTenantResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// POST /tenant/tenant
+export async function createTenant(
+  req: CreateTenantRequest,
+  options?: ApiOptions,
+): Promise<CreateTenantResponse> {
+  return withFallback<CreateTenantResponse>('createTenant', () => {
+    const now = new Date();
+    const created = Tenant.fromPartial({
+      ...req,
+      id: `senz.tenants.${crypto.randomUUID()}`,
+      metadata: { createdAt: now, updatedAt: now },
+    });
+    sampleTenantStore = [...sampleTenantStore, created];
+    return { tenant: created };
+  })(async () => {
+    const resp = await axios.post(
+      `${API_BASE_PATH}/tenant/tenant`,
+      CreateTenantRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return CreateTenantResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// PUT /tenant/tenant
+export async function updateTenant(
+  req: UpdateTenantRequest,
+  options?: ApiOptions,
+): Promise<UpdateTenantResponse> {
+  return withFallback<UpdateTenantResponse>('updateTenant', () => {
+    sampleTenantStore = sampleTenantStore.map((t) =>
+      t.id === req.id
+        ? {
+            ...t,
+            plan: req.plan,
+            // empty name / description keep the stored ones
+            name: req.name || t.name,
+            description: req.description || t.description,
+            metadata: { ...t.metadata, updatedAt: new Date() },
+          }
+        : t,
+    );
+    return {};
+  })(async () => {
+    const resp = await axios.put(
+      `${API_BASE_PATH}/tenant/tenant`,
+      UpdateTenantRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return UpdateTenantResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// DELETE /tenant/tenant?id=
+export async function deleteTenant(
+  req: DeleteTenantRequest,
+  options?: ApiOptions,
+): Promise<DeleteTenantResponse> {
+  return withFallback<DeleteTenantResponse>('deleteTenant', () => {
+    sampleTenantStore = sampleTenantStore.filter((t) => t.id !== req.id);
+    return {};
+  })(async () => {
+    const resp = await axios.delete(`${API_BASE_PATH}/tenant/tenant`, {
+      params: toQuery(DeleteTenantRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return DeleteTenantResponse.fromJSON(resp.data ?? {});
   });
 }

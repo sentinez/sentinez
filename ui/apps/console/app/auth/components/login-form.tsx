@@ -52,7 +52,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         );
       }
 
-      router.push('/console');
+      router.push('/tenant');
     } catch (error: any) {
       console.error('Login error:', error);
       handleStatusError(error, te);

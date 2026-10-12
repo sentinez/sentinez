@@ -178,7 +178,9 @@ type Tenant struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *v11.Metadata          `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Plan          v11.Plan               `protobuf:"varint,3,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Plan          v11.Plan               `protobuf:"varint,5,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -223,6 +225,20 @@ func (x *Tenant) GetMetadata() *v11.Metadata {
 func (x *Tenant) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *Tenant) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Tenant) GetDescription() string {
+	if x != nil {
+		return x.Description
 	}
 	return ""
 }
@@ -324,11 +340,13 @@ const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\x10resource_setting\x18\x04 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x06 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
-	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\x06\xca\xf3\x18\x02\b\x01\"\x9f\x01\n" +
+	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\x06\xca\xf3\x18\x02\b\x01\"\xd5\x01\n" +
 	"\x06Tenant\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12'\n" +
-	"\x02id\x18\x02 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\x02id\x12+\n" +
-	"\x04plan\x18\x03 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01\"\x9c\x02\n" +
+	"\x02id\x18\x02 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\x02id\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12+\n" +
+	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01\"\x9c\x02\n" +
 	"\x06Member\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12.\n" +
 	"\x02id\x18\x02 \x01(\tB\x1e\xbaH\x1b\xc8\x01\x01r\x16:\x14senz.tenant.members.R\x02id\x122\n" +
