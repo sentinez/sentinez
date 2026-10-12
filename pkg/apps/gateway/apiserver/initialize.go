@@ -35,6 +35,7 @@ func (srv *Server) Initialize(
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
 	srv.server.Use(middleware.AllowCORS)
+	srv.server.Use(middleware.SwaggerDefaultRoot)
 	// security is left out: SecRule payloads legitimately carry attack
 	// patterns and would be rejected.
 	srv.server.Use(middleware.Scope(

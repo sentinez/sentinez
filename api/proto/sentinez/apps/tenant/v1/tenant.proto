@@ -127,6 +127,120 @@ service TenantService {
       control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
     };
   }
+
+  // Lists tenant members.
+  rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
+    option (google.api.http) = {
+      get: "/tenant/members"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Adds a user to a tenant.
+  rpc CreateMember(CreateMemberRequest) returns (CreateMemberResponse) {
+    option (google.api.http) = {
+      post: "/tenant/member"
+      body: "*"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Updates the roles of a tenant member.
+  rpc UpdateMember(UpdateMemberRequest) returns (UpdateMemberResponse) {
+    option (google.api.http) = {
+      put: "/tenant/member"
+      body: "*"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Removes a member from its tenant.
+  rpc DeleteMember(DeleteMemberRequest) returns (DeleteMemberResponse) {
+    option (google.api.http) = {
+      delete: "/tenant/member"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Returns a tenant member.
+  rpc GetMember(GetMemberRequest) returns (GetMemberResponse) {
+    option (google.api.http) = {
+      get: "/tenant/member"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Lists tenants.
+  rpc ListTenant(ListTenantRequest) returns (ListTenantResponse) {
+    option (google.api.http) = {
+      get: "/tenant/tenants"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Creates a new tenant.
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse) {
+    option (google.api.http) = {
+      post: "/tenant/tenant"
+      body: "*"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Updates the plan of a tenant.
+  rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse) {
+    option (google.api.http) = {
+      put: "/tenant/tenant"
+      body: "*"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Deletes a tenant.
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse) {
+    option (google.api.http) = {
+      delete: "/tenant/tenant"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
+
+  // Returns a tenant.
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse) {
+    option (google.api.http) = {
+      get: "/tenant/tenant"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [ CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN ]
+    };
+  }
 }
 
 message GetResourceRequest {
@@ -206,3 +320,130 @@ message StatusResponse {
 }
 
 message StatusRequest {}
+
+message GetMemberRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenant.members." }
+  }];
+}
+
+message GetMemberResponse {
+  Member member = 1;
+}
+
+message DeleteMemberRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenant.members." }
+  }];
+}
+
+message DeleteMemberResponse {}
+
+message UpdateMemberRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenant.members." }
+  }];
+  // roles replaces the whole role set of the member.
+  repeated sentinez.types.v1.Role roles = 2 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      min_items: 1
+      items: { enum: { defined_only: true not_in: [ 0 ] } }
+    }
+  }];
+}
+
+message UpdateMemberResponse {}
+
+message CreateMemberRequest {
+  string user_id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.iam.users." }
+  }];
+  string tenant_id = 2 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenants." }
+  }];
+  repeated sentinez.types.v1.Role roles = 3 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      min_items: 1
+      items: { enum: { defined_only: true not_in: [ 0 ] } }
+    }
+  }];
+}
+
+message CreateMemberResponse {
+  Member member = 1;
+}
+
+message ListMemberRequest {
+  sentinez.types.v1.Pages page = 1;
+  string tenant_id = 2
+      [(buf.validate.field).string.prefix = "senz.tenants."];
+  string user_id = 3
+      [(buf.validate.field).string.prefix = "senz.iam.users."];
+}
+
+message ListMemberResponse {
+  int64 total = 1;
+  repeated sentinez.apps.tenant.v1.Member members = 2;
+}
+
+message GetTenantRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenants." }
+  }];
+}
+
+message GetTenantResponse {
+  Tenant tenant = 1;
+}
+
+message DeleteTenantRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenants." }
+  }];
+}
+
+message DeleteTenantResponse {}
+
+message UpdateTenantRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenants." }
+  }];
+  sentinez.types.v1.Plan plan = 2 [(buf.validate.field) = {
+    required: true
+    enum: { defined_only: true }
+  }];
+}
+
+message UpdateTenantResponse {}
+
+message CreateTenantRequest {
+  sentinez.types.v1.Plan plan = 1 [(buf.validate.field) = {
+    required: true
+    enum: { defined_only: true }
+  }];
+}
+
+message CreateTenantResponse {
+  Tenant tenant = 1;
+}
+
+message ListTenantRequest {
+  sentinez.types.v1.Pages page = 1;
+  sentinez.types.v1.Plan plan = 2
+      [(buf.validate.field).enum.defined_only = true];
+}
+
+message ListTenantResponse {
+  int64 total = 1;
+  repeated sentinez.apps.tenant.v1.Tenant tenants = 2;
+}

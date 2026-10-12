@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 export default function LoadingEffect({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setLoading(false), 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -39,9 +39,9 @@ export function IsLoading({ timeout }: { timeout: number }) {
     return () => clearInterval(id);
   }, [timeout]);
 
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(10);
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background z-50 [font-family:'Phudu',sans-serif]">
+    <div className="fixed inset-0 flex items-center justify-center bg-background z-50 font-['Phudu',sans-serif]">
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center">
           <motion.div

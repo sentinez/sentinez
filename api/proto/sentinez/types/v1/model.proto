@@ -48,6 +48,6 @@ message Owner {
 
   string tenant_id = 4 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenant.console." }
+    string: { prefix: "senz.tenants." }
   }];
 }

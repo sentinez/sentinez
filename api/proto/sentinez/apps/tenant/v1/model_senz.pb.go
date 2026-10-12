@@ -18,3 +18,11 @@ const (
 	Tenant_Id       = "id"
 	Tenant_Plan     = "plan"
 )
+
+const (
+	Member_Metadata = "metadata"
+	Member_Id       = "id"
+	Member_UserId   = "user_id"
+	Member_TenantId = "tenant_id"
+	Member_Roles    = "roles"
+)

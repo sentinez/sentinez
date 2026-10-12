@@ -29,6 +29,14 @@ message Context {
   ControlPlane control_plane = 4;
 }
 
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_SUPER_ADMIN = 1;
+  ROLE_ADMIN = 2;
+  ROLE_LEADER = 3;
+  ROLE_MEMBER = 4;
+}
+
 enum Zone {
   ZONE_UNSPECIFIED = 0;
   ZONE_DEMILITARIZED = 1;

@@ -51,9 +51,13 @@ func (s *security) AcceptFromEndpoint(ctx context.Context,
 func (s *security) Accept(ctx context.Context,
 	server grpcgateway.Server) error {
 
-	return grpcgateway.RegisterServiceHandlerServer(ctx,
+	// a local conn, unlike RegisterSecurityServiceHandlerServer, runs
+	// interceptors, so requests are validated at the gateway.
+	conn := grpcgateway.NewLocalConn()
+	securitypb.RegisterSecurityServiceServer(conn, s.server)
+
+	return securitypb.RegisterSecurityServiceHandlerClient(ctx,
 		server.RuntimeMux(),
-		s.server,
-		securitypb.RegisterSecurityServiceHandlerServer,
+		securitypb.NewSecurityServiceClient(conn),
 	)
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
+	"github.com/sentinez/sentinez/api/interceptor/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/cron"
 	"github.com/sentinez/shared/zlog"
@@ -65,6 +66,7 @@ func RegisterServiceFromEndpoint(
 ) error {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{

@@ -3,17 +3,6 @@
 
 package typepb
 
-import (
-	"fmt"
-
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
 const (
 	Metadata_CreatedAt = "created_at"
 	Metadata_UpdatedAt = "updated_at"

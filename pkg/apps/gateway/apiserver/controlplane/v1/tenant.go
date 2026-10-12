@@ -49,9 +49,13 @@ func (t *tenant) AcceptFromEndpoint(ctx context.Context,
 // Accept to visit the tenant service.
 func (t *tenant) Accept(ctx context.Context, server grpcgateway.Server) error {
 
-	return grpcgateway.RegisterServiceHandlerServer(ctx,
+	// a local conn, unlike RegisterTenantServiceHandlerServer, runs
+	// interceptors, so requests are validated at the gateway.
+	conn := grpcgateway.NewLocalConn()
+	tenantpb.RegisterTenantServiceServer(conn, t.server)
+
+	return tenantpb.RegisterTenantServiceHandlerClient(ctx,
 		server.RuntimeMux(),
-		t.server,
-		tenantpb.RegisterTenantServiceHandlerServer,
+		tenantpb.NewTenantServiceClient(conn),
 	)
 }

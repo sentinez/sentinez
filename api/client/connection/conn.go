@@ -18,6 +18,7 @@ import (
 	"context"
 	"net"
 
+	"github.com/sentinez/sentinez/api/interceptor/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -26,6 +27,7 @@ import (
 func Conn(addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
 	)
 
 	return conn, err
@@ -34,6 +36,7 @@ func Conn(addr string) (*grpc.ClientConn, error) {
 func BufConn(bufLis *bufconn.Listener) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient("passthrough:///bufnet",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
 		grpc.WithContextDialer(
 			func(ctx context.Context, _ string) (net.Conn, error) {
 				return bufLis.DialContext(ctx)
