@@ -32,12 +32,7 @@ func main() {
 }
 
 func run() error {
-	conf, err := config.Config()
-	if err != nil {
-		return err
-	}
-
-	r, err := runner.New(conf, core.Code)
+	r, err := runner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
@@ -46,7 +41,7 @@ func run() error {
 }
 
 func app(c *runner.Context[realtime.Realtime]) {
-	c.Inject(config.Config, wscore.NewServer, realtime.New)
+	c.Inject(wscore.NewServer, realtime.New)
 
 	c.Serve(func(_ context.Context, server *realtime.Realtime) error {
 		return server.Start()

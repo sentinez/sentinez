@@ -31,12 +31,7 @@ func main() {
 }
 
 func run() error {
-	conf, err := config.Config()
-	if err != nil {
-		return err
-	}
-
-	r, err := runner.New(conf, core.Code)
+	r, err := runner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
@@ -45,7 +40,7 @@ func run() error {
 }
 
 func app(c *runner.Context[dataplane.Server]) {
-	c.Inject(config.Config, dataplane.New)
+	c.Inject(dataplane.New)
 
 	c.Serve(func(_ context.Context, server *dataplane.Server) error {
 		return server.Start(dataplane.VETH0)

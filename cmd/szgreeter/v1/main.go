@@ -32,12 +32,7 @@ func main() {
 }
 
 func run() error {
-	conf, err := config.Config()
-	if err != nil {
-		return err
-	}
-
-	r, err := runner.New(conf, core.Code)
+	r, err := runner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
@@ -46,7 +41,7 @@ func run() error {
 }
 
 func app(c *runner.Context[greeter.Greeter]) {
-	c.Inject(config.Config, greeter.NewService)
+	c.Inject(greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
 		return server.Start()

@@ -45,12 +45,7 @@ func main() {
 }
 
 func run() error {
-	conf, err := config.Config()
-	if err != nil {
-		return err
-	}
-
-	r, err := runner.New(conf, core.Code)
+	r, err := runner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
@@ -59,7 +54,7 @@ func run() error {
 }
 
 func app(c *runner.Context[apiserver.Server]) {
-	c.Inject(config.Config, grpcgateway.NewServer, apiserver.New)
+	c.Inject(grpcgateway.NewServer, apiserver.New)
 
 	c.Serve(func(ctx context.Context, server *apiserver.Server) error {
 		return server.Start(ctx)

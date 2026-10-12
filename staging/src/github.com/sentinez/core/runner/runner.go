@@ -46,7 +46,13 @@ type Runner struct {
 }
 
 // New sets up logging and OTLP export for the process.
-func New(appConf *settingpb.Config, scopeName string) (*Runner, error) {
+func New(confConstr func() (*settingpb.Config, error),
+	scopeName string) (*Runner, error) {
+	appConf, err := confConstr()
+	if err != nil {
+		return nil, err
+	}
+
 	logging := zlog.NewConsole(scopeName, zlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 
@@ -57,6 +63,8 @@ func New(appConf *settingpb.Config, scopeName string) (*Runner, error) {
 	if appConf.GetFlag().GetEnvMode() != "dev" {
 		r.opts = append(r.opts, fx.NopLogger)
 	}
+
+	r.opts = append(r.opts, fx.Provide(confConstr))
 
 	shutdown, err := setupOTLP(appConf)
 	if err != nil {
