@@ -57,9 +57,6 @@ func (l *QuicListener) Accept(ctx context.Context) (*quic.Conn, error) {
 		return nil, err
 	}
 
-	wconn := newQuicConn(conn)
-	go func() { _ = wconn.Close() }()
-
 	if l.opt.onQuicAccept != nil {
 		if err := l.opt.onQuicAccept(conn); err != nil {
 			return nil, err

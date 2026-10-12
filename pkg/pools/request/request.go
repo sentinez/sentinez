@@ -24,7 +24,7 @@ import (
 var (
 	_ io.Closer = (*RequestEvent)(nil)
 
-	pool = sync.NewPoolCtr(func() *RequestEvent {
+	_pool = sync.NewPoolCtr(func() *RequestEvent {
 		return &RequestEvent{Event: &httppb.Event{}}
 	})
 )
@@ -40,10 +40,10 @@ func (re *RequestEvent) Close() error {
 }
 
 func Acquire() *RequestEvent {
-	return pool.Get()
+	return _pool.Get()
 }
 
 func Release(obj *RequestEvent) {
 	obj.Reset()
-	pool.Put(obj)
+	_pool.Put(obj)
 }

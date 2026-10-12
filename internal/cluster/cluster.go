@@ -16,6 +16,7 @@ package cluster
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strconv"
 	"sync"
@@ -28,18 +29,29 @@ import (
 )
 
 var (
-	dict      *Cluster
-	once      sync.Once
-	dictReady = make(chan bool, 1)
+	_dict      *Cluster
+	_once      sync.Once
+	_dictReady = make(chan bool, 1)
+	_newErr    error
 )
 
-func Start(conf *settingpb.Config) {
-	_ = NewCluster(conf)
-	dict.Start()
+func Start(conf *settingpb.Config) error {
+	c, err := NewCluster(conf)
+	if err != nil {
+		return err
+	}
+
+	c.Start()
+
+	return nil
 }
 
 func Shutdown(ctx context.Context) {
-	dict.Shutdown(ctx)
+	if _dict == nil {
+		return
+	}
+
+	_dict.Shutdown(ctx)
 }
 
 func newConfig(appConf *settingpb.Config) *config.Config {
@@ -65,43 +77,54 @@ func newConfig(appConf *settingpb.Config) *config.Config {
 	}
 
 	conf.Started = func() {
-		dictReady <- true
+		_dictReady <- true
 		zlog.Infof("cluster:olric: ready to accept connection")
 	}
 
 	return conf
 }
 
-func NewCluster(appConf *settingpb.Config) *Cluster {
-	once.Do(func() {
-		conf := newConfig(appConf)
-		db, err := olric.New(conf)
+func NewCluster(appConf *settingpb.Config) (*Cluster, error) {
+	_once.Do(func() {
+		db, err := olric.New(newConfig(appConf))
 		if err != nil {
-			zlog.Fatal(err)
+			_newErr = fmt.Errorf("cluster: new olric: %w", err)
+			return
 		}
 
-		dict = &Cluster{
+		_dict = &Cluster{
 			db:     db,
 			client: db.NewEmbeddedClient(),
+			done:   make(chan struct{}),
 		}
 	})
 
-	return dict
+	return _dict, _newErr
 }
 
 type Cluster struct {
 	db     *olric.Olric
 	client *olric.EmbeddedClient
+	done   chan struct{}
 }
 
+// Start serves the cluster in the background until Shutdown is called.
 func (d *Cluster) Start() {
 	go func() {
+		defer close(d.done)
+
 		if err := d.db.Start(); err != nil {
-			zlog.Fatal(err)
+			zlog.Errorf("cluster: start: %v", err)
 		}
 	}()
 }
 
+// Shutdown stops the cluster and waits for Start to return or ctx to end.
 func (d *Cluster) Shutdown(ctx context.Context) {
 	_ = d.db.Shutdown(ctx)
+
+	select {
+	case <-d.done:
+	case <-ctx.Done():
+	}
 }

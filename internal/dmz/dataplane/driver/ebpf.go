@@ -21,9 +21,9 @@ import (
 )
 
 func Exec(fn func(*sentinezbpf.SenzObjects) error) error {
-	if context == nil || context.obj == nil {
+	if _context == nil || _context.obj == nil {
 		return fmt.Errorf("stream: context is nil or uninitialized")
 	}
 
-	return fn(context.obj)
+	return fn(_context.obj)
 }

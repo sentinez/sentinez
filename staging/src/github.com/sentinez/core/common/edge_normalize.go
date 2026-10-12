@@ -26,10 +26,10 @@ import (
 )
 
 const (
-	condPrefix = "senz.cond."
-	rulePrefix = "senz.secrule."
+	_condPrefix = "senz.cond."
+	_rulePrefix = "senz.secrule."
 
-	defaultLimiterDuration = "5s"
+	_defaultLimiterDuration = "5s"
 )
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
@@ -67,11 +67,11 @@ func normalizeLimiter(lim *edgepb.RateLimit) {
 	lim.IngressRuntime = toLimiterRule(lim.GetIngress())
 
 	if lim.GetTimeWindow() == "" {
-		lim.TimeWindow = defaultLimiterDuration
+		lim.TimeWindow = _defaultLimiterDuration
 	}
 
 	if lim.GetTimeout() == "" {
-		lim.Timeout = defaultLimiterDuration
+		lim.Timeout = _defaultLimiterDuration
 	}
 }
 
@@ -115,7 +115,7 @@ func parsOrCond(orCond []*rulepb.AndConditionLite) []*rulepb.AndCondition {
 		return nil
 	}
 
-	andCond := []*rulepb.AndCondition{}
+	var andCond []*rulepb.AndCondition
 
 	for _, and := range orCond {
 		a := parseAndCond(and)
@@ -178,7 +178,7 @@ func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	}
 
 	return &rulepb.Condition{
-		Id:       rand.NewNanoId(condPrefix),
+		Id:       rand.NewNanoId(_condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -192,7 +192,7 @@ func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 	}
 
 	return &rulepb.Rule{
-		Id:        rand.NewNanoId(rulePrefix),
+		Id:        rand.NewNanoId(_rulePrefix),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

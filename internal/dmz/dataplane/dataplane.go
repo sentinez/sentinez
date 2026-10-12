@@ -16,6 +16,7 @@ package dataplane
 
 import (
 	"context"
+	"fmt"
 
 	coregrpc "github.com/sentinez/core/grpc"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -43,13 +44,11 @@ func (s *Server) Start(networkInterface string) error {
 
 	iface, err := network.GetInterface(networkInterface)
 	if err != nil {
-		zlog.Errorf("stream: getting interface: %v", err)
-		return err
+		return fmt.Errorf("stream: getting interface: %w", err)
 	}
 
 	if err := ctx.AttachXDP(iface.Index); err != nil {
-		zlog.Errorf("stream: attaching xdp: %v", err)
-		return err
+		return fmt.Errorf("stream: attaching xdp: %w", err)
 	}
 
 	zlog.Infof("stream: attaching xdp successfully")

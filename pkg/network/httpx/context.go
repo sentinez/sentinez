@@ -47,7 +47,7 @@ var (
 )
 
 var (
-	ctxPool = sync.NewPoolCtr(func() *Context {
+	_ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
@@ -64,7 +64,7 @@ const _maxCapturedBody = 4 << 20
 // _maxPooledBodyBuf drops oversized buffers instead of pooling them.
 const _maxPooledBodyBuf = 64 << 10
 
-var upgrade = websocket.Upgrader{
+var _upgrade = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		_ = r       // Ignore the request for origin check
 		return true // Allow all origins for simplicity
@@ -73,7 +73,7 @@ var upgrade = websocket.Upgrader{
 
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	zlog.Debug("http context: connection: new context")
-	httpCtx := ctxPool.Get()
+	httpCtx := _ctxPool.Get()
 
 	httpCtx.req = req
 	httpCtx.resp = resp
@@ -463,7 +463,7 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 }
 
 func (c *Context) Upgrade() (*websocket.Conn, error) {
-	conn, err := upgrade.Upgrade(c.resp, c.req, nil)
+	conn, err := _upgrade.Upgrade(c.resp, c.req, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -518,7 +518,7 @@ func (c *Context) Close() error {
 		c.respBodyBuf = bytes.Buffer{}
 	}
 
-	ctxPool.Put(c)
+	_ctxPool.Put(c)
 
 	return nil
 }

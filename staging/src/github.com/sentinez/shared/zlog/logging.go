@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	loggingEvent = "event"
-	loggingKind  = "kind"
+	_loggingEvent = "event"
+	_loggingKind  = "kind"
 )
 
 var (
@@ -83,21 +83,21 @@ type logging struct {
 func (l *logging) Debug(msg string, event proto.Message) {
 	if l.V(LevelDebug.Int()) {
 		l.log.Debug(msg,
-			zap.Object(loggingEvent, marshaler(event)))
+			zap.Object(_loggingEvent, marshaler(event)))
 	}
 }
 
 func (l *logging) Error(msg string, event proto.Message) {
 	if l.V(LevelError.Int()) {
 		l.log.Error(msg,
-			zap.Object(loggingEvent, marshaler(event)))
+			zap.Object(_loggingEvent, marshaler(event)))
 	}
 }
 
 func (l *logging) Info(msg string, event proto.Message) {
 	if l.V(LevelInfo.Int()) {
-		l.log.Info(msg, zap.String(loggingKind, l.kind.String()),
-			zap.Object(loggingEvent, marshaler(event)))
+		l.log.Info(msg, zap.String(_loggingKind, l.kind.String()),
+			zap.Object(_loggingEvent, marshaler(event)))
 	}
 }
 
@@ -112,7 +112,7 @@ func (l *logging) V(ll int) bool {
 func (l *logging) Warn(msg string, event proto.Message) {
 	if l.V(LevelWarning.Int()) {
 		l.log.Warn(msg,
-			zap.Object(loggingEvent, marshaler(event)))
+			zap.Object(_loggingEvent, marshaler(event)))
 	}
 }
 

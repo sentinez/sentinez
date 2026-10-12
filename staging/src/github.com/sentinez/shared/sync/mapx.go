@@ -33,7 +33,9 @@ func (m *Map[K, V]) Load(key K) (value V, ok bool) {
 		return empty, false
 	}
 
-	return raw.(V), true
+	value, isV := raw.(V)
+
+	return value, isV
 }
 
 func (m *Map[K, V]) Store(key K, value V) {
@@ -59,7 +61,9 @@ func (m *Map[K, V]) Range(f func(key K, value V) bool) {
 func (m *Map[K, V]) Keys() []K {
 	var keys []K
 	m.core.Range(func(k, _ any) bool {
-		keys = append(keys, k.(K))
+		if key, ok := k.(K); ok {
+			keys = append(keys, key)
+		}
 		return true
 	})
 
@@ -69,7 +73,9 @@ func (m *Map[K, V]) Keys() []K {
 func (m *Map[K, V]) Values() []V {
 	var values []V
 	m.core.Range(func(_, v any) bool {
-		values = append(values, v.(V))
+		if value, ok := v.(V); ok {
+			values = append(values, value)
+		}
 		return true
 	})
 

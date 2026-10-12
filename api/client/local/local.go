@@ -21,7 +21,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-var serverOnce = map[string]*ServerOnce{}
+var _serverOnce = map[string]*ServerOnce{}
 
 const BufSize = 1024 * 1024
 
@@ -35,10 +35,10 @@ type R[T any] func(s grpc.ServiceRegistrar, srv T)
 func RegisterServiceServer[T any](
 	serviceKey string, hdl T, register R[T]) *bufconn.Listener {
 
-	srvOnce, ok := serverOnce[serviceKey]
+	srvOnce, ok := _serverOnce[serviceKey]
 	if !ok {
-		serverOnce[serviceKey] = &ServerOnce{}
-		srvOnce = serverOnce[serviceKey]
+		_serverOnce[serviceKey] = &ServerOnce{}
+		srvOnce = _serverOnce[serviceKey]
 	}
 
 	srvOnce.once.Do(func() {

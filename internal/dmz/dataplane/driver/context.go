@@ -24,12 +24,12 @@ import (
 )
 
 var (
-	once    sync.Once
-	context *Context
+	_once    sync.Once
+	_context *Context
 )
 
 func NewContext() *Context {
-	once.Do(func() {
+	_once.Do(func() {
 		if err := setupRlimit(); err != nil {
 			zlog.Errorf("stream: remove mem lock err=%v", err)
 			return
@@ -41,20 +41,20 @@ func NewContext() *Context {
 			return
 		}
 
-		context = &Context{
+		_context = &Context{
 			obj: &objs,
 		}
 	})
 
-	return context
+	return _context
 }
 
 func CloseContext() error {
-	if context == nil {
+	if _context == nil {
 		return nil
 	}
 
-	if err := context.Close(); err != nil {
+	if err := _context.Close(); err != nil {
 		return fmt.Errorf("stream: close context err: %v", err)
 	}
 

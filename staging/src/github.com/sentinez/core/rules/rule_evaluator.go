@@ -52,6 +52,6 @@ func visit(ctx corehttp.RequestContext, cond *rulepb.Condition) bool {
 		return matchSourceJA4(ctx, cond)
 
 	default:
-		return bypass
+		return _bypass
 	}
 }

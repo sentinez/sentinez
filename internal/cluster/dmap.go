@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	defaultChanBufferSize = 1024
+	_defaultChanBufferSize = 1024
 )
 
 type objKV[T any] struct {
@@ -35,7 +35,7 @@ type objKV[T any] struct {
 func NewDMap[T any](name string) *DMap[T] {
 	m := &DMap[T]{
 		name: name,
-		temp: make(chan objKV[T], defaultChanBufferSize),
+		temp: make(chan objKV[T], _defaultChanBufferSize),
 	}
 	go m.wait()
 	return m
@@ -49,10 +49,10 @@ type DMap[T any] struct {
 
 func (m *DMap[T]) wait() {
 	zlog.Infof("dmap: %s waitting to connection", m.name)
-	<-dictReady
+	<-_dictReady
 
 	var err error
-	m.dmap, err = dict.client.NewDMap(m.name)
+	m.dmap, err = _dict.client.NewDMap(m.name)
 	if err != nil {
 		zlog.Errorf("dmap: create %s got err: %v", m.name, err)
 	}

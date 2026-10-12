@@ -22,7 +22,6 @@ import (
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-
 	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users"
 	"github.com/sentinez/controlplane/pkg/crypto"
@@ -269,7 +268,6 @@ func (srv *IAMService) createAccountExtend(
 	ctx context.Context, account *iampb.Account) (*accrepos.AccountX, error) {
 	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
 	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
-		zlog.Errorf("GetByUsernameOrEmail err=%v", err)
 		return nil, err
 	}
 
@@ -283,13 +281,11 @@ func (srv *IAMService) createAccountExtend(
 
 		createResp, err := srv.CreateAccount(ctx, createReq)
 		if err != nil {
-			zlog.Errorf("CreateAccount err=%v", err)
 			return nil, err
 		}
 
 		acc, err = srv.accounts.Get(ctx, createResp.GetAccountId())
 		if err != nil {
-			zlog.Errorf("accounts.Get err=%v", err)
 			return nil, err
 		}
 	}

@@ -26,19 +26,19 @@ import (
 )
 
 var (
-	once sync.Once
-	inst *Setting
+	_once sync.Once
+	_inst *Setting
 )
 
 func New() *Setting {
-	once.Do(func() {
-		inst = &Setting{
+	_once.Do(func() {
+		_inst = &Setting{
 			setting: ssync.NewMap[string, *edgepb.Setting](),
 			dmap:    cluster.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
 		}
 	})
 
-	return inst
+	return _inst
 }
 
 type Setting struct {
@@ -73,9 +73,9 @@ func (s *Setting) Visit(fn func(*edgepb.Setting) bool) {
 }
 
 func Visit(fn func(*edgepb.Setting) bool) {
-	if inst == nil {
-		inst = New()
+	if _inst == nil {
+		_inst = New()
 	}
 
-	inst.Visit(fn)
+	_inst.Visit(fn)
 }

@@ -1,24 +1,38 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package proxyhz
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
-
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/shared/sync"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
+	"github.com/sentinez/core/common/bytestr"
+	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/shared/sync"
 )
 
 var _ corehttp.ReverseProxy = (*ReverseProxy)(nil)
 
 const (
-	hzHostClientName = "sentinez-edge-reverse-proxy"
+	_hzHostClientName = "sentinez-edge-reverse-proxy"
 )
 
 func NewReverseProxyDefault(target string) (corehttp.ReverseProxy, error) {
@@ -36,7 +50,7 @@ func NewReverseProxy(target string,
 
 	tlsClient, err := client.NewClient(
 		client.WithDialer(standard.NewDialer()),
-		client.WithName(hzHostClientName),
+		client.WithName(_hzHostClientName),
 		client.WithDisablePathNormalizing(option.disablePathNormalizing),
 		client.WithTLSConfig(option.tlsConfig),
 		client.WithMaxConnDuration(option.maxConnDuration),
@@ -49,7 +63,7 @@ func NewReverseProxy(target string,
 
 	plainClient, err := client.NewClient(
 		client.WithDialer(standard.NewDialer()),
-		client.WithName(hzHostClientName),
+		client.WithName(_hzHostClientName),
 		client.WithDialTimeout(option.timeout),
 	)
 	if err != nil {
@@ -106,5 +120,11 @@ func (p *ReverseProxy) Serve(ctx corehttp.Context) {
 		r.SetClient(p.plainClient)
 	}
 
-	r.ServeHTTP(ctx.Context(), ctx.Unwrap().(*app.RequestContext))
+	rc, ok := ctx.Unwrap().(*app.RequestContext)
+	if !ok {
+		ctx.SetStatusCode(http.StatusInternalServerError)
+		return
+	}
+
+	r.ServeHTTP(ctx.Context(), rc)
 }

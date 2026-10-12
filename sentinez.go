@@ -24,18 +24,18 @@ var (
 	Logo embed.FS
 
 	//go:embed deploy/ruleroot/v4-16-0/*.data
-	fsWAF4160 embed.FS
+	_fsWAF4160 embed.FS
 
 	//go:embed deploy/ruleroot/v4-17-0/*.data
-	fsWAF4170 embed.FS
+	_fsWAF4170 embed.FS
 )
 
 func WAF4160() fs.FS {
-	sub, _ := fs.Sub(fsWAF4160, "deploy/ruleroot/v4-16-0")
+	sub, _ := fs.Sub(_fsWAF4160, "deploy/ruleroot/v4-16-0")
 	return sub
 }
 
 func WAF4170() fs.FS {
-	sub, _ := fs.Sub(fsWAF4170, "deploy/ruleroot/v4-17-0")
+	sub, _ := fs.Sub(_fsWAF4170, "deploy/ruleroot/v4-17-0")
 	return sub
 }

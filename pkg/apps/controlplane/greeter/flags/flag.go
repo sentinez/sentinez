@@ -16,20 +16,20 @@
 package flags
 
 import (
+	"fmt"
 	"sync"
 
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/flagx"
-	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
 )
 
-var onceGRPCService sync.Once
+var _onceGRPCService sync.Once
 
 // ParseFlag flag args for grpc service
-func Parse() *settingpb.Flag {
-	onceGRPCService.Do(func() {
+func Parse() (*settingpb.Flag, error) {
+	_onceGRPCService.Do(func() {
 		flagx.Get().EnvFile = "./cmd/mesh/greeter/v1/.env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
@@ -40,8 +40,8 @@ func Parse() *settingpb.Flag {
 	})
 
 	if err := flagx.Validate(flagx.Get()); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get()
+	return flagx.Get(), nil
 }

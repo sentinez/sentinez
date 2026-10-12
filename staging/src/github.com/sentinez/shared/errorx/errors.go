@@ -27,56 +27,56 @@ import (
 )
 
 var (
-	forbidden = fmt.Sprintf("%s-%d: %s", core.Code,
+	_forbidden = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_FORBIDDEN,
 		typepb.Errors_ERRORS_FORBIDDEN.String())
 
-	unspecified = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unspecified = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_UNSPECIFIED,
 		typepb.Errors_ERRORS_UNSPECIFIED.String())
 
-	internalError = fmt.Sprintf("%s-%d: %s", core.Code,
+	_internalError = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_INTERNAL_ERROR,
 		typepb.Errors_ERRORS_INTERNAL_ERROR.String())
 
-	notFound = fmt.Sprintf("%s-%d: %s", core.Code,
+	_notFound = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_NOT_FOUND,
 		typepb.Errors_ERRORS_NOT_FOUND.String())
 
-	unauthorized = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unauthorized = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_UNAUTHORIZED,
 		typepb.Errors_ERRORS_UNAUTHORIZED.String())
 
-	invalidData = fmt.Sprintf("%s-%d: %s", core.Code,
+	_invalidData = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_INVALID_DATA,
 		typepb.Errors_ERRORS_INVALID_DATA.String())
 
-	unimplemented = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unimplemented = fmt.Sprintf("%s-%d: %s", core.Code,
 		typepb.Errors_ERRORS_UNIMPLEMENTED,
 		typepb.Errors_ERRORS_UNIMPLEMENTED.String())
 )
 
 var (
 	// StatusUnspecified is a generic error
-	StatusUnspecified = status.Error(codes.Unknown, unspecified)
+	StatusUnspecified = status.Error(codes.Unknown, _unspecified)
 
 	// StatusInternalError is an internal error
-	StatusInternalError = status.Error(codes.Internal, internalError)
+	StatusInternalError = status.Error(codes.Internal, _internalError)
 
 	// StatusNotFound is a not found error
-	StatusNotFound = status.Error(codes.NotFound, notFound)
+	StatusNotFound = status.Error(codes.NotFound, _notFound)
 
 	// StatusUnauthorized is an unauthorized error
-	StatusUnauthorized = status.Error(codes.Unauthenticated, unauthorized)
+	StatusUnauthorized = status.Error(codes.Unauthenticated, _unauthorized)
 
 	// StatusForbidden is a forbidden error
-	StatusForbidden = status.Error(codes.PermissionDenied, forbidden)
+	StatusForbidden = status.Error(codes.PermissionDenied, _forbidden)
 
 	// StatusInvalidData is an invalid data error
-	StatusInvalidData = status.Error(codes.InvalidArgument, invalidData)
+	StatusInvalidData = status.Error(codes.InvalidArgument, _invalidData)
 
 	// StatusUnimplemented is a not implemented error
-	StatusUnimplemented = status.Error(codes.Unimplemented, unimplemented)
+	StatusUnimplemented = status.Error(codes.Unimplemented, _unimplemented)
 )
 
 var (
@@ -84,13 +84,13 @@ var (
 	ErrServerClosed = http.ErrServerClosed
 
 	// ErrUnimplemented is a generic error
-	ErrUnimplemented = errors.New(unimplemented)
+	ErrUnimplemented = errors.New(_unimplemented)
 
 	// ErrInvalidData is an invalid data error
-	ErrInvalidData = errors.New(invalidData)
+	ErrInvalidData = errors.New(_invalidData)
 
 	// ErrNotFound is a not found error
-	ErrNotFound = errors.New(notFound)
+	ErrNotFound = errors.New(_notFound)
 )
 
 // F wrapped error with format template

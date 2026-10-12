@@ -71,7 +71,9 @@ func (c *Cache[T]) Get(k string) (T, bool) {
 		return emptyValue, false
 	}
 
-	return result.(T), true
+	value, ok := result.(T)
+
+	return value, ok
 }
 
 // Del used to delete key from memory

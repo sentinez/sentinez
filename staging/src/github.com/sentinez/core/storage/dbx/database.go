@@ -21,7 +21,6 @@ import (
 	"github.com/sentinez/core/storage/dbx/query"
 )
 
-
 type ScanOneFn[T any] func(Row) (*T, error)
 type ScanFn[T any] func(Rows) ([]*T, error)
 

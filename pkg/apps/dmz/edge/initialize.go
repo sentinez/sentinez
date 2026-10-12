@@ -21,7 +21,9 @@ import (
 )
 
 func (s *Server) initialize(appConf *settingpb.Config) error {
-	s.mem.Start(appConf)
+	if err := s.mem.Start(appConf); err != nil {
+		return err
+	}
 
 	// init cache repository
 	s.mem.LoadServer(s.server)

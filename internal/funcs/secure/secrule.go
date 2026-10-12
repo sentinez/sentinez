@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	matchedPool = sync.NewPool[rulepb.MatchedRules]()
+	_matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
 func NewSecRule(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
@@ -55,8 +55,8 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 		return sr.HandleNext(ctx)
 	}
 
-	matched := matchedPool.Get()
-	defer matchedPool.Put(matched)
+	matched := _matchedPool.Get()
+	defer _matchedPool.Put(matched)
 
 	for _, e := range chain {
 		matched.Reset()

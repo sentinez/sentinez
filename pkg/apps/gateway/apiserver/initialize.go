@@ -44,10 +44,20 @@ func (srv *Server) Initialize(
 	// register all custom handlers to the server
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
+	security, err := securityfac.NewDefaultHandler(ctx, conf)
+	if err != nil {
+		return err
+	}
+
+	tenant, err := tenantfac.NewDefaultHandler(ctx, conf)
+	if err != nil {
+		return err
+	}
+
 	return srv.Visit(ctx,
 		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
 		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-		controlplane.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
-		controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
+		controlplane.NewSecurity(security),
+		controlplane.NewTenant(tenant),
 	)
 }

@@ -15,52 +15,52 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"sync"
 
 	"github.com/joho/godotenv"
-
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
 var (
-	envConf = make(map[string]string)
-	once    sync.Once
-	lock    sync.Mutex
+	_envConf = make(map[string]string)
+	_once    sync.Once
+	_lock    sync.Mutex
 )
 
 // LoadEnv returns the environment.
-func LoadEnv(envFile string, keys ...settingpb.Senz) map[string]string {
+func LoadEnv(
+	envFile string, keys ...settingpb.Senz,
+) (map[string]string, error) {
 	if envFile != "" {
-		err := godotenv.Load(envFile)
-		if err != nil {
-			zlog.Fatalf("error loading environment file: err=%v", err)
+		if err := godotenv.Load(envFile); err != nil {
+			return nil, fmt.Errorf("load env file: %w", err)
 		}
 	}
 
-	once.Do(func() {
+	_once.Do(func() {
 		if len(keys) > 0 {
 			for _, k := range keys {
-				envConf[k.String()] = os.Getenv(k.String())
+				_envConf[k.String()] = os.Getenv(k.String())
 			}
 
 			return
 		}
 
 		for key := range settingpb.Senz_value {
-			envConf[key] = os.Getenv(key)
+			_envConf[key] = os.Getenv(key)
 		}
 	})
 
-	return envConf
+	return _envConf, nil
 }
 
 func GetEnv(key settingpb.Senz) string {
-	lock.Lock()
-	defer lock.Unlock()
+	_lock.Lock()
+	defer _lock.Unlock()
 
-	value, ok := envConf[key.String()]
+	value, ok := _envConf[key.String()]
 	if ok {
 		return value
 	}
@@ -69,8 +69,8 @@ func GetEnv(key settingpb.Senz) string {
 }
 
 func SetEnv(key settingpb.Senz, value string) {
-	lock.Lock()
-	defer lock.Unlock()
+	_lock.Lock()
+	defer _lock.Unlock()
 
-	envConf[key.String()] = value
+	_envConf[key.String()] = value
 }

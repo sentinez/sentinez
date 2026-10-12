@@ -24,7 +24,7 @@ import (
 var (
 	_ io.Closer = (*RuleEvent)(nil)
 
-	pool = sync.NewPoolCtr(func() *RuleEvent {
+	_pool = sync.NewPoolCtr(func() *RuleEvent {
 		return &RuleEvent{Event: &secrulepb.Event{}}
 	})
 )
@@ -40,10 +40,10 @@ func (re *RuleEvent) Close() error {
 }
 
 func Acquire() *RuleEvent {
-	return pool.Get()
+	return _pool.Get()
 }
 
 func Release(obj *RuleEvent) {
 	obj.Reset()
-	pool.Put(obj)
+	_pool.Put(obj)
 }

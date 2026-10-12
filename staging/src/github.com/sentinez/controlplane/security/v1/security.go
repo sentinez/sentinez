@@ -26,19 +26,26 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-var bufLis *bufconn.Listener
+var _bufLis *bufconn.Listener
 
 // GetListener returns the local buffer listener for the security module.
 func GetListener() *bufconn.Listener {
-	return bufLis
+	return _bufLis
 }
 
 // NewService creates a new Security module instance.
-func NewService(ctx context.Context, appConf *settingpb.Config) *Security {
+func NewService(
+	ctx context.Context, appConf *settingpb.Config,
+) (*Security, error) {
+	hdl, err := securityfac.NewDefaultHandler(ctx, appConf)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Security{
 		Server: coregrpc.New(),
-		hdl:    securityfac.NewDefaultHandler(ctx, appConf),
-	}
+		hdl:    hdl,
+	}, nil
 }
 
 // Security orchestrates the security core domain.
@@ -53,8 +60,8 @@ func (mod *Security) Start(_ context.Context) error {
 	securitypb.RegisterSecurityServiceServer(mod.AsServer(), mod.hdl)
 
 	// Begin listening on the buffer
-	bufLis = bufconn.Listen(local.BufSize)
+	_bufLis = bufconn.Listen(local.BufSize)
 
 	// Serve requests over the buffer connections
-	return mod.BufServe(bufLis)
+	return mod.BufServe(_bufLis)
 }

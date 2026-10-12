@@ -16,33 +16,38 @@
 package main
 
 import (
+	"context"
+
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/cmd/szedge/v1/server"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
-
-	"net/http"
-	_ "net/http/pprof"
+	"github.com/sentinez/shared/zlog"
 )
-
-// func init enables the pprof HTTP server for profiling purposes.
-// Uncomment this block to expose runtime profiling data at :6060.
-//
-// Example:
-//
-//	go tool pprof http://localhost:6060/debug/pprof/profile
-func init() {
-	go func() {
-		_ = http.ListenAndServe(":6060", nil)
-	}()
-}
 
 // main is the entrypoint of the Edge application.
 // It initializes configuration, creates the HTTP server and Edge Engine,
 // and registers their start/stop hooks with the runner framework.
 func main() {
-	runner.New(config.Config(), core.Code).Main(
+	if err := run(); err != nil {
+		zlog.Fatal(err)
+	}
+}
+
+func run() error {
+	conf, err := config.Config()
+	if err != nil {
+		return err
+	}
+
+	r, err := runner.New(conf, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(),
 		runner.NewApp(server.Edge),
 		runner.NewApp(server.GRPC),
+		runner.NewApp(server.Pprof),
 	)
 }

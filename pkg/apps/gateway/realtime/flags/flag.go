@@ -16,20 +16,20 @@
 package flags
 
 import (
+	"fmt"
 	"sync"
 
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/flagx"
-	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
 )
 
-var onceWS sync.Once
+var _onceWS sync.Once
 
 // ParseFlag flag args for apiserver service
-func Parse() *settingpb.Flag {
-	onceWS.Do(func() {
+func Parse() (*settingpb.Flag, error) {
+	_onceWS.Do(func() {
 		flagx.Get().EnvFile = "./cmd/realtime/.env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
@@ -40,8 +40,8 @@ func Parse() *settingpb.Flag {
 	})
 
 	if err := flagx.Validate(flagx.Get()); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get()
+	return flagx.Get(), nil
 }

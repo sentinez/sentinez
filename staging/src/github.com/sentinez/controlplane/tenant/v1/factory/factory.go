@@ -16,23 +16,22 @@ package tenantfac
 
 import (
 	"context"
+	"fmt"
 
 	tenanthandler "github.com/sentinez/controlplane/tenant/v1/handler"
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
 	tenantsvc "github.com/sentinez/controlplane/tenant/v1/service"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
 )
 
 func NewDefaultHandler(ctx context.Context,
-	conf *settingpb.Config) tenantpb.TenantServiceServer {
-
+	conf *settingpb.Config) (tenantpb.TenantServiceServer, error) {
 	rscrepo, err := resourcerepo.New(ctx, conf)
 	if err != nil {
-		zlog.Fatalf("tenantpb factory: new resource err: %v", err)
+		return nil, fmt.Errorf("resource repo: %w", err)
 	}
 
 	tenantsvcer := tenantsvc.New(rscrepo)
-	return tenanthandler.New(tenantsvcer)
+	return tenanthandler.New(tenantsvcer), nil
 }

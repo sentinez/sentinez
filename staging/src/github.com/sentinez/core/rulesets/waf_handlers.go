@@ -144,7 +144,7 @@ func canRequestBodyAccessible(ctx corehttp.Context,
 	if len(body) != 0 {
 		it, _, err := tx.ReadRequestBodyFrom(ctx.RequestBodyStream())
 		if err != nil {
-			return nil, fmt.Errorf("failed to append request body: %v", err)
+			return nil, fmt.Errorf("append request body: %v", err)
 		}
 
 		if it != nil {
@@ -185,11 +185,11 @@ func releaseBodyReader(ctx corehttp.Context, tx types.Transaction) error {
 	reader, err := tx.ResponseBodyReader()
 	if err != nil {
 		ctx.SetStatusCode(http.StatusInternalServerError)
-		return fmt.Errorf("failed to release resp body reader: %v", err)
+		return fmt.Errorf("release resp body reader: %v", err)
 	}
 
 	if err = ctx.Copy(reader); err != nil {
-		return fmt.Errorf("failed to copy the resp body: %v", err)
+		return fmt.Errorf("copy resp body: %v", err)
 	}
 
 	return nil

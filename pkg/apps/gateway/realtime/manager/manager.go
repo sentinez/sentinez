@@ -21,14 +21,14 @@ import (
 )
 
 var (
-	manager *wsz.Manager
-	once    sync.Once
+	_manager *wsz.Manager
+	_once    sync.Once
 )
 
 func Manager() *wsz.Manager {
-	once.Do(func() {
-		manager = wsz.NewManager()
+	_once.Do(func() {
+		_manager = wsz.NewManager()
 	})
 
-	return manager
+	return _manager
 }

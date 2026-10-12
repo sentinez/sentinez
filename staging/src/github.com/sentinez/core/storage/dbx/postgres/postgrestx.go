@@ -25,9 +25,9 @@ import (
 )
 
 var (
-	_        dbx.TxSession = (*TxSession)(nil)
-	onceTxSS sync.Once
-	txSSPool *ssync.Pool[TxSession]
+	_         dbx.TxSession = (*TxSession)(nil)
+	_onceTxSS sync.Once
+	_txSSPool *ssync.Pool[TxSession]
 )
 
 func NewTX(conf *settingpb.Config) *Tx {
@@ -54,11 +54,11 @@ func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
 		return nil, err
 	}
 
-	onceTxSS.Do(func() {
-		txSSPool = ssync.NewPool[TxSession]()
+	_onceTxSS.Do(func() {
+		_txSSPool = ssync.NewPool[TxSession]()
 	})
 
-	txSS := txSSPool.Get()
+	txSS := _txSSPool.Get()
 	txSS.tx = tx
 
 	return txSS, nil
@@ -74,7 +74,7 @@ type TxSession struct {
 
 func (ts *TxSession) release() {
 	ts.tx = nil
-	txSSPool.Put(ts)
+	_txSSPool.Put(ts)
 }
 
 // Commit implements database.Transaction.

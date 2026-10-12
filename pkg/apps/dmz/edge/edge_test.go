@@ -31,34 +31,34 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var reqPool = sync.Pool{
+var _reqPool = sync.Pool{
 	New: func() any {
 		return httptest.NewRequest(
 			http.MethodGet, "https://badcheese.is.s6z.io.vn:7443/", nil)
 	},
 }
 
-var respPool = sync.Pool{
+var _respPool = sync.Pool{
 	New: func() any {
 		return httptest.NewRecorder()
 	},
 }
 
 func getRequest() *http.Request {
-	req := reqPool.Get().(*http.Request)
+	req := _reqPool.Get().(*http.Request)
 	return req
 }
 
 func putRequest(req *http.Request) {
-	reqPool.Put(req)
+	_reqPool.Put(req)
 }
 
 func getRecorder() *httptest.ResponseRecorder {
-	return respPool.Get().(*httptest.ResponseRecorder)
+	return _respPool.Get().(*httptest.ResponseRecorder)
 }
 
 func putRecorder(w *httptest.ResponseRecorder) {
-	respPool.Put(w)
+	_respPool.Put(w)
 }
 
 func BenchmarkStandardConverter(b *testing.B) {

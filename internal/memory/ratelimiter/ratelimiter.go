@@ -26,18 +26,18 @@ import (
 )
 
 var (
-	once        sync.Once
-	limiterInst *Limiter
+	_once        sync.Once
+	_limiterInst *Limiter
 )
 
 func New() *Limiter {
-	once.Do(func() {
-		limiterInst = &Limiter{
+	_once.Do(func() {
+		_limiterInst = &Limiter{
 			space: ssync.NewMap[string, []Entry](),
 		}
 	})
 
-	return limiterInst
+	return _limiterInst
 }
 
 // Entry is a rate limiter applied to the requests matching Eval.

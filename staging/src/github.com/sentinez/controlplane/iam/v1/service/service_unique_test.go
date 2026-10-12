@@ -45,7 +45,7 @@ func existing(email string) lookup {
 	}}}
 }
 
-var missing = lookup{acc: &accrepos.AccountX{}, err: errorx.ErrNotFound}
+var _missing = lookup{acc: &accrepos.AccountX{}, err: errorx.ErrNotFound}
 
 func newTestService(t *testing.T,
 	lookups map[string]lookup) (*IAMService, *usersrepo.MockIUser) {
@@ -75,7 +75,7 @@ func TestUsernameOrEmailMustUnique(t *testing.T) {
 			giveUsername: "alice",
 			giveEmail:    "alice@x.io",
 			giveLookups: map[string]lookup{
-				"alice": missing, "alice@x.io": missing,
+				"alice": _missing, "alice@x.io": _missing,
 			},
 			wantCode: codes.OK,
 		},
@@ -91,7 +91,7 @@ func TestUsernameOrEmailMustUnique(t *testing.T) {
 			giveUsername: "alice",
 			giveEmail:    "alice@x.io",
 			giveLookups: map[string]lookup{
-				"alice": missing, "alice@x.io": existing("alice@x.io"),
+				"alice": _missing, "alice@x.io": existing("alice@x.io"),
 			},
 			wantCode: codes.AlreadyExists,
 		},
@@ -141,7 +141,7 @@ func TestCreateUser_EmailTaken(t *testing.T) {
 
 func TestCreateUser_EmailFree(t *testing.T) {
 	svc, userRepo := newTestService(t,
-		map[string]lookup{"bob@x.io": missing})
+		map[string]lookup{"bob@x.io": _missing})
 	userRepo.On("Create", mock.Anything, mock.Anything).
 		Return(&iampb.User{Id: "senz.iam.users.2"}, nil)
 
@@ -153,7 +153,7 @@ func TestCreateUser_EmailFree(t *testing.T) {
 }
 
 func TestUpdateUser_AccountMissing(t *testing.T) {
-	svc, _ := newTestService(t, map[string]lookup{"bob@x.io": missing})
+	svc, _ := newTestService(t, map[string]lookup{"bob@x.io": _missing})
 
 	resp, err := svc.UpdateUser(context.Background(),
 		&iampb.UpdateUserRequest{Id: "senz.iam.users.2", Email: "bob@x.io"})

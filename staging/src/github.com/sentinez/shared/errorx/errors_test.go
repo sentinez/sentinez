@@ -18,11 +18,12 @@ package errorx
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-var tests = []struct {
+var _tests = []struct {
 	name     string
 	err      error
 	code     codes.Code
@@ -32,52 +33,46 @@ var tests = []struct {
 		name:     "ErrUnspecified",
 		err:      StatusUnspecified,
 		code:     codes.Unknown,
-		expected: unspecified,
+		expected: _unspecified,
 	},
 	{
 		name:     "ErrInternalError",
 		err:      StatusInternalError,
 		code:     codes.Internal,
-		expected: internalError,
+		expected: _internalError,
 	},
 	{
 		name:     "ErrNotFound",
 		err:      StatusNotFound,
 		code:     codes.NotFound,
-		expected: notFound,
+		expected: _notFound,
 	},
 	{
 		name:     "ErrUnauthorized",
 		err:      StatusUnauthorized,
 		code:     codes.Unauthenticated,
-		expected: unauthorized,
+		expected: _unauthorized,
 	},
 	{
 		name:     "ErrForbidden",
 		err:      StatusForbidden,
 		code:     codes.PermissionDenied,
-		expected: forbidden,
+		expected: _forbidden,
 	},
 	{
 		name:     "ErrInvalidData",
 		err:      StatusInvalidData,
 		code:     codes.InvalidArgument,
-		expected: invalidData,
+		expected: _invalidData,
 	},
 }
 
 func TestErrors(t *testing.T) {
 
-	for _, tt := range tests {
+	for _, tt := range _tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if status.Code(tt.err) != tt.code {
-				t.Errorf("expected code %v, got %v",
-					tt.code, status.Code(tt.err))
-			}
-			if status.Convert(tt.err).Message() != tt.expected {
-				t.Errorf("expected message %v, got %v",
-					tt.expected, status.Convert(tt.err).Message())
-			}
+			assert.Equal(t, tt.code, status.Code(tt.err))
+			assert.Equal(t, tt.expected, status.Convert(tt.err).Message())
 		})
 	}
 }

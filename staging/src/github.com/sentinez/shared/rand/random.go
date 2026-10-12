@@ -28,28 +28,39 @@ import (
 	"github.com/sentinez/shared/bytesconv"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyz" +
+const _charset = "abcdefghijklmnopqrstuvwxyz" +
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func RandomString(n int) (string, error) {
 	result := make([]byte, n)
-	charsetLen := int64(len(charset))
+	charsetLen := int64(len(_charset))
 	for i := range n {
 		idxBig, err := rand.Int(rand.Reader, big.NewInt(charsetLen))
 		if err != nil {
 			return "", err
 		}
-		result[i] = charset[idxBig.Int64()]
+		result[i] = _charset[idxBig.Int64()]
 	}
 	return string(result), nil
 }
 
-var bufPool = sync.Pool{
+var _bufPool = sync.Pool{
 	New: func() any {
 		buf := bytes.NewBuffer([]byte{})
 		buf.Grow(4096)
 		return buf
 	},
+}
+
+// getBuffer returns an empty buffer from the pool.
+func getBuffer() *bytes.Buffer {
+	buf, ok := _bufPool.Get().(*bytes.Buffer)
+	if !ok {
+		return &bytes.Buffer{}
+	}
+	buf.Reset()
+
+	return buf
 }
 
 // NewId generates a new UUID and returns it as a string.
@@ -67,15 +78,14 @@ func NewXId(prefix []byte) string {
 	guid := xid.New()
 	guid.Bytes()
 
-	buf := bufPool.Get().(*bytes.Buffer)
-	buf.Reset()
+	buf := getBuffer()
 
 	buf.Write(prefix)
 	buf.Write(bytesconv.S2b(guid.String()))
 
 	// Copy: the buffer goes back to the pool and is overwritten later.
 	res := buf.String()
-	bufPool.Put(buf)
+	_bufPool.Put(buf)
 
 	return res
 }
@@ -83,15 +93,14 @@ func NewXId(prefix []byte) string {
 func NewTimeId(prefix []byte, unixtime uint64) string {
 	ulidStr, _ := ulid.NewTime(unixtime)
 
-	buf := bufPool.Get().(*bytes.Buffer)
-	buf.Reset()
+	buf := getBuffer()
 
 	buf.Write(prefix)
 	buf.WriteString(ulidStr)
 
 	// Copy: the buffer goes back to the pool and is overwritten later.
 	res := buf.String()
-	bufPool.Put(buf)
+	_bufPool.Put(buf)
 
 	return res
 }

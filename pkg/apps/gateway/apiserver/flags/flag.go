@@ -16,20 +16,20 @@
 package flags
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/flagx"
-	"github.com/sentinez/shared/zlog"
 	"github.com/spf13/pflag"
 )
 
-var onceAPIServer sync.Once
+var _onceAPIServer sync.Once
 
 // Parse flag args for apiserver service
-func Parse() *settingpb.Flag {
-	onceAPIServer.Do(func() {
+func Parse() (*settingpb.Flag, error) {
+	_onceAPIServer.Do(func() {
 		flagx.Get().EnvFile = "./cmd/szapiserver/.env"
 
 		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
@@ -39,8 +39,8 @@ func Parse() *settingpb.Flag {
 	})
 
 	if err := flagx.Validate(flagx.Get()); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get()
+	return flagx.Get(), nil
 }

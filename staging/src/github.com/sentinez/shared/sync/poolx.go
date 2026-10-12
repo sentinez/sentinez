@@ -43,7 +43,12 @@ type Pool[T any] struct {
 }
 
 func (p *Pool[T]) Get() *T {
-	return p.pool.Get().(*T)
+	t, ok := p.pool.Get().(*T)
+	if !ok {
+		return new(T)
+	}
+
+	return t
 }
 
 func (p *Pool[T]) Put(t *T) {

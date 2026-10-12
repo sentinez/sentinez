@@ -16,41 +16,44 @@ package edgeyaml
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 
+	"github.com/goccy/go-yaml"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
-
-	"github.com/goccy/go-yaml"
 	"google.golang.org/protobuf/encoding/protojson"
 )
+
+var errMissingSetting = errors.New("missing 'setting' in configuration")
 
 type Config struct {
 	Setting *edgepb.Setting `yaml:"setting"`
 }
 
-func LoadSetting(appConf *settingpb.Config) *edgepb.Setting {
+func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 	data, err := os.ReadFile(appConf.GetFlag().GetProxyConfig())
 	if err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("read proxy config: %w", err)
 	}
 
 	var raw map[string]interface{}
 	if err := yaml.Unmarshal(data, &raw); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("parse proxy config: %w", err)
 	}
 
 	settingRaw, ok := raw["setting"]
 	if !ok {
-		zlog.Fatal("missing 'setting' in configuration")
+		return nil, errMissingSetting
 	}
 
 	zlog.Debugf("setting: %v", settingRaw)
 
 	settingJSON, err := json.Marshal(settingRaw)
 	if err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("encode setting: %w", err)
 	}
 
 	setting := &edgepb.Setting{}
@@ -59,8 +62,8 @@ func LoadSetting(appConf *settingpb.Config) *edgepb.Setting {
 	}
 
 	if err := unmarshaler.Unmarshal(settingJSON, setting); err != nil {
-		zlog.Fatal(err)
+		return nil, fmt.Errorf("decode setting: %w", err)
 	}
 
-	return setting
+	return setting, nil
 }

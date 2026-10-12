@@ -22,10 +22,27 @@ import (
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/config"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
+	"github.com/sentinez/shared/zlog"
 )
 
 func main() {
-	runner.New(config.Config(), core.Code).Main(runner.NewApp(app))
+	if err := run(); err != nil {
+		zlog.Fatal(err)
+	}
+}
+
+func run() error {
+	conf, err := config.Config()
+	if err != nil {
+		return err
+	}
+
+	r, err := runner.New(conf, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(), runner.NewApp(app))
 }
 
 func app(c *runner.Context[realtime.Realtime]) {

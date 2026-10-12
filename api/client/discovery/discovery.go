@@ -27,16 +27,16 @@ import (
 )
 
 var (
-	dcvr *Discovery
-	once sync.Once
+	_dcvr *Discovery
+	_once sync.Once
 )
 
 func GetDiscovery(opt *options.Options) *Discovery {
-	once.Do(func() {
-		dcvr = New(opt)
+	_once.Do(func() {
+		_dcvr = New(opt)
 	})
 
-	return dcvr
+	return _dcvr
 }
 
 // New create new instance

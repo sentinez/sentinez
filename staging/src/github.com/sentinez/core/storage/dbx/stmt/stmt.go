@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	createSchemaStmt = `
+	_createSchemaStmt = `
 		CREATE TABLE IF NOT EXISTS %s (
 		    id TEXT PRIMARY KEY,
 			created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
@@ -30,31 +30,31 @@ const (
 		)
 	`
 
-	addColumnStmt = `
+	_addColumnStmt = `
 		ALTER TABLE %s
 		ADD COLUMN IF NOT EXISTS %s %s
 	`
 
 	// index name: <table>_<column>_<method>_idx
-	createIndexStmt = `
+	_createIndexStmt = `
 		CREATE INDEX IF NOT EXISTS %s_%s_%s_idx
 		ON %s USING %s (%s)
 	`
 )
 
 func CreateTable(tableName string) string {
-	return fmt.Sprintf(createSchemaStmt, tableName)
+	return fmt.Sprintf(_createSchemaStmt, tableName)
 }
 
 func AddColumn(tableName string,
 	columnName string, columnType dbx.ColumnType) string {
-	return fmt.Sprintf(addColumnStmt, tableName, columnName, columnType)
+	return fmt.Sprintf(_addColumnStmt, tableName, columnName, columnType)
 }
 
 func CreateIndex(tableName string, index dbx.Index) string {
 	method := string(index.Method)
 
-	return fmt.Sprintf(createIndexStmt,
+	return fmt.Sprintf(_createIndexStmt,
 		tableName, index.Column, strings.ToLower(method),
 		tableName, method, index.Column,
 	)

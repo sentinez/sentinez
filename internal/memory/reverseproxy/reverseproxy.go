@@ -22,19 +22,19 @@ import (
 )
 
 var (
-	once             sync.Once
-	reverseProxyInst *ReverseProxy
-	mu               sync.Mutex
+	_once             sync.Once
+	_reverseProxyInst *ReverseProxy
+	_mu               sync.Mutex
 )
 
 func New() *ReverseProxy {
-	once.Do(func() {
-		reverseProxyInst = &ReverseProxy{
+	_once.Do(func() {
+		_reverseProxyInst = &ReverseProxy{
 			space: ssync.NewMap[string, corehttp.ReverseProxy](),
 		}
 	})
 
-	return reverseProxyInst
+	return _reverseProxyInst
 }
 
 type ReverseProxy struct {
