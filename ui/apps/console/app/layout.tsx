@@ -8,6 +8,7 @@ import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import LoadingEffect from '@/components/loading-effect';
+import { SessionRedirect } from '@/components/session-redirect';
 
 const fontSans = Roboto({
   subsets: ['latin', 'vietnamese'],
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}>
         <NextIntlClientProvider>
           <Providers>
+            <SessionRedirect />
             <LoadingEffect>{children}</LoadingEffect>
           </Providers>
         </NextIntlClientProvider>

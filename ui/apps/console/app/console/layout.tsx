@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import styles from '@/app/console/console.module.scss';
+import { RouteGuard } from '@/components/session-redirect';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');
@@ -15,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // style={{'--sidebar-width': '300px'} as React.CSSProperties}
       className={styles.sidebar_provider}
     >
-      {children}
+      <RouteGuard>{children}</RouteGuard>
     </SidebarProvider>
   );
 }

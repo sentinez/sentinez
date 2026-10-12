@@ -31,6 +31,8 @@ mirror the swagger wire format, and never use the edge/runtime protos
    `XxxRequest` / `XxxResponse` from `.../apps/<domain>/v1/<domain>`.
 2. `import { API_BASE_PATH } from '@/lib/api/base';` (`/api`, proxied by
    `app/api/[...path]/route.ts` to the server-only `API_BASE_PATH` env).
+   That file also adds `Authorization: Bearer <token>` to every `/api/...`
+   request, so call the default `axios` and never set the header by hand.
    `import { paginate, toQuery } from '@/lib/api/pages';` when needed.
 3. `const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';`
 4. `export interface ApiOptions { signal?: AbortSignal }`; every function takes

@@ -15,7 +15,6 @@ import {
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { toQuery } from '@/lib/api/pages';
-import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
 
 // GET /iam/passkey/register/challenge
 async function PasskeyRegisterChallenge(
@@ -99,15 +98,12 @@ export async function PasskeyLogin(
   });
 }
 
-// Adds a passkey to the signed-in user. Both calls carry the access token:
-// the server only links a passkey for the user who asked for it.
+// Adds a passkey to the signed-in user. Both calls carry the access token
+// (see lib/api/base.ts): the server only links a passkey for the user who
+// asked for it.
 export async function PasskeyLink(): Promise<PasskeyRegisterVerifyResponse> {
-  const headers = {
-    Authorization: `Bearer ${localStorage.getItem(SENTINEZ_ACCESS_TOKEN_KEY) ?? ''}`,
-  };
-
   // GET /iam/passkey/link/challenge
-  const resp = await axios.get(`${API_BASE_PATH}/iam/passkey/link/challenge`, { headers });
+  const resp = await axios.get(`${API_BASE_PATH}/iam/passkey/link/challenge`);
   const start = PasskeyLinkChallengeResponse.fromJSON(resp.data ?? {});
   const options = start.options;
   if (options == undefined) {
@@ -118,15 +114,8 @@ export async function PasskeyLink(): Promise<PasskeyRegisterVerifyResponse> {
     optionsJSON: options['publicKey'],
   });
 
-  // POST /iam/passkey/register/verify
-  const endpoint = `${API_BASE_PATH}/iam/passkey/register/verify`;
-  const verified = await axios.post(
-    endpoint,
-    PasskeyRegisterVerifyRequest.toJSON({
-      sessionId: start.sessionId,
-      credentialCreationResponse: credentialBytes(credential),
-    }),
-    { headers },
-  );
-  return PasskeyRegisterVerifyResponse.fromJSON(verified.data ?? {});
+  return PasskeyRegisterVerify({
+    sessionId: start.sessionId,
+    credentialCreationResponse: credentialBytes(credential),
+  });
 }

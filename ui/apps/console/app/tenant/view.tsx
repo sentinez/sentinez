@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import Language from '@/components/language';
+import { UserMenu } from '@/components/user-menu';
 import { useApi } from '@/hooks/use-api';
 import { useDebounced } from '@/hooks/use-debounced';
 import { listTenants } from '@/lib/api/tenant';
@@ -54,7 +55,10 @@ export default function View() {
           </div>
           <span className="items-center text-xl text-[#0504aa]">SENTINÉZ</span>
         </div>
-        <Language />
+        <div className="flex items-center gap-2">
+          <Language />
+          <UserMenu />
+        </div>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-6 sm:gap-10">
         <div className="relative w-full max-w-sm">
