@@ -323,6 +323,24 @@ func local_request_IdentityAccessManagementService_PasskeyRegisterVerify_0(ctx c
 
 }
 
+func request_IdentityAccessManagementService_PasskeyLinkChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityAccessManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLinkChallengeRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.PasskeyLinkChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_IdentityAccessManagementService_PasskeyLinkChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityAccessManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PasskeyLinkChallengeRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.PasskeyLinkChallenge(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 var (
 	filter_IdentityAccessManagementService_PasskeyLoginChallenge_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
@@ -617,6 +635,31 @@ func RegisterIdentityAccessManagementServiceHandlerServer(ctx context.Context, m
 
 	})
 
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLinkChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLinkChallenge", runtime.WithHTTPPathPattern("/iam/passkey/link/challenge"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_IdentityAccessManagementService_PasskeyLinkChallenge_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_IdentityAccessManagementService_PasskeyLinkChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -906,6 +949,28 @@ func RegisterIdentityAccessManagementServiceHandlerClient(ctx context.Context, m
 
 	})
 
+	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLinkChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLinkChallenge", runtime.WithHTTPPathPattern("/iam/passkey/link/challenge"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_IdentityAccessManagementService_PasskeyLinkChallenge_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_IdentityAccessManagementService_PasskeyLinkChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -972,6 +1037,8 @@ var (
 
 	pattern_IdentityAccessManagementService_PasskeyRegisterVerify_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "register", "verify"}, ""))
 
+	pattern_IdentityAccessManagementService_PasskeyLinkChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "link", "challenge"}, ""))
+
 	pattern_IdentityAccessManagementService_PasskeyLoginChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "login", "challenge"}, ""))
 
 	pattern_IdentityAccessManagementService_PasskeyLoginVerify_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"iam", "passkey", "login", "verify"}, ""))
@@ -995,6 +1062,8 @@ var (
 	forward_IdentityAccessManagementService_PasskeyRegisterChallenge_0 = runtime.ForwardResponseMessage
 
 	forward_IdentityAccessManagementService_PasskeyRegisterVerify_0 = runtime.ForwardResponseMessage
+
+	forward_IdentityAccessManagementService_PasskeyLinkChallenge_0 = runtime.ForwardResponseMessage
 
 	forward_IdentityAccessManagementService_PasskeyLoginChallenge_0 = runtime.ForwardResponseMessage
 

@@ -17,13 +17,11 @@ package iamhdl
 
 import (
 	"context"
-	"errors"
 
 	iamsvc "github.com/sentinez/controlplane/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -80,18 +78,16 @@ func (iam *IdentityAccessManagement) PasskeyRegisterChallenge(
 ) (*iampb.PasskeyRegisterChallengeResponse, error) {
 	zlog.Debugf("[IAMMNT.PasskeyRegisterChallenge] req = %v", req)
 
-	user, err := iam.service.
-		GetAccountByUsernameOrEmail(ctx, req.GetEmailOrUsername())
-	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
-		return nil, err
-	}
-
-	if user.GetId() != "" {
-		return nil, errorx.StatusAlreadyExistsF(
-			"username or email already exists: %s", req.GetEmailOrUsername())
-	}
-
 	return iam.service.PasskeyRegisterChallenge(ctx, req)
+}
+
+// PasskeyLinkChallenge implements iam.IdentityAccessManagementServiceServer.
+func (iam *IdentityAccessManagement) PasskeyLinkChallenge(
+	ctx context.Context,
+	req *iampb.PasskeyLinkChallengeRequest,
+) (*iampb.PasskeyLinkChallengeResponse, error) {
+
+	return iam.service.PasskeyLinkChallenge(ctx, req)
 }
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,

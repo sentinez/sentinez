@@ -623,6 +623,154 @@ var _ interface {
 	ErrorName() string
 } = PasskeyRegisterChallengeResponseValidationError{}
 
+// Validate checks the field values on PasskeyLinkChallengeRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *PasskeyLinkChallengeRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// PasskeyLinkChallengeRequestValidationError is the validation error returned
+// by PasskeyLinkChallengeRequest.Validate if the designated constraints
+// aren't met.
+type PasskeyLinkChallengeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PasskeyLinkChallengeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PasskeyLinkChallengeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PasskeyLinkChallengeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PasskeyLinkChallengeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PasskeyLinkChallengeRequestValidationError) ErrorName() string {
+	return "PasskeyLinkChallengeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PasskeyLinkChallengeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPasskeyLinkChallengeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PasskeyLinkChallengeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PasskeyLinkChallengeRequestValidationError{}
+
+// Validate checks the field values on PasskeyLinkChallengeResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *PasskeyLinkChallengeResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PasskeyLinkChallengeResponseValidationError{
+				field:  "Options",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SessionId
+
+	return nil
+}
+
+// PasskeyLinkChallengeResponseValidationError is the validation error returned
+// by PasskeyLinkChallengeResponse.Validate if the designated constraints
+// aren't met.
+type PasskeyLinkChallengeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PasskeyLinkChallengeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PasskeyLinkChallengeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PasskeyLinkChallengeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PasskeyLinkChallengeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PasskeyLinkChallengeResponseValidationError) ErrorName() string {
+	return "PasskeyLinkChallengeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PasskeyLinkChallengeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPasskeyLinkChallengeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PasskeyLinkChallengeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PasskeyLinkChallengeResponseValidationError{}
+
 // Validate checks the field values on LoginRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.

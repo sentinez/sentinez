@@ -153,6 +153,19 @@ service IdentityAccessManagementService {
     };
   }
 
+  // PasskeyLinkChallenge starts adding a passkey to the signed-in user.
+  // Finish it with PasskeyRegisterVerify.
+  rpc PasskeyLinkChallenge(PasskeyLinkChallengeRequest)
+      returns (PasskeyLinkChallengeResponse) {
+    option (google.api.http) = {
+      get: "/iam/passkey/link/challenge"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      ignore: true
+    };
+  }
+
   rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest)
       returns (PasskeyLoginChallengeResponse) {
     option (google.api.http) = {
@@ -218,6 +231,13 @@ message PasskeyRegisterChallengeRequest {
 }
 
 message PasskeyRegisterChallengeResponse {
+  google.protobuf.Struct options = 1;
+  string session_id = 2;
+}
+
+message PasskeyLinkChallengeRequest {}
+
+message PasskeyLinkChallengeResponse {
   google.protobuf.Struct options = 1;
   string session_id = 2;
 }

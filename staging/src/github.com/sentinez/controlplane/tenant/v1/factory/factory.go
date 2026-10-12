@@ -19,7 +19,9 @@ import (
 	"fmt"
 
 	tenanthandler "github.com/sentinez/controlplane/tenant/v1/handler"
+	memberrepo "github.com/sentinez/controlplane/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
+	tenantrepo "github.com/sentinez/controlplane/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/tenant/v1/service"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -32,6 +34,16 @@ func NewDefaultHandler(ctx context.Context,
 		return nil, fmt.Errorf("resource repo: %w", err)
 	}
 
-	tenantsvcer := tenantsvc.New(rscrepo)
+	mbrrepo, err := memberrepo.New(ctx, conf)
+	if err != nil {
+		return nil, fmt.Errorf("member repo: %w", err)
+	}
+
+	tntrepo, err := tenantrepo.New(ctx, conf)
+	if err != nil {
+		return nil, fmt.Errorf("tenant repo: %w", err)
+	}
+
+	tenantsvcer := tenantsvc.New(rscrepo, mbrrepo, tntrepo)
 	return tenanthandler.New(tenantsvcer), nil
 }

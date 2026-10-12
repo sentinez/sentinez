@@ -15,14 +15,11 @@
 package passkey
 
 import (
-	"net/mail"
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/storage/cache/mem"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/rand"
 )
 
@@ -33,48 +30,32 @@ func NewMemoryStorage(ttl time.Duration) Store {
 		// key: token
 		sessions: mem.NewDefault[*webauthn.SessionData](),
 
-		// key: email
-		accounts: mem.NewDefault[*iampb.Account](),
+		// key: token
+		registrations: mem.NewDefault[*Registration](),
 	}
 }
 
 type MemoryStorage struct {
-	ttl      time.Duration
-	sessions *mem.Cache[*webauthn.SessionData]
-	accounts *mem.Cache[*iampb.Account]
+	ttl           time.Duration
+	sessions      *mem.Cache[*webauthn.SessionData]
+	registrations *mem.Cache[*Registration]
 }
 
-// GetAndDeleteAccount implements Store.
-func (s *MemoryStorage) GetAndDeleteAccount(
-	email string) (*iampb.Account, error) {
-
-	acc, ok := s.accounts.Get(email)
-	if ok {
-		s.accounts.Del(email)
-		return acc, nil
-	}
-
-	return nil, errorx.ErrNotFound
+// SaveRegistration implements Store.
+func (s *MemoryStorage) SaveRegistration(token string, reg *Registration) {
+	s.registrations.SetWithTTL(token, reg, s.ttl)
 }
 
-// GetOrCreateAccount implements Store.
-func (s *MemoryStorage) GetOrCreateAccount(
-	email string) (*iampb.Account, error) {
-
-	acc, ok := s.accounts.Get(email)
-	if ok {
-		return acc, nil
+// TakeRegistration implements Store.
+func (s *MemoryStorage) TakeRegistration(token string) (*Registration, bool) {
+	reg, ok := s.registrations.Get(token)
+	if !ok {
+		return nil, false
 	}
 
-	acc = &iampb.Account{Email: email, Username: email}
-	_, err := mail.ParseAddress(email)
-	if err != nil {
-		return nil, err
-	}
+	s.registrations.Del(token)
 
-	s.accounts.Set(email, acc)
-
-	return acc, nil
+	return reg, true
 }
 
 // GenSessionId implements Store.

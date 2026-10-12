@@ -50,14 +50,16 @@ func TestLogin(t *testing.T) {
 			UserId:       "user-123",
 			Username:     "admin",
 			PasswordHash: pw,
+			Provider:     iampb.Provider_PROVIDER_LOCAL,
 		},
 	}
-	accountRepo.On("GetByUsernameOrEmail", mock.Anything, "admin").
-		Return(acc, nil)
+	accountRepo.On("GetByProvider",
+		mock.Anything, iampb.Provider_PROVIDER_LOCAL, "admin").Return(acc, nil)
 
 	user := &iampb.User{
-		Id:       "user-123",
-		FullName: "Test Admin",
+		Id:           "user-123",
+		FullName:     "Test Admin",
+		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 	}
 	userRepo.On("Get", mock.Anything, "user-123").
 		Return(user, nil)

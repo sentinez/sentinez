@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
-import { ChevronsUpDown, Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus, Users } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import {
@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
 import {
@@ -19,21 +18,29 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
+import { Skeleton } from '@sentinez/ui/components/skeleton';
 
-export function TeamSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+import { useApi } from '@/hooks/use-api';
+import { usePlanLabel } from '@/hooks/use-plan-label';
+import { useTenantId } from '@/hooks/use-tenant-id';
+import { listTenants } from '@/lib/api/tenant';
+
+export function TeamSwitcher() {
   const t = useTranslations('Sidebar');
+  const planLabel = usePlanLabel();
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const { data, isLoading } = useApi(listTenants, {});
+  const [tenantId, selectTenant] = useTenantId();
 
-  if (!activeTeam) {
+  const tenants = data?.tenants ?? [];
+  // Falls back to the first tenant when nothing was picked yet
+  const activeTenant = tenants.find((tenant) => tenant.id === tenantId) ?? tenants[0];
+
+  if (isLoading && !data) {
+    return <TeamSwitcherSkeleton />;
+  }
+
+  if (!activeTenant) {
     return null;
   }
 
@@ -47,11 +54,11 @@ export function TeamSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-sm">
-                <activeTeam.logo className="size-4" />
+                <Users className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate font-medium">{activeTenant.name || activeTenant.id}</span>
+                <span className="truncate text-xs">{planLabel(activeTenant.plan)}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -65,27 +72,47 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               {t('tenants')}
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {tenants.map((tenant) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
+                key={tenant.id}
+                onClick={() => selectTenant(tenant.id)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-3.5 shrink-0" />
+                  <Users className="size-3.5 shrink-0" />
                 </div>
-                {team.name}
+                <span className="truncate">{tenant.name || tenant.id}</span>
+                {tenant.id === activeTenant.id && <Check className="ml-auto size-4" />}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-sm border bg-transparent">
-                <Plus className="size-4" />
-              </div>
-              <div className="text-muted-foreground font-medium">{t('addTeam')}</div>
+            <DropdownMenuItem asChild className="gap-2 p-2">
+              <Link href="/tenant">
+                <div className="flex size-6 items-center justify-center rounded-sm border bg-transparent">
+                  <Plus className="size-4" />
+                </div>
+                <div className="text-muted-foreground font-medium">{t('addTeam')}</div>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+/** Same footprint as the switcher button, shown while the tenants load */
+function TeamSwitcherSkeleton() {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <div className="flex h-12 items-center gap-2 p-2 group-data-[collapsible=icon]:p-0">
+          <Skeleton className="bg-sidebar-accent size-8 shrink-0 rounded-sm" />
+          <div className="grid flex-1 gap-1.5 group-data-[collapsible=icon]:hidden">
+            <Skeleton className="bg-sidebar-accent h-3.5 w-24" />
+            <Skeleton className="bg-sidebar-accent h-3 w-14" />
+          </div>
+        </div>
       </SidebarMenuItem>
     </SidebarMenu>
   );

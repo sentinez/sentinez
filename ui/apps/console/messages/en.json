@@ -128,7 +128,20 @@
     "createOrJoin": "Create or Join",
     "createOrJoinDescription": "Create or join a team in one-click.",
     "join": "Join",
-    "create": "Create"
+    "create": "Create",
+    "creating": "Creating...",
+    "created": "Tenant created",
+    "searchPlaceholder": "Search tenants by name...",
+    "createTitle": "Create tenant",
+    "createDescription": "Name your tenant and pick a plan.",
+    "name": "Name",
+    "description": "Description",
+    "nameRequired": "Tenant name is required",
+    "plan": "Plan",
+    "planFree": "Free",
+    "planStandard": "Standard",
+    "planPro": "Pro",
+    "planUnknown": "Unknown plan"
   },
   "Members": {
     "title": "Members",

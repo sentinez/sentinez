@@ -11,6 +11,45 @@ import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.iam.v1";
 
+export enum Provider {
+  PROVIDER_UNSPECIFIED = 0,
+  PROVIDER_LOCAL = 1,
+  PROVIDER_PASSKEY = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function providerFromJSON(object: any): Provider {
+  switch (object) {
+    case 0:
+    case "PROVIDER_UNSPECIFIED":
+      return Provider.PROVIDER_UNSPECIFIED;
+    case 1:
+    case "PROVIDER_LOCAL":
+      return Provider.PROVIDER_LOCAL;
+    case 2:
+    case "PROVIDER_PASSKEY":
+      return Provider.PROVIDER_PASSKEY;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Provider.UNRECOGNIZED;
+  }
+}
+
+export function providerToJSON(object: Provider): string {
+  switch (object) {
+    case Provider.PROVIDER_UNSPECIFIED:
+      return "PROVIDER_UNSPECIFIED";
+    case Provider.PROVIDER_LOCAL:
+      return "PROVIDER_LOCAL";
+    case Provider.PROVIDER_PASSKEY:
+      return "PROVIDER_PASSKEY";
+    case Provider.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Account {
   metadata?: Metadata | undefined;
   id: string;
@@ -21,7 +60,7 @@ export interface Account {
   passwordHash: string;
   email: string;
   credentials: string[];
-  provider: string;
+  provider: Provider;
   providerUserId: string;
 }
 
@@ -31,13 +70,12 @@ export interface AccountResponse {
   userId: string;
   username: string;
   email: string;
-  provider: string;
+  provider: Provider;
 }
 
 export interface User {
   metadata?: Metadata | undefined;
   id: string;
-  tenantIds: string[];
   fullName: string;
   email: string;
   controlPlane: ControlPlane;
@@ -52,7 +90,7 @@ function createBaseAccount(): Account {
     passwordHash: "",
     email: "",
     credentials: [],
-    provider: "",
+    provider: 0,
     providerUserId: "",
   };
 }
@@ -80,8 +118,8 @@ export const Account: MessageFns<Account> = {
     for (const v of message.credentials) {
       writer.uint32(162).string(v!);
     }
-    if (message.provider !== "") {
-      writer.uint32(170).string(message.provider);
+    if (message.provider !== 0) {
+      writer.uint32(168).int32(message.provider);
     }
     if (message.providerUserId !== "") {
       writer.uint32(178).string(message.providerUserId);
@@ -159,11 +197,11 @@ export const Account: MessageFns<Account> = {
             continue;
           }
           case 21: {
-            if (tag !== 170) {
+            if (tag !== 168) {
               break;
             }
 
-            message.provider = reader.string();
+            message.provider = reader.int32() as any;
             continue;
           }
           case 22: {
@@ -205,7 +243,7 @@ export const Account: MessageFns<Account> = {
       credentials: globalThis.Array.isArray(object?.credentials)
         ? object.credentials.map((e: any) => globalThis.String(e))
         : [],
-      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      provider: isSet(object.provider) ? providerFromJSON(object.provider) : 0,
       providerUserId: isSet(object.providerUserId)
         ? globalThis.String(object.providerUserId)
         : isSet(object.provider_user_id)
@@ -237,8 +275,8 @@ export const Account: MessageFns<Account> = {
     if (message.credentials?.length) {
       obj.credentials = message.credentials;
     }
-    if (message.provider !== "") {
-      obj.provider = message.provider;
+    if (message.provider !== 0) {
+      obj.provider = providerToJSON(message.provider);
     }
     if (message.providerUserId !== "") {
       obj.providerUserId = message.providerUserId;
@@ -260,14 +298,14 @@ export const Account: MessageFns<Account> = {
     message.passwordHash = object.passwordHash ?? "";
     message.email = object.email ?? "";
     message.credentials = object.credentials?.map((e) => e) || [];
-    message.provider = object.provider ?? "";
+    message.provider = object.provider ?? 0;
     message.providerUserId = object.providerUserId ?? "";
     return message;
   },
 };
 
 function createBaseAccountResponse(): AccountResponse {
-  return { metadata: undefined, id: "", userId: "", username: "", email: "", provider: "" };
+  return { metadata: undefined, id: "", userId: "", username: "", email: "", provider: 0 };
 }
 
 export const AccountResponse: MessageFns<AccountResponse> = {
@@ -287,8 +325,8 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     if (message.email !== "") {
       writer.uint32(90).string(message.email);
     }
-    if (message.provider !== "") {
-      writer.uint32(98).string(message.provider);
+    if (message.provider !== 0) {
+      writer.uint32(96).int32(message.provider);
     }
     return writer;
   },
@@ -347,11 +385,11 @@ export const AccountResponse: MessageFns<AccountResponse> = {
             continue;
           }
           case 12: {
-            if (tag !== 98) {
+            if (tag !== 96) {
               break;
             }
 
-            message.provider = reader.string();
+            message.provider = reader.int32() as any;
             continue;
           }
         }
@@ -377,7 +415,7 @@ export const AccountResponse: MessageFns<AccountResponse> = {
         : "",
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
-      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      provider: isSet(object.provider) ? providerFromJSON(object.provider) : 0,
     };
   },
 
@@ -398,8 +436,8 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     if (message.email !== "") {
       obj.email = message.email;
     }
-    if (message.provider !== "") {
-      obj.provider = message.provider;
+    if (message.provider !== 0) {
+      obj.provider = providerToJSON(message.provider);
     }
     return obj;
   },
@@ -416,13 +454,13 @@ export const AccountResponse: MessageFns<AccountResponse> = {
     message.userId = object.userId ?? "";
     message.username = object.username ?? "";
     message.email = object.email ?? "";
-    message.provider = object.provider ?? "";
+    message.provider = object.provider ?? 0;
     return message;
   },
 };
 
 function createBaseUser(): User {
-  return { metadata: undefined, id: "", tenantIds: [], fullName: "", email: "", controlPlane: 0 };
+  return { metadata: undefined, id: "", fullName: "", email: "", controlPlane: 0 };
 }
 
 export const User: MessageFns<User> = {
@@ -432,9 +470,6 @@ export const User: MessageFns<User> = {
     }
     if (message.id !== "") {
       writer.uint32(18).string(message.id);
-    }
-    for (const v of message.tenantIds) {
-      writer.uint32(26).string(v!);
     }
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
@@ -477,14 +512,6 @@ export const User: MessageFns<User> = {
             message.id = reader.string();
             continue;
           }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.tenantIds.push(reader.string());
-            continue;
-          }
           case 10: {
             if (tag !== 82) {
               break;
@@ -525,11 +552,6 @@ export const User: MessageFns<User> = {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      tenantIds: globalThis.Array.isArray(object?.tenantIds)
-        ? object.tenantIds.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.tenant_ids)
-        ? object.tenant_ids.map((e: any) => globalThis.String(e))
-        : [],
       fullName: isSet(object.fullName)
         ? globalThis.String(object.fullName)
         : isSet(object.full_name)
@@ -552,9 +574,6 @@ export const User: MessageFns<User> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.tenantIds?.length) {
-      obj.tenantIds = message.tenantIds;
-    }
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
     }
@@ -576,7 +595,6 @@ export const User: MessageFns<User> = {
       ? Metadata.fromPartial(object.metadata)
       : undefined;
     message.id = object.id ?? "";
-    message.tenantIds = object.tenantIds?.map((e) => e) || [];
     message.fullName = object.fullName ?? "";
     message.email = object.email ?? "";
     message.controlPlane = object.controlPlane ?? 0;

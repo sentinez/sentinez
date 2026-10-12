@@ -18,6 +18,7 @@ import { Login } from '@/lib/api/iam/auth';
 import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
+import { homePath } from '@/lib/session';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const t = useTranslations('Auth');
@@ -46,13 +47,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
           SENTINEZ_USER_KEY,
           JSON.stringify({
             name: res.user?.fullName,
-            email: res.user?.fullName,
+            email: res.user?.email,
             avatar: '/assets/sntz.png',
           }),
         );
       }
 
-      router.push('/console');
+      router.push(homePath());
     } catch (error: any) {
       console.error('Login error:', error);
       handleStatusError(error, te);

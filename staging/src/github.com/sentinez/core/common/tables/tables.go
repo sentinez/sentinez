@@ -20,7 +20,9 @@ const (
 )
 
 const (
+	Tenants         = "tenants"
 	TenantResources = "tenant.resources"
+	TenantMembers   = "tenant.members"
 )
 
 const (

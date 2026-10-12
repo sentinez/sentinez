@@ -36,6 +36,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Role int32
+
+const (
+	Role_ROLE_UNSPECIFIED Role = 0
+	Role_ROLE_SUPER_ADMIN Role = 1
+	Role_ROLE_ADMIN       Role = 2
+	Role_ROLE_LEADER      Role = 3
+	Role_ROLE_MEMBER      Role = 4
+)
+
+// Enum value maps for Role.
+var (
+	Role_name = map[int32]string{
+		0: "ROLE_UNSPECIFIED",
+		1: "ROLE_SUPER_ADMIN",
+		2: "ROLE_ADMIN",
+		3: "ROLE_LEADER",
+		4: "ROLE_MEMBER",
+	}
+	Role_value = map[string]int32{
+		"ROLE_UNSPECIFIED": 0,
+		"ROLE_SUPER_ADMIN": 1,
+		"ROLE_ADMIN":       2,
+		"ROLE_LEADER":      3,
+		"ROLE_MEMBER":      4,
+	}
+)
+
+func (x Role) Enum() *Role {
+	p := new(Role)
+	*p = x
+	return p
+}
+
+func (x Role) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Role) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_v1_known_proto_enumTypes[0].Descriptor()
+}
+
+func (Role) Type() protoreflect.EnumType {
+	return &file_sentinez_types_v1_known_proto_enumTypes[0]
+}
+
+func (x Role) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Role.Descriptor instead.
+func (Role) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{0}
+}
+
 type Zone int32
 
 const (
@@ -75,11 +130,11 @@ func (x Zone) String() string {
 }
 
 func (Zone) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[0].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[1].Descriptor()
 }
 
 func (Zone) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[0]
+	return &file_sentinez_types_v1_known_proto_enumTypes[1]
 }
 
 func (x Zone) Number() protoreflect.EnumNumber {
@@ -88,7 +143,7 @@ func (x Zone) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Zone.Descriptor instead.
 func (Zone) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{0}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{1}
 }
 
 type ControlPlane int32
@@ -124,11 +179,11 @@ func (x ControlPlane) String() string {
 }
 
 func (ControlPlane) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[1].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[2].Descriptor()
 }
 
 func (ControlPlane) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[1]
+	return &file_sentinez_types_v1_known_proto_enumTypes[2]
 }
 
 func (x ControlPlane) Number() protoreflect.EnumNumber {
@@ -137,7 +192,7 @@ func (x ControlPlane) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ControlPlane.Descriptor instead.
 func (ControlPlane) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{2}
 }
 
 type Status int32
@@ -173,11 +228,11 @@ func (x Status) String() string {
 }
 
 func (Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[2].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[3].Descriptor()
 }
 
 func (Status) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[2]
+	return &file_sentinez_types_v1_known_proto_enumTypes[3]
 }
 
 func (x Status) Number() protoreflect.EnumNumber {
@@ -186,7 +241,7 @@ func (x Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Status.Descriptor instead.
 func (Status) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{3}
 }
 
 type Plan int32
@@ -225,11 +280,11 @@ func (x Plan) String() string {
 }
 
 func (Plan) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[3].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[4].Descriptor()
 }
 
 func (Plan) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[3]
+	return &file_sentinez_types_v1_known_proto_enumTypes[4]
 }
 
 func (x Plan) Number() protoreflect.EnumNumber {
@@ -238,7 +293,7 @@ func (x Plan) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Plan.Descriptor instead.
 func (Plan) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{4}
 }
 
 type LogType int32
@@ -283,11 +338,11 @@ func (x LogType) String() string {
 }
 
 func (LogType) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[4].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[5].Descriptor()
 }
 
 func (LogType) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[4]
+	return &file_sentinez_types_v1_known_proto_enumTypes[5]
 }
 
 func (x LogType) Number() protoreflect.EnumNumber {
@@ -296,7 +351,7 @@ func (x LogType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use LogType.Descriptor instead.
 func (LogType) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{5}
 }
 
 type Errors int32
@@ -344,11 +399,11 @@ func (x Errors) String() string {
 }
 
 func (Errors) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_v1_known_proto_enumTypes[5].Descriptor()
+	return file_sentinez_types_v1_known_proto_enumTypes[6].Descriptor()
 }
 
 func (Errors) Type() protoreflect.EnumType {
-	return &file_sentinez_types_v1_known_proto_enumTypes[5]
+	return &file_sentinez_types_v1_known_proto_enumTypes[6]
 }
 
 func (x Errors) Number() protoreflect.EnumNumber {
@@ -357,7 +412,7 @@ func (x Errors) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Errors.Descriptor instead.
 func (Errors) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{6}
 }
 
 type Empty struct {
@@ -474,7 +529,14 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
 	"\texpire_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12D\n" +
-	"\rcontrol_plane\x18\x04 \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane*r\n" +
+	"\rcontrol_plane\x18\x04 \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane*d\n" +
+	"\x04Role\x12\x14\n" +
+	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10ROLE_SUPER_ADMIN\x10\x01\x12\x0e\n" +
+	"\n" +
+	"ROLE_ADMIN\x10\x02\x12\x0f\n" +
+	"\vROLE_LEADER\x10\x03\x12\x0f\n" +
+	"\vROLE_MEMBER\x10\x04*r\n" +
 	"\x04Zone\x12\x14\n" +
 	"\x10ZONE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12ZONE_DEMILITARIZED\x10\x01\x12\x11\n" +
@@ -522,22 +584,23 @@ func file_sentinez_types_v1_known_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_known_proto_rawDescData
 }
 
-var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
 var file_sentinez_types_v1_known_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_v1_known_proto_goTypes = []any{
-	(Zone)(0),                     // 0: sentinez.types.v1.Zone
-	(ControlPlane)(0),             // 1: sentinez.types.v1.ControlPlane
-	(Status)(0),                   // 2: sentinez.types.v1.Status
-	(Plan)(0),                     // 3: sentinez.types.v1.Plan
-	(LogType)(0),                  // 4: sentinez.types.v1.LogType
-	(Errors)(0),                   // 5: sentinez.types.v1.Errors
-	(*Empty)(nil),                 // 6: sentinez.types.v1.Empty
-	(*Context)(nil),               // 7: sentinez.types.v1.Context
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(Role)(0),                     // 0: sentinez.types.v1.Role
+	(Zone)(0),                     // 1: sentinez.types.v1.Zone
+	(ControlPlane)(0),             // 2: sentinez.types.v1.ControlPlane
+	(Status)(0),                   // 3: sentinez.types.v1.Status
+	(Plan)(0),                     // 4: sentinez.types.v1.Plan
+	(LogType)(0),                  // 5: sentinez.types.v1.LogType
+	(Errors)(0),                   // 6: sentinez.types.v1.Errors
+	(*Empty)(nil),                 // 7: sentinez.types.v1.Empty
+	(*Context)(nil),               // 8: sentinez.types.v1.Context
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_sentinez_types_v1_known_proto_depIdxs = []int32{
-	8, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
-	1, // 1: sentinez.types.v1.Context.control_plane:type_name -> sentinez.types.v1.ControlPlane
+	9, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
+	2, // 1: sentinez.types.v1.Context.control_plane:type_name -> sentinez.types.v1.ControlPlane
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -555,7 +618,7 @@ func file_sentinez_types_v1_known_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_known_proto_rawDesc), len(file_sentinez_types_v1_known_proto_rawDesc)),
-			NumEnums:      6,
+			NumEnums:      7,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,

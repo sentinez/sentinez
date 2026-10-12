@@ -424,6 +424,94 @@ func (x *PasskeyRegisterChallengeResponse) GetSessionId() string {
 	return ""
 }
 
+type PasskeyLinkChallengeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PasskeyLinkChallengeRequest) Reset() {
+	*x = PasskeyLinkChallengeRequest{}
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasskeyLinkChallengeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasskeyLinkChallengeRequest) ProtoMessage() {}
+
+func (x *PasskeyLinkChallengeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PasskeyLinkChallengeRequest.ProtoReflect.Descriptor instead.
+func (*PasskeyLinkChallengeRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{8}
+}
+
+type PasskeyLinkChallengeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Options       *structpb.Struct       `protobuf:"bytes,1,opt,name=options,proto3" json:"options,omitempty"`
+	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PasskeyLinkChallengeResponse) Reset() {
+	*x = PasskeyLinkChallengeResponse{}
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasskeyLinkChallengeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasskeyLinkChallengeResponse) ProtoMessage() {}
+
+func (x *PasskeyLinkChallengeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PasskeyLinkChallengeResponse.ProtoReflect.Descriptor instead.
+func (*PasskeyLinkChallengeResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *PasskeyLinkChallengeResponse) GetOptions() *structpb.Struct {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+func (x *PasskeyLinkChallengeResponse) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
 type LoginRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	EmailOrUsername string                 `protobuf:"bytes,1,opt,name=email_or_username,json=emailOrUsername,proto3" json:"email_or_username,omitempty"`
@@ -434,7 +522,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[8]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -446,7 +534,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[8]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -459,7 +547,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{8}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *LoginRequest) GetEmailOrUsername() string {
@@ -486,7 +574,7 @@ type LoginResponse struct {
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[9]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -498,7 +586,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[9]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -511,7 +599,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{9}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *LoginResponse) GetUser() *User {
@@ -540,7 +628,7 @@ type CreateAccountRequest struct {
 
 func (x *CreateAccountRequest) Reset() {
 	*x = CreateAccountRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[10]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -552,7 +640,7 @@ func (x *CreateAccountRequest) String() string {
 func (*CreateAccountRequest) ProtoMessage() {}
 
 func (x *CreateAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[10]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +653,7 @@ func (x *CreateAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccountRequest.ProtoReflect.Descriptor instead.
 func (*CreateAccountRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{10}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateAccountRequest) GetUsername() string {
@@ -605,7 +693,7 @@ type CreateAccountResponse struct {
 
 func (x *CreateAccountResponse) Reset() {
 	*x = CreateAccountResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[11]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -617,7 +705,7 @@ func (x *CreateAccountResponse) String() string {
 func (*CreateAccountResponse) ProtoMessage() {}
 
 func (x *CreateAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[11]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -630,7 +718,7 @@ func (x *CreateAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAccountResponse.ProtoReflect.Descriptor instead.
 func (*CreateAccountResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{11}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateAccountResponse) GetAccountId() string {
@@ -650,7 +738,7 @@ type CreateUserRequest struct {
 
 func (x *CreateUserRequest) Reset() {
 	*x = CreateUserRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[12]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -662,7 +750,7 @@ func (x *CreateUserRequest) String() string {
 func (*CreateUserRequest) ProtoMessage() {}
 
 func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[12]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +763,7 @@ func (x *CreateUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserRequest.ProtoReflect.Descriptor instead.
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{12}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateUserRequest) GetFullName() string {
@@ -701,7 +789,7 @@ type CreateUserResponse struct {
 
 func (x *CreateUserResponse) Reset() {
 	*x = CreateUserResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[13]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +801,7 @@ func (x *CreateUserResponse) String() string {
 func (*CreateUserResponse) ProtoMessage() {}
 
 func (x *CreateUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[13]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +814,7 @@ func (x *CreateUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserResponse.ProtoReflect.Descriptor instead.
 func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{13}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CreateUserResponse) GetUserId() string {
@@ -744,7 +832,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[14]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -756,7 +844,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[14]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -769,7 +857,7 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{14}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{16}
 }
 
 type StatusResponse struct {
@@ -782,7 +870,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[15]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +882,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[15]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +895,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{15}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *StatusResponse) GetMsg() string {
@@ -835,7 +923,7 @@ type UpdateUserRequest struct {
 
 func (x *UpdateUserRequest) Reset() {
 	*x = UpdateUserRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[16]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -847,7 +935,7 @@ func (x *UpdateUserRequest) String() string {
 func (*UpdateUserRequest) ProtoMessage() {}
 
 func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[16]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -860,7 +948,7 @@ func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{16}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateUserRequest) GetId() string {
@@ -893,7 +981,7 @@ type UpdateUserResponse struct {
 
 func (x *UpdateUserResponse) Reset() {
 	*x = UpdateUserResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[17]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -905,7 +993,7 @@ func (x *UpdateUserResponse) String() string {
 func (*UpdateUserResponse) ProtoMessage() {}
 
 func (x *UpdateUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[17]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,7 +1006,7 @@ func (x *UpdateUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUserResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{17}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateUserResponse) GetUser() *User {
@@ -938,7 +1026,7 @@ type GetUserRequest struct {
 
 func (x *GetUserRequest) Reset() {
 	*x = GetUserRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[18]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -950,7 +1038,7 @@ func (x *GetUserRequest) String() string {
 func (*GetUserRequest) ProtoMessage() {}
 
 func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[18]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -963,7 +1051,7 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{18}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetUserRequest) GetId() string {
@@ -989,7 +1077,7 @@ type GetUserResponse struct {
 
 func (x *GetUserResponse) Reset() {
 	*x = GetUserResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[19]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1001,7 +1089,7 @@ func (x *GetUserResponse) String() string {
 func (*GetUserResponse) ProtoMessage() {}
 
 func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[19]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1014,7 +1102,7 @@ func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
 func (*GetUserResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{19}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetUserResponse) GetUser() *User {
@@ -1035,7 +1123,7 @@ type ListUsersRequest struct {
 
 func (x *ListUsersRequest) Reset() {
 	*x = ListUsersRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[20]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1047,7 +1135,7 @@ func (x *ListUsersRequest) String() string {
 func (*ListUsersRequest) ProtoMessage() {}
 
 func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[20]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1060,7 +1148,7 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{20}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListUsersRequest) GetPage() *v1.Pages {
@@ -1094,7 +1182,7 @@ type ListUsersResponse struct {
 
 func (x *ListUsersResponse) Reset() {
 	*x = ListUsersResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[21]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1194,7 @@ func (x *ListUsersResponse) String() string {
 func (*ListUsersResponse) ProtoMessage() {}
 
 func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[21]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1119,7 +1207,7 @@ func (x *ListUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersResponse.ProtoReflect.Descriptor instead.
 func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{21}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListUsersResponse) GetUsers() []*User {
@@ -1149,7 +1237,7 @@ type ListAccountsRequest struct {
 
 func (x *ListAccountsRequest) Reset() {
 	*x = ListAccountsRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[22]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1161,7 +1249,7 @@ func (x *ListAccountsRequest) String() string {
 func (*ListAccountsRequest) ProtoMessage() {}
 
 func (x *ListAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[22]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1174,7 +1262,7 @@ func (x *ListAccountsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccountsRequest.ProtoReflect.Descriptor instead.
 func (*ListAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{22}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListAccountsRequest) GetPage() *v1.Pages {
@@ -1222,7 +1310,7 @@ type ListAccountsResponse struct {
 
 func (x *ListAccountsResponse) Reset() {
 	*x = ListAccountsResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[23]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1234,7 +1322,7 @@ func (x *ListAccountsResponse) String() string {
 func (*ListAccountsResponse) ProtoMessage() {}
 
 func (x *ListAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[23]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1247,7 +1335,7 @@ func (x *ListAccountsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAccountsResponse.ProtoReflect.Descriptor instead.
 func (*ListAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{23}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListAccountsResponse) GetAccounts() []*AccountResponse {
@@ -1273,7 +1361,7 @@ type DeleteUserRequest struct {
 
 func (x *DeleteUserRequest) Reset() {
 	*x = DeleteUserRequest{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[24]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1285,7 +1373,7 @@ func (x *DeleteUserRequest) String() string {
 func (*DeleteUserRequest) ProtoMessage() {}
 
 func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[24]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1298,7 +1386,7 @@ func (x *DeleteUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{24}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DeleteUserRequest) GetId() string {
@@ -1316,7 +1404,7 @@ type DeleteUserResponse struct {
 
 func (x *DeleteUserResponse) Reset() {
 	*x = DeleteUserResponse{}
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[25]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1416,7 @@ func (x *DeleteUserResponse) String() string {
 func (*DeleteUserResponse) ProtoMessage() {}
 
 func (x *DeleteUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[25]
+	mi := &file_sentinez_apps_iam_v1_iam_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1429,7 @@ func (x *DeleteUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserResponse.ProtoReflect.Descriptor instead.
 func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
-	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{25}
+	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{27}
 }
 
 var File_sentinez_apps_iam_v1_iam_proto protoreflect.FileDescriptor
@@ -1370,6 +1458,11 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x1fPasskeyRegisterChallengeRequest\x12\x84\x01\n" +
 	"\x11email_or_username\x18\x01 \x01(\tBX\xbaHU\xc8\x01\x01rP2N^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$R\x0femailOrUsername\"t\n" +
 	" PasskeyRegisterChallengeResponse\x121\n" +
+	"\aoptions\x18\x01 \x01(\v2\x17.google.protobuf.StructR\aoptions\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\"\x1d\n" +
+	"\x1bPasskeyLinkChallengeRequest\"p\n" +
+	"\x1cPasskeyLinkChallengeResponse\x121\n" +
 	"\aoptions\x18\x01 \x01(\v2\x17.google.protobuf.StructR\aoptions\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\"\xba\x01\n" +
@@ -1428,7 +1521,7 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"7\n" +
 	"\x11DeleteUserRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaH\x0fr\r:\vsenz.users.R\x02id\"\x14\n" +
-	"\x12DeleteUserResponse2\x81\x0e\n" +
+	"\x12DeleteUserResponse2\xac\x0f\n" +
 	"\x1fIdentityAccessManagementService\x12a\n" +
 	"\n" +
 	"CreateUser\x12'.sentinez.apps.iam.v1.CreateUserRequest\x1a(.sentinez.apps.iam.v1.CreateUserResponse\"\x00\x12a\n" +
@@ -1445,7 +1538,8 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x05Login\x12\".sentinez.apps.iam.v1.LoginRequest\x1a#.sentinez.apps.iam.v1.LoginResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f:\x01*\x1a\n" +
 	"/iam/login\x12\xb8\x01\n" +
 	"\x18PasskeyRegisterChallenge\x125.sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest\x1a6.sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/passkey/register/challenge\x12\xaf\x01\n" +
-	"\x15PasskeyRegisterVerify\x122.sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest\x1a3.sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/iam/passkey/register/verify\x12\xac\x01\n" +
+	"\x15PasskeyRegisterVerify\x122.sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest\x1a3.sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/iam/passkey/register/verify\x12\xa8\x01\n" +
+	"\x14PasskeyLinkChallenge\x121.sentinez.apps.iam.v1.PasskeyLinkChallengeRequest\x1a2.sentinez.apps.iam.v1.PasskeyLinkChallengeResponse\")\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/iam/passkey/link/challenge\x12\xac\x01\n" +
 	"\x15PasskeyLoginChallenge\x122.sentinez.apps.iam.v1.PasskeyLoginChallengeRequest\x1a3.sentinez.apps.iam.v1.PasskeyLoginChallengeResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/passkey/login/challenge\x12\xa3\x01\n" +
 	"\x12PasskeyLoginVerify\x12/.sentinez.apps.iam.v1.PasskeyLoginVerifyRequest\x1a0.sentinez.apps.iam.v1.PasskeyLoginVerifyResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/iam/passkey/login/verifyB\xd4\x01\x92Aa\x12\x12\n" +
 	"\vIAM Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
@@ -1469,7 +1563,7 @@ func file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_iam_v1_iam_proto_rawDescData
 }
 
-var file_sentinez_apps_iam_v1_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_sentinez_apps_iam_v1_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_sentinez_apps_iam_v1_iam_proto_goTypes = []any{
 	(*PasskeyLoginVerifyRequest)(nil),        // 0: sentinez.apps.iam.v1.PasskeyLoginVerifyRequest
 	(*PasskeyLoginVerifyResponse)(nil),       // 1: sentinez.apps.iam.v1.PasskeyLoginVerifyResponse
@@ -1479,73 +1573,78 @@ var file_sentinez_apps_iam_v1_iam_proto_goTypes = []any{
 	(*PasskeyRegisterVerifyResponse)(nil),    // 5: sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse
 	(*PasskeyRegisterChallengeRequest)(nil),  // 6: sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest
 	(*PasskeyRegisterChallengeResponse)(nil), // 7: sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse
-	(*LoginRequest)(nil),                     // 8: sentinez.apps.iam.v1.LoginRequest
-	(*LoginResponse)(nil),                    // 9: sentinez.apps.iam.v1.LoginResponse
-	(*CreateAccountRequest)(nil),             // 10: sentinez.apps.iam.v1.CreateAccountRequest
-	(*CreateAccountResponse)(nil),            // 11: sentinez.apps.iam.v1.CreateAccountResponse
-	(*CreateUserRequest)(nil),                // 12: sentinez.apps.iam.v1.CreateUserRequest
-	(*CreateUserResponse)(nil),               // 13: sentinez.apps.iam.v1.CreateUserResponse
-	(*StatusRequest)(nil),                    // 14: sentinez.apps.iam.v1.StatusRequest
-	(*StatusResponse)(nil),                   // 15: sentinez.apps.iam.v1.StatusResponse
-	(*UpdateUserRequest)(nil),                // 16: sentinez.apps.iam.v1.UpdateUserRequest
-	(*UpdateUserResponse)(nil),               // 17: sentinez.apps.iam.v1.UpdateUserResponse
-	(*GetUserRequest)(nil),                   // 18: sentinez.apps.iam.v1.GetUserRequest
-	(*GetUserResponse)(nil),                  // 19: sentinez.apps.iam.v1.GetUserResponse
-	(*ListUsersRequest)(nil),                 // 20: sentinez.apps.iam.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),                // 21: sentinez.apps.iam.v1.ListUsersResponse
-	(*ListAccountsRequest)(nil),              // 22: sentinez.apps.iam.v1.ListAccountsRequest
-	(*ListAccountsResponse)(nil),             // 23: sentinez.apps.iam.v1.ListAccountsResponse
-	(*DeleteUserRequest)(nil),                // 24: sentinez.apps.iam.v1.DeleteUserRequest
-	(*DeleteUserResponse)(nil),               // 25: sentinez.apps.iam.v1.DeleteUserResponse
-	(*User)(nil),                             // 26: sentinez.apps.iam.v1.User
-	(*structpb.Struct)(nil),                  // 27: google.protobuf.Struct
-	(*v1.Context)(nil),                       // 28: sentinez.types.v1.Context
-	(*v1.Pages)(nil),                         // 29: sentinez.types.v1.Pages
-	(*AccountResponse)(nil),                  // 30: sentinez.apps.iam.v1.AccountResponse
+	(*PasskeyLinkChallengeRequest)(nil),      // 8: sentinez.apps.iam.v1.PasskeyLinkChallengeRequest
+	(*PasskeyLinkChallengeResponse)(nil),     // 9: sentinez.apps.iam.v1.PasskeyLinkChallengeResponse
+	(*LoginRequest)(nil),                     // 10: sentinez.apps.iam.v1.LoginRequest
+	(*LoginResponse)(nil),                    // 11: sentinez.apps.iam.v1.LoginResponse
+	(*CreateAccountRequest)(nil),             // 12: sentinez.apps.iam.v1.CreateAccountRequest
+	(*CreateAccountResponse)(nil),            // 13: sentinez.apps.iam.v1.CreateAccountResponse
+	(*CreateUserRequest)(nil),                // 14: sentinez.apps.iam.v1.CreateUserRequest
+	(*CreateUserResponse)(nil),               // 15: sentinez.apps.iam.v1.CreateUserResponse
+	(*StatusRequest)(nil),                    // 16: sentinez.apps.iam.v1.StatusRequest
+	(*StatusResponse)(nil),                   // 17: sentinez.apps.iam.v1.StatusResponse
+	(*UpdateUserRequest)(nil),                // 18: sentinez.apps.iam.v1.UpdateUserRequest
+	(*UpdateUserResponse)(nil),               // 19: sentinez.apps.iam.v1.UpdateUserResponse
+	(*GetUserRequest)(nil),                   // 20: sentinez.apps.iam.v1.GetUserRequest
+	(*GetUserResponse)(nil),                  // 21: sentinez.apps.iam.v1.GetUserResponse
+	(*ListUsersRequest)(nil),                 // 22: sentinez.apps.iam.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),                // 23: sentinez.apps.iam.v1.ListUsersResponse
+	(*ListAccountsRequest)(nil),              // 24: sentinez.apps.iam.v1.ListAccountsRequest
+	(*ListAccountsResponse)(nil),             // 25: sentinez.apps.iam.v1.ListAccountsResponse
+	(*DeleteUserRequest)(nil),                // 26: sentinez.apps.iam.v1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),               // 27: sentinez.apps.iam.v1.DeleteUserResponse
+	(*User)(nil),                             // 28: sentinez.apps.iam.v1.User
+	(*structpb.Struct)(nil),                  // 29: google.protobuf.Struct
+	(*v1.Context)(nil),                       // 30: sentinez.types.v1.Context
+	(*v1.Pages)(nil),                         // 31: sentinez.types.v1.Pages
+	(*AccountResponse)(nil),                  // 32: sentinez.apps.iam.v1.AccountResponse
 }
 var file_sentinez_apps_iam_v1_iam_proto_depIdxs = []int32{
-	26, // 0: sentinez.apps.iam.v1.PasskeyLoginVerifyResponse.user:type_name -> sentinez.apps.iam.v1.User
-	27, // 1: sentinez.apps.iam.v1.PasskeyLoginChallengeResponse.options:type_name -> google.protobuf.Struct
-	27, // 2: sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse.options:type_name -> google.protobuf.Struct
-	26, // 3: sentinez.apps.iam.v1.LoginResponse.user:type_name -> sentinez.apps.iam.v1.User
-	28, // 4: sentinez.apps.iam.v1.StatusResponse.context:type_name -> sentinez.types.v1.Context
-	26, // 5: sentinez.apps.iam.v1.UpdateUserResponse.user:type_name -> sentinez.apps.iam.v1.User
-	26, // 6: sentinez.apps.iam.v1.GetUserResponse.user:type_name -> sentinez.apps.iam.v1.User
-	29, // 7: sentinez.apps.iam.v1.ListUsersRequest.page:type_name -> sentinez.types.v1.Pages
-	26, // 8: sentinez.apps.iam.v1.ListUsersResponse.users:type_name -> sentinez.apps.iam.v1.User
-	29, // 9: sentinez.apps.iam.v1.ListAccountsRequest.page:type_name -> sentinez.types.v1.Pages
-	30, // 10: sentinez.apps.iam.v1.ListAccountsResponse.accounts:type_name -> sentinez.apps.iam.v1.AccountResponse
-	12, // 11: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:input_type -> sentinez.apps.iam.v1.CreateUserRequest
-	16, // 12: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:input_type -> sentinez.apps.iam.v1.UpdateUserRequest
-	22, // 13: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:input_type -> sentinez.apps.iam.v1.ListAccountsRequest
-	20, // 14: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:input_type -> sentinez.apps.iam.v1.ListUsersRequest
-	14, // 15: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:input_type -> sentinez.apps.iam.v1.StatusRequest
-	10, // 16: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:input_type -> sentinez.apps.iam.v1.CreateAccountRequest
-	18, // 17: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:input_type -> sentinez.apps.iam.v1.GetUserRequest
-	24, // 18: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:input_type -> sentinez.apps.iam.v1.DeleteUserRequest
-	8,  // 19: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:input_type -> sentinez.apps.iam.v1.LoginRequest
-	6,  // 20: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:input_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest
-	4,  // 21: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterVerify:input_type -> sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest
-	2,  // 22: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginChallenge:input_type -> sentinez.apps.iam.v1.PasskeyLoginChallengeRequest
-	0,  // 23: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginVerify:input_type -> sentinez.apps.iam.v1.PasskeyLoginVerifyRequest
-	13, // 24: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:output_type -> sentinez.apps.iam.v1.CreateUserResponse
-	17, // 25: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:output_type -> sentinez.apps.iam.v1.UpdateUserResponse
-	23, // 26: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:output_type -> sentinez.apps.iam.v1.ListAccountsResponse
-	21, // 27: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:output_type -> sentinez.apps.iam.v1.ListUsersResponse
-	15, // 28: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:output_type -> sentinez.apps.iam.v1.StatusResponse
-	11, // 29: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:output_type -> sentinez.apps.iam.v1.CreateAccountResponse
-	19, // 30: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:output_type -> sentinez.apps.iam.v1.GetUserResponse
-	25, // 31: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:output_type -> sentinez.apps.iam.v1.DeleteUserResponse
-	9,  // 32: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:output_type -> sentinez.apps.iam.v1.LoginResponse
-	7,  // 33: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:output_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse
-	5,  // 34: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterVerify:output_type -> sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse
-	3,  // 35: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginChallenge:output_type -> sentinez.apps.iam.v1.PasskeyLoginChallengeResponse
-	1,  // 36: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginVerify:output_type -> sentinez.apps.iam.v1.PasskeyLoginVerifyResponse
-	24, // [24:37] is the sub-list for method output_type
-	11, // [11:24] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	28, // 0: sentinez.apps.iam.v1.PasskeyLoginVerifyResponse.user:type_name -> sentinez.apps.iam.v1.User
+	29, // 1: sentinez.apps.iam.v1.PasskeyLoginChallengeResponse.options:type_name -> google.protobuf.Struct
+	29, // 2: sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse.options:type_name -> google.protobuf.Struct
+	29, // 3: sentinez.apps.iam.v1.PasskeyLinkChallengeResponse.options:type_name -> google.protobuf.Struct
+	28, // 4: sentinez.apps.iam.v1.LoginResponse.user:type_name -> sentinez.apps.iam.v1.User
+	30, // 5: sentinez.apps.iam.v1.StatusResponse.context:type_name -> sentinez.types.v1.Context
+	28, // 6: sentinez.apps.iam.v1.UpdateUserResponse.user:type_name -> sentinez.apps.iam.v1.User
+	28, // 7: sentinez.apps.iam.v1.GetUserResponse.user:type_name -> sentinez.apps.iam.v1.User
+	31, // 8: sentinez.apps.iam.v1.ListUsersRequest.page:type_name -> sentinez.types.v1.Pages
+	28, // 9: sentinez.apps.iam.v1.ListUsersResponse.users:type_name -> sentinez.apps.iam.v1.User
+	31, // 10: sentinez.apps.iam.v1.ListAccountsRequest.page:type_name -> sentinez.types.v1.Pages
+	32, // 11: sentinez.apps.iam.v1.ListAccountsResponse.accounts:type_name -> sentinez.apps.iam.v1.AccountResponse
+	14, // 12: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:input_type -> sentinez.apps.iam.v1.CreateUserRequest
+	18, // 13: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:input_type -> sentinez.apps.iam.v1.UpdateUserRequest
+	24, // 14: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:input_type -> sentinez.apps.iam.v1.ListAccountsRequest
+	22, // 15: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:input_type -> sentinez.apps.iam.v1.ListUsersRequest
+	16, // 16: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:input_type -> sentinez.apps.iam.v1.StatusRequest
+	12, // 17: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:input_type -> sentinez.apps.iam.v1.CreateAccountRequest
+	20, // 18: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:input_type -> sentinez.apps.iam.v1.GetUserRequest
+	26, // 19: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:input_type -> sentinez.apps.iam.v1.DeleteUserRequest
+	10, // 20: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:input_type -> sentinez.apps.iam.v1.LoginRequest
+	6,  // 21: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:input_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest
+	4,  // 22: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterVerify:input_type -> sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest
+	8,  // 23: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLinkChallenge:input_type -> sentinez.apps.iam.v1.PasskeyLinkChallengeRequest
+	2,  // 24: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginChallenge:input_type -> sentinez.apps.iam.v1.PasskeyLoginChallengeRequest
+	0,  // 25: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginVerify:input_type -> sentinez.apps.iam.v1.PasskeyLoginVerifyRequest
+	15, // 26: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:output_type -> sentinez.apps.iam.v1.CreateUserResponse
+	19, // 27: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:output_type -> sentinez.apps.iam.v1.UpdateUserResponse
+	25, // 28: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:output_type -> sentinez.apps.iam.v1.ListAccountsResponse
+	23, // 29: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:output_type -> sentinez.apps.iam.v1.ListUsersResponse
+	17, // 30: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:output_type -> sentinez.apps.iam.v1.StatusResponse
+	13, // 31: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:output_type -> sentinez.apps.iam.v1.CreateAccountResponse
+	21, // 32: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:output_type -> sentinez.apps.iam.v1.GetUserResponse
+	27, // 33: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:output_type -> sentinez.apps.iam.v1.DeleteUserResponse
+	11, // 34: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:output_type -> sentinez.apps.iam.v1.LoginResponse
+	7,  // 35: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:output_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse
+	5,  // 36: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterVerify:output_type -> sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse
+	9,  // 37: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLinkChallenge:output_type -> sentinez.apps.iam.v1.PasskeyLinkChallengeResponse
+	3,  // 38: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginChallenge:output_type -> sentinez.apps.iam.v1.PasskeyLoginChallengeResponse
+	1,  // 39: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginVerify:output_type -> sentinez.apps.iam.v1.PasskeyLoginVerifyResponse
+	26, // [26:40] is the sub-list for method output_type
+	12, // [12:26] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_iam_v1_iam_proto_init() }
@@ -1560,7 +1659,7 @@ func file_sentinez_apps_iam_v1_iam_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_iam_v1_iam_proto_rawDesc), len(file_sentinez_apps_iam_v1_iam_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

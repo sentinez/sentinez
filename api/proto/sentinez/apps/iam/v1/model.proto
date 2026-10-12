@@ -48,10 +48,7 @@ message Account {
 
   repeated string credentials = 20;
 
-  string provider = 21 [(buf.validate.field) = {
-    required: true
-    string: { pattern: "^(local|google|github|sso|passkey)$" }
-  }];
+  Provider provider = 21;
 
   string provider_user_id = 22;
 }
@@ -73,7 +70,13 @@ message AccountResponse {
   
   string email = 11 [(buf.validate.field).string.email = true];
 
-  string provider = 12;
+  Provider provider = 12;
+}
+
+enum Provider {
+  PROVIDER_UNSPECIFIED = 0;
+  PROVIDER_LOCAL = 1;
+  PROVIDER_PASSKEY = 2;
 }
 
 message User {
@@ -85,13 +88,6 @@ message User {
     required: true
     string: { prefix: "senz.iam.users." }
   }];
-
-  repeated string tenant_ids = 3 [(buf.validate.field).repeated.items = {
-	  string: {
-      min_len: 0,
-      prefix: "senz.tenant.console."
-	  }
-	}];
 
   string full_name = 10 [(buf.validate.field).required = true];
   

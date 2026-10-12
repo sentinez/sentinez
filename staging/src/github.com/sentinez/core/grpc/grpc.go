@@ -22,6 +22,7 @@ import (
 
 	"github.com/sentinez/core/common/console"
 	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/sentinez/api/interceptor/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -117,12 +118,14 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 }
 
 // New returns a new service registrar.
-// opts are the gRPC server options.
+// opts are the gRPC server options. Requests are validated against their
+// buf.validate rules before any interceptor given in opts runs.
 func New(opts ...grpc.ServerOption) *Server {
-	server := &Server{}
+	opts = append([]grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(validate.UnaryServerInterceptor()),
+	}, opts...)
 
-	server.server = grpc.NewServer(opts...)
-	return server
+	return &Server{server: grpc.NewServer(opts...)}
 }
 
 // NewDefault returns a new service registrar with default options.
@@ -131,7 +134,5 @@ func NewDefault() *Server {
 }
 
 func NewDefaultServer() *Server {
-	return &Server{
-		server: grpc.NewServer(),
-	}
+	return New()
 }

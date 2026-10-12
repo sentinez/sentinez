@@ -49,6 +49,17 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
   chưa được dùng (không có option nào set `onQuicAccept`).
+- Tính duy nhất trong IAM (mỗi email một user, mỗi user một account cho mỗi
+  provider, username của `LOCAL`) chỉ được service kiểm tra trước khi
+  insert; bảng không có unique index (`dbx.Index` chỉ một cột, không
+  unique), nên hai lượt đăng ký đồng thời có thể cùng lọt.
+- IAM: user đăng ký bằng passkey chưa thể thêm mật khẩu (chưa có RPC "link"
+  cho `LOCAL`). Console có `PasskeyLink()` trong `lib/api/iam/passkey.ts`
+  nhưng chưa trang nào gọi.
+- IAM `UpdateUser` đổi `User.email` mà không cập nhật email trên các account
+  của user, và lỗi nếu chưa có account nào mang email đó.
+- Session passkey và registration đang chờ nằm trong bộ nhớ tiến trình: mất
+  khi restart và không dùng chung giữa các bản sao apiserver.
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` khai báo nhưng chưa dùng.
 
 ## 12.4 Vấn đề nhỏ / vệ sinh code

@@ -47,6 +47,8 @@ func existing(email string) lookup {
 
 var _missing = lookup{acc: &accrepos.AccountX{}, err: errorx.ErrNotFound}
 
+// newTestService returns a service whose account repo answers lookups of
+// any provider (GetByUsernameOrEmail) with lookups.
 func newTestService(t *testing.T,
 	lookups map[string]lookup) (*IAMService, *usersrepo.MockIUser) {
 	t.Helper()
@@ -57,6 +59,25 @@ func newTestService(t *testing.T,
 			Return(l.acc, l.err)
 	}
 	svc := New(&settingpb.Config{}, nil, nil, userRepo, accountRepo)
+	return svc, userRepo
+}
+
+// newLocalTestService is newTestService for lookups limited to the local
+// provider (GetByProvider), with "root" as the reserved admin username.
+func newLocalTestService(t *testing.T,
+	lookups map[string]lookup) (*IAMService, *usersrepo.MockIUser) {
+	t.Helper()
+	userRepo := usersrepo.NewMockIUser(t)
+	accountRepo := accountrepo.NewMockIAccount(t)
+	for input, l := range lookups {
+		accountRepo.On("GetByProvider",
+			mock.Anything, iampb.Provider_PROVIDER_LOCAL, input).
+			Return(l.acc, l.err)
+	}
+	conf := &settingpb.Config{Env: map[string]string{
+		settingpb.Senz_SENZ_ADMIN_USERNAME.String(): "root",
+	}}
+	svc := New(conf, nil, nil, userRepo, accountRepo)
 	return svc, userRepo
 }
 
@@ -104,6 +125,12 @@ func TestUsernameOrEmailMustUnique(t *testing.T) {
 			wantCode: codes.AlreadyExists,
 		},
 		{
+			name:         "admin username is reserved",
+			giveUsername: "root",
+			giveEmail:    "alice@x.io",
+			wantCode:     codes.AlreadyExists,
+		},
+		{
 			name:         "lookup failure is returned",
 			giveUsername: "alice",
 			giveEmail:    "alice@x.io",
@@ -114,7 +141,7 @@ func TestUsernameOrEmailMustUnique(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc, _ := newTestService(t, tt.giveLookups)
+			svc, _ := newLocalTestService(t, tt.giveLookups)
 
 			err := svc.UsernameOrEmailMustUnique(
 				context.Background(), tt.giveUsername, tt.giveEmail)
@@ -128,9 +155,27 @@ func TestUsernameOrEmailMustUnique(t *testing.T) {
 	}
 }
 
+func TestCreateAccount_EmailOwnedByUser(t *testing.T) {
+	// no local account uses the email, but a passkey user owns it
+	svc, userRepo := newLocalTestService(t, map[string]lookup{
+		"bob": _missing, "bob@x.io": _missing,
+	})
+	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
+		Return(&iampb.User{Id: "senz.iam.users.1"}, nil)
+
+	resp, err := svc.CreateAccount(context.Background(),
+		&iampb.CreateAccountRequest{
+			Username: "bob", Email: "bob@x.io", Password: "secret123",
+		})
+
+	assert.Nil(t, resp)
+	assert.Equal(t, codes.AlreadyExists, status.Code(err))
+}
+
 func TestCreateUser_EmailTaken(t *testing.T) {
-	svc, _ := newTestService(t,
-		map[string]lookup{"bob@x.io": existing("bob@x.io")})
+	svc, userRepo := newTestService(t, nil)
+	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
+		Return(&iampb.User{Id: "senz.iam.users.1"}, nil)
 
 	resp, err := svc.CreateUser(context.Background(),
 		&iampb.CreateUserRequest{Email: "bob@x.io", FullName: "Bob"})
@@ -140,8 +185,9 @@ func TestCreateUser_EmailTaken(t *testing.T) {
 }
 
 func TestCreateUser_EmailFree(t *testing.T) {
-	svc, userRepo := newTestService(t,
-		map[string]lookup{"bob@x.io": _missing})
+	svc, userRepo := newTestService(t, nil)
+	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
+		Return(nil, errorx.ErrNotFound)
 	userRepo.On("Create", mock.Anything, mock.Anything).
 		Return(&iampb.User{Id: "senz.iam.users.2"}, nil)
 

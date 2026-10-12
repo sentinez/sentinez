@@ -37,6 +37,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Provider int32
+
+const (
+	Provider_PROVIDER_UNSPECIFIED Provider = 0
+	Provider_PROVIDER_LOCAL       Provider = 1
+	Provider_PROVIDER_PASSKEY     Provider = 2
+)
+
+// Enum value maps for Provider.
+var (
+	Provider_name = map[int32]string{
+		0: "PROVIDER_UNSPECIFIED",
+		1: "PROVIDER_LOCAL",
+		2: "PROVIDER_PASSKEY",
+	}
+	Provider_value = map[string]int32{
+		"PROVIDER_UNSPECIFIED": 0,
+		"PROVIDER_LOCAL":       1,
+		"PROVIDER_PASSKEY":     2,
+	}
+)
+
+func (x Provider) Enum() *Provider {
+	p := new(Provider)
+	*p = x
+	return p
+}
+
+func (x Provider) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Provider) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_apps_iam_v1_model_proto_enumTypes[0].Descriptor()
+}
+
+func (Provider) Type() protoreflect.EnumType {
+	return &file_sentinez_apps_iam_v1_model_proto_enumTypes[0]
+}
+
+func (x Provider) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Provider.Descriptor instead.
+func (Provider) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_apps_iam_v1_model_proto_rawDescGZIP(), []int{0}
+}
+
 type Account struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Metadata *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
@@ -48,7 +97,7 @@ type Account struct {
 	PasswordHash   string   `protobuf:"bytes,11,opt,name=password_hash,json=passwordHash,proto3" json:"password_hash,omitempty"`
 	Email          string   `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
 	Credentials    []string `protobuf:"bytes,20,rep,name=credentials,proto3" json:"credentials,omitempty"`
-	Provider       string   `protobuf:"bytes,21,opt,name=provider,proto3" json:"provider,omitempty"`
+	Provider       Provider `protobuf:"varint,21,opt,name=provider,proto3,enum=sentinez.apps.iam.v1.Provider" json:"provider,omitempty"`
 	ProviderUserId string   `protobuf:"bytes,22,opt,name=provider_user_id,json=providerUserId,proto3" json:"provider_user_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -133,11 +182,11 @@ func (x *Account) GetCredentials() []string {
 	return nil
 }
 
-func (x *Account) GetProvider() string {
+func (x *Account) GetProvider() Provider {
 	if x != nil {
 		return x.Provider
 	}
-	return ""
+	return Provider_PROVIDER_UNSPECIFIED
 }
 
 func (x *Account) GetProviderUserId() string {
@@ -154,7 +203,7 @@ type AccountResponse struct {
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Username      string                 `protobuf:"bytes,10,opt,name=username,proto3" json:"username,omitempty"`
 	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
-	Provider      string                 `protobuf:"bytes,12,opt,name=provider,proto3" json:"provider,omitempty"`
+	Provider      Provider               `protobuf:"varint,12,opt,name=provider,proto3,enum=sentinez.apps.iam.v1.Provider" json:"provider,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -224,18 +273,17 @@ func (x *AccountResponse) GetEmail() string {
 	return ""
 }
 
-func (x *AccountResponse) GetProvider() string {
+func (x *AccountResponse) GetProvider() Provider {
 	if x != nil {
 		return x.Provider
 	}
-	return ""
+	return Provider_PROVIDER_UNSPECIFIED
 }
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	TenantIds     []string               `protobuf:"bytes,3,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
 	ControlPlane  v1.ControlPlane        `protobuf:"varint,13,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
@@ -287,13 +335,6 @@ func (x *User) GetId() string {
 	return ""
 }
 
-func (x *User) GetTenantIds() []string {
-	if x != nil {
-		return x.TenantIds
-	}
-	return nil
-}
-
 func (x *User) GetFullName() string {
 	if x != nil {
 		return x.FullName
@@ -319,7 +360,7 @@ var File_sentinez_apps_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/apps/iam/v1/model.proto\x12\x14sentinez.apps.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"\xc9\x03\n" +
+	" sentinez/apps/iam/v1/model.proto\x12\x14sentinez.apps.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"\xba\x03\n" +
 	"\aAccount\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
@@ -328,26 +369,28 @@ const file_sentinez_apps_iam_v1_model_proto_rawDesc = "" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\rpassword_hash\x18\v \x01(\tR\fpasswordHash\x12\x1d\n" +
 	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12 \n" +
-	"\vcredentials\x18\x14 \x03(\tR\vcredentials\x12I\n" +
-	"\bprovider\x18\x15 \x01(\tB-\xbaH*\xc8\x01\x01r%2#^(local|google|github|sso|passkey)$R\bprovider\x12(\n" +
-	"\x10provider_user_id\x18\x16 \x01(\tR\x0eproviderUserId:\x06\xca\xf3\x18\x02\b\x01\"\xa9\x02\n" +
+	"\vcredentials\x18\x14 \x03(\tR\vcredentials\x12:\n" +
+	"\bprovider\x18\x15 \x01(\x0e2\x1e.sentinez.apps.iam.v1.ProviderR\bprovider\x12(\n" +
+	"\x10provider_user_id\x18\x16 \x01(\tR\x0eproviderUserId:\x06\xca\xf3\x18\x02\b\x01\"\xc9\x02\n" +
 	"\x0fAccountResponse\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
 	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz.iam.accounts.R\x02id\x122\n" +
 	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1a\n" +
-	"\bprovider\x18\f \x01(\tR\bprovider\"\xbf\x02\n" +
+	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12:\n" +
+	"\bprovider\x18\f \x01(\x0e2\x1e.sentinez.apps.iam.v1.ProviderR\bprovider\"\xfc\x01\n" +
 	"\x04User\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
-	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12A\n" +
-	"\n" +
-	"tenant_ids\x18\x03 \x03(\tB\"\xbaH\x1f\x92\x01\x1c\"\x1ar\x18\x10\x00:\x14senz.tenant.console.R\ttenantIds\x12#\n" +
+	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12D\n" +
-	"\rcontrol_plane\x18\r \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane:\x06\xca\xf3\x18\x02\b\x01BCZAgithub.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampbb\x06proto3"
+	"\rcontrol_plane\x18\r \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane:\x06\xca\xf3\x18\x02\b\x01*N\n" +
+	"\bProvider\x12\x18\n" +
+	"\x14PROVIDER_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0ePROVIDER_LOCAL\x10\x01\x12\x14\n" +
+	"\x10PROVIDER_PASSKEY\x10\x02BCZAgithub.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampbb\x06proto3"
 
 var (
 	file_sentinez_apps_iam_v1_model_proto_rawDescOnce sync.Once
@@ -361,24 +404,28 @@ func file_sentinez_apps_iam_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_iam_v1_model_proto_rawDescData
 }
 
+var file_sentinez_apps_iam_v1_model_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_sentinez_apps_iam_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_apps_iam_v1_model_proto_goTypes = []any{
-	(*Account)(nil),         // 0: sentinez.apps.iam.v1.Account
-	(*AccountResponse)(nil), // 1: sentinez.apps.iam.v1.AccountResponse
-	(*User)(nil),            // 2: sentinez.apps.iam.v1.User
-	(*v1.Metadata)(nil),     // 3: sentinez.types.v1.Metadata
-	(v1.ControlPlane)(0),    // 4: sentinez.types.v1.ControlPlane
+	(Provider)(0),           // 0: sentinez.apps.iam.v1.Provider
+	(*Account)(nil),         // 1: sentinez.apps.iam.v1.Account
+	(*AccountResponse)(nil), // 2: sentinez.apps.iam.v1.AccountResponse
+	(*User)(nil),            // 3: sentinez.apps.iam.v1.User
+	(*v1.Metadata)(nil),     // 4: sentinez.types.v1.Metadata
+	(v1.ControlPlane)(0),    // 5: sentinez.types.v1.ControlPlane
 }
 var file_sentinez_apps_iam_v1_model_proto_depIdxs = []int32{
-	3, // 0: sentinez.apps.iam.v1.Account.metadata:type_name -> sentinez.types.v1.Metadata
-	3, // 1: sentinez.apps.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.v1.Metadata
-	3, // 2: sentinez.apps.iam.v1.User.metadata:type_name -> sentinez.types.v1.Metadata
-	4, // 3: sentinez.apps.iam.v1.User.control_plane:type_name -> sentinez.types.v1.ControlPlane
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: sentinez.apps.iam.v1.Account.metadata:type_name -> sentinez.types.v1.Metadata
+	0, // 1: sentinez.apps.iam.v1.Account.provider:type_name -> sentinez.apps.iam.v1.Provider
+	4, // 2: sentinez.apps.iam.v1.AccountResponse.metadata:type_name -> sentinez.types.v1.Metadata
+	0, // 3: sentinez.apps.iam.v1.AccountResponse.provider:type_name -> sentinez.apps.iam.v1.Provider
+	4, // 4: sentinez.apps.iam.v1.User.metadata:type_name -> sentinez.types.v1.Metadata
+	5, // 5: sentinez.apps.iam.v1.User.control_plane:type_name -> sentinez.types.v1.ControlPlane
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_iam_v1_model_proto_init() }
@@ -391,13 +438,14 @@ func file_sentinez_apps_iam_v1_model_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_iam_v1_model_proto_rawDesc), len(file_sentinez_apps_iam_v1_model_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_apps_iam_v1_model_proto_goTypes,
 		DependencyIndexes: file_sentinez_apps_iam_v1_model_proto_depIdxs,
+		EnumInfos:         file_sentinez_apps_iam_v1_model_proto_enumTypes,
 		MessageInfos:      file_sentinez_apps_iam_v1_model_proto_msgTypes,
 	}.Build()
 	File_sentinez_apps_iam_v1_model_proto = out.File

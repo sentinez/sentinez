@@ -2,14 +2,3 @@
 // Copyright 2025 Duc-Hung Ho
 
 package typepb
-
-import (
-	"fmt"
-
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)

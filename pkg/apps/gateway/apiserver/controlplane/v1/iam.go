@@ -52,9 +52,13 @@ func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 func (i *identityAccessManagement) Accept(ctx context.Context,
 	server grpcgateway.Server) error {
 
-	return grpcgateway.RegisterServiceHandlerServer(ctx,
+	// a local conn, unlike the generated HandlerServer registration, runs
+	// interceptors, so requests are validated at the gateway.
+	conn := grpcgateway.NewLocalConn()
+	iampb.RegisterIdentityAccessManagementServiceServer(conn, i.server)
+
+	return iampb.RegisterIdentityAccessManagementServiceHandlerClient(ctx,
 		server.RuntimeMux(),
-		i.server,
-		iampb.RegisterIdentityAccessManagementServiceHandlerServer,
+		iampb.NewIdentityAccessManagementServiceClient(conn),
 	)
 }

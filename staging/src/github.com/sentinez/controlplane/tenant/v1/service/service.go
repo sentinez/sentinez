@@ -18,7 +18,9 @@ import (
 	"context"
 	"fmt"
 
+	memberrepo "github.com/sentinez/controlplane/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/tenant/v1/repos/resources"
+	tenantrepo "github.com/sentinez/controlplane/tenant/v1/repos/tenants"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
@@ -26,14 +28,22 @@ import (
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
 
-func New(resource resourcerepo.IResource) *Service {
+func New(
+	resource resourcerepo.IResource,
+	member memberrepo.IMember,
+	tenant tenantrepo.ITenant,
+) *Service {
 	return &Service{
 		resource: resource,
+		member:   member,
+		tenant:   tenant,
 	}
 }
 
 type Service struct {
 	resource resourcerepo.IResource
+	member   memberrepo.IMember
+	tenant   tenantrepo.ITenant
 }
 
 // GetResourceByDomain implements [tenantpb.TenantServiceServer].

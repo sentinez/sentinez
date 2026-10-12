@@ -54,7 +54,7 @@ Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 |---|---|
 | `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC, parse lại `Context`. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
 | `headers` | `GetAuth(ctx)` đọc metadata `Authorization`, verify → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` |
-| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); `Store` in-memory (session WebAuthn + account tạm) |
+| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWT hết hạn
 sau 1 giờ.
@@ -71,28 +71,141 @@ Phân quyền dựa trên **control plane** (`PORTAL` / `ADMIN`):
 
 ## 7.3 IAM
 
-Proto: [apps/iam/v1](../../api/proto/sentinez/apps/iam/v1/). Bảng: `iam.users`
-(`id, email, full_name, control_plane`) và `iam.accounts`
-(`id, email, username, password_hash, credentials TEXT[], user_id, provider,
-provider_user_id`). Một `User` có thể có nhiều `Account`.
+Proto: [apps/iam/v1](../../api/proto/sentinez/apps/iam/v1/). Code:
+[iam/v1](../../staging/src/github.com/sentinez/controlplane/iam/v1/) — logic
+account và user nằm ở `service/service.go`, các luồng WebAuthn ở
+`service/passkey.go`.
+
+### Mô hình dữ liệu: một user, mỗi phương thức đăng nhập một account
+
+```
+User (iam.users)                 Account (iam.accounts)
+┌──────────────────────┐         ┌────────────────────────────────────┐
+│ id                   │◄────────┤ user_id                            │
+│ email  (danh tính)   │   1 : N │ provider = LOCAL   username,       │
+│ full_name            │         │                    password_hash   │
+│ control_plane        │         ├────────────────────────────────────┤
+└──────────────────────┘         │ provider = PASSKEY credentials[],  │
+                                 │                    provider_user_id│
+                                 └────────────────────────────────────┘
+```
+
+- **User** là danh tính: `iam.users` (`id, email, full_name,
+  control_plane`). Email xác định user — mỗi email một user.
+- **Account** là một cách đăng nhập của user đó: `iam.accounts` (`id,
+  user_id, email, username, password_hash, credentials TEXT[], provider
+  INTEGER, provider_user_id`).
+- `provider` là enum `iampb.Provider`:
+
+| Provider | Giá trị | Trường sử dụng |
+|---|---|---|
+| `PROVIDER_LOCAL` | 1 | `username`, `password_hash` (bcrypt) |
+| `PROVIDER_PASSKEY` | 2 | `credentials` (mỗi passkey một JSON `webauthn.Credential`), `provider_user_id` (WebAuthn user handle) |
+
+Các quy tắc service đảm bảo:
+
+- Mỗi user có tối đa một account cho mỗi provider. Nhiều passkey của một
+  user là nhiều phần tử trong `credentials` của account passkey duy nhất.
+- Mọi account mang email của user sở hữu nó.
+- Đăng nhập tra account **trong phạm vi một provider**: mật khẩu không bao
+  giờ khớp với account passkey và ngược lại.
+- Access token được tạo từ `User`, bất kể đăng nhập bằng account nào:
+  `newAccessToken` lấy control plane từ `User.control_plane` (`PORTAL` nếu
+  chưa đặt). Ngoại lệ duy nhất là admin dựng sẵn: không có dòng nào trong
+  DB, xem `Login`.
+
+### Thêm phương thức đăng nhập
+
+Email chưa được xác minh, nên không bao giờ gắn account vào user chỉ vì
+trùng email:
+
+- **Đăng ký** (không có token) chỉ được chấp nhận với email chưa thuộc user
+  nào. Nó tạo `User` và `Account` đầu tiên trong một transaction
+  (`createUserAccount`).
+- **User đã tồn tại** chỉ thêm phương thức khi đang đăng nhập; user lấy từ
+  token, không lấy từ request. Hiện mới có cho passkey
+  (`PasskeyLinkChallenge`).
+
+### RPC
 
 | RPC | REST | Hành vi |
 |---|---|---|
-| `Login` | `PUT /iam/login` | Nếu username = `SENZ_ADMIN_USERNAME`: so mật khẩu với `SENZ_ADMIN_PASSWORD`, cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account theo username/email, bcrypt, lấy user, cấp token PORTAL |
-| `CreateAccount` | `POST /iam/account` | Kiểm tra trùng username/email, trong 1 transaction tạo `User` (PORTAL) + `Account` (bcrypt) |
-| `CreateUser` | — (chỉ gRPC) | Tạo `User` nếu email chưa có |
-| `GetUser` | `GET /iam/user` | Theo `id` hoặc `email` |
+| `Login` | `PUT /iam/login` | Nếu username = `SENZ_ADMIN_USERNAME`: so mật khẩu với `SENZ_ADMIN_PASSWORD`, cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account `LOCAL` theo username/email, bcrypt, lấy user, cấp token |
+| `CreateAccount` | `POST /iam/account` | Đăng ký bằng mật khẩu. Từ chối (`AlreadyExists`) username hoặc email đã có account `LOCAL`, username dành riêng `SENZ_ADMIN_USERNAME`, và email đã thuộc một user; sau đó tạo `User` (PORTAL) + account `LOCAL` |
+| `CreateUser` | — (chỉ gRPC) | Tạo `User` không kèm account nếu email chưa có |
+| `GetUser` | `GET /iam/user` | Theo `id` hoặc `email` (từ `iam.users`) |
 | `ListUsers` | `GET /iam/users` | Lọc `ids`, `emails`, phân trang |
 | `UpdateUser` | — | Cập nhật `full_name`, `email` |
-| `DeleteUser` | `DELETE /iam/user/{id}` | Xoá user |
-| `ListAccounts` | `GET /iam/accounts` | Yêu cầu token; lọc `ids/emails/user_ids/usernames` |
+| `DeleteUser` | `DELETE /iam/user/{id}` | Xoá user và toàn bộ account của nó trong một transaction |
+| `ListAccounts` | `GET /iam/accounts` | Yêu cầu token; lọc `ids/emails/user_ids/usernames`; mỗi phần tử có `provider` |
 | `Status` | `GET /iam/status` | Gọi Greeter.Status qua bufconn, trả về `Context` từ token (nếu có) |
-| `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Báo lỗi nếu username/email đã tồn tại; tạo account tạm trong bộ nhớ, `BeginRegistration`, lưu session, trả `options` + `session_id` |
-| `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Lấy session + account tạm, tạo account thật (mật khẩu ngẫu nhiên) nếu chưa có, `CreateCredential`, lưu credential JSON vào `credentials` |
-| `PasskeyLoginChallenge` | `GET /iam/passkey/login/challenge` | `BeginLogin` cho account, lưu session |
-| `PasskeyLoginVerify` | `PUT /iam/passkey/login/verify` | `ValidateLogin`, cập nhật credential (sign count), cấp token (ADMIN nếu username `admin`) |
+| `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Đăng ký bằng passkey, bước 1. Cần email chưa thuộc user nào |
+| `PasskeyLinkChallenge` | `GET /iam/passkey/link/challenge` | Thêm passkey cho user đang đăng nhập, bước 1. Yêu cầu token |
+| `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Bước 2 của cả hai: xác minh phản hồi của authenticator rồi mới ghi |
+| `PasskeyLoginChallenge` | `GET /iam/passkey/login/challenge` | `BeginLogin` cho account `PASSKEY` của username/email |
+| `PasskeyLoginVerify` | `PUT /iam/passkey/login/verify` | `ValidateLogin`, cập nhật credential (sign count), cấp token |
 
-`AccountX` bọc `iampb.Account` để cài `webauthn.User` (WebAuthn ID = email).
+### Các luồng passkey
+
+Trạng thái giữa hai bước nằm trong `passkey.Store` (bộ nhớ, TTL 1 giờ) theo
+`session_id` trả về: `SessionData` của WebAuthn và, với đăng ký, một
+`passkey.Registration{UserId, Email, Handle}`.
+
+**Đăng ký** (`PasskeyRegisterChallenge` → `PasskeyRegisterVerify`)
+
+1. Challenge: đầu vào phải là email (ngược lại `InvalidArgument`) chưa
+   thuộc user nào (`AlreadyExists`). Sinh một handle ngẫu nhiên; không ghi
+   gì vào DB.
+2. Verify: registration được lấy ra khỏi store — mỗi session chỉ hoàn tất
+   được một lần. `CreateCredential` kiểm tra phản hồi của authenticator.
+   Chỉ sau đó, và sau khi kiểm tra lại email vẫn còn trống, `User`
+   (`full_name` = email) và account `PASSKEY` mới được tạo trong một
+   transaction. Phản hồi sai hoặc giả mạo không để lại dòng nào.
+
+**Thêm passkey** (`PasskeyLinkChallenge` → `PasskeyRegisterVerify`)
+
+1. Challenge: user đọc từ token. Nếu đã có account passkey thì dùng lại
+   handle của nó, chưa có thì sinh mới. `Registration.UserId` được đặt.
+2. Verify: vì có `UserId`, lời gọi phải mang token của đúng user đó (ngược
+   lại `Unauthenticated` / `PermissionDenied`). Credential được thêm vào
+   account passkey của user, hoặc tạo account nếu đây là passkey đầu tiên.
+   Nếu handle của account khác với handle đã cấp cho authenticator, lời gọi
+   lỗi `InvalidArgument` và client làm lại từ đầu.
+
+**Đăng nhập** (`PasskeyLoginChallenge` → `PasskeyLoginVerify`)
+
+1. Challenge: tìm account `PASSKEY` theo username/email (`NotFound` nếu
+   user chưa có) và lưu session.
+2. Verify: tìm account theo handle lưu trong session
+   (`GetByProviderUserId`), kiểm tra assertion, lưu credential đã cập nhật,
+   cấp token cho user của account.
+
+`AccountX` bọc `iampb.Account` để cài `webauthn.User`. WebAuthn user handle
+là `provider_user_id`, một giá trị không mang nghĩa, nên không đổi khi
+email đổi. Mọi passkey của một user dùng chung handle này.
+
+### Các hàm tra cứu của repo
+
+| Hàm | Dùng cho |
+|---|---|
+| `accounts.GetByProvider(provider, usernameOrEmail)` | Đăng nhập và kiểm tra trùng của một phương thức |
+| `accounts.GetByProviderUserId(provider, id)` | Đăng nhập passkey: account của một WebAuthn handle |
+| `accounts.GetByUserId(provider, userId)` | Account của một user theo provider |
+| `accounts.GetByUsernameOrEmail(input)` | Mọi provider — chỉ để kiểm tra tồn tại, không dùng để xác thực |
+| `accounts.DeleteByUserId(userId)` | Dùng bởi `DeleteUser` |
+| `users.GetByEmail(email)` | Email thuộc user nào |
+
+"Không tìm thấy" là `errorx.ErrNotFound`; helper `found` của service đổi nó
+thành kết quả nil.
+
+### Nâng cấp DB đang có
+
+`provider` trước đây là cột `TEXT` không bao giờ được ghi. Tầng storage
+thêm cột còn thiếu nhưng không bao giờ đổi kiểu cột (7.1), nên DB tạo trước
+mô hình này vẫn giữ cột cũ và mọi truy vấn theo provider sẽ lỗi. Hãy tạo
+lại bảng accounts (`<mode>_sentinez_iam_accounts`) hoặc tự đổi kiểu cột.
+Passkey đăng ký trước thay đổi này được cấp email làm user handle, nên
+authenticator của chúng chỉ hoạt động khi `provider_user_id` = email.
 
 ## 7.4 Tenant
 

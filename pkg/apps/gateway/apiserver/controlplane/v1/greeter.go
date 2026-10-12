@@ -50,9 +50,13 @@ func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
 // Accept accepts the greeter service
 func (g *Greeter) Accept(ctx context.Context, server grpcgateway.Server) error {
 
-	return grpcgateway.RegisterServiceHandlerServer(ctx,
+	// a local conn, unlike RegisterGreeterServiceHandlerServer, runs
+	// interceptors, so requests are validated at the gateway.
+	conn := grpcgateway.NewLocalConn()
+	greeterpb.RegisterGreeterServiceServer(conn, g.server)
+
+	return greeterpb.RegisterGreeterServiceHandlerClient(ctx,
 		server.RuntimeMux(),
-		g.server,
-		greeterpb.RegisterGreeterServiceHandlerServer,
+		greeterpb.NewGreeterServiceClient(conn),
 	)
 }

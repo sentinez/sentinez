@@ -26,6 +26,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -46,6 +47,7 @@ type IUser interface {
 
 	// extra methods
 
+	GetByEmail(ctx context.Context, email string) (*iampb.User, error)
 	List(ctx context.Context, req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error)
 }
 
@@ -54,7 +56,6 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.User_Id:           postgres.String,
-			iampb.User_TenantIds:    postgres.StringArr,
 			iampb.User_Email:        postgres.String,
 			iampb.User_FullName:     postgres.String,
 			iampb.User_ControlPlane: postgres.Int4,
@@ -131,7 +132,6 @@ func (u *Users) Create(ctx context.Context,
 	user.Id = rand.NewId(table.NewPrimaryKey(tables.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:           user.GetId(),
-		iampb.User_TenantIds:    user.GetTenantIds(),
 		iampb.User_Email:        user.GetEmail(),
 		iampb.User_FullName:     user.GetFullName(),
 		iampb.User_ControlPlane: user.GetControlPlane(),
@@ -155,6 +155,25 @@ func (u *Users) Get(ctx context.Context, id string) (*iampb.User, error) {
 	return u.storage.Select(ctx, builder, scanOne)
 }
 
+// GetByEmail implements IUser. It returns errorx.ErrNotFound if no user
+// owns the email.
+func (u *Users) GetByEmail(
+	ctx context.Context, email string) (*iampb.User, error) {
+
+	builder := u.selectQuery(nil).Where(sq.Eq{iampb.User_Email: email})
+
+	user, err := u.storage.CollectOneRow(ctx, builder, scanOne)
+	if err != nil {
+		if !errorx.IsNoRows(err) {
+			return nil, err
+		}
+
+		return nil, errorx.ErrNotFound
+	}
+
+	return user, nil
+}
+
 // Update implements IUser.
 func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 
@@ -168,10 +187,6 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 		query = query.Set(iampb.User_FullName, user.GetFullName())
 	}
 
-	if len(user.GetTenantIds()) != 0 {
-		query = query.Set(iampb.User_TenantIds, user.GetTenantIds())
-	}
-
 	_, err := u.storage.Exec(ctx, query)
 	if err != nil {
 		return err
@@ -183,7 +198,6 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(u.storage, page,
 		iampb.User_Id,
-		iampb.User_TenantIds,
 		iampb.User_Email,
 		iampb.User_FullName,
 		iampb.User_ControlPlane,
@@ -215,7 +229,6 @@ func scanOne(row dbx.Row) (*iampb.User, error) {
 
 	err := row.Scan(
 		&user.Id,
-		&user.TenantIds,
 		&user.Email,
 		&user.FullName,
 		&user.ControlPlane,

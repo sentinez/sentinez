@@ -128,7 +128,20 @@
     "createOrJoin": "Tạo hoặc tham gia",
     "createOrJoinDescription": "Tạo hoặc tham gia một nhóm chỉ với một cú nhấp.",
     "join": "Tham gia",
-    "create": "Tạo mới"
+    "create": "Tạo mới",
+    "creating": "Đang tạo...",
+    "created": "Đã tạo tenant",
+    "searchPlaceholder": "Tìm tenant theo tên...",
+    "createTitle": "Tạo tenant",
+    "createDescription": "Đặt tên cho tenant và chọn gói.",
+    "name": "Tên",
+    "description": "Mô tả",
+    "nameRequired": "Vui lòng nhập tên tenant",
+    "plan": "Gói",
+    "planFree": "Miễn phí",
+    "planStandard": "Tiêu chuẩn",
+    "planPro": "Pro",
+    "planUnknown": "Gói không xác định"
   },
   "Members": {
     "title": "Thành viên",

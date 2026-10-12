@@ -168,6 +168,29 @@
         ]
       }
     },
+    "/iam/passkey/link/challenge": {
+      "get": {
+        "summary": "PasskeyLinkChallenge starts adding a passkey to the signed-in user.\nFinish it with PasskeyRegisterVerify.",
+        "operationId": "IdentityAccessManagementService_PasskeyLinkChallenge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PasskeyLinkChallengeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      }
+    },
     "/iam/passkey/login/challenge": {
       "get": {
         "operationId": "IdentityAccessManagementService_PasskeyLoginChallenge",
@@ -501,7 +524,7 @@
           "type": "string"
         },
         "provider": {
-          "type": "string"
+          "$ref": "#/definitions/v1Provider"
         }
       }
     },
@@ -659,6 +682,17 @@
         }
       }
     },
+    "v1PasskeyLinkChallengeResponse": {
+      "type": "object",
+      "properties": {
+        "options": {
+          "type": "object"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      }
+    },
     "v1PasskeyLoginChallengeResponse": {
       "type": "object",
       "properties": {
@@ -719,6 +753,15 @@
     "v1PasskeyRegisterVerifyResponse": {
       "type": "object"
     },
+    "v1Provider": {
+      "type": "string",
+      "enum": [
+        "PROVIDER_UNSPECIFIED",
+        "PROVIDER_LOCAL",
+        "PROVIDER_PASSKEY"
+      ],
+      "default": "PROVIDER_UNSPECIFIED"
+    },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
@@ -746,12 +789,6 @@
         },
         "id": {
           "type": "string"
-        },
-        "tenantIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "fullName": {
           "type": "string"

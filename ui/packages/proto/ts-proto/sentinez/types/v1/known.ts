@@ -10,6 +10,57 @@ import { Timestamp } from "../../../google/protobuf/timestamp";
 
 export const protobufPackage = "sentinez.types.v1";
 
+export enum Role {
+  ROLE_UNSPECIFIED = 0,
+  ROLE_SUPER_ADMIN = 1,
+  ROLE_ADMIN = 2,
+  ROLE_LEADER = 3,
+  ROLE_MEMBER = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function roleFromJSON(object: any): Role {
+  switch (object) {
+    case 0:
+    case "ROLE_UNSPECIFIED":
+      return Role.ROLE_UNSPECIFIED;
+    case 1:
+    case "ROLE_SUPER_ADMIN":
+      return Role.ROLE_SUPER_ADMIN;
+    case 2:
+    case "ROLE_ADMIN":
+      return Role.ROLE_ADMIN;
+    case 3:
+    case "ROLE_LEADER":
+      return Role.ROLE_LEADER;
+    case 4:
+    case "ROLE_MEMBER":
+      return Role.ROLE_MEMBER;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Role.UNRECOGNIZED;
+  }
+}
+
+export function roleToJSON(object: Role): string {
+  switch (object) {
+    case Role.ROLE_UNSPECIFIED:
+      return "ROLE_UNSPECIFIED";
+    case Role.ROLE_SUPER_ADMIN:
+      return "ROLE_SUPER_ADMIN";
+    case Role.ROLE_ADMIN:
+      return "ROLE_ADMIN";
+    case Role.ROLE_LEADER:
+      return "ROLE_LEADER";
+    case Role.ROLE_MEMBER:
+      return "ROLE_MEMBER";
+    case Role.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum Zone {
   ZONE_UNSPECIFIED = 0,
   ZONE_DEMILITARIZED = 1,

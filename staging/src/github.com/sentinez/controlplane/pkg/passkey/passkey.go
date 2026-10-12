@@ -17,10 +17,20 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
+
+// Registration is a passkey registration that waits for the authenticator
+// response. Nothing is persisted until that response is verified.
+type Registration struct {
+	// UserId is the user the passkey is added to. It is empty when the
+	// registration signs up a new user.
+	UserId string
+	Email  string
+	// Handle is the WebAuthn user handle given to the authenticator.
+	Handle string
+}
 
 // nolint
 type Store interface {
@@ -28,8 +38,10 @@ type Store interface {
 	SaveSession(token string, data *webauthn.SessionData)
 	DeleteSession(token string)
 	GenSessionId() (string, error)
-	GetOrCreateAccount(email string) (*iampb.Account, error)
-	GetAndDeleteAccount(email string) (*iampb.Account, error)
+	SaveRegistration(token string, reg *Registration)
+	// TakeRegistration returns the registration saved under token and
+	// forgets it, so a registration is finished at most once.
+	TakeRegistration(token string) (*Registration, bool)
 }
 
 func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {

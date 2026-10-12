@@ -16,11 +16,9 @@ package iamsvc
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"time"
 
-	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users"
@@ -31,8 +29,6 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/protobuf/protox"
-	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -67,232 +63,6 @@ type IAMService struct {
 	auth     *webauthn.WebAuthn
 }
 
-// PasskeyLoginVerify implements iampb.IdentityAccessManagementServiceServer.
-// nolint:funlen
-func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
-	req *iampb.PasskeyLoginVerifyRequest,
-) (*iampb.PasskeyLoginVerifyResponse, error) {
-
-	sid := req.GetSessionId()
-	ss, ok := srv.store.GetSession(sid)
-	if !ok {
-		return nil, errorx.StatusNotFoundF("session not found id=%s", sid)
-	}
-
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, string(ss.UserID))
-	if err != nil {
-		return nil, err
-	}
-
-	var car protocol.CredentialAssertionResponse
-	err = json.Unmarshal(req.GetCredentialAssertionData(), &car)
-	if err != nil {
-		return nil, err
-	}
-
-	parsedCAR, err := car.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	credential, err := srv.auth.ValidateLogin(acc, *ss, parsedCAR)
-	if err != nil {
-		return nil, err
-	}
-
-	if credential.Authenticator.CloneWarning {
-		zlog.Warnf("can't finish login: %s", "CloneWarning")
-	}
-
-	acc.UpdateCredential(credential)
-	if err = srv.accounts.Update(ctx, acc); err != nil {
-		return nil, err
-	}
-
-	srv.store.DeleteSession(sid)
-
-	sid, _ = srv.store.GenSessionId()
-	srv.store.SaveSession(sid, &webauthn.SessionData{
-		Expires: time.Now().Add(time.Hour * 2),
-	})
-
-	user, err := srv.users.Get(ctx, acc.GetUserId())
-	if err != nil {
-		zlog.Debugf("faild to get user by username or email")
-		return nil, err
-	}
-
-	controlPlane := typepb.ControlPlane_CONTROL_PLANE_PORTAL
-	if acc.GetUsername() == "admin" {
-		controlPlane = typepb.ControlPlane_CONTROL_PLANE_ADMIN
-	}
-
-	accessToken, err := crypto.TokenGenerator(&typepb.Context{
-		Name:         user.GetFullName(),
-		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
-		UserId:       user.GetId(),
-		ControlPlane: controlPlane,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &iampb.PasskeyLoginVerifyResponse{
-		AccessToken: accessToken,
-		User:        user,
-	}, nil
-}
-
-// PasskeyLoginChallenge implements iampb.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyLoginChallenge(
-	ctx context.Context,
-	req *iampb.PasskeyLoginChallengeRequest,
-) (*iampb.PasskeyLoginChallengeResponse, error) {
-
-	zlog.Infof("PasskeyLoginChallenge req = %v", req)
-
-	emailOrUsername := req.GetEmailOrUsername()
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, emailOrUsername)
-	if err != nil {
-		if !errors.Is(err, errorx.ErrNotFound) {
-			return nil, errorx.StatusNotFoundF(
-				"not found username or email=%s", emailOrUsername)
-		}
-		return nil, err
-	}
-
-	options, session, err := srv.auth.BeginLogin(acc)
-	if err != nil {
-		return nil, errorx.StatusInternalErrorF("begin login err=%v", err)
-	}
-
-	sid, _ := srv.store.GenSessionId()
-	srv.store.SaveSession(sid, session)
-
-	opts := protox.Struct(options)
-
-	return &iampb.PasskeyLoginChallengeResponse{
-		SessionId: sid,
-		Options:   opts,
-	}, nil
-}
-
-// PasskeyRegisterVerify implements iampb.IdentityAccessManagementServiceServer.
-// nolint:funlen
-func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
-	req *iampb.PasskeyRegisterVerifyRequest,
-) (*iampb.PasskeyRegisterVerifyResponse, error) {
-
-	ssId := req.GetSessionId()
-
-	zlog.Debugf("[iampb][service][PasskeyRegisterVerify] get session=%s", ssId)
-	ss, ok := srv.store.GetSession(ssId)
-	if !ok {
-		zlog.Debug("iampb: session not found")
-		return nil, errorx.StatusNotFoundF("session not found=%s", ssId)
-	}
-
-	// ss.UserId is email, return by AccountX.WebAuthnID(), account_x.go
-	acc, err := srv.store.GetAndDeleteAccount(string(ss.UserID))
-	if err != nil {
-		zlog.Debugf("iampb: get %s account err: %v", string(ss.UserID), err)
-		return nil, err
-	}
-
-	accX, err := srv.createAccountExtend(ctx, acc)
-	if err != nil {
-		zlog.Debugf("iampb: create account extend: %v", err)
-		return nil, err
-	}
-
-	var ccr protocol.CredentialCreationResponse
-	err = json.Unmarshal(req.GetCredentialCreationResponse(), &ccr)
-	if err != nil {
-		return nil, err
-	}
-
-	parsedCCR, err := ccr.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	credential, err := srv.auth.CreateCredential(accX, *ss, parsedCCR)
-	if err != nil {
-		return nil,
-			errorx.StatusInternalErrorF("can't finish registration: %v", err)
-	}
-
-	accX.AddCredential(credential)
-	if err = srv.accounts.Update(ctx, accX); err != nil {
-		return nil, err
-	}
-
-	srv.store.DeleteSession(ssId)
-
-	return &iampb.PasskeyRegisterVerifyResponse{}, nil
-}
-
-func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
-	req *iampb.PasskeyRegisterChallengeRequest,
-) (*iampb.PasskeyRegisterChallengeResponse, error) {
-
-	acc, err := srv.store.GetOrCreateAccount(req.GetEmailOrUsername())
-	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
-		return nil, err
-	}
-
-	opt, ss, err := srv.auth.BeginRegistration(&accrepos.AccountX{Account: acc})
-	if err != nil {
-		return nil,
-			errorx.StatusInternalErrorF("can't begin registration: %v", err)
-	}
-
-	t, err := srv.store.GenSessionId()
-	if err != nil {
-		return nil,
-			errorx.StatusInternalErrorF("can't generate session id: %v", err)
-	}
-
-	zlog.Debugf("[iampb][service][PasskeyRegisterChallenge] save session=%s", t)
-	srv.store.SaveSession(t, ss)
-
-	options := protox.Struct(opt)
-
-	return &iampb.PasskeyRegisterChallengeResponse{
-		Options:   options,
-		SessionId: t,
-	}, nil
-}
-
-func (srv *IAMService) createAccountExtend(
-	ctx context.Context, account *iampb.Account) (*accrepos.AccountX, error) {
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, account.GetEmail())
-	if err != nil && !errors.Is(err, errorx.ErrNotFound) {
-		return nil, err
-	}
-
-	if acc.GetId() == "" {
-		createReq := &iampb.CreateAccountRequest{
-			Email:    account.GetEmail(),
-			Username: account.GetUsername(),
-		}
-
-		createReq.Password, _ = rand.RandomString(5)
-
-		createResp, err := srv.CreateAccount(ctx, createReq)
-		if err != nil {
-			return nil, err
-		}
-
-		acc, err = srv.accounts.Get(ctx, createResp.GetAccountId())
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return acc, nil
-}
-
 func (srv *IAMService) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 
@@ -313,21 +83,18 @@ func (srv *IAMService) Status(ctx context.Context,
 	return &iampb.StatusResponse{Msg: "OK"}, nil
 }
 
+// UsernameOrEmailMustUnique reports an AlreadyExists error if a local
+// account already uses username or email. Accounts of other providers may
+// share the email: they are other login methods of the same user.
 func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	username, email string) error {
 	if username != "" {
-		acc, err := srv.findAccount(ctx, username)
-		if err != nil {
+		if err := srv.usernameMustFree(ctx, username); err != nil {
 			return err
-		}
-
-		if acc != nil {
-			return errorx.StatusAlreadyExistsF(
-				"username %s already exists", username)
 		}
 	}
 
-	acc, err := srv.findAccount(ctx, email)
+	acc, err := srv.findLocalAccount(ctx, email)
 	if err != nil {
 		return err
 	}
@@ -339,11 +106,50 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	return nil
 }
 
-// findAccount returns the account matching usernameOrEmail, or nil if
-// there is none. Any other lookup failure is returned as an error.
+func (srv *IAMService) usernameMustFree(
+	ctx context.Context, username string) error {
+	// the admin signs in with this name and has no account row
+	if username == srv.config.Get(settingpb.Senz_SENZ_ADMIN_USERNAME) {
+		return errorx.StatusAlreadyExistsF(
+			"username %s already exists", username)
+	}
+
+	acc, err := srv.findLocalAccount(ctx, username)
+	if err != nil {
+		return err
+	}
+
+	if acc != nil {
+		return errorx.StatusAlreadyExistsF(
+			"username %s already exists", username)
+	}
+
+	return nil
+}
+
+// findAccount returns the account of any provider matching
+// usernameOrEmail, or nil if there is none. Any other lookup failure is
+// returned as an error.
 func (srv *IAMService) findAccount(ctx context.Context,
 	usernameOrEmail string) (*accrepos.AccountX, error) {
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
+	return found(srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail))
+}
+
+// findLocalAccount is findAccount limited to the local provider.
+func (srv *IAMService) findLocalAccount(ctx context.Context,
+	usernameOrEmail string) (*accrepos.AccountX, error) {
+	return found(srv.accounts.GetByProvider(
+		ctx, iampb.Provider_PROVIDER_LOCAL, usernameOrEmail))
+}
+
+// findUser returns the user owning email, or nil if there is none.
+func (srv *IAMService) findUser(
+	ctx context.Context, email string) (*iampb.User, error) {
+	return found(srv.users.GetByEmail(ctx, email))
+}
+
+// found turns errorx.ErrNotFound into a nil result.
+func found[T any](v *T, err error) (*T, error) {
 	if errors.Is(err, errorx.ErrNotFound) {
 		return nil, nil
 	}
@@ -352,9 +158,12 @@ func (srv *IAMService) findAccount(ctx context.Context,
 		return nil, err
 	}
 
-	return acc, nil
+	return v, nil
 }
 
+// CreateAccount signs up a new user with a local (password) account. An
+// email that already belongs to a user is rejected: a login method is
+// only added to an existing user by that user, once signed in.
 func (srv *IAMService) CreateAccount(ctx context.Context,
 	request *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
 
@@ -363,66 +172,87 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
+	if err := srv.emailMustFree(ctx, request.GetEmail()); err != nil {
+		return nil, err
+	}
+
+	pw, err := crypto.HashPassword(request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	acc, err := srv.createUserAccount(ctx, &iampb.User{
+		FullName: request.GetFullName(),
+		Email:    request.GetEmail(),
+	}, &accrepos.AccountX{Account: &iampb.Account{
+		Email:        request.GetEmail(),
+		Username:     request.GetUsername(),
+		PasswordHash: pw,
+		Provider:     iampb.Provider_PROVIDER_LOCAL,
+	}})
+	if err != nil {
+		return nil, err
+	}
+
+	return &iampb.CreateAccountResponse{AccountId: acc.GetId()}, nil
+}
+
+// emailMustFree reports an AlreadyExists error if a user owns email.
+func (srv *IAMService) emailMustFree(ctx context.Context, email string) error {
+	user, err := srv.findUser(ctx, email)
+	if err != nil {
+		return err
+	}
+
+	if user != nil {
+		return errorx.StatusAlreadyExistsF("email %s already exists", email)
+	}
+
+	return nil
+}
+
+// createUserAccount creates user and its first account in one transaction.
+func (srv *IAMService) createUserAccount(ctx context.Context,
+	user *iampb.User, acc *accrepos.AccountX) (*accrepos.AccountX, error) {
 	txss, err := srv.tx.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	accId, err := srv.createAccountWithTX(ctx, txss, request)
+	user.ControlPlane = typepb.ControlPlane_CONTROL_PLANE_PORTAL
+	user, err = srv.users.WithTX(txss).Create(ctx, user)
 	if err != nil {
+		_ = txss.Rollback(ctx)
 		return nil, err
 	}
 
-	return &iampb.CreateAccountResponse{AccountId: accId}, nil
-}
-
-func (srv *IAMService) createAccountWithTX(ctx context.Context,
-	txss *postgres.TxSession, req *iampb.CreateAccountRequest) (string, error) {
-	pw, err := crypto.HashPassword(req.GetPassword())
-	if err != nil {
-		return "", err
-	}
-
-	user, err := srv.users.WithTX(txss).Create(ctx, &iampb.User{
-		FullName:     req.GetFullName(),
-		Email:        req.GetEmail(),
-		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-	})
+	acc.UserId = user.GetId()
+	acc, err = srv.accounts.WithTX(txss).Create(ctx, acc)
 	if err != nil {
 		_ = txss.Rollback(ctx)
-		return "", err
+		return nil, err
 	}
 
-	acc, err := srv.accounts.WithTX(txss).Create(ctx, &accrepos.AccountX{
-		Account: &iampb.Account{
-			UserId:       user.GetId(),
-			Email:        req.GetEmail(),
-			Username:     req.GetUsername(),
-			PasswordHash: pw,
-		},
-	})
-	if err != nil {
-		_ = txss.Rollback(ctx)
-		return "", err
-	}
-
-	_ = txss.Commit(ctx)
-	return acc.GetId(), nil
-}
-
-func (srv *IAMService) GetAccountByUsernameOrEmail(
-	ctx context.Context, usernameOrEmail string) (*accrepos.AccountX, error) {
-
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, usernameOrEmail)
-	if err != nil {
-		if errorx.Is(err, errorx.ErrNotFound) {
-			return &accrepos.AccountX{}, nil
-		}
-
+	if err = txss.Commit(ctx); err != nil {
 		return nil, err
 	}
 
 	return acc, nil
+}
+
+// newAccessToken issues a token for user on the user's own control plane.
+func newAccessToken(user *iampb.User) (string, error) {
+	controlPlane := user.GetControlPlane()
+	if controlPlane == typepb.ControlPlane_CONTROL_PLANE_UNSPECIFIED {
+		controlPlane = typepb.ControlPlane_CONTROL_PLANE_PORTAL
+	}
+
+	return crypto.TokenGenerator(&typepb.Context{
+		Name:         user.GetFullName(),
+		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
+		UserId:       user.GetId(),
+		ControlPlane: controlPlane,
+	})
 }
 
 func (srv *IAMService) loginAdmin(
@@ -458,7 +288,8 @@ func (srv *IAMService) Login(ctx context.Context,
 		return srv.loginAdmin(req)
 	}
 
-	acc, err := srv.accounts.GetByUsernameOrEmail(ctx, req.GetEmailOrUsername())
+	acc, err := srv.accounts.GetByProvider(
+		ctx, iampb.Provider_PROVIDER_LOCAL, req.GetEmailOrUsername())
 	if err != nil {
 		zlog.Debugf("faild to get account by username or email")
 		return nil, err
@@ -475,12 +306,7 @@ func (srv *IAMService) Login(ctx context.Context,
 		return nil, err
 	}
 
-	accessToken, err := crypto.TokenGenerator(&typepb.Context{
-		Name:         user.GetFullName(),
-		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
-		UserId:       user.GetId(),
-		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-	})
+	accessToken, err := newAccessToken(user)
 	if err != nil {
 		return nil, err
 	}
@@ -491,15 +317,8 @@ func (srv *IAMService) Login(ctx context.Context,
 func (srv *IAMService) CreateUser(ctx context.Context,
 	request *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
 
-	acc, err := srv.findAccount(ctx, request.GetEmail())
-	if err != nil {
+	if err := srv.emailMustFree(ctx, request.GetEmail()); err != nil {
 		return nil, err
-	}
-
-	if acc != nil {
-		return nil,
-			errorx.StatusAlreadyExistsF(
-				"email %s already exists", request.GetEmail())
 	}
 
 	user, err := srv.users.Create(ctx, &iampb.User{
@@ -525,12 +344,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 	}
 
 	if request.GetEmail() != "" {
-		acc, err := srv.accounts.GetByUsernameOrEmail(ctx, request.GetEmail())
-		if err != nil {
-			return nil, err
-		}
-
-		user, err := srv.users.Get(ctx, acc.GetUserId())
+		user, err := srv.users.GetByEmail(ctx, request.GetEmail())
 		if err != nil {
 			return nil, err
 		}
@@ -556,7 +370,24 @@ func (srv *IAMService) ListUsers(ctx context.Context,
 func (srv *IAMService) DeleteUser(ctx context.Context,
 	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
 
-	if err := srv.users.Delete(ctx, request.GetId()); err != nil {
+	txss, err := srv.tx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// accounts go with the user, or they keep its email taken
+	err = srv.accounts.WithTX(txss).DeleteByUserId(ctx, request.GetId())
+	if err != nil {
+		_ = txss.Rollback(ctx)
+		return nil, err
+	}
+
+	if err = srv.users.WithTX(txss).Delete(ctx, request.GetId()); err != nil {
+		_ = txss.Rollback(ctx)
+		return nil, err
+	}
+
+	if err = txss.Commit(ctx); err != nil {
 		return nil, err
 	}
 

@@ -48,6 +48,10 @@ type IAccount interface {
 	// extra methods
 
 	GetByUsernameOrEmail(ctx context.Context, input string) (*AccountX, error)
+	GetByProvider(ctx context.Context, provider iampb.Provider, input string) (*AccountX, error)
+	GetByProviderUserId(ctx context.Context, provider iampb.Provider, providerUserId string) (*AccountX, error)
+	GetByUserId(ctx context.Context, provider iampb.Provider, userId string) (*AccountX, error)
+	DeleteByUserId(ctx context.Context, userId string) error
 	List(ctx context.Context, req *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error)
 }
 
@@ -62,7 +66,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IAccount, error) {
 			iampb.Account_PasswordHash:   postgres.String,
 			iampb.Account_Credentials:    postgres.StringArr,
 			iampb.Account_UserId:         postgres.String,
-			iampb.Account_Provider:       postgres.String,
+			iampb.Account_Provider:       postgres.Int4,
 			iampb.Account_ProviderUserId: postgres.String,
 		}),
 	)
@@ -141,14 +145,69 @@ func (acc *Accounts) List(ctx context.Context,
 	return &resp, nil
 }
 
-// GetByUsernameOrEmail implements IAccount.
+// GetByUsernameOrEmail implements IAccount. It matches accounts of any
+// provider, so use it for existence checks only; to authenticate, look the
+// account up with GetByProvider.
 func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 	input string) (*AccountX, error) {
 
-	builder := acc.selectQuery(nil).Where(sq.Or{
+	return acc.getOne(ctx, usernameOrEmail(input))
+}
+
+// GetByProvider implements IAccount.
+func (acc *Accounts) GetByProvider(ctx context.Context,
+	provider iampb.Provider, input string) (*AccountX, error) {
+
+	return acc.getOne(ctx, sq.And{
+		sq.Eq{iampb.Account_Provider: provider},
+		usernameOrEmail(input),
+	})
+}
+
+// GetByProviderUserId implements IAccount.
+func (acc *Accounts) GetByProviderUserId(ctx context.Context,
+	provider iampb.Provider, providerUserId string) (*AccountX, error) {
+
+	return acc.getOne(ctx, sq.Eq{
+		iampb.Account_Provider:       provider,
+		iampb.Account_ProviderUserId: providerUserId,
+	})
+}
+
+// GetByUserId implements IAccount.
+func (acc *Accounts) GetByUserId(ctx context.Context,
+	provider iampb.Provider, userId string) (*AccountX, error) {
+
+	return acc.getOne(ctx, sq.Eq{
+		iampb.Account_Provider: provider,
+		iampb.Account_UserId:   userId,
+	})
+}
+
+// DeleteByUserId implements IAccount.
+func (acc *Accounts) DeleteByUserId(
+	ctx context.Context, userId string) error {
+
+	query := sq.Delete(acc.storage.Table()).
+		Where(sq.Eq{iampb.Account_UserId: userId})
+
+	_, err := acc.storage.Exec(ctx, query)
+	return err
+}
+
+func usernameOrEmail(input string) sq.Or {
+	return sq.Or{
 		sq.Eq{iampb.Account_Username: input},
 		sq.Eq{iampb.Account_Email: input},
-	})
+	}
+}
+
+// getOne returns the account matching where, or an empty account and
+// errorx.ErrNotFound if there is none.
+func (acc *Accounts) getOne(ctx context.Context,
+	where sq.Sqlizer) (*AccountX, error) {
+
+	builder := acc.selectQuery(nil).Where(where)
 
 	resp, err := acc.storage.CollectOneRow(ctx, builder, scanOne)
 	if err != nil {
@@ -228,7 +287,7 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 		query = query.Set(iampb.Account_Credentials, account.GetCredentials())
 	}
 
-	if account.GetProvider() != "" {
+	if account.GetProvider() != iampb.Provider_PROVIDER_UNSPECIFIED {
 		query = query.Set(iampb.Account_Provider, account.GetProvider())
 	}
 

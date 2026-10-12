@@ -49,6 +49,14 @@ export interface PasskeyRegisterChallengeResponse {
   sessionId: string;
 }
 
+export interface PasskeyLinkChallengeRequest {
+}
+
+export interface PasskeyLinkChallengeResponse {
+  options?: { [key: string]: any } | undefined;
+  sessionId: string;
+}
+
 export interface LoginRequest {
   emailOrUsername: string;
   password: string;
@@ -790,6 +798,147 @@ export const PasskeyRegisterChallengeResponse: MessageFns<PasskeyRegisterChallen
     object: I,
   ): PasskeyRegisterChallengeResponse {
     const message = createBasePasskeyRegisterChallengeResponse();
+    message.options = object.options ?? undefined;
+    message.sessionId = object.sessionId ?? "";
+    return message;
+  },
+};
+
+function createBasePasskeyLinkChallengeRequest(): PasskeyLinkChallengeRequest {
+  return {};
+}
+
+export const PasskeyLinkChallengeRequest: MessageFns<PasskeyLinkChallengeRequest> = {
+  encode(_: PasskeyLinkChallengeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLinkChallengeRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePasskeyLinkChallengeRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): PasskeyLinkChallengeRequest {
+    return {};
+  },
+
+  toJSON(_: PasskeyLinkChallengeRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PasskeyLinkChallengeRequest>, I>>(base?: I): PasskeyLinkChallengeRequest {
+    return PasskeyLinkChallengeRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PasskeyLinkChallengeRequest>, I>>(_: I): PasskeyLinkChallengeRequest {
+    const message = createBasePasskeyLinkChallengeRequest();
+    return message;
+  },
+};
+
+function createBasePasskeyLinkChallengeResponse(): PasskeyLinkChallengeResponse {
+  return { options: undefined, sessionId: "" };
+}
+
+export const PasskeyLinkChallengeResponse: MessageFns<PasskeyLinkChallengeResponse> = {
+  encode(message: PasskeyLinkChallengeResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.options !== undefined) {
+      Struct.encode(Struct.wrap(message.options), writer.uint32(10).fork()).join();
+    }
+    if (message.sessionId !== "") {
+      writer.uint32(18).string(message.sessionId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PasskeyLinkChallengeResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePasskeyLinkChallengeResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.options = Struct.unwrap(Struct.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.sessionId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): PasskeyLinkChallengeResponse {
+    return {
+      options: isObject(object.options) ? object.options : undefined,
+      sessionId: isSet(object.sessionId)
+        ? globalThis.String(object.sessionId)
+        : isSet(object.session_id)
+        ? globalThis.String(object.session_id)
+        : "",
+    };
+  },
+
+  toJSON(message: PasskeyLinkChallengeResponse): unknown {
+    const obj: any = {};
+    if (message.options !== undefined) {
+      obj.options = message.options;
+    }
+    if (message.sessionId !== "") {
+      obj.sessionId = message.sessionId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PasskeyLinkChallengeResponse>, I>>(base?: I): PasskeyLinkChallengeResponse {
+    return PasskeyLinkChallengeResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PasskeyLinkChallengeResponse>, I>>(object: I): PasskeyLinkChallengeResponse {
+    const message = createBasePasskeyLinkChallengeResponse();
     message.options = object.options ?? undefined;
     message.sessionId = object.sessionId ?? "";
     return message;

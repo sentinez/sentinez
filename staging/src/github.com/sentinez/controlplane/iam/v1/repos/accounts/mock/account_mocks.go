@@ -176,6 +176,63 @@ func (_c *MockIAccount_Delete_Call) RunAndReturn(run func(ctx context.Context, i
 	return _c
 }
 
+// DeleteByUserId provides a mock function for the type MockIAccount
+func (_mock *MockIAccount) DeleteByUserId(ctx context.Context, userId string) error {
+	ret := _mock.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteByUserId")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, userId)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockIAccount_DeleteByUserId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteByUserId'
+type MockIAccount_DeleteByUserId_Call struct {
+	*mock.Call
+}
+
+// DeleteByUserId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+func (_e *MockIAccount_Expecter) DeleteByUserId(ctx any, userId any) *MockIAccount_DeleteByUserId_Call {
+	return &MockIAccount_DeleteByUserId_Call{Call: _e.mock.On("DeleteByUserId", ctx, userId)}
+}
+
+func (_c *MockIAccount_DeleteByUserId_Call) Run(run func(ctx context.Context, userId string)) *MockIAccount_DeleteByUserId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccount_DeleteByUserId_Call) Return(err error) *MockIAccount_DeleteByUserId_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockIAccount_DeleteByUserId_Call) RunAndReturn(run func(ctx context.Context, userId string) error) *MockIAccount_DeleteByUserId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function for the type MockIAccount
 func (_mock *MockIAccount) Get(ctx context.Context, id string) (*accrepos.AccountX, error) {
 	ret := _mock.Called(ctx, id)
@@ -240,6 +297,228 @@ func (_c *MockIAccount_Get_Call) Return(accountX *accrepos.AccountX, err error) 
 }
 
 func (_c *MockIAccount_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*accrepos.AccountX, error)) *MockIAccount_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByProvider provides a mock function for the type MockIAccount
+func (_mock *MockIAccount) GetByProvider(ctx context.Context, provider iampb.Provider, input string) (*accrepos.AccountX, error) {
+	ret := _mock.Called(ctx, provider, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByProvider")
+	}
+
+	var r0 *accrepos.AccountX
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) (*accrepos.AccountX, error)); ok {
+		return returnFunc(ctx, provider, input)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) *accrepos.AccountX); ok {
+		r0 = returnFunc(ctx, provider, input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*accrepos.AccountX)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, iampb.Provider, string) error); ok {
+		r1 = returnFunc(ctx, provider, input)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockIAccount_GetByProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByProvider'
+type MockIAccount_GetByProvider_Call struct {
+	*mock.Call
+}
+
+// GetByProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider iampb.Provider
+//   - input string
+func (_e *MockIAccount_Expecter) GetByProvider(ctx any, provider any, input any) *MockIAccount_GetByProvider_Call {
+	return &MockIAccount_GetByProvider_Call{Call: _e.mock.On("GetByProvider", ctx, provider, input)}
+}
+
+func (_c *MockIAccount_GetByProvider_Call) Run(run func(ctx context.Context, provider iampb.Provider, input string)) *MockIAccount_GetByProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 iampb.Provider
+		if args[1] != nil {
+			arg1 = args[1].(iampb.Provider)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccount_GetByProvider_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_GetByProvider_Call {
+	_c.Call.Return(accountX, err)
+	return _c
+}
+
+func (_c *MockIAccount_GetByProvider_Call) RunAndReturn(run func(ctx context.Context, provider iampb.Provider, input string) (*accrepos.AccountX, error)) *MockIAccount_GetByProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByProviderUserId provides a mock function for the type MockIAccount
+func (_mock *MockIAccount) GetByProviderUserId(ctx context.Context, provider iampb.Provider, providerUserId string) (*accrepos.AccountX, error) {
+	ret := _mock.Called(ctx, provider, providerUserId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByProviderUserId")
+	}
+
+	var r0 *accrepos.AccountX
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) (*accrepos.AccountX, error)); ok {
+		return returnFunc(ctx, provider, providerUserId)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) *accrepos.AccountX); ok {
+		r0 = returnFunc(ctx, provider, providerUserId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*accrepos.AccountX)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, iampb.Provider, string) error); ok {
+		r1 = returnFunc(ctx, provider, providerUserId)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockIAccount_GetByProviderUserId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByProviderUserId'
+type MockIAccount_GetByProviderUserId_Call struct {
+	*mock.Call
+}
+
+// GetByProviderUserId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider iampb.Provider
+//   - providerUserId string
+func (_e *MockIAccount_Expecter) GetByProviderUserId(ctx any, provider any, providerUserId any) *MockIAccount_GetByProviderUserId_Call {
+	return &MockIAccount_GetByProviderUserId_Call{Call: _e.mock.On("GetByProviderUserId", ctx, provider, providerUserId)}
+}
+
+func (_c *MockIAccount_GetByProviderUserId_Call) Run(run func(ctx context.Context, provider iampb.Provider, providerUserId string)) *MockIAccount_GetByProviderUserId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 iampb.Provider
+		if args[1] != nil {
+			arg1 = args[1].(iampb.Provider)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccount_GetByProviderUserId_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_GetByProviderUserId_Call {
+	_c.Call.Return(accountX, err)
+	return _c
+}
+
+func (_c *MockIAccount_GetByProviderUserId_Call) RunAndReturn(run func(ctx context.Context, provider iampb.Provider, providerUserId string) (*accrepos.AccountX, error)) *MockIAccount_GetByProviderUserId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByUserId provides a mock function for the type MockIAccount
+func (_mock *MockIAccount) GetByUserId(ctx context.Context, provider iampb.Provider, userId string) (*accrepos.AccountX, error) {
+	ret := _mock.Called(ctx, provider, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByUserId")
+	}
+
+	var r0 *accrepos.AccountX
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) (*accrepos.AccountX, error)); ok {
+		return returnFunc(ctx, provider, userId)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, iampb.Provider, string) *accrepos.AccountX); ok {
+		r0 = returnFunc(ctx, provider, userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*accrepos.AccountX)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, iampb.Provider, string) error); ok {
+		r1 = returnFunc(ctx, provider, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockIAccount_GetByUserId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByUserId'
+type MockIAccount_GetByUserId_Call struct {
+	*mock.Call
+}
+
+// GetByUserId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider iampb.Provider
+//   - userId string
+func (_e *MockIAccount_Expecter) GetByUserId(ctx any, provider any, userId any) *MockIAccount_GetByUserId_Call {
+	return &MockIAccount_GetByUserId_Call{Call: _e.mock.On("GetByUserId", ctx, provider, userId)}
+}
+
+func (_c *MockIAccount_GetByUserId_Call) Run(run func(ctx context.Context, provider iampb.Provider, userId string)) *MockIAccount_GetByUserId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 iampb.Provider
+		if args[1] != nil {
+			arg1 = args[1].(iampb.Provider)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIAccount_GetByUserId_Call) Return(accountX *accrepos.AccountX, err error) *MockIAccount_GetByUserId_Call {
+	_c.Call.Return(accountX, err)
+	return _c
+}
+
+func (_c *MockIAccount_GetByUserId_Call) RunAndReturn(run func(ctx context.Context, provider iampb.Provider, userId string) (*accrepos.AccountX, error)) *MockIAccount_GetByUserId_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -300,7 +300,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
               <span>{ts('backToMain')}</span>
             </button>
           )}
-          <TeamSwitcher teams={dashboard.tenant} />
+          <TeamSwitcher />
           {loading ? (
             <SidebarLoading />
           ) : (

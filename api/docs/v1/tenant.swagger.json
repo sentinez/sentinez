@@ -20,6 +20,185 @@
     "application/json"
   ],
   "paths": {
+    "/tenant/member": {
+      "get": {
+        "summary": "Returns a tenant member.",
+        "operationId": "TenantService_GetMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMemberResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "delete": {
+        "summary": "Removes a member from its tenant.",
+        "operationId": "TenantService_DeleteMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteMemberResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "post": {
+        "summary": "Adds a user to a tenant.",
+        "operationId": "TenantService_CreateMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateMemberResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateMemberRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "put": {
+        "summary": "Updates the roles of a tenant member.",
+        "operationId": "TenantService_UpdateMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateMemberResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateMemberRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
+    "/tenant/members": {
+      "get": {
+        "summary": "Lists tenant members.",
+        "operationId": "TenantService_ListMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListMemberResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "tenantId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
     "/tenant/resource": {
       "get": {
         "operationId": "TenantService_GetResource",
@@ -268,6 +447,193 @@
           "TenantService"
         ]
       }
+    },
+    "/tenant/tenant": {
+      "get": {
+        "summary": "Returns a tenant.",
+        "operationId": "TenantService_GetTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTenantResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes a tenant.",
+        "operationId": "TenantService_DeleteTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTenantResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "post": {
+        "summary": "Creates a new tenant.",
+        "operationId": "TenantService_CreateTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateTenantResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTenantRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "put": {
+        "summary": "Updates the plan of a tenant.",
+        "operationId": "TenantService_UpdateTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateTenantResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateTenantRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
+    "/tenant/tenants": {
+      "get": {
+        "summary": "Lists tenants.",
+        "operationId": "TenantService_ListTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTenantResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "plan",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PLAN_UNSPECIFIED",
+              "PLAN_FREE",
+              "PLAN_STANDARD",
+              "PLAN_PRO"
+            ],
+            "default": "PLAN_UNSPECIFIED"
+          },
+          {
+            "name": "name",
+            "description": "Case-insensitive part of the name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -361,6 +727,31 @@
       ],
       "default": "BALANCE_STRATEGY_UNSPECIFIED"
     },
+    "v1CreateMemberRequest": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Role"
+          }
+        }
+      }
+    },
+    "v1CreateMemberResponse": {
+      "type": "object",
+      "properties": {
+        "member": {
+          "$ref": "#/definitions/v1Member"
+        }
+      }
+    },
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
@@ -386,8 +777,44 @@
         }
       }
     },
+    "v1CreateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CreateTenantResponse": {
+      "type": "object",
+      "properties": {
+        "tenant": {
+          "$ref": "#/definitions/v1Tenant"
+        }
+      }
+    },
+    "v1DeleteMemberResponse": {
+      "type": "object"
+    },
     "v1DeleteResourceResponse": {
       "type": "object"
+    },
+    "v1DeleteTenantResponse": {
+      "type": "object"
+    },
+    "v1GetMemberResponse": {
+      "type": "object",
+      "properties": {
+        "member": {
+          "$ref": "#/definitions/v1Member"
+        }
+      }
     },
     "v1GetResourceByDomainResponse": {
       "type": "object",
@@ -402,6 +829,30 @@
       "properties": {
         "resource": {
           "$ref": "#/definitions/v1Resource"
+        }
+      }
+    },
+    "v1GetTenantResponse": {
+      "type": "object",
+      "properties": {
+        "tenant": {
+          "$ref": "#/definitions/v1Tenant"
+        }
+      }
+    },
+    "v1ListMemberResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Member"
+          }
         }
       }
     },
@@ -421,6 +872,45 @@
         }
       }
     },
+    "v1ListTenantResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "tenants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Tenant"
+          }
+        }
+      }
+    },
+    "v1Member": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/sentineztypesv1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Role"
+          }
+        }
+      }
+    },
     "v1Pages": {
       "type": "object",
       "properties": {
@@ -436,6 +926,16 @@
           "type": "boolean"
         }
       }
+    },
+    "v1Plan": {
+      "type": "string",
+      "enum": [
+        "PLAN_UNSPECIFIED",
+        "PLAN_FREE",
+        "PLAN_STANDARD",
+        "PLAN_PRO"
+      ],
+      "default": "PLAN_UNSPECIFIED"
     },
     "v1ProxyProtocol": {
       "type": "string",
@@ -480,6 +980,17 @@
         }
       }
     },
+    "v1Role": {
+      "type": "string",
+      "enum": [
+        "ROLE_UNSPECIFIED",
+        "ROLE_SUPER_ADMIN",
+        "ROLE_ADMIN",
+        "ROLE_LEADER",
+        "ROLE_MEMBER"
+      ],
+      "default": "ROLE_UNSPECIFIED"
+    },
     "v1Server": {
       "type": "object",
       "properties": {
@@ -506,6 +1017,44 @@
         }
       }
     },
+    "v1Tenant": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/sentineztypesv1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        }
+      }
+    },
+    "v1UpdateMemberRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Role"
+          },
+          "description": "roles replaces the whole role set of the member."
+        }
+      }
+    },
+    "v1UpdateMemberResponse": {
+      "type": "object"
+    },
     "v1UpdateResourceRequest": {
       "type": "object",
       "properties": {
@@ -527,6 +1076,28 @@
       }
     },
     "v1UpdateResourceResponse": {
+      "type": "object"
+    },
+    "v1UpdateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "plan": {
+          "$ref": "#/definitions/v1Plan"
+        },
+        "name": {
+          "type": "string",
+          "description": "name is left unchanged when empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "description is left unchanged when empty."
+        }
+      }
+    },
+    "v1UpdateTenantResponse": {
       "type": "object"
     },
     "v1Upstream": {

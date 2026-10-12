@@ -17,6 +17,7 @@ package local
 import (
 	"sync"
 
+	"github.com/sentinez/sentinez/api/interceptor/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
@@ -42,7 +43,9 @@ func RegisterServiceServer[T any](
 	}
 
 	srvOnce.once.Do(func() {
-		s := grpc.NewServer()
+		s := grpc.NewServer(
+			grpc.ChainUnaryInterceptor(validate.UnaryServerInterceptor()),
+		)
 		srvOnce.conn = bufconn.Listen(BufSize)
 
 		register(s, hdl)

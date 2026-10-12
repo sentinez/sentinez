@@ -2,6 +2,7 @@ import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 
 import axios from 'axios';
 import {
+  PasskeyLinkChallengeResponse,
   PasskeyLoginChallengeRequest,
   PasskeyLoginChallengeResponse,
   PasskeyLoginVerifyRequest,
@@ -94,5 +95,27 @@ export async function PasskeyLogin(
   return PasskeyLoginVerify({
     sessionId: start.sessionId,
     credentialAssertionData: credentialBytes(credential),
+  });
+}
+
+// Adds a passkey to the signed-in user. Both calls carry the access token
+// (see lib/api/base.ts): the server only links a passkey for the user who
+// asked for it.
+export async function PasskeyLink(): Promise<PasskeyRegisterVerifyResponse> {
+  // GET /iam/passkey/link/challenge
+  const resp = await axios.get(`${API_BASE_PATH}/iam/passkey/link/challenge`);
+  const start = PasskeyLinkChallengeResponse.fromJSON(resp.data ?? {});
+  const options = start.options;
+  if (options == undefined) {
+    throw new Error('publicKey is null');
+  }
+
+  const credential = await startRegistration({
+    optionsJSON: options['publicKey'],
+  });
+
+  return PasskeyRegisterVerify({
+    sessionId: start.sessionId,
+    credentialCreationResponse: credentialBytes(credential),
   });
 }

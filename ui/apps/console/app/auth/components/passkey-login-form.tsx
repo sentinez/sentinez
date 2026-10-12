@@ -12,6 +12,7 @@ import { PasskeyLogin } from '@/lib/api/iam/passkey';
 import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
+import { homePath } from '@/lib/session';
 
 export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const t = useTranslations('Auth');
@@ -44,7 +45,7 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
         );
       }
 
-      router.push('/console');
+      router.push(homePath());
     } catch (err: any) {
       console.error('Passkey login error:', err);
       if (err.name === 'NotAllowedError') {

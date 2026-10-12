@@ -63,8 +63,10 @@ func (ax *AccountX) UpdateCredential(credential *webauthn.Credential) {
 	}
 }
 
+// WebAuthnID returns the WebAuthn user handle. It is an opaque value kept
+// in provider_user_id, so it stays stable when the email changes.
 func (ax *AccountX) WebAuthnID() []byte {
-	return []byte(ax.GetEmail())
+	return []byte(ax.GetProviderUserId())
 }
 
 func (ax *AccountX) WebAuthnName() string {

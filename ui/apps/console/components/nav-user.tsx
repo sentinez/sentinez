@@ -1,7 +1,6 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@sentinez/ui/components/avatar';
@@ -20,7 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
-import { toast } from '@/lib/toast';
+import { useLogout } from '@/components/user-menu';
 
 export function NavUser({
   user,
@@ -32,14 +31,8 @@ export function NavUser({
   };
 }) {
   const t = useTranslations('Sidebar');
-  const router = useRouter();
   const { isMobile } = useSidebar();
-
-  const handleLogout = () => {
-    localStorage.clear();
-    toast.success(t('loggedOut'), t('loggedOutDescription'));
-    router.push('/auth');
-  };
+  const handleLogout = useLogout();
 
   return (
     <SidebarMenu>
