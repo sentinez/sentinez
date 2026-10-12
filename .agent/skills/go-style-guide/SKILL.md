@@ -1,5 +1,5 @@
 ---
-name: Go Style Guide
+name: go-style-guide
 description: Go coding conventions and best practices based on the Uber Go Style Guide. Apply these rules when writing, reviewing, or refactoring Go code.
 ---
 

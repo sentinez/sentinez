@@ -24,6 +24,10 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpb";
 
+message ResourceSetting {
+  sentinez.dmz.edge.v1.Server server = 1;
+}
+
 message Resource {
   option (sentinez.types.v1.x_message).database_model = true;
 
@@ -33,19 +37,19 @@ message Resource {
     required: true
     string: { prefix: "senz.tenant.resources." }
   }];
-  
-  sentinez.dmz.edge.v1.Setting resource_setting = 3;
-  
-  string resource_domain = 4 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  
-  string resource_name = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  
-  sentinez.types.v1.Status status = 6;
-  
-  string tenant_id = 7 [(buf.validate.field) = {
+
+  string tenant_id = 3 [(buf.validate.field) = {
     required: true
     string: { prefix: "senz.tenant.console." }
   }];
+
+  ResourceSetting resource_setting = 4;
+
+  string resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  
+  string resource_name = 6 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  
+  sentinez.types.v1.Status status = 7;
 }
 
 message Tenant {
