@@ -2,6 +2,7 @@ import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 
 import axios from 'axios';
 import {
+  PasskeyLinkChallengeResponse,
   PasskeyLoginChallengeRequest,
   PasskeyLoginChallengeResponse,
   PasskeyLoginVerifyRequest,
@@ -14,6 +15,7 @@ import {
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { toQuery } from '@/lib/api/pages';
+import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
 
 // GET /iam/passkey/register/challenge
 async function PasskeyRegisterChallenge(
@@ -95,4 +97,36 @@ export async function PasskeyLogin(
     sessionId: start.sessionId,
     credentialAssertionData: credentialBytes(credential),
   });
+}
+
+// Adds a passkey to the signed-in user. Both calls carry the access token:
+// the server only links a passkey for the user who asked for it.
+export async function PasskeyLink(): Promise<PasskeyRegisterVerifyResponse> {
+  const headers = {
+    Authorization: `Bearer ${localStorage.getItem(SENTINEZ_ACCESS_TOKEN_KEY) ?? ''}`,
+  };
+
+  // GET /iam/passkey/link/challenge
+  const resp = await axios.get(`${API_BASE_PATH}/iam/passkey/link/challenge`, { headers });
+  const start = PasskeyLinkChallengeResponse.fromJSON(resp.data ?? {});
+  const options = start.options;
+  if (options == undefined) {
+    throw new Error('publicKey is null');
+  }
+
+  const credential = await startRegistration({
+    optionsJSON: options['publicKey'],
+  });
+
+  // POST /iam/passkey/register/verify
+  const endpoint = `${API_BASE_PATH}/iam/passkey/register/verify`;
+  const verified = await axios.post(
+    endpoint,
+    PasskeyRegisterVerifyRequest.toJSON({
+      sessionId: start.sessionId,
+      credentialCreationResponse: credentialBytes(credential),
+    }),
+    { headers },
+  );
+  return PasskeyRegisterVerifyResponse.fromJSON(verified.data ?? {});
 }

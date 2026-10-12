@@ -90,6 +90,7 @@ header `Authorization: Bearer <JWT>`.
 | DELETE | `/iam/user/{id}` | `...DeleteUser` | ignore |
 | GET | `/iam/status` | `...Status` | ignore |
 | GET | `/iam/passkey/register/challenge` | `...PasskeyRegisterChallenge` | ignore |
+| GET | `/iam/passkey/link/challenge` | `...PasskeyLinkChallenge` | ignore (service yêu cầu token) |
 | POST | `/iam/passkey/register/verify` | `...PasskeyRegisterVerify` | ignore |
 | GET | `/iam/passkey/login/challenge` | `...PasskeyLoginChallenge` | ignore |
 | PUT | `/iam/passkey/login/verify` | `...PasskeyLoginVerify` | ignore |

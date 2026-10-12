@@ -51,6 +51,17 @@ have not been reproduced. Remove an entry once it is fixed.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - `network.QuicTransporter` and the `onQuicAccept` listener hook exist but
   nothing uses them (no option sets `onQuicAccept`).
+- IAM uniqueness (one user per email, one account per provider per user,
+  `LOCAL` usernames) is only checked in the service before inserting; the
+  tables have no unique index (`dbx.Index` is single-column, non-unique), so
+  two concurrent sign-ups can both pass.
+- IAM: a user who signed up with a passkey cannot add a password (there is
+  no "link" RPC for `LOCAL`). The console has `PasskeyLink()` in
+  `lib/api/iam/passkey.ts` but no page calls it.
+- IAM `UpdateUser` changes `User.email` without updating the email on the
+  user's accounts, and fails unless some account already has that email.
+- Passkey sessions and pending registrations are kept in process memory:
+  they are lost on restart and not shared between apiserver replicas.
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` are declared but unused.
 
 ## 12.4 Minor issues / code hygiene

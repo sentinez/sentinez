@@ -94,6 +94,12 @@ func GetIdentityAccessManagementServicePasskeyRegisterVerify() *typepb.XMethod {
 	}
 }
 
+func GetIdentityAccessManagementServicePasskeyLinkChallenge() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
 func GetIdentityAccessManagementServicePasskeyLoginChallenge() *typepb.XMethod {
 	return &typepb.XMethod{
 		Ignore: true,

@@ -26,6 +26,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -46,6 +47,7 @@ type IUser interface {
 
 	// extra methods
 
+	GetByEmail(ctx context.Context, email string) (*iampb.User, error)
 	List(ctx context.Context, req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error)
 }
 
@@ -151,6 +153,25 @@ func (u *Users) Delete(ctx context.Context, id string) error {
 func (u *Users) Get(ctx context.Context, id string) (*iampb.User, error) {
 	builder := u.selectQuery(nil).Where(sq.Eq{iampb.User_Id: id})
 	return u.storage.Select(ctx, builder, scanOne)
+}
+
+// GetByEmail implements IUser. It returns errorx.ErrNotFound if no user
+// owns the email.
+func (u *Users) GetByEmail(
+	ctx context.Context, email string) (*iampb.User, error) {
+
+	builder := u.selectQuery(nil).Where(sq.Eq{iampb.User_Email: email})
+
+	user, err := u.storage.CollectOneRow(ctx, builder, scanOne)
+	if err != nil {
+		if !errorx.IsNoRows(err) {
+			return nil, err
+		}
+
+		return nil, errorx.ErrNotFound
+	}
+
+	return user, nil
 }
 
 // Update implements IUser.

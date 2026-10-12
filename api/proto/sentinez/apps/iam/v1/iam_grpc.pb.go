@@ -44,6 +44,7 @@ const (
 	IdentityAccessManagementService_Login_FullMethodName                    = "/sentinez.apps.iam.v1.IdentityAccessManagementService/Login"
 	IdentityAccessManagementService_PasskeyRegisterChallenge_FullMethodName = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyRegisterChallenge"
 	IdentityAccessManagementService_PasskeyRegisterVerify_FullMethodName    = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyRegisterVerify"
+	IdentityAccessManagementService_PasskeyLinkChallenge_FullMethodName     = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLinkChallenge"
 	IdentityAccessManagementService_PasskeyLoginChallenge_FullMethodName    = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLoginChallenge"
 	IdentityAccessManagementService_PasskeyLoginVerify_FullMethodName       = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLoginVerify"
 )
@@ -63,6 +64,9 @@ type IdentityAccessManagementServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	PasskeyRegisterChallenge(ctx context.Context, in *PasskeyRegisterChallengeRequest, opts ...grpc.CallOption) (*PasskeyRegisterChallengeResponse, error)
 	PasskeyRegisterVerify(ctx context.Context, in *PasskeyRegisterVerifyRequest, opts ...grpc.CallOption) (*PasskeyRegisterVerifyResponse, error)
+	// PasskeyLinkChallenge starts adding a passkey to the signed-in user.
+	// Finish it with PasskeyRegisterVerify.
+	PasskeyLinkChallenge(ctx context.Context, in *PasskeyLinkChallengeRequest, opts ...grpc.CallOption) (*PasskeyLinkChallengeResponse, error)
 	PasskeyLoginChallenge(ctx context.Context, in *PasskeyLoginChallengeRequest, opts ...grpc.CallOption) (*PasskeyLoginChallengeResponse, error)
 	PasskeyLoginVerify(ctx context.Context, in *PasskeyLoginVerifyRequest, opts ...grpc.CallOption) (*PasskeyLoginVerifyResponse, error)
 }
@@ -185,6 +189,16 @@ func (c *identityAccessManagementServiceClient) PasskeyRegisterVerify(ctx contex
 	return out, nil
 }
 
+func (c *identityAccessManagementServiceClient) PasskeyLinkChallenge(ctx context.Context, in *PasskeyLinkChallengeRequest, opts ...grpc.CallOption) (*PasskeyLinkChallengeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PasskeyLinkChallengeResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_PasskeyLinkChallenge_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *identityAccessManagementServiceClient) PasskeyLoginChallenge(ctx context.Context, in *PasskeyLoginChallengeRequest, opts ...grpc.CallOption) (*PasskeyLoginChallengeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PasskeyLoginChallengeResponse)
@@ -220,6 +234,9 @@ type IdentityAccessManagementServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	PasskeyRegisterChallenge(context.Context, *PasskeyRegisterChallengeRequest) (*PasskeyRegisterChallengeResponse, error)
 	PasskeyRegisterVerify(context.Context, *PasskeyRegisterVerifyRequest) (*PasskeyRegisterVerifyResponse, error)
+	// PasskeyLinkChallenge starts adding a passkey to the signed-in user.
+	// Finish it with PasskeyRegisterVerify.
+	PasskeyLinkChallenge(context.Context, *PasskeyLinkChallengeRequest) (*PasskeyLinkChallengeResponse, error)
 	PasskeyLoginChallenge(context.Context, *PasskeyLoginChallengeRequest) (*PasskeyLoginChallengeResponse, error)
 	PasskeyLoginVerify(context.Context, *PasskeyLoginVerifyRequest) (*PasskeyLoginVerifyResponse, error)
 }
@@ -263,6 +280,9 @@ func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterChallen
 }
 func (UnimplementedIdentityAccessManagementServiceServer) PasskeyRegisterVerify(context.Context, *PasskeyRegisterVerifyRequest) (*PasskeyRegisterVerifyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PasskeyRegisterVerify not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLinkChallenge(context.Context, *PasskeyLinkChallengeRequest) (*PasskeyLinkChallengeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PasskeyLinkChallenge not implemented")
 }
 func (UnimplementedIdentityAccessManagementServiceServer) PasskeyLoginChallenge(context.Context, *PasskeyLoginChallengeRequest) (*PasskeyLoginChallengeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PasskeyLoginChallenge not implemented")
@@ -488,6 +508,24 @@ func _IdentityAccessManagementService_PasskeyRegisterVerify_Handler(srv interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityAccessManagementService_PasskeyLinkChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasskeyLinkChallengeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLinkChallenge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_PasskeyLinkChallenge_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).PasskeyLinkChallenge(ctx, req.(*PasskeyLinkChallengeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _IdentityAccessManagementService_PasskeyLoginChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PasskeyLoginChallengeRequest)
 	if err := dec(in); err != nil {
@@ -574,6 +612,10 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PasskeyRegisterVerify",
 			Handler:    _IdentityAccessManagementService_PasskeyRegisterVerify_Handler,
+		},
+		{
+			MethodName: "PasskeyLinkChallenge",
+			Handler:    _IdentityAccessManagementService_PasskeyLinkChallenge_Handler,
 		},
 		{
 			MethodName: "PasskeyLoginChallenge",

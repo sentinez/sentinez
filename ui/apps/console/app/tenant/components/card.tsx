@@ -53,7 +53,7 @@ export function Tenant({ tenant }: { tenant: TenantModel }) {
   const planLabel = usePlanLabel();
 
   return (
-    <Card className="w-[300px] transition-colors duration-300 hover:border-primary">
+    <Card className="w-full transition-colors duration-300 hover:border-primary sm:w-[300px]">
       <CardHeader className="grid-cols-[minmax(0,1fr)]">
         <CardTitle className="truncate" title={tenant.name || tenant.id}>
           {tenant.name || tenant.id}
@@ -82,7 +82,7 @@ export function TeamJoin({ onCreated }: { onCreated?: () => void }) {
 
   return (
     <>
-      <Card className="w-[300px] hover:scale-105 transition-transform duration-300">
+      <Card className="w-full max-w-sm transition-transform duration-300 sm:w-[300px] sm:hover:scale-105">
         <CardHeader>
           <CardTitle>{t('createOrJoin')}</CardTitle>
           <CardDescription>{t('createOrJoinDescription')}</CardDescription>
