@@ -40,6 +40,11 @@ func listConditions(
 		conds = append(conds, sq.Eq{securitypb.CoreRuleset_Id: req.GetIds()})
 	}
 
+	if ids := req.GetResourceIds(); len(ids) > 0 {
+		conds = append(conds,
+			sq.Eq{securitypb.CoreRuleset_OwnerResourceId: ids})
+	}
+
 	if name := req.GetName(); name != "" {
 		conds = append(conds, sq.ILike{
 			securitypb.CoreRuleset_Name: "%" + _likeEscaper.Replace(name) + "%",

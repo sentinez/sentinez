@@ -38,7 +38,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
 			tenantpb.Resource_ResourceSetting: postgres.ByteA,
 			tenantpb.Resource_ResourceName:    postgres.String,
 			tenantpb.Resource_ResourceDomain:  postgres.String,
-			tenantpb.Resource_Plan:            postgres.Int4,
+			tenantpb.Resource_TenantId:        postgres.String,
 			tenantpb.Resource_Status:          postgres.Int4,
 		}),
 	)
@@ -71,10 +71,6 @@ func (rsc *Resources) List(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
 
 	q := rsc.selectQ(req.GetPage())
-	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
-		q = q.Where(sq.Eq{tenantpb.Resource_Plan: req.GetPlan()})
-	}
-
 	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})
 	}
@@ -108,13 +104,13 @@ func (rsc *Resources) List(ctx context.Context,
 func (rsc *Resources) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 
-	rs.Id = rand.NewID(table.NewPrimaryKey(tables.TenantResources))
+	rs.Id = rand.NewId(table.NewPrimaryKey(tables.TenantResources))
 
 	st, _ := protox.Marshal(rs.GetResourceSetting())
 
 	query := postgres.InsertBuilder(rsc.storage, postgres.M{
 		tenantpb.Resource_Id:              rs.GetId(),
-		tenantpb.Resource_Plan:            rs.GetPlan(),
+		tenantpb.Resource_TenantId:        rs.GetTenantId(),
 		tenantpb.Resource_Status:          rs.GetStatus(),
 		tenantpb.Resource_ResourceDomain:  rs.GetResourceDomain(),
 		tenantpb.Resource_ResourceName:    rs.GetResourceName(),
@@ -133,10 +129,6 @@ func (rsc *Resources) Update(
 	ctx context.Context, req *tenantpb.Resource) error {
 
 	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
-	if req.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
-		q = q.Set(tenantpb.Resource_Plan, req.GetPlan())
-	}
-
 	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Set(tenantpb.Resource_Status, req.GetStatus())
 	}
@@ -171,7 +163,7 @@ func (rsc *Resources) Delete(ctx context.Context, id string) error {
 func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(rsc.storage, page,
 		tenantpb.Resource_Id,
-		tenantpb.Resource_Plan,
+		postgres.SelectCoalesce(tenantpb.Resource_TenantId),
 		tenantpb.Resource_Status,
 		tenantpb.Resource_ResourceName,
 		tenantpb.Resource_ResourceDomain,
@@ -201,7 +193,7 @@ func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 
 	err := row.Scan(
 		&rsc.Id,
-		&rsc.Plan,
+		&rsc.TenantId,
 		&rsc.Status,
 		&rsc.ResourceName,
 		&rsc.ResourceDomain,

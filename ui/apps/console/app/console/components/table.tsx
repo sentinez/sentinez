@@ -39,18 +39,18 @@ import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { TablePagination } from '@/components/table-pagination';
+import { TableSkeletonRows } from '@/components/table-skeleton';
 import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
-import { planToJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
+import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { listResources } from '@/lib/api/tenant';
 
-// "PLAN_STANDARD" -> "standard", "STATUS_ACTIVE" -> "active"
+// "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
 
 function rowOf(r: Resource): Payment {
   return {
     id: r.id,
-    plan: enumLabel(planToJSON(r.plan), 'PLAN_'),
     status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
     name: r.resourceDomain,
   };
@@ -58,7 +58,6 @@ function rowOf(r: Resource): Payment {
 
 export type Payment = {
   id: string;
-  plan: string;
   status: 'active' | 'disable' | 'success' | 'failed';
   name: string;
 };
@@ -102,14 +101,6 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
     ),
   },
   {
-    accessorKey: 'plan',
-    meta: { label: t('plan') },
-    header: () => <div className="w-full text-right">{t('plan')}</div>,
-    cell: ({ row }) => {
-      return <div className="w-full text-right font-medium capitalize">{row.getValue('plan')}</div>;
-    },
-  },
-  {
     id: 'actions',
     header: () => <div className="w-full" />,
     cell: ({ row }) => (
@@ -144,7 +135,7 @@ export function ResourceTable() {
     if (!list) throw new Error('list resources failed');
     return { items: list.resources, total: list.total };
   }, []);
-  const { items, total, pagination, setPagination, pageCount } = usePagedList(
+  const { items, total, loading, pagination, setPagination, pageCount } = usePagedList(
     fetchPage,
     t('loadFailed'),
   );
@@ -223,8 +214,10 @@ export function ResourceTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
+          <TableBody aria-busy={loading}>
+            {loading ? (
+              <TableSkeletonRows table={table} />
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="max-h-fit">
                   {row.getVisibleCells().map((cell) => (

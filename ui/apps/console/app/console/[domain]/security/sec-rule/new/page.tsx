@@ -13,6 +13,7 @@ import {
 } from '../../components';
 import { createSecRule } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
+import { useResourceId } from '@/hooks/use-resource-id';
 import { useState } from 'react';
 
 export default function CreateSecRulePage() {
@@ -21,6 +22,8 @@ export default function CreateSecRulePage() {
   const tv = useTranslations('Validation');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  // The new row belongs to the resource of this domain
+  const { resourceId, tenantId } = useResourceId();
   const [form, setForm] = useState<SecRuleFormValue>(createEmptySecRuleForm);
   const patchForm = (patch: Partial<SecRuleFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -33,7 +36,7 @@ export default function CreateSecRulePage() {
 
     setSaving(true);
     try {
-      await createSecRule({ secRule: secRuleOf(form) });
+      await createSecRule({ secRule: { ...secRuleOf(form), owner: { resourceId, tenantId } } });
       toast.success(t('created'));
       router.back();
     } catch (err: any) {
@@ -47,7 +50,7 @@ export default function CreateSecRulePage() {
     <PageLayout>
       <PageLayoutHeader title={t('createTitle')} subtitle={t('createSubtitle')}>
         <div className="flex justify-start gap-2">
-          <Button disabled={saving} onClick={handleCreate}>
+          <Button disabled={saving || !resourceId} onClick={handleCreate}>
             {saving ? tc('saving') : tc('save')}
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>

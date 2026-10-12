@@ -63,7 +63,7 @@ type RegisterRequest struct {
 
 // Register registers the service to the service registry.
 func (dcv *Discovery) Register(
-	req *RegisterRequest) (serviceID string, err error) {
+	req *RegisterRequest) (serviceId string, err error) {
 
 	id := uuid.New().String()
 	err = dcv.client.RegisterWithTTL(id,
@@ -81,8 +81,8 @@ func (dcv *Discovery) Register(
 }
 
 // Heartbeat is used to send heartbeat to the service registry.
-func (dcv *Discovery) Heartbeat(serviceID string) error {
-	if err := dcv.client.SendHeartbeat(serviceID); err != nil {
+func (dcv *Discovery) Heartbeat(serviceId string) error {
+	if err := dcv.client.SendHeartbeat(serviceId); err != nil {
 		return err
 	}
 

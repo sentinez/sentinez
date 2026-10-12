@@ -22,7 +22,7 @@ Use standard imports, especially:
 - `github.com/sentinez/core/common/tables` for table definitions (add the new table constant there)
 - `github.com/sentinez/core/storage/dbx` and `github.com/sentinez/core/storage/dbx/postgres` for database interactions
 - `github.com/sentinez/core/storage/utils/table`
-- `github.com/sentinez/shared/rand` for ID generation (`rand.NewID`)
+- `github.com/sentinez/shared/rand` for ID generation (`rand.NewId`)
 
 ## 2. Define the Interface
 
@@ -121,7 +121,7 @@ func (r *<ModelNamePlural>) List(ctx context.Context, req *<domain>pb.List<Model
 Generate a new ID and insert.
 ```go
 func (r *<ModelNamePlural>) Create(ctx context.Context, model *<domain>pb.<ModelName>) (*<domain>pb.<ModelName>, error) {
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.<ModelNamePlural>))
+	model.Id = rand.NewId(table.NewPrimaryKey(tables.<ModelNamePlural>))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		<domain>pb.<ModelName>_Id: model.GetId(),
 		// Set other fields...

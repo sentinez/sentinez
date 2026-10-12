@@ -229,19 +229,6 @@
             "default": "STATUS_UNSPECIFIED"
           },
           {
-            "name": "plan",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "PLAN_UNSPECIFIED",
-              "PLAN_FREE",
-              "PLAN_STANDARD",
-              "PLAN_PRO"
-            ],
-            "default": "PLAN_UNSPECIFIED"
-          },
-          {
             "name": "resourceName",
             "in": "query",
             "required": false,
@@ -589,6 +576,26 @@
         }
       }
     },
+    "v1AnomalyThreshold": {
+      "type": "object",
+      "properties": {
+        "inbound": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"inbound\""
+        },
+        "outbound": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"outbound\""
+        },
+        "earlyBlocking": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"earlyBlocking\""
+        }
+      },
+      "description": "AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default."
+    },
     "v1BalanceStrategy": {
       "type": "string",
       "enum": [
@@ -608,6 +615,36 @@
           "title": "@gotags: yaml:\"rule\""
         }
       }
+    },
+    "v1Category": {
+      "type": "string",
+      "enum": [
+        "CATEGORY_UNSPECIFIED",
+        "CATEGORY_COMMON_EXCEPTIONS",
+        "CATEGORY_METHOD_ENFORCEMENT",
+        "CATEGORY_SCANNER_DETECTION",
+        "CATEGORY_PROTOCOL_ENFORCEMENT",
+        "CATEGORY_PROTOCOL_ATTACK",
+        "CATEGORY_MULTIPART_ATTACK",
+        "CATEGORY_LFI",
+        "CATEGORY_RFI",
+        "CATEGORY_RCE",
+        "CATEGORY_PHP",
+        "CATEGORY_GENERIC",
+        "CATEGORY_XSS",
+        "CATEGORY_SQLI",
+        "CATEGORY_SESSION_FIXATION",
+        "CATEGORY_JAVA",
+        "CATEGORY_DATA_LEAKAGES",
+        "CATEGORY_DATA_LEAKAGES_SQL",
+        "CATEGORY_DATA_LEAKAGES_JAVA",
+        "CATEGORY_DATA_LEAKAGES_PHP",
+        "CATEGORY_DATA_LEAKAGES_IIS",
+        "CATEGORY_WEB_SHELLS",
+        "CATEGORY_DATA_LEAKAGES_RUBY"
+      ],
+      "default": "CATEGORY_UNSPECIFIED",
+      "description": "Category CRS rule group, 1:1 with corers.Flag.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956"
     },
     "v1Condition": {
       "type": "object",
@@ -662,6 +699,65 @@
       },
       "title": "A logical condition expression"
     },
+    "v1CoreRuleset": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        },
+        "version": {
+          "$ref": "#/definitions/v1Version",
+          "title": "@gotags: yaml:\"version\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
+        },
+        "detectionParanoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
+        },
+        "threshold": {
+          "$ref": "#/definitions/v1AnomalyThreshold",
+          "title": "@gotags: yaml:\"threshold\""
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Category"
+          },
+          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
+        },
+        "request": {
+          "$ref": "#/definitions/v1RequestPolicy",
+          "title": "@gotags: yaml:\"request\""
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Exclusion"
+          },
+          "title": "@gotags: yaml:\"exclusions\""
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleOverride"
+          },
+          "title": "@gotags: yaml:\"overrides\""
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status",
+          "title": "@gotags: yaml:\"status\""
+        }
+      },
+      "description": "CoreRuleset OWASP CRS configuration of a server (namespace)."
+    },
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
@@ -676,9 +772,6 @@
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
-        },
-        "plan": {
-          "$ref": "#/definitions/v1Plan"
         }
       }
     },
@@ -705,6 +798,57 @@
           "title": "@gotags: yaml:\"cdn\""
         }
       }
+    },
+    "v1EngineMode": {
+      "type": "string",
+      "enum": [
+        "ENGINE_MODE_UNSPECIFIED",
+        "ENGINE_MODE_OFF",
+        "ENGINE_MODE_DETECTION_ONLY",
+        "ENGINE_MODE_ON"
+      ],
+      "default": "ENGINE_MODE_UNSPECIFIED",
+      "title": "- ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block"
+    },
+    "v1Exclusion": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"tags\""
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExclusionTarget"
+          },
+          "title": "@gotags: yaml:\"targets\""
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression",
+          "description": "Applies only to the requests matching the expression, empty = every\nrequest (global). It is translated to SecLang rules: the body, JA4\nand TLS sources are not supported.\n\n@gotags: yaml:\"expr\""
+        }
+      },
+      "description": "Exclusion false-positive tuning by tag or rule target."
+    },
+    "v1ExclusionTarget": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"ruleId\""
+        },
+        "variable": {
+          "type": "string",
+          "title": "@gotags: yaml:\"variable\""
+        }
+      },
+      "description": "ExclusionTarget removes a variable from a rule, ex: 942100 ARGS:password."
     },
     "v1Expression": {
       "type": "object",
@@ -818,16 +962,6 @@
       "type": "object",
       "title": "Personal defines where the request goes and how the edge processes it"
     },
-    "v1Plan": {
-      "type": "string",
-      "enum": [
-        "PLAN_UNSPECIFIED",
-        "PLAN_FREE",
-        "PLAN_STANDARD",
-        "PLAN_PRO"
-      ],
-      "default": "PLAN_UNSPECIFIED"
-    },
     "v1ProxyProtocol": {
       "type": "string",
       "enum": [
@@ -852,16 +986,45 @@
           "type": "string",
           "title": "@gotags: yaml:\"timeWindow\""
         },
-        "limit": {
+        "maxRequests": {
           "type": "string",
           "format": "int64",
-          "title": "@gotags: yaml:\"limit\""
+          "title": "@gotags: yaml:\"maxRequests\""
         },
         "timeout": {
           "type": "string",
           "title": "@gotags: yaml:\"timeout\""
         }
       }
+    },
+    "v1RequestPolicy": {
+      "type": "object",
+      "properties": {
+        "bodyAccess": {
+          "type": "boolean",
+          "title": "@gotags: yaml:\"bodyAccess\""
+        },
+        "bodyLimitBytes": {
+          "type": "string",
+          "format": "int64",
+          "description": "SecRequestBodyLimit, 0 = default.\n\n@gotags: yaml:\"bodyLimitBytes\""
+        },
+        "allowedMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"allowedMethods\""
+        },
+        "allowedContentTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@gotags: yaml:\"allowedContentTypes\""
+        }
+      },
+      "description": "RequestPolicy request handling directives and CRS setup variables."
     },
     "v1Resource": {
       "type": "object",
@@ -884,13 +1047,40 @@
         "status": {
           "$ref": "#/definitions/typesv1Status"
         },
-        "plan": {
-          "$ref": "#/definitions/v1Plan"
+        "tenantId": {
+          "type": "string"
         }
       }
     },
-    "v1Rulesets": {
-      "type": "object"
+    "v1RuleOverride": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "@gotags: yaml:\"id\""
+        },
+        "state": {
+          "$ref": "#/definitions/v1RuleState",
+          "title": "@gotags: yaml:\"state\""
+        },
+        "expr": {
+          "$ref": "#/definitions/v1Expression",
+          "description": "Applies only to the requests matching the expression, empty = every\nrequest (global). Only RULE_STATE_DISABLED can be scoped. Same\ntranslation and limits as Exclusion.expr.\n\n@gotags: yaml:\"expr\""
+        }
+      },
+      "description": "RuleOverride changes the state of a single CRS rule."
+    },
+    "v1RuleState": {
+      "type": "string",
+      "enum": [
+        "RULE_STATE_UNSPECIFIED",
+        "RULE_STATE_DISABLED",
+        "RULE_STATE_DETECTION_ONLY",
+        "RULE_STATE_ENABLED"
+      ],
+      "default": "RULE_STATE_UNSPECIFIED",
+      "title": "- RULE_STATE_DISABLED: removed (ctl:ruleRemoveById)\n - RULE_STATE_DETECTION_ONLY: logged, not counted toward blocking\n - RULE_STATE_ENABLED: forced on above paranoia_level"
     },
     "v1SecRuleLite": {
       "type": "object",
@@ -918,13 +1108,9 @@
     "v1Security": {
       "type": "object",
       "properties": {
-        "rulesets": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Rulesets"
-          },
-          "title": "@gotags: yaml:\"rulesets\""
+        "coreRuleset": {
+          "$ref": "#/definitions/v1CoreRuleset",
+          "title": "@gotags: yaml:\"core_ruleset\""
         },
         "secRules": {
           "type": "array",
@@ -932,7 +1118,7 @@
             "type": "object",
             "$ref": "#/definitions/dmzedgev1SecRule"
           },
-          "title": "@gotags: yaml:\"rules\""
+          "title": "@gotags: yaml:\"sec_rules\""
         },
         "limiters": {
           "type": "array",
@@ -1019,9 +1205,6 @@
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
-        },
-        "plan": {
-          "$ref": "#/definitions/v1Plan"
         }
       }
     },
@@ -1040,6 +1223,16 @@
           "title": "@gotags: yaml:\"protocol\""
         }
       }
+    },
+    "v1Version": {
+      "type": "string",
+      "enum": [
+        "VERSION_UNSPECIFIED",
+        "VERSION_V4_16_0",
+        "VERSION_V4_17_0"
+      ],
+      "default": "VERSION_UNSPECIFIED",
+      "title": "- VERSION_UNSPECIFIED: = latest supported"
     }
   },
   "securityDefinitions": {

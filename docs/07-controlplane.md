@@ -36,7 +36,7 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 - Transactions: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
   `postgres.WithTx(ss, db)` returns a `Database[T]` bound to the
   transaction; repositories expose `WithTX(ss)`.
-- Record IDs: `rand.NewID(table.NewPrimaryKey(name))` =
+- Record IDs: `rand.NewId(table.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
 Table names ([core/common/tables](../staging/src/github.com/sentinez/core/common/tables/tables.go)):

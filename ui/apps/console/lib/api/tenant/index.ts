@@ -13,7 +13,7 @@ import {
   UpdateResourceRequest,
   UpdateResourceResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
-import { Plan, Status } from '@sentinez/proto/sentinez/types/v1/known';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
@@ -27,17 +27,20 @@ export interface ApiOptions {
 
 // ─── Sample data (used only when USE_SAMPLE is true) ─────────────────────────
 
+// Tenant that owns every sample resource
+export const SAMPLE_TENANT_ID = 'senz.tenant.console.sample';
+
 const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ server, protocol });
 
 // Written as proto JSON (the wire format), parsed with Resource.fromJSON
 export const SAMPLE_RESOURCES: Resource[] = [
   {
     metadata: { createdAt: '2026-09-01T08:00:00Z', updatedAt: '2026-10-05T10:30:00Z' },
-    id: '0199a6f0-4c1e-7a2b-9d3e-000000000001',
+    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000001',
+    tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'badcheese.s6z.io.vn',
     resourceName: 'badcheese',
     status: 'STATUS_ACTIVE',
-    plan: 'PLAN_STANDARD',
     resourceSetting: {
       server: {
         name: 'badcheese',
@@ -77,11 +80,11 @@ export const SAMPLE_RESOURCES: Resource[] = [
   },
   {
     metadata: { createdAt: '2026-09-12T02:15:00Z', updatedAt: '2026-09-28T14:00:00Z' },
-    id: '0199a6f0-4c1e-7a2b-9d3e-000000000002',
+    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000002',
+    tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'shop.example.com',
     resourceName: 'shop',
     status: 'STATUS_ACTIVE',
-    plan: 'PLAN_PRO',
     resourceSetting: {
       server: {
         name: 'shop',
@@ -99,15 +102,13 @@ export const SAMPLE_RESOURCES: Resource[] = [
   },
   {
     metadata: { createdAt: '2026-10-01T09:45:00Z', updatedAt: '2026-10-01T09:45:00Z' },
-    id: '0199a6f0-4c1e-7a2b-9d3e-000000000003',
+    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000003',
+    tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'staging.example.com',
     resourceName: 'staging',
     status: 'STATUS_DISABLE',
-    plan: 'PLAN_FREE',
   },
 ].map((r) => Resource.fromJSON(r));
-
-const PLANS = [Plan.PLAN_FREE, Plan.PLAN_STANDARD, Plan.PLAN_PRO];
 
 // Extra generated resources so the list has several pages to page through
 const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
@@ -118,11 +119,11 @@ const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
       createdAt: new Date(`2026-08-${day}T00:00:00Z`),
       updatedAt: new Date(`2026-09-${day}T00:00:00Z`),
     },
-    id: `0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
+    id: `senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
+    tenantId: SAMPLE_TENANT_ID,
     resourceDomain: `site${n}.example.com`,
     resourceName: `site${n}`,
     status: n % 4 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
-    plan: PLANS[n % PLANS.length] ?? Plan.PLAN_FREE,
   };
 });
 
@@ -156,8 +157,7 @@ function filterSample(req: Partial<ListResourceRequest>): Resource[] {
     (r) =>
       (!req.resourceDomain || r.resourceDomain === req.resourceDomain) &&
       (!req.resourceName || r.resourceName === req.resourceName) &&
-      (!req.status || r.status === req.status) &&
-      (!req.plan || r.plan === req.plan),
+      (!req.status || r.status === req.status),
   );
 }
 
@@ -216,7 +216,8 @@ export async function createResource(
     const now = new Date();
     const created: Resource = {
       ...req,
-      id: crypto.randomUUID(),
+      id: `senz.tenant.resources.${crypto.randomUUID()}`,
+      tenantId: SAMPLE_TENANT_ID,
       metadata: { createdAt: now, updatedAt: now },
     };
     sampleStore = [...sampleStore, created];

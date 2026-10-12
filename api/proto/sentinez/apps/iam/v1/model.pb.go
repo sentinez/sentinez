@@ -235,6 +235,7 @@ type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	TenantIds     []string               `protobuf:"bytes,3,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
 	ControlPlane  v1.ControlPlane        `protobuf:"varint,13,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
@@ -286,6 +287,13 @@ func (x *User) GetId() string {
 	return ""
 }
 
+func (x *User) GetTenantIds() []string {
+	if x != nil {
+		return x.TenantIds
+	}
+	return nil
+}
+
 func (x *User) GetFullName() string {
 	if x != nil {
 		return x.FullName
@@ -330,10 +338,12 @@ const file_sentinez_apps_iam_v1_model_proto_rawDesc = "" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12\x1a\n" +
-	"\bprovider\x18\f \x01(\tR\bprovider\"\xfc\x01\n" +
+	"\bprovider\x18\f \x01(\tR\bprovider\"\xbf\x02\n" +
 	"\x04User\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
-	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
+	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12A\n" +
+	"\n" +
+	"tenant_ids\x18\x03 \x03(\tB\"\xbaH\x1f\x92\x01\x1c\"\x1ar\x18\x10\x00:\x14senz.tenant.console.R\ttenantIds\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12D\n" +

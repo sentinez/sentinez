@@ -112,7 +112,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 
 	srv.store.DeleteSession(sid)
 
-	sid, _ = srv.store.GenSessionID()
+	sid, _ = srv.store.GenSessionId()
 	srv.store.SaveSession(sid, &webauthn.SessionData{
 		Expires: time.Now().Add(time.Hour * 2),
 	})
@@ -167,7 +167,7 @@ func (srv *IAMService) PasskeyLoginChallenge(
 		return nil, errorx.StatusInternalErrorF("begin login err=%v", err)
 	}
 
-	sid, _ := srv.store.GenSessionID()
+	sid, _ := srv.store.GenSessionId()
 	srv.store.SaveSession(sid, session)
 
 	opts := protox.Struct(options)
@@ -248,7 +248,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(_ context.Context,
 			errorx.StatusInternalErrorF("can't begin registration: %v", err)
 	}
 
-	t, err := srv.store.GenSessionID()
+	t, err := srv.store.GenSessionId()
 	if err != nil {
 		return nil,
 			errorx.StatusInternalErrorF("can't generate session id: %v", err)
@@ -372,12 +372,12 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
-	accID, err := srv.createAccountWithTX(ctx, txss, request)
+	accId, err := srv.createAccountWithTX(ctx, txss, request)
 	if err != nil {
 		return nil, err
 	}
 
-	return &iampb.CreateAccountResponse{AccountId: accID}, nil
+	return &iampb.CreateAccountResponse{AccountId: accId}, nil
 }
 
 func (srv *IAMService) createAccountWithTX(ctx context.Context,

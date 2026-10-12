@@ -21,6 +21,14 @@ export interface XMessage {
   exportField: boolean;
 }
 
+export interface XField {
+  /**
+   * Replaces the field constant of a message field with one constant per
+   * nested field, named "<field>_<nested field>" (e.g. owner_created_at).
+   */
+  flatten: boolean;
+}
+
 export interface XMethod {
   ignore: boolean;
   controlPlanes: ControlPlane[];
@@ -228,6 +236,73 @@ export const XMessage: MessageFns<XMessage> = {
     const message = createBaseXMessage();
     message.databaseModel = object.databaseModel ?? false;
     message.exportField = object.exportField ?? false;
+    return message;
+  },
+};
+
+function createBaseXField(): XField {
+  return { flatten: false };
+}
+
+export const XField: MessageFns<XField> = {
+  encode(message: XField, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.flatten !== false) {
+      writer.uint32(8).bool(message.flatten);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): XField {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseXField();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.flatten = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): XField {
+    return { flatten: isSet(object.flatten) ? globalThis.Boolean(object.flatten) : false };
+  },
+
+  toJSON(message: XField): unknown {
+    const obj: any = {};
+    if (message.flatten !== false) {
+      obj.flatten = message.flatten;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<XField>, I>>(base?: I): XField {
+    return XField.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<XField>, I>>(object: I): XField {
+    const message = createBaseXField();
+    message.flatten = object.flatten ?? false;
     return message;
   },
 };

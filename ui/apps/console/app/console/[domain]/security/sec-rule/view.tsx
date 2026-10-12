@@ -52,7 +52,9 @@ import {
 import { ACTION_TYPE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { TablePagination } from '@/components/table-pagination';
+import { TableSkeletonRows } from '@/components/table-skeleton';
 import { usePagedList } from '@/hooks/use-paged-list';
+import { useResourceId } from '@/hooks/use-resource-id';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -170,10 +172,16 @@ export default function View() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchPage = useCallback(async (page: Pages, signal: AbortSignal) => {
-    const res = await listSecRules({ page }, { signal });
-    return { items: res.secRules, total: res.total };
-  }, []);
+  // Only the rows of the resource of this domain
+  const { resourceId, isLoading: resourceLoading } = useResourceId();
+  const fetchPage = useCallback(
+    async (page: Pages, signal: AbortSignal) => {
+      if (!resourceId) return { items: [], total: 0 };
+      const res = await listSecRules({ page, resourceIds: [resourceId] }, { signal });
+      return { items: res.secRules, total: res.total };
+    },
+    [resourceId],
+  );
   const {
     items: rules,
     total,
@@ -182,7 +190,7 @@ export default function View() {
     setPagination,
     pageCount,
     refresh,
-  } = usePagedList(fetchPage, t('loadFailed'));
+  } = usePagedList(fetchPage, t('loadFailed'), 10, !resourceLoading);
 
   const handleDelete = async () => {
     const id = deleting?.id;
@@ -296,13 +304,9 @@ export default function View() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody>
+              <TableBody aria-busy={loading}>
                 {loading ? (
-                  <TableRow className="max-h-fit">
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      {tc('loading')}
-                    </TableCell>
-                  </TableRow>
+                  <TableSkeletonRows table={table} />
                 ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id} className="max-h-fit">

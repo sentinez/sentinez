@@ -21,11 +21,6 @@ import (
 	"github.com/sentinez/core/storage/dbx/query"
 )
 
-const (
-	FieldID        = "id"
-	FieldCreatedAt = "created_at"
-	FieldUpdatedAt = "updated_at"
-)
 
 type ScanOneFn[T any] func(Row) (*T, error)
 type ScanFn[T any] func(Rows) ([]*T, error)

@@ -178,8 +178,30 @@ SecRuleEngine On
 SecRequestBodyAccess On
 SecRequestBodyLimit 13107200
 SecAction "id:899000,phase:1,pass,t:none,nolog,setvar:tx.blocking_paranoia_level=1,setvar:tx.detection_paranoia_level=2,setvar:tx.early_blocking=1,setvar:tx.inbound_anomaly_score_threshold=5,setvar:tx.outbound_anomaly_score_threshold=4,setvar:'tx.allowed_methods=GET HEAD POST PUT PATCH DELETE OPTIONS'"
-SecRule REQUEST_FILENAME "@beginsWith /api/search" "id:899001,phase:1,pass,t:none,nolog,ctl:ruleRemoveByTag=attack-sqli"
-SecRule REQUEST_FILENAME "@beginsWith /webhook" "id:899002,phase:1,pass,t:none,nolog,ctl:ruleRemoveById=920420"
+SecRule REQUEST_FILENAME "@beginsWith /api/search" \
+    "id:899001,\
+    phase:1,\
+    pass,\
+    t:none,\
+    nolog,\
+    ctl:ruleRemoveByTag=attack-sqli"
+SecRule REMOTE_ADDR "@ipMatch 10.0.0.10" \
+    "id:899002,\
+    phase:1,\
+    pass,\
+    t:none,\
+    nolog,\
+    chain"
+    SecRule REQUEST_METHOD "@streq POST" \
+        "t:none,\
+        ctl:ruleRemoveByTag=attack-rce"
+SecRule REQUEST_FILENAME "@beginsWith /webhook" \
+    "id:899003,\
+    phase:1,\
+    pass,\
+    t:none,\
+    nolog,\
+    ctl:ruleRemoveById=920420"
 SecComponentSignature "OWASP_CRS/4.16.0-dev"
 SecRule &TX:crs_setup_version "@eq 0" \
     "id:901001,\

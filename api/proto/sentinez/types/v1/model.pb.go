@@ -21,6 +21,7 @@
 package typepb
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -148,11 +149,79 @@ func (x *Metadata) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type Owner struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,3,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	TenantId      string                 `protobuf:"bytes,4,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Owner) Reset() {
+	*x = Owner{}
+	mi := &file_sentinez_types_v1_model_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Owner) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Owner) ProtoMessage() {}
+
+func (x *Owner) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_v1_model_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Owner.ProtoReflect.Descriptor instead.
+func (*Owner) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_model_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Owner) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Owner) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Owner) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *Owner) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
 var File_sentinez_types_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"\x1dsentinez/types/v1/model.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fsentinez/types/v1/options.proto\"G\n" +
+	"\x1dsentinez/types/v1/model.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1bbuf/validate/validate.proto\"G\n" +
 	"\x05Pages\x12\x14\n" +
 	"\x05index\x18\x01 \x01(\x05R\x05index\x12\x12\n" +
 	"\x04size\x18\x02 \x01(\x05R\x04size\x12\x14\n" +
@@ -161,7 +230,15 @@ const file_sentinez_types_v1_model_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01\"\x85\x02\n" +
+	"\x05Owner\x129\n" +
+	"\n" +
+	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12A\n" +
+	"\vresource_id\x18\x03 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\n" +
+	"resourceId\x12;\n" +
+	"\ttenant_id\x18\x04 \x01(\tB\x1e\xbaH\x1b\xc8\x01\x01r\x16:\x14senz.tenant.console.R\btenantId:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
 
 var (
 	file_sentinez_types_v1_model_proto_rawDescOnce sync.Once
@@ -175,20 +252,23 @@ func file_sentinez_types_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_model_proto_rawDescData
 }
 
-var file_sentinez_types_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_types_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_types_v1_model_proto_goTypes = []any{
 	(*Pages)(nil),                 // 0: sentinez.types.v1.Pages
 	(*Metadata)(nil),              // 1: sentinez.types.v1.Metadata
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(*Owner)(nil),                 // 2: sentinez.types.v1.Owner
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_sentinez_types_v1_model_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
-	2, // 1: sentinez.types.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: sentinez.types.v1.Metadata.created_at:type_name -> google.protobuf.Timestamp
+	3, // 1: sentinez.types.v1.Metadata.updated_at:type_name -> google.protobuf.Timestamp
+	3, // 2: sentinez.types.v1.Owner.created_at:type_name -> google.protobuf.Timestamp
+	3, // 3: sentinez.types.v1.Owner.updated_at:type_name -> google.protobuf.Timestamp
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_model_proto_init() }
@@ -203,7 +283,7 @@ func file_sentinez_types_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_model_proto_rawDesc), len(file_sentinez_types_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

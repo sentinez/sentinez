@@ -77,9 +77,9 @@ func (s *MemoryStorage) GetOrCreateAccount(
 	return acc, nil
 }
 
-// GenSessionID implements Store.
-func (s *MemoryStorage) GenSessionID() (string, error) {
-	return rand.NewNanoID(core.Code + "SS"), nil
+// GenSessionId implements Store.
+func (s *MemoryStorage) GenSessionId() (string, error) {
+	return rand.NewNanoId(core.Code + "SS"), nil
 }
 
 // DeleteSession implements Store.

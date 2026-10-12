@@ -74,7 +74,7 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (default `localhost:4317`), service name
 | `errorx` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
 | `perms` | `Allow(XMethod, ControlPlane)` |
 | `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewID` (UUID), `NewNanoID`, `NewXID`, `NewTimeID` (ULID) — all with prefixes; results are copied out of the pooled buffer |
+| `rand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — all with prefixes; results are copied out of the pooled buffer |
 | `bytesconv` | Fork of fasthttp/Hertz: zero-copy `B2s`/`S2b`, character tables, number parsing |
 | `jsonx` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
 | `protobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |

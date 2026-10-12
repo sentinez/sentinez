@@ -402,9 +402,11 @@ func (*DeleteSecRuleResponse) Descriptor() ([]byte, []int) {
 }
 
 type ListSecRulesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Ids   []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
+	// metadata.resource_id of the rows, any of them.
+	ResourceIds   []string `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -449,6 +451,13 @@ func (x *ListSecRulesRequest) GetPage() *v1.Pages {
 func (x *ListSecRulesRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
+	}
+	return nil
+}
+
+func (x *ListSecRulesRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
 	}
 	return nil
 }
@@ -866,9 +875,11 @@ func (*DeleteRateLimitResponse) Descriptor() ([]byte, []int) {
 }
 
 type ListRateLimitsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	Ids           []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	Ids   []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
+	// metadata.resource_id of the rows, any of them.
+	ResourceIds   []string `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -913,6 +924,13 @@ func (x *ListRateLimitsRequest) GetPage() *v1.Pages {
 func (x *ListRateLimitsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
+	}
+	return nil
+}
+
+func (x *ListRateLimitsRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
 	}
 	return nil
 }
@@ -1335,11 +1353,13 @@ type ListCoreRulesetsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// Case-insensitive part of the name.
-	Name     string           `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Ids      []string         `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
-	Modes    []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.coreruleset.v1.EngineMode" json:"modes,omitempty"`
-	Versions []v11.Version    `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"versions,omitempty"`
-	Statuses []v1.Status      `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
+	Name string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Ids  []string `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
+	// metadata.resource_id of the rows, any of them.
+	ResourceIds []string         `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	Modes       []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.coreruleset.v1.EngineMode" json:"modes,omitempty"`
+	Versions    []v11.Version    `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"versions,omitempty"`
+	Statuses    []v1.Status      `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
 	// content.paranoia_level, 0 = any.
 	ParanoiaLevel uint32 `protobuf:"varint,23,opt,name=paranoia_level,json=paranoiaLevel,proto3" json:"paranoia_level,omitempty"`
 	// Rule groups all listed in content.categories.
@@ -1401,6 +1421,13 @@ func (x *ListCoreRulesetsRequest) GetName() string {
 func (x *ListCoreRulesetsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
+	}
+	return nil
+}
+
+func (x *ListCoreRulesetsRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
 	}
 	return nil
 }
@@ -2062,11 +2089,12 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\bsec_rule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleR\asecRule\"/\n" +
 	"\x14DeleteSecRuleRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x17\n" +
-	"\x15DeleteSecRuleResponse\"U\n" +
+	"\x15DeleteSecRuleResponse\"x\n" +
 	"\x13ListSecRulesRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\"m\n" +
+	" \x03(\tR\x03ids\x12!\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"m\n" +
 	"\x14ListSecRulesResponse\x12?\n" +
 	"\tsec_rules\x18\x01 \x03(\v2\".sentinez.apps.security.v1.SecRuleR\bsecRules\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"e\n" +
@@ -2091,11 +2119,12 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"rate_limit\x18\x01 \x01(\v2$.sentinez.apps.security.v1.RateLimitR\trateLimit\"1\n" +
 	"\x16DeleteRateLimitRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x19\n" +
-	"\x17DeleteRateLimitResponse\"W\n" +
+	"\x17DeleteRateLimitResponse\"z\n" +
 	"\x15ListRateLimitsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\"u\n" +
+	" \x03(\tR\x03ids\x12!\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"u\n" +
 	"\x16ListRateLimitsResponse\x12E\n" +
 	"\vrate_limits\x18\x01 \x03(\v2$.sentinez.apps.security.v1.RateLimitR\n" +
 	"rateLimits\x12\x14\n" +
@@ -2117,12 +2146,13 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\fcore_ruleset\x18\x01 \x01(\v2&.sentinez.apps.security.v1.CoreRulesetR\vcoreRuleset\"3\n" +
 	"\x18DeleteCoreRulesetRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x1b\n" +
-	"\x19DeleteCoreRulesetResponse\"\xa3\x04\n" +
+	"\x19DeleteCoreRulesetResponse\"\xc6\x04\n" +
 	"\x17ListCoreRulesetsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\tR\x03ids\x12?\n" +
+	" \x03(\tR\x03ids\x12!\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\x12?\n" +
 	"\x05modes\x18\x14 \x03(\x0e2).sentinez.types.coreruleset.v1.EngineModeR\x05modes\x12B\n" +
 	"\bversions\x18\x15 \x03(\x0e2&.sentinez.types.coreruleset.v1.VersionR\bversions\x125\n" +
 	"\bstatuses\x18\x16 \x03(\x0e2\x19.sentinez.types.v1.StatusR\bstatuses\x12.\n" +

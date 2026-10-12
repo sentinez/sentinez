@@ -47,13 +47,15 @@ func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
 		dbx.WithTable(tables.SecuritySecRules),
 		dbx.WithColumns(dbx.ColumnM{
-			securitypb.SecRule_Id:          postgres.String,
-			securitypb.SecRule_Name:        postgres.String,
-			securitypb.SecRule_Description: postgres.String,
-			securitypb.SecRule_Expr:        postgres.JSONB,
-			securitypb.SecRule_Status:      postgres.Int4,
-			securitypb.SecRule_Priority:    postgres.Int4,
-			securitypb.SecRule_Action:      postgres.JSONB,
+			securitypb.SecRule_Id:              postgres.String,
+			securitypb.SecRule_Name:            postgres.String,
+			securitypb.SecRule_Description:     postgres.String,
+			securitypb.SecRule_Expr:            postgres.JSONB,
+			securitypb.SecRule_Status:          postgres.Int4,
+			securitypb.SecRule_Priority:        postgres.Int4,
+			securitypb.SecRule_Action:          postgres.JSONB,
+			securitypb.SecRule_OwnerResourceId: postgres.String,
+			securitypb.SecRule_OwnerTenantId:   postgres.String,
 		}),
 	)
 	if err != nil {
@@ -80,6 +82,10 @@ func buildListQuery(builder sq.SelectBuilder,
 	if len(req.GetIds()) > 0 {
 		builder = builder.Where(sq.Eq{securitypb.SecRule_Id: req.GetIds()})
 	}
+	if ids := req.GetResourceIds(); len(ids) > 0 {
+		builder = builder.Where(
+			sq.Eq{securitypb.SecRule_OwnerResourceId: ids})
+	}
 	return builder
 }
 
@@ -102,7 +108,7 @@ func (r *SecRule) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = r.storage.Total(ctx)
+		total, err = r.total(ctx, req)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -111,17 +117,34 @@ func (r *SecRule) List(ctx context.Context,
 	return models, total, nil
 }
 
+// total counts the rows matching the list filters.
+func (r *SecRule) total(
+	ctx context.Context, req *securitypb.ListSecRulesRequest,
+) (int64, error) {
+	builder := buildListQuery(
+		sq.Select("COUNT(*)").From(r.storage.Table()), req)
+
+	var total int64
+	if err := r.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func (r *SecRule) Create(ctx context.Context,
 	model *securitypb.SecRule) (*securitypb.SecRule, error) {
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecuritySecRules))
+	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecuritySecRules))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.SecRule_Id:          model.GetId(),
-		securitypb.SecRule_Name:        model.GetName(),
-		securitypb.SecRule_Description: model.GetDescription(),
-		securitypb.SecRule_Expr:        model.GetExpr(),
-		securitypb.SecRule_Status:      model.GetStatus(),
-		securitypb.SecRule_Priority:    model.GetPriority(),
-		securitypb.SecRule_Action:      model.GetAction(),
+		securitypb.SecRule_Id:              model.GetId(),
+		securitypb.SecRule_Name:            model.GetName(),
+		securitypb.SecRule_Description:     model.GetDescription(),
+		securitypb.SecRule_Expr:            model.GetExpr(),
+		securitypb.SecRule_Status:          model.GetStatus(),
+		securitypb.SecRule_Priority:        model.GetPriority(),
+		securitypb.SecRule_Action:          model.GetAction(),
+		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
+		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -177,8 +200,10 @@ func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.SecRule_Status,
 		securitypb.SecRule_Priority,
 		securitypb.SecRule_Action,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		postgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
+		postgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -197,6 +222,7 @@ func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
 func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 	var (
 		createdAt, updatedAt time.Time
+		resourceId, tenantId string
 		model                securitypb.SecRule
 	)
 
@@ -208,6 +234,8 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		&model.Status,
 		&model.Priority,
 		&model.Action,
+		&resourceId,
+		&tenantId,
 		&createdAt,
 		&updatedAt,
 	)
@@ -215,9 +243,11 @@ func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
 		return nil, err
 	}
 
-	model.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
+	model.Owner = &typepb.Owner{
+		ResourceId: resourceId,
+		TenantId:   tenantId,
+		CreatedAt:  timestamppb.New(createdAt),
+		UpdatedAt:  timestamppb.New(updatedAt),
 	}
 
 	return &model, nil

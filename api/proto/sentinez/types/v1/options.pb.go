@@ -148,6 +148,52 @@ func (x *XMessage) GetExportField() bool {
 	return false
 }
 
+type XField struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Replaces the field constant of a message field with one constant per
+	// nested field, named "<field>_<nested field>" (e.g. owner_created_at).
+	Flatten       bool `protobuf:"varint,1,opt,name=flatten,proto3" json:"flatten,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *XField) Reset() {
+	*x = XField{}
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *XField) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*XField) ProtoMessage() {}
+
+func (x *XField) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use XField.ProtoReflect.Descriptor instead.
+func (*XField) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *XField) GetFlatten() bool {
+	if x != nil {
+		return x.Flatten
+	}
+	return false
+}
+
 type XMethod struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ignore        bool                   `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
@@ -158,7 +204,7 @@ type XMethod struct {
 
 func (x *XMethod) Reset() {
 	*x = XMethod{}
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[2]
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -170,7 +216,7 @@ func (x *XMethod) String() string {
 func (*XMethod) ProtoMessage() {}
 
 func (x *XMethod) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[2]
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -183,7 +229,7 @@ func (x *XMethod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use XMethod.ProtoReflect.Descriptor instead.
 func (*XMethod) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *XMethod) GetIgnore() bool {
@@ -225,6 +271,14 @@ var file_sentinez_types_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
 		Tag:           "bytes,52001,opt,name=x_meta",
 		Filename:      "sentinez/types/v1/options.proto",
 	},
+	{
+		ExtendedType:  (*descriptorpb.FieldOptions)(nil),
+		ExtensionType: (*XField)(nil),
+		Field:         53001,
+		Name:          "sentinez.types.v1.x_field",
+		Tag:           "bytes,53001,opt,name=x_field",
+		Filename:      "sentinez/types/v1/options.proto",
+	},
 }
 
 // Extension fields to descriptorpb.MethodOptions.
@@ -245,6 +299,12 @@ var (
 	E_XMeta = &file_sentinez_types_v1_options_proto_extTypes[2]
 )
 
+// Extension fields to descriptorpb.FieldOptions.
+var (
+	// optional sentinez.types.v1.XField x_field = 53001;
+	E_XField = &file_sentinez_types_v1_options_proto_extTypes[3]
+)
+
 var File_sentinez_types_v1_options_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_v1_options_proto_rawDesc = "" +
@@ -257,13 +317,16 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"serviceKey\"T\n" +
 	"\bXMessage\x12%\n" +
 	"\x0edatabase_model\x18\x01 \x01(\bR\rdatabaseModel\x12!\n" +
-	"\fexport_field\x18\x02 \x01(\bR\vexportField\"i\n" +
+	"\fexport_field\x18\x02 \x01(\bR\vexportField\"\"\n" +
+	"\x06XField\x12\x18\n" +
+	"\aflatten\x18\x01 \x01(\bR\aflatten\"i\n" +
 	"\aXMethod\x12\x16\n" +
 	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x12F\n" +
 	"\x0econtrol_planes\x18\x02 \x03(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\rcontrolPlanes:W\n" +
 	"\bx_method\x12\x1e.google.protobuf.MethodOptions\x18ц\x03 \x01(\v2\x1a.sentinez.types.v1.XMethodR\axMethod:[\n" +
 	"\tx_message\x12\x1f.google.protobuf.MessageOptions\x18\xb9\x8e\x03 \x01(\v2\x1b.sentinez.types.v1.XMessageR\bxMessage:O\n" +
-	"\x06x_meta\x12\x1c.google.protobuf.FileOptions\x18\xa1\x96\x03 \x01(\v2\x18.sentinez.types.v1.XMetaR\x05xMetaBAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
+	"\x06x_meta\x12\x1c.google.protobuf.FileOptions\x18\xa1\x96\x03 \x01(\v2\x18.sentinez.types.v1.XMetaR\x05xMeta:S\n" +
+	"\ax_field\x12\x1d.google.protobuf.FieldOptions\x18\x89\x9e\x03 \x01(\v2\x19.sentinez.types.v1.XFieldR\x06xFieldBAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
 
 var (
 	file_sentinez_types_v1_options_proto_rawDescOnce sync.Once
@@ -277,31 +340,35 @@ func file_sentinez_types_v1_options_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_options_proto_rawDescData
 }
 
-var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_sentinez_types_v1_options_proto_goTypes = []any{
 	(*XMeta)(nil),                       // 0: sentinez.types.v1.XMeta
 	(*XMessage)(nil),                    // 1: sentinez.types.v1.XMessage
-	(*XMethod)(nil),                     // 2: sentinez.types.v1.XMethod
-	(Zone)(0),                           // 3: sentinez.types.v1.Zone
-	(ControlPlane)(0),                   // 4: sentinez.types.v1.ControlPlane
-	(*descriptorpb.MethodOptions)(nil),  // 5: google.protobuf.MethodOptions
-	(*descriptorpb.MessageOptions)(nil), // 6: google.protobuf.MessageOptions
-	(*descriptorpb.FileOptions)(nil),    // 7: google.protobuf.FileOptions
+	(*XField)(nil),                      // 2: sentinez.types.v1.XField
+	(*XMethod)(nil),                     // 3: sentinez.types.v1.XMethod
+	(Zone)(0),                           // 4: sentinez.types.v1.Zone
+	(ControlPlane)(0),                   // 5: sentinez.types.v1.ControlPlane
+	(*descriptorpb.MethodOptions)(nil),  // 6: google.protobuf.MethodOptions
+	(*descriptorpb.MessageOptions)(nil), // 7: google.protobuf.MessageOptions
+	(*descriptorpb.FileOptions)(nil),    // 8: google.protobuf.FileOptions
+	(*descriptorpb.FieldOptions)(nil),   // 9: google.protobuf.FieldOptions
 }
 var file_sentinez_types_v1_options_proto_depIdxs = []int32{
-	3, // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
-	4, // 1: sentinez.types.v1.XMethod.control_planes:type_name -> sentinez.types.v1.ControlPlane
-	5, // 2: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
-	6, // 3: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
-	7, // 4: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
-	2, // 5: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
-	1, // 6: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
-	0, // 7: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	5, // [5:8] is the sub-list for extension type_name
-	2, // [2:5] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4,  // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
+	5,  // 1: sentinez.types.v1.XMethod.control_planes:type_name -> sentinez.types.v1.ControlPlane
+	6,  // 2: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
+	7,  // 3: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
+	8,  // 4: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
+	9,  // 5: sentinez.types.v1.x_field:extendee -> google.protobuf.FieldOptions
+	3,  // 6: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
+	1,  // 7: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
+	0,  // 8: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
+	2,  // 9: sentinez.types.v1.x_field:type_name -> sentinez.types.v1.XField
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	6,  // [6:10] is the sub-list for extension type_name
+	2,  // [2:6] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_options_proto_init() }
@@ -316,8 +383,8 @@ func file_sentinez_types_v1_options_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_options_proto_rawDesc), len(file_sentinez_types_v1_options_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
-			NumExtensions: 3,
+			NumMessages:   4,
+			NumExtensions: 4,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_types_v1_options_proto_goTypes,

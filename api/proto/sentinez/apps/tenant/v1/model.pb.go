@@ -46,7 +46,7 @@ type Resource struct {
 	ResourceDomain  string                 `protobuf:"bytes,4,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	ResourceName    string                 `protobuf:"bytes,5,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
 	Status          v1.Status              `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
-	Plan            v1.Plan                `protobuf:"varint,7,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	TenantId        string                 `protobuf:"bytes,7,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -123,7 +123,67 @@ func (x *Resource) GetStatus() v1.Status {
 	return v1.Status(0)
 }
 
-func (x *Resource) GetPlan() v1.Plan {
+func (x *Resource) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+type Tenant struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Plan          v1.Plan                `protobuf:"varint,3,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Tenant) Reset() {
+	*x = Tenant{}
+	mi := &file_sentinez_apps_tenant_v1_model_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Tenant) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Tenant) ProtoMessage() {}
+
+func (x *Tenant) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_model_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Tenant.ProtoReflect.Descriptor instead.
+func (*Tenant) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Tenant) GetMetadata() *v1.Metadata {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *Tenant) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Tenant) GetPlan() v1.Plan {
 	if x != nil {
 		return x.Plan
 	}
@@ -134,15 +194,19 @@ var File_sentinez_apps_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc1\x03\n" +
+	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd1\x03\n" +
 	"\bResource\x127\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x120\n" +
 	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12H\n" +
 	"\x10resource_setting\x18\x03 \x01(\v2\x1d.sentinez.dmz.edge.v1.SettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
-	"\x04plan\x18\a \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
+	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12;\n" +
+	"\ttenant_id\x18\a \x01(\tB\x1e\xbaH\x1b\xc8\x01\x01r\x16:\x14senz.tenant.console.R\btenantId:\x06\xca\xf3\x18\x02\b\x01\"\xa6\x01\n" +
+	"\x06Tenant\x127\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12.\n" +
+	"\x02id\x18\x02 \x01(\tB\x1e\xbaH\x1b\xc8\x01\x01r\x16:\x14senz.tenant.console.R\x02id\x12+\n" +
+	"\x04plan\x18\x03 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\x06\xca\xf3\x18\x02\b\x01BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
 
 var (
 	file_sentinez_apps_tenant_v1_model_proto_rawDescOnce sync.Once
@@ -156,24 +220,26 @@ func file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_tenant_v1_model_proto_rawDescData
 }
 
-var file_sentinez_apps_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_apps_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_apps_tenant_v1_model_proto_goTypes = []any{
 	(*Resource)(nil),    // 0: sentinez.apps.tenant.v1.Resource
-	(*v1.Metadata)(nil), // 1: sentinez.types.v1.Metadata
-	(*v11.Setting)(nil), // 2: sentinez.dmz.edge.v1.Setting
-	(v1.Status)(0),      // 3: sentinez.types.v1.Status
-	(v1.Plan)(0),        // 4: sentinez.types.v1.Plan
+	(*Tenant)(nil),      // 1: sentinez.apps.tenant.v1.Tenant
+	(*v1.Metadata)(nil), // 2: sentinez.types.v1.Metadata
+	(*v11.Setting)(nil), // 3: sentinez.dmz.edge.v1.Setting
+	(v1.Status)(0),      // 4: sentinez.types.v1.Status
+	(v1.Plan)(0),        // 5: sentinez.types.v1.Plan
 }
 var file_sentinez_apps_tenant_v1_model_proto_depIdxs = []int32{
-	1, // 0: sentinez.apps.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
-	2, // 1: sentinez.apps.tenant.v1.Resource.resource_setting:type_name -> sentinez.dmz.edge.v1.Setting
-	3, // 2: sentinez.apps.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
-	4, // 3: sentinez.apps.tenant.v1.Resource.plan:type_name -> sentinez.types.v1.Plan
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 0: sentinez.apps.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
+	3, // 1: sentinez.apps.tenant.v1.Resource.resource_setting:type_name -> sentinez.dmz.edge.v1.Setting
+	4, // 2: sentinez.apps.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
+	2, // 3: sentinez.apps.tenant.v1.Tenant.metadata:type_name -> sentinez.types.v1.Metadata
+	5, // 4: sentinez.apps.tenant.v1.Tenant.plan:type_name -> sentinez.types.v1.Plan
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_tenant_v1_model_proto_init() }
@@ -187,7 +253,7 @@ func file_sentinez_apps_tenant_v1_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_tenant_v1_model_proto_rawDesc), len(file_sentinez_apps_tenant_v1_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -113,13 +113,10 @@
     "v1Activity": {
       "type": "object",
       "properties": {
-        "metadata": {
-          "$ref": "#/definitions/v1Metadata"
+        "owner": {
+          "$ref": "#/definitions/v1Owner"
         },
         "id": {
-          "type": "string"
-        },
-        "resourceId": {
           "type": "string"
         },
         "uniqueVisitor": {
@@ -147,7 +144,7 @@
         }
       }
     },
-    "v1Metadata": {
+    "v1Owner": {
       "type": "object",
       "properties": {
         "createdAt": {
@@ -157,6 +154,12 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
         }
       }
     },

@@ -70,6 +70,7 @@ message AccountResponse {
   }];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  
   string email = 11 [(buf.validate.field).string.email = true];
 
   string provider = 12;
@@ -85,7 +86,15 @@ message User {
     string: { prefix: "senz.iam.users." }
   }];
 
+  repeated string tenant_ids = 3 [(buf.validate.field).repeated.items = {
+	  string: {
+      min_len: 0,
+      prefix: "senz.tenant.console."
+	  }
+	}];
+
   string full_name = 10 [(buf.validate.field).required = true];
+  
   string email = 11 [(buf.validate.field).string.email = true];
 
   sentinez.types.v1.ControlPlane control_plane = 13;

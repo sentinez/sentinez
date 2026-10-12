@@ -18,6 +18,7 @@ package sentinez.types.v1;
 
 import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/options.proto";
+import "buf/validate/validate.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepb";
 
@@ -32,4 +33,21 @@ message Metadata {
 
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;
+}
+
+message Owner {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  google.protobuf.Timestamp created_at = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  
+  string resource_id = 3 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenant.resources." }
+  }];
+
+  string tenant_id = 4 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenant.console." }
+  }];
 }

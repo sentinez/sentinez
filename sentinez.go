@@ -17,8 +17,6 @@ package sentinez
 import (
 	"embed"
 	"io/fs"
-
-	corers "github.com/sentinez/core/rulesets"
 )
 
 var (
@@ -32,12 +30,12 @@ var (
 	fsWAF4170 embed.FS
 )
 
-func WAF4160() (corers.Version, fs.FS) {
+func WAF4160() fs.FS {
 	sub, _ := fs.Sub(fsWAF4160, "deploy/ruleroot/v4-16-0")
-	return corers.WAF4160, sub
+	return sub
 }
 
-func WAF4170() (corers.Version, fs.FS) {
+func WAF4170() fs.FS {
 	sub, _ := fs.Sub(fsWAF4170, "deploy/ruleroot/v4-17-0")
-	return corers.WAF4170, sub
+	return sub
 }

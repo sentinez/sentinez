@@ -47,10 +47,12 @@ import {
   Expression,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
+import type { Owner } from '@sentinez/proto/sentinez/types/v1/model';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { type Pages, paginate, toQuery } from '@/lib/api/pages';
+import { SAMPLE_RESOURCES, SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
@@ -61,6 +63,17 @@ export interface ApiOptions {
 export type { Pages };
 
 // ---- Sample data, used as fallback when the API call fails ----
+
+// Sample rows belong to the first sample resources of lib/api/tenant
+const SAMPLE_RESOURCE_IDS = SAMPLE_RESOURCES.slice(0, 2).map((r) => r.id);
+
+const ofResource = <T extends { owner?: Owner }>(item: T, n = 0): T => ({
+  ...item,
+  owner: {
+    resourceId: SAMPLE_RESOURCE_IDS[n % SAMPLE_RESOURCE_IDS.length] ?? '',
+    tenantId: SAMPLE_TENANT_ID,
+  },
+});
 
 const sampleRule = (
   id: string,
@@ -149,7 +162,7 @@ export const SAMPLE_RULES: SecRule[] = [
     } as Expression,
     ActionType.ACTION_TYPE_LOG,
   ),
-];
+].map((r) => ofResource(r));
 
 // Extra generated rules so the list has several pages to page through
 const GENERATED_ACTIONS = [
@@ -185,14 +198,17 @@ const generateRules = (prefix: string, from: number, count: number): SecRule[] =
   Array.from({ length: count }, (_, i) => {
     const n = from + i;
     const id = `${prefix}-${n}`;
-    return sampleRule(
-      id,
-      `Sample rule ${n}`,
-      `Sample: path prefix /sample/${n}`,
-      [10, 50, 100][n % 3] ?? 50,
-      n % 5 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
-      generatedExpr(id, `/sample/${n}`),
-      GENERATED_ACTIONS[n % GENERATED_ACTIONS.length] ?? ActionType.ACTION_TYPE_BLOCK,
+    return ofResource(
+      sampleRule(
+        id,
+        `Sample rule ${n}`,
+        `Sample: path prefix /sample/${n}`,
+        [10, 50, 100][n % 3] ?? 50,
+        n % 5 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
+        generatedExpr(id, `/sample/${n}`),
+        GENERATED_ACTIONS[n % GENERATED_ACTIONS.length] ?? ActionType.ACTION_TYPE_BLOCK,
+      ),
+      n,
     );
   });
 
@@ -277,7 +293,7 @@ export const SAMPLE_RATE_LIMITS: RateLimit[] = [
     50,
     '',
   ),
-];
+].map((r) => ofResource(r));
 
 let sampleRateLimitStore: RateLimit[] = [
   ...SAMPLE_RATE_LIMITS,
@@ -339,7 +355,7 @@ export const SAMPLE_CORE_RULESETS: CoreRuleset[] = [
       status: 'STATUS_DISABLE',
     },
   },
-].map(CoreRuleset.fromJSON);
+].map((r) => ofResource(CoreRuleset.fromJSON(r)));
 
 let sampleCoreRulesetStore: CoreRuleset[] = [...SAMPLE_CORE_RULESETS];
 
@@ -422,7 +438,7 @@ const includesText = (text: string, part?: string) =>
   !part || text.toLowerCase().includes(part.toLowerCase());
 
 const filterCoreRulesets = (req: Partial<ListCoreRulesetsRequest>) =>
-  byIds(sampleCoreRulesetStore, req.ids).filter(
+  byResources(byIds(sampleCoreRulesetStore, req.ids), req.resourceIds).filter(
     (r) =>
       includesText(r.name, req.name) &&
       anyOf(req.modes, r.content?.mode) &&
@@ -476,18 +492,21 @@ function withFallback<T>(label: string, fallback: () => T) {
 const byIds = <T extends { id: string }>(list: T[], ids?: string[]) =>
   ids?.length ? list.filter((r) => ids.includes(r.id)) : list;
 
+const byResources = <T extends { owner?: Owner }>(list: T[], ids?: string[]) =>
+  ids?.length ? list.filter((r) => ids.includes(r.owner?.resourceId ?? '')) : list;
+
 // GET /security/secrules
 export async function listSecRules(
   req: Partial<ListSecRulesRequest> = {},
   options?: ApiOptions,
 ): Promise<ListSecRulesResponse> {
   return withFallback('listSecRules', () => {
-    const list = byIds(sampleStore, req.ids);
+    const list = byResources(byIds(sampleStore, req.ids), req.resourceIds);
     return { secRules: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/secrules`, {
       params: toQuery(ListSecRulesRequest.toJSON(ListSecRulesRequest.fromPartial(req))),
-      // repeat `ids` key (collectionFormat: multi)
+      // repeat the `ids` / `resourceIds` keys (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
@@ -534,7 +553,9 @@ export async function updateSecRule(
   options?: ApiOptions,
 ): Promise<UpdateSecRuleResponse> {
   return withFallback<UpdateSecRuleResponse>('updateSecRule', () => {
-    const next = SecRule.fromPartial({ ...req.secRule, id: req.id });
+    // The owner of a row never changes
+    const owner = sampleStore.find((r) => r.id === req.id)?.owner;
+    const next = SecRule.fromPartial({ ...req.secRule, id: req.id, owner });
     sampleStore = sampleStore.map((r) => (r.id === req.id ? next : r));
     return { secRule: next };
   })(async () => {
@@ -568,12 +589,12 @@ export async function listRateLimits(
   options?: ApiOptions,
 ): Promise<ListRateLimitsResponse> {
   return withFallback('listRateLimits', () => {
-    const list = byIds(sampleRateLimitStore, req.ids);
+    const list = byResources(byIds(sampleRateLimitStore, req.ids), req.resourceIds);
     return { rateLimits: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/ratelimits`, {
       params: toQuery(ListRateLimitsRequest.toJSON(ListRateLimitsRequest.fromPartial(req))),
-      // repeat `ids` key (collectionFormat: multi)
+      // repeat the `ids` / `resourceIds` keys (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
@@ -623,7 +644,8 @@ export async function updateRateLimit(
   options?: ApiOptions,
 ): Promise<UpdateRateLimitResponse> {
   return withFallback<UpdateRateLimitResponse>('updateRateLimit', () => {
-    const next = RateLimit.fromPartial({ ...req.rateLimit, id: req.id });
+    const owner = sampleRateLimitStore.find((r) => r.id === req.id)?.owner;
+    const next = RateLimit.fromPartial({ ...req.rateLimit, id: req.id, owner });
     sampleRateLimitStore = sampleRateLimitStore.map((r) => (r.id === req.id ? next : r));
     return { rateLimit: next };
   })(async () => {
@@ -712,7 +734,8 @@ export async function updateCoreRuleset(
   options?: ApiOptions,
 ): Promise<UpdateCoreRulesetResponse> {
   return withFallback<UpdateCoreRulesetResponse>('updateCoreRuleset', () => {
-    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id });
+    const owner = sampleCoreRulesetStore.find((r) => r.id === req.id)?.owner;
+    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id, owner });
     sampleCoreRulesetStore = sampleCoreRulesetStore.map((r) => (r.id === req.id ? next : r));
     return { coreRuleset: next };
   })(async () => {

@@ -46,10 +46,10 @@ func (m *SecRule) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SecRuleValidationError{
-				field:  "Metadata",
+				field:  "Owner",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -152,10 +152,10 @@ func (m *RateLimit) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RateLimitValidationError{
-				field:  "Metadata",
+				field:  "Owner",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -334,10 +334,10 @@ func (m *CoreRuleset) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CoreRulesetValidationError{
-				field:  "Metadata",
+				field:  "Owner",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

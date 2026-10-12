@@ -68,7 +68,7 @@ func (rl *RulesetsLoader) Load(rulesetsFn []func() *corerulesetpb.CoreRule) {
 			continue
 		}
 
-		id := ruleID(rule)
+		id := ruleId(rule)
 		if id != 0 {
 			rl.ids[id] = struct{}{}
 		}
@@ -140,8 +140,8 @@ func forceEnabled(conf []byte) []byte {
 	return _scoreLevelRe.ReplaceAll(conf, []byte("${1}1"))
 }
 
-// ruleID 0 = not a rule (marker, directive).
-func ruleID(rule *corerulesetpb.CoreRule) uint32 {
+// ruleId 0 = not a rule (marker, directive).
+func ruleId(rule *corerulesetpb.CoreRule) uint32 {
 	ids := rule.GetActions().GetFields().GetId()
 	if len(ids) == 0 {
 		return 0

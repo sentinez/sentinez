@@ -27,6 +27,10 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
+func SelectCoalesce(field string) string {
+	return fmt.Sprintf("COALESCE(%s, '')", field)
+}
+
 type M map[string]any
 
 type Client interface {
@@ -52,7 +56,7 @@ func Paging(builder squirrel.SelectBuilder,
 	return builder.
 		Limit(uint64(page.GetSize())).
 		Offset(uint64(offset)).
-		OrderBy(fmt.Sprintf("%s DESC", dbx.FieldCreatedAt))
+		OrderBy(fmt.Sprintf("%s DESC", typepb.Metadata_CreatedAt))
 }
 
 func SelectBuilder[T any](db dbx.Database[T],
@@ -87,6 +91,6 @@ func UpdateBuilder[T any](
 	db dbx.Database[T], id string) squirrel.UpdateBuilder {
 
 	return squirrel.Update(db.Table()).
-		Set(dbx.FieldUpdatedAt, time.Now().UTC()).
+		Set(typepb.Metadata_UpdatedAt, time.Now().UTC()).
 		Where(squirrel.Eq{"id": id})
 }

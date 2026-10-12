@@ -15,6 +15,8 @@
 package rulesets
 
 import (
+	"fmt"
+	"io/fs"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
@@ -57,12 +59,12 @@ func (rs *Rulesets) Store(
 		return nil
 	}
 
-	version, fs := sentinez.WAF4170()
-	if corers.VersionOf(setting.GetVersion()) == corers.WAF4160 {
-		version, fs = sentinez.WAF4160()
+	rootFs, err := crsMap(setting.GetVersion())
+	if err != nil {
+		return err
 	}
 
-	waf, err := corers.NewWAF(version, fs, setting)
+	waf, err := corers.NewWAF(setting.GetVersion(), rootFs, setting)
 	if err != nil {
 		return err
 	}
@@ -95,4 +97,15 @@ func (rs *Rulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 
 	zlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
 	return rs.Load(ctx.X().GetNamespace())
+}
+
+func crsMap(version corerulesetpb.Version) (fs.FS, error) {
+	switch version {
+	case corerulesetpb.Version_VERSION_V4_16_0:
+		return sentinez.WAF4160(), nil
+	case corerulesetpb.Version_VERSION_V4_17_0:
+		return sentinez.WAF4170(), nil
+	}
+
+	return nil, fmt.Errorf("waf: coreruleset version invalid")
 }

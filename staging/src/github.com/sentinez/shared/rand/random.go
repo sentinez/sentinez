@@ -52,18 +52,18 @@ var bufPool = sync.Pool{
 	},
 }
 
-// NewID generates a new UUID and returns it as a string.
-func NewID(prefix string) string {
+// NewId generates a new UUID and returns it as a string.
+func NewId(prefix string) string {
 	id := uuid.New()
 	return fmt.Sprintf("%s%s", prefix, id.String())
 }
 
-func NewNanoID(prefix string) string {
+func NewNanoId(prefix string) string {
 	id, _ := gonanoid.New()
 	return fmt.Sprintf("%s%s", prefix, id)
 }
 
-func NewXID(prefix []byte) string {
+func NewXId(prefix []byte) string {
 	guid := xid.New()
 	guid.Bytes()
 
@@ -80,7 +80,7 @@ func NewXID(prefix []byte) string {
 	return res
 }
 
-func NewTimeID(prefix []byte, unixtime uint64) string {
+func NewTimeId(prefix []byte, unixtime uint64) string {
 	ulidStr, _ := ulid.NewTime(unixtime)
 
 	buf := bufPool.Get().(*bytes.Buffer)

@@ -3,19 +3,6 @@
 
 package tenantpb
 
-import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
 const (
 	Resource_Metadata        = "metadata"
 	Resource_Id              = "id"
@@ -23,5 +10,11 @@ const (
 	Resource_ResourceDomain  = "resource_domain"
 	Resource_ResourceName    = "resource_name"
 	Resource_Status          = "status"
-	Resource_Plan            = "plan"
+	Resource_TenantId        = "tenant_id"
+)
+
+const (
+	Tenant_Metadata = "metadata"
+	Tenant_Id       = "id"
+	Tenant_Plan     = "plan"
 )

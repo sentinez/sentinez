@@ -11,7 +11,7 @@ import { Badge } from '@sentinez/ui/components/badge';
 import { Separator } from '@sentinez/ui/components/separator';
 import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { getResourceByDomain } from '@/lib/api/tenant';
-import { Status, planToJSON, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
+import { Status, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { useApi } from '@/hooks/use-api';
 import { Setting } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Loader2 } from 'lucide-react';
@@ -95,10 +95,6 @@ export function ResourceView({ domain }: Props) {
             <div className="grid grid-cols-3 items-center gap-4">
               <span className="font-semibold text-sm">{t('domain')}</span>
               <span className="col-span-2 text-sm">{resource.resourceDomain}</span>
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">{t('plan')}</span>
-              <span className="col-span-2 text-sm">{planToJSON(resource.plan)}</span>
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
               <span className="font-semibold text-sm">{t('status')}</span>

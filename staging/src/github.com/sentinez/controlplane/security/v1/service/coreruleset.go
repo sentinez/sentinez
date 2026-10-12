@@ -35,7 +35,7 @@ func (srv *SecurityService) mapCoreRuleset(_ context.Context,
 		Name:        dbCRS.GetName(),
 		Description: dbCRS.GetDescription(),
 		Content:     dbCRS.GetContent(),
-		Metadata:    dbCRS.GetMetadata(),
+		Owner:       dbCRS.GetOwner(),
 	}
 }
 

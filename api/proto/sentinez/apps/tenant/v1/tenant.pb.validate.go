@@ -36,15 +36,9 @@ var (
 
 	_ = typepb.Status(0)
 
-	_ = typepb.Plan(0)
-
 	_ = typepb.Status(0)
 
-	_ = typepb.Plan(0)
-
 	_ = typepb.Status(0)
-
-	_ = typepb.Plan(0)
 )
 
 // Validate checks the field values on GetResourceRequest with the rules
@@ -494,8 +488,6 @@ func (m *UpdateResourceRequest) Validate() error {
 
 	// no validation rules for Status
 
-	// no validation rules for Plan
-
 	return nil
 }
 
@@ -645,8 +637,6 @@ func (m *CreateResourceRequest) Validate() error {
 	// no validation rules for ResourceName
 
 	// no validation rules for Status
-
-	// no validation rules for Plan
 
 	return nil
 }
@@ -803,8 +793,6 @@ func (m *ListResourceRequest) Validate() error {
 	}
 
 	// no validation rules for Status
-
-	// no validation rules for Plan
 
 	// no validation rules for ResourceName
 

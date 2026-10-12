@@ -166,7 +166,7 @@ func (acc *Accounts) GetByUsernameOrEmail(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	account.Id = rand.NewID(table.NewPrimaryKey(tables.IAMAccounts))
+	account.Id = rand.NewId(table.NewPrimaryKey(tables.IAMAccounts))
 
 	if account.GetUsername() == "" {
 		account.Username = account.GetEmail()
@@ -255,8 +255,8 @@ func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		iampb.Account_PasswordHash,
 		iampb.Account_Provider,
 		iampb.Account_ProviderUserId,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 

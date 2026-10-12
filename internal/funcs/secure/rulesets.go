@@ -99,7 +99,7 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 	event := ruleevent.Acquire()
 
 	var (
-		ruleIDs    []int32
+		ruleIds    []int32
 		severities []string
 		msgs       []string
 		score      int
@@ -114,13 +114,13 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		rule.Rule().Accuracy()
 
 		if rule.Message() != "" {
-			ruleIDs = append(ruleIDs, int32(rule.Rule().ID()))
+			ruleIds = append(ruleIds, int32(rule.Rule().ID()))
 			severities = append(severities, rule.Rule().Severity().String())
 			msgs = append(msgs, rule.Message())
 		}
 	}
 
-	event.RuleIds = ruleIDs
+	event.RuleIds = ruleIds
 	event.Severities = severities
 	event.Messages = msgs
 	event.Path = bytesconv.B2s(ctx.URI())

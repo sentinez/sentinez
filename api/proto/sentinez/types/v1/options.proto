@@ -33,6 +33,10 @@ extend google.protobuf.FileOptions {
   XMeta x_meta = 52001;
 }
 
+extend google.protobuf.FieldOptions {
+  XField x_field = 53001;
+}
+
 message XMeta {
   string service_name = 1;
   Zone service_zone = 2;
@@ -42,6 +46,12 @@ message XMeta {
 message XMessage {
   bool database_model = 1;
   bool export_field = 2;
+}
+
+message XField {
+  // Replaces the field constant of a message field with one constant per
+  // nested field, named "<field>_<nested field>" (e.g. owner_created_at).
+  bool flatten = 1;
 }
 
 message XMethod {

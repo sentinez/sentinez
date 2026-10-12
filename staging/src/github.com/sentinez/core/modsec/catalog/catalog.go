@@ -27,7 +27,7 @@ import (
 // version the rules of a CRS version, sorted by ID.
 type version struct {
 	rules []*corerulesetpb.RuleInfo
-	byID  map[uint32]*corerulesetpb.RuleInfo
+	byId  map[uint32]*corerulesetpb.RuleInfo
 }
 
 // nolint:lll
@@ -90,15 +90,15 @@ var _versions = map[corerulesetpb.Version]*version{
 }
 
 func newVersion(files ...[]*corerulesetpb.RuleInfo) *version {
-	v := &version{byID: make(map[uint32]*corerulesetpb.RuleInfo)}
+	v := &version{byId: make(map[uint32]*corerulesetpb.RuleInfo)}
 
 	for _, file := range files {
 		for _, rule := range file {
-			if _, ok := v.byID[rule.GetId()]; ok {
+			if _, ok := v.byId[rule.GetId()]; ok {
 				continue
 			}
 
-			v.byID[rule.GetId()] = rule
+			v.byId[rule.GetId()] = rule
 			v.rules = append(v.rules, rule)
 		}
 	}
@@ -130,6 +130,6 @@ func Rules(v corerulesetpb.Version) []*corerulesetpb.RuleInfo {
 func Rule(
 	v corerulesetpb.Version, id uint32,
 ) (*corerulesetpb.RuleInfo, bool) {
-	rule, ok := versionOf(v).byID[id]
+	rule, ok := versionOf(v).byId[id]
 	return rule, ok
 }

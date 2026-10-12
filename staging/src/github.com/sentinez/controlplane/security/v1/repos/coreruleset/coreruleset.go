@@ -62,10 +62,12 @@ func New(
 	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
 		dbx.WithTable(tables.SecurityCoreRulesets),
 		dbx.WithColumns(dbx.ColumnM{
-			securitypb.CoreRuleset_Id:          postgres.String,
-			securitypb.CoreRuleset_Name:        postgres.String,
-			securitypb.CoreRuleset_Description: postgres.String,
-			securitypb.CoreRuleset_Content:     postgres.JSONB,
+			securitypb.CoreRuleset_Id:              postgres.String,
+			securitypb.CoreRuleset_Name:            postgres.String,
+			securitypb.CoreRuleset_Description:     postgres.String,
+			securitypb.CoreRuleset_Content:         postgres.JSONB,
+			securitypb.CoreRuleset_OwnerResourceId: postgres.String,
+			securitypb.CoreRuleset_OwnerTenantId:   postgres.String,
 		}),
 		// The list filters on content are JSONB containments.
 		dbx.WithIndexes(dbx.Index{
@@ -153,12 +155,14 @@ func (r *CoreRuleset) Create(ctx context.Context,
 		return nil, err
 	}
 
-	model.Id = rand.NewID(table.NewPrimaryKey(tables.SecurityCoreRulesets))
+	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityCoreRulesets))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.CoreRuleset_Id:          model.GetId(),
-		securitypb.CoreRuleset_Name:        model.GetName(),
-		securitypb.CoreRuleset_Description: model.GetDescription(),
-		securitypb.CoreRuleset_Content:     content,
+		securitypb.CoreRuleset_Id:              model.GetId(),
+		securitypb.CoreRuleset_Name:            model.GetName(),
+		securitypb.CoreRuleset_Description:     model.GetDescription(),
+		securitypb.CoreRuleset_Content:         content,
+		securitypb.CoreRuleset_OwnerResourceId: model.GetOwner().GetResourceId(),
+		securitypb.CoreRuleset_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
@@ -207,8 +211,10 @@ func (r *CoreRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.CoreRuleset_Name,
 		securitypb.CoreRuleset_Description,
 		securitypb.CoreRuleset_Content,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerResourceId),
+		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerTenantId),
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -227,6 +233,20 @@ func marshalContent(content *corerulesetpb.CoreRuleset) (string, error) {
 	return string(data), nil
 }
 
+// unmarshalContent an empty column leaves the setting unset.
+func unmarshalContent(data []byte) (*corerulesetpb.CoreRuleset, error) {
+	if len(data) == 0 {
+		return nil, nil
+	}
+
+	content := &corerulesetpb.CoreRuleset{}
+	if err := _unmarshalContent.Unmarshal(data, content); err != nil {
+		return nil, err
+	}
+
+	return content, nil
+}
+
 func scan(rows dbx.Rows) ([]*securitypb.CoreRuleset, error) {
 	var models []*securitypb.CoreRuleset
 	for rows.Next() {
@@ -242,6 +262,7 @@ func scan(rows dbx.Rows) ([]*securitypb.CoreRuleset, error) {
 func scanOne(row dbx.Row) (*securitypb.CoreRuleset, error) {
 	var (
 		createdAt, updatedAt time.Time
+		resourceId, tenantId string
 		content              []byte
 		model                securitypb.CoreRuleset
 	)
@@ -251,6 +272,8 @@ func scanOne(row dbx.Row) (*securitypb.CoreRuleset, error) {
 		&model.Name,
 		&model.Description,
 		&content,
+		&resourceId,
+		&tenantId,
 		&createdAt,
 		&updatedAt,
 	)
@@ -258,18 +281,16 @@ func scanOne(row dbx.Row) (*securitypb.CoreRuleset, error) {
 		return nil, err
 	}
 
-	if len(content) > 0 {
-		model.Content = &corerulesetpb.CoreRuleset{}
-
-		err = _unmarshalContent.Unmarshal(content, model.Content)
-		if err != nil {
-			return nil, err
-		}
+	model.Content, err = unmarshalContent(content)
+	if err != nil {
+		return nil, err
 	}
 
-	model.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
+	model.Owner = &typepb.Owner{
+		ResourceId: resourceId,
+		TenantId:   tenantId,
+		CreatedAt:  timestamppb.New(createdAt),
+		UpdatedAt:  timestamppb.New(updatedAt),
 	}
 
 	return &model, nil

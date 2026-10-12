@@ -3,6 +3,7 @@ package senz
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *protogen.GeneratedFile {
@@ -19,14 +21,15 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 	g := gen.NewGeneratedFile(filename, file.GoImportPath)
 
 	writeHeader(g, file)
-	writeImports(g)
-	writeTypeAssertions(g)
 
 	if opts := file.Proto.GetOptions(); proto.HasExtension(opts, typepb.E_XMeta) {
 		meta, ok := proto.GetExtension(opts, typepb.E_XMeta).(*typepb.XMeta)
 		if !ok || meta == nil {
 			return g
 		}
+
+		writeImports(g, meta)
+		writeTypeAssertions(g)
 
 		name := protoBaseName(file.Desc.Path())
 		caser := cases.Title(language.Und)
@@ -52,11 +55,13 @@ func writeHeader(g *protogen.GeneratedFile, file *protogen.File) {
 	g.P()
 }
 
-func writeImports(g *protogen.GeneratedFile) {
+func writeImports(g *protogen.GeneratedFile, meta *typepb.XMeta) {
 	g.P("import (")
 	g.P(`	"fmt"`)
 	g.P()
-	g.P(`	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`)
+	if meta != nil {
+		g.P(`	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`)
+	}
 	g.P(`	"google.golang.org/protobuf/proto"`)
 	g.P(")")
 	g.P()
@@ -64,7 +69,6 @@ func writeImports(g *protogen.GeneratedFile) {
 
 func writeTypeAssertions(g *protogen.GeneratedFile) {
 	g.P("var (")
-	g.P("	_ typepb.Empty")
 	g.P("	_ fmt.Stringer")
 	g.P("	_ proto.Message")
 	g.P(")")
@@ -138,13 +142,45 @@ func writeFieldConstants(
 	nameFn func(msgName, fieldName string) string,
 ) {
 	g.P("const (")
-	for _, field := range msg.Fields {
-		fieldName := string(field.Desc.Name())
+	for _, fieldName := range fieldNames(msg, "", nil) {
 		constName := nameFn(msg.GoIdent.GoName, fieldName)
 		g.P(fmt.Sprintf(`	%s = "%s"`, constName, fieldName))
 	}
 	g.P(")")
 	g.P()
+}
+
+// fieldNames lists the field names of msg, each prefixed with prefix. A
+// message field marked with (x_field).flatten is replaced by the names of
+// its own fields, prefixed with "<field>_". parents holds the messages
+// being flattened, so a recursive message is not expanded forever.
+func fieldNames(
+	msg *protogen.Message,
+	prefix string,
+	parents []protoreflect.FullName,
+) []string {
+	parents = append(parents, msg.Desc.FullName())
+
+	names := make([]string, 0, len(msg.Fields))
+	for _, field := range msg.Fields {
+		name := prefix + string(field.Desc.Name())
+		if !isFlatten(field) ||
+			slices.Contains(parents, field.Message.Desc.FullName()) {
+			names = append(names, name)
+			continue
+		}
+		names = append(names, fieldNames(field.Message, name+"_", parents)...)
+	}
+	return names
+}
+
+func isFlatten(field *protogen.Field) bool {
+	if field.Message == nil || field.Desc.IsList() || field.Desc.IsMap() {
+		return false
+	}
+	opts := field.Desc.Options()
+	ext, ok := proto.GetExtension(opts, typepb.E_XField).(*typepb.XField)
+	return ok && ext.GetFlatten()
 }
 
 func getXMessage(msg *protogen.Message) *typepb.XMessage {

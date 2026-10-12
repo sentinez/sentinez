@@ -54,6 +54,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 		dbx.WithTable(tables.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.User_Id:           postgres.String,
+			iampb.User_TenantIds:    postgres.StringArr,
 			iampb.User_Email:        postgres.String,
 			iampb.User_FullName:     postgres.String,
 			iampb.User_ControlPlane: postgres.Int4,
@@ -127,9 +128,10 @@ func (u *Users) List(ctx context.Context,
 func (u *Users) Create(ctx context.Context,
 	user *iampb.User) (*iampb.User, error) {
 
-	user.Id = rand.NewID(table.NewPrimaryKey(tables.IAMUsers))
+	user.Id = rand.NewId(table.NewPrimaryKey(tables.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:           user.GetId(),
+		iampb.User_TenantIds:    user.GetTenantIds(),
 		iampb.User_Email:        user.GetEmail(),
 		iampb.User_FullName:     user.GetFullName(),
 		iampb.User_ControlPlane: user.GetControlPlane(),
@@ -166,6 +168,10 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 		query = query.Set(iampb.User_FullName, user.GetFullName())
 	}
 
+	if len(user.GetTenantIds()) != 0 {
+		query = query.Set(iampb.User_TenantIds, user.GetTenantIds())
+	}
+
 	_, err := u.storage.Exec(ctx, query)
 	if err != nil {
 		return err
@@ -177,11 +183,12 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(u.storage, page,
 		iampb.User_Id,
+		iampb.User_TenantIds,
 		iampb.User_Email,
 		iampb.User_FullName,
 		iampb.User_ControlPlane,
-		dbx.FieldCreatedAt,
-		dbx.FieldUpdatedAt,
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -208,6 +215,7 @@ func scanOne(row dbx.Row) (*iampb.User, error) {
 
 	err := row.Scan(
 		&user.Id,
+		&user.TenantIds,
 		&user.Email,
 		&user.FullName,
 		&user.ControlPlane,
