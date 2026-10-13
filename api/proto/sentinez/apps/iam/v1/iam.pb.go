@@ -914,9 +914,7 @@ func (x *StatusResponse) GetContext() *v1.Context {
 
 type UpdateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
-	Email         string                 `protobuf:"bytes,11,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -951,23 +949,9 @@ func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *UpdateUserRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
 func (x *UpdateUserRequest) GetFullName() string {
 	if x != nil {
 		return x.FullName
-	}
-	return ""
-}
-
-func (x *UpdateUserRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
 	}
 	return ""
 }
@@ -1019,7 +1003,6 @@ func (x *UpdateUserResponse) GetUser() *User {
 type GetUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1057,13 +1040,6 @@ func (*GetUserRequest) Descriptor() ([]byte, []int) {
 func (x *GetUserRequest) GetId() string {
 	if x != nil {
 		return x.Id
-	}
-	return ""
-}
-
-func (x *GetUserRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
 	}
 	return ""
 }
@@ -1488,17 +1464,14 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\rStatusRequest\"X\n" +
 	"\x0eStatusResponse\x12\x10\n" +
 	"\x03msg\x18\x01 \x01(\tR\x03msg\x124\n" +
-	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"~\n" +
-	"\x11UpdateUserRequest\x12%\n" +
-	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12#\n" +
+	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"O\n" +
+	"\x11UpdateUserRequest\x12#\n" +
 	"\tfull_name\x18\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
-	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"D\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullNameJ\x04\b\x01\x10\x02J\x04\b\v\x10\fR\x02idR\x05email\"D\n" +
 	"\x12UpdateUserResponse\x12.\n" +
-	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\"V\n" +
-	"\x0eGetUserRequest\x12%\n" +
-	"\x02id\x18\x01 \x01(\tB\x15\xbaH\x12\xc8\x01\x00r\r:\vsenz.users.R\x02id\x12\x1d\n" +
-	"\x05email\x18\x02 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\"A\n" +
+	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\";\n" +
+	"\x0eGetUserRequest\x12)\n" +
+	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\"A\n" +
 	"\x0fGetUserResponse\x12.\n" +
 	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\"j\n" +
 	"\x10ListUsersRequest\x12,\n" +
@@ -1521,18 +1494,18 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"7\n" +
 	"\x11DeleteUserRequest\x12\"\n" +
 	"\x02id\x18\x01 \x01(\tB\x12\xbaH\x0fr\r:\vsenz.users.R\x02id\"\x14\n" +
-	"\x12DeleteUserResponse2\xac\x0f\n" +
+	"\x12DeleteUserResponse2\xc6\x0f\n" +
 	"\x1fIdentityAccessManagementService\x12a\n" +
 	"\n" +
-	"CreateUser\x12'.sentinez.apps.iam.v1.CreateUserRequest\x1a(.sentinez.apps.iam.v1.CreateUserResponse\"\x00\x12a\n" +
-	"\n" +
-	"UpdateUser\x12'.sentinez.apps.iam.v1.UpdateUserRequest\x1a(.sentinez.apps.iam.v1.UpdateUserResponse\"\x00\x12\x82\x01\n" +
+	"CreateUser\x12'.sentinez.apps.iam.v1.CreateUserRequest\x1a(.sentinez.apps.iam.v1.CreateUserResponse\"\x00\x12\x82\x01\n" +
 	"\fListAccounts\x12).sentinez.apps.iam.v1.ListAccountsRequest\x1a*.sentinez.apps.iam.v1.ListAccountsResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/iam/accounts\x12x\n" +
 	"\tListUsers\x12&.sentinez.apps.iam.v1.ListUsersRequest\x1a'.sentinez.apps.iam.v1.ListUsersResponse\"\x1a\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/iam/users\x12n\n" +
 	"\x06Status\x12#.sentinez.apps.iam.v1.StatusRequest\x1a$.sentinez.apps.iam.v1.StatusResponse\"\x19\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\r\x12\v/iam/status\x12\x87\x01\n" +
 	"\rCreateAccount\x12*.sentinez.apps.iam.v1.CreateAccountRequest\x1a+.sentinez.apps.iam.v1.CreateAccountResponse\"\x1d\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/iam/account\x12o\n" +
-	"\aGetUser\x12$.sentinez.apps.iam.v1.GetUserRequest\x1a%.sentinez.apps.iam.v1.GetUserResponse\"\x17\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\v\x12\t/iam/user\x12}\n" +
+	"\aGetUser\x12$.sentinez.apps.iam.v1.GetUserRequest\x1a%.sentinez.apps.iam.v1.GetUserResponse\"\x17\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\v\x12\t/iam/user\x12{\n" +
+	"\n" +
+	"UpdateUser\x12'.sentinez.apps.iam.v1.UpdateUserRequest\x1a(.sentinez.apps.iam.v1.UpdateUserResponse\"\x1a\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0e:\x01*\x1a\t/iam/user\x12}\n" +
 	"\n" +
 	"DeleteUser\x12'.sentinez.apps.iam.v1.DeleteUserRequest\x1a(.sentinez.apps.iam.v1.DeleteUserResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10*\x0e/iam/user/{id}\x12m\n" +
 	"\x05Login\x12\".sentinez.apps.iam.v1.LoginRequest\x1a#.sentinez.apps.iam.v1.LoginResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f:\x01*\x1a\n" +
@@ -1613,12 +1586,12 @@ var file_sentinez_apps_iam_v1_iam_proto_depIdxs = []int32{
 	31, // 10: sentinez.apps.iam.v1.ListAccountsRequest.page:type_name -> sentinez.types.v1.Pages
 	32, // 11: sentinez.apps.iam.v1.ListAccountsResponse.accounts:type_name -> sentinez.apps.iam.v1.AccountResponse
 	14, // 12: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:input_type -> sentinez.apps.iam.v1.CreateUserRequest
-	18, // 13: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:input_type -> sentinez.apps.iam.v1.UpdateUserRequest
-	24, // 14: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:input_type -> sentinez.apps.iam.v1.ListAccountsRequest
-	22, // 15: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:input_type -> sentinez.apps.iam.v1.ListUsersRequest
-	16, // 16: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:input_type -> sentinez.apps.iam.v1.StatusRequest
-	12, // 17: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:input_type -> sentinez.apps.iam.v1.CreateAccountRequest
-	20, // 18: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:input_type -> sentinez.apps.iam.v1.GetUserRequest
+	24, // 13: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:input_type -> sentinez.apps.iam.v1.ListAccountsRequest
+	22, // 14: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:input_type -> sentinez.apps.iam.v1.ListUsersRequest
+	16, // 15: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:input_type -> sentinez.apps.iam.v1.StatusRequest
+	12, // 16: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:input_type -> sentinez.apps.iam.v1.CreateAccountRequest
+	20, // 17: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:input_type -> sentinez.apps.iam.v1.GetUserRequest
+	18, // 18: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:input_type -> sentinez.apps.iam.v1.UpdateUserRequest
 	26, // 19: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:input_type -> sentinez.apps.iam.v1.DeleteUserRequest
 	10, // 20: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:input_type -> sentinez.apps.iam.v1.LoginRequest
 	6,  // 21: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:input_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest
@@ -1627,12 +1600,12 @@ var file_sentinez_apps_iam_v1_iam_proto_depIdxs = []int32{
 	2,  // 24: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginChallenge:input_type -> sentinez.apps.iam.v1.PasskeyLoginChallengeRequest
 	0,  // 25: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyLoginVerify:input_type -> sentinez.apps.iam.v1.PasskeyLoginVerifyRequest
 	15, // 26: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateUser:output_type -> sentinez.apps.iam.v1.CreateUserResponse
-	19, // 27: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:output_type -> sentinez.apps.iam.v1.UpdateUserResponse
-	25, // 28: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:output_type -> sentinez.apps.iam.v1.ListAccountsResponse
-	23, // 29: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:output_type -> sentinez.apps.iam.v1.ListUsersResponse
-	17, // 30: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:output_type -> sentinez.apps.iam.v1.StatusResponse
-	13, // 31: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:output_type -> sentinez.apps.iam.v1.CreateAccountResponse
-	21, // 32: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:output_type -> sentinez.apps.iam.v1.GetUserResponse
+	25, // 27: sentinez.apps.iam.v1.IdentityAccessManagementService.ListAccounts:output_type -> sentinez.apps.iam.v1.ListAccountsResponse
+	23, // 28: sentinez.apps.iam.v1.IdentityAccessManagementService.ListUsers:output_type -> sentinez.apps.iam.v1.ListUsersResponse
+	17, // 29: sentinez.apps.iam.v1.IdentityAccessManagementService.Status:output_type -> sentinez.apps.iam.v1.StatusResponse
+	13, // 30: sentinez.apps.iam.v1.IdentityAccessManagementService.CreateAccount:output_type -> sentinez.apps.iam.v1.CreateAccountResponse
+	21, // 31: sentinez.apps.iam.v1.IdentityAccessManagementService.GetUser:output_type -> sentinez.apps.iam.v1.GetUserResponse
+	19, // 32: sentinez.apps.iam.v1.IdentityAccessManagementService.UpdateUser:output_type -> sentinez.apps.iam.v1.UpdateUserResponse
 	27, // 33: sentinez.apps.iam.v1.IdentityAccessManagementService.DeleteUser:output_type -> sentinez.apps.iam.v1.DeleteUserResponse
 	11, // 34: sentinez.apps.iam.v1.IdentityAccessManagementService.Login:output_type -> sentinez.apps.iam.v1.LoginResponse
 	7,  // 35: sentinez.apps.iam.v1.IdentityAccessManagementService.PasskeyRegisterChallenge:output_type -> sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse

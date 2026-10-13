@@ -96,9 +96,7 @@ export interface StatusResponse {
 }
 
 export interface UpdateUserRequest {
-  id: string;
   fullName: string;
-  email: string;
 }
 
 export interface UpdateUserResponse {
@@ -107,7 +105,6 @@ export interface UpdateUserResponse {
 
 export interface GetUserRequest {
   id: string;
-  email: string;
 }
 
 export interface GetUserResponse {
@@ -1619,19 +1616,13 @@ export const StatusResponse: MessageFns<StatusResponse> = {
 };
 
 function createBaseUpdateUserRequest(): UpdateUserRequest {
-  return { id: "", fullName: "", email: "" };
+  return { fullName: "" };
 }
 
 export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
   encode(message: UpdateUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
-    }
-    if (message.email !== "") {
-      writer.uint32(90).string(message.email);
     }
     return writer;
   },
@@ -1649,28 +1640,12 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.id = reader.string();
-            continue;
-          }
           case 10: {
             if (tag !== 82) {
               break;
             }
 
             message.fullName = reader.string();
-            continue;
-          }
-          case 11: {
-            if (tag !== 90) {
-              break;
-            }
-
-            message.email = reader.string();
             continue;
           }
         }
@@ -1687,26 +1662,18 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
 
   fromJSON(object: any): UpdateUserRequest {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
       fullName: isSet(object.fullName)
         ? globalThis.String(object.fullName)
         : isSet(object.full_name)
         ? globalThis.String(object.full_name)
         : "",
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
     };
   },
 
   toJSON(message: UpdateUserRequest): unknown {
     const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
-    }
-    if (message.email !== "") {
-      obj.email = message.email;
     }
     return obj;
   },
@@ -1716,9 +1683,7 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<UpdateUserRequest>, I>>(object: I): UpdateUserRequest {
     const message = createBaseUpdateUserRequest();
-    message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
-    message.email = object.email ?? "";
     return message;
   },
 };
@@ -1791,16 +1756,13 @@ export const UpdateUserResponse: MessageFns<UpdateUserResponse> = {
 };
 
 function createBaseGetUserRequest(): GetUserRequest {
-  return { id: "", email: "" };
+  return { id: "" };
 }
 
 export const GetUserRequest: MessageFns<GetUserRequest> = {
   encode(message: GetUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
-    }
-    if (message.email !== "") {
-      writer.uint32(18).string(message.email);
     }
     return writer;
   },
@@ -1826,14 +1788,6 @@ export const GetUserRequest: MessageFns<GetUserRequest> = {
             message.id = reader.string();
             continue;
           }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.email = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1847,19 +1801,13 @@ export const GetUserRequest: MessageFns<GetUserRequest> = {
   },
 
   fromJSON(object: any): GetUserRequest {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
-    };
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
   toJSON(message: GetUserRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
-    }
-    if (message.email !== "") {
-      obj.email = message.email;
     }
     return obj;
   },
@@ -1870,7 +1818,6 @@ export const GetUserRequest: MessageFns<GetUserRequest> = {
   fromPartial<I extends Exact<DeepPartial<GetUserRequest>, I>>(object: I): GetUserRequest {
     const message = createBaseGetUserRequest();
     message.id = object.id ?? "";
-    message.email = object.email ?? "";
     return message;
   },
 };

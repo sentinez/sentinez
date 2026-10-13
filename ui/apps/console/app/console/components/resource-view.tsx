@@ -39,10 +39,10 @@ export function ResourceView({ domain }: Props) {
   const formatDate = (date?: Date) =>
     date
       ? format.dateTime(date, {
-        dateStyle: 'medium',
-        timeStyle: 'medium',
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      })
+          dateStyle: 'medium',
+          timeStyle: 'medium',
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
       : tc('notAvailable');
 
   if (isLoading) {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
+import { ControlPlane } from '@sentinez/proto/sentinez/types/v1/known';
 import { LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -15,29 +16,43 @@ import {
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
 
+import { avatarOf } from '@/lib/avatar';
 import { SENTINEZ_USER_KEY } from '@/lib/const';
+import { subscribeUser } from '@/lib/session';
 import { toast } from '@/lib/toast';
+import { UserDataLocal } from '@/lib/type/common';
 
-interface LocalUser {
-  name: string;
-  email: string;
-  avatar: string;
-}
+const NO_USER: UserDataLocal = {
+  id: '',
+  name: '',
+  email: '',
+  avatar: '',
+  controlPlane: ControlPlane.CONTROL_PLANE_UNSPECIFIED,
+  createdAt: '',
+  updatedAt: '',
+};
 
-// The user the login forms stored, read after mount (empty until then)
-function useLocalUser(): LocalUser {
-  const [user, setUser] = useState<LocalUser>({ name: '', email: '', avatar: '' });
+const storedUser = () => localStorage.getItem(SENTINEZ_USER_KEY);
+const serverUser = () => null;
 
-  useEffect(() => {
+/**
+ * The user the login forms stored, with a generated avatar (empty while
+ * rendering on the server)
+ */
+export function useLocalUser(): UserDataLocal {
+  const stored = useSyncExternalStore(subscribeUser, storedUser, serverUser);
+
+  return useMemo(() => {
     try {
-      const stored = localStorage.getItem(SENTINEZ_USER_KEY);
-      if (stored) setUser((prev) => ({ ...prev, ...JSON.parse(stored) }));
+      if (!stored) return NO_USER;
+      const user: UserDataLocal = { ...NO_USER, ...JSON.parse(stored) };
+      // seeded by the id so the avatar is stable; older sessions only have the email
+      return { ...user, avatar: avatarOf(user.id || user.email) };
     } catch {
       // a corrupt entry leaves the menu without user info; logout still works
+      return NO_USER;
     }
-  }, []);
-
-  return user;
+  }, [stored]);
 }
 
 /** Clears the session and returns to the login page */

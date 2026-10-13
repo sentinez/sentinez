@@ -17,12 +17,14 @@ package iamsvc
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	accrepos "github.com/sentinez/controlplane/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/iam/v1/repos/users"
 	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/core/storage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
@@ -343,15 +345,6 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iampb.GetUserResponse{User: user}, nil
 	}
 
-	if request.GetEmail() != "" {
-		user, err := srv.users.GetByEmail(ctx, request.GetEmail())
-		if err != nil {
-			return nil, err
-		}
-
-		return &iampb.GetUserResponse{User: user}, nil
-	}
-
 	return nil, errorx.StatusInvalidDataF(
 		"invalid argument: must provide either id or username")
 }
@@ -394,41 +387,33 @@ func (srv *IAMService) DeleteUser(ctx context.Context,
 	return &iampb.DeleteUserResponse{}, nil
 }
 
+// UpdateUser renames the signed-in user; nothing else of the user changes.
 func (srv *IAMService) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
 
-	acc, err := srv.findAccount(ctx, request.GetEmail())
+	auth, err := headers.GetAuth(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if acc == nil {
-		return nil, errorx.StatusNotFoundF(
-			"email %s not found", request.GetEmail())
+	fullName := strings.TrimSpace(request.GetFullName())
+	if fullName == "" {
+		return nil, errorx.StatusInvalidArgumentF("full name is required")
 	}
 
-	user, err := srv.users.Get(ctx, request.GetId())
+	user, err := srv.users.Get(ctx, auth.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
-	copyUserUpdateParams(user, request)
-
-	err = srv.users.Update(ctx, user)
+	// the repo writes only the fields set here
+	err = srv.users.Update(ctx,
+		&iampb.User{Id: user.GetId(), FullName: fullName})
 	if err != nil {
 		return nil, err
 	}
 
-	return &iampb.UpdateUserResponse{}, nil
-}
+	user.FullName = fullName
 
-func copyUserUpdateParams(dest *iampb.User, req *iampb.UpdateUserRequest) {
-
-	if req.GetEmail() != "" {
-		dest.Email = req.GetEmail()
-	}
-
-	if req.GetFullName() != "" {
-		dest.FullName = req.GetFullName()
-	}
+	return &iampb.UpdateUserResponse{User: user}, nil
 }

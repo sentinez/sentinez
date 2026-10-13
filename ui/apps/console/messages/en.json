@@ -55,7 +55,9 @@
     "rulesets": "Rulesets",
     "analytic": "Analytic",
     "logs": "Logs",
-    "activity": "Activity"
+    "activity": "Activity",
+    "setting": "Settings",
+    "account": "Account"
   },
   "Sidebar": {
     "main": "Main",
@@ -68,7 +70,8 @@
     "notifications": "Notifications",
     "logout": "Log out",
     "loggedOut": "Logged out",
-    "loggedOutDescription": "You have been logged out successfully."
+    "loggedOutDescription": "You have been logged out successfully.",
+    "tenant": "Current tenant"
   },
   "Pagination": {
     "range": "{from}–{to} of {total}",
@@ -147,6 +150,26 @@
     "title": "Members",
     "subtitle": "Manage members of the organization.",
     "invite": "Invite"
+  },
+  "Setting": {
+    "accountTitle": "Account",
+    "accountSubtitle": "Your profile on Sentinéz.",
+    "tenantTitle": "Current tenant",
+    "tenantSubtitle": "The tenant you are working in.",
+    "fullName": "Full name",
+    "email": "Email",
+    "userId": "User ID",
+    "controlPlane": "Control plane",
+    "controlPlanePortal": "Portal",
+    "controlPlaneAdmin": "Admin",
+    "tenantId": "Tenant ID",
+    "createdAt": "Created",
+    "updatedAt": "Last updated",
+    "switchTenant": "Switch tenant",
+    "noTenant": "No tenant is selected.",
+    "tenantNotFound": "The selected tenant could not be found.",
+    "editName": "Edit",
+    "nameUpdated": "Name updated"
   },
   "Domain": {
     "title": "Domains",

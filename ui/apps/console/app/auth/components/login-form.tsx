@@ -17,8 +17,8 @@ import { Label } from '@sentinez/ui/components/label';
 import { Login } from '@/lib/api/iam/auth';
 import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
-import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
-import { homePath } from '@/lib/session';
+import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
+import { homePath, storeUser } from '@/lib/session';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const t = useTranslations('Auth');
@@ -43,14 +43,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 
       if (res.accessToken) {
         localStorage.setItem(SENTINEZ_ACCESS_TOKEN_KEY, res.accessToken);
-        localStorage.setItem(
-          SENTINEZ_USER_KEY,
-          JSON.stringify({
-            name: res.user?.fullName,
-            email: res.user?.email,
-            avatar: '/assets/sntz.png',
-          }),
-        );
+        storeUser(res.user, email);
       }
 
       router.push(homePath());

@@ -198,29 +198,58 @@ func TestCreateUser_EmailFree(t *testing.T) {
 	assert.Equal(t, "senz.iam.users.2", resp.GetUserId())
 }
 
-func TestUpdateUser_AccountMissing(t *testing.T) {
-	svc, _ := newTestService(t, map[string]lookup{"bob@x.io": _missing})
-
-	resp, err := svc.UpdateUser(context.Background(),
-		&iampb.UpdateUserRequest{Id: "senz.iam.users.2", Email: "bob@x.io"})
-
-	assert.Nil(t, resp)
-	assert.Equal(t, codes.NotFound, status.Code(err))
-}
-
-func TestUpdateUser_AccountExists(t *testing.T) {
-	svc, userRepo := newTestService(t,
-		map[string]lookup{"bob@x.io": existing("bob@x.io")})
-	user := &iampb.User{Id: "senz.iam.users.2", FullName: "Bob"}
+func TestUpdateUser_RenamesSignedInUser(t *testing.T) {
+	svc, userRepo := newTestService(t, nil)
+	user := &iampb.User{
+		Id: "senz.iam.users.2", FullName: "Bob", Email: "bob@x.io",
+	}
 	userRepo.On("Get", mock.Anything, "senz.iam.users.2").Return(user, nil)
+	// only the id and the name reach the store
 	userRepo.On("Update", mock.Anything, mock.MatchedBy(
-		func(u *iampb.User) bool { return u.GetFullName() == "Robert" },
+		func(u *iampb.User) bool {
+			return u.GetId() == "senz.iam.users.2" &&
+				u.GetFullName() == "Robert" && u.GetEmail() == ""
+		},
 	)).Return(nil)
 
-	resp, err := svc.UpdateUser(context.Background(), &iampb.UpdateUserRequest{
-		Id: "senz.iam.users.2", Email: "bob@x.io", FullName: "Robert",
-	})
+	resp, err := svc.UpdateUser(signedIn(t, "senz.iam.users.2"),
+		&iampb.UpdateUserRequest{FullName: " Robert "})
 
 	require.NoError(t, err)
-	assert.NotNil(t, resp)
+	assert.Equal(t, "Robert", resp.GetUser().GetFullName())
+	assert.Equal(t, "bob@x.io", resp.GetUser().GetEmail())
+}
+
+func TestUpdateUser_Rejected(t *testing.T) {
+	tests := []struct {
+		name     string
+		giveCtx  context.Context
+		giveName string
+		wantCode codes.Code
+	}{
+		{
+			name:     "not signed in",
+			giveCtx:  context.Background(),
+			giveName: "Robert",
+			wantCode: codes.Unauthenticated,
+		},
+		{
+			name:     "blank name",
+			giveCtx:  signedIn(t, "senz.iam.users.2"),
+			giveName: "  ",
+			wantCode: codes.InvalidArgument,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc, _ := newTestService(t, nil)
+
+			resp, err := svc.UpdateUser(tt.giveCtx,
+				&iampb.UpdateUserRequest{FullName: tt.giveName})
+
+			assert.Nil(t, resp)
+			assert.Equal(t, tt.wantCode, status.Code(err))
+		})
+	}
 }

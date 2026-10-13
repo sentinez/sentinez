@@ -53,8 +53,7 @@ import {
   useState,
   useTransition,
 } from 'react';
-import { UserDataLocal } from '@/lib/type/common';
-import { SENTINEZ_USER_KEY } from '@/lib/const';
+import { useLocalUser } from '@/components/user-menu';
 
 export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   // Note: I'm using state to show active item.
@@ -105,18 +104,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const [search, setSearch] = useState('');
   const [mobileTab, setMobileTab] = useState<'main' | 'domain'>('domain');
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
-  const [user, setUser] = useState<UserDataLocal>({
-    name: '',
-    email: '',
-    avatar: '',
-  });
-
-  useEffect(() => {
-    const user = localStorage.getItem(SENTINEZ_USER_KEY);
-    if (user) {
-      setUser(JSON.parse(user));
-    }
-  }, []);
+  const user = useLocalUser();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -422,18 +410,7 @@ export function DomainSidebarInset({ children }: { children: ReactNode }) {
   const [breadcrumbs, setBreadcrumbs] = useState<JSX.Element[]>([]);
   const pathname = usePathname();
 
-  const [user, setUser] = useState<UserDataLocal>({
-    name: '',
-    email: '',
-    avatar: '',
-  });
-
-  useEffect(() => {
-    const user = localStorage.getItem(SENTINEZ_USER_KEY);
-    if (user) {
-      setUser(JSON.parse(user));
-    }
-  }, []);
+  const user = useLocalUser();
 
   useEffect(() => {
     const pathArray = pathname.split('/').filter((path) => path !== '');

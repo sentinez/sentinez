@@ -70,6 +70,12 @@ func GetIdentityAccessManagementServiceGetUser() *typepb.XMethod {
 	}
 }
 
+func GetIdentityAccessManagementServiceUpdateUser() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
 func GetIdentityAccessManagementServiceDeleteUser() *typepb.XMethod {
 	return &typepb.XMethod{
 		Ignore: true,

@@ -1351,11 +1351,7 @@ func (m *UpdateUserRequest) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Id
-
 	// no validation rules for FullName
-
-	// no validation rules for Email
 
 	return nil
 }
@@ -1502,8 +1498,6 @@ func (m *GetUserRequest) Validate() error {
 	}
 
 	// no validation rules for Id
-
-	// no validation rules for Email
 
 	return nil
 }

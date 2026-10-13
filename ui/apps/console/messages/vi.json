@@ -55,7 +55,9 @@
     "rulesets": "Bộ quy tắc",
     "analytic": "Phân tích",
     "logs": "Nhật ký",
-    "activity": "Hoạt động"
+    "activity": "Hoạt động",
+    "setting": "Cài đặt",
+    "account": "Tài khoản"
   },
   "Sidebar": {
     "main": "Chính",
@@ -68,7 +70,8 @@
     "notifications": "Thông báo",
     "logout": "Đăng xuất",
     "loggedOut": "Đã đăng xuất",
-    "loggedOutDescription": "Bạn đã đăng xuất thành công."
+    "loggedOutDescription": "Bạn đã đăng xuất thành công.",
+    "tenant": "Tenant hiện tại"
   },
   "Pagination": {
     "range": "{from}–{to} trên {total}",
@@ -147,6 +150,26 @@
     "title": "Thành viên",
     "subtitle": "Quản lý thành viên của tổ chức.",
     "invite": "Mời"
+  },
+  "Setting": {
+    "accountTitle": "Tài khoản",
+    "accountSubtitle": "Hồ sơ của bạn trên Sentinéz.",
+    "tenantTitle": "Tenant hiện tại",
+    "tenantSubtitle": "Tenant bạn đang làm việc.",
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "userId": "ID người dùng",
+    "controlPlane": "Control plane",
+    "controlPlanePortal": "Portal",
+    "controlPlaneAdmin": "Quản trị",
+    "tenantId": "ID tenant",
+    "createdAt": "Ngày tạo",
+    "updatedAt": "Cập nhật lần cuối",
+    "switchTenant": "Đổi tenant",
+    "noTenant": "Chưa chọn tenant nào.",
+    "tenantNotFound": "Không tìm thấy tenant đã chọn.",
+    "editName": "Sửa",
+    "nameUpdated": "Đã cập nhật tên"
   },
   "Domain": {
     "title": "Tên miền",
