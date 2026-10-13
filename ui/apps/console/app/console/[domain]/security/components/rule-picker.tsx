@@ -32,9 +32,9 @@ import { cn } from '@sentinez/ui/lib/utils';
 export const PICKER_PAGE_SIZE = 8;
 
 const severityVariants = new Map<string, string>([
-  ["CRITICAL", "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"],
-  ["WARNING", "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"],
-  ["INFO", "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"],
+  ['CRITICAL', 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300'],
+  ['WARNING', 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300'],
+  ['INFO', 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'],
 ]);
 
 export interface RuleCatalog {
@@ -58,7 +58,7 @@ export function useRuleInfos(ids: number[], version: Version): RuleCatalog {
     listRuleInfos(request, { signal: controller.signal })
       .then((res) => setLoaded({ key, infos: new Map(res.rules.map((r) => [r.id, r])) }))
       // the description is a hint only: leave it out when the catalog is unreachable
-      .catch(() => { });
+      .catch(() => {});
     return () => controller.abort();
   }, [key, version]);
 
@@ -222,9 +222,7 @@ export function RulePicker({ version, onSelect, onClose }: Props) {
                   <Badge variant="outline">{t('paranoiaShort', { level: r.paranoiaLevel })}</Badge>
                 )}
                 {r.severity && (
-                  <Badge className={cn(severityVariants.get(r.severity))}>
-                    {r.severity}
-                  </Badge>
+                  <Badge className={cn(severityVariants.get(r.severity))}>{r.severity}</Badge>
                 )}
               </button>
             ))

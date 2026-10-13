@@ -17,10 +17,10 @@ package apiserver
 import (
 	"context"
 
-	greeterfac "github.com/sentinez/controlplane/greeter/v1/factory"
-	iamfac "github.com/sentinez/controlplane/iam/v1/factory"
-	securityfac "github.com/sentinez/controlplane/security/v1/factory"
-	tenantfac "github.com/sentinez/controlplane/tenant/v1/factory"
+	greeterfac "github.com/sentinez/controlplane/apps/greeter/v1/factory"
+	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
+	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
+	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/controlplane/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/handlers"

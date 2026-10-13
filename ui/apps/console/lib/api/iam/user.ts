@@ -8,6 +8,8 @@ import {
   ListAccountsResponse,
   ListUsersRequest,
   ListUsersResponse,
+  UpdateUserRequest,
+  UpdateUserResponse,
 } from '@sentinez/proto/sentinez/apps/iam/v1/iam';
 import { User } from '@sentinez/proto/sentinez/apps/iam/v1/model';
 
@@ -66,9 +68,7 @@ export async function GetUser(
   options?: ApiOptions,
 ): Promise<GetUserResponse> {
   return withFallback<GetUserResponse>('GetUser', () => ({
-    user: sampleStore.find(
-      (u) => (!!params.id && u.id === params.id) || (!!params.email && u.email === params.email),
-    ),
+    user: sampleStore.find((u) => !!params.id && u.id === params.id),
   }))(async () => {
     const endpoint = `${API_BASE_PATH}/iam/user`;
     const resp = await axios.get(endpoint, {
@@ -77,6 +77,18 @@ export async function GetUser(
     });
     return GetUserResponse.fromJSON(resp.data ?? {});
   });
+}
+
+// PUT /iam/user: renames the signed-in user
+export async function UpdateUser(
+  req: UpdateUserRequest,
+  options?: ApiOptions,
+): Promise<UpdateUserResponse> {
+  const endpoint = `${API_BASE_PATH}/iam/user`;
+  const resp = await axios.put(endpoint, UpdateUserRequest.toJSON(req), {
+    signal: options?.signal,
+  });
+  return UpdateUserResponse.fromJSON(resp.data ?? {});
 }
 
 // GET /iam/users

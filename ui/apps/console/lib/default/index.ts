@@ -13,6 +13,8 @@ import {
   BrickWallFire,
   Signal,
   Globe,
+  Settings,
+  BadgeCheck,
 } from 'lucide-react';
 import type messages from '@/messages/en.json';
 
@@ -62,6 +64,26 @@ export const dashboard: {
         {
           titleKey: 'member',
           url: '/console/member',
+          icon: Building2,
+          items: [],
+        },
+      ],
+    },
+    {
+      titleKey: 'setting',
+      url: '/console/setting',
+      icon: Settings,
+      isActive: false,
+      items: [
+        {
+          titleKey: 'account',
+          url: '/console/setting/account',
+          icon: BadgeCheck,
+          items: [],
+        },
+        {
+          titleKey: 'tenant',
+          url: '/console/setting/tenant',
           icon: Building2,
           items: [],
         },

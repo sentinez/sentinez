@@ -54,7 +54,6 @@ service IdentityAccessManagementService {
   // private method bellow
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
 
   // public method bellow
 
@@ -102,6 +101,18 @@ service IdentityAccessManagementService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {
       get: "/iam/user"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      ignore: true
+    };
+  }
+
+  // UpdateUser renames the signed-in user. Only the name can change.
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/iam/user"
+      body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {
@@ -287,13 +298,10 @@ message StatusResponse {
 }
 
 message UpdateUserRequest {
-  string id = 1 [(buf.validate.field) = {
-    required: false
-    string: { prefix: "senz.users." }
-  }];
+  reserved 1, 11;
+  reserved "id", "email";
 
   string full_name = 10 [(buf.validate.field).required = true];
-  string email = 11 [(buf.validate.field).string.email = true];
 }
 
 message UpdateUserResponse {
@@ -302,11 +310,9 @@ message UpdateUserResponse {
 
 message GetUserRequest {
   string id = 1 [(buf.validate.field) = {
-    required: false
-    string: { prefix: "senz.users." }
+    required: true
+    string: { prefix: "senz.iam.users." }
   }];
-
-  string email = 2 [(buf.validate.field).string.email = true];
 }
 
 message GetUserResponse {

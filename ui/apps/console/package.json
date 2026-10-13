@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@dicebear/core": "^10.7.0",
+    "@dicebear/styles": "^10.6.0",
     "@sentinez/proto": "workspace:*",
     "@sentinez/ui": "workspace:*",
     "@simplewebauthn/browser": "^13.2.2",

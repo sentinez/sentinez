@@ -360,12 +360,37 @@
             "in": "query",
             "required": false,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityAccessManagementService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateUser renames the signed-in user. Only the name can change.",
+        "operationId": "IdentityAccessManagementService_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserResponse"
+            }
           },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
           {
-            "name": "email",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserRequest"
+            }
           }
         ],
         "tags": [
@@ -770,6 +795,14 @@
         },
         "context": {
           "$ref": "#/definitions/v1Context"
+        }
+      }
+    },
+    "v1UpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
         }
       }
     },

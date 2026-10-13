@@ -1,9 +1,21 @@
-import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_TENANT_KEY } from '@/lib/const';
+import { User } from '@sentinez/proto/sentinez/apps/iam/v1/model';
+import { ControlPlane } from '@sentinez/proto/sentinez/types/v1/known';
+
+import { SENTINEZ_ACCESS_TOKEN_KEY, SENTINEZ_TENANT_KEY, SENTINEZ_USER_KEY } from '@/lib/const';
+import { StoredUser } from '@/lib/type/common';
 
 const AUTH_PATH = '/auth';
 const TENANT_PATH = '/tenant';
 const CONSOLE_PATH = '/console';
 const DOMAIN_PATH = '/console/domain';
+
+const USER_CHANGED_EVENT = 'sentinez:user-changed';
+
+/** Calls onChange whenever storeUser replaces the stored user. Client-side only. */
+export function subscribeUser(onChange: () => void) {
+  window.addEventListener(USER_CHANGED_EVENT, onChange);
+  return () => window.removeEventListener(USER_CHANGED_EVENT, onChange);
+}
 
 // Expiry of a JWT in epoch milliseconds, or 0 when it cannot be read
 function expiryOf(token: string): number {
@@ -14,6 +26,23 @@ function expiryOf(token: string): number {
   } catch {
     return 0;
   }
+}
+
+/**
+ * Keeps the user of a login response in localStorage. `email` is what was
+ * typed in the form, used when the response carries no user. Client-side only.
+ */
+export function storeUser(user: User | undefined, email = '') {
+  const local: StoredUser = {
+    id: user?.id ?? '',
+    name: user?.fullName || email,
+    email: user?.email || email,
+    controlPlane: user?.controlPlane ?? ControlPlane.CONTROL_PLANE_UNSPECIFIED,
+    createdAt: user?.metadata?.createdAt?.toISOString() ?? '',
+    updatedAt: user?.metadata?.updatedAt?.toISOString() ?? '',
+  };
+  localStorage.setItem(SENTINEZ_USER_KEY, JSON.stringify(local));
+  window.dispatchEvent(new Event(USER_CHANGED_EVENT));
 }
 
 /**

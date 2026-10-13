@@ -34,12 +34,12 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	IdentityAccessManagementService_CreateUser_FullMethodName               = "/sentinez.apps.iam.v1.IdentityAccessManagementService/CreateUser"
-	IdentityAccessManagementService_UpdateUser_FullMethodName               = "/sentinez.apps.iam.v1.IdentityAccessManagementService/UpdateUser"
 	IdentityAccessManagementService_ListAccounts_FullMethodName             = "/sentinez.apps.iam.v1.IdentityAccessManagementService/ListAccounts"
 	IdentityAccessManagementService_ListUsers_FullMethodName                = "/sentinez.apps.iam.v1.IdentityAccessManagementService/ListUsers"
 	IdentityAccessManagementService_Status_FullMethodName                   = "/sentinez.apps.iam.v1.IdentityAccessManagementService/Status"
 	IdentityAccessManagementService_CreateAccount_FullMethodName            = "/sentinez.apps.iam.v1.IdentityAccessManagementService/CreateAccount"
 	IdentityAccessManagementService_GetUser_FullMethodName                  = "/sentinez.apps.iam.v1.IdentityAccessManagementService/GetUser"
+	IdentityAccessManagementService_UpdateUser_FullMethodName               = "/sentinez.apps.iam.v1.IdentityAccessManagementService/UpdateUser"
 	IdentityAccessManagementService_DeleteUser_FullMethodName               = "/sentinez.apps.iam.v1.IdentityAccessManagementService/DeleteUser"
 	IdentityAccessManagementService_Login_FullMethodName                    = "/sentinez.apps.iam.v1.IdentityAccessManagementService/Login"
 	IdentityAccessManagementService_PasskeyRegisterChallenge_FullMethodName = "/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyRegisterChallenge"
@@ -54,12 +54,13 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IdentityAccessManagementServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	ListAccounts(ctx context.Context, in *ListAccountsRequest, opts ...grpc.CallOption) (*ListAccountsResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	CreateAccount(ctx context.Context, in *CreateAccountRequest, opts ...grpc.CallOption) (*CreateAccountResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	// UpdateUser renames the signed-in user. Only the name can change.
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	PasskeyRegisterChallenge(ctx context.Context, in *PasskeyRegisterChallengeRequest, opts ...grpc.CallOption) (*PasskeyRegisterChallengeResponse, error)
@@ -83,16 +84,6 @@ func (c *identityAccessManagementServiceClient) CreateUser(ctx context.Context, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateUserResponse)
 	err := c.cc.Invoke(ctx, IdentityAccessManagementService_CreateUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *identityAccessManagementServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateUserResponse)
-	err := c.cc.Invoke(ctx, IdentityAccessManagementService_UpdateUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -143,6 +134,16 @@ func (c *identityAccessManagementServiceClient) GetUser(ctx context.Context, in 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserResponse)
 	err := c.cc.Invoke(ctx, IdentityAccessManagementService_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityAccessManagementServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserResponse)
+	err := c.cc.Invoke(ctx, IdentityAccessManagementService_UpdateUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -224,12 +225,13 @@ func (c *identityAccessManagementServiceClient) PasskeyLoginVerify(ctx context.C
 // for forward compatibility.
 type IdentityAccessManagementServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	CreateAccount(context.Context, *CreateAccountRequest) (*CreateAccountResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	// UpdateUser renames the signed-in user. Only the name can change.
+	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	PasskeyRegisterChallenge(context.Context, *PasskeyRegisterChallengeRequest) (*PasskeyRegisterChallengeResponse, error)
@@ -251,9 +253,6 @@ type UnimplementedIdentityAccessManagementServiceServer struct{}
 func (UnimplementedIdentityAccessManagementServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedIdentityAccessManagementServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateUser not implemented")
-}
 func (UnimplementedIdentityAccessManagementServiceServer) ListAccounts(context.Context, *ListAccountsRequest) (*ListAccountsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAccounts not implemented")
 }
@@ -268,6 +267,9 @@ func (UnimplementedIdentityAccessManagementServiceServer) CreateAccount(context.
 }
 func (UnimplementedIdentityAccessManagementServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedIdentityAccessManagementServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedIdentityAccessManagementServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
@@ -324,24 +326,6 @@ func _IdentityAccessManagementService_CreateUser_Handler(srv interface{}, ctx co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IdentityAccessManagementServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IdentityAccessManagementService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IdentityAccessManagementServiceServer).UpdateUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IdentityAccessManagementService_UpdateUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IdentityAccessManagementServiceServer).UpdateUser(ctx, req.(*UpdateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -432,6 +416,24 @@ func _IdentityAccessManagementService_GetUser_Handler(srv interface{}, ctx conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IdentityAccessManagementServiceServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityAccessManagementService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityAccessManagementServiceServer).UpdateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityAccessManagementService_UpdateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityAccessManagementServiceServer).UpdateUser(ctx, req.(*UpdateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -574,10 +576,6 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IdentityAccessManagementService_CreateUser_Handler,
 		},
 		{
-			MethodName: "UpdateUser",
-			Handler:    _IdentityAccessManagementService_UpdateUser_Handler,
-		},
-		{
 			MethodName: "ListAccounts",
 			Handler:    _IdentityAccessManagementService_ListAccounts_Handler,
 		},
@@ -596,6 +594,10 @@ var IdentityAccessManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _IdentityAccessManagementService_GetUser_Handler,
+		},
+		{
+			MethodName: "UpdateUser",
+			Handler:    _IdentityAccessManagementService_UpdateUser_Handler,
 		},
 		{
 			MethodName: "DeleteUser",
