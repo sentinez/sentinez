@@ -99,3 +99,18 @@ jobs:
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh bpf
+
+  mcp:
+    name: sync sentinez/mcp
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Sync sentinez/mcp
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash hack/ci/action_sync.sh mcp

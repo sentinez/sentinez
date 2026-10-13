@@ -18,7 +18,7 @@ package main
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/greeter/v1"
+	"github.com/sentinez/controlplane/apps/greeter/v1"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
