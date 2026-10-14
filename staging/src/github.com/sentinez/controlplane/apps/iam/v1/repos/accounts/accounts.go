@@ -132,6 +132,8 @@ func (acc *Accounts) List(ctx context.Context,
 			Username: account.GetUsername(),
 			Email:    account.GetEmail(),
 			UserId:   account.GetUserId(),
+			Provider: account.GetProvider(),
+			Metadata: account.GetMetadata(),
 		})
 	}
 

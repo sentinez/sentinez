@@ -21,7 +21,7 @@ import {
 } from '@sentinez/ui/components/sidebar';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { dashboard } from '@/lib/default';
+import { dashboard, NavItem } from '@/lib/default';
 import { usePathname, useRouter } from 'next/navigation';
 import { TeamSwitcher } from './team-switcher';
 import { Separator } from '@sentinez/ui/components/separator';
@@ -45,9 +45,7 @@ import {
 import {
   ComponentProps,
   Fragment,
-  JSX,
   ReactNode,
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -55,42 +53,49 @@ import {
 } from 'react';
 import { useLocalUser } from '@/components/user-menu';
 
-export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-  // Note: I'm using state to show active item.
-  // IRL you should use the url/router.
+type SidebarProps = ComponentProps<typeof Sidebar>;
+
+/** Sidebar of the tenant-level pages (`/d/console/(root)`, `/d/setting`). */
+export function RootSidebar(props: SidebarProps) {
+  return <ConsoleSidebar navMain={dashboard.rootNavMain} {...props} />;
+}
+
+/** Sidebar of the domain pages (`/d/console/[domain]/...`). */
+export function DomainSidebar(props: SidebarProps) {
+  const domain = usePathname().split('/')[3];
+  const navMain = useMemo(
+    () => (domain ? withDomain(dashboard.domainNavMain, domain) : dashboard.domainNavMain),
+    [domain],
+  );
+
+  return <ConsoleSidebar navMain={navMain} {...props} />;
+}
+
+/** Rewrites `/d/console/<path>` urls to `/d/console/<domain>/<path>`. */
+function withDomain(items: NavItem[], domain: string): NavItem[] {
+  return items.map((item) => ({
+    ...item,
+    url: domainUrl(item.url, domain),
+    items: item.items ? withDomain(item.items, domain) : undefined,
+  }));
+}
+
+function domainUrl(url: string, domain: string) {
+  if (!url.startsWith('/d/console/')) return url;
+  const parts = url.split('/');
+  if (parts[3] === domain) return url;
+  return `/d/console/${domain}/${parts.slice(3).join('/')}`;
+}
+
+/**
+ * Two-level console sidebar: an icon rail with `navMain`, and a panel with the
+ * children of the active item (searchable, one level of collapsible sub items).
+ */
+export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: NavItem[] }) {
   const t = useTranslations('Nav');
   const ts = useTranslations('Sidebar');
   const router = useRouter();
   const pathname = usePathname();
-  const domain = pathname.split('/')[3];
-
-  const formatUrl = useCallback((url: string, d: string) => {
-    if (!d || !url) return url;
-    if (url.startsWith('/d/console/')) {
-      const parts = url.split('/');
-      if (parts[3] !== d) {
-        return `/d/console/${d}/${parts.slice(3).join('/')}`;
-      }
-    }
-    return url;
-  }, []);
-
-  const mapNavItems = useCallback(
-    (items: any[], d: string): any[] => {
-      if (!items) return items;
-      return items.map((item) => ({
-        ...item,
-        url: formatUrl(item.url, d),
-        items: item.items ? mapNavItems(item.items, d) : undefined,
-      }));
-    },
-    [formatUrl],
-  );
-
-  const navMain = useMemo(() => {
-    if (!domain) return dashboard.domainNavMain;
-    return mapNavItems(dashboard.domainNavMain, domain);
-  }, [domain, mapNavItems]);
 
   const [, startTransitionNavMain] = useTransition();
   const [, startTransitionChildren] = useTransition();
@@ -112,7 +117,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       if (search.trim() === '') {
         setChildItems(originalItems);
       } else {
-        const filtered = originalItems.filter((item: any) =>
+        const filtered = originalItems.filter((item) =>
           t(item.titleKey).toLowerCase().includes(search.toLowerCase()),
         );
         setChildItems(filtered);
@@ -120,31 +125,21 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     }, 300); // debounce 300ms
 
     return () => clearTimeout(handler); // cleanup
-  }, [search, activeItem, navIndex, t]);
+  }, [search, activeItem, navIndex, navMain, t]);
 
   useEffect(() => {
     for (const [index, item] of navMain.entries()) {
-      const matchedChild = item.items?.find((subItem: any) => pathname.startsWith(subItem.url));
+      const matchedChild = item.items?.find((subItem) => pathname.startsWith(subItem.url));
       if (pathname.startsWith(item.url) || matchedChild) {
         setActiveItem(item);
         setNavIndex(index);
         setChildItems(item.items);
 
-        if (matchedChild) {
-          const subIndex = item.items.findIndex((sub: any) => sub.url === matchedChild.url);
-          setTabIndex(subIndex);
-
-          const matchedSubChild: any = matchedChild.items?.find((subSubItem: any) =>
-            pathname.startsWith(subSubItem.url),
+        if (item.items && matchedChild) {
+          setTabIndex(item.items.findIndex((sub) => sub.url === matchedChild.url));
+          setSubTabIndex(
+            matchedChild.items?.findIndex((sub) => pathname.startsWith(sub.url)) ?? -1,
           );
-          if (matchedSubChild) {
-            const subSubIndex = matchedChild.items.findIndex(
-              (sub: any) => sub.url === matchedSubChild.url,
-            );
-            setSubTabIndex(subSubIndex);
-          } else {
-            setSubTabIndex(-1);
-          }
         }
 
         break;
@@ -155,7 +150,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     setLoading(false);
   }, [pathname, navMain]);
 
-  const handlerSidebarNavMainClick = (item: any, index: number) => {
+  const handlerSidebarNavMainClick = (item: NavItem, index: number) => {
     router.push(item.url);
 
     startTransitionNavMain(() => {
@@ -174,7 +169,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     });
   };
 
-  const handlerSidebarChildrenClick = (item: any, index: number) => {
+  const handlerSidebarChildrenClick = (item: NavItem, index: number) => {
     router.push(item.url);
 
     startTransitionChildren(() => {
@@ -185,7 +180,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     });
   };
 
-  const handlerSidebarSubChildrenClick = (item: any, index: number) => {
+  const handlerSidebarSubChildrenClick = (item: NavItem, index: number) => {
     router.push(item.url);
 
     startTransitionChildren(() => {
@@ -264,7 +259,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {navMain.map((item: any, index: number) => (
+                {navMain.map((item, index) => (
                   <SidebarMenuItem key={item.titleKey}>
                     <SidebarMenuButton
                       tooltip={{
@@ -337,7 +332,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 {loading ? (
                   <SidebarLoading />
                 ) : (
-                  childItems?.map((item: any, index: number) => (
+                  childItems?.map((item, index) => (
                     <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenu>
                         <Collapsible
@@ -357,15 +352,15 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                               >
                                 {item.icon && <item.icon />}
                                 <span>{t(item.titleKey)}</span>
-                                {item.items?.length > 0 && (
+                                {!!item.items?.length && (
                                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                 )}
                               </SidebarMenuButton>
                             </CollapsibleTrigger>
-                            {item.items?.length > 0 && (
+                            {!!item.items?.length && (
                               <CollapsibleContent>
                                 <SidebarMenuSub>
-                                  {item.items?.map((subItem: any, subIndex: number) => (
+                                  {item.items.map((subItem, subIndex) => (
                                     <SidebarMenuSubItem key={subItem.titleKey}>
                                       <SidebarMenuSubButton
                                         asChild
@@ -406,32 +401,11 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   );
 }
 
-export function DomainSidebarInset({ children }: { children: ReactNode }) {
-  const [breadcrumbs, setBreadcrumbs] = useState<JSX.Element[]>([]);
+export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-
   const user = useLocalUser();
 
-  useEffect(() => {
-    const pathArray = pathname.split('/').filter((path) => path !== '');
-    const components = pathArray.map((path, index) => {
-      return (
-        <>
-          <BreadcrumbItem
-            className={cn(
-              'hidden md:block',
-              index == pathArray.length - 1 && 'text-black dark:text-white',
-            )}
-          >
-            {path === 'd' ? "dashboard" : path}
-          </BreadcrumbItem>
-          {index < pathArray.length - 1 && <BreadcrumbSeparator className="hidden md:block" />}
-        </>
-      );
-    });
-
-    setBreadcrumbs(components);
-  }, [pathname]);
+  const segments = useMemo(() => pathname.split('/').filter((path) => path !== ''), [pathname]);
 
   return (
     <SidebarInset>
@@ -442,8 +416,20 @@ export function DomainSidebarInset({ children }: { children: ReactNode }) {
           <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              {breadcrumbs.map((item, index) => (
-                <Fragment key={index}>{item}</Fragment>
+              {segments.map((path, index) => (
+                <Fragment key={index}>
+                  <BreadcrumbItem
+                    className={cn(
+                      'hidden md:block',
+                      index === segments.length - 1 && 'text-black dark:text-white',
+                    )}
+                  >
+                    {path === 'd' ? 'dashboard' : path}
+                  </BreadcrumbItem>
+                  {index < segments.length - 1 && (
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  )}
+                </Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>

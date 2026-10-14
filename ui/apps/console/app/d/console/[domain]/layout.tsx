@@ -1,12 +1,12 @@
 'use client';
 
-import { DomainSidebar, DomainSidebarInset } from '@/components/domain-sidebar';
+import { ConsoleSidebarInset, DomainSidebar } from '@/components/console-sidebar';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <DomainSidebar />
-      <DomainSidebarInset>{children}</DomainSidebarInset>
+      <ConsoleSidebarInset>{children}</ConsoleSidebarInset>
     </>
   );
 }

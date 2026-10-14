@@ -1351,6 +1351,8 @@ func (m *UpdateUserRequest) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
 	// no validation rules for FullName
 
 	return nil

@@ -5,6 +5,7 @@ import type { PaginationState } from '@tanstack/react-table';
 import axios from 'axios';
 import { toast } from '@/lib/toast';
 import type { Pages } from '@/lib/api/pages';
+import { withMinLoading } from '@/lib/min-loading';
 
 export interface PagedResult<T> {
   items: T[];
@@ -12,11 +13,6 @@ export interface PagedResult<T> {
 }
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 50];
-
-// A fetch stays loading at least this long, so the skeleton rows do not flash
-const MIN_LOADING_MILLIS = 500;
-
-const sleep = (millis: number) => new Promise<void>((resolve) => setTimeout(resolve, millis));
 
 /**
  * Server-side pagination for list tables: loads one page at a time through
@@ -46,11 +42,10 @@ export function usePagedList<T>(
     const controller = new AbortController();
     const { pageIndex, pageSize } = pagination;
     setLoading(true);
-    Promise.all([
+    withMinLoading(
       fetchPage({ index: pageIndex + 1, size: pageSize, total: true }, controller.signal),
-      sleep(MIN_LOADING_MILLIS),
-    ])
-      .then(([res]) => {
+    )
+      .then((res) => {
         // The last page emptied (e.g. after a delete): step back to the new last page
         const last = Math.max(0, Math.ceil(res.total / pageSize) - 1);
         if (res.items.length === 0 && pageIndex > last) {

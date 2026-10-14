@@ -154,12 +154,12 @@ export const dashboard: {
           items: [
             {
               titleKey: 'secRule',
-              url: '/d/console/analytic/logs/security/sec-rule',
+              url: '/d/console/analytic/logs/sec-rule',
               icon: ShieldCheck,
             },
             {
               titleKey: 'rulesets',
-              url: '/d/console/analytic/logs/security/rulesets',
+              url: '/d/console/analytic/logs/rulesets',
               icon: BrickWallFire,
             },
           ],

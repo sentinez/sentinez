@@ -14,13 +14,15 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
   const [isLoading, setIsLoading] = useState<boolean>(args[0] !== null);
   const [error, setError] = useState<any>(null);
 
-  // Use a ref to store the previous args to avoid unnecessary re-fetches
+  // Refetch only when the serialized args change, not on every new object.
+  // The ref is synced in an effect (declared before the fetch effect so it
+  // runs first): mutating it during render breaks under Strict Mode, where
+  // the second render saw "unchanged" args and the fetch never re-ran.
+  const argsKey = JSON.stringify(args);
   const argsRef = useRef(args);
-  const argsChanged = JSON.stringify(args) !== JSON.stringify(argsRef.current);
-
-  if (argsChanged) {
+  useEffect(() => {
     argsRef.current = args;
-  }
+  });
 
   const fetchData = useCallback(
     async (signal?: AbortSignal) => {
@@ -66,7 +68,7 @@ export function useApi<T>(apiFn: (...args: any[]) => Promise<T>, ...args: any[])
     return () => {
       controller.abort();
     };
-  }, [fetchData, argsChanged]);
+  }, [fetchData, argsKey]);
 
   return { data, isLoading, error, refresh: fetchData };
 }

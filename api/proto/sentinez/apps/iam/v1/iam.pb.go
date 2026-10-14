@@ -914,6 +914,7 @@ func (x *StatusResponse) GetContext() *v1.Context {
 
 type UpdateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,10,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -947,6 +948,13 @@ func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateUserRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_iam_v1_iam_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UpdateUserRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *UpdateUserRequest) GetFullName() string {
@@ -1464,10 +1472,11 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\rStatusRequest\"X\n" +
 	"\x0eStatusResponse\x12\x10\n" +
 	"\x03msg\x18\x01 \x01(\tR\x03msg\x124\n" +
-	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"O\n" +
-	"\x11UpdateUserRequest\x12#\n" +
+	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"c\n" +
+	"\x11UpdateUserRequest\x12)\n" +
+	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xd8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
-	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullNameJ\x04\b\x01\x10\x02J\x04\b\v\x10\fR\x02idR\x05email\"D\n" +
+	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\"D\n" +
 	"\x12UpdateUserResponse\x12.\n" +
 	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\";\n" +
 	"\x0eGetUserRequest\x12)\n" +

@@ -197,7 +197,18 @@
     "noTenant": "No tenant is selected.",
     "tenantNotFound": "The selected tenant could not be found.",
     "editName": "Edit",
-    "nameUpdated": "Name updated"
+    "nameUpdated": "Name updated",
+    "passportTitle": "Passport",
+    "passportNo": "Passport No.",
+    "accountsTitle": "Sign-in methods",
+    "accountsSubtitle": "The accounts linked to you, by provider.",
+    "providerLocal": "Password",
+    "providerPasskey": "Passkey",
+    "notLinked": "Not linked",
+    "linkedAt": "Linked {date}",
+    "linkPasskey": "Add passkey",
+    "linkingPasskey": "Waiting for passkey...",
+    "passkeyLinked": "Passkey added"
   },
   "Domain": {
     "title": "Domains",

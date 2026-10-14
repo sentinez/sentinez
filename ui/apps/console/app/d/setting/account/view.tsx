@@ -1,13 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 import { User } from '@sentinez/proto/sentinez/apps/iam/v1/model';
 import { ControlPlane } from '@sentinez/proto/sentinez/types/v1/known';
 import { Avatar, AvatarFallback, AvatarImage } from '@sentinez/ui/components/avatar';
+import { Badge } from '@sentinez/ui/components/badge';
 import { Button } from '@sentinez/ui/components/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@sentinez/ui/components/card';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Input } from '@sentinez/ui/components/input';
+import { cn } from '@sentinez/ui/lib/utils';
+import { ShieldCheck } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
@@ -19,7 +31,8 @@ import { storeUser } from '@/lib/session';
 import { toast } from '@/lib/toast';
 import { UserDataLocal } from '@/lib/type/common';
 
-import { InfoCard, InfoRow } from '../components';
+import { AccountsCard } from './accounts';
+import { mrzLinesOf, passportNumberOf } from './mrz';
 
 /**
  * GetUser by id; a session stored before the id was kept falls back to the
@@ -38,7 +51,11 @@ function dateOrUndefined(iso: string) {
  * The full name with an Edit button that swaps it for an input. Saving renames
  * the signed-in user, the only field UpdateUser changes.
  */
-function NameRow({ name, onSaved }: Readonly<{ name: string; onSaved: (user?: User) => void }>) {
+function NameRow({
+  userId,
+  name,
+  onSaved,
+}: Readonly<{ userId: string; name: string; onSaved: (user?: User) => void }>) {
   const t = useTranslations('Setting');
   const tc = useTranslations('Common');
   const tv = useTranslations('Validation');
@@ -53,7 +70,7 @@ function NameRow({ name, onSaved }: Readonly<{ name: string; onSaved: (user?: Us
 
     setSaving(true);
     try {
-      const res = await UpdateUser({ fullName });
+      const res = await UpdateUser({ id: userId, fullName });
       onSaved(res.user);
       toast.success(t('nameUpdated'));
       setDraft(null);
@@ -67,7 +84,7 @@ function NameRow({ name, onSaved }: Readonly<{ name: string; onSaved: (user?: Us
   if (draft === null) {
     return (
       <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 break-words">{name || tc('notAvailable')}</span>
+        <span className="min-w-0 font-medium wrap-break-word">{name || tc('notAvailable')}</span>
         <Button size="sm" variant="outline" onClick={() => setDraft(name)}>
           {t('editName')}
         </Button>
@@ -107,6 +124,21 @@ function NameRow({ name, onSaved }: Readonly<{ name: string; onSaved: (user?: Us
   );
 }
 
+/** A caption over its value; `mono` is for ids */
+function Field({
+  label,
+  mono,
+  className,
+  children,
+}: Readonly<{ label: string; mono?: boolean; className?: string; children: ReactNode }>) {
+  return (
+    <div className={cn('grid min-w-0 content-start gap-1', className)}>
+      <dt className="text-muted-foreground text-xs">{label}</dt>
+      <dd className={cn('text-sm wrap-break-word', mono && 'font-mono break-all')}>{children}</dd>
+    </div>
+  );
+}
+
 export default function View() {
   const t = useTranslations('Setting');
   const tc = useTranslations('Common');
@@ -126,12 +158,12 @@ export default function View() {
   const user = data?.user;
   const name = user?.fullName || local.name;
   const email = user?.email || local.email;
+  const id = user?.id || local.id;
   const createdAt = user?.metadata?.createdAt ?? dateOrUndefined(local.createdAt);
   const updatedAt = user?.metadata?.updatedAt ?? dateOrUndefined(local.updatedAt);
   const na = tc('notAvailable');
 
-  const dateOf = (date?: Date) =>
-    date ? format.dateTime(date, { dateStyle: 'medium', timeStyle: 'short' }) : na;
+  const dateOf = (date?: Date) => (date ? format.dateTime(date, { dateStyle: 'medium' }) : na);
 
   const controlPlaneLabel = (controlPlane?: ControlPlane) => {
     switch (controlPlane) {
@@ -143,43 +175,55 @@ export default function View() {
         return na;
     }
   };
+  const controlPlane = controlPlaneLabel(user?.controlPlane ?? local.controlPlane);
 
   return (
     <PageLayout>
       <PageLayoutHeader title={t('accountTitle')} subtitle={t('accountSubtitle')} />
       <PageLayoutContent>
-        <div className="mx-auto w-full max-w-3xl py-4">
-          <InfoCard
-            title={
-              <div className="flex items-center gap-3">
-                <Avatar className="size-12 rounded-lg">
-                  <AvatarImage src={local.avatar || undefined} alt="" />
-                  <AvatarFallback className="rounded-lg">
-                    {(name || email).charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid min-w-0">
-                  <span className="truncate">{name || na}</span>
-                  <span className="text-muted-foreground truncate text-sm font-normal">
-                    {email}
-                  </span>
-                </div>
-              </div>
-            }
-          >
-            <InfoRow label={t('fullName')}>
-              <NameRow name={name} onSaved={onNameSaved} />
-            </InfoRow>
-            <InfoRow label={t('email')}>{email || na}</InfoRow>
-            <InfoRow label={t('userId')} mono>
-              {user?.id || local.id || na}
-            </InfoRow>
-            <InfoRow label={t('controlPlane')}>
-              {controlPlaneLabel(user?.controlPlane ?? local.controlPlane)}
-            </InfoRow>
-            <InfoRow label={t('createdAt')}>{dateOf(createdAt)}</InfoRow>
-            <InfoRow label={t('updatedAt')}>{dateOf(updatedAt)}</InfoRow>
-          </InfoCard>
+        <div className="mx-auto grid w-full max-w-3xl gap-6 py-4">
+          <Card>
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="text-primary size-5" aria-hidden />
+                {t('passportTitle')}
+              </CardTitle>
+              <CardDescription>Sentinéz</CardDescription>
+              {id && (
+                <CardAction>
+                  <Badge variant="outline" className="font-mono">
+                    {passportNumberOf(id)}
+                  </Badge>
+                </CardAction>
+              )}
+            </CardHeader>
+            <CardContent className="grid gap-6 sm:grid-cols-[8rem_minmax(0,1fr)]">
+              <Avatar className="h-40 w-32 justify-self-center rounded-md border">
+                <AvatarImage src={local.avatar || undefined} alt="" className="object-cover" />
+                <AvatarFallback className="rounded-md text-4xl">
+                  {(name || email).charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <dl className="grid content-start gap-4 sm:grid-cols-2">
+                <Field label={t('fullName')} className="sm:col-span-2">
+                  <NameRow userId={id} name={name} onSaved={onNameSaved} />
+                </Field>
+                <Field label={t('email')}>{email || na}</Field>
+                <Field label={t('controlPlane')}>{controlPlane}</Field>
+                <Field label={t('createdAt')}>{dateOf(createdAt)}</Field>
+                <Field label={t('updatedAt')}>{dateOf(updatedAt)}</Field>
+                <Field label={t('userId')} mono className="sm:col-span-2">
+                  {id || na}
+                </Field>
+              </dl>
+            </CardContent>
+            <CardFooter className="bg-muted/50 overflow-x-auto border-t">
+              <pre className="text-muted-foreground font-mono text-xs leading-relaxed tracking-widest">
+                {mrzLinesOf({ name, id, issuedAt: createdAt, updatedAt }).join('\n')}
+              </pre>
+            </CardFooter>
+          </Card>
+          <AccountsCard userId={id} />
         </div>
       </PageLayoutContent>
     </PageLayout>

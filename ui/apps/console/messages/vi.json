@@ -197,7 +197,18 @@
     "noTenant": "Chưa chọn tenant nào.",
     "tenantNotFound": "Không tìm thấy tenant đã chọn.",
     "editName": "Sửa",
-    "nameUpdated": "Đã cập nhật tên"
+    "nameUpdated": "Đã cập nhật tên",
+    "passportTitle": "Hộ chiếu",
+    "passportNo": "Số hộ chiếu",
+    "accountsTitle": "Phương thức đăng nhập",
+    "accountsSubtitle": "Các tài khoản đã liên kết với bạn, theo từng provider.",
+    "providerLocal": "Mật khẩu",
+    "providerPasskey": "Passkey",
+    "notLinked": "Chưa liên kết",
+    "linkedAt": "Liên kết ngày {date}",
+    "linkPasskey": "Thêm passkey",
+    "linkingPasskey": "Đang chờ passkey...",
+    "passkeyLinked": "Đã thêm passkey"
   },
   "Domain": {
     "title": "Tên miền",
