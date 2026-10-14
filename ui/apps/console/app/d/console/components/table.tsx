@@ -37,7 +37,9 @@ import {
 } from '@sentinez/ui/components/table';
 import { UniqueVisitorChart } from './chart';
 import BadgeStatus from '@/components/badge-status';
+import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
+import { useTenantId } from '@/hooks/use-tenant-id';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
 import type { Pages } from '@/lib/api/pages';
@@ -73,7 +75,7 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
       <div className="w-full lowercase truncate">
         <a
           className=" text-blue-700 font-semibold underline"
-          href={`/console/${row.original.name}/tenant/resource`}
+          href={`/d/console/${row.original.name}/tenant/resource`}
         >
           {row.getValue('name')}
         </a>
@@ -130,14 +132,21 @@ export function ResourceTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const fetchPage = React.useCallback(async (page: Pages, signal: AbortSignal) => {
-    const list = await listResources({ page }, { signal });
-    if (!list) throw new Error('list resources failed');
-    return { items: list.resources, total: list.total };
-  }, []);
-  const { items, total, loading, pagination, setPagination, pageCount } = usePagedList(
+  const [tenantId] = useTenantId();
+  const fetchPage = React.useCallback(
+    async (page: Pages, signal: AbortSignal) => {
+      const list = await listResources({ page, tenantIds: [tenantId] }, { signal });
+      if (!list) throw new Error('list resources failed');
+      return { items: list.resources, total: list.total };
+    },
+    [tenantId],
+  );
+  const { items, total, loading, pagination, setPagination, pageCount, refresh } = usePagedList(
     fetchPage,
     t('loadFailed'),
+    10,
+    // Wait for the selected tenant: it is unknown while rendering on the server
+    tenantId !== '',
   );
   const data = React.useMemo(() => items.map(rowOf), [items]);
 
@@ -172,6 +181,7 @@ export function ResourceTable() {
           onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
+        <RefreshButton className="ml-2" loading={loading} onRefresh={refresh} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

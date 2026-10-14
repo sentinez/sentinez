@@ -421,6 +421,7 @@ type CreateResourceRequest struct {
 	ResourceDomain  string                 `protobuf:"bytes,2,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	ResourceName    string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
 	Status          v1.Status              `protobuf:"varint,4,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	TenantId        string                 `protobuf:"bytes,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -483,6 +484,13 @@ func (x *CreateResourceRequest) GetStatus() v1.Status {
 	return v1.Status(0)
 }
 
+func (x *CreateResourceRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
 type CreateResourceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -533,6 +541,7 @@ type ListResourceRequest struct {
 	Status         v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	ResourceName   string                 `protobuf:"bytes,4,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
 	ResourceDomain string                 `protobuf:"bytes,5,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
+	TenantIds      []string               `protobuf:"bytes,6,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -593,6 +602,13 @@ func (x *ListResourceRequest) GetResourceDomain() string {
 		return x.ResourceDomain
 	}
 	return ""
+}
+
+func (x *ListResourceRequest) GetTenantIds() []string {
+	if x != nil {
+		return x.TenantIds
+	}
+	return nil
 }
 
 type ListResourceResponse struct {
@@ -1697,7 +1713,7 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
 	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"`\n" +
 	"\x12GetResourceRequest\x120\n" +
-	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xc8\x01\x00r\x18:\x16senz.tenant.resources.R\x02id\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB \xbaH\x1d\xd8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x12\x18\n" +
 	"\adefault\x18\x02 \x01(\bR\adefault\"k\n" +
 	"\x1aGetResourceByDomainRequest\x12M\n" +
 	"\x0fresource_domain\x18\x01 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\"\\\n" +
@@ -1714,19 +1730,22 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12S\n" +
 	"\x10resource_setting\x18\x05 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\"\x18\n" +
-	"\x16UpdateResourceResponse\"\xb9\x02\n" +
+	"\x16UpdateResourceResponse\"\xef\x02\n" +
 	"\x15CreateResourceRequest\x12S\n" +
 	"\x10resource_setting\x18\x01 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x02 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x03 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\"W\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x124\n" +
+	"\ttenant_id\x18\x05 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\btenantId\"W\n" +
 	"\x16CreateResourceResponse\x12=\n" +
-	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"\x90\x02\n" +
+	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"\xd2\x02\n" +
 	"\x13ListResourceRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x121\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12I\n" +
-	"\rresource_name\x18\x04 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x12M\n" +
-	"\x0fresource_domain\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\"m\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12L\n" +
+	"\rresource_name\x18\x04 \x01(\tB'\xbaH$\xd8\x01\x01r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x12P\n" +
+	"\x0fresource_domain\x18\x05 \x01(\tB'\xbaH$\xd8\x01\x01r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12:\n" +
+	"\n" +
+	"tenant_ids\x18\x06 \x03(\tB\x1b\xbaH\x18\x92\x01\x15\x18\x01\"\x11r\x0f:\rsenz.tenants.R\ttenantIds\"m\n" +
 	"\x14ListResourceResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12?\n" +
 	"\tresources\x18\x02 \x03(\v2!.sentinez.apps.tenant.v1.ResourceR\tresources\"*\n" +

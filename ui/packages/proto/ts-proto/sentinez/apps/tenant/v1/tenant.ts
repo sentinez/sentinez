@@ -62,6 +62,7 @@ export interface CreateResourceRequest {
   resourceDomain: string;
   resourceName: string;
   status: Status;
+  tenantId: string;
 }
 
 export interface CreateResourceResponse {
@@ -73,6 +74,7 @@ export interface ListResourceRequest {
   status: Status;
   resourceName: string;
   resourceDomain: string;
+  tenantIds: string[];
 }
 
 export interface ListResourceResponse {
@@ -796,7 +798,7 @@ export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
 };
 
 function createBaseCreateResourceRequest(): CreateResourceRequest {
-  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0 };
+  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0, tenantId: "" };
 }
 
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
@@ -812,6 +814,9 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     }
     if (message.status !== 0) {
       writer.uint32(32).int32(message.status);
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(42).string(message.tenantId);
     }
     return writer;
   },
@@ -861,6 +866,14 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
             message.status = reader.int32() as any;
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -891,6 +904,11 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
         ? globalThis.String(object.resource_name)
         : "",
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
     };
   },
 
@@ -908,6 +926,9 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
     return obj;
   },
 
@@ -922,6 +943,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
     message.resourceDomain = object.resourceDomain ?? "";
     message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
+    message.tenantId = object.tenantId ?? "";
     return message;
   },
 };
@@ -996,7 +1018,7 @@ export const CreateResourceResponse: MessageFns<CreateResourceResponse> = {
 };
 
 function createBaseListResourceRequest(): ListResourceRequest {
-  return { page: undefined, status: 0, resourceName: "", resourceDomain: "" };
+  return { page: undefined, status: 0, resourceName: "", resourceDomain: "", tenantIds: [] };
 }
 
 export const ListResourceRequest: MessageFns<ListResourceRequest> = {
@@ -1012,6 +1034,9 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     }
     if (message.resourceDomain !== "") {
       writer.uint32(42).string(message.resourceDomain);
+    }
+    for (const v of message.tenantIds) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -1061,6 +1086,14 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
             message.resourceDomain = reader.string();
             continue;
           }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.tenantIds.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1087,6 +1120,11 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
         : isSet(object.resource_domain)
         ? globalThis.String(object.resource_domain)
         : "",
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -1104,6 +1142,9 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     if (message.resourceDomain !== "") {
       obj.resourceDomain = message.resourceDomain;
     }
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
+    }
     return obj;
   },
 
@@ -1116,6 +1157,7 @@ export const ListResourceRequest: MessageFns<ListResourceRequest> = {
     message.status = object.status ?? 0;
     message.resourceName = object.resourceName ?? "";
     message.resourceDomain = object.resourceDomain ?? "";
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
     return message;
   },
 };

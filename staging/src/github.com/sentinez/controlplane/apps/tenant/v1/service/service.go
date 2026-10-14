@@ -97,6 +97,7 @@ func (svc *Service) CreateResource(ctx context.Context,
 		ResourceDomain:  req.GetResourceDomain(),
 		ResourceName:    req.GetResourceName(),
 		Status:          req.GetStatus(),
+		TenantId:        req.GetTenantId(),
 	}
 
 	if resource.GetResourceSetting() == nil {

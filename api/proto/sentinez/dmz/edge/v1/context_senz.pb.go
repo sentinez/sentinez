@@ -2,16 +2,3 @@
 // Copyright 2025 Duc-Hung Ho
 
 package edgepb
-
-import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
-)
-
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)

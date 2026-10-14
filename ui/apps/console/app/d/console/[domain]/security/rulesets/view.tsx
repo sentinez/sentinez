@@ -53,6 +53,7 @@ import { ENGINE_MODE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
 import { useDebounced } from '@/hooks/use-debounced';
+import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { useSecurityOptions } from '@/hooks/use-security-options';
@@ -288,7 +289,7 @@ export default function View() {
 
       <PageLayoutContent>
         <div className="w-full">
-          <div className="flex flex-wrap items-center gap-2 py-4">
+          <div className="flex items-center gap-2 pt-4 pb-2">
             <Input
               aria-label={tc('filterNames')}
               placeholder={tc('filterNames')}
@@ -296,6 +297,33 @@ export default function View() {
               onChange={(event) => setName(event.target.value)}
               className="max-w-sm"
             />
+            <RefreshButton loading={loading} onRefresh={refresh} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  {tc('columns')} <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      >
+                        {column.columnDef.meta?.label ?? column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pb-4">
             <Select value={String(mode)} onValueChange={(v) => setMode(Number(v) as EngineMode)}>
               <SelectTrigger className="w-44" aria-label={t('mode')}>
                 <SelectValue />
@@ -326,30 +354,6 @@ export default function View() {
                 ))}
               </SelectContent>
             </Select>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  {tc('columns')} <ChevronDown />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {column.columnDef.meta?.label ?? column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
           <div className="overflow-hidden rounded-md">
             <Table className="table-fixed w-full">

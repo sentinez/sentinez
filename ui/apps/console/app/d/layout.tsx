@@ -2,7 +2,7 @@ import { SidebarProvider } from '@sentinez/ui/components/sidebar';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import styles from '@/app/console/console.module.scss';
+import styles from '@/app/d/d.module.scss';
 import { RouteGuard } from '@/components/session-redirect';
 
 export async function generateMetadata(): Promise<Metadata> {

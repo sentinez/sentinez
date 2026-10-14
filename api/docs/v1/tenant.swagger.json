@@ -418,6 +418,16 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "tenantIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -766,6 +776,9 @@
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
+        },
+        "tenantId": {
+          "type": "string"
         }
       }
     },

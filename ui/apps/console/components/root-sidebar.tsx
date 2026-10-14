@@ -100,11 +100,11 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     for (const [index, item] of navMain.entries()) {
       const matchedChild = item.items?.find((subItem: any) =>
-        subItem.url === '/console' ? pathname === '/console' : pathname.startsWith(subItem.url),
+        subItem.url === '/d/console' ? pathname === '/d/console' : pathname.startsWith(subItem.url),
       );
       const itemMatches =
-        item.url === '/console'
-          ? pathname === '/console' || pathname.startsWith('/console/')
+        item.url === '/d/console'
+          ? pathname === '/d/console' || pathname.startsWith('/d/console/')
           : pathname.startsWith(item.url);
 
       if (itemMatches || matchedChild) {
@@ -227,7 +227,7 @@ export function RootSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <Link href="/console">
+                <Link href="/d/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image
                       src="/assets/sntz.png"

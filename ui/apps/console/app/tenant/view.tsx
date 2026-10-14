@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import Language from '@/components/language';
+import { RefreshButton } from '@/components/refresh-button';
 import { UserMenu } from '@/components/user-menu';
 import { useApi } from '@/hooks/use-api';
 import { useDebounced } from '@/hooks/use-debounced';
@@ -61,16 +62,19 @@ export default function View() {
         </div>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-6 sm:gap-10">
-        <div className="relative w-full max-w-sm">
-          <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
-            type="search"
-            value={search}
-            placeholder={t('searchPlaceholder')}
-            aria-label={t('searchPlaceholder')}
-            className="pl-9"
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex w-full max-w-sm items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              type="search"
+              value={search}
+              placeholder={t('searchPlaceholder')}
+              aria-label={t('searchPlaceholder')}
+              className="pl-9"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <RefreshButton loading={isLoading} onRefresh={refresh} />
         </div>
         <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-10">
           {tenants.length > 0 && (

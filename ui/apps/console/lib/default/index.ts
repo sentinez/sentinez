@@ -51,19 +51,19 @@ export const dashboard: {
   rootNavMain: [
     {
       titleKey: 'console',
-      url: '/console/domain',
+      url: '/d/console/domain',
       icon: Gamepad2,
       isActive: true,
       items: [
         {
           titleKey: 'domains',
-          url: '/console/domain',
+          url: '/d/console/domain',
           icon: Globe,
           items: [],
         },
         {
           titleKey: 'member',
-          url: '/console/member',
+          url: '/d/console/member',
           icon: Building2,
           items: [],
         },
@@ -71,19 +71,19 @@ export const dashboard: {
     },
     {
       titleKey: 'setting',
-      url: '/console/setting',
+      url: '/d/setting',
       icon: Settings,
       isActive: false,
       items: [
         {
           titleKey: 'account',
-          url: '/console/setting/account',
+          url: '/d/setting/account',
           icon: BadgeCheck,
           items: [],
         },
         {
           titleKey: 'tenant',
-          url: '/console/setting/tenant',
+          url: '/d/setting/tenant',
           icon: Building2,
           items: [],
         },
@@ -93,80 +93,80 @@ export const dashboard: {
   domainNavMain: [
     {
       titleKey: 'tenant',
-      url: '/console/tenant/resource',
+      url: '/d/console/tenant/resource',
       icon: User,
       isActive: true,
       items: [
         {
           titleKey: 'resource',
-          url: '/console/tenant/resource',
+          url: '/d/console/tenant/resource',
           icon: Server,
         },
       ],
     },
     {
       titleKey: 'delivery',
-      url: '/console/delivery/cdn',
+      url: '/d/console/delivery/cdn',
       icon: Truck,
       isActive: false,
       items: [
         {
           titleKey: 'cdn',
-          url: '/console/delivery/cdn',
+          url: '/d/console/delivery/cdn',
           icon: Globe,
         },
       ],
     },
     {
       titleKey: 'security',
-      url: '/console/security/rate-limiter',
+      url: '/d/console/security/rate-limiter',
       icon: Shield,
       isActive: false,
       items: [
         {
           titleKey: 'rateLimiter',
-          url: '/console/security/rate-limiter',
+          url: '/d/console/security/rate-limiter',
           icon: Signal,
         },
         {
           titleKey: 'secRule',
-          url: '/console/security/sec-rule',
+          url: '/d/console/security/sec-rule',
           icon: ShieldCheck,
         },
         {
           titleKey: 'rulesets',
-          url: '/console/security/rulesets',
+          url: '/d/console/security/rulesets',
           icon: BrickWallFire,
         },
       ],
     },
     {
       titleKey: 'analytic',
-      url: '/console/analytic/logs',
+      url: '/d/console/analytic/logs',
       icon: Activity,
       isActive: false,
       items: [
         {
           titleKey: 'logs',
-          url: '/console/analytic/logs',
+          url: '/d/console/analytic/logs',
           icon: SquareActivity,
           isActive: true,
           items: [
             {
               titleKey: 'secRule',
-              url: '/console/analytic/logs/security/sec-rule',
+              url: '/d/console/analytic/logs/security/sec-rule',
               icon: ShieldCheck,
             },
             {
               titleKey: 'rulesets',
-              url: '/console/analytic/logs/security/rulesets',
+              url: '/d/console/analytic/logs/security/rulesets',
               icon: BrickWallFire,
             },
           ],
         },
         {
           titleKey: 'activity',
-          url: '/console/analytic/activity',
+          url: '/d/console/analytic/activity',
           icon: ShieldAlert,
         },
       ],

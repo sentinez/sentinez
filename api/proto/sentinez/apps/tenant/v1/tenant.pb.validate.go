@@ -654,6 +654,8 @@ func (m *CreateResourceRequest) Validate() error {
 
 	// no validation rules for Status
 
+	// no validation rules for TenantId
+
 	return nil
 }
 

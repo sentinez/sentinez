@@ -30,6 +30,7 @@ const NO_USER: UserDataLocal = {
   controlPlane: ControlPlane.CONTROL_PLANE_UNSPECIFIED,
   createdAt: '',
   updatedAt: '',
+  fullName: ''
 };
 
 const storedUser = () => localStorage.getItem(SENTINEZ_USER_KEY);
@@ -47,7 +48,7 @@ export function useLocalUser(): UserDataLocal {
       if (!stored) return NO_USER;
       const user: UserDataLocal = { ...NO_USER, ...JSON.parse(stored) };
       // seeded by the id so the avatar is stable; older sessions only have the email
-      return { ...user, avatar: avatarOf(user.id || user.email) };
+      return { ...user, avatar: avatarOf(user.fullName || user.id) };
     } catch {
       // a corrupt entry leaves the menu without user info; logout still works
       return NO_USER;

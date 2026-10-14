@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default async function Page() {
-  redirect('/console/domain');
+  redirect('/d/console/domain');
 }

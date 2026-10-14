@@ -1,5 +1,5 @@
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
-import { ResourceTable } from '@/app/console/components/table';
+import { ResourceTable } from '@/app/d/console/components/table';
 import { Button } from '@sentinez/ui/components/button';
 import { PlusIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ export default async function Page() {
     <PageLayout>
       <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}>
         <Button size="sm" asChild>
-          <Link href="/console/domain/new">
+          <Link href="/d/console/domain/new">
             <PlusIcon className="w-4 h-4" />
             {tc('create')}
           </Link>

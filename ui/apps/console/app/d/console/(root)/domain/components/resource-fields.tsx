@@ -94,14 +94,15 @@ export function resourceFormOf(r: Resource): ResourceFormValue {
   };
 }
 
-/** Form value -> CreateResourceRequest (API) */
-export function resourceOf(f: ResourceFormValue): CreateResourceRequest {
+/** Form value -> CreateResourceRequest (API) for a resource of `tenantId` */
+export function resourceOf(f: ResourceFormValue, tenantId: string): CreateResourceRequest {
   const name = f.resourceName.trim();
   const origins = f.origins.filter((o) => o.server.trim());
   return {
     resourceName: name,
     resourceDomain: f.resourceDomain.trim(),
     status: f.status,
+    tenantId,
     resourceSetting:
       origins.length === 0
         ? undefined

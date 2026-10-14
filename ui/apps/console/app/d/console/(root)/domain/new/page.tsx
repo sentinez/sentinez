@@ -14,12 +14,14 @@ import {
 import { createResource } from '@/lib/api/tenant';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useState } from 'react';
+import { useTenantId } from '@/hooks/use-tenant-id';
 
 export default function CreateResourcePage() {
   const t = useTranslations('Domain');
   const tc = useTranslations('Common');
   const tv = useTranslations('Validation');
   const router = useRouter();
+  const [tenantId] = useTenantId();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<ResourceFormValue>(createEmptyResourceForm);
   const patchForm = (patch: Partial<ResourceFormValue>) => setForm((f) => ({ ...f, ...patch }));
@@ -33,7 +35,7 @@ export default function CreateResourcePage() {
 
     setSaving(true);
     try {
-      await createResource(resourceOf(form));
+      await createResource(resourceOf(form, tenantId));
       toast.success(t('created'));
       router.back();
     } catch {

@@ -332,17 +332,17 @@ const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
 	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"G\n" +
 	"\x0fResourceSetting\x124\n" +
-	"\x06server\x18\x01 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\"\xd5\x03\n" +
-	"\bResource\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x120\n" +
+	"\x06server\x18\x01 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\"\xdd\x03\n" +
+	"\bResource\x12?\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x120\n" +
 	"\x02id\x18\x02 \x01(\tB \xbaH\x1d\xc8\x01\x01r\x18:\x16senz.tenant.resources.R\x02id\x124\n" +
 	"\ttenant_id\x18\x03 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\btenantId\x12S\n" +
 	"\x10resource_setting\x18\x04 \x01(\v2(.sentinez.apps.tenant.v1.ResourceSettingR\x0fresourceSetting\x12M\n" +
 	"\x0fresource_domain\x18\x05 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\x0eresourceDomain\x12I\n" +
 	"\rresource_name\x18\x06 \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\fresourceName\x121\n" +
-	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\x06\xca\xf3\x18\x02\b\x01\"\xd5\x01\n" +
-	"\x06Tenant\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12'\n" +
+	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\x06\xca\xf3\x18\x02\b\x01\"\xdd\x01\n" +
+	"\x06Tenant\x12?\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12'\n" +
 	"\x02id\x18\x02 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12+\n" +

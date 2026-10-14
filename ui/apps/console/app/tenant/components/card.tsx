@@ -66,7 +66,7 @@ export function Tenant({ tenant }: { tenant: TenantModel }) {
         <Badge variant="secondary">{planLabel(tenant.plan)}</Badge>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Link href="/console/domain" className="w-full" onClick={() => selectTenant(tenant.id)}>
+        <Link href="/d/console/domain" className="w-full" onClick={() => selectTenant(tenant.id)}>
           <Button className="w-full cursor-pointer">
             {t('go')} <MoveRight />
           </Button>

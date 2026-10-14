@@ -13,12 +13,18 @@ export interface PagedResult<T> {
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
+// A fetch stays loading at least this long, so the skeleton rows do not flash
+const MIN_LOADING_MILLIS = 500;
+
+const sleep = (millis: number) => new Promise<void>((resolve) => setTimeout(resolve, millis));
+
 /**
  * Server-side pagination for list tables: loads one page at a time through
  * `fetchPage` (memoize it with useCallback) and refetches when the page,
  * page size or `fetchPage` changes. The table keeps a 0-based pageIndex; the
  * API gets a 1-based `page.index`. While `enabled` is false nothing is fetched
  * and the list stays loading (e.g. a filter the request needs is not known yet).
+ * `loading` lasts at least MIN_LOADING_MILLIS per fetch; a failure ends it at once.
  */
 export function usePagedList<T>(
   fetchPage: (page: Pages, signal: AbortSignal) => Promise<PagedResult<T>>,
@@ -40,8 +46,11 @@ export function usePagedList<T>(
     const controller = new AbortController();
     const { pageIndex, pageSize } = pagination;
     setLoading(true);
-    fetchPage({ index: pageIndex + 1, size: pageSize, total: true }, controller.signal)
-      .then((res) => {
+    Promise.all([
+      fetchPage({ index: pageIndex + 1, size: pageSize, total: true }, controller.signal),
+      sleep(MIN_LOADING_MILLIS),
+    ])
+      .then(([res]) => {
         // The last page emptied (e.g. after a delete): step back to the new last page
         const last = Math.max(0, Math.ceil(res.total / pageSize) - 1);
         if (res.items.length === 0 && pageIndex > last) {

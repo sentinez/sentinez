@@ -40,43 +40,37 @@ import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { listSecRules, type Pages, deleteSecRule } from '@/lib/api/security';
+import { listRateLimits, type Pages, deleteRateLimit } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { Badge } from '@sentinez/ui/components/badge';
-import { ActionValue, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
-import {
-  ActionType,
-  Expression,
-  actionTypeFromJSON,
-} from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { ACTION_TYPE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
-import { useSecurityOptions } from '@/hooks/use-security-options';
+import { RateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
+import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useCallback, useMemo, useState } from 'react';
 
-type SecRuleTranslator = ReturnType<typeof useTranslations<'SecRule'>>;
+type RateLimiterTranslator = ReturnType<typeof useTranslations<'RateLimiter'>>;
 type CommonTranslator = ReturnType<typeof useTranslations<'Common'>>;
 
 export const getColumns = (
-  t: SecRuleTranslator,
+  t: RateLimiterTranslator,
   tc: CommonTranslator,
-  actionTypeLabel: (type: ActionType) => string,
-  onDelete: (rule: SecRule) => void,
-): ColumnDef<SecRule>[] => [
+  onDelete: (rule: RateLimit) => void,
+): ColumnDef<RateLimit>[] => [
   {
-    accessorKey: 'name',
+    id: 'name',
+    accessorFn: (r) => r.name,
     size: 220,
     meta: { label: t('name') },
-    header: ({ column }) => <div className="w-full">{t('name')}</div>,
+    header: () => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./sec-rule/${row.original.id}`}
+          href={`./rate-limiter/${row.original.id}`}
         >
           {row.original.name}
         </Link>
@@ -95,21 +89,25 @@ export const getColumns = (
     ),
   },
   {
-    id: 'action',
-    size: 140,
-    meta: { label: t('action') },
-    header: () => <div>{t('action')}</div>,
-    cell: ({ row }) => {
-      const { action, actionValue } = row.original;
-      const type = action ? actionTypeFromJSON(action) : ActionType.ACTION_TYPE_UNSPECIFIED;
-      const label = actionTypeLabel(type);
-      const params = actionValue ? JSON.stringify(ActionValue.toJSON(actionValue)) : undefined;
-      return (
-        <div className="truncate" title={params}>
-          <Badge variant={ACTION_TYPE_BADGE_VARIANT[type]}>{label}</Badge>
-        </div>
-      );
-    },
+    id: 'limit',
+    size: 150,
+    meta: { label: t('limit') },
+    header: () => <div>{t('limit')}</div>,
+    cell: ({ row }) => (
+      <div className="truncate tabular-nums">
+        {t('limitValue', {
+          max: row.original.maxRequests,
+          window: row.original.timeWindow || '?',
+        })}
+      </div>
+    ),
+  },
+  {
+    id: 'timeout',
+    size: 120,
+    meta: { label: t('blockTimeout') },
+    header: () => <div>{t('blockTimeout')}</div>,
+    cell: ({ row }) => <div className="truncate tabular-nums">{row.original.timeout || '—'}</div>,
   },
   {
     accessorKey: 'status',
@@ -120,7 +118,7 @@ export const getColumns = (
       const s = statusLabel(row.original.status);
       return (
         <div className="capitalize">
-          <BadgeStatus status={s as any} value={s} />
+          <BadgeStatus status={s} value={s} />
         </div>
       );
     },
@@ -161,10 +159,9 @@ export const getColumns = (
 ];
 
 export default function View() {
-  const t = useTranslations('SecRule');
+  const t = useTranslations('RateLimiter');
   const tc = useTranslations('Common');
-  const { actionTypeLabel } = useSecurityOptions();
-  const [deleting, setDeleting] = useState<SecRule | null>(null);
+  const [deleting, setDeleting] = useState<RateLimit | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -177,8 +174,8 @@ export default function View() {
   const fetchPage = useCallback(
     async (page: Pages, signal: AbortSignal) => {
       if (!resourceId) return { items: [], total: 0 };
-      const res = await listSecRules({ page, resourceIds: [resourceId] }, { signal });
-      return { items: res.secRules, total: res.total };
+      const res = await listRateLimits({ page, resourceIds: [resourceId] }, { signal });
+      return { items: res.rateLimits, total: res.total };
     },
     [resourceId],
   );
@@ -197,23 +194,20 @@ export default function View() {
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteSecRule({ id });
+      await deleteRateLimit({ id });
       toast.success(t('deleted'));
       setDeleting(null);
       refresh();
-    } catch (err: any) {
+    } catch {
       toast.error(t('deleteFailed'));
     } finally {
       setDeletingBusy(false);
     }
   };
 
-  const columns = useMemo(
-    () => getColumns(t, tc, actionTypeLabel, setDeleting),
-    [t, tc, actionTypeLabel],
-  );
+  const columns = useMemo(() => getColumns(t, tc, setDeleting), [t, tc]);
 
-  const table = useReactTable<SecRule>({
+  const table = useReactTable<RateLimit>({
     data: rules,
     columns,
     onSortingChange: setSorting,
@@ -239,7 +233,7 @@ export default function View() {
     <PageLayout>
       <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}>
         <Button size="sm" asChild>
-          <Link href="./sec-rule/new">
+          <Link href="./rate-limiter/new">
             <PlusIcon className="w-4 h-4" />
             {tc('create')}
           </Link>
@@ -255,6 +249,7 @@ export default function View() {
               onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
               className="max-w-sm"
             />
+            <RefreshButton className="ml-2" loading={loading} onRefresh={refresh} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">

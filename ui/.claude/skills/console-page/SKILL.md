@@ -6,14 +6,14 @@ argument-hint: '<route> (e.g. security/rate-limiter)'
 
 # Console page conventions
 
-Reference implementations: `app/console/[domain]/security/sec-rule/` and
-`app/console/[domain]/security/rate-limiter/`.
+Reference implementations: `app/d/console/[domain]/security/sec-rule/` and
+`app/d/console/[domain]/security/rate-limiter/`.
 For the API client the page calls, follow the `swagger-api-client` skill first.
 
 ## 1. Sidebar-tab pages MUST show the loading effect
 
-Every page reached from the **root sidebar** (`app/console/(root)/...`, `app/tenant`)
-or the **domain sidebar** (`app/console/[domain]/...`) keeps an intentional delay so
+Every page reached from the **root sidebar** (`app/d/console/(root)/...`, `app/d/setting`, `app/tenant`)
+or the **domain sidebar** (`app/d/console/[domain]/...`) keeps an intentional delay so
 `loading.tsx` is visible when switching tabs. This is deliberate. Never remove it as
 "dead code", and add it to every new sidebar-level page.
 

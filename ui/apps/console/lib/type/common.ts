@@ -10,6 +10,7 @@ export interface StoredUser {
   /** ISO 8601, '' when unknown */
   createdAt: string;
   updatedAt: string;
+  fullName: string;
 }
 
 /** StoredUser as components read it (see useLocalUser) */

@@ -245,7 +245,7 @@ service TenantService {
 
 message GetResourceRequest {
   string id = 1 [(buf.validate.field) = {
-    required: false
+    ignore: IGNORE_IF_ZERO_VALUE
     string: { prefix: "senz.tenant.resources." }
   }];
   bool default = 2;
@@ -295,6 +295,11 @@ message CreateResourceRequest {
   string resource_name = 3
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   sentinez.types.v1.Status status = 4;
+  
+  string tenant_id = 5 [(buf.validate.field) = {
+    required: true
+    string: { prefix: "senz.tenants." }
+  }];
 }
 
 message CreateResourceResponse {
@@ -304,10 +309,27 @@ message CreateResourceResponse {
 message ListResourceRequest {
   sentinez.types.v1.Pages page = 1;
   sentinez.types.v1.Status status = 2;
-  string resource_name = 4
-      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string resource_domain = 5
-      [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+
+  string resource_name = 4 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {
+      pattern: "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"
+    }
+  }];
+
+  string resource_domain = 5 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {
+      pattern: "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"
+    }
+  }];
+
+  repeated string tenant_ids = 6 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      items: { string: { prefix: "senz.tenants." } }
+    }
+  }];
 }
 
 message ListResourceResponse {
@@ -329,7 +351,7 @@ message GetMemberRequest {
 }
 
 message GetMemberResponse {
-  Member member = 1;
+  sentinez.apps.tenant.v1.Member member = 1;
 }
 
 message DeleteMemberRequest {
@@ -377,7 +399,7 @@ message CreateMemberRequest {
 }
 
 message CreateMemberResponse {
-  Member member = 1;
+  sentinez.apps.tenant.v1.Member member = 1;
 }
 
 message ListMemberRequest {

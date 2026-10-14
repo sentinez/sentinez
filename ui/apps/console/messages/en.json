@@ -26,6 +26,7 @@
     "notAvailable": "N/A",
     "back": "Back",
     "done": "Done",
+    "refresh": "Refresh",
     "deleteConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
   },
   "Language": {

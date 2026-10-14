@@ -241,6 +241,8 @@ export async function listResources(req: Partial<ListResourceRequest> = {}, opti
     })(async () => {
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resources`, {
         params: toQuery(ListResourceRequest.toJSON(ListResourceRequest.fromPartial(req))),
+        // repeated fields as ?tenantIds=a&tenantIds=b
+        paramsSerializer: { indexes: null },
         signal: options?.signal,
       });
       return ListResourceResponse.fromJSON(resp.data ?? {});

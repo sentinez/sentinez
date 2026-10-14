@@ -12,157 +12,100 @@ import {
   fieldDescriptorProto_TypeToJSON,
 } from "../../google/protobuf/descriptor";
 import { Duration } from "../../google/protobuf/duration";
+import { FieldMask } from "../../google/protobuf/field_mask";
 import { Timestamp } from "../../google/protobuf/timestamp";
 
 export const protobufPackage = "buf.validate";
 
 /**
- * Specifies how FieldConstraints.ignore behaves. See the documentation for
- * FieldConstraints.required for definitions of "populated" and "nullable".
+ * Specifies how `FieldRules.ignore` behaves, depending on the field's value, and
+ * whether the field tracks presence.
  */
 export enum Ignore {
   /**
-   * IGNORE_UNSPECIFIED - Validation is only skipped if it's an unpopulated nullable fields.
+   * IGNORE_UNSPECIFIED - Ignore rules if the field tracks presence and is unset. This is the default
+   * behavior.
+   *
+   * In proto3, only message fields, members of a Protobuf `oneof`, and fields
+   * with the `optional` label track presence. Consequently, the following fields
+   * are always validated, whether a value is set or not:
    *
    * ```proto
    * syntax="proto3";
    *
-   * message Request {
-   *   // The uri rule applies to any value, including the empty string.
-   *   string foo = 1 [
-   *     (buf.validate.field).string.uri = true
+   * message RulesApply {
+   *   string email = 1 [
+   *     (buf.validate.field).string.email = true
    *   ];
-   *
-   *   // The uri rule only applies if the field is set, including if it's
-   *   // set to the empty string.
-   *   optional string bar = 2 [
-   *     (buf.validate.field).string.uri = true
+   *   int32 age = 2 [
+   *     (buf.validate.field).int32.gt = 0
    *   ];
-   *
-   *   // The min_items rule always applies, even if the list is empty.
-   *   repeated string baz = 3 [
-   *     (buf.validate.field).repeated.min_items = 3
+   *   repeated string labels = 3 [
+   *     (buf.validate.field).repeated.min_items = 1
    *   ];
+   * }
+   * ```
    *
-   *   // The custom CEL rule applies only if the field is set, including if
-   *   // it's the "zero" value of that message.
-   *   SomeMessage quux = 4 [
+   * In contrast, the following fields track presence, and are only validated if
+   * a value is set:
+   *
+   * ```proto
+   * syntax="proto3";
+   *
+   * message RulesApplyIfSet {
+   *   optional string email = 1 [
+   *     (buf.validate.field).string.email = true
+   *   ];
+   *   oneof ref {
+   *     string reference = 2 [
+   *       (buf.validate.field).string.uuid = true
+   *     ];
+   *     string name = 3 [
+   *       (buf.validate.field).string.min_len = 4
+   *     ];
+   *   }
+   *   SomeMessage msg = 4 [
    *     (buf.validate.field).cel = {/* ... * /}
    *   ];
    * }
    * ```
+   *
+   * To ensure that such a field is set, add the `required` rule.
+   *
+   * To learn which fields track presence, see the
+   * [Field Presence cheat sheet](https://protobuf.dev/programming-guides/field_presence/#cheat).
    */
   IGNORE_UNSPECIFIED = 0,
   /**
-   * IGNORE_IF_UNPOPULATED - Validation is skipped if the field is unpopulated. This rule is redundant
-   * if the field is already nullable.
+   * IGNORE_IF_ZERO_VALUE - Ignore rules if the field is unset, or set to the zero value.
    *
-   * ```proto
-   * syntax="proto3
+   * The zero value depends on the field type:
+   * - For strings, the zero value is the empty string.
+   * - For bytes, the zero value is empty bytes.
+   * - For bool, the zero value is false.
+   * - For numeric types, the zero value is zero.
+   * - For enums, the zero value is the first defined enum value.
+   * - For repeated fields, the zero is an empty list.
+   * - For map fields, the zero is an empty map.
+   * - For message fields, absence of the message (typically a null-value) is considered zero value.
    *
-   * message Request {
-   *   // The uri rule applies only if the value is not the empty string.
-   *   string foo = 1 [
-   *     (buf.validate.field).string.uri = true,
-   *     (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
-   *   ];
-   *
-   *   // IGNORE_IF_UNPOPULATED is equivalent to IGNORE_UNSPECIFIED in this
-   *   // case: the uri rule only applies if the field is set, including if
-   *   // it's set to the empty string.
-   *   optional string bar = 2 [
-   *     (buf.validate.field).string.uri = true,
-   *     (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
-   *   ];
-   *
-   *   // The min_items rule only applies if the list has at least one item.
-   *   repeated string baz = 3 [
-   *     (buf.validate.field).repeated.min_items = 3,
-   *     (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
-   *   ];
-   *
-   *   // IGNORE_IF_UNPOPULATED is equivalent to IGNORE_UNSPECIFIED in this
-   *   // case: the custom CEL rule applies only if the field is set, including
-   *   // if it's the "zero" value of that message.
-   *   SomeMessage quux = 4 [
-   *     (buf.validate.field).cel = {/* ... * /},
-   *     (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
-   *   ];
-   * }
-   * ```
+   * For fields that track presence (e.g. adding the `optional` label in proto3),
+   * this a no-op and behavior is the same as the default `IGNORE_UNSPECIFIED`.
    */
-  IGNORE_IF_UNPOPULATED = 1,
+  IGNORE_IF_ZERO_VALUE = 1,
   /**
-   * IGNORE_IF_DEFAULT_VALUE - Validation is skipped if the field is unpopulated or if it is a nullable
-   * field populated with its default value. This is typically the zero or
-   * empty value, but proto2 scalars support custom defaults. For messages, the
-   * default is a non-null message with all its fields unpopulated.
+   * IGNORE_ALWAYS - Always ignore rules, including the `required` rule.
    *
-   * ```proto
-   * syntax="proto3
-   *
-   * message Request {
-   *   // IGNORE_IF_DEFAULT_VALUE is equivalent to IGNORE_IF_UNPOPULATED in
-   *   // this case; the uri rule applies only if the value is not the empty
-   *   // string.
-   *   string foo = 1 [
-   *     (buf.validate.field).string.uri = true,
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE
-   *   ];
-   *
-   *   // The uri rule only applies if the field is set to a value other than
-   *   // the empty string.
-   *   optional string bar = 2 [
-   *     (buf.validate.field).string.uri = true,
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE
-   *   ];
-   *
-   *   // IGNORE_IF_DEFAULT_VALUE is equivalent to IGNORE_IF_UNPOPULATED in
-   *   // this case; the min_items rule only applies if the list has at least
-   *   // one item.
-   *   repeated string baz = 3 [
-   *     (buf.validate.field).repeated.min_items = 3,
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE
-   *   ];
-   *
-   *   // The custom CEL rule only applies if the field is set to a value other
-   *   // than an empty message (i.e., fields are unpopulated).
-   *   SomeMessage quux = 4 [
-   *     (buf.validate.field).cel = {/* ... * /},
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE
-   *   ];
-   * }
-   * ```
-   *
-   * This rule is affected by proto2 custom default values:
-   *
-   * ```proto
-   * syntax="proto2";
-   *
-   * message Request {
-   *   // The gt rule only applies if the field is set and it's value is not
-   *   the default (i.e., not -42). The rule even applies if the field is set
-   *   to zero since the default value differs.
-   *   optional int32 value = 1 [
-   *     default = -42,
-   *     (buf.validate.field).int32.gt = 0,
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE
-   *   ];
-   * }
-   */
-  IGNORE_IF_DEFAULT_VALUE = 2,
-  /**
-   * IGNORE_ALWAYS - The validation rules of this field will be skipped and not evaluated. This
-   * is useful for situations that necessitate turning off the rules of a field
-   * containing a message that may not make sense in the current context, or to
-   * temporarily disable constraints during development.
+   * This is useful for ignoring the rules of a referenced message, or to
+   * temporarily ignore rules during development.
    *
    * ```proto
    * message MyMessage {
-   *   // The field's rules will always be ignored, including any validation's
+   *   // The field's rules will always be ignored, including any validations
    *   // on value's fields.
    *   MyOtherMessage value = 1 [
-   *     (buf.validate.field).ignore = IGNORE_ALWAYS];
+   *     (buf.validate.field).ignore = IGNORE_ALWAYS
+   *   ];
    * }
    * ```
    */
@@ -176,11 +119,8 @@ export function ignoreFromJSON(object: any): Ignore {
     case "IGNORE_UNSPECIFIED":
       return Ignore.IGNORE_UNSPECIFIED;
     case 1:
-    case "IGNORE_IF_UNPOPULATED":
-      return Ignore.IGNORE_IF_UNPOPULATED;
-    case 2:
-    case "IGNORE_IF_DEFAULT_VALUE":
-      return Ignore.IGNORE_IF_DEFAULT_VALUE;
+    case "IGNORE_IF_ZERO_VALUE":
+      return Ignore.IGNORE_IF_ZERO_VALUE;
     case 3:
     case "IGNORE_ALWAYS":
       return Ignore.IGNORE_ALWAYS;
@@ -195,10 +135,8 @@ export function ignoreToJSON(object: Ignore): string {
   switch (object) {
     case Ignore.IGNORE_UNSPECIFIED:
       return "IGNORE_UNSPECIFIED";
-    case Ignore.IGNORE_IF_UNPOPULATED:
-      return "IGNORE_IF_UNPOPULATED";
-    case Ignore.IGNORE_IF_DEFAULT_VALUE:
-      return "IGNORE_IF_DEFAULT_VALUE";
+    case Ignore.IGNORE_IF_ZERO_VALUE:
+      return "IGNORE_IF_ZERO_VALUE";
     case Ignore.IGNORE_ALWAYS:
       return "IGNORE_ALWAYS";
     case Ignore.UNRECOGNIZED:
@@ -207,12 +145,12 @@ export function ignoreToJSON(object: Ignore): string {
   }
 }
 
-/** WellKnownRegex contain some well-known patterns. */
+/** KnownRegex contains some well-known patterns. */
 export enum KnownRegex {
   KNOWN_REGEX_UNSPECIFIED = 0,
-  /** KNOWN_REGEX_HTTP_HEADER_NAME - HTTP header name as defined by [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2). */
+  /** KNOWN_REGEX_HTTP_HEADER_NAME - HTTP header name as defined by [RFC 7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.2). */
   KNOWN_REGEX_HTTP_HEADER_NAME = 1,
-  /** KNOWN_REGEX_HTTP_HEADER_VALUE - HTTP header value as defined by [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2.4). */
+  /** KNOWN_REGEX_HTTP_HEADER_VALUE - HTTP header value as defined by [RFC 7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.4). */
   KNOWN_REGEX_HTTP_HEADER_VALUE = 2,
   UNRECOGNIZED = -1,
 }
@@ -250,10 +188,10 @@ export function knownRegexToJSON(object: KnownRegex): string {
 }
 
 /**
- * `Constraint` represents a validation rule written in the Common Expression
- * Language (CEL) syntax. Each Constraint includes a unique identifier, an
+ * `Rule` represents a validation rule written in the Common Expression
+ * Language (CEL) syntax. Each Rule includes a unique identifier, an
  * optional error message, and the CEL expression to evaluate. For more
- * information on CEL, [see our documentation](https://github.com/bufbuild/protovalidate/blob/main/docs/cel.md).
+ * information, [see our documentation](https://protovalidate.com/schemas/custom-rules/).
  *
  * ```proto
  * message Foo {
@@ -266,9 +204,9 @@ export function knownRegexToJSON(object: KnownRegex): string {
  * }
  * ```
  */
-export interface Constraint {
+export interface Rule {
   /**
-   * `id` is a string that serves as a machine-readable name for this Constraint.
+   * `id` is a string that serves as a machine-readable name for this Rule.
    * It should be unique within its scope, which could be either a message or a field.
    */
   id?:
@@ -276,7 +214,7 @@ export interface Constraint {
     | undefined;
   /**
    * `message` is an optional field that provides a human-readable error message
-   * for this Constraint when the CEL expression evaluates to false. If a
+   * for this Rule when the CEL expression evaluates to false. If a
    * non-empty message is provided, any strings resulting from the CEL
    * expression evaluation are ignored.
    */
@@ -293,53 +231,107 @@ export interface Constraint {
 }
 
 /**
- * MessageConstraints represents validation rules that are applied to the entire message.
- * It includes disabling options and a list of Constraint messages representing Common Expression Language (CEL) validation rules.
+ * MessageRules represents validation rules that are applied to the entire message.
+ * It includes disabling options and a list of Rule messages representing Common Expression Language (CEL) validation rules.
  */
-export interface MessageConstraints {
+export interface MessageRules {
   /**
-   * `disabled` is a boolean flag that, when set to true, nullifies any validation rules for this message.
-   * This includes any fields within the message that would otherwise support validation.
+   * `cel_expression` is a repeated field CEL expressions. Each expression specifies a validation
+   * rule to be applied to this message. These rules are written in Common Expression Language (CEL) syntax.
+   *
+   * This is a simplified form of the `cel` Rule field, where only `expression` is set. This allows for
+   * simpler syntax when defining CEL Rules where `id` and `message` derived from the `expression`. `id` will
+   * be same as the `expression`.
+   *
+   * For more information, [see our documentation](https://protovalidate.com/schemas/custom-rules/).
    *
    * ```proto
    * message MyMessage {
-   *   // validation will be bypassed for this message
-   *   option (buf.validate.message).disabled = true;
+   *   // The field `foo` must be greater than 42.
+   *   option (buf.validate.message).cel_expression = "this.foo > 42";
+   *   // The field `foo` must be less than 84.
+   *   option (buf.validate.message).cel_expression = "this.foo < 84";
+   *   optional int32 foo = 1;
    * }
    * ```
    */
-  disabled?:
-    | boolean
-    | undefined;
+  celExpression: string[];
   /**
-   * `cel` is a repeated field of type Constraint. Each Constraint specifies a validation rule to be applied to this message.
-   * These constraints are written in Common Expression Language (CEL) syntax. For more information on
-   * CEL, [see our documentation](https://github.com/bufbuild/protovalidate/blob/main/docs/cel.md).
+   * `cel` is a repeated field of type Rule. Each Rule specifies a validation rule to be applied to this message.
+   * These rules are written in Common Expression Language (CEL) syntax. For more information,
+   * [see our documentation](https://protovalidate.com/schemas/custom-rules/).
    *
    * ```proto
    * message MyMessage {
    *   // The field `foo` must be greater than 42.
    *   option (buf.validate.message).cel = {
    *     id: "my_message.value",
-   *     message: "value must be greater than 42",
+   *     message: "must be greater than 42",
    *     expression: "this.foo > 42",
    *   };
    *   optional int32 foo = 1;
    * }
    * ```
    */
-  cel: Constraint[];
+  cel: Rule[];
+  /**
+   * `oneof` is a repeated field of type MessageOneofRule that specifies a list of fields
+   * of which at most one can be present. If `required` is also specified, then exactly one
+   * of the specified fields _must_ be present.
+   *
+   * This will enforce oneof-like constraints with a few features not provided by
+   * actual Protobuf oneof declarations:
+   *   1. Repeated and map fields are allowed in this validation. In a Protobuf oneof,
+   *      only scalar fields are allowed.
+   *   2. Fields with implicit presence are allowed. In a Protobuf oneof, all member
+   *      fields have explicit presence. This means that, for the purpose of determining
+   *      how many fields are set, explicitly setting such a field to its zero value is
+   *      effectively the same as not setting it at all.
+   *   3. This will always generate validation errors for a message unmarshalled from
+   *      serialized data that sets more than one field. With a Protobuf oneof, when
+   *      multiple fields are present in the serialized form, earlier values are usually
+   *      silently ignored when unmarshalling, with only the last field being set when
+   *      unmarshalling completes.
+   *
+   * Note that adding a field to a `oneof` will also set the IGNORE_IF_ZERO_VALUE on the fields. This means
+   * only the field that is set will be validated and the unset fields are not validated according to the field rules.
+   * This behavior can be overridden by setting `ignore` against a field.
+   *
+   * ```proto
+   * message MyMessage {
+   *   // Only one of `field1` or `field2` _can_ be present in this message.
+   *   option (buf.validate.message).oneof = { fields: ["field1", "field2"] };
+   *   // Exactly one of `field3` or `field4` _must_ be present in this message.
+   *   option (buf.validate.message).oneof = { fields: ["field3", "field4"], required: true };
+   *   string field1 = 1;
+   *   bytes field2 = 2;
+   *   bool field3 = 3;
+   *   int32 field4 = 4;
+   * }
+   * ```
+   */
+  oneof: MessageOneofRule[];
+}
+
+export interface MessageOneofRule {
+  /**
+   * A list of field names to include in the oneof. All field names must be
+   * defined in the message. At least one field must be specified, and
+   * duplicates are not permitted.
+   */
+  fields: string[];
+  /** If true, one of the fields specified _must_ be set. */
+  required?: boolean | undefined;
 }
 
 /**
- * The `OneofConstraints` message type enables you to manage constraints for
+ * The `OneofRules` message type enables you to manage rules for
  * oneof fields in your protobuf messages.
  */
-export interface OneofConstraints {
+export interface OneofRules {
   /**
-   * If `required` is true, exactly one field of the oneof must be present. A
-   * validation error is returned if no fields in the oneof are present. The
-   * field itself may still be a default value; further constraints
+   * If `required` is true, exactly one field of the oneof must be set. A
+   * validation error is returned if no fields in the oneof are set. Further rules
    * should be placed on the fields themselves to ensure they are valid values,
    * such as `min_len` or `gt`.
    *
@@ -359,60 +351,116 @@ export interface OneofConstraints {
 }
 
 /**
- * FieldConstraints encapsulates the rules for each type of field. Depending on
+ * FieldRules encapsulates the rules for each type of field. Depending on
  * the field, the correct set should be used to ensure proper validations.
  */
-export interface FieldConstraints {
+export interface FieldRules {
+  /**
+   * `cel_expression` is a repeated field CEL expressions. Each expression specifies a validation
+   * rule to be applied to this message. These rules are written in Common Expression Language (CEL) syntax.
+   *
+   * This is a simplified form of the `cel` Rule field, where only `expression` is set. This allows for
+   * simpler syntax when defining CEL Rules where `id` and `message` derived from the `expression`. `id` will
+   * be same as the `expression`.
+   *
+   * For more information, [see our documentation](https://protovalidate.com/schemas/custom-rules/).
+   *
+   * ```proto
+   * message MyMessage {
+   *   // The field `value` must be greater than 42.
+   *   optional int32 value = 1 [(buf.validate.field).cel_expression = "this > 42"];
+   * }
+   * ```
+   */
+  celExpression: string[];
   /**
    * `cel` is a repeated field used to represent a textual expression
-   * in the Common Expression Language (CEL) syntax. For more information on
-   * CEL, [see our documentation](https://github.com/bufbuild/protovalidate/blob/main/docs/cel.md).
+   * in the Common Expression Language (CEL) syntax. For more information,
+   * [see our documentation](https://protovalidate.com/schemas/custom-rules/).
    *
    * ```proto
    * message MyMessage {
    *   // The field `value` must be greater than 42.
    *   optional int32 value = 1 [(buf.validate.field).cel = {
    *     id: "my_message.value",
-   *     message: "value must be greater than 42",
+   *     message: "must be greater than 42",
    *     expression: "this > 42",
    *   }];
    * }
    * ```
    */
-  cel: Constraint[];
+  cel: Rule[];
   /**
-   * If `required` is true, the field must be populated. A populated field can be
-   * described as "serialized in the wire format," which includes:
-   *
-   * - the following "nullable" fields must be explicitly set to be considered populated:
-   *   - singular message fields (whose fields may be unpopulated/default values)
-   *   - member fields of a oneof (may be their default value)
-   *   - proto3 optional fields (may be their default value)
-   *   - proto2 scalar fields (both optional and required)
-   * - proto3 scalar fields must be non-zero to be considered populated
-   * - repeated and map fields must be non-empty to be considered populated
+   * If `required` is true, the field must be set. A validation error is returned
+   * if the field is not set.
    *
    * ```proto
-   * message MyMessage {
-   *   // The field `value` must be set to a non-null value.
-   *   optional MyOtherMessage value = 1 [(buf.validate.field).required = true];
+   * syntax="proto3";
+   *
+   * message FieldsWithPresence {
+   *   // Requires any string to be set, including the empty string.
+   *   optional string link = 1 [
+   *     (buf.validate.field).required = true
+   *   ];
+   *   // Requires true or false to be set.
+   *   optional bool disabled = 2 [
+   *     (buf.validate.field).required = true
+   *   ];
+   *   // Requires a message to be set, including the empty message.
+   *   SomeMessage msg = 4 [
+   *     (buf.validate.field).required = true
+   *   ];
    * }
    * ```
+   *
+   * All fields in the example above track presence. By default, Protovalidate
+   * ignores rules on those fields if no value is set. `required` ensures that
+   * the fields are set and valid.
+   *
+   * Fields that don't track presence are always validated by Protovalidate,
+   * whether they are set or not. It is not necessary to add `required`. It
+   * can be added to indicate that the field cannot be the zero value.
+   *
+   * ```proto
+   * syntax="proto3";
+   *
+   * message FieldsWithoutPresence {
+   *   // `string.email` always applies, even to an empty string.
+   *   string link = 1 [
+   *     (buf.validate.field).string.email = true
+   *   ];
+   *   // `repeated.min_items` always applies, even to an empty list.
+   *   repeated string labels = 2 [
+   *     (buf.validate.field).repeated.min_items = 1
+   *   ];
+   *   // `required`, for fields that don't track presence, indicates
+   *   // the value of the field can't be the zero value.
+   *   int32 zero_value_not_allowed = 3 [
+   *     (buf.validate.field).required = true
+   *   ];
+   * }
+   * ```
+   *
+   * To learn which fields track presence, see the
+   * [Field Presence cheat sheet](https://protobuf.dev/programming-guides/field_presence/#cheat).
+   *
+   * Note: While field rules can be applied to repeated items, map keys, and map
+   * values, the elements are always considered to be set. Consequently,
+   * specifying `repeated.items.required` is redundant.
    */
   required?:
     | boolean
     | undefined;
   /**
-   * Skip validation on the field if its value matches the specified criteria.
-   * See Ignore enum for details.
+   * Ignore validation rules on the field if its value matches the specified
+   * criteria. See the `Ignore` enum for details.
    *
    * ```proto
    * message UpdateRequest {
-   *   // The uri rule only applies if the field is populated and not an empty
-   *   // string.
-   *   optional string url = 1 [
-   *     (buf.validate.field).ignore = IGNORE_IF_DEFAULT_VALUE,
-   *     (buf.validate.field).string.uri = true,
+   *   // The uri rule only applies if the field is not an empty string.
+   *   string url = 1 [
+   *     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+   *     (buf.validate.field).string.uri = true
    *   ];
    * }
    * ```
@@ -447,35 +495,36 @@ export interface FieldConstraints {
   /** Well-Known Field Types */
   any?: AnyRules | undefined;
   duration?: DurationRules | undefined;
+  fieldMask?: FieldMaskRules | undefined;
   timestamp?: TimestampRules | undefined;
 }
 
 /**
- * PredefinedConstraints are custom constraints that can be re-used with
+ * PredefinedRules are custom rules that can be re-used with
  * multiple fields.
  */
-export interface PredefinedConstraints {
+export interface PredefinedRules {
   /**
    * `cel` is a repeated field used to represent a textual expression
-   * in the Common Expression Language (CEL) syntax. For more information on
-   * CEL, [see our documentation](https://github.com/bufbuild/protovalidate/blob/main/docs/cel.md).
+   * in the Common Expression Language (CEL) syntax. For more information,
+   * [see our documentation](https://protovalidate.com/schemas/predefined-rules/).
    *
    * ```proto
    * message MyMessage {
    *   // The field `value` must be greater than 42.
    *   optional int32 value = 1 [(buf.validate.predefined).cel = {
    *     id: "my_message.value",
-   *     message: "value must be greater than 42",
+   *     message: "must be greater than 42",
    *     expression: "this > 42",
    *   }];
    * }
    * ```
    */
-  cel: Constraint[];
+  cel: Rule[];
 }
 
 /**
- * FloatRules describes the constraints applied to `float` values. These
+ * FloatRules describes the rules applied to `float` values. These
  * rules may also be applied to the `google.protobuf.FloatValue` Well-Known-Type.
  */
 export interface FloatRules {
@@ -500,7 +549,7 @@ export interface FloatRules {
    *
    * ```proto
    * message MyFloat {
-   *   // value must be less than 10.0
+   *   // must be less than 10.0
    *   float value = 1 [(buf.validate.field).float.lt = 10.0];
    * }
    * ```
@@ -515,7 +564,7 @@ export interface FloatRules {
    *
    * ```proto
    * message MyFloat {
-   *   // value must be less than or equal to 10.0
+   *   // must be less than or equal to 10.0
    *   float value = 1 [(buf.validate.field).float.lte = 10.0];
    * }
    * ```
@@ -532,13 +581,13 @@ export interface FloatRules {
    *
    * ```proto
    * message MyFloat {
-   *   // value must be greater than 5.0 [float.gt]
+   *   // must be greater than 5.0 [float.gt]
    *   float value = 1 [(buf.validate.field).float.gt = 5.0];
    *
-   *   // value must be greater than 5 and less than 10.0 [float.gt_lt]
+   *   // must be greater than 5 and less than 10.0 [float.gt_lt]
    *   float other_value = 2 [(buf.validate.field).float = { gt: 5.0, lt: 10.0 }];
    *
-   *   // value must be greater than 10 or less than 5.0 [float.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5.0 [float.gt_lt_exclusive]
    *   float another_value = 3 [(buf.validate.field).float = { gt: 10.0, lt: 5.0 }];
    * }
    * ```
@@ -555,13 +604,13 @@ export interface FloatRules {
    *
    * ```proto
    * message MyFloat {
-   *   // value must be greater than or equal to 5.0 [float.gte]
+   *   // must be greater than or equal to 5.0 [float.gte]
    *   float value = 1 [(buf.validate.field).float.gte = 5.0];
    *
-   *   // value must be greater than or equal to 5.0 and less than 10.0 [float.gte_lt]
+   *   // must be greater than or equal to 5.0 and less than 10.0 [float.gte_lt]
    *   float other_value = 2 [(buf.validate.field).float = { gte: 5.0, lt: 10.0 }];
    *
-   *   // value must be greater than or equal to 10.0 or less than 5.0 [float.gte_lt_exclusive]
+   *   // must be greater than or equal to 10.0 or less than 5.0 [float.gte_lt_exclusive]
    *   float another_value = 3 [(buf.validate.field).float = { gte: 10.0, lt: 5.0 }];
    * }
    * ```
@@ -576,21 +625,21 @@ export interface FloatRules {
    *
    * ```proto
    * message MyFloat {
-   *   // value must be in list [1.0, 2.0, 3.0]
-   *   repeated float value = 1 (buf.validate.field).float = { in: [1.0, 2.0, 3.0] };
+   *   // must be in list [1.0, 2.0, 3.0]
+   *   float value = 1 [(buf.validate.field).float = { in: [1.0, 2.0, 3.0] }];
    * }
    * ```
    */
   in: number[];
   /**
-   * `in` requires the field value to not be equal to any of the specified
+   * `not_in` requires the field value to not be equal to any of the specified
    * values. If the field value is one of the specified values, an error
    * message is generated.
    *
    * ```proto
    * message MyFloat {
    *   // value must not be in list [1.0, 2.0, 3.0]
-   *   repeated float value = 1 (buf.validate.field).float = { not_in: [1.0, 2.0, 3.0] };
+   *   float value = 1 [(buf.validate.field).float = { not_in: [1.0, 2.0, 3.0] }];
    * }
    * ```
    */
@@ -604,14 +653,14 @@ export interface FloatRules {
     | undefined;
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
    * message MyFloat {
    *   float value = 1 [
    *     (buf.validate.field).float.example = 1.0,
-   *     (buf.validate.field).float.example = "Infinity"
+   *     (buf.validate.field).float.example = inf
    *   ];
    * }
    * ```
@@ -620,7 +669,7 @@ export interface FloatRules {
 }
 
 /**
- * DoubleRules describes the constraints applied to `double` values. These
+ * DoubleRules describes the rules applied to `double` values. These
  * rules may also be applied to the `google.protobuf.DoubleValue` Well-Known-Type.
  */
 export interface DoubleRules {
@@ -645,7 +694,7 @@ export interface DoubleRules {
    *
    * ```proto
    * message MyDouble {
-   *   // value must be less than 10.0
+   *   // must be less than 10.0
    *   double value = 1 [(buf.validate.field).double.lt = 10.0];
    * }
    * ```
@@ -660,7 +709,7 @@ export interface DoubleRules {
    *
    * ```proto
    * message MyDouble {
-   *   // value must be less than or equal to 10.0
+   *   // must be less than or equal to 10.0
    *   double value = 1 [(buf.validate.field).double.lte = 10.0];
    * }
    * ```
@@ -677,13 +726,13 @@ export interface DoubleRules {
    *
    * ```proto
    * message MyDouble {
-   *   // value must be greater than 5.0 [double.gt]
+   *   // must be greater than 5.0 [double.gt]
    *   double value = 1 [(buf.validate.field).double.gt = 5.0];
    *
-   *   // value must be greater than 5 and less than 10.0 [double.gt_lt]
+   *   // must be greater than 5 and less than 10.0 [double.gt_lt]
    *   double other_value = 2 [(buf.validate.field).double = { gt: 5.0, lt: 10.0 }];
    *
-   *   // value must be greater than 10 or less than 5.0 [double.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5.0 [double.gt_lt_exclusive]
    *   double another_value = 3 [(buf.validate.field).double = { gt: 10.0, lt: 5.0 }];
    * }
    * ```
@@ -700,13 +749,13 @@ export interface DoubleRules {
    *
    * ```proto
    * message MyDouble {
-   *   // value must be greater than or equal to 5.0 [double.gte]
+   *   // must be greater than or equal to 5.0 [double.gte]
    *   double value = 1 [(buf.validate.field).double.gte = 5.0];
    *
-   *   // value must be greater than or equal to 5.0 and less than 10.0 [double.gte_lt]
+   *   // must be greater than or equal to 5.0 and less than 10.0 [double.gte_lt]
    *   double other_value = 2 [(buf.validate.field).double = { gte: 5.0, lt: 10.0 }];
    *
-   *   // value must be greater than or equal to 10.0 or less than 5.0 [double.gte_lt_exclusive]
+   *   // must be greater than or equal to 10.0 or less than 5.0 [double.gte_lt_exclusive]
    *   double another_value = 3 [(buf.validate.field).double = { gte: 10.0, lt: 5.0 }];
    * }
    * ```
@@ -721,8 +770,8 @@ export interface DoubleRules {
    *
    * ```proto
    * message MyDouble {
-   *   // value must be in list [1.0, 2.0, 3.0]
-   *   repeated double value = 1 (buf.validate.field).double = { in: [1.0, 2.0, 3.0] };
+   *   // must be in list [1.0, 2.0, 3.0]
+   *   double value = 1 [(buf.validate.field).double = { in: [1.0, 2.0, 3.0] }];
    * }
    * ```
    */
@@ -735,7 +784,7 @@ export interface DoubleRules {
    * ```proto
    * message MyDouble {
    *   // value must not be in list [1.0, 2.0, 3.0]
-   *   repeated double value = 1 (buf.validate.field).double = { not_in: [1.0, 2.0, 3.0] };
+   *   double value = 1 [(buf.validate.field).double = { not_in: [1.0, 2.0, 3.0] }];
    * }
    * ```
    */
@@ -749,14 +798,14 @@ export interface DoubleRules {
     | undefined;
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
    * message MyDouble {
    *   double value = 1 [
    *     (buf.validate.field).double.example = 1.0,
-   *     (buf.validate.field).double.example = "Infinity"
+   *     (buf.validate.field).double.example = inf
    *   ];
    * }
    * ```
@@ -765,7 +814,7 @@ export interface DoubleRules {
 }
 
 /**
- * Int32Rules describes the constraints applied to `int32` values. These
+ * Int32Rules describes the rules applied to `int32` values. These
  * rules may also be applied to the `google.protobuf.Int32Value` Well-Known-Type.
  */
 export interface Int32Rules {
@@ -790,7 +839,7 @@ export interface Int32Rules {
    *
    * ```proto
    * message MyInt32 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   int32 value = 1 [(buf.validate.field).int32.lt = 10];
    * }
    * ```
@@ -805,7 +854,7 @@ export interface Int32Rules {
    *
    * ```proto
    * message MyInt32 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   int32 value = 1 [(buf.validate.field).int32.lte = 10];
    * }
    * ```
@@ -822,13 +871,13 @@ export interface Int32Rules {
    *
    * ```proto
    * message MyInt32 {
-   *   // value must be greater than 5 [int32.gt]
+   *   // must be greater than 5 [int32.gt]
    *   int32 value = 1 [(buf.validate.field).int32.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [int32.gt_lt]
+   *   // must be greater than 5 and less than 10 [int32.gt_lt]
    *   int32 other_value = 2 [(buf.validate.field).int32 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [int32.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [int32.gt_lt_exclusive]
    *   int32 another_value = 3 [(buf.validate.field).int32 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -845,13 +894,13 @@ export interface Int32Rules {
    *
    * ```proto
    * message MyInt32 {
-   *   // value must be greater than or equal to 5 [int32.gte]
+   *   // must be greater than or equal to 5 [int32.gte]
    *   int32 value = 1 [(buf.validate.field).int32.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [int32.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [int32.gte_lt]
    *   int32 other_value = 2 [(buf.validate.field).int32 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [int32.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [int32.gte_lt_exclusive]
    *   int32 another_value = 3 [(buf.validate.field).int32 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -866,8 +915,8 @@ export interface Int32Rules {
    *
    * ```proto
    * message MyInt32 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated int32 value = 1 (buf.validate.field).int32 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   int32 value = 1 [(buf.validate.field).int32 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -880,14 +929,14 @@ export interface Int32Rules {
    * ```proto
    * message MyInt32 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated int32 value = 1 (buf.validate.field).int32 = { not_in: [1, 2, 3] };
+   *   int32 value = 1 [(buf.validate.field).int32 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -903,7 +952,7 @@ export interface Int32Rules {
 }
 
 /**
- * Int64Rules describes the constraints applied to `int64` values. These
+ * Int64Rules describes the rules applied to `int64` values. These
  * rules may also be applied to the `google.protobuf.Int64Value` Well-Known-Type.
  */
 export interface Int64Rules {
@@ -928,7 +977,7 @@ export interface Int64Rules {
    *
    * ```proto
    * message MyInt64 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   int64 value = 1 [(buf.validate.field).int64.lt = 10];
    * }
    * ```
@@ -943,7 +992,7 @@ export interface Int64Rules {
    *
    * ```proto
    * message MyInt64 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   int64 value = 1 [(buf.validate.field).int64.lte = 10];
    * }
    * ```
@@ -960,13 +1009,13 @@ export interface Int64Rules {
    *
    * ```proto
    * message MyInt64 {
-   *   // value must be greater than 5 [int64.gt]
+   *   // must be greater than 5 [int64.gt]
    *   int64 value = 1 [(buf.validate.field).int64.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [int64.gt_lt]
+   *   // must be greater than 5 and less than 10 [int64.gt_lt]
    *   int64 other_value = 2 [(buf.validate.field).int64 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [int64.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [int64.gt_lt_exclusive]
    *   int64 another_value = 3 [(buf.validate.field).int64 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -983,13 +1032,13 @@ export interface Int64Rules {
    *
    * ```proto
    * message MyInt64 {
-   *   // value must be greater than or equal to 5 [int64.gte]
+   *   // must be greater than or equal to 5 [int64.gte]
    *   int64 value = 1 [(buf.validate.field).int64.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [int64.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [int64.gte_lt]
    *   int64 other_value = 2 [(buf.validate.field).int64 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [int64.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [int64.gte_lt_exclusive]
    *   int64 another_value = 3 [(buf.validate.field).int64 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1004,8 +1053,8 @@ export interface Int64Rules {
    *
    * ```proto
    * message MyInt64 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated int64 value = 1 (buf.validate.field).int64 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   int64 value = 1 [(buf.validate.field).int64 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1018,14 +1067,14 @@ export interface Int64Rules {
    * ```proto
    * message MyInt64 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated int64 value = 1 (buf.validate.field).int64 = { not_in: [1, 2, 3] };
+   *   int64 value = 1 [(buf.validate.field).int64 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1041,7 +1090,7 @@ export interface Int64Rules {
 }
 
 /**
- * UInt32Rules describes the constraints applied to `uint32` values. These
+ * UInt32Rules describes the rules applied to `uint32` values. These
  * rules may also be applied to the `google.protobuf.UInt32Value` Well-Known-Type.
  */
 export interface UInt32Rules {
@@ -1066,7 +1115,7 @@ export interface UInt32Rules {
    *
    * ```proto
    * message MyUInt32 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   uint32 value = 1 [(buf.validate.field).uint32.lt = 10];
    * }
    * ```
@@ -1081,7 +1130,7 @@ export interface UInt32Rules {
    *
    * ```proto
    * message MyUInt32 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   uint32 value = 1 [(buf.validate.field).uint32.lte = 10];
    * }
    * ```
@@ -1098,13 +1147,13 @@ export interface UInt32Rules {
    *
    * ```proto
    * message MyUInt32 {
-   *   // value must be greater than 5 [uint32.gt]
+   *   // must be greater than 5 [uint32.gt]
    *   uint32 value = 1 [(buf.validate.field).uint32.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [uint32.gt_lt]
+   *   // must be greater than 5 and less than 10 [uint32.gt_lt]
    *   uint32 other_value = 2 [(buf.validate.field).uint32 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [uint32.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [uint32.gt_lt_exclusive]
    *   uint32 another_value = 3 [(buf.validate.field).uint32 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1121,13 +1170,13 @@ export interface UInt32Rules {
    *
    * ```proto
    * message MyUInt32 {
-   *   // value must be greater than or equal to 5 [uint32.gte]
+   *   // must be greater than or equal to 5 [uint32.gte]
    *   uint32 value = 1 [(buf.validate.field).uint32.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [uint32.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [uint32.gte_lt]
    *   uint32 other_value = 2 [(buf.validate.field).uint32 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [uint32.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [uint32.gte_lt_exclusive]
    *   uint32 another_value = 3 [(buf.validate.field).uint32 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1142,8 +1191,8 @@ export interface UInt32Rules {
    *
    * ```proto
    * message MyUInt32 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated uint32 value = 1 (buf.validate.field).uint32 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   uint32 value = 1 [(buf.validate.field).uint32 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1156,14 +1205,14 @@ export interface UInt32Rules {
    * ```proto
    * message MyUInt32 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated uint32 value = 1 (buf.validate.field).uint32 = { not_in: [1, 2, 3] };
+   *   uint32 value = 1 [(buf.validate.field).uint32 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1179,7 +1228,7 @@ export interface UInt32Rules {
 }
 
 /**
- * UInt64Rules describes the constraints applied to `uint64` values. These
+ * UInt64Rules describes the rules applied to `uint64` values. These
  * rules may also be applied to the `google.protobuf.UInt64Value` Well-Known-Type.
  */
 export interface UInt64Rules {
@@ -1204,7 +1253,7 @@ export interface UInt64Rules {
    *
    * ```proto
    * message MyUInt64 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   uint64 value = 1 [(buf.validate.field).uint64.lt = 10];
    * }
    * ```
@@ -1219,7 +1268,7 @@ export interface UInt64Rules {
    *
    * ```proto
    * message MyUInt64 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   uint64 value = 1 [(buf.validate.field).uint64.lte = 10];
    * }
    * ```
@@ -1236,13 +1285,13 @@ export interface UInt64Rules {
    *
    * ```proto
    * message MyUInt64 {
-   *   // value must be greater than 5 [uint64.gt]
+   *   // must be greater than 5 [uint64.gt]
    *   uint64 value = 1 [(buf.validate.field).uint64.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [uint64.gt_lt]
+   *   // must be greater than 5 and less than 10 [uint64.gt_lt]
    *   uint64 other_value = 2 [(buf.validate.field).uint64 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [uint64.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [uint64.gt_lt_exclusive]
    *   uint64 another_value = 3 [(buf.validate.field).uint64 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1259,13 +1308,13 @@ export interface UInt64Rules {
    *
    * ```proto
    * message MyUInt64 {
-   *   // value must be greater than or equal to 5 [uint64.gte]
+   *   // must be greater than or equal to 5 [uint64.gte]
    *   uint64 value = 1 [(buf.validate.field).uint64.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [uint64.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [uint64.gte_lt]
    *   uint64 other_value = 2 [(buf.validate.field).uint64 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [uint64.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [uint64.gte_lt_exclusive]
    *   uint64 another_value = 3 [(buf.validate.field).uint64 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1280,8 +1329,8 @@ export interface UInt64Rules {
    *
    * ```proto
    * message MyUInt64 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated uint64 value = 1 (buf.validate.field).uint64 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   uint64 value = 1 [(buf.validate.field).uint64 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1294,21 +1343,21 @@ export interface UInt64Rules {
    * ```proto
    * message MyUInt64 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated uint64 value = 1 (buf.validate.field).uint64 = { not_in: [1, 2, 3] };
+   *   uint64 value = 1 [(buf.validate.field).uint64 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
    * message MyUInt64 {
    *   uint64 value = 1 [
    *     (buf.validate.field).uint64.example = 1,
-   *     (buf.validate.field).uint64.example = -10
+   *     (buf.validate.field).uint64.example = 10
    *   ];
    * }
    * ```
@@ -1316,7 +1365,7 @@ export interface UInt64Rules {
   example: number[];
 }
 
-/** SInt32Rules describes the constraints applied to `sint32` values. */
+/** SInt32Rules describes the rules applied to `sint32` values. */
 export interface SInt32Rules {
   /**
    * `const` requires the field value to exactly match the specified value. If
@@ -1339,7 +1388,7 @@ export interface SInt32Rules {
    *
    * ```proto
    * message MySInt32 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   sint32 value = 1 [(buf.validate.field).sint32.lt = 10];
    * }
    * ```
@@ -1354,7 +1403,7 @@ export interface SInt32Rules {
    *
    * ```proto
    * message MySInt32 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   sint32 value = 1 [(buf.validate.field).sint32.lte = 10];
    * }
    * ```
@@ -1371,13 +1420,13 @@ export interface SInt32Rules {
    *
    * ```proto
    * message MySInt32 {
-   *   // value must be greater than 5 [sint32.gt]
+   *   // must be greater than 5 [sint32.gt]
    *   sint32 value = 1 [(buf.validate.field).sint32.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [sint32.gt_lt]
+   *   // must be greater than 5 and less than 10 [sint32.gt_lt]
    *   sint32 other_value = 2 [(buf.validate.field).sint32 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [sint32.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [sint32.gt_lt_exclusive]
    *   sint32 another_value = 3 [(buf.validate.field).sint32 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1394,13 +1443,13 @@ export interface SInt32Rules {
    *
    * ```proto
    * message MySInt32 {
-   *  // value must be greater than or equal to 5 [sint32.gte]
+   *  // must be greater than or equal to 5 [sint32.gte]
    *  sint32 value = 1 [(buf.validate.field).sint32.gte = 5];
    *
-   *  // value must be greater than or equal to 5 and less than 10 [sint32.gte_lt]
+   *  // must be greater than or equal to 5 and less than 10 [sint32.gte_lt]
    *  sint32 other_value = 2 [(buf.validate.field).sint32 = { gte: 5, lt: 10 }];
    *
-   *  // value must be greater than or equal to 10 or less than 5 [sint32.gte_lt_exclusive]
+   *  // must be greater than or equal to 10 or less than 5 [sint32.gte_lt_exclusive]
    *  sint32 another_value = 3 [(buf.validate.field).sint32 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1415,8 +1464,8 @@ export interface SInt32Rules {
    *
    * ```proto
    * message MySInt32 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated sint32 value = 1 (buf.validate.field).sint32 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   sint32 value = 1 [(buf.validate.field).sint32 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1429,14 +1478,14 @@ export interface SInt32Rules {
    * ```proto
    * message MySInt32 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated sint32 value = 1 (buf.validate.field).sint32 = { not_in: [1, 2, 3] };
+   *   sint32 value = 1 [(buf.validate.field).sint32 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1451,7 +1500,7 @@ export interface SInt32Rules {
   example: number[];
 }
 
-/** SInt64Rules describes the constraints applied to `sint64` values. */
+/** SInt64Rules describes the rules applied to `sint64` values. */
 export interface SInt64Rules {
   /**
    * `const` requires the field value to exactly match the specified value. If
@@ -1474,7 +1523,7 @@ export interface SInt64Rules {
    *
    * ```proto
    * message MySInt64 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   sint64 value = 1 [(buf.validate.field).sint64.lt = 10];
    * }
    * ```
@@ -1489,7 +1538,7 @@ export interface SInt64Rules {
    *
    * ```proto
    * message MySInt64 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   sint64 value = 1 [(buf.validate.field).sint64.lte = 10];
    * }
    * ```
@@ -1506,13 +1555,13 @@ export interface SInt64Rules {
    *
    * ```proto
    * message MySInt64 {
-   *   // value must be greater than 5 [sint64.gt]
+   *   // must be greater than 5 [sint64.gt]
    *   sint64 value = 1 [(buf.validate.field).sint64.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [sint64.gt_lt]
+   *   // must be greater than 5 and less than 10 [sint64.gt_lt]
    *   sint64 other_value = 2 [(buf.validate.field).sint64 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [sint64.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [sint64.gt_lt_exclusive]
    *   sint64 another_value = 3 [(buf.validate.field).sint64 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1529,13 +1578,13 @@ export interface SInt64Rules {
    *
    * ```proto
    * message MySInt64 {
-   *   // value must be greater than or equal to 5 [sint64.gte]
+   *   // must be greater than or equal to 5 [sint64.gte]
    *   sint64 value = 1 [(buf.validate.field).sint64.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [sint64.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [sint64.gte_lt]
    *   sint64 other_value = 2 [(buf.validate.field).sint64 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [sint64.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [sint64.gte_lt_exclusive]
    *   sint64 another_value = 3 [(buf.validate.field).sint64 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1550,8 +1599,8 @@ export interface SInt64Rules {
    *
    * ```proto
    * message MySInt64 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated sint64 value = 1 (buf.validate.field).sint64 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   sint64 value = 1 [(buf.validate.field).sint64 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1564,14 +1613,14 @@ export interface SInt64Rules {
    * ```proto
    * message MySInt64 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated sint64 value = 1 (buf.validate.field).sint64 = { not_in: [1, 2, 3] };
+   *   sint64 value = 1 [(buf.validate.field).sint64 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1586,7 +1635,7 @@ export interface SInt64Rules {
   example: number[];
 }
 
-/** Fixed32Rules describes the constraints applied to `fixed32` values. */
+/** Fixed32Rules describes the rules applied to `fixed32` values. */
 export interface Fixed32Rules {
   /**
    * `const` requires the field value to exactly match the specified value.
@@ -1609,7 +1658,7 @@ export interface Fixed32Rules {
    *
    * ```proto
    * message MyFixed32 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   fixed32 value = 1 [(buf.validate.field).fixed32.lt = 10];
    * }
    * ```
@@ -1624,7 +1673,7 @@ export interface Fixed32Rules {
    *
    * ```proto
    * message MyFixed32 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   fixed32 value = 1 [(buf.validate.field).fixed32.lte = 10];
    * }
    * ```
@@ -1641,13 +1690,13 @@ export interface Fixed32Rules {
    *
    * ```proto
    * message MyFixed32 {
-   *   // value must be greater than 5 [fixed32.gt]
+   *   // must be greater than 5 [fixed32.gt]
    *   fixed32 value = 1 [(buf.validate.field).fixed32.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [fixed32.gt_lt]
+   *   // must be greater than 5 and less than 10 [fixed32.gt_lt]
    *   fixed32 other_value = 2 [(buf.validate.field).fixed32 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [fixed32.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [fixed32.gt_lt_exclusive]
    *   fixed32 another_value = 3 [(buf.validate.field).fixed32 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1664,13 +1713,13 @@ export interface Fixed32Rules {
    *
    * ```proto
    * message MyFixed32 {
-   *   // value must be greater than or equal to 5 [fixed32.gte]
+   *   // must be greater than or equal to 5 [fixed32.gte]
    *   fixed32 value = 1 [(buf.validate.field).fixed32.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [fixed32.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [fixed32.gte_lt]
    *   fixed32 other_value = 2 [(buf.validate.field).fixed32 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [fixed32.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [fixed32.gte_lt_exclusive]
    *   fixed32 another_value = 3 [(buf.validate.field).fixed32 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1685,8 +1734,8 @@ export interface Fixed32Rules {
    *
    * ```proto
    * message MyFixed32 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated fixed32 value = 1 (buf.validate.field).fixed32 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   fixed32 value = 1 [(buf.validate.field).fixed32 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1699,14 +1748,14 @@ export interface Fixed32Rules {
    * ```proto
    * message MyFixed32 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated fixed32 value = 1 (buf.validate.field).fixed32 = { not_in: [1, 2, 3] };
+   *   fixed32 value = 1 [(buf.validate.field).fixed32 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1721,7 +1770,7 @@ export interface Fixed32Rules {
   example: number[];
 }
 
-/** Fixed64Rules describes the constraints applied to `fixed64` values. */
+/** Fixed64Rules describes the rules applied to `fixed64` values. */
 export interface Fixed64Rules {
   /**
    * `const` requires the field value to exactly match the specified value. If
@@ -1744,7 +1793,7 @@ export interface Fixed64Rules {
    *
    * ```proto
    * message MyFixed64 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   fixed64 value = 1 [(buf.validate.field).fixed64.lt = 10];
    * }
    * ```
@@ -1759,7 +1808,7 @@ export interface Fixed64Rules {
    *
    * ```proto
    * message MyFixed64 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   fixed64 value = 1 [(buf.validate.field).fixed64.lte = 10];
    * }
    * ```
@@ -1776,13 +1825,13 @@ export interface Fixed64Rules {
    *
    * ```proto
    * message MyFixed64 {
-   *   // value must be greater than 5 [fixed64.gt]
+   *   // must be greater than 5 [fixed64.gt]
    *   fixed64 value = 1 [(buf.validate.field).fixed64.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [fixed64.gt_lt]
+   *   // must be greater than 5 and less than 10 [fixed64.gt_lt]
    *   fixed64 other_value = 2 [(buf.validate.field).fixed64 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [fixed64.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [fixed64.gt_lt_exclusive]
    *   fixed64 another_value = 3 [(buf.validate.field).fixed64 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1799,13 +1848,13 @@ export interface Fixed64Rules {
    *
    * ```proto
    * message MyFixed64 {
-   *   // value must be greater than or equal to 5 [fixed64.gte]
+   *   // must be greater than or equal to 5 [fixed64.gte]
    *   fixed64 value = 1 [(buf.validate.field).fixed64.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [fixed64.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [fixed64.gte_lt]
    *   fixed64 other_value = 2 [(buf.validate.field).fixed64 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [fixed64.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [fixed64.gte_lt_exclusive]
    *   fixed64 another_value = 3 [(buf.validate.field).fixed64 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1820,8 +1869,8 @@ export interface Fixed64Rules {
    *
    * ```proto
    * message MyFixed64 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated fixed64 value = 1 (buf.validate.field).fixed64 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   fixed64 value = 1 [(buf.validate.field).fixed64 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1834,14 +1883,14 @@ export interface Fixed64Rules {
    * ```proto
    * message MyFixed64 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated fixed64 value = 1 (buf.validate.field).fixed64 = { not_in: [1, 2, 3] };
+   *   fixed64 value = 1 [(buf.validate.field).fixed64 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1856,7 +1905,7 @@ export interface Fixed64Rules {
   example: number[];
 }
 
-/** SFixed32Rules describes the constraints applied to `fixed32` values. */
+/** SFixed32Rules describes the rules applied to `fixed32` values. */
 export interface SFixed32Rules {
   /**
    * `const` requires the field value to exactly match the specified value. If
@@ -1879,7 +1928,7 @@ export interface SFixed32Rules {
    *
    * ```proto
    * message MySFixed32 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   sfixed32 value = 1 [(buf.validate.field).sfixed32.lt = 10];
    * }
    * ```
@@ -1894,7 +1943,7 @@ export interface SFixed32Rules {
    *
    * ```proto
    * message MySFixed32 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   sfixed32 value = 1 [(buf.validate.field).sfixed32.lte = 10];
    * }
    * ```
@@ -1911,13 +1960,13 @@ export interface SFixed32Rules {
    *
    * ```proto
    * message MySFixed32 {
-   *   // value must be greater than 5 [sfixed32.gt]
+   *   // must be greater than 5 [sfixed32.gt]
    *   sfixed32 value = 1 [(buf.validate.field).sfixed32.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [sfixed32.gt_lt]
+   *   // must be greater than 5 and less than 10 [sfixed32.gt_lt]
    *   sfixed32 other_value = 2 [(buf.validate.field).sfixed32 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [sfixed32.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [sfixed32.gt_lt_exclusive]
    *   sfixed32 another_value = 3 [(buf.validate.field).sfixed32 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -1934,13 +1983,13 @@ export interface SFixed32Rules {
    *
    * ```proto
    * message MySFixed32 {
-   *   // value must be greater than or equal to 5 [sfixed32.gte]
+   *   // must be greater than or equal to 5 [sfixed32.gte]
    *   sfixed32 value = 1 [(buf.validate.field).sfixed32.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [sfixed32.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [sfixed32.gte_lt]
    *   sfixed32 other_value = 2 [(buf.validate.field).sfixed32 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [sfixed32.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [sfixed32.gte_lt_exclusive]
    *   sfixed32 another_value = 3 [(buf.validate.field).sfixed32 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -1955,8 +2004,8 @@ export interface SFixed32Rules {
    *
    * ```proto
    * message MySFixed32 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated sfixed32 value = 1 (buf.validate.field).sfixed32 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   sfixed32 value = 1 [(buf.validate.field).sfixed32 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -1969,14 +2018,14 @@ export interface SFixed32Rules {
    * ```proto
    * message MySFixed32 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated sfixed32 value = 1 (buf.validate.field).sfixed32 = { not_in: [1, 2, 3] };
+   *   sfixed32 value = 1 [(buf.validate.field).sfixed32 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -1991,7 +2040,7 @@ export interface SFixed32Rules {
   example: number[];
 }
 
-/** SFixed64Rules describes the constraints applied to `fixed64` values. */
+/** SFixed64Rules describes the rules applied to `fixed64` values. */
 export interface SFixed64Rules {
   /**
    * `const` requires the field value to exactly match the specified value. If
@@ -2014,7 +2063,7 @@ export interface SFixed64Rules {
    *
    * ```proto
    * message MySFixed64 {
-   *   // value must be less than 10
+   *   // must be less than 10
    *   sfixed64 value = 1 [(buf.validate.field).sfixed64.lt = 10];
    * }
    * ```
@@ -2029,7 +2078,7 @@ export interface SFixed64Rules {
    *
    * ```proto
    * message MySFixed64 {
-   *   // value must be less than or equal to 10
+   *   // must be less than or equal to 10
    *   sfixed64 value = 1 [(buf.validate.field).sfixed64.lte = 10];
    * }
    * ```
@@ -2046,13 +2095,13 @@ export interface SFixed64Rules {
    *
    * ```proto
    * message MySFixed64 {
-   *   // value must be greater than 5 [sfixed64.gt]
+   *   // must be greater than 5 [sfixed64.gt]
    *   sfixed64 value = 1 [(buf.validate.field).sfixed64.gt = 5];
    *
-   *   // value must be greater than 5 and less than 10 [sfixed64.gt_lt]
+   *   // must be greater than 5 and less than 10 [sfixed64.gt_lt]
    *   sfixed64 other_value = 2 [(buf.validate.field).sfixed64 = { gt: 5, lt: 10 }];
    *
-   *   // value must be greater than 10 or less than 5 [sfixed64.gt_lt_exclusive]
+   *   // must be greater than 10 or less than 5 [sfixed64.gt_lt_exclusive]
    *   sfixed64 another_value = 3 [(buf.validate.field).sfixed64 = { gt: 10, lt: 5 }];
    * }
    * ```
@@ -2069,13 +2118,13 @@ export interface SFixed64Rules {
    *
    * ```proto
    * message MySFixed64 {
-   *   // value must be greater than or equal to 5 [sfixed64.gte]
+   *   // must be greater than or equal to 5 [sfixed64.gte]
    *   sfixed64 value = 1 [(buf.validate.field).sfixed64.gte = 5];
    *
-   *   // value must be greater than or equal to 5 and less than 10 [sfixed64.gte_lt]
+   *   // must be greater than or equal to 5 and less than 10 [sfixed64.gte_lt]
    *   sfixed64 other_value = 2 [(buf.validate.field).sfixed64 = { gte: 5, lt: 10 }];
    *
-   *   // value must be greater than or equal to 10 or less than 5 [sfixed64.gte_lt_exclusive]
+   *   // must be greater than or equal to 10 or less than 5 [sfixed64.gte_lt_exclusive]
    *   sfixed64 another_value = 3 [(buf.validate.field).sfixed64 = { gte: 10, lt: 5 }];
    * }
    * ```
@@ -2090,8 +2139,8 @@ export interface SFixed64Rules {
    *
    * ```proto
    * message MySFixed64 {
-   *   // value must be in list [1, 2, 3]
-   *   repeated sfixed64 value = 1 (buf.validate.field).sfixed64 = { in: [1, 2, 3] };
+   *   // must be in list [1, 2, 3]
+   *   sfixed64 value = 1 [(buf.validate.field).sfixed64 = { in: [1, 2, 3] }];
    * }
    * ```
    */
@@ -2104,14 +2153,14 @@ export interface SFixed64Rules {
    * ```proto
    * message MySFixed64 {
    *   // value must not be in list [1, 2, 3]
-   *   repeated sfixed64 value = 1 (buf.validate.field).sfixed64 = { not_in: [1, 2, 3] };
+   *   sfixed64 value = 1 [(buf.validate.field).sfixed64 = { not_in: [1, 2, 3] }];
    * }
    * ```
    */
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -2127,7 +2176,7 @@ export interface SFixed64Rules {
 }
 
 /**
- * BoolRules describes the constraints applied to `bool` values. These rules
+ * BoolRules describes the rules applied to `bool` values. These rules
  * may also be applied to the `google.protobuf.BoolValue` Well-Known-Type.
  */
 export interface BoolRules {
@@ -2147,14 +2196,14 @@ export interface BoolRules {
     | undefined;
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
    * message MyBool {
    *   bool value = 1 [
-   *     (buf.validate.field).bool.example = 1,
-   *     (buf.validate.field).bool.example = 2
+   *     (buf.validate.field).bool.example = true,
+   *     (buf.validate.field).bool.example = false
    *   ];
    * }
    * ```
@@ -2163,7 +2212,7 @@ export interface BoolRules {
 }
 
 /**
- * StringRules describes the constraints applied to `string` values These
+ * StringRules describes the rules applied to `string` values These
  * rules may also be applied to the `google.protobuf.StringValue` Well-Known-Type.
  */
 export interface StringRules {
@@ -2359,8 +2408,8 @@ export interface StringRules {
    *
    * ```proto
    * message MyString {
-   *   // value must be in list ["apple", "banana"]
-   *   repeated string value = 1 [(buf.validate.field).string.in = "apple", (buf.validate.field).string.in = "banana"];
+   *   // must be in list ["apple", "banana"]
+   *   string value = 1 [(buf.validate.field).string = { in: ["apple", "banana"] }];
    * }
    * ```
    */
@@ -2372,19 +2421,25 @@ export interface StringRules {
    * ```proto
    * message MyString {
    *   // value must not be in list ["orange", "grape"]
-   *   repeated string value = 1 [(buf.validate.field).string.not_in = "orange", (buf.validate.field).string.not_in = "grape"];
+   *   string value = 1 [(buf.validate.field).string = { not_in: ["orange", "grape"] }];
    * }
    * ```
    */
   notIn: string[];
   /**
-   * `email` specifies that the field value must be a valid email address
-   * (addr-spec only) as defined by [RFC 5322](https://tools.ietf.org/html/rfc5322#section-3.4.1).
+   * `email` specifies that the field value must be a valid email address, for
+   * example "foo@example.com".
+   *
+   * Conforms to the definition for a valid email address from the [HTML standard](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address).
+   * Note that this standard willfully deviates from [RFC 5322](https://datatracker.ietf.org/doc/html/rfc5322),
+   * which allows many unexpected forms of email addresses and will easily match
+   * a typographical error.
+   *
    * If the field value isn't a valid email address, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid email address
+   *   // must be a valid email address
    *   string value = 1 [(buf.validate.field).string.email = true];
    * }
    * ```
@@ -2393,14 +2448,22 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `hostname` specifies that the field value must be a valid
-   * hostname as defined by [RFC 1034](https://tools.ietf.org/html/rfc1034#section-3.5). This constraint doesn't support
-   * internationalized domain names (IDNs). If the field value isn't a
-   * valid hostname, an error message will be generated.
+   * `hostname` specifies that the field value must be a valid hostname, for
+   * example "foo.example.com".
+   *
+   * A valid hostname follows the rules below:
+   * - The name consists of one or more labels, separated by a dot (".").
+   * - Each label can be 1 to 63 alphanumeric characters.
+   * - A label can contain hyphens ("-"), but must not start or end with a hyphen.
+   * - The right-most label must not be digits only.
+   * - The name can have a trailing dot—for example, "foo.example.com.".
+   * - The name can be 253 characters at most, excluding the optional trailing dot.
+   *
+   * If the field value isn't a valid hostname, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid hostname
+   *   // must be a valid hostname
    *   string value = 1 [(buf.validate.field).string.hostname = true];
    * }
    * ```
@@ -2409,14 +2472,21 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ip` specifies that the field value must be a valid IP
-   * (v4 or v6) address, without surrounding square brackets for IPv6 addresses.
+   * `ip` specifies that the field value must be a valid IP (v4 or v6) address.
+   *
+   * IPv4 addresses are expected in the dotted decimal format—for example, "192.168.5.21".
+   * IPv6 addresses are expected in their text representation—for example, "::1",
+   * or "2001:0DB8:ABCD:0012::0".
+   *
+   * Both formats are well-defined in the internet standard [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986).
+   * Zone identifiers for IPv6 addresses (for example, "fe80::a%en1") are supported.
+   *
    * If the field value isn't a valid IP address, an error message will be
    * generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IP address
+   *   // must be a valid IP address
    *   string value = 1 [(buf.validate.field).string.ip = true];
    * }
    * ```
@@ -2425,13 +2495,13 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ipv4` specifies that the field value must be a valid IPv4
-   * address. If the field value isn't a valid IPv4 address, an error message
-   * will be generated.
+   * `ipv4` specifies that the field value must be a valid IPv4 address—for
+   * example "192.168.5.21". If the field value isn't a valid IPv4 address, an
+   * error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv4 address
+   *   // must be a valid IPv4 address
    *   string value = 1 [(buf.validate.field).string.ipv4 = true];
    * }
    * ```
@@ -2440,13 +2510,13 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ipv6` specifies that the field value must be a valid
-   * IPv6 address, without surrounding square brackets. If the field value is
-   * not a valid IPv6 address, an error message will be generated.
+   * `ipv6` specifies that the field value must be a valid IPv6 address—for
+   * example "::1", or "d7a:115c:a1e0:ab12:4843:cd96:626b:430b". If the field
+   * value is not a valid IPv6 address, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv6 address
+   *   // must be a valid IPv6 address
    *   string value = 1 [(buf.validate.field).string.ipv6 = true];
    * }
    * ```
@@ -2455,13 +2525,17 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `uri` specifies that the field value must be a valid,
-   * absolute URI as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986#section-3). If the field value isn't a valid,
-   * absolute URI, an error message will be generated.
+   * `uri` specifies that the field value must be a valid URI, for example
+   * "https://example.com/foo/bar?baz=quux#frag".
+   *
+   * URI is defined in the internet standard [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986).
+   * Zone Identifiers in IPv6 address literals are supported ([RFC 6874](https://datatracker.ietf.org/doc/html/rfc6874)).
+   *
+   * If the field value isn't a valid URI, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid URI
+   *   // must be a valid URI
    *   string value = 1 [(buf.validate.field).string.uri = true];
    * }
    * ```
@@ -2470,13 +2544,20 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `uri_ref` specifies that the field value must be a valid URI
-   * as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986#section-3) and may be either relative or absolute. If the
-   * field value isn't a valid URI, an error message will be generated.
+   * `uri_ref` specifies that the field value must be a valid URI Reference—either
+   * a URI such as "https://example.com/foo/bar?baz=quux#frag", or a Relative
+   * Reference such as "./foo/bar?query".
+   *
+   * URI, URI Reference, and Relative Reference are defined in the internet
+   * standard [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986). Zone
+   * Identifiers in IPv6 address literals are supported ([RFC 6874](https://datatracker.ietf.org/doc/html/rfc6874)).
+   *
+   * If the field value isn't a valid URI Reference, an error message will be
+   * generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid URI
+   *   // must be a valid URI Reference
    *   string value = 1 [(buf.validate.field).string.uri_ref = true];
    * }
    * ```
@@ -2486,14 +2567,13 @@ export interface StringRules {
     | undefined;
   /**
    * `address` specifies that the field value must be either a valid hostname
-   * as defined by [RFC 1034](https://tools.ietf.org/html/rfc1034#section-3.5)
-   * (which doesn't support internationalized domain names or IDNs) or a valid
-   * IP (v4 or v6). If the field value isn't a valid hostname or IP, an error
-   * message will be generated.
+   * (for example, "example.com"), or a valid IP (v4 or v6) address (for example,
+   * "192.168.0.1", or "::1"). If the field value isn't a valid hostname or IP,
+   * an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid hostname, or ip address
+   *   // must be a valid hostname, or ip address
    *   string value = 1 [(buf.validate.field).string.address = true];
    * }
    * ```
@@ -2503,12 +2583,12 @@ export interface StringRules {
     | undefined;
   /**
    * `uuid` specifies that the field value must be a valid UUID as defined by
-   * [RFC 4122](https://tools.ietf.org/html/rfc4122#section-4.1.2). If the
+   * [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122#section-4.1.2). If the
    * field value isn't a valid UUID, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid UUID
+   *   // must be a valid UUID
    *   string value = 1 [(buf.validate.field).string.uuid = true];
    * }
    * ```
@@ -2518,13 +2598,13 @@ export interface StringRules {
     | undefined;
   /**
    * `tuuid` (trimmed UUID) specifies that the field value must be a valid UUID as
-   * defined by [RFC 4122](https://tools.ietf.org/html/rfc4122#section-4.1.2) with all dashes
+   * defined by [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122#section-4.1.2) with all dashes
    * omitted. If the field value isn't a valid UUID without dashes, an error message
    * will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid trimmed UUID
+   *   // must be a valid trimmed UUID
    *   string value = 1 [(buf.validate.field).string.tuuid = true];
    * }
    * ```
@@ -2533,13 +2613,14 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ip_with_prefixlen` specifies that the field value must be a valid IP (v4 or v6)
-   * address with prefix length. If the field value isn't a valid IP with prefix
-   * length, an error message will be generated.
+   * `ip_with_prefixlen` specifies that the field value must be a valid IP
+   * (v4 or v6) address with prefix length—for example, "192.168.5.21/16" or
+   * "2001:0DB8:ABCD:0012::F1/64". If the field value isn't a valid IP with
+   * prefix length, an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IP with prefix length
+   *   // must be a valid IP with prefix length
    *    string value = 1 [(buf.validate.field).string.ip_with_prefixlen = true];
    * }
    * ```
@@ -2549,13 +2630,13 @@ export interface StringRules {
     | undefined;
   /**
    * `ipv4_with_prefixlen` specifies that the field value must be a valid
-   * IPv4 address with prefix.
-   * If the field value isn't a valid IPv4 address with prefix length,
-   * an error message will be generated.
+   * IPv4 address with prefix length—for example, "192.168.5.21/16". If the
+   * field value isn't a valid IPv4 address with prefix length, an error
+   * message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv4 address with prefix length
+   *   // must be a valid IPv4 address with prefix length
    *    string value = 1 [(buf.validate.field).string.ipv4_with_prefixlen = true];
    * }
    * ```
@@ -2565,13 +2646,13 @@ export interface StringRules {
     | undefined;
   /**
    * `ipv6_with_prefixlen` specifies that the field value must be a valid
-   * IPv6 address with prefix length.
+   * IPv6 address with prefix length—for example, "2001:0DB8:ABCD:0012::F1/64".
    * If the field value is not a valid IPv6 address with prefix length,
    * an error message will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv6 address prefix length
+   *   // must be a valid IPv6 address prefix length
    *    string value = 1 [(buf.validate.field).string.ipv6_with_prefixlen = true];
    * }
    * ```
@@ -2580,14 +2661,19 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ip_prefix` specifies that the field value must be a valid IP (v4 or v6) prefix.
+   * `ip_prefix` specifies that the field value must be a valid IP (v4 or v6)
+   * prefix—for example, "192.168.0.0/16" or "2001:0DB8:ABCD:0012::0/64".
+   *
+   * The prefix must have all zeros for the unmasked bits. For example,
+   * "2001:0DB8:ABCD:0012::0/64" designates the left-most 64 bits for the
+   * prefix, and the remaining 64 bits must be zero.
+   *
    * If the field value isn't a valid IP prefix, an error message will be
-   * generated. The prefix must have all zeros for the masked bits of the prefix (e.g.,
-   * `127.0.0.0/16`, not `127.0.0.1/16`).
+   * generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IP prefix
+   *   // must be a valid IP prefix
    *    string value = 1 [(buf.validate.field).string.ip_prefix = true];
    * }
    * ```
@@ -2597,13 +2683,18 @@ export interface StringRules {
     | undefined;
   /**
    * `ipv4_prefix` specifies that the field value must be a valid IPv4
-   * prefix. If the field value isn't a valid IPv4 prefix, an error message
-   * will be generated. The prefix must have all zeros for the masked bits of
-   * the prefix (e.g., `127.0.0.0/16`, not `127.0.0.1/16`).
+   * prefix, for example "192.168.0.0/16".
+   *
+   * The prefix must have all zeros for the unmasked bits. For example,
+   * "192.168.0.0/16" designates the left-most 16 bits for the prefix,
+   * and the remaining 16 bits must be zero.
+   *
+   * If the field value isn't a valid IPv4 prefix, an error message
+   * will be generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv4 prefix
+   *   // must be a valid IPv4 prefix
    *    string value = 1 [(buf.validate.field).string.ipv4_prefix = true];
    * }
    * ```
@@ -2612,14 +2703,19 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `ipv6_prefix` specifies that the field value must be a valid IPv6 prefix.
+   * `ipv6_prefix` specifies that the field value must be a valid IPv6 prefix—for
+   * example, "2001:0DB8:ABCD:0012::0/64".
+   *
+   * The prefix must have all zeros for the unmasked bits. For example,
+   * "2001:0DB8:ABCD:0012::0/64" designates the left-most 64 bits for the
+   * prefix, and the remaining 64 bits must be zero.
+   *
    * If the field value is not a valid IPv6 prefix, an error message will be
-   * generated. The prefix must have all zeros for the masked bits of the prefix
-   * (e.g., `2001:db8::/48`, not `2001:db8::1/48`).
+   * generated.
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid IPv6 prefix
+   *   // must be a valid IPv6 prefix
    *    string value = 1 [(buf.validate.field).string.ipv6_prefix = true];
    * }
    * ```
@@ -2628,12 +2724,91 @@ export interface StringRules {
     | boolean
     | undefined;
   /**
-   * `host_and_port` specifies the field value must be a valid host and port
-   * pair. The host must be a valid hostname or IP address while the port
-   * must be in the range of 0-65535, inclusive. IPv6 addresses must be delimited
-   * with square brackets (e.g., `[::1]:1234`).
+   * `host_and_port` specifies that the field value must be a valid host/port
+   * pair—for example, "example.com:8080".
+   *
+   * The host can be one of:
+   * - An IPv4 address in dotted decimal format—for example, "192.168.5.21".
+   * - An IPv6 address enclosed in square brackets—for example, "[2001:0DB8:ABCD:0012::F1]".
+   * - A hostname—for example, "example.com".
+   *
+   * The port is separated by a colon. It must be non-empty, with a decimal number
+   * in the range of 0-65535, inclusive.
    */
   hostAndPort?:
+    | boolean
+    | undefined;
+  /**
+   * `ulid` specifies that the field value must be a valid ULID (Universally Unique
+   * Lexicographically Sortable Identifier) as defined by the [ULID specification](https://github.com/ulid/spec).
+   * If the field value isn't a valid ULID, an error message will be generated.
+   *
+   * ```proto
+   * message MyString {
+   *   // must be a valid ULID
+   *   string value = 1 [(buf.validate.field).string.ulid = true];
+   * }
+   * ```
+   */
+  ulid?:
+    | boolean
+    | undefined;
+  /**
+   * `protobuf_fqn` specifies that the field value must be a valid fully-qualified
+   * Protobuf name as defined by the [Protobuf Language Specification](https://protobuf.com/docs/language-spec).
+   *
+   * A fully-qualified Protobuf name is a dot-separated list of Protobuf identifiers,
+   * where each identifier starts with a letter or underscore and is followed by zero or
+   * more letters, underscores, or digits.
+   *
+   * Examples: "buf.validate", "google.protobuf.Timestamp", "my_package.MyMessage".
+   *
+   * Note: historically, fully-qualified Protobuf names were represented with a leading
+   * dot (for example, ".buf.validate.StringRules"). Modern Protobuf does not use the
+   * leading dot, and most fully-qualified names are represented without it. Use
+   * `protobuf_dot_fqn` if a leading dot is required.
+   *
+   * If the field value isn't a valid fully-qualified Protobuf name, an error message
+   * will be generated.
+   *
+   * ```proto
+   * message MyString {
+   *   // value must be a valid fully-qualified Protobuf name
+   *   string value = 1 [(buf.validate.field).string.protobuf_fqn = true];
+   * }
+   * ```
+   */
+  protobufFqn?:
+    | boolean
+    | undefined;
+  /**
+   * `protobuf_dot_fqn` specifies that the field value must be a valid fully-qualified
+   * Protobuf name with a leading dot, as defined by the
+   * [Protobuf Language Specification](https://protobuf.com/docs/language-spec).
+   *
+   * A fully-qualified Protobuf name with a leading dot is a dot followed by a
+   * dot-separated list of Protobuf identifiers, where each identifier starts with a
+   * letter or underscore and is followed by zero or more letters, underscores, or
+   * digits.
+   *
+   * Examples: ".buf.validate", ".google.protobuf.Timestamp", ".my_package.MyMessage".
+   *
+   * Note: this is the historical representation of fully-qualified Protobuf names,
+   * where a leading dot denotes an absolute reference. Modern Protobuf does not use
+   * the leading dot, and most fully-qualified names are represented without it. Most
+   * users will want to use `protobuf_fqn` instead.
+   *
+   * If the field value isn't a valid fully-qualified Protobuf name with a leading dot,
+   * an error message will be generated.
+   *
+   * ```proto
+   * message MyString {
+   *   // value must be a valid fully-qualified Protobuf name with a leading dot
+   *   string value = 1 [(buf.validate.field).string.protobuf_dot_fqn = true];
+   * }
+   * ```
+   */
+  protobufDotFqn?:
     | boolean
     | undefined;
   /**
@@ -2643,7 +2818,7 @@ export interface StringRules {
    *
    * ```proto
    * message MyString {
-   *   // value must be a valid HTTP header value
+   *   // must be a valid HTTP header value
    *   string value = 1 [(buf.validate.field).string.well_known_regex = KNOWN_REGEX_HTTP_HEADER_VALUE];
    * }
    * ```
@@ -2655,8 +2830,8 @@ export interface StringRules {
    * | Name                          | Number | Description                               |
    * |-------------------------------|--------|-------------------------------------------|
    * | KNOWN_REGEX_UNSPECIFIED       | 0      |                                           |
-   * | KNOWN_REGEX_HTTP_HEADER_NAME  | 1      | HTTP header name as defined by [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2)  |
-   * | KNOWN_REGEX_HTTP_HEADER_VALUE | 2      | HTTP header value as defined by [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2.4) |
+   * | KNOWN_REGEX_HTTP_HEADER_NAME  | 1      | HTTP header name as defined by [RFC 7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.2)  |
+   * | KNOWN_REGEX_HTTP_HEADER_VALUE | 2      | HTTP header value as defined by [RFC 7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.4) |
    */
   wellKnownRegex?:
     | KnownRegex
@@ -2664,7 +2839,7 @@ export interface StringRules {
   /**
    * This applies to regexes `HTTP_HEADER_NAME` and `HTTP_HEADER_VALUE` to
    * enable strict header validation. By default, this is true, and HTTP header
-   * validations are [RFC-compliant](https://tools.ietf.org/html/rfc7230#section-3). Setting to false will enable looser
+   * validations are [RFC-compliant](https://datatracker.ietf.org/doc/html/rfc7230#section-3). Setting to false will enable looser
    * validations that only disallow `\r\n\0` characters, which can be used to
    * bypass header matching rules.
    *
@@ -2680,7 +2855,7 @@ export interface StringRules {
     | undefined;
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -2696,7 +2871,7 @@ export interface StringRules {
 }
 
 /**
- * BytesRules describe the constraints applied to `bytes` values. These rules
+ * BytesRules describe the rules applied to `bytes` values. These rules
  * may also be applied to the `google.protobuf.BytesValue` Well-Known-Type.
  */
 export interface BytesRules {
@@ -2706,7 +2881,7 @@ export interface BytesRules {
    *
    * ```proto
    * message MyBytes {
-   *   // value must be "\x01\x02\x03\x04"
+   *   // must be "\x01\x02\x03\x04"
    *   bytes value = 1 [(buf.validate.field).bytes.const = "\x01\x02\x03\x04"];
    * }
    * ```
@@ -2750,7 +2925,7 @@ export interface BytesRules {
    *
    * ```proto
    * message MyBytes {
-   *   // value must be at most 6 bytes.
+   *   // must be at most 6 bytes.
    *   optional bytes value = 1 [(buf.validate.field).bytes.max_len = 6];
    * }
    * ```
@@ -2810,7 +2985,7 @@ export interface BytesRules {
    * the string.
    * If the field value doesn't meet the requirement, an error message is generated.
    *
-   * ```protobuf
+   * ```proto
    * message MyBytes {
    *   // value does not contain \x02\x03
    *   optional bytes value = 1 [(buf.validate.field).bytes.contains = "\x02\x03"];
@@ -2825,10 +3000,10 @@ export interface BytesRules {
    * values. If the field value doesn't match any of the specified values, an
    * error message is generated.
    *
-   * ```protobuf
+   * ```proto
    * message MyBytes {
    *   // value must in ["\x01\x02", "\x02\x03", "\x03\x04"]
-   *   optional bytes value = 1 [(buf.validate.field).bytes.in = {"\x01\x02", "\x02\x03", "\x03\x04"}];
+   *   optional bytes value = 1 [(buf.validate.field).bytes = { in: ["\x01\x02", "\x02\x03", "\x03\x04"] }];
    * }
    * ```
    */
@@ -2842,18 +3017,18 @@ export interface BytesRules {
    * ```proto
    * message MyBytes {
    *   // value must not in ["\x01\x02", "\x02\x03", "\x03\x04"]
-   *   optional bytes value = 1 [(buf.validate.field).bytes.not_in = {"\x01\x02", "\x02\x03", "\x03\x04"}];
+   *   optional bytes value = 1 [(buf.validate.field).bytes = { not_in: ["\x01\x02", "\x02\x03", "\x03\x04"] }];
    * }
    * ```
    */
   notIn: Uint8Array[];
   /**
    * `ip` ensures that the field `value` is a valid IP address (v4 or v6) in byte format.
-   * If the field value doesn't meet this constraint, an error message is generated.
+   * If the field value doesn't meet this rule, an error message is generated.
    *
    * ```proto
    * message MyBytes {
-   *   // value must be a valid IP address
+   *   // must be a valid IP address
    *   optional bytes value = 1 [(buf.validate.field).bytes.ip = true];
    * }
    * ```
@@ -2863,11 +3038,11 @@ export interface BytesRules {
     | undefined;
   /**
    * `ipv4` ensures that the field `value` is a valid IPv4 address in byte format.
-   * If the field value doesn't meet this constraint, an error message is generated.
+   * If the field value doesn't meet this rule, an error message is generated.
    *
    * ```proto
    * message MyBytes {
-   *   // value must be a valid IPv4 address
+   *   // must be a valid IPv4 address
    *   optional bytes value = 1 [(buf.validate.field).bytes.ipv4 = true];
    * }
    * ```
@@ -2877,10 +3052,10 @@ export interface BytesRules {
     | undefined;
   /**
    * `ipv6` ensures that the field `value` is a valid IPv6 address in byte format.
-   * If the field value doesn't meet this constraint, an error message is generated.
+   * If the field value doesn't meet this rule, an error message is generated.
    * ```proto
    * message MyBytes {
-   *   // value must be a valid IPv6 address
+   *   // must be a valid IPv6 address
    *   optional bytes value = 1 [(buf.validate.field).bytes.ipv6 = true];
    * }
    * ```
@@ -2889,8 +3064,24 @@ export interface BytesRules {
     | boolean
     | undefined;
   /**
+   * `uuid` ensures that the field value encodes 128-bit UUID data as defined
+   * by [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122#section-4.1.2).
+   * The field must contain exactly 16 bytes representing the UUID. If the
+   * field value isn't a valid UUID, an error message will be generated.
+   *
+   * ```proto
+   * message MyBytes {
+   *   // must be a valid UUID
+   *   optional bytes value = 1 [(buf.validate.field).bytes.uuid = true];
+   * }
+   * ```
+   */
+  uuid?:
+    | boolean
+    | undefined;
+  /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -2905,7 +3096,7 @@ export interface BytesRules {
   example: Uint8Array[];
 }
 
-/** EnumRules describe the constraints applied to `enum` values. */
+/** EnumRules describe the rules applied to `enum` values. */
 export interface EnumRules {
   /**
    * `const` requires the field value to exactly match the specified enum value.
@@ -2987,7 +3178,7 @@ export interface EnumRules {
   notIn: number[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
@@ -2998,15 +3189,17 @@ export interface EnumRules {
    * }
    *
    * message MyMessage {
+   *   MyEnum value = 1 [
    *     (buf.validate.field).enum.example = 1,
    *     (buf.validate.field).enum.example = 2
+   *   ];
    * }
    * ```
    */
   example: number[];
 }
 
-/** RepeatedRules describe the constraints applied to `repeated` values. */
+/** RepeatedRules describe the rules applied to `repeated` values. */
 export interface RepeatedRules {
   /**
    * `min_items` requires that this field must contain at least the specified
@@ -3042,7 +3235,7 @@ export interface RepeatedRules {
     | undefined;
   /**
    * `unique` indicates that all elements in this field must
-   * be unique. This constraint is strictly applicable to scalar and enum
+   * be unique. This rule is strictly applicable to scalar and enum
    * types, with message types not being supported.
    *
    * ```proto
@@ -3056,13 +3249,13 @@ export interface RepeatedRules {
     | boolean
     | undefined;
   /**
-   * `items` details the constraints to be applied to each item
+   * `items` details the rules to be applied to each item
    * in the field. Even for repeated message fields, validation is executed
-   * against each item unless skip is explicitly specified.
+   * against each item unless `ignore` is specified.
    *
    * ```proto
    * message MyRepeated {
-   *   // The items in the field `value` must follow the specified constraints.
+   *   // The items in the field `value` must follow the specified rules.
    *   repeated string value = 1 [(buf.validate.field).repeated.items = {
    *     string: {
    *       min_len: 3
@@ -3071,11 +3264,14 @@ export interface RepeatedRules {
    *   }];
    * }
    * ```
+   *
+   * Note that the `required` rule does not apply. Repeated items
+   * cannot be unset.
    */
-  items?: FieldConstraints | undefined;
+  items?: FieldRules | undefined;
 }
 
-/** MapRules describe the constraints applied to `map` values. */
+/** MapRules describe the rules applied to `map` values. */
 export interface MapRules {
   /**
    * Specifies the minimum number of key-value pairs allowed. If the field has
@@ -3106,11 +3302,11 @@ export interface MapRules {
     | number
     | undefined;
   /**
-   * Specifies the constraints to be applied to each key in the field.
+   * Specifies the rules to be applied to each key in the field.
    *
    * ```proto
    * message MyMap {
-   *   // The keys in the field `value` must follow the specified constraints.
+   *   // The keys in the field `value` must follow the specified rules.
    *   map<string, string> value = 1 [(buf.validate.field).map.keys = {
    *     string: {
    *       min_len: 3
@@ -3119,18 +3315,20 @@ export interface MapRules {
    *   }];
    * }
    * ```
+   *
+   * Note that the `required` rule does not apply. Map keys cannot be unset.
    */
   keys?:
-    | FieldConstraints
+    | FieldRules
     | undefined;
   /**
-   * Specifies the constraints to be applied to the value of each key in the
+   * Specifies the rules to be applied to the value of each key in the
    * field. Message values will still have their validations evaluated unless
-   * skip is specified here.
+   * `ignore` is specified.
    *
    * ```proto
    * message MyMap {
-   *   // The values in the field `value` must follow the specified constraints.
+   *   // The values in the field `value` must follow the specified rules.
    *   map<string, string> value = 1 [(buf.validate.field).map.values = {
    *     string: {
    *       min_len: 5
@@ -3139,11 +3337,12 @@ export interface MapRules {
    *   }];
    * }
    * ```
+   * Note that the `required` rule does not apply. Map values cannot be unset.
    */
-  values?: FieldConstraints | undefined;
+  values?: FieldRules | undefined;
 }
 
-/** AnyRules describe constraints applied exclusively to the `google.protobuf.Any` well-known type. */
+/** AnyRules describe rules applied exclusively to the `google.protobuf.Any` well-known type. */
 export interface AnyRules {
   /**
    * `in` requires the field's `type_url` to be equal to one of the
@@ -3153,25 +3352,29 @@ export interface AnyRules {
    * ```proto
    * message MyAny {
    *   //  The `value` field must have a `type_url` equal to one of the specified values.
-   *   google.protobuf.Any value = 1 [(buf.validate.field).any.in = ["type.googleapis.com/MyType1", "type.googleapis.com/MyType2"]];
+   *   google.protobuf.Any value = 1 [(buf.validate.field).any = {
+   *       in: ["type.googleapis.com/MyType1", "type.googleapis.com/MyType2"]
+   *   }];
    * }
    * ```
    */
   in: string[];
   /**
-   * requires the field's type_url to be not equal to any of the specified values. If it matches any of the specified values, an error message is generated.
+   * `not_in` requires the field's type_url to be not equal to any of the specified values. If it matches any of the specified values, an error message is generated.
    *
    * ```proto
    * message MyAny {
-   *   // The field `value` must not have a `type_url` equal to any of the specified values.
-   *   google.protobuf.Any value = 1 [(buf.validate.field).any.not_in = ["type.googleapis.com/ForbiddenType1", "type.googleapis.com/ForbiddenType2"]];
+   *   //  The `value` field must not have a `type_url` equal to any of the specified values.
+   *   google.protobuf.Any value = 1 [(buf.validate.field).any = {
+   *       not_in: ["type.googleapis.com/ForbiddenType1", "type.googleapis.com/ForbiddenType2"]
+   *   }];
    * }
    * ```
    */
   notIn: string[];
 }
 
-/** DurationRules describe the constraints applied exclusively to the `google.protobuf.Duration` well-known type. */
+/** DurationRules describe the rules applied exclusively to the `google.protobuf.Duration` well-known type. */
 export interface DurationRules {
   /**
    * `const` dictates that the field must match the specified value of the `google.protobuf.Duration` type exactly.
@@ -3181,7 +3384,7 @@ export interface DurationRules {
    * ```proto
    * message MyDuration {
    *   // value must equal 5s
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.const = "5s"];
+   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.const = { seconds: 5 }];
    * }
    * ```
    */
@@ -3195,8 +3398,8 @@ export interface DurationRules {
    *
    * ```proto
    * message MyDuration {
-   *   // value must be less than 5s
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.lt = "5s"];
+   *   // must be less than 5s
+   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.lt = { seconds: 5 }];
    * }
    * ```
    */
@@ -3210,8 +3413,8 @@ export interface DurationRules {
    *
    * ```proto
    * message MyDuration {
-   *   // value must be less than or equal to 10s
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.lte = "10s"];
+   *   // must be less than or equal to 10s
+   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.lte = { seconds: 10 }];
    * }
    * ```
    */
@@ -3271,8 +3474,10 @@ export interface DurationRules {
    *
    * ```proto
    * message MyDuration {
-   *   // value must be in list [1s, 2s, 3s]
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.in = ["1s", "2s", "3s"]];
+   *   // must be in list [1s, 2s, 3s]
+   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration = {
+   *     in: [{ seconds: 1 }, { seconds: 2 }, { seconds: 3 }]
+   *   }];
    * }
    * ```
    */
@@ -3286,21 +3491,23 @@ export interface DurationRules {
    * ```proto
    * message MyDuration {
    *   // value must not be in list [1s, 2s, 3s]
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.not_in = ["1s", "2s", "3s"]];
+   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration = {
+   *     not_in: [{ seconds: 1 }, { seconds: 2 }, { seconds: 3 }]
+   *   }];
    * }
    * ```
    */
   notIn: Duration[];
   /**
    * `example` specifies values that the field may have. These values SHOULD
-   * conform to other constraints. `example` values will not impact validation
+   * conform to other rules. `example` values will not impact validation
    * but may be used as helpful guidance on how to populate the given field.
    *
    * ```proto
    * message MyDuration {
    *   google.protobuf.Duration value = 1 [
    *     (buf.validate.field).duration.example = { seconds: 1 },
-   *     (buf.validate.field).duration.example = { seconds: 2 },
+   *     (buf.validate.field).duration.example = { seconds: 2 }
    *   ];
    * }
    * ```
@@ -3308,7 +3515,77 @@ export interface DurationRules {
   example: Duration[];
 }
 
-/** TimestampRules describe the constraints applied exclusively to the `google.protobuf.Timestamp` well-known type. */
+/** FieldMaskRules describe rules applied exclusively to the `google.protobuf.FieldMask` well-known type. */
+export interface FieldMaskRules {
+  /**
+   * `const` dictates that the field must match the specified value of the `google.protobuf.FieldMask` type exactly.
+   * If the field's value deviates from the specified value, an error message
+   * will be generated.
+   *
+   * ```proto
+   * message MyFieldMask {
+   *   // value must equal ["a"]
+   *   google.protobuf.FieldMask value = 1 [(buf.validate.field).field_mask.const = {
+   *       paths: ["a"]
+   *   }];
+   * }
+   * ```
+   */
+  const?:
+    | string[]
+    | undefined;
+  /**
+   * `in` requires the field value to only contain paths matching specified
+   * values or their subpaths.
+   * If any of the field value's paths doesn't match the rule,
+   * an error message is generated.
+   * See: https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask
+   *
+   * ```proto
+   * message MyFieldMask {
+   *   //  The `value` FieldMask must only contain paths listed in `in`.
+   *   google.protobuf.FieldMask value = 1 [(buf.validate.field).field_mask = {
+   *       in: ["a", "b", "c.a"]
+   *   }];
+   * }
+   * ```
+   */
+  in: string[];
+  /**
+   * `not_in` requires the field value to not contain paths matching specified
+   * values or their subpaths.
+   * If any of the field value's paths matches the rule,
+   * an error message is generated.
+   * See: https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask
+   *
+   * ```proto
+   * message MyFieldMask {
+   *   //  The `value` FieldMask shall not contain paths listed in `not_in`.
+   *   google.protobuf.FieldMask value = 1 [(buf.validate.field).field_mask = {
+   *       not_in: ["forbidden", "immutable", "c.a"]
+   *   }];
+   * }
+   * ```
+   */
+  notIn: string[];
+  /**
+   * `example` specifies values that the field may have. These values SHOULD
+   * conform to other rules. `example` values will not impact validation
+   * but may be used as helpful guidance on how to populate the given field.
+   *
+   * ```proto
+   * message MyFieldMask {
+   *   google.protobuf.FieldMask value = 1 [
+   *     (buf.validate.field).field_mask.example = { paths: ["a", "b"] },
+   *     (buf.validate.field).field_mask.example = { paths: ["c.a", "d"] }
+   *   ];
+   * }
+   * ```
+   */
+  example: string[][];
+}
+
+/** TimestampRules describe the rules applied exclusively to the `google.protobuf.Timestamp` well-known type. */
 export interface TimestampRules {
   /**
    * `const` dictates that this field, of the `google.protobuf.Timestamp` type, must exactly match the specified value. If the field value doesn't correspond to the specified timestamp, an error message will be generated.
@@ -3324,12 +3601,12 @@ export interface TimestampRules {
     | Date
     | undefined;
   /**
-   * requires the duration field value to be less than the specified value (field < value). If the field value doesn't meet the required conditions, an error message is generated.
+   * `lt` requires the timestamp field value to be less than the specified value (field < value). If the field value doesn't meet the required conditions, an error message is generated.
    *
    * ```proto
-   * message MyDuration {
-   *   // duration must be less than 'P3D' [duration.lt]
-   *   google.protobuf.Duration value = 1 [(buf.validate.field).duration.lt = { seconds: 259200 }];
+   * message MyTimestamp {
+   *   // timestamp must be less than '2023-01-01T00:00:00Z' [timestamp.lt]
+   *   google.protobuf.Timestamp value = 1 [(buf.validate.field).timestamp.lt = { seconds: 1672444800 }];
    * }
    * ```
    */
@@ -3337,7 +3614,7 @@ export interface TimestampRules {
     | Date
     | undefined;
   /**
-   * requires the timestamp field value to be less than or equal to the specified value (field <= value). If the field value doesn't meet the required conditions, an error message is generated.
+   * `lte` requires the timestamp field value to be less than or equal to the specified value (field <= value). If the field value doesn't meet the required conditions, an error message is generated.
    *
    * ```proto
    * message MyTimestamp {
@@ -3354,7 +3631,7 @@ export interface TimestampRules {
    *
    * ```proto
    * message MyTimestamp {
-   *  // value must be less than now
+   *  // must be less than now
    *   google.protobuf.Timestamp created_at = 1 [(buf.validate.field).timestamp.lt_now = true];
    * }
    * ```
@@ -3413,7 +3690,7 @@ export interface TimestampRules {
    *
    * ```proto
    * message MyTimestamp {
-   *   // value must be greater than now
+   *   // must be greater than now
    *   google.protobuf.Timestamp created_at = 1 [(buf.validate.field).timestamp.gt_now = true];
    * }
    * ```
@@ -3426,18 +3703,34 @@ export interface TimestampRules {
    *
    * ```proto
    * message MyTimestamp {
-   *   // value must be within 1 hour of now
+   *   // must be within 1 hour of now
    *   google.protobuf.Timestamp created_at = 1 [(buf.validate.field).timestamp.within = {seconds: 3600}];
    * }
    * ```
    */
-  within?: Duration | undefined;
+  within?:
+    | Duration
+    | undefined;
+  /**
+   * `example` specifies values that the field may have. These values SHOULD
+   * conform to other rules. `example` values will not impact validation
+   * but may be used as helpful guidance on how to populate the given field.
+   *
+   * ```proto
+   * message MyTimestamp {
+   *   google.protobuf.Timestamp value = 1 [
+   *     (buf.validate.field).timestamp.example = { seconds: 1672444800 },
+   *     (buf.validate.field).timestamp.example = { seconds: 1672531200 }
+   *   ];
+   * }
+   * ```
+   */
   example: Date[];
 }
 
 /**
  * `Violations` is a collection of `Violation` messages. This message type is returned by
- * protovalidate when a proto message fails to meet the requirements set by the `Constraint` validation rules.
+ * Protovalidate when a proto message fails to meet the requirements set by the `Rule` validation rules.
  * Each individual violation is represented by a `Violation` message.
  */
 export interface Violations {
@@ -3447,15 +3740,46 @@ export interface Violations {
 
 /**
  * `Violation` represents a single instance where a validation rule, expressed
- * as a `Constraint`, was not met. It provides information about the field that
- * caused the violation, the specific constraint that wasn't fulfilled, and a
+ * as a `Rule`, was not met. It provides information about the field that
+ * caused the violation, the specific rule that wasn't fulfilled, and a
  * human-readable error message.
+ *
+ * For example, consider the following message:
+ *
+ * ```proto
+ * message User {
+ *     int32 age = 1 [(buf.validate.field).cel = {
+ *         id: "user.age",
+ *         expression: "this < 18 ? 'User must be at least 18 years old' : ''",
+ *     }];
+ * }
+ * ```
+ *
+ * It could produce the following violation:
  *
  * ```json
  * {
- *   "fieldPath": "bar",
- *   "constraintId": "foo.bar",
- *   "message": "bar must be greater than 0"
+ *   "ruleId": "user.age",
+ *   "message": "User must be at least 18 years old",
+ *   "field": {
+ *     "elements": [
+ *       {
+ *         "fieldNumber": 1,
+ *         "fieldName": "age",
+ *         "fieldType": "TYPE_INT32"
+ *       }
+ *     ]
+ *   },
+ *   "rule": {
+ *     "elements": [
+ *       {
+ *         "fieldNumber": 23,
+ *         "fieldName": "cel",
+ *         "fieldType": "TYPE_MESSAGE",
+ *         "index": "0"
+ *       }
+ *     ]
+ *   }
  * }
  * ```
  */
@@ -3485,9 +3809,9 @@ export interface Violation {
     | FieldPath
     | undefined;
   /**
-   * `rule` is a machine-readable path that points to the specific constraint rule that failed validation.
-   * This will be a nested field starting from the FieldConstraints of the field that failed validation.
-   * For custom constraints, this will provide the path of the constraint, e.g. `cel[0]`.
+   * `rule` is a machine-readable path that points to the specific rule that failed validation.
+   * This will be a nested field starting from the FieldRules of the field that failed validation.
+   * For custom rules, this will provide the path of the rule, e.g. `cel[0]`.
    *
    * For example, consider the following message:
    *
@@ -3495,9 +3819,9 @@ export interface Violation {
    * message Message {
    *   bool a = 1 [(buf.validate.field).required = true];
    *   bool b = 2 [(buf.validate.field).cel = {
-   *     id: "custom_constraint",
+   *     id: "custom_rule",
    *     expression: "!this ? 'b must be true': ''"
-   *   }]
+   *   }];
    * }
    * ```
    *
@@ -3518,15 +3842,15 @@ export interface Violation {
     | FieldPath
     | undefined;
   /**
-   * `constraint_id` is the unique identifier of the `Constraint` that was not fulfilled.
-   * This is the same `id` that was specified in the `Constraint` message, allowing easy tracing of which rule was violated.
+   * `rule_id` is the unique identifier of the `Rule` that was not fulfilled.
+   * This is the same `id` that was specified in the `Rule` message, allowing easy tracing of which rule was violated.
    */
-  constraintId?:
+  ruleId?:
     | string
     | undefined;
   /**
    * `message` is a human-readable error message that describes the nature of the violation.
-   * This can be the default error message from the violated `Constraint`, or it can be a custom message that gives more context about the violation.
+   * This can be the default error message from the violated `Rule`, or it can be a custom message that gives more context about the violation.
    */
   message?:
     | string
@@ -3615,12 +3939,12 @@ export interface FieldPathElement {
   stringKey?: string | undefined;
 }
 
-function createBaseConstraint(): Constraint {
+function createBaseRule(): Rule {
   return { id: "", message: "", expression: "" };
 }
 
-export const Constraint: MessageFns<Constraint> = {
-  encode(message: Constraint, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Rule: MessageFns<Rule> = {
+  encode(message: Rule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== undefined && message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -3633,7 +3957,7 @@ export const Constraint: MessageFns<Constraint> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Constraint {
+  decode(input: BinaryReader | Uint8Array, length?: number): Rule {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3642,7 +3966,7 @@ export const Constraint: MessageFns<Constraint> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseConstraint();
+      const message = createBaseRule();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3682,7 +4006,7 @@ export const Constraint: MessageFns<Constraint> = {
     }
   },
 
-  fromJSON(object: any): Constraint {
+  fromJSON(object: any): Rule {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       message: isSet(object.message) ? globalThis.String(object.message) : "",
@@ -3690,7 +4014,7 @@ export const Constraint: MessageFns<Constraint> = {
     };
   },
 
-  toJSON(message: Constraint): unknown {
+  toJSON(message: Rule): unknown {
     const obj: any = {};
     if (message.id !== undefined && message.id !== "") {
       obj.id = message.id;
@@ -3704,11 +4028,11 @@ export const Constraint: MessageFns<Constraint> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Constraint>, I>>(base?: I): Constraint {
-    return Constraint.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Rule>, I>>(base?: I): Rule {
+    return Rule.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Constraint>, I>>(object: I): Constraint {
-    const message = createBaseConstraint();
+  fromPartial<I extends Exact<DeepPartial<Rule>, I>>(object: I): Rule {
+    const message = createBaseRule();
     message.id = object.id ?? "";
     message.message = object.message ?? "";
     message.expression = object.expression ?? "";
@@ -3716,22 +4040,25 @@ export const Constraint: MessageFns<Constraint> = {
   },
 };
 
-function createBaseMessageConstraints(): MessageConstraints {
-  return { disabled: false, cel: [] };
+function createBaseMessageRules(): MessageRules {
+  return { celExpression: [], cel: [], oneof: [] };
 }
 
-export const MessageConstraints: MessageFns<MessageConstraints> = {
-  encode(message: MessageConstraints, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.disabled !== undefined && message.disabled !== false) {
-      writer.uint32(8).bool(message.disabled);
+export const MessageRules: MessageFns<MessageRules> = {
+  encode(message: MessageRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.celExpression) {
+      writer.uint32(42).string(v!);
     }
     for (const v of message.cel) {
-      Constraint.encode(v!, writer.uint32(26).fork()).join();
+      Rule.encode(v!, writer.uint32(26).fork()).join();
+    }
+    for (const v of message.oneof) {
+      MessageOneofRule.encode(v!, writer.uint32(34).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MessageConstraints {
+  decode(input: BinaryReader | Uint8Array, length?: number): MessageRules {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3740,16 +4067,16 @@ export const MessageConstraints: MessageFns<MessageConstraints> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseMessageConstraints();
+      const message = createBaseMessageRules();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 8) {
+          case 5: {
+            if (tag !== 42) {
               break;
             }
 
-            message.disabled = reader.bool();
+            message.celExpression.push(reader.string());
             continue;
           }
           case 3: {
@@ -3757,7 +4084,15 @@ export const MessageConstraints: MessageFns<MessageConstraints> = {
               break;
             }
 
-            message.cel.push(Constraint.decode(reader, reader.uint32()));
+            message.cel.push(Rule.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.oneof.push(MessageOneofRule.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -3772,48 +4107,60 @@ export const MessageConstraints: MessageFns<MessageConstraints> = {
     }
   },
 
-  fromJSON(object: any): MessageConstraints {
+  fromJSON(object: any): MessageRules {
     return {
-      disabled: isSet(object.disabled) ? globalThis.Boolean(object.disabled) : false,
-      cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Constraint.fromJSON(e)) : [],
+      celExpression: globalThis.Array.isArray(object?.celExpression)
+        ? object.celExpression.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.cel_expression)
+        ? object.cel_expression.map((e: any) => globalThis.String(e))
+        : [],
+      cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Rule.fromJSON(e)) : [],
+      oneof: globalThis.Array.isArray(object?.oneof) ? object.oneof.map((e: any) => MessageOneofRule.fromJSON(e)) : [],
     };
   },
 
-  toJSON(message: MessageConstraints): unknown {
+  toJSON(message: MessageRules): unknown {
     const obj: any = {};
-    if (message.disabled !== undefined && message.disabled !== false) {
-      obj.disabled = message.disabled;
+    if (message.celExpression?.length) {
+      obj.celExpression = message.celExpression;
     }
     if (message.cel?.length) {
-      obj.cel = message.cel.map((e) => Constraint.toJSON(e));
+      obj.cel = message.cel.map((e) => Rule.toJSON(e));
+    }
+    if (message.oneof?.length) {
+      obj.oneof = message.oneof.map((e) => MessageOneofRule.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MessageConstraints>, I>>(base?: I): MessageConstraints {
-    return MessageConstraints.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<MessageRules>, I>>(base?: I): MessageRules {
+    return MessageRules.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MessageConstraints>, I>>(object: I): MessageConstraints {
-    const message = createBaseMessageConstraints();
-    message.disabled = object.disabled ?? false;
-    message.cel = object.cel?.map((e) => Constraint.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<MessageRules>, I>>(object: I): MessageRules {
+    const message = createBaseMessageRules();
+    message.celExpression = object.celExpression?.map((e) => e) || [];
+    message.cel = object.cel?.map((e) => Rule.fromPartial(e)) || [];
+    message.oneof = object.oneof?.map((e) => MessageOneofRule.fromPartial(e)) || [];
     return message;
   },
 };
 
-function createBaseOneofConstraints(): OneofConstraints {
-  return { required: false };
+function createBaseMessageOneofRule(): MessageOneofRule {
+  return { fields: [], required: false };
 }
 
-export const OneofConstraints: MessageFns<OneofConstraints> = {
-  encode(message: OneofConstraints, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const MessageOneofRule: MessageFns<MessageOneofRule> = {
+  encode(message: MessageOneofRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.fields) {
+      writer.uint32(10).string(v!);
+    }
     if (message.required !== undefined && message.required !== false) {
-      writer.uint32(8).bool(message.required);
+      writer.uint32(16).bool(message.required);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): OneofConstraints {
+  decode(input: BinaryReader | Uint8Array, length?: number): MessageOneofRule {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3822,7 +4169,89 @@ export const OneofConstraints: MessageFns<OneofConstraints> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseOneofConstraints();
+      const message = createBaseMessageOneofRule();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.fields.push(reader.string());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.required = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): MessageOneofRule {
+    return {
+      fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => globalThis.String(e)) : [],
+      required: isSet(object.required) ? globalThis.Boolean(object.required) : false,
+    };
+  },
+
+  toJSON(message: MessageOneofRule): unknown {
+    const obj: any = {};
+    if (message.fields?.length) {
+      obj.fields = message.fields;
+    }
+    if (message.required !== undefined && message.required !== false) {
+      obj.required = message.required;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MessageOneofRule>, I>>(base?: I): MessageOneofRule {
+    return MessageOneofRule.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageOneofRule>, I>>(object: I): MessageOneofRule {
+    const message = createBaseMessageOneofRule();
+    message.fields = object.fields?.map((e) => e) || [];
+    message.required = object.required ?? false;
+    return message;
+  },
+};
+
+function createBaseOneofRules(): OneofRules {
+  return { required: false };
+}
+
+export const OneofRules: MessageFns<OneofRules> = {
+  encode(message: OneofRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.required !== undefined && message.required !== false) {
+      writer.uint32(8).bool(message.required);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): OneofRules {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseOneofRules();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3846,11 +4275,11 @@ export const OneofConstraints: MessageFns<OneofConstraints> = {
     }
   },
 
-  fromJSON(object: any): OneofConstraints {
+  fromJSON(object: any): OneofRules {
     return { required: isSet(object.required) ? globalThis.Boolean(object.required) : false };
   },
 
-  toJSON(message: OneofConstraints): unknown {
+  toJSON(message: OneofRules): unknown {
     const obj: any = {};
     if (message.required !== undefined && message.required !== false) {
       obj.required = message.required;
@@ -3858,18 +4287,19 @@ export const OneofConstraints: MessageFns<OneofConstraints> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OneofConstraints>, I>>(base?: I): OneofConstraints {
-    return OneofConstraints.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<OneofRules>, I>>(base?: I): OneofRules {
+    return OneofRules.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OneofConstraints>, I>>(object: I): OneofConstraints {
-    const message = createBaseOneofConstraints();
+  fromPartial<I extends Exact<DeepPartial<OneofRules>, I>>(object: I): OneofRules {
+    const message = createBaseOneofRules();
     message.required = object.required ?? false;
     return message;
   },
 };
 
-function createBaseFieldConstraints(): FieldConstraints {
+function createBaseFieldRules(): FieldRules {
   return {
+    celExpression: [],
     cel: [],
     required: false,
     ignore: 0,
@@ -3893,14 +4323,18 @@ function createBaseFieldConstraints(): FieldConstraints {
     map: undefined,
     any: undefined,
     duration: undefined,
+    fieldMask: undefined,
     timestamp: undefined,
   };
 }
 
-export const FieldConstraints: MessageFns<FieldConstraints> = {
-  encode(message: FieldConstraints, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const FieldRules: MessageFns<FieldRules> = {
+  encode(message: FieldRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.celExpression) {
+      writer.uint32(234).string(v!);
+    }
     for (const v of message.cel) {
-      Constraint.encode(v!, writer.uint32(186).fork()).join();
+      Rule.encode(v!, writer.uint32(186).fork()).join();
     }
     if (message.required !== undefined && message.required !== false) {
       writer.uint32(200).bool(message.required);
@@ -3968,13 +4402,16 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
     if (message.duration !== undefined) {
       DurationRules.encode(message.duration, writer.uint32(170).fork()).join();
     }
+    if (message.fieldMask !== undefined) {
+      FieldMaskRules.encode(message.fieldMask, writer.uint32(226).fork()).join();
+    }
     if (message.timestamp !== undefined) {
       TimestampRules.encode(message.timestamp, writer.uint32(178).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): FieldConstraints {
+  decode(input: BinaryReader | Uint8Array, length?: number): FieldRules {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3983,16 +4420,24 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseFieldConstraints();
+      const message = createBaseFieldRules();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
+          case 29: {
+            if (tag !== 234) {
+              break;
+            }
+
+            message.celExpression.push(reader.string());
+            continue;
+          }
           case 23: {
             if (tag !== 186) {
               break;
             }
 
-            message.cel.push(Constraint.decode(reader, reader.uint32()));
+            message.cel.push(Rule.decode(reader, reader.uint32()));
             continue;
           }
           case 25: {
@@ -4171,6 +4616,14 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
             message.duration = DurationRules.decode(reader, reader.uint32());
             continue;
           }
+          case 28: {
+            if (tag !== 226) {
+              break;
+            }
+
+            message.fieldMask = FieldMaskRules.decode(reader, reader.uint32());
+            continue;
+          }
           case 22: {
             if (tag !== 178) {
               break;
@@ -4191,9 +4644,14 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
     }
   },
 
-  fromJSON(object: any): FieldConstraints {
+  fromJSON(object: any): FieldRules {
     return {
-      cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Constraint.fromJSON(e)) : [],
+      celExpression: globalThis.Array.isArray(object?.celExpression)
+        ? object.celExpression.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.cel_expression)
+        ? object.cel_expression.map((e: any) => globalThis.String(e))
+        : [],
+      cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Rule.fromJSON(e)) : [],
       required: isSet(object.required) ? globalThis.Boolean(object.required) : false,
       ignore: isSet(object.ignore) ? ignoreFromJSON(object.ignore) : 0,
       float: isSet(object.float) ? FloatRules.fromJSON(object.float) : undefined,
@@ -4216,14 +4674,22 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
       map: isSet(object.map) ? MapRules.fromJSON(object.map) : undefined,
       any: isSet(object.any) ? AnyRules.fromJSON(object.any) : undefined,
       duration: isSet(object.duration) ? DurationRules.fromJSON(object.duration) : undefined,
+      fieldMask: isSet(object.fieldMask)
+        ? FieldMaskRules.fromJSON(object.fieldMask)
+        : isSet(object.field_mask)
+        ? FieldMaskRules.fromJSON(object.field_mask)
+        : undefined,
       timestamp: isSet(object.timestamp) ? TimestampRules.fromJSON(object.timestamp) : undefined,
     };
   },
 
-  toJSON(message: FieldConstraints): unknown {
+  toJSON(message: FieldRules): unknown {
     const obj: any = {};
+    if (message.celExpression?.length) {
+      obj.celExpression = message.celExpression;
+    }
     if (message.cel?.length) {
-      obj.cel = message.cel.map((e) => Constraint.toJSON(e));
+      obj.cel = message.cel.map((e) => Rule.toJSON(e));
     }
     if (message.required !== undefined && message.required !== false) {
       obj.required = message.required;
@@ -4291,18 +4757,22 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
     if (message.duration !== undefined) {
       obj.duration = DurationRules.toJSON(message.duration);
     }
+    if (message.fieldMask !== undefined) {
+      obj.fieldMask = FieldMaskRules.toJSON(message.fieldMask);
+    }
     if (message.timestamp !== undefined) {
       obj.timestamp = TimestampRules.toJSON(message.timestamp);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<FieldConstraints>, I>>(base?: I): FieldConstraints {
-    return FieldConstraints.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<FieldRules>, I>>(base?: I): FieldRules {
+    return FieldRules.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<FieldConstraints>, I>>(object: I): FieldConstraints {
-    const message = createBaseFieldConstraints();
-    message.cel = object.cel?.map((e) => Constraint.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<FieldRules>, I>>(object: I): FieldRules {
+    const message = createBaseFieldRules();
+    message.celExpression = object.celExpression?.map((e) => e) || [];
+    message.cel = object.cel?.map((e) => Rule.fromPartial(e)) || [];
     message.required = object.required ?? false;
     message.ignore = object.ignore ?? 0;
     message.float = (object.float !== undefined && object.float !== null)
@@ -4357,6 +4827,9 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
     message.duration = (object.duration !== undefined && object.duration !== null)
       ? DurationRules.fromPartial(object.duration)
       : undefined;
+    message.fieldMask = (object.fieldMask !== undefined && object.fieldMask !== null)
+      ? FieldMaskRules.fromPartial(object.fieldMask)
+      : undefined;
     message.timestamp = (object.timestamp !== undefined && object.timestamp !== null)
       ? TimestampRules.fromPartial(object.timestamp)
       : undefined;
@@ -4364,19 +4837,19 @@ export const FieldConstraints: MessageFns<FieldConstraints> = {
   },
 };
 
-function createBasePredefinedConstraints(): PredefinedConstraints {
+function createBasePredefinedRules(): PredefinedRules {
   return { cel: [] };
 }
 
-export const PredefinedConstraints: MessageFns<PredefinedConstraints> = {
-  encode(message: PredefinedConstraints, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const PredefinedRules: MessageFns<PredefinedRules> = {
+  encode(message: PredefinedRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.cel) {
-      Constraint.encode(v!, writer.uint32(10).fork()).join();
+      Rule.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PredefinedConstraints {
+  decode(input: BinaryReader | Uint8Array, length?: number): PredefinedRules {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -4385,7 +4858,7 @@ export const PredefinedConstraints: MessageFns<PredefinedConstraints> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBasePredefinedConstraints();
+      const message = createBasePredefinedRules();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -4394,7 +4867,7 @@ export const PredefinedConstraints: MessageFns<PredefinedConstraints> = {
               break;
             }
 
-            message.cel.push(Constraint.decode(reader, reader.uint32()));
+            message.cel.push(Rule.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -4409,24 +4882,24 @@ export const PredefinedConstraints: MessageFns<PredefinedConstraints> = {
     }
   },
 
-  fromJSON(object: any): PredefinedConstraints {
-    return { cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Constraint.fromJSON(e)) : [] };
+  fromJSON(object: any): PredefinedRules {
+    return { cel: globalThis.Array.isArray(object?.cel) ? object.cel.map((e: any) => Rule.fromJSON(e)) : [] };
   },
 
-  toJSON(message: PredefinedConstraints): unknown {
+  toJSON(message: PredefinedRules): unknown {
     const obj: any = {};
     if (message.cel?.length) {
-      obj.cel = message.cel.map((e) => Constraint.toJSON(e));
+      obj.cel = message.cel.map((e) => Rule.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PredefinedConstraints>, I>>(base?: I): PredefinedConstraints {
-    return PredefinedConstraints.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<PredefinedRules>, I>>(base?: I): PredefinedRules {
+    return PredefinedRules.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PredefinedConstraints>, I>>(object: I): PredefinedConstraints {
-    const message = createBasePredefinedConstraints();
-    message.cel = object.cel?.map((e) => Constraint.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<PredefinedRules>, I>>(object: I): PredefinedRules {
+    const message = createBasePredefinedRules();
+    message.cel = object.cel?.map((e) => Rule.fromPartial(e)) || [];
     return message;
   },
 };
@@ -7191,6 +7664,9 @@ function createBaseStringRules(): StringRules {
     ipv4Prefix: undefined,
     ipv6Prefix: undefined,
     hostAndPort: undefined,
+    ulid: undefined,
+    protobufFqn: undefined,
+    protobufDotFqn: undefined,
     wellKnownRegex: undefined,
     strict: false,
     example: [],
@@ -7291,6 +7767,15 @@ export const StringRules: MessageFns<StringRules> = {
     }
     if (message.hostAndPort !== undefined) {
       writer.uint32(256).bool(message.hostAndPort);
+    }
+    if (message.ulid !== undefined) {
+      writer.uint32(280).bool(message.ulid);
+    }
+    if (message.protobufFqn !== undefined) {
+      writer.uint32(296).bool(message.protobufFqn);
+    }
+    if (message.protobufDotFqn !== undefined) {
+      writer.uint32(304).bool(message.protobufDotFqn);
     }
     if (message.wellKnownRegex !== undefined) {
       writer.uint32(192).int32(message.wellKnownRegex);
@@ -7565,6 +8050,30 @@ export const StringRules: MessageFns<StringRules> = {
             message.hostAndPort = reader.bool();
             continue;
           }
+          case 35: {
+            if (tag !== 280) {
+              break;
+            }
+
+            message.ulid = reader.bool();
+            continue;
+          }
+          case 37: {
+            if (tag !== 296) {
+              break;
+            }
+
+            message.protobufFqn = reader.bool();
+            continue;
+          }
+          case 38: {
+            if (tag !== 304) {
+              break;
+            }
+
+            message.protobufDotFqn = reader.bool();
+            continue;
+          }
           case 24: {
             if (tag !== 192) {
               break;
@@ -7696,6 +8205,17 @@ export const StringRules: MessageFns<StringRules> = {
         : isSet(object.host_and_port)
         ? globalThis.Boolean(object.host_and_port)
         : undefined,
+      ulid: isSet(object.ulid) ? globalThis.Boolean(object.ulid) : undefined,
+      protobufFqn: isSet(object.protobufFqn)
+        ? globalThis.Boolean(object.protobufFqn)
+        : isSet(object.protobuf_fqn)
+        ? globalThis.Boolean(object.protobuf_fqn)
+        : undefined,
+      protobufDotFqn: isSet(object.protobufDotFqn)
+        ? globalThis.Boolean(object.protobufDotFqn)
+        : isSet(object.protobuf_dot_fqn)
+        ? globalThis.Boolean(object.protobuf_dot_fqn)
+        : undefined,
       wellKnownRegex: isSet(object.wellKnownRegex)
         ? knownRegexFromJSON(object.wellKnownRegex)
         : isSet(object.well_known_regex)
@@ -7803,6 +8323,15 @@ export const StringRules: MessageFns<StringRules> = {
     if (message.hostAndPort !== undefined) {
       obj.hostAndPort = message.hostAndPort;
     }
+    if (message.ulid !== undefined) {
+      obj.ulid = message.ulid;
+    }
+    if (message.protobufFqn !== undefined) {
+      obj.protobufFqn = message.protobufFqn;
+    }
+    if (message.protobufDotFqn !== undefined) {
+      obj.protobufDotFqn = message.protobufDotFqn;
+    }
     if (message.wellKnownRegex !== undefined) {
       obj.wellKnownRegex = knownRegexToJSON(message.wellKnownRegex);
     }
@@ -7851,6 +8380,9 @@ export const StringRules: MessageFns<StringRules> = {
     message.ipv4Prefix = object.ipv4Prefix ?? undefined;
     message.ipv6Prefix = object.ipv6Prefix ?? undefined;
     message.hostAndPort = object.hostAndPort ?? undefined;
+    message.ulid = object.ulid ?? undefined;
+    message.protobufFqn = object.protobufFqn ?? undefined;
+    message.protobufDotFqn = object.protobufDotFqn ?? undefined;
     message.wellKnownRegex = object.wellKnownRegex ?? undefined;
     message.strict = object.strict ?? false;
     message.example = object.example?.map((e) => e) || [];
@@ -7873,6 +8405,7 @@ function createBaseBytesRules(): BytesRules {
     ip: undefined,
     ipv4: undefined,
     ipv6: undefined,
+    uuid: undefined,
     example: [],
   };
 }
@@ -7917,6 +8450,9 @@ export const BytesRules: MessageFns<BytesRules> = {
     }
     if (message.ipv6 !== undefined) {
       writer.uint32(96).bool(message.ipv6);
+    }
+    if (message.uuid !== undefined) {
+      writer.uint32(120).bool(message.uuid);
     }
     for (const v of message.example) {
       writer.uint32(114).bytes(v!);
@@ -8041,6 +8577,14 @@ export const BytesRules: MessageFns<BytesRules> = {
             message.ipv6 = reader.bool();
             continue;
           }
+          case 15: {
+            if (tag !== 120) {
+              break;
+            }
+
+            message.uuid = reader.bool();
+            continue;
+          }
           case 14: {
             if (tag !== 114) {
               break;
@@ -8088,6 +8632,7 @@ export const BytesRules: MessageFns<BytesRules> = {
       ip: isSet(object.ip) ? globalThis.Boolean(object.ip) : undefined,
       ipv4: isSet(object.ipv4) ? globalThis.Boolean(object.ipv4) : undefined,
       ipv6: isSet(object.ipv6) ? globalThis.Boolean(object.ipv6) : undefined,
+      uuid: isSet(object.uuid) ? globalThis.Boolean(object.uuid) : undefined,
       example: globalThis.Array.isArray(object?.example)
         ? object.example.map((e: any) => bytesFromBase64(e))
         : [],
@@ -8135,6 +8680,9 @@ export const BytesRules: MessageFns<BytesRules> = {
     if (message.ipv6 !== undefined) {
       obj.ipv6 = message.ipv6;
     }
+    if (message.uuid !== undefined) {
+      obj.uuid = message.uuid;
+    }
     if (message.example?.length) {
       obj.example = message.example.map((e) => base64FromBytes(e));
     }
@@ -8159,6 +8707,7 @@ export const BytesRules: MessageFns<BytesRules> = {
     message.ip = object.ip ?? undefined;
     message.ipv4 = object.ipv4 ?? undefined;
     message.ipv6 = object.ipv6 ?? undefined;
+    message.uuid = object.uuid ?? undefined;
     message.example = object.example?.map((e) => e) || [];
     return message;
   },
@@ -8351,7 +8900,7 @@ export const RepeatedRules: MessageFns<RepeatedRules> = {
       writer.uint32(24).bool(message.unique);
     }
     if (message.items !== undefined) {
-      FieldConstraints.encode(message.items, writer.uint32(34).fork()).join();
+      FieldRules.encode(message.items, writer.uint32(34).fork()).join();
     }
     return writer;
   },
@@ -8398,7 +8947,7 @@ export const RepeatedRules: MessageFns<RepeatedRules> = {
               break;
             }
 
-            message.items = FieldConstraints.decode(reader, reader.uint32());
+            message.items = FieldRules.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -8426,7 +8975,7 @@ export const RepeatedRules: MessageFns<RepeatedRules> = {
         ? globalThis.Number(object.max_items)
         : 0,
       unique: isSet(object.unique) ? globalThis.Boolean(object.unique) : false,
-      items: isSet(object.items) ? FieldConstraints.fromJSON(object.items) : undefined,
+      items: isSet(object.items) ? FieldRules.fromJSON(object.items) : undefined,
     };
   },
 
@@ -8442,7 +8991,7 @@ export const RepeatedRules: MessageFns<RepeatedRules> = {
       obj.unique = message.unique;
     }
     if (message.items !== undefined) {
-      obj.items = FieldConstraints.toJSON(message.items);
+      obj.items = FieldRules.toJSON(message.items);
     }
     return obj;
   },
@@ -8456,7 +9005,7 @@ export const RepeatedRules: MessageFns<RepeatedRules> = {
     message.maxItems = object.maxItems ?? 0;
     message.unique = object.unique ?? false;
     message.items = (object.items !== undefined && object.items !== null)
-      ? FieldConstraints.fromPartial(object.items)
+      ? FieldRules.fromPartial(object.items)
       : undefined;
     return message;
   },
@@ -8475,10 +9024,10 @@ export const MapRules: MessageFns<MapRules> = {
       writer.uint32(16).uint64(message.maxPairs);
     }
     if (message.keys !== undefined) {
-      FieldConstraints.encode(message.keys, writer.uint32(34).fork()).join();
+      FieldRules.encode(message.keys, writer.uint32(34).fork()).join();
     }
     if (message.values !== undefined) {
-      FieldConstraints.encode(message.values, writer.uint32(42).fork()).join();
+      FieldRules.encode(message.values, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -8517,7 +9066,7 @@ export const MapRules: MessageFns<MapRules> = {
               break;
             }
 
-            message.keys = FieldConstraints.decode(reader, reader.uint32());
+            message.keys = FieldRules.decode(reader, reader.uint32());
             continue;
           }
           case 5: {
@@ -8525,7 +9074,7 @@ export const MapRules: MessageFns<MapRules> = {
               break;
             }
 
-            message.values = FieldConstraints.decode(reader, reader.uint32());
+            message.values = FieldRules.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -8552,8 +9101,8 @@ export const MapRules: MessageFns<MapRules> = {
         : isSet(object.max_pairs)
         ? globalThis.Number(object.max_pairs)
         : 0,
-      keys: isSet(object.keys) ? FieldConstraints.fromJSON(object.keys) : undefined,
-      values: isSet(object.values) ? FieldConstraints.fromJSON(object.values) : undefined,
+      keys: isSet(object.keys) ? FieldRules.fromJSON(object.keys) : undefined,
+      values: isSet(object.values) ? FieldRules.fromJSON(object.values) : undefined,
     };
   },
 
@@ -8566,10 +9115,10 @@ export const MapRules: MessageFns<MapRules> = {
       obj.maxPairs = Math.round(message.maxPairs);
     }
     if (message.keys !== undefined) {
-      obj.keys = FieldConstraints.toJSON(message.keys);
+      obj.keys = FieldRules.toJSON(message.keys);
     }
     if (message.values !== undefined) {
-      obj.values = FieldConstraints.toJSON(message.values);
+      obj.values = FieldRules.toJSON(message.values);
     }
     return obj;
   },
@@ -8582,10 +9131,10 @@ export const MapRules: MessageFns<MapRules> = {
     message.minPairs = object.minPairs ?? 0;
     message.maxPairs = object.maxPairs ?? 0;
     message.keys = (object.keys !== undefined && object.keys !== null)
-      ? FieldConstraints.fromPartial(object.keys)
+      ? FieldRules.fromPartial(object.keys)
       : undefined;
     message.values = (object.values !== undefined && object.values !== null)
-      ? FieldConstraints.fromPartial(object.values)
+      ? FieldRules.fromPartial(object.values)
       : undefined;
     return message;
   },
@@ -8872,6 +9421,129 @@ export const DurationRules: MessageFns<DurationRules> = {
     message.in = object.in?.map((e) => Duration.fromPartial(e)) || [];
     message.notIn = object.notIn?.map((e) => Duration.fromPartial(e)) || [];
     message.example = object.example?.map((e) => Duration.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseFieldMaskRules(): FieldMaskRules {
+  return { const: undefined, in: [], notIn: [], example: [] };
+}
+
+export const FieldMaskRules: MessageFns<FieldMaskRules> = {
+  encode(message: FieldMaskRules, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.const !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.const), writer.uint32(10).fork()).join();
+    }
+    for (const v of message.in) {
+      writer.uint32(18).string(v!);
+    }
+    for (const v of message.notIn) {
+      writer.uint32(26).string(v!);
+    }
+    for (const v of message.example) {
+      FieldMask.encode(FieldMask.wrap(v!), writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FieldMaskRules {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseFieldMaskRules();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.const = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.in.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.notIn.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.example.push(FieldMask.unwrap(FieldMask.decode(reader, reader.uint32())));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): FieldMaskRules {
+    return {
+      const: isSet(object.const) ? FieldMask.unwrap(FieldMask.fromJSON(object.const)) : undefined,
+      in: globalThis.Array.isArray(object?.in) ? object.in.map((e: any) => globalThis.String(e)) : [],
+      notIn: globalThis.Array.isArray(object?.notIn)
+        ? object.notIn.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.not_in)
+        ? object.not_in.map((e: any) => globalThis.String(e))
+        : [],
+      example: globalThis.Array.isArray(object?.example)
+        ? object.example.map((e: any) => FieldMask.unwrap(FieldMask.fromJSON(e)))
+        : [],
+    };
+  },
+
+  toJSON(message: FieldMaskRules): unknown {
+    const obj: any = {};
+    if (message.const !== undefined) {
+      obj.const = FieldMask.toJSON(FieldMask.wrap(message.const));
+    }
+    if (message.in?.length) {
+      obj.in = message.in;
+    }
+    if (message.notIn?.length) {
+      obj.notIn = message.notIn;
+    }
+    if (message.example?.length) {
+      obj.example = message.example.map((e) => FieldMask.toJSON(FieldMask.wrap(e)));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FieldMaskRules>, I>>(base?: I): FieldMaskRules {
+    return FieldMaskRules.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FieldMaskRules>, I>>(object: I): FieldMaskRules {
+    const message = createBaseFieldMaskRules();
+    message.const = object.const ?? undefined;
+    message.in = object.in?.map((e) => e) || [];
+    message.notIn = object.notIn?.map((e) => e) || [];
+    message.example = object.example?.map((e) => e) || [];
     return message;
   },
 };
@@ -9167,7 +9839,7 @@ export const Violations: MessageFns<Violations> = {
 };
 
 function createBaseViolation(): Violation {
-  return { field: undefined, rule: undefined, constraintId: "", message: "", forKey: false };
+  return { field: undefined, rule: undefined, ruleId: "", message: "", forKey: false };
 }
 
 export const Violation: MessageFns<Violation> = {
@@ -9178,8 +9850,8 @@ export const Violation: MessageFns<Violation> = {
     if (message.rule !== undefined) {
       FieldPath.encode(message.rule, writer.uint32(50).fork()).join();
     }
-    if (message.constraintId !== undefined && message.constraintId !== "") {
-      writer.uint32(18).string(message.constraintId);
+    if (message.ruleId !== undefined && message.ruleId !== "") {
+      writer.uint32(18).string(message.ruleId);
     }
     if (message.message !== undefined && message.message !== "") {
       writer.uint32(26).string(message.message);
@@ -9224,7 +9896,7 @@ export const Violation: MessageFns<Violation> = {
               break;
             }
 
-            message.constraintId = reader.string();
+            message.ruleId = reader.string();
             continue;
           }
           case 3: {
@@ -9259,10 +9931,10 @@ export const Violation: MessageFns<Violation> = {
     return {
       field: isSet(object.field) ? FieldPath.fromJSON(object.field) : undefined,
       rule: isSet(object.rule) ? FieldPath.fromJSON(object.rule) : undefined,
-      constraintId: isSet(object.constraintId)
-        ? globalThis.String(object.constraintId)
-        : isSet(object.constraint_id)
-        ? globalThis.String(object.constraint_id)
+      ruleId: isSet(object.ruleId)
+        ? globalThis.String(object.ruleId)
+        : isSet(object.rule_id)
+        ? globalThis.String(object.rule_id)
         : "",
       message: isSet(object.message) ? globalThis.String(object.message) : "",
       forKey: isSet(object.forKey)
@@ -9281,8 +9953,8 @@ export const Violation: MessageFns<Violation> = {
     if (message.rule !== undefined) {
       obj.rule = FieldPath.toJSON(message.rule);
     }
-    if (message.constraintId !== undefined && message.constraintId !== "") {
-      obj.constraintId = message.constraintId;
+    if (message.ruleId !== undefined && message.ruleId !== "") {
+      obj.ruleId = message.ruleId;
     }
     if (message.message !== undefined && message.message !== "") {
       obj.message = message.message;
@@ -9302,7 +9974,7 @@ export const Violation: MessageFns<Violation> = {
       ? FieldPath.fromPartial(object.field)
       : undefined;
     message.rule = (object.rule !== undefined && object.rule !== null) ? FieldPath.fromPartial(object.rule) : undefined;
-    message.constraintId = object.constraintId ?? "";
+    message.ruleId = object.ruleId ?? "";
     message.message = object.message ?? "";
     message.forKey = object.forKey ?? false;
     return message;

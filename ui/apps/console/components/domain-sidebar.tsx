@@ -62,14 +62,14 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const ts = useTranslations('Sidebar');
   const router = useRouter();
   const pathname = usePathname();
-  const domain = pathname.split('/')[2];
+  const domain = pathname.split('/')[3];
 
   const formatUrl = useCallback((url: string, d: string) => {
     if (!d || !url) return url;
-    if (url.startsWith('/console/')) {
+    if (url.startsWith('/d/console/')) {
       const parts = url.split('/');
-      if (parts[2] !== d) {
-        return `/console/${d}/${parts.slice(2).join('/')}`;
+      if (parts[3] !== d) {
+        return `/d/console/${d}/${parts.slice(3).join('/')}`;
       }
     }
     return url;
@@ -245,7 +245,7 @@ export function DomainSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <Link href="/console">
+                <Link href="/d/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image
                       src="/assets/sntz.png"

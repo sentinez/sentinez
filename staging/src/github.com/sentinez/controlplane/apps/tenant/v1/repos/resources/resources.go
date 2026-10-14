@@ -16,6 +16,7 @@ package resourcerepo
 
 import (
 	"context"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/core/common/tables"
@@ -28,6 +29,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/protobuf/protox"
 	"github.com/sentinez/shared/rand"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
@@ -70,20 +72,7 @@ type Resources struct {
 func (rsc *Resources) List(ctx context.Context,
 	req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error) {
 
-	q := rsc.selectQ(req.GetPage())
-	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
-		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})
-	}
-
-	if len(req.GetResourceDomain()) != 0 {
-		q = q.Where(
-			sq.Eq{tenantpb.Resource_ResourceDomain: req.GetResourceDomain()})
-	}
-
-	if len(req.GetResourceName()) != 0 {
-		q = q.Where(
-			sq.Eq{tenantpb.Resource_ResourceName: req.GetResourceName()})
-	}
+	q := rsc.listQ(req)
 
 	resources, err := rsc.storage.CollectRows(ctx, q, scan)
 	if err != nil {
@@ -187,14 +176,40 @@ func (rsc *Resources) Delete(ctx context.Context, id string) error {
 	return rsc.storage.Delete(ctx, id)
 }
 
+// listQ selects the page of resources matching the filters of req.
+func (rsc *Resources) listQ(req *tenantpb.ListResourceRequest) sq.SelectBuilder {
+	q := rsc.selectQ(req.GetPage())
+	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
+		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})
+	}
+
+	if len(req.GetResourceDomain()) != 0 {
+		q = q.Where(
+			sq.Eq{tenantpb.Resource_ResourceDomain: req.GetResourceDomain()})
+	}
+
+	if len(req.GetResourceName()) != 0 {
+		q = q.Where(
+			sq.Eq{tenantpb.Resource_ResourceName: req.GetResourceName()})
+	}
+
+	if len(req.GetTenantIds()) != 0 {
+		q = q.Where(sq.Eq{tenantpb.Resource_TenantId: req.GetTenantIds()})
+	}
+
+	return q
+}
+
 func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(rsc.storage, page,
-		tenantpb.Resource_Id,
+		postgres.SelectCoalesce(tenantpb.Resource_Id),
 		postgres.SelectCoalesce(tenantpb.Resource_TenantId),
 		tenantpb.Resource_Status,
 		tenantpb.Resource_ResourceName,
 		tenantpb.Resource_ResourceDomain,
 		tenantpb.Resource_ResourceSetting,
+		typepb.Metadata_CreatedAt,
+		typepb.Metadata_UpdatedAt,
 	)
 }
 
@@ -214,8 +229,9 @@ func scan(rows dbx.Rows) ([]*tenantpb.Resource, error) {
 
 func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 	var (
-		rsc tenantpb.Resource
-		st  []byte
+		rsc                  tenantpb.Resource
+		createdAt, updatedAt time.Time
+		st                   []byte
 	)
 
 	err := row.Scan(
@@ -225,9 +241,16 @@ func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 		&rsc.ResourceName,
 		&rsc.ResourceDomain,
 		&st,
+		&createdAt,
+		&updatedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	rsc.Metadata = &typepb.Metadata{
+		CreatedAt: timestamppb.New(createdAt),
+		UpdatedAt: timestamppb.New(updatedAt),
 	}
 
 	rsc.ResourceSetting = &tenantpb.ResourceSetting{}
