@@ -777,14 +777,14 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"\x98\x01\n" +
 	"\aSecRule\x12@\n" +
 	"\aingress\x18\x01 \x01(\v2&.sentinez.types.secrule.v1.SecRuleLiteR\aingress\x12K\n" +
-	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\"\xe8\x02\n" +
+	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\"\xe2\x02\n" +
 	"\tRateLimit\x12@\n" +
 	"\aingress\x18\x01 \x01(\v2&.sentinez.types.secrule.v1.SecRuleLiteR\aingress\x12K\n" +
-	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\x12W\n" +
-	"\vtime_window\x18\v \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
+	"\x0fingress_runtime\x18\x02 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\x0eingressRuntime\x12T\n" +
+	"\vtime_window\x18\v \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12!\n" +
-	"\fmax_requests\x18\f \x01(\x03R\vmaxRequests\x12P\n" +
-	"\atimeout\x18\r \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"\x10\n" +
+	"\fmax_requests\x18\f \x01(\x03R\vmaxRequests\x12M\n" +
+	"\atimeout\x18\r \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\"\x10\n" +
 	"\x0eTrafficControl\"8\n" +
 	"\bDelivery\x12,\n" +
 	"\x03cdn\x18\x01 \x03(\v2\x1a.sentinez.types.cdn.v1.CDNR\x03cdn\"\n" +

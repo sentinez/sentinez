@@ -298,9 +298,11 @@ message StatusResponse {
 }
 
 message UpdateUserRequest {
-  reserved 1, 11;
-  reserved "id", "email";
-
+  string id = 1 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: { prefix: "senz.iam.users." }
+  }];
+  
   string full_name = 10 [(buf.validate.field).required = true];
 }
 

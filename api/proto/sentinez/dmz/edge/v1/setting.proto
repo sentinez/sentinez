@@ -77,14 +77,12 @@ message RateLimit {
   sentinez.types.secrule.v1.SecRule ingress_runtime = 2;  // @gotags: yaml:"-"
 
   string time_window = 11 [(buf.validate.field) = {
-    required: false
     string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
   }];  //@gotags: yaml:"timeWindow"
 
   int64 max_requests = 12;  //@gotags: yaml:"maxRequests"
 
   string timeout = 13 [(buf.validate.field) = {
-    required: false
     string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
   }];  //@gotags: yaml:"timeout"
 }

@@ -44,12 +44,7 @@ type Tx struct {
 }
 
 func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
-	conn, err := getConnPool(t.conf)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := conn.Begin(ctx)
+	tx, err := t.begin(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +59,21 @@ func (t *Tx) Begin(ctx context.Context) (*TxSession, error) {
 	return txSS, nil
 }
 
+// begin starts a transaction on the pool, or returns the mock one.
+func (t *Tx) begin(ctx context.Context) (pgx.Tx, error) {
+	if t.mock != nil {
+		return t.mock, nil
+	}
+
+	conn, err := getConnPool(t.conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return conn.Begin(ctx)
+}
+
+// NewTXMock returns a Tx whose Begin hands out tx, for tests.
 func NewTXMock(tx pgx.Tx) *Tx {
 	return &Tx{mock: tx}
 }

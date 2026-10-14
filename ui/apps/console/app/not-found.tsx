@@ -18,7 +18,7 @@ export default function NotFound() {
           </div>
         </div>
         <div className="flex justify-end">
-          <Link href="/console">
+          <Link href="/d/console">
             <Button size="sm" variant="default">
               <MoveLeft /> {t('backHome')}
             </Button>

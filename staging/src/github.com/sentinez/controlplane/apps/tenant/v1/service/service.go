@@ -21,6 +21,7 @@ import (
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
+	"github.com/sentinez/core/storage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/sentinez/shared/errorx"
 	"github.com/sentinez/shared/zlog"
@@ -29,11 +30,13 @@ import (
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
 
 func New(
+	tx *postgres.Tx,
 	resource resourcerepo.IResource,
 	member memberrepo.IMember,
 	tenant tenantrepo.ITenant,
 ) *Service {
 	return &Service{
+		tx:       tx,
 		resource: resource,
 		member:   member,
 		tenant:   tenant,
@@ -41,6 +44,7 @@ func New(
 }
 
 type Service struct {
+	tx       *postgres.Tx
 	resource resourcerepo.IResource
 	member   memberrepo.IMember
 	tenant   tenantrepo.ITenant
@@ -97,6 +101,7 @@ func (svc *Service) CreateResource(ctx context.Context,
 		ResourceDomain:  req.GetResourceDomain(),
 		ResourceName:    req.GetResourceName(),
 		Status:          req.GetStatus(),
+		TenantId:        req.GetTenantId(),
 	}
 
 	if resource.GetResourceSetting() == nil {

@@ -18,7 +18,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/controlplane/pkg/headers"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/errorx"
 )
 
@@ -41,21 +43,64 @@ func (svc *Service) GetTenant(ctx context.Context,
 	return &tenantpb.GetTenantResponse{Tenant: tenant}, nil
 }
 
-// CreateTenant implements tenantpb.TenantServiceServer.
+// CreateTenant implements tenantpb.TenantServiceServer. The caller, taken
+// from the bearer token, becomes the first admin of the new tenant.
 func (svc *Service) CreateTenant(ctx context.Context,
 	req *tenantpb.CreateTenantRequest,
 ) (*tenantpb.CreateTenantResponse, error) {
 
-	tenant, err := svc.tenant.Create(ctx, &tenantpb.Tenant{
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if auth.GetUserId() == "" {
+		return nil, errorx.StatusUnauthorizedF("token has no user")
+	}
+
+	tenant, err := svc.createTenantWithOwner(ctx, &tenantpb.Tenant{
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
 		Plan:        req.GetPlan(),
-	})
+	}, auth.GetUserId())
 	if err != nil {
-		return nil, fmt.Errorf("tenant.Create: %w", err)
+		return nil, err
 	}
 
 	return &tenantpb.CreateTenantResponse{Tenant: tenant}, nil
+}
+
+// createTenantWithOwner creates tenant and makes userId its admin in one
+// transaction, so a tenant never exists without a member.
+func (svc *Service) createTenantWithOwner(ctx context.Context,
+	tenant *tenantpb.Tenant, userId string) (*tenantpb.Tenant, error) {
+
+	txss, err := svc.tx.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("tx.Begin: %w", err)
+	}
+
+	tenant, err = svc.tenant.WithTX(txss).Create(ctx, tenant)
+	if err != nil {
+		_ = txss.Rollback(ctx)
+		return nil, fmt.Errorf("tenant.Create: %w", err)
+	}
+
+	_, err = svc.member.WithTX(txss).Create(ctx, &tenantpb.Member{
+		UserId:   userId,
+		TenantId: tenant.GetId(),
+		Roles:    []typepb.Role{typepb.Role_ROLE_ADMIN},
+	})
+	if err != nil {
+		_ = txss.Rollback(ctx)
+		return nil, fmt.Errorf("member.Create: %w", err)
+	}
+
+	if err = txss.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("tx.Commit: %w", err)
+	}
+
+	return tenant, nil
 }
 
 // UpdateTenant implements tenantpb.TenantServiceServer.

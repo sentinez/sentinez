@@ -5,6 +5,7 @@ import type { PaginationState } from '@tanstack/react-table';
 import axios from 'axios';
 import { toast } from '@/lib/toast';
 import type { Pages } from '@/lib/api/pages';
+import { withMinLoading } from '@/lib/min-loading';
 
 export interface PagedResult<T> {
   items: T[];
@@ -19,6 +20,7 @@ export const PAGE_SIZE_OPTIONS = [10, 20, 50];
  * page size or `fetchPage` changes. The table keeps a 0-based pageIndex; the
  * API gets a 1-based `page.index`. While `enabled` is false nothing is fetched
  * and the list stays loading (e.g. a filter the request needs is not known yet).
+ * `loading` lasts at least MIN_LOADING_MILLIS per fetch; a failure ends it at once.
  */
 export function usePagedList<T>(
   fetchPage: (page: Pages, signal: AbortSignal) => Promise<PagedResult<T>>,
@@ -40,7 +42,9 @@ export function usePagedList<T>(
     const controller = new AbortController();
     const { pageIndex, pageSize } = pagination;
     setLoading(true);
-    fetchPage({ index: pageIndex + 1, size: pageSize, total: true }, controller.signal)
+    withMinLoading(
+      fetchPage({ index: pageIndex + 1, size: pageSize, total: true }, controller.signal),
+    )
       .then((res) => {
         // The last page emptied (e.g. after a delete): step back to the new last page
         const last = Math.max(0, Math.ceil(res.total / pageSize) - 1);

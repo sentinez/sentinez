@@ -6,8 +6,9 @@ import { StoredUser } from '@/lib/type/common';
 
 const AUTH_PATH = '/auth';
 const TENANT_PATH = '/tenant';
-const CONSOLE_PATH = '/console';
-const DOMAIN_PATH = '/console/domain';
+// The console and the settings
+const APP_PATH = '/d';
+const DOMAIN_PATH = '/d/console/domain';
 
 const USER_CHANGED_EVENT = 'sentinez:user-changed';
 
@@ -40,6 +41,7 @@ export function storeUser(user: User | undefined, email = '') {
     controlPlane: user?.controlPlane ?? ControlPlane.CONTROL_PLANE_UNSPECIFIED,
     createdAt: user?.metadata?.createdAt?.toISOString() ?? '',
     updatedAt: user?.metadata?.updatedAt?.toISOString() ?? '',
+    fullName: user?.fullName ?? '',
   };
   localStorage.setItem(SENTINEZ_USER_KEY, JSON.stringify(local));
   window.dispatchEvent(new Event(USER_CHANGED_EVENT));
@@ -72,8 +74,8 @@ function isUnder(pathname: string, base: string): boolean {
 
 /**
  * Where a visitor of pathname must go instead, or null when the page may be
- * shown: the auth pages are for guests, the tenant picker and the console
- * need a signed-in user, and the domain pages a tenant picked first.
+ * shown: the auth pages are for guests, the tenant picker, the console and
+ * the settings need a signed-in user, and the domain pages a tenant picked first.
  * Client-side only.
  */
 export function redirectFor(pathname: string): string | null {
@@ -81,7 +83,7 @@ export function redirectFor(pathname: string): string | null {
 
   if (isUnder(pathname, AUTH_PATH)) return signedIn ? homePath() : null;
 
-  const needsSignIn = isUnder(pathname, TENANT_PATH) || isUnder(pathname, CONSOLE_PATH);
+  const needsSignIn = isUnder(pathname, TENANT_PATH) || isUnder(pathname, APP_PATH);
   if (needsSignIn && !signedIn) return AUTH_PATH;
 
   if (isUnder(pathname, DOMAIN_PATH) && homePath() !== DOMAIN_PATH) return TENANT_PATH;

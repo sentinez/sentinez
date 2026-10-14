@@ -80,13 +80,13 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/console/setting/account">
+                <Link href="/d/setting/account">
                   <BadgeCheck />
                   {t('account')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/console/setting/tenant">
+                <Link href="/d/setting/tenant">
                   <Building2 />
                   {t('tenant')}
                 </Link>

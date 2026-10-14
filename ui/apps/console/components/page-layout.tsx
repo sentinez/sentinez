@@ -21,7 +21,7 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
   const t = useTranslations('Common');
 
   return (
-    <div className="flex max-w-7xl p-2.25 sticky top-11.25 bg-white border-b z-2 items-center">
+    <div className="flex max-w-7xl md:p-2.25 sticky top-11.25 bg-white border-b z-2 items-center">
       <div className="h-full items-center flex">
         <Button variant="ghost" size="icon" aria-label={t('back')} onClick={() => router.back()}>
           <ChevronLeft className="w-5 h-5" />

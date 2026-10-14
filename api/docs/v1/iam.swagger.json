@@ -801,6 +801,9 @@
     "v1UpdateUserRequest": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string"
+        },
         "fullName": {
           "type": "string"
         }

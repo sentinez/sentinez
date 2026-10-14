@@ -654,6 +654,8 @@ func (m *CreateResourceRequest) Validate() error {
 
 	// no validation rules for Status
 
+	// no validation rules for TenantId
+
 	return nil
 }
 
@@ -1670,8 +1672,6 @@ func (m *ListMemberRequest) Validate() error {
 			}
 		}
 	}
-
-	// no validation rules for TenantId
 
 	// no validation rules for UserId
 

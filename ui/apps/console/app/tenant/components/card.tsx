@@ -22,6 +22,7 @@ import {
 } from '@sentinez/ui/components/dialog';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
+import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { Textarea } from '@sentinez/ui/components/textarea';
 import {
   Select,
@@ -66,11 +67,29 @@ export function Tenant({ tenant }: { tenant: TenantModel }) {
         <Badge variant="secondary">{planLabel(tenant.plan)}</Badge>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Link href="/console/domain" className="w-full" onClick={() => selectTenant(tenant.id)}>
+        <Link href="/d/console/domain" className="w-full" onClick={() => selectTenant(tenant.id)}>
           <Button className="w-full cursor-pointer">
             {t('go')} <MoveRight />
           </Button>
         </Link>
+      </CardFooter>
+    </Card>
+  );
+}
+
+/** Placeholder with the layout of a Tenant card, shown while tenants load */
+export function TenantSkeleton() {
+  return (
+    <Card className="w-full sm:w-[300px]" aria-hidden>
+      <CardHeader className="grid-cols-[minmax(0,1fr)] gap-2">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-4 w-1/2" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-5 w-16" />
+      </CardContent>
+      <CardFooter>
+        <Skeleton className="h-9 w-full" />
       </CardFooter>
     </Card>
   );

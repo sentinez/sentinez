@@ -15,8 +15,8 @@ const nextConfig = {
         permanent: true
       },
       {
-        source: "/console",
-        destination: "/console/domain",
+        source: "/d/console",
+        destination: "/d/console/domain",
         permanent: true
       }
     ]

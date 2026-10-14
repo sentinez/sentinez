@@ -96,6 +96,7 @@ export interface StatusResponse {
 }
 
 export interface UpdateUserRequest {
+  id: string;
   fullName: string;
 }
 
@@ -1616,11 +1617,14 @@ export const StatusResponse: MessageFns<StatusResponse> = {
 };
 
 function createBaseUpdateUserRequest(): UpdateUserRequest {
-  return { fullName: "" };
+  return { id: "", fullName: "" };
 }
 
 export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
   encode(message: UpdateUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
     if (message.fullName !== "") {
       writer.uint32(82).string(message.fullName);
     }
@@ -1640,6 +1644,14 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
           case 10: {
             if (tag !== 82) {
               break;
@@ -1662,6 +1674,7 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
 
   fromJSON(object: any): UpdateUserRequest {
     return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
       fullName: isSet(object.fullName)
         ? globalThis.String(object.fullName)
         : isSet(object.full_name)
@@ -1672,6 +1685,9 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
 
   toJSON(message: UpdateUserRequest): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     if (message.fullName !== "") {
       obj.fullName = message.fullName;
     }
@@ -1683,6 +1699,7 @@ export const UpdateUserRequest: MessageFns<UpdateUserRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<UpdateUserRequest>, I>>(object: I): UpdateUserRequest {
     const message = createBaseUpdateUserRequest();
+    message.id = object.id ?? "";
     message.fullName = object.fullName ?? "";
     return message;
   },

@@ -424,7 +424,7 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
 	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xee\x04\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xe8\x04\n" +
 	"\tRateLimit\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x123\n" +
 	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.ratelimits.R\x02id\x12\x12\n" +
@@ -434,12 +434,12 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
 	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority\x12W\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority\x12T\n" +
 	"\vtime_window\x18\n" +
-	" \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
+	" \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12!\n" +
-	"\fmax_requests\x18\v \x01(\x03R\vmaxRequests\x12P\n" +
-	"\atimeout\x18\f \x01(\tB6\xbaH3\xc8\x01\x00r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
+	"\fmax_requests\x18\v \x01(\x03R\vmaxRequests\x12M\n" +
+	"\atimeout\x18\f \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
 	"\vActionValue\x12\x1b\n" +
 	"\tstr_value\x18\x01 \x01(\tR\bstrValue\x12Q\n" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +

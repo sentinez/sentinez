@@ -26,6 +26,7 @@
     "notAvailable": "Không có",
     "back": "Quay lại",
     "done": "Xong",
+    "refresh": "Làm mới",
     "deleteConfirm": "Bạn có chắc muốn xóa \"{name}\"? Thao tác này không thể hoàn tác."
   },
   "Language": {
@@ -149,7 +150,34 @@
   "Members": {
     "title": "Thành viên",
     "subtitle": "Quản lý thành viên của tổ chức.",
-    "invite": "Mời"
+    "invite": "Mời",
+    "inviting": "Đang mời...",
+    "member": "Thành viên",
+    "roles": "Vai trò",
+    "joinedAt": "Tham gia",
+    "editRoles": "Sửa vai trò",
+    "copyUserId": "Sao chép ID người dùng",
+    "remove": "Xóa khỏi tenant",
+    "removing": "Đang xóa...",
+    "removeTitle": "Xóa thành viên",
+    "removeConfirm": "Xóa \"{name}\" khỏi tenant này? Người này sẽ mất quyền truy cập các domain ngay lập tức.",
+    "removed": "Đã xóa thành viên",
+    "removeFailed": "Xóa thành viên thất bại",
+    "loadFailed": "Tải danh sách thành viên thất bại",
+    "loadOneFailed": "Tải thành viên thất bại",
+    "inviteTitle": "Mời thành viên",
+    "inviteSubtitle": "Thêm một người dùng Sentinéz có sẵn vào tenant này.",
+    "email": "Email",
+    "emailPlaceholder": "ten@example.com",
+    "emailDescription": "Người dùng phải có sẵn tài khoản Sentinéz.",
+    "invited": "Đã thêm thành viên",
+    "inviteFailed": "Thêm thành viên thất bại",
+    "userNotFound": "Không có người dùng nào với email này",
+    "alreadyMember": "Người dùng này đã là thành viên của tenant",
+    "editTitle": "Thành viên: {name}",
+    "editSubtitle": "Thay đổi quyền của thành viên trong tenant.",
+    "updated": "Đã cập nhật vai trò",
+    "updateFailed": "Cập nhật vai trò thất bại"
   },
   "Setting": {
     "accountTitle": "Tài khoản",
@@ -169,7 +197,18 @@
     "noTenant": "Chưa chọn tenant nào.",
     "tenantNotFound": "Không tìm thấy tenant đã chọn.",
     "editName": "Sửa",
-    "nameUpdated": "Đã cập nhật tên"
+    "nameUpdated": "Đã cập nhật tên",
+    "passportTitle": "Hộ chiếu",
+    "passportNo": "Số hộ chiếu",
+    "accountsTitle": "Phương thức đăng nhập",
+    "accountsSubtitle": "Các tài khoản đã liên kết với bạn, theo từng provider.",
+    "providerLocal": "Mật khẩu",
+    "providerPasskey": "Passkey",
+    "notLinked": "Chưa liên kết",
+    "linkedAt": "Liên kết ngày {date}",
+    "linkPasskey": "Thêm passkey",
+    "linkingPasskey": "Đang chờ passkey...",
+    "passkeyLinked": "Đã thêm passkey"
   },
   "Domain": {
     "title": "Tên miền",
@@ -443,6 +482,22 @@
       "disabled": "Quy tắc bị loại bỏ.",
       "detectionOnly": "Quy tắc được ghi log nhưng không tính vào việc chặn.",
       "enabled": "Quy tắc luôn bật, kể cả khi vượt mức paranoia."
+    },
+    "role": {
+      "unspecified": "Chưa xác định",
+      "superAdmin": "Quản trị hệ thống",
+      "admin": "Quản trị",
+      "leader": "Trưởng nhóm",
+      "member": "Thành viên",
+      "unknown": "Không rõ"
+    },
+    "roleDescription": {
+      "unspecified": "",
+      "superAdmin": "Toàn quyền trên nền tảng.",
+      "admin": "Quản lý tenant, thành viên và mọi domain.",
+      "leader": "Quản lý domain và các luật bảo mật.",
+      "member": "Xem domain và số liệu phân tích.",
+      "unknown": ""
     }
   },
   "SecRule": {
@@ -558,6 +613,8 @@
     "exclusionVariable": "Ngoại lệ {n}: mỗi mục tiêu quy tắc cần một biến",
     "crsRuleId": "ID quy tắc phải nằm trong khoảng 900000 đến 999999",
     "overrideScope": "Ghi đè {n}: chỉ trạng thái Vô hiệu mới giới hạn được theo request khớp điều kiện",
-    "scopeSource": "Ngoại lệ và ghi đè không hỗ trợ điều kiện theo body, JA4 hoặc TLS"
+    "scopeSource": "Ngoại lệ và ghi đè không hỗ trợ điều kiện theo body, JA4 hoặc TLS",
+    "email": "Nhập địa chỉ email hợp lệ",
+    "rolesRequired": "Chọn ít nhất một vai trò"
   }
 }

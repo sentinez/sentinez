@@ -4,21 +4,23 @@
 package tenantpb
 
 const (
-	Resource_Metadata        = "metadata"
-	Resource_Id              = "id"
-	Resource_TenantId        = "tenant_id"
-	Resource_ResourceSetting = "resource_setting"
-	Resource_ResourceDomain  = "resource_domain"
-	Resource_ResourceName    = "resource_name"
-	Resource_Status          = "status"
+	Resource_MetadataCreatedAt = "metadata_created_at"
+	Resource_MetadataUpdatedAt = "metadata_updated_at"
+	Resource_Id                = "id"
+	Resource_TenantId          = "tenant_id"
+	Resource_ResourceSetting   = "resource_setting"
+	Resource_ResourceDomain    = "resource_domain"
+	Resource_ResourceName      = "resource_name"
+	Resource_Status            = "status"
 )
 
 const (
-	Tenant_Metadata    = "metadata"
-	Tenant_Id          = "id"
-	Tenant_Name        = "name"
-	Tenant_Description = "description"
-	Tenant_Plan        = "plan"
+	Tenant_MetadataCreatedAt = "metadata_created_at"
+	Tenant_MetadataUpdatedAt = "metadata_updated_at"
+	Tenant_Id                = "id"
+	Tenant_Name              = "name"
+	Tenant_Description       = "description"
+	Tenant_Plan              = "plan"
 )
 
 const (
