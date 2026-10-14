@@ -12,6 +12,7 @@ import {
   UpdateUserResponse,
 } from '@sentinez/proto/sentinez/apps/iam/v1/iam';
 import { User } from '@sentinez/proto/sentinez/apps/iam/v1/model';
+import { ControlPlane } from '@sentinez/proto/sentinez/types/v1/known';
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { paginate, toQuery } from '@/lib/api/pages';
@@ -48,7 +49,44 @@ export const SAMPLE_USERS: User[] = [
   },
 ].map((u) => User.fromJSON(u));
 
-let sampleStore: User[] = [...SAMPLE_USERS];
+// Extra users so member lists have several pages; the last few belong to no
+// tenant, so they can be invited (try dung@example.com)
+const SAMPLE_NAMES = [
+  'Duc Pham',
+  'Emma Hoang',
+  'Felix Vu',
+  'Giang Dang',
+  'Hana Bui',
+  'Ivan Do',
+  'Julia Ho',
+  'Khoa Ngo',
+  'Linh Duong',
+  'Minh Ly',
+  'Nam Truong',
+  'Oanh Mai',
+  'Phuc Dinh',
+  'Quynh Lam',
+  'Dung Cao',
+  'Rin Ta',
+];
+
+const generatedUsers: User[] = SAMPLE_NAMES.map((fullName, i) => {
+  const n = String(i + 4).padStart(2, '0');
+  const at = new Date(Date.UTC(2026, 8, 1 + i, 8));
+  return User.fromPartial({
+    metadata: { createdAt: at, updatedAt: at },
+    id: `senz.iam.users.0199a6f0-4c1e-7a2b-9d3e-4000000000${n}`,
+    fullName,
+    // "Duc Pham" -> duc@example.com
+    email: `${fullName.slice(0, fullName.indexOf(' ')).toLowerCase()}@example.com`,
+    controlPlane: ControlPlane.CONTROL_PLANE_PORTAL,
+  });
+});
+
+/** Every sample user: SAMPLE_USERS first, then the generated ones */
+export const ALL_SAMPLE_USERS: User[] = [...SAMPLE_USERS, ...generatedUsers];
+
+let sampleStore: User[] = [...ALL_SAMPLE_USERS];
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {

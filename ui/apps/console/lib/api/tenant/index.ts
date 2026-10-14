@@ -34,10 +34,10 @@ import {
   UpdateTenantResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import axios from 'axios';
+import axios, { AxiosError, AxiosHeaders } from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
-import { SAMPLE_USERS } from '@/lib/api/iam/user';
+import { ALL_SAMPLE_USERS } from '@/lib/api/iam/user';
 import { paginate, toQuery } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
@@ -155,20 +155,62 @@ export const SAMPLE_TENANTS: Tenant[] = [
 
 let sampleTenantStore: Tenant[] = [...SAMPLE_TENANTS];
 
-// One member per sample user, all in the sample tenant
-const SAMPLE_MEMBER_ROLES = [['ROLE_ADMIN'], ['ROLE_LEADER'], ['ROLE_MEMBER']];
+// Roles by position in the sample tenant: one admin, a few leaders (one of
+// them also an admin), the rest members
+const SAMPLE_MEMBER_ROLES = [
+  ['ROLE_ADMIN'],
+  ['ROLE_LEADER'],
+  ['ROLE_MEMBER'],
+  ['ROLE_ADMIN', 'ROLE_LEADER'],
+  ['ROLE_LEADER'],
+  ['ROLE_MEMBER'],
+];
 
-export const SAMPLE_MEMBERS: Member[] = SAMPLE_USERS.map((user, i) =>
-  Member.fromJSON({
-    metadata: { createdAt: '2026-09-02T08:00:00Z', updatedAt: '2026-09-02T08:00:00Z' },
-    id: `senz.tenant.members.0199a6f0-4c1e-7a2b-9d3e-30000000000${i + 1}`,
-    userId: user.id,
-    tenantId: SAMPLE_TENANT_ID,
-    roles: SAMPLE_MEMBER_ROLES[i % SAMPLE_MEMBER_ROLES.length],
-  }),
-);
+const sampleMember = (n: number, userId: string, tenantId: string, roles: string[]) => {
+  const createdAt = new Date(Date.UTC(2026, 8, 2 + n, 8)).toISOString();
+  return Member.fromJSON({
+    metadata: { createdAt, updatedAt: createdAt },
+    id: `senz.tenant.members.0199a6f0-4c1e-7a2b-9d3e-3000000000${String(n).padStart(2, '0')}`,
+    userId,
+    tenantId,
+    roles,
+  });
+};
+
+// The sample tenant has 2 pages of members; the last 3 users belong to no
+// tenant so they can be invited, and Playground shares a few with it
+const tenantUsers = ALL_SAMPLE_USERS.slice(0, -3);
+const PLAYGROUND_TENANT_ID = 'senz.tenants.0199a6f0-4c1e-7a2b-9d3e-200000000002';
+
+export const SAMPLE_MEMBERS: Member[] = [
+  ...tenantUsers.map((user, i) =>
+    sampleMember(
+      i + 1,
+      user.id,
+      SAMPLE_TENANT_ID,
+      SAMPLE_MEMBER_ROLES[i < 2 ? i : 2 + (i % 4)] ?? ['ROLE_MEMBER'],
+    ),
+  ),
+  ...tenantUsers
+    .slice(1, 4)
+    .map((user, i) =>
+      sampleMember(tenantUsers.length + i + 1, user.id, PLAYGROUND_TENANT_ID, [
+        i === 0 ? 'ROLE_ADMIN' : 'ROLE_MEMBER',
+      ]),
+    ),
+];
 
 let sampleMemberStore: Member[] = [...SAMPLE_MEMBERS];
+
+/** What the backend answers when the user is already in the tenant */
+function alreadyExists(message: string): AxiosError {
+  const response = { status: 409, statusText: 'Conflict', data: { message } };
+  return new AxiosError(message, AxiosError.ERR_BAD_REQUEST, undefined, undefined, {
+    ...response,
+    headers: {},
+    config: { headers: new AxiosHeaders() },
+  });
+}
 
 function withFallback<T>(label: string, fallback: () => T) {
   return async (call: () => Promise<T>): Promise<T> => {
@@ -346,12 +388,15 @@ export async function listMembers(
   return withFallback<ListMemberResponse>('listMembers', () => {
     const members = sampleMemberStore.filter(
       (m) =>
-        (!req.tenantId || m.tenantId === req.tenantId) && (!req.userId || m.userId === req.userId),
+        (!req.tenantIds?.length || req.tenantIds.includes(m.tenantId)) &&
+        (!req.userId || m.userId === req.userId),
     );
     return { total: members.length, members: paginate(members, req.page) };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/tenant/members`, {
       params: toQuery(ListMemberRequest.toJSON(ListMemberRequest.fromPartial(req))),
+      // repeated fields as ?tenantId=a&tenantId=b
+      paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
     return ListMemberResponse.fromJSON(resp.data ?? {});
@@ -364,6 +409,10 @@ export async function createMember(
   options?: ApiOptions,
 ): Promise<CreateMemberResponse> {
   return withFallback<CreateMemberResponse>('createMember', () => {
+    // CreateMember: a user can be a member of a tenant only once
+    if (sampleMemberStore.some((m) => m.tenantId === req.tenantId && m.userId === req.userId)) {
+      throw alreadyExists('member already exists');
+    }
     const now = new Date();
     const created = Member.fromPartial({
       ...req,

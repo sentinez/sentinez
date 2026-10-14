@@ -10,27 +10,9 @@ const INK = '1b1b3a';
  * colors on a pale face with dark ink linework. The seed picks the pair.
  */
 const BOLD_POP = {
-  backgroundColor: [
-    'ff5d8f',
-    'ffb703',
-    '43aa8b',
-    '4d96ff',
-    'b57bff',
-    'ff8c42',
-    '2ec4b6',
-    'f15bb5',
-  ],
+  backgroundColor: ['ff5d8f', 'ffb703', '43aa8b', '4d96ff', 'b57bff', 'ff8c42', '2ec4b6', 'f15bb5'],
   skinColor: ['fffdfb'],
-  hairColor: [
-    INK,
-    'd90429',
-    '0466c8',
-    '007f5f',
-    '7b2cbf',
-    'f77f00',
-    '006d77',
-    '9d0208',
-  ],
+  hairColor: [INK, 'd90429', '0466c8', '007f5f', '7b2cbf', 'f77f00', '006d77', '9d0208'],
   eyebrowsColor: [INK],
   eyesColor: [INK],
   noseColor: [INK],
@@ -60,9 +42,6 @@ export type AvatarPreset = keyof typeof PRESETS;
  * DiceBear "Lorelei" avatar as an SVG data URI. The same seed always draws
  * the same face, so a user keeps theirs across sessions and devices.
  */
-export function avatarOf(
-  seed: string,
-  preset: AvatarPreset = 'bold-pop',
-): string {
+export function avatarOf(seed: string, preset: AvatarPreset = 'bold-pop'): string {
   return new Avatar(style, { ...PRESETS[preset], seed }).toDataUri();
 }

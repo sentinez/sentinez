@@ -1107,7 +1107,7 @@ func (x *CreateMemberResponse) GetMember() *Member {
 type ListMemberRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Page          *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	TenantId      string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	TenantIds     []string               `protobuf:"bytes,2,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1150,11 +1150,11 @@ func (x *ListMemberRequest) GetPage() *v1.Pages {
 	return nil
 }
 
-func (x *ListMemberRequest) GetTenantId() string {
+func (x *ListMemberRequest) GetTenantIds() []string {
 	if x != nil {
-		return x.TenantId
+		return x.TenantIds
 	}
-	return ""
+	return nil
 }
 
 func (x *ListMemberRequest) GetUserId() string {
@@ -1768,11 +1768,12 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\ttenant_id\x18\x02 \x01(\tB\x17\xbaH\x14\xc8\x01\x01r\x0f:\rsenz.tenants.R\btenantId\x12B\n" +
 	"\x05roles\x18\x03 \x03(\x0e2\x17.sentinez.types.v1.RoleB\x13\xbaH\x10\x92\x01\r\b\x01\x18\x01\"\a\x82\x01\x04\x10\x01 \x00R\x05roles\"O\n" +
 	"\x14CreateMemberResponse\x127\n" +
-	"\x06member\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.MemberR\x06member\"\xa5\x01\n" +
+	"\x06member\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.MemberR\x06member\"\xb1\x01\n" +
 	"\x11ListMemberRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x121\n" +
-	"\ttenant_id\x18\x02 \x01(\tB\x14\xbaH\x11r\x0f:\rsenz.tenants.R\btenantId\x12/\n" +
-	"\auser_id\x18\x03 \x01(\tB\x16\xbaH\x13r\x11:\x0fsenz.iam.users.R\x06userId\"e\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12:\n" +
+	"\n" +
+	"tenant_ids\x18\x02 \x03(\tB\x1b\xbaH\x18\x92\x01\x15\x18\x01\"\x11r\x0f:\rsenz.tenants.R\ttenantIds\x122\n" +
+	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xd8\x01\x01r\x11:\x0fsenz.iam.users.R\x06userId\"e\n" +
 	"\x12ListMemberResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
 	"\amembers\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.MemberR\amembers\";\n" +

@@ -125,7 +125,7 @@ export interface CreateMemberResponse {
 
 export interface ListMemberRequest {
   page?: Pages | undefined;
-  tenantId: string;
+  tenantIds: string[];
   userId: string;
 }
 
@@ -1959,7 +1959,7 @@ export const CreateMemberResponse: MessageFns<CreateMemberResponse> = {
 };
 
 function createBaseListMemberRequest(): ListMemberRequest {
-  return { page: undefined, tenantId: "", userId: "" };
+  return { page: undefined, tenantIds: [], userId: "" };
 }
 
 export const ListMemberRequest: MessageFns<ListMemberRequest> = {
@@ -1967,8 +1967,8 @@ export const ListMemberRequest: MessageFns<ListMemberRequest> = {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
-    if (message.tenantId !== "") {
-      writer.uint32(18).string(message.tenantId);
+    for (const v of message.tenantIds) {
+      writer.uint32(18).string(v!);
     }
     if (message.userId !== "") {
       writer.uint32(26).string(message.userId);
@@ -2002,7 +2002,7 @@ export const ListMemberRequest: MessageFns<ListMemberRequest> = {
               break;
             }
 
-            message.tenantId = reader.string();
+            message.tenantIds.push(reader.string());
             continue;
           }
           case 3: {
@@ -2028,11 +2028,11 @@ export const ListMemberRequest: MessageFns<ListMemberRequest> = {
   fromJSON(object: any): ListMemberRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
-      tenantId: isSet(object.tenantId)
-        ? globalThis.String(object.tenantId)
-        : isSet(object.tenant_id)
-        ? globalThis.String(object.tenant_id)
-        : "",
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
       userId: isSet(object.userId)
         ? globalThis.String(object.userId)
         : isSet(object.user_id)
@@ -2046,8 +2046,8 @@ export const ListMemberRequest: MessageFns<ListMemberRequest> = {
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
     }
-    if (message.tenantId !== "") {
-      obj.tenantId = message.tenantId;
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
     }
     if (message.userId !== "") {
       obj.userId = message.userId;
@@ -2061,7 +2061,7 @@ export const ListMemberRequest: MessageFns<ListMemberRequest> = {
   fromPartial<I extends Exact<DeepPartial<ListMemberRequest>, I>>(object: I): ListMemberRequest {
     const message = createBaseListMemberRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
-    message.tenantId = object.tenantId ?? "";
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
     message.userId = object.userId ?? "";
     return message;
   },

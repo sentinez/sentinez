@@ -41,12 +41,13 @@ func TestCreateMember(t *testing.T) {
 	}
 
 	repo := membermock.NewMockIMember(t)
+	// only this user in this tenant: other members must not block the invite
 	repo.EXPECT().List(mock.Anything, &tenantpb.ListMemberRequest{
-		TenantId: _tenantId, UserId: _userId,
+		TenantIds: []string{_tenantId}, UserId: _userId,
 	}).Return(&tenantpb.ListMemberResponse{}, nil)
 	repo.EXPECT().Create(mock.Anything, want).Return(want, nil)
 
-	resp, err := New(nil, repo, nil).CreateMember(t.Context(),
+	resp, err := New(nil, nil, repo, nil).CreateMember(t.Context(),
 		&tenantpb.CreateMemberRequest{
 			UserId: _userId, TenantId: _tenantId, Roles: roles,
 		})
@@ -59,10 +60,10 @@ func TestCreateMemberAlreadyExists(t *testing.T) {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().List(mock.Anything, mock.Anything).Return(
 		&tenantpb.ListMemberResponse{
-			Members: []*tenantpb.Member{{Id: _memberId}},
+			Members: []*tenantpb.Member{{Id: _memberId, UserId: _userId}},
 		}, nil)
 
-	_, err := New(nil, repo, nil).CreateMember(t.Context(),
+	_, err := New(nil, nil, repo, nil).CreateMember(t.Context(),
 		&tenantpb.CreateMemberRequest{UserId: _userId, TenantId: _tenantId})
 
 	assert.Equal(t, codes.AlreadyExists, status.Code(err))
@@ -74,7 +75,7 @@ func TestGetMember(t *testing.T) {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().Get(mock.Anything, _memberId).Return(want, nil)
 
-	resp, err := New(nil, repo, nil).GetMember(t.Context(),
+	resp, err := New(nil, nil, repo, nil).GetMember(t.Context(),
 		&tenantpb.GetMemberRequest{Id: _memberId})
 
 	require.NoError(t, err)
@@ -86,7 +87,7 @@ func missingMember(t *testing.T) *Service {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().Get(mock.Anything, _memberId).Return(nil, pgx.ErrNoRows)
 
-	return New(nil, repo, nil)
+	return New(nil, nil, repo, nil)
 }
 
 func TestGetMemberNotFound(t *testing.T) {
@@ -119,7 +120,7 @@ func TestUpdateMember(t *testing.T) {
 	repo.EXPECT().Update(mock.Anything,
 		&tenantpb.Member{Id: _memberId, Roles: roles}).Return(nil)
 
-	_, err := New(nil, repo, nil).UpdateMember(t.Context(),
+	_, err := New(nil, nil, repo, nil).UpdateMember(t.Context(),
 		&tenantpb.UpdateMemberRequest{Id: _memberId, Roles: roles})
 
 	require.NoError(t, err)
@@ -131,14 +132,14 @@ func TestDeleteMember(t *testing.T) {
 		Return(&tenantpb.Member{Id: _memberId}, nil)
 	repo.EXPECT().Delete(mock.Anything, _memberId).Return(nil)
 
-	_, err := New(nil, repo, nil).DeleteMember(t.Context(),
+	_, err := New(nil, nil, repo, nil).DeleteMember(t.Context(),
 		&tenantpb.DeleteMemberRequest{Id: _memberId})
 
 	require.NoError(t, err)
 }
 
 func TestListMember(t *testing.T) {
-	req := &tenantpb.ListMemberRequest{TenantId: _tenantId}
+	req := &tenantpb.ListMemberRequest{TenantIds: []string{_tenantId}}
 	want := &tenantpb.ListMemberResponse{
 		Members: []*tenantpb.Member{{Id: _memberId}},
 	}
@@ -146,7 +147,7 @@ func TestListMember(t *testing.T) {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().List(mock.Anything, req).Return(want, nil)
 
-	resp, err := New(nil, repo, nil).ListMember(t.Context(), req)
+	resp, err := New(nil, nil, repo, nil).ListMember(t.Context(), req)
 
 	require.NoError(t, err)
 	assert.Equal(t, want, resp)

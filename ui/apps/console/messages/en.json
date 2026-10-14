@@ -150,7 +150,34 @@
   "Members": {
     "title": "Members",
     "subtitle": "Manage members of the organization.",
-    "invite": "Invite"
+    "invite": "Invite",
+    "inviting": "Inviting...",
+    "member": "Member",
+    "roles": "Roles",
+    "joinedAt": "Joined",
+    "editRoles": "Edit roles",
+    "copyUserId": "Copy user ID",
+    "remove": "Remove",
+    "removing": "Removing...",
+    "removeTitle": "Remove member",
+    "removeConfirm": "Remove \"{name}\" from this tenant? They lose access to its domains right away.",
+    "removed": "Member removed",
+    "removeFailed": "Failed to remove member",
+    "loadFailed": "Failed to load members",
+    "loadOneFailed": "Failed to load member",
+    "inviteTitle": "Invite member",
+    "inviteSubtitle": "Add an existing Sentinéz user to this tenant.",
+    "email": "Email",
+    "emailPlaceholder": "name@example.com",
+    "emailDescription": "The user must already have a Sentinéz account.",
+    "invited": "Member added",
+    "inviteFailed": "Failed to add member",
+    "userNotFound": "No user has this email",
+    "alreadyMember": "This user is already a member of the tenant",
+    "editTitle": "Member: {name}",
+    "editSubtitle": "Change what this member can do in the tenant.",
+    "updated": "Roles updated",
+    "updateFailed": "Failed to update roles"
   },
   "Setting": {
     "accountTitle": "Account",
@@ -444,6 +471,22 @@
       "disabled": "The rule is removed.",
       "detectionOnly": "The rule is logged but does not count toward blocking.",
       "enabled": "The rule is forced on, even above the paranoia level."
+    },
+    "role": {
+      "unspecified": "Unspecified",
+      "superAdmin": "Super admin",
+      "admin": "Admin",
+      "leader": "Leader",
+      "member": "Member",
+      "unknown": "Unknown"
+    },
+    "roleDescription": {
+      "unspecified": "",
+      "superAdmin": "Platform-wide access.",
+      "admin": "Manages the tenant, its members and every domain.",
+      "leader": "Manages domains and their security rules.",
+      "member": "Views domains and analytics.",
+      "unknown": ""
     }
   },
   "SecRule": {
@@ -559,6 +602,8 @@
     "exclusionVariable": "Exclusion {n}: every rule target needs a variable",
     "crsRuleId": "Rule IDs must be between 900000 and 999999",
     "overrideScope": "Override {n}: only the Disabled state can be limited to matching requests",
-    "scopeSource": "Conditions on body, JA4 or TLS are not supported for exclusions and overrides"
+    "scopeSource": "Conditions on body, JA4 or TLS are not supported for exclusions and overrides",
+    "email": "Enter a valid email address",
+    "rolesRequired": "Select at least one role"
   }
 }

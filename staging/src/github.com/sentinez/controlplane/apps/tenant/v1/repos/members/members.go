@@ -74,27 +74,33 @@ func (m *Members) WithTX(tx *postgres.TxSession) IMember {
 	}
 }
 
-func buildListQuery(builder sq.SelectBuilder,
-	req *tenantpb.ListMemberRequest) sq.SelectBuilder {
+// listConditions maps the filters of the request to WHERE conditions,
+// all of them must match.
+func listConditions(req *tenantpb.ListMemberRequest) []sq.Sqlizer {
+	var conds []sq.Sqlizer
 
-	if req.GetTenantId() != "" {
-		builder = builder.Where(
-			sq.Eq{tenantpb.Member_TenantId: req.GetTenantId()})
+	// a slice becomes tenant_id IN (...)
+	if tenantIds := req.GetTenantIds(); len(tenantIds) != 0 {
+		conds = append(conds, sq.Eq{tenantpb.Member_TenantId: tenantIds})
 	}
 
-	if req.GetUserId() != "" {
-		builder = builder.Where(
-			sq.Eq{tenantpb.Member_UserId: req.GetUserId()})
+	if userId := req.GetUserId(); userId != "" {
+		conds = append(conds, sq.Eq{tenantpb.Member_UserId: userId})
 	}
 
-	return builder
+	return conds
 }
 
 // List implements IMember.
 func (m *Members) List(ctx context.Context,
 	req *tenantpb.ListMemberRequest) (*tenantpb.ListMemberResponse, error) {
 
-	builder := buildListQuery(m.selectQuery(req.GetPage()), req)
+	conds := listConditions(req)
+
+	builder := m.selectQuery(req.GetPage())
+	for _, cond := range conds {
+		builder = builder.Where(cond)
+	}
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -109,13 +115,30 @@ func (m *Members) List(ctx context.Context,
 
 	var total int64
 	if req.GetPage().GetTotal() {
-		total, err = m.storage.Total(ctx)
+		total, err = m.total(ctx, conds)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &tenantpb.ListMemberResponse{Members: members, Total: total}, nil
+}
+
+// total counts the rows matching the list conditions.
+func (m *Members) total(
+	ctx context.Context, conds []sq.Sqlizer,
+) (int64, error) {
+	builder := sq.Select("COUNT(*)").From(m.storage.Table())
+	for _, cond := range conds {
+		builder = builder.Where(cond)
+	}
+
+	var total int64
+	if err := m.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 // Create implements IMember.

@@ -423,7 +423,7 @@ export function DomainSidebarInset({ children }: { children: ReactNode }) {
               index == pathArray.length - 1 && 'text-black dark:text-white',
             )}
           >
-            {path}
+            {path === 'd' ? "dashboard" : path}
           </BreadcrumbItem>
           {index < pathArray.length - 1 && <BreadcrumbSeparator className="hidden md:block" />}
         </>

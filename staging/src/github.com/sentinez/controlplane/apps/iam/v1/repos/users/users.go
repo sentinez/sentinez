@@ -80,27 +80,33 @@ func (u *Users) WithTX(tx *postgres.TxSession) IUser {
 	}
 }
 
-// nolint:funlen
-func buildListQuery(builder sq.SelectBuilder,
-	req *iampb.ListUsersRequest) sq.SelectBuilder {
-	for _, id := range req.GetIds() {
-		builder = builder.Where(sq.Eq{iampb.User_Id: id})
+// listConditions maps the filters of the request to WHERE conditions. A
+// user matches a filter when it has any of the listed values (IN), and
+// it must match every filter that is set.
+func listConditions(req *iampb.ListUsersRequest) []sq.Sqlizer {
+	var conds []sq.Sqlizer
+
+	if ids := req.GetIds(); len(ids) != 0 {
+		conds = append(conds, sq.Eq{iampb.User_Id: ids})
 	}
 
-	for _, email := range req.GetEmails() {
-		builder = builder.Where(sq.Eq{iampb.User_Email: email})
+	if emails := req.GetEmails(); len(emails) != 0 {
+		conds = append(conds, sq.Eq{iampb.User_Email: emails})
 	}
 
-	return builder
+	return conds
 }
 
 // List implements IUser.
-// nolint:funlen
 func (u *Users) List(ctx context.Context,
 	req *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
 
+	conds := listConditions(req)
+
 	builder := u.selectQuery(req.GetPage())
-	builder = buildListQuery(builder, req)
+	for _, cond := range conds {
+		builder = builder.Where(cond)
+	}
 
 	var total int64
 
@@ -116,13 +122,30 @@ func (u *Users) List(ctx context.Context,
 	}
 
 	if req.GetPage().GetTotal() {
-		total, err = u.storage.Total(ctx)
+		total, err = u.total(ctx, conds)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &iampb.ListUsersResponse{Users: users, Total: total}, nil
+}
+
+// total counts the rows matching the list conditions.
+func (u *Users) total(
+	ctx context.Context, conds []sq.Sqlizer,
+) (int64, error) {
+	builder := sq.Select("COUNT(*)").From(u.storage.Table())
+	for _, cond := range conds {
+		builder = builder.Where(cond)
+	}
+
+	var total int64
+	if err := u.storage.Query(ctx, builder, &total); err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 // Create implements IUser.

@@ -30,7 +30,7 @@ const NO_USER: UserDataLocal = {
   controlPlane: ControlPlane.CONTROL_PLANE_UNSPECIFIED,
   createdAt: '',
   updatedAt: '',
-  fullName: ''
+  fullName: '',
 };
 
 const storedUser = () => localStorage.getItem(SENTINEZ_USER_KEY);

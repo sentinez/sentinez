@@ -404,10 +404,17 @@ message CreateMemberResponse {
 
 message ListMemberRequest {
   sentinez.types.v1.Pages page = 1;
-  string tenant_id = 2
-      [(buf.validate.field).string.prefix = "senz.tenants."];
-  string user_id = 3
-      [(buf.validate.field).string.prefix = "senz.iam.users."];
+  repeated string tenant_ids = 2 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      items: { string: { prefix: "senz.tenants." } }
+    }
+  }];
+
+  string user_id = 3 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: { prefix: "senz.iam.users." }
+  }];
 }
 
 message ListMemberResponse {

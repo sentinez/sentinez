@@ -48,7 +48,7 @@ func (svc *Service) CreateMember(ctx context.Context,
 ) (*tenantpb.CreateMemberResponse, error) {
 
 	existing, err := svc.member.List(ctx, &tenantpb.ListMemberRequest{
-		TenantId: req.GetTenantId(),
+		TenantIds: []string{req.GetTenantId()},
 		UserId:   req.GetUserId(),
 	})
 	if err != nil {

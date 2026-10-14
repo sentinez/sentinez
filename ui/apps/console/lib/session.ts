@@ -41,7 +41,7 @@ export function storeUser(user: User | undefined, email = '') {
     controlPlane: user?.controlPlane ?? ControlPlane.CONTROL_PLANE_UNSPECIFIED,
     createdAt: user?.metadata?.createdAt?.toISOString() ?? '',
     updatedAt: user?.metadata?.updatedAt?.toISOString() ?? '',
-    fullName: user?.fullName ?? ''
+    fullName: user?.fullName ?? '',
   };
   localStorage.setItem(SENTINEZ_USER_KEY, JSON.stringify(local));
   window.dispatchEvent(new Event(USER_CHANGED_EVENT));

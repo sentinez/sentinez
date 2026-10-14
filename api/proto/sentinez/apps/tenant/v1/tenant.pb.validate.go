@@ -1673,8 +1673,6 @@ func (m *ListMemberRequest) Validate() error {
 		}
 	}
 
-	// no validation rules for TenantId
-
 	// no validation rules for UserId
 
 	return nil

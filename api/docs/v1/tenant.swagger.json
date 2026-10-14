@@ -182,10 +182,14 @@
             "type": "boolean"
           },
           {
-            "name": "tenantId",
+            "name": "tenantIds",
             "in": "query",
             "required": false,
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           },
           {
             "name": "userId",

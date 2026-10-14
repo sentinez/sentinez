@@ -23,6 +23,7 @@ import (
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
+	"github.com/sentinez/core/storage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -44,6 +45,7 @@ func NewDefaultHandler(ctx context.Context,
 		return nil, fmt.Errorf("tenant repo: %w", err)
 	}
 
-	tenantsvcer := tenantsvc.New(rscrepo, mbrrepo, tntrepo)
+	tx := postgres.NewTX(conf)
+	tenantsvcer := tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo)
 	return tenanthandler.New(tenantsvcer), nil
 }
