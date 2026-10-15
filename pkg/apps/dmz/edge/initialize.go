@@ -16,19 +16,16 @@ package edge
 
 import (
 	corehttp "github.com/sentinez/core/http"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
 )
 
-func (s *Server) initialize(appConf *settingpb.Config) error {
-	if err := s.mem.Start(appConf); err != nil {
-		return err
-	}
+func (s *Server) initialize() error {
 
 	// init cache repository
-	s.mem.LoadServer(s.server)
+	s.memstore.LoadSetting(s.setting)
+	s.memstore.LoadServer(s.server)
 
-	income := http.NewHandler(appConf, s.mem)
+	income := http.NewHandler(s.conf, s.memstore, s.logExporter)
 	s.server.Handle(income.Handle)
 
 	return nil

@@ -41,27 +41,38 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var _store *MemStore
-var _once sync.Once
+var (
+	_store  *MemStore
+	_lock   sync.Mutex
+	_shared *cluster.Cluster
+)
 
-func NewMemStore(st *edgepb.Setting) *MemStore {
-	_once.Do(func() {
-		_store = &MemStore{
-			setting:      settings.New(),
-			limiter:      ratelimiter.New(),
-			reverseProxy: reverseproxy.New(),
-			route:        routes.New(),
-			secRule:      secrules.New(),
-			rulesets:     rulesets.New(),
-			cdnRules:     cdnrules.New(),
-		}
+func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
+	_lock.Lock()
+	defer _lock.Unlock()
 
-		if err := _store.setting.Store(st); err != nil {
-			zlog.Errorf("memory: save distribute setting err: %v", err)
-		}
-	})
+	if _store != nil {
+		return _store, nil
+	}
 
-	return _store
+	_shared, err := cluster.NewCluster(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	_shared.Start()
+
+	_store = &MemStore{
+		setting:      settings.New(_shared),
+		limiter:      ratelimiter.New(),
+		reverseProxy: reverseproxy.New(),
+		route:        routes.New(),
+		secRule:      secrules.New(),
+		rulesets:     rulesets.New(),
+		cdnRules:     cdnrules.New(),
+	}
+
+	return _store, nil
 }
 
 type MemStore struct {
@@ -74,12 +85,12 @@ type MemStore struct {
 	cdnRules     *cdnrules.Rule
 }
 
-func (m *MemStore) Start(conf *settingpb.Config) error {
-	return cluster.Start(conf)
-}
+func (m *MemStore) Shutdown(ctx context.Context) error {
+	if _shared == nil {
+		return nil
+	}
 
-func (m *MemStore) Shutdown(ctx context.Context) {
-	cluster.Shutdown(ctx)
+	return _shared.Shutdown(ctx)
 }
 
 func (m *MemStore) Rulesets() *rulesets.Rulesets {

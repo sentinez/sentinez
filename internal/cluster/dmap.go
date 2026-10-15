@@ -32,14 +32,6 @@ type objKV[T any] struct {
 	key   string
 }
 
-func NewDMap[T any](name string) *DMap[T] {
-	m := &DMap[T]{
-		name: name,
-		temp: make(chan objKV[T], _defaultChanBufferSize),
-	}
-	go m.wait()
-	return m
-}
 
 type DMap[T any] struct {
 	name string

@@ -24,11 +24,9 @@ import (
 	"net/http"
 	"os/signal"
 	"slices"
-	"strings"
 	"syscall"
 	"time"
 
-	httpconst "github.com/sentinez/core/http/const"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
 	"go.uber.org/fx"
@@ -159,22 +157,17 @@ func (r *Runner) close() error {
 	return errors.Join(errs...)
 }
 
-func setupOTLP(
-	appConf *settingpb.Config,
+// setupOTLP exports the system logs to SENZ_OTLP_SYSTEM_LOG_ENDPOINT. When
+// it is unset nothing is exported and the returned closer does nothing.
+func setupOTLP(appConf *settingpb.Config,
 ) (func(context.Context) error, error) {
-	inSecure := true
-	endpoint := appConf.GetDefault(
-		settingpb.Senz_SENZ_OTLP_ENDPOINT, "localhost:4317")
-
-	if strings.HasPrefix(endpoint, httpconst.SchemeSecure) {
-		inSecure = false
+	endpoint := appConf.Get(settingpb.Senz_SENZ_OTLP_SYSTEM_ENDPOINT)
+	if endpoint == "" {
+		return func(context.Context) error { return nil }, nil
 	}
 
-	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfig{
-		Endpoint:    endpoint,
-		Insecure:    inSecure,
-		ServiceName: appConf.GetMeta().GetServiceKey(),
-	})
+	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfigOf(
+		endpoint, appConf.GetMeta().GetServiceKey()))
 	if err != nil {
 		return nil, fmt.Errorf("runner: setup otlp: %w", err)
 	}

@@ -35,25 +35,6 @@ var (
 	_newErr    error
 )
 
-func Start(conf *settingpb.Config) error {
-	c, err := NewCluster(conf)
-	if err != nil {
-		return err
-	}
-
-	c.Start()
-
-	return nil
-}
-
-func Shutdown(ctx context.Context) {
-	if _dict == nil {
-		return
-	}
-
-	_dict.Shutdown(ctx)
-}
-
 func newConfig(appConf *settingpb.Config) *config.Config {
 	membership := appConf.Get(settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS)
 	discovery := appConf.Get(settingpb.Senz_SENZ_DISCOVERY_ADDRESS)
@@ -108,23 +89,37 @@ type Cluster struct {
 	done   chan struct{}
 }
 
-// Start serves the cluster in the background until Shutdown is called.
-func (d *Cluster) Start() {
-	go func() {
-		defer close(d.done)
+func (c *Cluster) NewDMap[T any](name string) *DMap[T] {
+	m := &DMap[T]{
+		name: name,
+		temp: make(chan objKV[T], _defaultChanBufferSize),
+	}
+	go m.wait()
+	return m
+}
 
-		if err := d.db.Start(); err != nil {
+// Start serves the cluster in the background until Shutdown is called.
+func (c *Cluster) Start() {
+	go func() {
+		defer close(c.done)
+
+		if err := c.db.Start(); err != nil {
 			zlog.Errorf("cluster: start: %v", err)
 		}
 	}()
 }
 
 // Shutdown stops the cluster and waits for Start to return or ctx to end.
-func (d *Cluster) Shutdown(ctx context.Context) {
-	_ = d.db.Shutdown(ctx)
+func (c *Cluster) Shutdown(ctx context.Context) error {
+	err := c.db.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case <-d.done:
+	case <-c.done:
 	case <-ctx.Done():
 	}
+
+	return nil
 }

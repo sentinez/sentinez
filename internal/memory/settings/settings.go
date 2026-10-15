@@ -30,11 +30,11 @@ var (
 	_inst *Setting
 )
 
-func New() *Setting {
+func New(shared *cluster.Cluster) *Setting {
 	_once.Do(func() {
 		_inst = &Setting{
 			setting: ssync.NewMap[string, *edgepb.Setting](),
-			dmap:    cluster.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
+			dmap:    shared.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
 		}
 	})
 
@@ -70,12 +70,4 @@ func (s *Setting) Visit(fn func(*edgepb.Setting) bool) {
 	s.setting.Range(func(_ string, value *edgepb.Setting) bool {
 		return fn(value)
 	})
-}
-
-func Visit(fn func(*edgepb.Setting) bool) {
-	if _inst == nil {
-		_inst = New()
-	}
-
-	_inst.Visit(fn)
 }

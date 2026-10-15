@@ -47,6 +47,8 @@ func load() (*settingpb.Config, error) {
 		settingpb.Senz_SENZ_SECRET_KEY,
 		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
 		settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
+		settingpb.Senz_SENZ_OTLP_SYSTEM_ENDPOINT,
+		settingpb.Senz_SENZ_OTLP_EDGE_ENDPOINT,
 	)
 	if err != nil {
 		return nil, err

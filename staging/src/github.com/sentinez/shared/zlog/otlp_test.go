@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -54,4 +55,56 @@ func TestLogCloserWithOTLPProvider(t *testing.T) {
 
 	require.Len(t, exp.records, 1)
 	require.Equal(t, "hello", exp.records[0].Body().AsString())
+}
+
+func TestLogCloserWithoutOTLP(t *testing.T) {
+	exp := &recordExporter{}
+	provider := sdklog.NewLoggerProvider(
+		sdklog.WithProcessor(sdklog.NewSimpleProcessor(exp)),
+	)
+
+	// WithoutOTLP wins over a provider given alongside it
+	l := NewLogCloser("test", typepb.LogType_LOG_TYPE_HTTP,
+		LevelInfo, WithOTLPProvider(provider), WithoutOTLP())
+	l.Info("hello", &emptypb.Empty{}, io.NopCloser(nil))
+
+	require.Empty(t, exp.records)
+}
+
+func TestOTLPConfigOf(t *testing.T) {
+	tests := []struct {
+		name         string
+		giveEndpoint string
+		wantEndpoint string
+		wantInsecure bool
+	}{
+		{
+			name:         "bare host",
+			giveEndpoint: "localhost:4317",
+			wantEndpoint: "localhost:4317",
+			wantInsecure: true,
+		},
+		{
+			name:         "http",
+			giveEndpoint: "http://collector:4317",
+			wantEndpoint: "collector:4317",
+			wantInsecure: true,
+		},
+		{
+			name:         "https",
+			giveEndpoint: "https://collector:4317",
+			wantEndpoint: "collector:4317",
+			wantInsecure: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := OTLPConfigOf(tt.giveEndpoint, "svc")
+
+			assert.Equal(t, tt.wantEndpoint, cfg.Endpoint)
+			assert.Equal(t, tt.wantInsecure, cfg.Insecure)
+			assert.Equal(t, "svc", cfg.ServiceName)
+		})
+	}
 }

@@ -18,6 +18,7 @@ package edge
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 
 	corecmn "github.com/sentinez/core/common"
@@ -30,7 +31,9 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/network"
+	"github.com/sentinez/sentinez/pkg/sdklog"
 	"github.com/sentinez/shared/zlog"
+	otelsdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
 //
@@ -53,35 +56,31 @@ import (
 //
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
-func NewServer(conf *settingpb.Config, setting *edgepb.Setting) *Server {
-	corecmn.NormalizeEdgeSetting(setting)
-	mem := memory.NewMemStore(setting)
+//   - error: error when create server
+func NewServer(conf *settingpb.Config, st *edgepb.Setting) (*Server, error) {
+	corecmn.NormalizeEdgeSetting(st)
 
-	var (
-		server corehttp.Server
-		opt    corehttp.ServerOption
-	)
-
-	// set engine for edge server
-	switch conf.GetFlag().GetEngine() {
-	case "hertz":
-		server, opt = engine.Hertz(conf)
-	case "quic":
-		server, opt = engine.Quic(conf)
-	case "std":
-		server, opt = engine.Standard(conf)
-	default:
-		server, opt = engine.Standard(conf)
+	mem, err := memory.NewMemStore(conf)
+	if err != nil {
+		return nil, err
 	}
+
+	logExporter, err := sdklog.NewProvider(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	server, opt := newServer(conf)
 
 	return &Server{
-		conf:    conf,
-		server:  server,
-		setting: setting,
-		mem:     mem,
-		service: edgeapi.New(),
-		options: []corehttp.ServerOption{opt},
-	}
+		setting:     st,
+		memstore:    mem,
+		conf:        conf,
+		server:      server,
+		logExporter: logExporter,
+		service:     edgeapi.New(),
+		options:     []corehttp.ServerOption{opt},
+	}, nil
 }
 
 // Server represents the core Edge Server.
@@ -91,12 +90,13 @@ func NewServer(conf *settingpb.Config, setting *edgepb.Setting) *Server {
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	server  corehttp.Server
-	options []corehttp.ServerOption
-	conf    *settingpb.Config
-	setting *edgepb.Setting
-	mem     *memory.MemStore
-	service *edgeapi.EdgeService
+	server      corehttp.Server
+	options     []corehttp.ServerOption
+	conf        *settingpb.Config
+	setting     *edgepb.Setting
+	memstore    *memory.MemStore
+	service     *edgeapi.EdgeService
+	logExporter *otelsdklog.LoggerProvider
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -108,9 +108,16 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	zlog.Debugf("application is shutting down")
-	s.mem.Shutdown(ctx)
+	err := s.memstore.Shutdown(ctx)
 
-	return s.server.Shutdown(ctx)
+	// stop serving first, so the logs of the last requests are flushed
+	err = errors.Join(err,
+		s.server.Shutdown(ctx),
+		s.logExporter.ForceFlush(ctx),
+		s.logExporter.Shutdown(ctx),
+	)
+
+	return err
 }
 
 // Start begins serving incoming HTTP (or HTTPS) traffic.
@@ -124,7 +131,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	if err := s.initialize(s.conf); err != nil {
+	if err := s.initialize(); err != nil {
 		return fmt.Errorf("edge: initialize: %w", err)
 	}
 
@@ -183,4 +190,20 @@ func newTLSConfig(certFile, keyFile string) (*tls.Config, error) {
 	conf.Certificates = []tls.Certificate{cert}
 
 	return conf, nil
+}
+
+func newServer(
+	conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+
+	// set engine for edge server
+	switch conf.GetFlag().GetEngine() {
+	case "hertz":
+		return engine.Hertz(conf)
+	case "quic":
+		return engine.Quic(conf)
+	case "std":
+		return engine.Standard(conf)
+	default:
+		return engine.Standard(conf)
+	}
 }

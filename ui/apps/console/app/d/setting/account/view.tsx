@@ -70,7 +70,7 @@ function NameRow({
 
     setSaving(true);
     try {
-      const res = await UpdateUser({ id: userId, fullName });
+      const res = await UpdateUser({ fullName });
       onSaved(res.user);
       toast.success(t('nameUpdated'));
       setDraft(null);

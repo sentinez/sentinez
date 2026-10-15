@@ -17,6 +17,7 @@ package zlog
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel"
@@ -42,6 +43,22 @@ type OTLPConfig struct {
 	ServiceName string
 	// ServiceVersion is reported as the service.version resource attribute.
 	ServiceVersion string
+}
+
+// OTLPConfigOf returns the config exporting to endpoint as serviceName.
+// "https://host:port" uses TLS; "http://host:port" and a bare "host:port"
+// do not.
+func OTLPConfigOf(endpoint, serviceName string) OTLPConfig {
+	host, secure := strings.CutPrefix(endpoint, "https://")
+	if !secure {
+		host = strings.TrimPrefix(endpoint, "http://")
+	}
+
+	return OTLPConfig{
+		Endpoint:    host,
+		Insecure:    !secure,
+		ServiceName: serviceName,
+	}
 }
 
 // SetupOTLP installs a global OpenTelemetry LoggerProvider that exports logs
@@ -129,12 +146,19 @@ type Option func(*loggingOptions)
 
 type loggingOptions struct {
 	provider otellog.LoggerProvider
+	noOTLP   bool
 }
 
 // WithOTLPProvider exports this logger's records through p instead of the
 // global LoggerProvider, so it can use its own OTLP endpoint and resource.
 func WithOTLPProvider(p otellog.LoggerProvider) Option {
 	return func(o *loggingOptions) { o.provider = p }
+}
+
+// WithoutOTLP keeps this logger's records out of OTLP, even once SetupOTLP
+// installed a global LoggerProvider.
+func WithoutOTLP() Option {
+	return func(o *loggingOptions) { o.noOTLP = true }
 }
 
 func newLoggingOptions(opts []Option) loggingOptions {
@@ -146,16 +170,19 @@ func newLoggingOptions(opts []Option) loggingOptions {
 	return o
 }
 
-// withOTLP tees the core with an OpenTelemetry bridge. Without a provider the
-// bridge resolves the global LoggerProvider lazily, so it is a no-op until
-// SetupOTLP is called.
+// withOTLP tees the core with an OpenTelemetry bridge, unless WithoutOTLP
+// was given. Without a provider the bridge resolves the global
+// LoggerProvider lazily, so it is a no-op until SetupOTLP is called.
 func withOTLP(core zapcore.Core, scope string,
-	p otellog.LoggerProvider) zapcore.Core {
+	o loggingOptions) zapcore.Core {
 
-	if p == nil {
+	switch {
+	case o.noOTLP:
+		return core
+	case o.provider == nil:
 		return zapcore.NewTee(core, otelzap.NewCore(scope))
+	default:
+		return zapcore.NewTee(core, otelzap.NewCore(scope,
+			otelzap.WithLoggerProvider(o.provider)))
 	}
-
-	return zapcore.NewTee(core,
-		otelzap.NewCore(scope, otelzap.WithLoggerProvider(p)))
 }

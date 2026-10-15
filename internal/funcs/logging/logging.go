@@ -20,20 +20,29 @@ import (
 	corechains "github.com/sentinez/core/http/chains"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/bpf"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
+	"go.opentelemetry.io/otel/sdk/log"
 )
 
 var _ corechains.ChainNode = (*Logging)(nil)
 
-func NewLogging(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+// NewLogging logs every request of the chain and exports the records
+// through edgeLog; with a nil edgeLog they are not exported.
+func NewLogging(logLevel zlog.Level,
+	logx *log.LoggerProvider) corechains.ChainNode {
+
+	otlp := zlog.WithoutOTLP()
+	if logx != nil {
+		otlp = zlog.WithOTLPProvider(logx)
+	}
+
 	return &Logging{
 		Node: corechains.NewNode(),
 		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_HTTP, logLevel,
+			typepb.LogType_LOG_TYPE_HTTP, logLevel, otlp,
 		),
 	}
 }

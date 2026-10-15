@@ -1,0 +1,126 @@
+# OpenTelemetry Collector + a single-node Kafka (KRaft, no ZooKeeper).
+# Services export OTLP to the collector when SENZ_OTLP_SYSTEM_LOG_ENDPOINT
+# (system logs) / SENZ_OTLP_EDGE_ENDPOINT (edge traffic logs) point at
+# localhost:4317; the collector pushes logs, traces and metrics to Kafka.
+#
+#   docker compose -f deploy/docker/telemetry/docker-compose.yaml up -d
+services:
+  sentinez.telemetry.kafka:
+    image: apache/kafka:3.9.0
+    container_name: sentinez.telemetry.kafka
+    hostname: sentinez.telemetry.kafka
+    restart: unless-stopped
+
+    ports:
+      - "9094:9094" # clients on the host
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@sentinez.telemetry.kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # INTERNAL for containers on the network, EXTERNAL for the host
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://sentinez.telemetry.kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      # one node: every internal topic has a single replica
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_LOG_RETENTION_HOURS: 72
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+    networks:
+      - sentinez-telemetry
+
+  # Creates the topics the collector writes to, then exits
+  sentinez.telemetry.kafka-init:
+    image: apache/kafka:3.9.0
+    container_name: sentinez.telemetry.kafka-init
+    restart: "no"
+
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        for topic in otlp_logs otlp_spans otlp_metrics; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server sentinez.telemetry.kafka:9092 \
+            --create --if-not-exists --topic "$$topic" \
+            --partitions 3 --replication-factor 1
+        done
+
+    depends_on:
+      sentinez.telemetry.kafka:
+        condition: service_healthy
+
+    networks:
+      - sentinez-telemetry
+
+  sentinez.telemetry.otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.1
+    container_name: sentinez.telemetry.otel-collector
+    hostname: sentinez.telemetry.otel-collector
+    restart: unless-stopped
+
+    command:
+      - --config=/etc/otelcol-contrib/config.yaml
+
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "13133:13133" # health check
+
+    depends_on:
+      sentinez.telemetry.kafka-init:
+        condition: service_completed_successfully
+
+    networks:
+      - sentinez-telemetry
+
+  # Web UI to browse topics and messages: http://localhost:8088
+  sentinez.telemetry.kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:v1.4.2
+    container_name: sentinez.telemetry.kafka-ui
+    restart: unless-stopped
+
+    ports:
+      - "8088:8080"
+
+    environment:
+      SPRING_CONFIG_ADDITIONAL-LOCATION: /etc/kafkaui/config.yaml
+
+    volumes:
+      - ./kafka-ui.yaml:/etc/kafkaui/config.yaml:ro
+      # OTLP .proto files for decoding (imports are opentelemetry/proto/...)
+      - ../../../api/third_party/opentelemetry:/protofiles/opentelemetry:ro
+
+    depends_on:
+      sentinez.telemetry.kafka:
+        condition: service_healthy
+
+    networks:
+      - sentinez-telemetry
+
+volumes:
+  kafka_data:
+
+networks:
+  sentinez-telemetry:
+    driver: bridge
