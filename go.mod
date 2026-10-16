@@ -15,7 +15,7 @@ require (
 	github.com/a-h/templ v0.3.1020
 	github.com/cilium/ebpf v0.22.0
 	github.com/corazawaf/coraza/v3 v3.8.1
-	github.com/corazawaf/libinjection-go v0.3.3
+	github.com/corazawaf/libinjection-go v0.3.5
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/uuid v1.6.0
