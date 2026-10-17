@@ -112,10 +112,7 @@ func (h *XServer) ListenAndServe(address string,
 
 	host, port, _ := net.SplitHostPort(address)
 
-	var option corehttp.Option
-	for _, opt := range opts {
-		opt(&option)
-	}
+	option := corehttp.NewOption(opts...)
 
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		if option.TLSConfig != nil {

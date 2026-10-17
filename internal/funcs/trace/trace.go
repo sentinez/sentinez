@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/core"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/pkg/tracer"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
@@ -28,7 +29,7 @@ import (
 
 var _ corechains.ChainNode = (*stage)(nil)
 
-func NewTracer(_ zlog.Level) corechains.ChainNode {
+func NewTracer(_ ...option.Option) corechains.ChainNode {
 	return &Trace{
 		Node: corechains.NewNode(),
 	}

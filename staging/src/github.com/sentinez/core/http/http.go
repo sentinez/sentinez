@@ -36,6 +36,15 @@ type Option struct {
 	QuicListener  http3.QUICListener
 }
 
+func NewOption(opts ...ServerOption) *Option {
+	var option Option
+	for _, opt := range opts {
+		opt(&option)
+	}
+
+	return &option
+}
+
 type ServerOption func(opt *Option)
 
 func WithCertificate(certFile, certKeyFile string) ServerOption {

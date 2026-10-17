@@ -21,10 +21,10 @@ Each app has its own fx container, so apps in the same process can provide
 the same types (for example `config.Config`). Stop hooks get a 15 s timeout.
 In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 
-OTLP: system logs go to `SENZ_OTLP_SYSTEM_LOG_ENDPOINT` and are not exported
+OTLP: system logs go to `SENZ_OTLP_INTERNAL_ENDPOINT` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
 down after every app has stopped. The edge traffic logs (func chain `LOG`
-node) use their own provider on `SENZ_OTLP_EDGE_ENDPOINT`, owned by the
+node) use their own provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`, owned by the
 edge server and flushed in its `Shutdown`; unset, they are not exported
 either. An `https://` endpoint uses TLS.
 

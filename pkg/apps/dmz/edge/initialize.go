@@ -15,22 +15,20 @@
 package edge
 
 import (
-	corehttp "github.com/sentinez/core/http"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 )
 
-func (s *Server) initialize() error {
+func (s *Server) initialize() {
 
 	// init cache repository
 	s.memstore.LoadSetting(s.setting)
 	s.memstore.LoadServer(s.server)
 
-	income := http.NewHandler(s.conf, s.memstore, s.logExporter)
+	income := http.NewHandler(s.memstore,
+		option.WithLogger(s.logExporter),
+		option.WithHostname(s.conf.Get(settingpb.Senz_SENZ_HOSTNAME)),
+	)
 	s.server.Handle(income.Handle)
-
-	return nil
-}
-
-func (s *Server) SetOptions(opts ...corehttp.ServerOption) {
-	s.options = append(s.options, opts...)
 }

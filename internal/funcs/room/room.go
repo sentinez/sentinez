@@ -17,14 +17,16 @@ package room
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/queue"
-	"github.com/sentinez/shared/zlog"
 )
 
 var _ corechains.ChainNode = (*WaitingRoom)(nil)
 
-func NewRoom(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+func NewRoom(
+	_ *memory.MemStore, _ ...option.Option) corechains.ChainNode {
+
 	return &WaitingRoom{
 		Node: corechains.NewNode(),
 	}

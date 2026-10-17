@@ -157,11 +157,11 @@ func (r *Runner) close() error {
 	return errors.Join(errs...)
 }
 
-// setupOTLP exports the system logs to SENZ_OTLP_SYSTEM_LOG_ENDPOINT. When
+// setupOTLP exports the system logs to SENZ_OTLP_INTERNAL_ENDPOINT. When
 // it is unset nothing is exported and the returned closer does nothing.
 func setupOTLP(appConf *settingpb.Config,
 ) (func(context.Context) error, error) {
-	endpoint := appConf.Get(settingpb.Senz_SENZ_OTLP_SYSTEM_ENDPOINT)
+	endpoint := appConf.Get(settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT)
 	if endpoint == "" {
 		return func(context.Context) error { return nil }, nil
 	}

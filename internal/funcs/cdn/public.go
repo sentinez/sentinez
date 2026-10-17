@@ -29,6 +29,7 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
@@ -62,7 +63,9 @@ var _imageTypes = map[string]string{
 var _ corechains.ChainNode = (*Public)(nil)
 
 // NewPublic returns a node serving the images embedded in the binary.
-func NewPublic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+func NewPublic(
+	_ *memory.MemStore, _ ...option.Option) corechains.ChainNode {
+
 	images, err := loadImages(sentinez.Logo, _publicRoot)
 	if err != nil {
 		zlog.Error("[edge] load public images: ", err)

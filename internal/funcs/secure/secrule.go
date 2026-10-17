@@ -17,9 +17,9 @@ package secure
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -29,20 +29,26 @@ var (
 	_matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
-func NewSecRule(ll zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewSecRule(
+	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &SecRule{
 		Node:  corechains.NewNode(),
 		store: store,
-		logging: zlog.NewLog(
-			edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_SEC_RULE, ll,
+		logging: zlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_SEC_RULE,
+			o.Level,
+			o.OTLP(),
 		),
 	}
 }
 
 type SecRule struct {
 	*corechains.Node
-	logging zlog.Log
+	logging zlog.LogCloser
 	store   *memory.MemStore
 }
 

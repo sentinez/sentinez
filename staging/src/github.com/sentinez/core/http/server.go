@@ -52,10 +52,7 @@ func (s *server) Handle(fn RequestHandler) {
 
 // ListenAndServe implements [Server].
 func (s *server) ListenAndServe(addr string, opts ...ServerOption) error {
-	var option Option
-	for _, opt := range opts {
-		opt(&option)
-	}
+	option := NewOption(opts...)
 
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		host, port, _ := net.SplitHostPort(addr)

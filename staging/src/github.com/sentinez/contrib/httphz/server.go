@@ -161,12 +161,9 @@ func (s *XServer) initialize(addr string, opt *corehttp.Option) error {
 func (s *XServer) ListenAndServe(
 	addr string, opts ...corehttp.ServerOption) error {
 
-	var option corehttp.Option
-	for _, opt := range opts {
-		opt(&option)
-	}
+	option := corehttp.NewOption(opts...)
 
-	if err := s.initialize(addr, &option); err != nil {
+	if err := s.initialize(addr, option); err != nil {
 		return err
 	}
 

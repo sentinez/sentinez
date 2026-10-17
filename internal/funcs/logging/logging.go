@@ -18,31 +18,29 @@ import (
 	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
-	"go.opentelemetry.io/otel/sdk/log"
 )
 
 var _ corechains.ChainNode = (*Logging)(nil)
 
 // NewLogging logs every request of the chain and exports the records
-// through edgeLog; with a nil edgeLog they are not exported.
-func NewLogging(logLevel zlog.Level,
-	logx *log.LoggerProvider) corechains.ChainNode {
-
-	otlp := zlog.WithoutOTLP()
-	if logx != nil {
-		otlp = zlog.WithOTLPProvider(logx)
-	}
+// through the option.WithLogger provider; without one they are not
+// exported.
+func NewLogging(opts ...option.Option) corechains.ChainNode {
+	o := option.New(opts...)
 
 	return &Logging{
 		Node: corechains.NewNode(),
-		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_HTTP, logLevel, otlp,
+		log: zlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_HTTP,
+			o.Level,
+			o.OTLP(),
 		),
 	}
 }
@@ -70,7 +68,6 @@ func (l *Logging) Handle(ctx corehttp.Context) error {
 	event.Status = int32(ctx.StatusCode())
 	event.Protocol = ctx.Protocol()
 	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
-
 	event.Queries = string(ctx.QueryStr())
 
 	if l.log.V(zlog.LevelInfo.Int()) {

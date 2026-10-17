@@ -21,10 +21,10 @@ Mỗi app có fx container riêng, nên các app trong cùng process có thể c
 provide một kiểu (ví dụ `config.Config`). Hook dừng có timeout 15 s. Ở mode
 khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
-OTLP: log hệ thống đẩy về `SENZ_OTLP_SYSTEM_LOG_ENDPOINT`, không đặt thì
+OTLP: log hệ thống đẩy về `SENZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
 mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) dùng
-provider riêng trên `SENZ_OTLP_EDGE_ENDPOINT`, do edge server sở hữu và
+provider riêng trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, do edge server sở hữu và
 flush trong `Shutdown`; không đặt thì cũng không push. Endpoint `https://`
 dùng TLS.
 

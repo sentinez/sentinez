@@ -108,8 +108,8 @@ They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
 | `SENZ_MEMBERSHIP_ADDRESS` | edge | Olric peer to join |
 | `SENZ_DISCOVERY_ADDRESS` | edge | `host:port` memberlist bind (default `0.0.0.0:3322`) |
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Static admin account |
-| `SENZ_OTLP_SYSTEM_ENDPOINT` | all | OTLP/gRPC collector of the system logs; unset: not exported |
-| `SENZ_OTLP_EDGE_ENDPOINT` | edge | OTLP/gRPC collector of the edge traffic logs (func chain `LOG` node); unset: not exported |
+| `SENZ_OTLP_INTERNAL_ENDPOINT` | all | OTLP/gRPC collector of the system logs; unset: not exported |
+| `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | OTLP/gRPC collector of the edge traffic logs (func chain `LOG` node); unset: not exported |
 
 Some services (edge, dataplane, realtime) load only a specific list of
 variables; the others load the whole `Senz` enum.

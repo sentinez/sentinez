@@ -43,7 +43,6 @@ func (e *EdgeService) EvaluateRuleset(ctx context.Context,
 ) (*edgepb.EvaluateRulesetResponse, error) {
 
 	enginectx := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
-	// defer corehttpreq.(enginectx)
 
 	eval := corerules.NewEval(&rulepb.Expression{})
 	matched := &rulepb.MatchedRules{}

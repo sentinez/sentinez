@@ -19,14 +19,10 @@ import (
 
 	"github.com/sentinez/core/runner"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
-	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 )
 
 func Edge(c *runner.Context[edge.Server]) {
-	c.Inject(
-		edgeyaml.LoadSetting,
-		edge.NewServer,
-	)
+	c.Inject(edge.NewServer)
 
 	c.Serve(func(_ context.Context, server *edge.Server) error {
 		return server.Start()
@@ -38,9 +34,7 @@ func Edge(c *runner.Context[edge.Server]) {
 }
 
 func GRPC(c *runner.Context[edge.Service]) {
-	c.Inject(
-		edge.NewService,
-	)
+	c.Inject(edge.NewService)
 
 	c.Serve(func(_ context.Context, server *edge.Service) error {
 		return server.Start()

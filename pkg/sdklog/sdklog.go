@@ -24,10 +24,10 @@ import (
 )
 
 // NewProvider returns the provider exporting the traffic logs of the func
-// chains to SENZ_OTLP_EDGE_ENDPOINT, or nil when it is unset: those
+// chains to SENZ_OTLP_EXTERNAL_ENDPOINT, or nil when it is unset: those
 // logs are then not exported.
 func NewProvider(conf *settingpb.Config) (*sdklog.LoggerProvider, error) {
-	endpoint := conf.Get(settingpb.Senz_SENZ_OTLP_EDGE_ENDPOINT)
+	endpoint := conf.Get(settingpb.Senz_SENZ_OTLP_EXTERNAL_ENDPOINT)
 	if endpoint == "" {
 		return nil, nil
 	}

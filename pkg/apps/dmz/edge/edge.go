@@ -30,6 +30,7 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"
+	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/sentinez/pkg/sdklog"
 	"github.com/sentinez/shared/zlog"
@@ -57,8 +58,14 @@ import (
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
 //   - error: error when create server
-func NewServer(conf *settingpb.Config, st *edgepb.Setting) (*Server, error) {
-	corecmn.NormalizeEdgeSetting(st)
+func NewServer(conf *settingpb.Config) (*Server, error) {
+
+	localSetting, err := edgeyaml.LoadSetting(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	corecmn.NormalizeEdgeSetting(localSetting)
 
 	mem, err := memory.NewMemStore(conf)
 	if err != nil {
@@ -70,16 +77,12 @@ func NewServer(conf *settingpb.Config, st *edgepb.Setting) (*Server, error) {
 		return nil, err
 	}
 
-	server, opt := newServer(conf)
-
 	return &Server{
-		setting:     st,
+		setting:     localSetting,
 		memstore:    mem,
 		conf:        conf,
-		server:      server,
 		logExporter: logExporter,
 		service:     edgeapi.New(),
-		options:     []corehttp.ServerOption{opt},
 	}, nil
 }
 
@@ -91,7 +94,6 @@ func NewServer(conf *settingpb.Config, st *edgepb.Setting) (*Server, error) {
 // all ingress traffic is processed and dispatched here.
 type Server struct {
 	server      corehttp.Server
-	options     []corehttp.ServerOption
 	conf        *settingpb.Config
 	setting     *edgepb.Setting
 	memstore    *memory.MemStore
@@ -112,9 +114,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	// stop serving first, so the logs of the last requests are flushed
 	err = errors.Join(err,
-		s.server.Shutdown(ctx),
 		s.logExporter.ForceFlush(ctx),
 		s.logExporter.Shutdown(ctx),
+		s.server.Shutdown(ctx),
 	)
 
 	return err
@@ -131,9 +133,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	if err := s.initialize(); err != nil {
-		return fmt.Errorf("edge: initialize: %w", err)
-	}
+	s.initialize()
 
 	var (
 		addr = s.conf.GetDefault(
@@ -167,7 +167,10 @@ func (s *Server) Start() error {
 		corehttp.WithQuicListener(quicLis),
 	}
 
-	return s.server.ListenAndServe(addr, append(opts, s.options...)...)
+	server, opt := newServer(s.conf)
+	s.server = server
+
+	return s.server.ListenAndServe(addr, append(opts, opt)...)
 }
 
 // newTLSConfig loads the certificate up front: the QUIC listener clones the

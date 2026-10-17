@@ -1,6 +1,6 @@
 # OpenTelemetry Collector + a single-node Kafka (KRaft, no ZooKeeper).
-# Services export OTLP to the collector when SENZ_OTLP_SYSTEM_LOG_ENDPOINT
-# (system logs) / SENZ_OTLP_EDGE_ENDPOINT (edge traffic logs) point at
+# Services export OTLP to the collector when SENZ_OTLP_INTERNAL_ENDPOINT
+# (system logs) / SENZ_OTLP_EXTERNAL_ENDPOINT (edge traffic logs) point at
 # localhost:4317; the collector pushes logs, traces and metrics to Kafka.
 #
 #   docker compose -f deploy/docker/telemetry/docker-compose.yaml up -d

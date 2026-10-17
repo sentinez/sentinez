@@ -19,16 +19,21 @@ import (
 
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
 var _ corechains.ChainNode = (*DomainBased)(nil)
 
-func NewDomainBased(hostname string, _ *memory.MemStore) corechains.ChainNode {
+// NewDomainBased resolves the tenant namespace from single-level
+// subdomains of the hostname set by option.WithHostname.
+func NewDomainBased(
+	_ *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+
 	return &DomainBased{
 		Node:     corechains.NewNode(),
-		hostname: hostname,
+		hostname: option.New(opts...).Hostname,
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/funcs/logging"
 	"github.com/sentinez/sentinez/internal/funcs/room"
 	"github.com/sentinez/sentinez/internal/funcs/routing"
@@ -64,14 +65,16 @@ func putRecorder(w *httptest.ResponseRecorder) {
 func BenchmarkStandardConverter(b *testing.B) {
 	zlog.SetLogLevel(zlog.LevelInfo)
 
-	begin := trace.NewTracer(zlog.LevelError)
+	lvl := option.WithLevel(zlog.LevelError)
+	begin := trace.NewTracer(lvl)
 	begin.
-		SetNext(room.NewRoom(zlog.LevelError, nil)).
-		SetNext(static.NewStatic(zlog.LevelError, nil)).
-		SetNext(logging.NewLogging(zlog.LevelError, nil)).
-		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
-		SetNext(secure.NewSecRule(zlog.LevelError, nil)).
-		SetNext(secure.NewWAF(zlog.LevelError, nil)).
+		SetNext(room.NewRoom(nil, lvl)).
+		SetNext(static.NewStatic(nil, lvl)).
+		SetNext(logging.NewLogging(lvl)).
+		SetNext(secure.NewDomainBased(nil,
+			option.WithHostname("is.s6z.io.vn"))).
+		SetNext(secure.NewSecRule(nil, lvl)).
+		SetNext(secure.NewWAF(nil, lvl)).
 		SetNext(routing.NewMockRouter())
 
 	b.ReportAllocs()
@@ -97,14 +100,16 @@ func TestHandleChain(t *testing.T) {
 
 	zlog.SetLogLevel(zlog.LevelInfo)
 
-	begin := trace.NewTracer(zlog.LevelError)
+	lvl := option.WithLevel(zlog.LevelError)
+	begin := trace.NewTracer(lvl)
 	begin.
-		SetNext(room.NewRoom(zlog.LevelError, nil)).
-		SetNext(static.NewStatic(zlog.LevelError, nil)).
-		SetNext(logging.NewLogging(zlog.LevelError, nil)).
-		SetNext(secure.NewDomainBased("is.s6z.io.vn", nil)).
-		SetNext(secure.NewSecRule(zlog.LevelError, nil)).
-		SetNext(secure.NewWAF(zlog.LevelError, nil)).
+		SetNext(room.NewRoom(nil, lvl)).
+		SetNext(static.NewStatic(nil, lvl)).
+		SetNext(logging.NewLogging(lvl)).
+		SetNext(secure.NewDomainBased(nil,
+			option.WithHostname("is.s6z.io.vn"))).
+		SetNext(secure.NewSecRule(nil, lvl)).
+		SetNext(secure.NewWAF(nil, lvl)).
 		SetNext(routing.NewMockRouter())
 
 	if err := begin.Handle(ctx); err != nil {

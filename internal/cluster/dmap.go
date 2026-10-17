@@ -32,7 +32,6 @@ type objKV[T any] struct {
 	key   string
 }
 
-
 type DMap[T any] struct {
 	name string
 	temp chan objKV[T]

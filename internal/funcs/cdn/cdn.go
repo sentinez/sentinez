@@ -27,18 +27,29 @@ import (
 	corerule "github.com/sentinez/core/rules"
 	"github.com/sentinez/core/storage/cache/mem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewCache(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewCache(
+	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &Cache{
 		store:  store,
 		Node:   corechains.NewNode(),
 		cached: mem.New[*CachedResponse](time.Hour, time.Hour),
 		buf:    sync.NewPool[bytes.Buffer](),
+		log: zlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_CDN_RULE,
+			o.Level,
+			o.OTLP(),
+		),
 	}
 }
 
@@ -48,6 +59,7 @@ type Cache struct {
 
 	cached *mem.Cache[*CachedResponse]
 	buf    *sync.Pool[bytes.Buffer]
+	log    zlog.LogCloser
 }
 
 func (c *Cache) Handle(ctx corehttp.Context) error {

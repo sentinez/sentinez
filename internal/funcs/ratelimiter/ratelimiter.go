@@ -17,20 +17,33 @@ package ratelimiter
 import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewLimiter(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewLimiter(
+	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &Limiter{
 		Node:  corechains.NewNode(),
 		store: store,
+		log: zlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_RATE_LIMIT,
+			o.Level,
+			o.OTLP(),
+		),
 	}
 }
 
 type Limiter struct {
 	*corechains.Node
 	store *memory.MemStore
+	log   zlog.LogCloser
 }
 
 // Handle counts the request against every limiter whose expression matches

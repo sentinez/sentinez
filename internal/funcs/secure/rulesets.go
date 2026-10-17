@@ -22,20 +22,27 @@ import (
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
-func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewWAF(
+	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &WAF{
 		Node: corechains.NewNode(),
-		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_WAF, logLevel,
+		log: zlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_WAF,
+			o.Level,
+			o.OTLP(),
 		),
 		store: store,
 	}

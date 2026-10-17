@@ -36,9 +36,9 @@ enum Senz {
   SENZ_ADMIN_USERNAME = 11;
   SENZ_ADMIN_PASSWORD = 12;
   // OTLP/gRPC collector of the system (application) logs; unset: not exported
-  SENZ_OTLP_SYSTEM_ENDPOINT = 13;
+  SENZ_OTLP_INTERNAL_ENDPOINT = 13;
   // OTLP/gRPC collector of the edge traffic logs; unset: not exported
-  SENZ_OTLP_EDGE_ENDPOINT = 14;
+  SENZ_OTLP_EXTERNAL_ENDPOINT = 14;
 }
 
 message Config {
