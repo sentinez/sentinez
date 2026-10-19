@@ -133,6 +133,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
+	server, opt := newServer(s.conf)
+	s.server = server
+
 	s.initialize()
 
 	var (
@@ -166,9 +169,6 @@ func (s *Server) Start() error {
 		corehttp.WithStdListener(stdLis),
 		corehttp.WithQuicListener(quicLis),
 	}
-
-	server, opt := newServer(s.conf)
-	s.server = server
 
 	return s.server.ListenAndServe(addr, append(opts, opt)...)
 }

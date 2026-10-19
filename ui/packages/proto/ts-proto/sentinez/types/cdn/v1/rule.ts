@@ -21,6 +21,7 @@ export interface Rule {
   priority: number;
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
+  exprPreview: string;
 }
 
 export interface RuleLite {
@@ -50,6 +51,7 @@ function createBaseRule(): Rule {
     priority: 0,
     createdAt: undefined,
     updatedAt: undefined,
+    exprPreview: "",
   };
 }
 
@@ -78,6 +80,9 @@ export const Rule: MessageFns<Rule> = {
     }
     if (message.updatedAt !== undefined) {
       Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(74).fork()).join();
+    }
+    if (message.exprPreview !== "") {
+      writer.uint32(82).string(message.exprPreview);
     }
     return writer;
   },
@@ -159,6 +164,14 @@ export const Rule: MessageFns<Rule> = {
             message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.exprPreview = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -189,6 +202,11 @@ export const Rule: MessageFns<Rule> = {
         : isSet(object.updated_at)
         ? fromJsonTimestamp(object.updated_at)
         : undefined,
+      exprPreview: isSet(object.exprPreview)
+        ? globalThis.String(object.exprPreview)
+        : isSet(object.expr_preview)
+        ? globalThis.String(object.expr_preview)
+        : "",
     };
   },
 
@@ -218,6 +236,9 @@ export const Rule: MessageFns<Rule> = {
     if (message.updatedAt !== undefined) {
       obj.updatedAt = message.updatedAt.toISOString();
     }
+    if (message.exprPreview !== "") {
+      obj.exprPreview = message.exprPreview;
+    }
     return obj;
   },
 
@@ -236,6 +257,7 @@ export const Rule: MessageFns<Rule> = {
     message.priority = object.priority ?? 0;
     message.createdAt = object.createdAt ?? undefined;
     message.updatedAt = object.updatedAt ?? undefined;
+    message.exprPreview = object.exprPreview ?? "";
     return message;
   },
 };

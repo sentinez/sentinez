@@ -18,7 +18,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/sentinez/core/common/bytestr"
 	corehttp "github.com/sentinez/core/http"
 	corechains "github.com/sentinez/core/http/chains"
 	corers "github.com/sentinez/core/rulesets"
@@ -26,7 +25,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
+	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
@@ -103,8 +102,6 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		return
 	}
 
-	event := ruleevent.Acquire()
-
 	var (
 		ruleIds    []int32
 		severities []string
@@ -127,19 +124,22 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		}
 	}
 
-	event.RuleIds = ruleIds
+	event := coreruleset.Acquire()
+
+	event.Id = ruleset.GetTxId()
+	event.MatchedRuleIds = ruleIds
 	event.Severities = severities
 	event.Messages = msgs
-	event.Path = bytesconv.B2s(ctx.URI())
-	event.Score = int32(score)
-	event.Ip = bytesconv.B2s(ctx.RequestIP())
-	event.RequestDomain = bytesconv.B2s(ctx.Host())
-	event.TransactionId = ruleset.GetTxId()
-	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
+	event.TotalScore = int32(score)
+	event.Service = rulepb.RuleService_RULE_SERVICE_WAF_RULESETS
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
-	event.RequestTime = ctx.RequestTime().UnixMilli()
-	event.HttpReqId = ctx.RequestId()
-	event.ContentType = bytesconv.B2s(ctx.Header(bytestr.HeaderContentType))
+	event.MatchedTime = ctx.RequestTime().UnixMilli()
+
+	event.RequestId = ctx.RequestId()
+	event.RequestDomain = bytesconv.B2s(ctx.Host())
+	event.RequestPath = bytesconv.B2s(ctx.URI())
+	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
+	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 
 	w.log.Info("rulesets: matched", event, event)
 }

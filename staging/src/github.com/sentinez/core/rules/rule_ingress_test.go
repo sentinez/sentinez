@@ -57,7 +57,7 @@ func newBaseContext() *httppb.Request {
 }
 
 //nolint:lll
-func newContext() corehttp.RequestContext {
+func newContext() corehttp.Request {
 	reqCtx := newBaseContext()
 	return corehttpreq.NewRequestContext(context.Background(), reqCtx)
 }

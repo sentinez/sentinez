@@ -21,12 +21,11 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/sentinez/internal/memory/secrules"
+	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
+	"github.com/sentinez/sentinez/pkg/pools/secrule"
+	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
-)
-
-var (
-	_matchedPool = sync.NewPool[rulepb.MatchedRules]()
 )
 
 func NewSecRule(
@@ -61,23 +60,52 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 		return sr.HandleNext(ctx)
 	}
 
-	matched := _matchedPool.Get()
-	defer _matchedPool.Put(matched)
+	matched := matchedrule.Acquire()
+	defer func() { _ = matched.Close() }()
 
-	for _, e := range chain {
-		matched.Reset()
-		if !e.Eval(ctx, matched) {
-			continue
-		}
+	action := matchAction(ctx, chain, matched.MatchedRules)
 
-		action := e.Rule.GetAction().GetType()
-		zlog.Debugf("edge: rule %s matched, action = %v",
-			e.Rule.GetId(), action)
+	event := secrule.Acquire()
+	defer func() { _ = event.Close() }()
 
-		if action == rulepb.ActionType_ACTION_TYPE_BLOCK {
-			return corehttp.Forbidden(ctx)
-		}
+	event.Action = action
+	event.MatchedSecruleIds = append(
+		event.MatchedSecruleIds, matched.GetIds()...)
+	event.Messages = append(event.Messages, matched.GetNames()...)
+	event.Service = rulepb.RuleService_RULE_SERVICE_SEC_RULE
+	event.MatchedTime = ctx.RequestTime().UnixMilli()
+
+	event.RequestId = ctx.RequestId()
+	event.RequestDomain = bytesconv.B2s(ctx.Host())
+	event.RequestPath = bytesconv.B2s(ctx.URI())
+	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
+	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+
+	if action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK {
+		return corehttp.Forbidden(ctx)
 	}
 
 	return sr.HandleNext(ctx)
+}
+
+// matchAction the action of the first matching rule with a terminal
+// action (block), else of the last matching rule. A rule that does not
+// match has no say: nil when no rule matches.
+func matchAction(
+	ctx corehttp.Context, chain []secrules.Entry, mr *rulepb.MatchedRules,
+) *rulepb.Action {
+	var action *rulepb.Action
+
+	for _, e := range chain {
+		if !e.Eval(ctx, mr) {
+			continue
+		}
+
+		action = e.Rule.GetAction()
+		if action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK {
+			break
+		}
+	}
+
+	return action
 }

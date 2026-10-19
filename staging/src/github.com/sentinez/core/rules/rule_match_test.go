@@ -26,7 +26,7 @@ import (
 )
 
 // nolint
-func newTestContext() corehttp.RequestContext {
+func newTestContext() corehttp.Request {
 	reqCtx := &httppb.Request{
 		Body: []byte(`{"message":"hello world"}`),
 		Headers: []*httppb.RequestHeader{

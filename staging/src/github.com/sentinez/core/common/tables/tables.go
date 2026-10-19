@@ -26,11 +26,14 @@ const (
 )
 
 const (
-	AnalyticActivities = "analytic.activities"
+	AnalyticActivities   = "analytic.activities"
+	AnalyticSecRules     = "analytic.secrules."
+	AnalyticCoreRulesets = "analytic.corerulesets"
+	AnalyticRateLimiter  = "analytic.ratelimiters"
 )
 
 const (
-	SecuritySecRules     = "security.sec_rules"
-	SecurityRateLimits   = "security.rate_limits"
-	SecurityCoreRulesets = "security.coreruleset"
+	SecuritySecRules     = "security.secrules"
+	SecurityRateLimits   = "security.ratelimits"
+	SecurityCoreRulesets = "security.corerulesets"
 )

@@ -28,6 +28,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
+	"github.com/sentinez/core"
 	"github.com/sentinez/core/common/bytestr"
 	corecontext "github.com/sentinez/core/context"
 	corehttp "github.com/sentinez/core/http"
@@ -35,6 +36,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/store/ja4"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -49,6 +51,7 @@ var (
 var (
 	_ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
+			BaseContext: &corehttp.BaseContext{},
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},
@@ -73,27 +76,28 @@ var _upgrade = websocket.Upgrader{
 
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	zlog.Debug("http context: connection: new context")
-	httpCtx := _ctxPool.Get()
+	hctx := _ctxPool.Get()
+	hctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
 
-	httpCtx.req = req
-	httpCtx.resp = resp
+	hctx.req = req
+	hctx.resp = resp
 
 	transport := corecontext.GetTransport(req.Context())
 	if transport != nil {
 		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
-		httpCtx.ectx.Request.Fingerprint = ja4.Get(connId)
+		hctx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
-	httpCtx.ectx.Transport = transport
+	hctx.ectx.Transport = transport
+	hctx.ectx.Request.Status = http.StatusOK
+	hctx.ectx.Request.Timestamp = timestamppb.Now()
 
-	httpCtx.ectx.Request.Status = http.StatusOK
-	httpCtx.ectx.Request.Timestamp = timestamppb.Now()
-
-	return httpCtx
+	return hctx
 }
 
 type Context struct {
+	*corehttp.BaseContext
 	req         *http.Request
 	resp        http.ResponseWriter
 	respBodyBuf bytes.Buffer
@@ -105,12 +109,6 @@ type Context struct {
 // X implements [corehttp.Context].
 func (c *Context) X() *edgepb.ContextExtra {
 	return c.ectx.GetX()
-}
-
-// SetRequestId implements corehttp.Context.
-func (c *Context) SetRequestId(id string) {
-	c.ectx.Request.Id = id
-	c.req.Header.Set(httpconst.HeaderXRequestId, id)
 }
 
 // Copy implements corehttp.Context.
@@ -426,10 +424,6 @@ func (c *Context) Path() []byte {
 	return []byte(c.req.URL.Path)
 }
 
-func (c *Context) RequestId() string {
-	return c.ectx.GetRequest().GetId()
-}
-
 func (c *Context) JSON(statusCode int, body []byte) error {
 	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueAppJSON)
 	c.SetStatusCode(statusCode)
@@ -504,15 +498,18 @@ func (c *Context) Response() http.ResponseWriter {
 }
 
 func (c *Context) Close() error {
+	c.BaseContext.Reset()
+
 	c.req = nil
 	c.resp = nil
+
 	c.ectx.Transport = nil
 	c.ectx.Metadata = nil
 
 	c.ectx.X.Reset()
 	c.ectx.Request.Reset()
-
 	c.respBodyBuf.Reset()
+
 	c.bodyOverflow = false
 	if c.respBodyBuf.Cap() > _maxPooledBodyBuf {
 		c.respBodyBuf = bytes.Buffer{}

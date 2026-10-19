@@ -22,9 +22,9 @@ import (
 func buildEval(
 	expr *rulepb.Expression,
 	match MatchedFunc,
-) func(ctx chttp.RequestContext, mr *rulepb.MatchedRules) bool {
+) func(ctx chttp.Request, mr *rulepb.MatchedRules) bool {
 
-	return func(ctx chttp.RequestContext, mr *rulepb.MatchedRules) bool {
+	return func(ctx chttp.Request, mr *rulepb.MatchedRules) bool {
 		return execOrCond(expr.GetOrCondition(), match, ctx, mr)
 	}
 }
@@ -32,7 +32,7 @@ func buildEval(
 func execOrCond(
 	orCond []*rulepb.AndCondition,
 	match MatchedFunc,
-	ctx chttp.RequestContext,
+	ctx chttp.Request,
 	mr *rulepb.MatchedRules,
 ) bool {
 	if orCond == nil {
@@ -52,7 +52,7 @@ func execOrCond(
 func execAndCond(
 	andCond *rulepb.AndCondition,
 	match MatchedFunc,
-	ctx chttp.RequestContext,
+	ctx chttp.Request,
 	mr *rulepb.MatchedRules,
 ) bool {
 	if andCond == nil {

@@ -22,11 +22,13 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/sentinez/core"
 	corecontext "github.com/sentinez/core/context"
 	corehttp "github.com/sentinez/core/http"
 	httpconst "github.com/sentinez/core/http/const"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/store/ja4"
 	"github.com/sentinez/shared/sync"
 	"github.com/sentinez/shared/zlog"
@@ -39,6 +41,7 @@ var (
 
 	_ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
+			BaseContext: &corehttp.BaseContext{},
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},
@@ -48,27 +51,28 @@ var (
 )
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
-	httpCtx := _ctxPool.Get()
-
-	httpCtx.req = c
-	httpCtx.ctx = ctx
+	hctx := _ctxPool.Get()
+	hctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.req = c
+	hctx.ctx = ctx
 
 	transport := corecontext.GetTransport(ctx)
 	if transport != nil {
 		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
-		httpCtx.ectx.Request.Fingerprint = ja4.Get(connId)
+		hctx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
-	httpCtx.ectx.Transport = transport
+	hctx.ectx.Transport = transport
 
-	httpCtx.ectx.Request.Status = http.StatusOK
-	httpCtx.ectx.Request.Timestamp = timestamppb.Now()
+	hctx.ectx.Request.Status = http.StatusOK
+	hctx.ectx.Request.Timestamp = timestamppb.Now()
 
-	return httpCtx
+	return hctx
 }
 
 type Context struct {
+	*corehttp.BaseContext
 	req *app.RequestContext
 	ctx context.Context
 
@@ -82,15 +86,6 @@ func (c *Context) X() *edgepb.ContextExtra {
 
 func (c *Context) SetHost(h []byte) {
 	c.req.Request.SetHost(bytesToString(h))
-}
-
-func (c *Context) SetRequestId(id string) {
-	if id == "" {
-		return
-	}
-
-	c.ectx.Request.Id = id
-	c.req.Request.SetHeader(httpconst.HeaderXRequestId, id)
 }
 
 func (c *Context) AddResponseHeader(key, value []byte) {
@@ -111,10 +106,6 @@ func (c *Context) Query(k []byte) []byte {
 
 func (c *Context) RemoteAddr() []byte {
 	return []byte(c.req.RemoteAddr().String())
-}
-
-func (c *Context) RequestId() string {
-	return c.ectx.Request.GetId()
 }
 
 func (c *Context) ResponseBody() []byte {
@@ -300,6 +291,8 @@ func (c *Context) Unwrap() any {
 }
 
 func (c *Context) Close() error {
+	c.BaseContext.Reset()
+
 	c.req = nil
 	c.ctx = nil
 	c.ectx.Metadata = nil

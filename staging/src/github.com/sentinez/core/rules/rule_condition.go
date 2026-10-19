@@ -19,6 +19,6 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
-func accept(ctx chttp.RequestContext, c *rulepb.Condition) bool {
+func accept(ctx chttp.Request, c *rulepb.Condition) bool {
 	return visit(ctx, c)
 }

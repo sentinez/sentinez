@@ -35,43 +35,51 @@ var (
 	_ = anypb.Any{}
 
 	_ = rulepb.RuleService(0)
-
-	_ = rulepb.RuleBehavior(0)
 )
 
-// Validate checks the field values on Event with the rules defined in the
+// Validate checks the field values on RuleEvent with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Event) Validate() error {
+func (m *RuleEvent) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for Path
+	// no validation rules for Id
 
-	// no validation rules for Score
+	// no validation rules for ResourceId
 
-	// no validation rules for Ip
+	// no validation rules for TenantId
 
-	// no validation rules for RequestDomain
+	// no validation rules for MatchedTime
 
-	// no validation rules for TransactionId
-
-	// no validation rules for RequestTime
+	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RuleEventValidationError{
+				field:  "Action",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for Service
 
-	// no validation rules for Behavior
+	// no validation rules for RequestDomain
 
-	// no validation rules for HttpReqId
+	// no validation rules for RequestPath
 
-	// no validation rules for ContentType
+	// no validation rules for RequestQuery
+
+	// no validation rules for RequestIp
+
+	// no validation rules for RequestId
 
 	return nil
 }
 
-// EventValidationError is the validation error returned by Event.Validate if
-// the designated constraints aren't met.
-type EventValidationError struct {
+// RuleEventValidationError is the validation error returned by
+// RuleEvent.Validate if the designated constraints aren't met.
+type RuleEventValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -79,22 +87,22 @@ type EventValidationError struct {
 }
 
 // Field function returns field value.
-func (e EventValidationError) Field() string { return e.field }
+func (e RuleEventValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EventValidationError) Reason() string { return e.reason }
+func (e RuleEventValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EventValidationError) Cause() error { return e.cause }
+func (e RuleEventValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EventValidationError) Key() bool { return e.key }
+func (e RuleEventValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EventValidationError) ErrorName() string { return "EventValidationError" }
+func (e RuleEventValidationError) ErrorName() string { return "RuleEventValidationError" }
 
 // Error satisfies the builtin error interface
-func (e EventValidationError) Error() string {
+func (e RuleEventValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -106,14 +114,14 @@ func (e EventValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEvent.%s: %s%s",
+		"invalid %sRuleEvent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EventValidationError{}
+var _ error = RuleEventValidationError{}
 
 var _ interface {
 	Field() string
@@ -121,4 +129,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EventValidationError{}
+} = RuleEventValidationError{}

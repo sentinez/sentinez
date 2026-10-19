@@ -28,7 +28,7 @@ import (
 )
 
 func NewRequestContext(
-	ctx context.Context, req *httppb.Request) corehttp.RequestContext {
+	ctx context.Context, req *httppb.Request) corehttp.Request {
 	return &RequestContext{
 		req: req,
 		ctx: ctx,

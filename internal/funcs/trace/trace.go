@@ -16,6 +16,7 @@ package trace
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/sentinez/core"
@@ -39,9 +40,13 @@ type Trace struct {
 	*corechains.Node
 }
 
+// Handle makes sure the request has an id. The engine context assigns it
+// once when the request is accepted; one is only generated here for a
+// context that has none, so a request never gets a second id.
 func (t *Trace) Handle(ctx corehttp.Context) error {
-	requestId := rand.NewXId(core.PrefixXRequestIdBytes)
-	ctx.SetRequestId(requestId)
+	if ctx.RequestId() == "" {
+		ctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
+	}
 
 	return t.HandleNext(ctx)
 }
@@ -68,6 +73,7 @@ func (s *stage) Handle(ctx corehttp.Context) error {
 	begin := time.Now()
 	err := s.node.Handle(ctx)
 	if err == nil {
+		s.traceStatus(ctx, begin)
 		return nil
 	}
 
@@ -81,4 +87,19 @@ func (s *stage) Handle(ctx corehttp.Context) error {
 		ctx.RequestId(), se.Stage, ctx.StatusCode(), se.Elapsed, err)
 
 	return se
+}
+
+// traceStatus logs a request answered with an error status without an
+// error, e.g. a node that rendered a 403 page. Errors unwind from the
+// innermost node outwards, so for a request the first stage logged is
+// the one that answered; the stages after it only passed it through.
+func (s *stage) traceStatus(ctx corehttp.Context, begin time.Time) {
+	status := ctx.StatusCode()
+	if status < http.StatusBadRequest {
+		return
+	}
+
+	zlog.Debugf("tracer: request %s stage %q status %d after %s: %s%s",
+		ctx.RequestId(), s.name, status, time.Since(begin),
+		ctx.Host(), ctx.URI())
 }

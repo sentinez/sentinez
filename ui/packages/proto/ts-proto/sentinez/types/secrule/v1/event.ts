@@ -6,99 +6,90 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import {
-  RuleBehavior,
-  ruleBehaviorFromJSON,
-  ruleBehaviorToJSON,
-  RuleService,
-  ruleServiceFromJSON,
-  ruleServiceToJSON,
-} from "../../rule/v1/rule";
+import { Action, RuleService, ruleServiceFromJSON, ruleServiceToJSON } from "../../rule/v1/rule";
 
 export const protobufPackage = "sentinez.types.secrule.v1";
 
-export interface Event {
-  ruleIds: number[];
-  severities: string[];
+export interface RuleEvent {
+  id: string;
+  matchedSecruleIds: string[];
   messages: string[];
-  path: string;
-  score: number;
-  ip: string;
-  requestDomain: string;
-  transactionId: string;
+  resourceId: string;
+  tenantId: string;
   /** milisec */
-  requestTime: number;
+  matchedTime: number;
+  action?: Action | undefined;
   service: RuleService;
-  behavior: RuleBehavior;
-  httpReqId: string;
-  contentType: string;
+  requestDomain: string;
+  requestPath: string;
+  requestQuery: string;
+  requestIp: string;
+  requestId: string;
 }
 
-function createBaseEvent(): Event {
+function createBaseRuleEvent(): RuleEvent {
   return {
-    ruleIds: [],
-    severities: [],
+    id: "",
+    matchedSecruleIds: [],
     messages: [],
-    path: "",
-    score: 0,
-    ip: "",
-    requestDomain: "",
-    transactionId: "",
-    requestTime: 0,
+    resourceId: "",
+    tenantId: "",
+    matchedTime: 0,
+    action: undefined,
     service: 0,
-    behavior: 0,
-    httpReqId: "",
-    contentType: "",
+    requestDomain: "",
+    requestPath: "",
+    requestQuery: "",
+    requestIp: "",
+    requestId: "",
   };
 }
 
-export const Event: MessageFns<Event> = {
-  encode(message: Event, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    writer.uint32(10).fork();
-    for (const v of message.ruleIds) {
-      writer.int32(v);
+export const RuleEvent: MessageFns<RuleEvent> = {
+  encode(message: RuleEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
     }
-    writer.join();
-    for (const v of message.severities) {
+    for (const v of message.matchedSecruleIds) {
       writer.uint32(18).string(v!);
     }
     for (const v of message.messages) {
       writer.uint32(26).string(v!);
     }
-    if (message.path !== "") {
-      writer.uint32(34).string(message.path);
+    if (message.resourceId !== "") {
+      writer.uint32(34).string(message.resourceId);
     }
-    if (message.score !== 0) {
-      writer.uint32(40).int32(message.score);
+    if (message.tenantId !== "") {
+      writer.uint32(42).string(message.tenantId);
     }
-    if (message.ip !== "") {
-      writer.uint32(50).string(message.ip);
+    if (message.matchedTime !== 0) {
+      writer.uint32(48).int64(message.matchedTime);
     }
-    if (message.requestDomain !== "") {
-      writer.uint32(58).string(message.requestDomain);
-    }
-    if (message.transactionId !== "") {
-      writer.uint32(66).string(message.transactionId);
-    }
-    if (message.requestTime !== 0) {
-      writer.uint32(72).int64(message.requestTime);
+    if (message.action !== undefined) {
+      Action.encode(message.action, writer.uint32(58).fork()).join();
     }
     if (message.service !== 0) {
-      writer.uint32(80).int32(message.service);
+      writer.uint32(64).int32(message.service);
     }
-    if (message.behavior !== 0) {
-      writer.uint32(88).int32(message.behavior);
+    if (message.requestDomain !== "") {
+      writer.uint32(82).string(message.requestDomain);
     }
-    if (message.httpReqId !== "") {
-      writer.uint32(98).string(message.httpReqId);
+    if (message.requestPath !== "") {
+      writer.uint32(90).string(message.requestPath);
     }
-    if (message.contentType !== "") {
-      writer.uint32(106).string(message.contentType);
+    if (message.requestQuery !== "") {
+      writer.uint32(98).string(message.requestQuery);
+    }
+    if (message.requestIp !== "") {
+      writer.uint32(106).string(message.requestIp);
+    }
+    if (message.requestId !== "") {
+      writer.uint32(114).string(message.requestId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Event {
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -107,34 +98,24 @@ export const Event: MessageFns<Event> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseEvent();
+      const message = createBaseRuleEvent();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
           case 1: {
-            if (tag === 8) {
-              message.ruleIds.push(reader.int32());
-
-              continue;
+            if (tag !== 10) {
+              break;
             }
 
-            if (tag === 10) {
-              const end2 = reader.uint32() + reader.pos;
-              while (reader.pos < end2) {
-                message.ruleIds.push(reader.int32());
-              }
-
-              continue;
-            }
-
-            break;
+            message.id = reader.string();
+            continue;
           }
           case 2: {
             if (tag !== 18) {
               break;
             }
 
-            message.severities.push(reader.string());
+            message.matchedSecruleIds.push(reader.string());
             continue;
           }
           case 3: {
@@ -150,23 +131,23 @@ export const Event: MessageFns<Event> = {
               break;
             }
 
-            message.path = reader.string();
+            message.resourceId = reader.string();
             continue;
           }
           case 5: {
-            if (tag !== 40) {
+            if (tag !== 42) {
               break;
             }
 
-            message.score = reader.int32();
+            message.tenantId = reader.string();
             continue;
           }
           case 6: {
-            if (tag !== 50) {
+            if (tag !== 48) {
               break;
             }
 
-            message.ip = reader.string();
+            message.matchedTime = longToNumber(reader.int64());
             continue;
           }
           case 7: {
@@ -174,39 +155,31 @@ export const Event: MessageFns<Event> = {
               break;
             }
 
-            message.requestDomain = reader.string();
+            message.action = Action.decode(reader, reader.uint32());
             continue;
           }
           case 8: {
-            if (tag !== 66) {
-              break;
-            }
-
-            message.transactionId = reader.string();
-            continue;
-          }
-          case 9: {
-            if (tag !== 72) {
-              break;
-            }
-
-            message.requestTime = longToNumber(reader.int64());
-            continue;
-          }
-          case 10: {
-            if (tag !== 80) {
+            if (tag !== 64) {
               break;
             }
 
             message.service = reader.int32() as any;
             continue;
           }
-          case 11: {
-            if (tag !== 88) {
+          case 10: {
+            if (tag !== 82) {
               break;
             }
 
-            message.behavior = reader.int32() as any;
+            message.requestDomain = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.requestPath = reader.string();
             continue;
           }
           case 12: {
@@ -214,7 +187,7 @@ export const Event: MessageFns<Event> = {
               break;
             }
 
-            message.httpReqId = reader.string();
+            message.requestQuery = reader.string();
             continue;
           }
           case 13: {
@@ -222,7 +195,15 @@ export const Event: MessageFns<Event> = {
               break;
             }
 
-            message.contentType = reader.string();
+            message.requestIp = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.requestId = reader.string();
             continue;
           }
         }
@@ -237,112 +218,124 @@ export const Event: MessageFns<Event> = {
     }
   },
 
-  fromJSON(object: any): Event {
+  fromJSON(object: any): RuleEvent {
     return {
-      ruleIds: globalThis.Array.isArray(object?.ruleIds)
-        ? object.ruleIds.map((e: any) => globalThis.Number(e))
-        : globalThis.Array.isArray(object?.rule_ids)
-        ? object.rule_ids.map((e: any) => globalThis.Number(e))
-        : [],
-      severities: globalThis.Array.isArray(object?.severities)
-        ? object.severities.map((e: any) => globalThis.String(e))
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      matchedSecruleIds: globalThis.Array.isArray(object?.matchedSecruleIds)
+        ? object.matchedSecruleIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.matched_secrule_ids)
+        ? object.matched_secrule_ids.map((e: any) => globalThis.String(e))
         : [],
       messages: globalThis.Array.isArray(object?.messages) ? object.messages.map((e: any) => globalThis.String(e)) : [],
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
-      score: isSet(object.score) ? globalThis.Number(object.score) : 0,
-      ip: isSet(object.ip) ? globalThis.String(object.ip) : "",
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      matchedTime: isSet(object.matchedTime)
+        ? globalThis.Number(object.matchedTime)
+        : isSet(object.matched_time)
+        ? globalThis.Number(object.matched_time)
+        : 0,
+      action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
+      service: isSet(object.service) ? ruleServiceFromJSON(object.service) : 0,
       requestDomain: isSet(object.requestDomain)
         ? globalThis.String(object.requestDomain)
         : isSet(object.request_domain)
         ? globalThis.String(object.request_domain)
         : "",
-      transactionId: isSet(object.transactionId)
-        ? globalThis.String(object.transactionId)
-        : isSet(object.transaction_id)
-        ? globalThis.String(object.transaction_id)
+      requestPath: isSet(object.requestPath)
+        ? globalThis.String(object.requestPath)
+        : isSet(object.request_path)
+        ? globalThis.String(object.request_path)
         : "",
-      requestTime: isSet(object.requestTime)
-        ? globalThis.Number(object.requestTime)
-        : isSet(object.request_time)
-        ? globalThis.Number(object.request_time)
-        : 0,
-      service: isSet(object.service) ? ruleServiceFromJSON(object.service) : 0,
-      behavior: isSet(object.behavior) ? ruleBehaviorFromJSON(object.behavior) : 0,
-      httpReqId: isSet(object.httpReqId)
-        ? globalThis.String(object.httpReqId)
-        : isSet(object.http_req_id)
-        ? globalThis.String(object.http_req_id)
+      requestQuery: isSet(object.requestQuery)
+        ? globalThis.String(object.requestQuery)
+        : isSet(object.request_query)
+        ? globalThis.String(object.request_query)
         : "",
-      contentType: isSet(object.contentType)
-        ? globalThis.String(object.contentType)
-        : isSet(object.content_type)
-        ? globalThis.String(object.content_type)
+      requestIp: isSet(object.requestIp)
+        ? globalThis.String(object.requestIp)
+        : isSet(object.request_ip)
+        ? globalThis.String(object.request_ip)
+        : "",
+      requestId: isSet(object.requestId)
+        ? globalThis.String(object.requestId)
+        : isSet(object.request_id)
+        ? globalThis.String(object.request_id)
         : "",
     };
   },
 
-  toJSON(message: Event): unknown {
+  toJSON(message: RuleEvent): unknown {
     const obj: any = {};
-    if (message.ruleIds?.length) {
-      obj.ruleIds = message.ruleIds.map((e) => Math.round(e));
+    if (message.id !== "") {
+      obj.id = message.id;
     }
-    if (message.severities?.length) {
-      obj.severities = message.severities;
+    if (message.matchedSecruleIds?.length) {
+      obj.matchedSecruleIds = message.matchedSecruleIds;
     }
     if (message.messages?.length) {
       obj.messages = message.messages;
     }
-    if (message.path !== "") {
-      obj.path = message.path;
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
     }
-    if (message.score !== 0) {
-      obj.score = Math.round(message.score);
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
     }
-    if (message.ip !== "") {
-      obj.ip = message.ip;
+    if (message.matchedTime !== 0) {
+      obj.matchedTime = Math.round(message.matchedTime);
     }
-    if (message.requestDomain !== "") {
-      obj.requestDomain = message.requestDomain;
-    }
-    if (message.transactionId !== "") {
-      obj.transactionId = message.transactionId;
-    }
-    if (message.requestTime !== 0) {
-      obj.requestTime = Math.round(message.requestTime);
+    if (message.action !== undefined) {
+      obj.action = Action.toJSON(message.action);
     }
     if (message.service !== 0) {
       obj.service = ruleServiceToJSON(message.service);
     }
-    if (message.behavior !== 0) {
-      obj.behavior = ruleBehaviorToJSON(message.behavior);
+    if (message.requestDomain !== "") {
+      obj.requestDomain = message.requestDomain;
     }
-    if (message.httpReqId !== "") {
-      obj.httpReqId = message.httpReqId;
+    if (message.requestPath !== "") {
+      obj.requestPath = message.requestPath;
     }
-    if (message.contentType !== "") {
-      obj.contentType = message.contentType;
+    if (message.requestQuery !== "") {
+      obj.requestQuery = message.requestQuery;
+    }
+    if (message.requestIp !== "") {
+      obj.requestIp = message.requestIp;
+    }
+    if (message.requestId !== "") {
+      obj.requestId = message.requestId;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Event>, I>>(base?: I): Event {
-    return Event.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RuleEvent>, I>>(base?: I): RuleEvent {
+    return RuleEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Event>, I>>(object: I): Event {
-    const message = createBaseEvent();
-    message.ruleIds = object.ruleIds?.map((e) => e) || [];
-    message.severities = object.severities?.map((e) => e) || [];
+  fromPartial<I extends Exact<DeepPartial<RuleEvent>, I>>(object: I): RuleEvent {
+    const message = createBaseRuleEvent();
+    message.id = object.id ?? "";
+    message.matchedSecruleIds = object.matchedSecruleIds?.map((e) => e) || [];
     message.messages = object.messages?.map((e) => e) || [];
-    message.path = object.path ?? "";
-    message.score = object.score ?? 0;
-    message.ip = object.ip ?? "";
-    message.requestDomain = object.requestDomain ?? "";
-    message.transactionId = object.transactionId ?? "";
-    message.requestTime = object.requestTime ?? 0;
+    message.resourceId = object.resourceId ?? "";
+    message.tenantId = object.tenantId ?? "";
+    message.matchedTime = object.matchedTime ?? 0;
+    message.action = (object.action !== undefined && object.action !== null)
+      ? Action.fromPartial(object.action)
+      : undefined;
     message.service = object.service ?? 0;
-    message.behavior = object.behavior ?? 0;
-    message.httpReqId = object.httpReqId ?? "";
-    message.contentType = object.contentType ?? "";
+    message.requestDomain = object.requestDomain ?? "";
+    message.requestPath = object.requestPath ?? "";
+    message.requestQuery = object.requestQuery ?? "";
+    message.requestIp = object.requestIp ?? "";
+    message.requestId = object.requestId ?? "";
     return message;
   },
 };

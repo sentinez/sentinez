@@ -1,4 +1,4 @@
-// Copyright 2026 Sentinéz Labs.
+// Copyright 2025 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,38 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleevent
+package atomic
 
 import (
-	"io"
+	"sync/atomic"
 
-	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/zlog"
 )
 
-var (
-	_ io.Closer = (*RuleEvent)(nil)
-
-	_pool = sync.NewPoolCtr(func() *RuleEvent {
-		return &RuleEvent{Event: &secrulepb.Event{}}
-	})
-)
-
-type RuleEvent struct {
-	*secrulepb.Event
+type WriteOnce[T any] struct {
+	value atomic.Pointer[T]
 }
 
-func (re *RuleEvent) Close() error {
-	Release(re)
+func (w *WriteOnce[T]) Set(v T) bool {
+	p := new(T)
+	*p = v
 
-	return nil
+	if !w.value.CompareAndSwap(nil, p) {
+		zlog.Warn("atomic: value has already been set")
+		return false
+	}
+
+	return true
 }
 
-func Acquire() *RuleEvent {
-	return _pool.Get()
+func (w *WriteOnce[T]) Get() (T, bool) {
+	p := w.value.Load()
+	if p == nil {
+		var zero T
+		return zero, false
+	}
+
+	return *p, true
 }
 
-func Release(obj *RuleEvent) {
-	obj.Reset()
-	_pool.Put(obj)
+func (w *WriteOnce[T]) Reset() {
+	w.value.Store(nil)
 }

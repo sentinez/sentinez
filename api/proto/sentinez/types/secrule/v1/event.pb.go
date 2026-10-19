@@ -37,39 +37,39 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Event struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RuleIds       []int32                `protobuf:"varint,1,rep,packed,name=rule_ids,json=ruleIds,proto3" json:"rule_ids,omitempty"`
-	Severities    []string               `protobuf:"bytes,2,rep,name=severities,proto3" json:"severities,omitempty"`
-	Messages      []string               `protobuf:"bytes,3,rep,name=messages,proto3" json:"messages,omitempty"`
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`
-	Score         int32                  `protobuf:"varint,5,opt,name=score,proto3" json:"score,omitempty"`
-	Ip            string                 `protobuf:"bytes,6,opt,name=ip,proto3" json:"ip,omitempty"`
-	RequestDomain string                 `protobuf:"bytes,7,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
-	TransactionId string                 `protobuf:"bytes,8,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	RequestTime   int64                  `protobuf:"varint,9,opt,name=request_time,json=requestTime,proto3" json:"request_time,omitempty"` // milisec
-	Service       v1.RuleService         `protobuf:"varint,10,opt,name=service,proto3,enum=sentinez.types.rule.v1.RuleService" json:"service,omitempty"`
-	Behavior      v1.RuleBehavior        `protobuf:"varint,11,opt,name=behavior,proto3,enum=sentinez.types.rule.v1.RuleBehavior" json:"behavior,omitempty"`
-	HttpReqId     string                 `protobuf:"bytes,12,opt,name=http_req_id,json=httpReqId,proto3" json:"http_req_id,omitempty"`
-	ContentType   string                 `protobuf:"bytes,13,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type RuleEvent struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	MatchedSecruleIds []string               `protobuf:"bytes,2,rep,name=matched_secrule_ids,json=matchedSecruleIds,proto3" json:"matched_secrule_ids,omitempty"`
+	Messages          []string               `protobuf:"bytes,3,rep,name=messages,proto3" json:"messages,omitempty"`
+	ResourceId        string                 `protobuf:"bytes,4,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	TenantId          string                 `protobuf:"bytes,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	MatchedTime       int64                  `protobuf:"varint,6,opt,name=matched_time,json=matchedTime,proto3" json:"matched_time,omitempty"` // milisec
+	Action            *v1.Action             `protobuf:"bytes,7,opt,name=action,proto3" json:"action,omitempty"`
+	Service           v1.RuleService         `protobuf:"varint,8,opt,name=service,proto3,enum=sentinez.types.rule.v1.RuleService" json:"service,omitempty"`
+	RequestDomain     string                 `protobuf:"bytes,10,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
+	RequestPath       string                 `protobuf:"bytes,11,opt,name=request_path,json=requestPath,proto3" json:"request_path,omitempty"`
+	RequestQuery      string                 `protobuf:"bytes,12,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
+	RequestIp         string                 `protobuf:"bytes,13,opt,name=request_ip,json=requestIp,proto3" json:"request_ip,omitempty"`
+	RequestId         string                 `protobuf:"bytes,14,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
-func (x *Event) Reset() {
-	*x = Event{}
+func (x *RuleEvent) Reset() {
+	*x = RuleEvent{}
 	mi := &file_sentinez_types_secrule_v1_event_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Event) String() string {
+func (x *RuleEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Event) ProtoMessage() {}
+func (*RuleEvent) ProtoMessage() {}
 
-func (x *Event) ProtoReflect() protoreflect.Message {
+func (x *RuleEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secrule_v1_event_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -81,98 +81,98 @@ func (x *Event) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Event.ProtoReflect.Descriptor instead.
-func (*Event) Descriptor() ([]byte, []int) {
+// Deprecated: Use RuleEvent.ProtoReflect.Descriptor instead.
+func (*RuleEvent) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secrule_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Event) GetRuleIds() []int32 {
+func (x *RuleEvent) GetId() string {
 	if x != nil {
-		return x.RuleIds
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RuleEvent) GetMatchedSecruleIds() []string {
+	if x != nil {
+		return x.MatchedSecruleIds
 	}
 	return nil
 }
 
-func (x *Event) GetSeverities() []string {
-	if x != nil {
-		return x.Severities
-	}
-	return nil
-}
-
-func (x *Event) GetMessages() []string {
+func (x *RuleEvent) GetMessages() []string {
 	if x != nil {
 		return x.Messages
 	}
 	return nil
 }
 
-func (x *Event) GetPath() string {
+func (x *RuleEvent) GetResourceId() string {
 	if x != nil {
-		return x.Path
+		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *Event) GetScore() int32 {
+func (x *RuleEvent) GetTenantId() string {
 	if x != nil {
-		return x.Score
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *RuleEvent) GetMatchedTime() int64 {
+	if x != nil {
+		return x.MatchedTime
 	}
 	return 0
 }
 
-func (x *Event) GetIp() string {
+func (x *RuleEvent) GetAction() *v1.Action {
 	if x != nil {
-		return x.Ip
+		return x.Action
 	}
-	return ""
+	return nil
 }
 
-func (x *Event) GetRequestDomain() string {
-	if x != nil {
-		return x.RequestDomain
-	}
-	return ""
-}
-
-func (x *Event) GetTransactionId() string {
-	if x != nil {
-		return x.TransactionId
-	}
-	return ""
-}
-
-func (x *Event) GetRequestTime() int64 {
-	if x != nil {
-		return x.RequestTime
-	}
-	return 0
-}
-
-func (x *Event) GetService() v1.RuleService {
+func (x *RuleEvent) GetService() v1.RuleService {
 	if x != nil {
 		return x.Service
 	}
 	return v1.RuleService(0)
 }
 
-func (x *Event) GetBehavior() v1.RuleBehavior {
+func (x *RuleEvent) GetRequestDomain() string {
 	if x != nil {
-		return x.Behavior
-	}
-	return v1.RuleBehavior(0)
-}
-
-func (x *Event) GetHttpReqId() string {
-	if x != nil {
-		return x.HttpReqId
+		return x.RequestDomain
 	}
 	return ""
 }
 
-func (x *Event) GetContentType() string {
+func (x *RuleEvent) GetRequestPath() string {
 	if x != nil {
-		return x.ContentType
+		return x.RequestPath
+	}
+	return ""
+}
+
+func (x *RuleEvent) GetRequestQuery() string {
+	if x != nil {
+		return x.RequestQuery
+	}
+	return ""
+}
+
+func (x *RuleEvent) GetRequestIp() string {
+	if x != nil {
+		return x.RequestIp
+	}
+	return ""
+}
+
+func (x *RuleEvent) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
 	}
 	return ""
 }
@@ -181,24 +181,25 @@ var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd5\x03\n" +
-	"\x05Event\x12\x19\n" +
-	"\brule_ids\x18\x01 \x03(\x05R\aruleIds\x12\x1e\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf4\x03\n" +
+	"\tRuleEvent\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
+	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
+	"\bmessages\x18\x03 \x03(\tR\bmessages\x12\x1f\n" +
+	"\vresource_id\x18\x04 \x01(\tR\n" +
+	"resourceId\x12\x1b\n" +
+	"\ttenant_id\x18\x05 \x01(\tR\btenantId\x12!\n" +
+	"\fmatched_time\x18\x06 \x01(\x03R\vmatchedTime\x126\n" +
+	"\x06action\x18\a \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x12=\n" +
+	"\aservice\x18\b \x01(\x0e2#.sentinez.types.rule.v1.RuleServiceR\aservice\x12%\n" +
+	"\x0erequest_domain\x18\n" +
+	" \x01(\tR\rrequestDomain\x12!\n" +
+	"\frequest_path\x18\v \x01(\tR\vrequestPath\x12#\n" +
+	"\rrequest_query\x18\f \x01(\tR\frequestQuery\x12\x1d\n" +
 	"\n" +
-	"severities\x18\x02 \x03(\tR\n" +
-	"severities\x12\x1a\n" +
-	"\bmessages\x18\x03 \x03(\tR\bmessages\x12\x12\n" +
-	"\x04path\x18\x04 \x01(\tR\x04path\x12\x14\n" +
-	"\x05score\x18\x05 \x01(\x05R\x05score\x12\x0e\n" +
-	"\x02ip\x18\x06 \x01(\tR\x02ip\x12%\n" +
-	"\x0erequest_domain\x18\a \x01(\tR\rrequestDomain\x12%\n" +
-	"\x0etransaction_id\x18\b \x01(\tR\rtransactionId\x12!\n" +
-	"\frequest_time\x18\t \x01(\x03R\vrequestTime\x12=\n" +
-	"\aservice\x18\n" +
-	" \x01(\x0e2#.sentinez.types.rule.v1.RuleServiceR\aservice\x12@\n" +
-	"\bbehavior\x18\v \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior\x12\x1e\n" +
-	"\vhttp_req_id\x18\f \x01(\tR\thttpReqId\x12!\n" +
-	"\fcontent_type\x18\r \x01(\tR\vcontentType:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
+	"request_ip\x18\r \x01(\tR\trequestIp\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x0e \x01(\tR\trequestId:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
 
 var (
 	file_sentinez_types_secrule_v1_event_proto_rawDescOnce sync.Once
@@ -214,13 +215,13 @@ func file_sentinez_types_secrule_v1_event_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secrule_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_secrule_v1_event_proto_goTypes = []any{
-	(*Event)(nil),        // 0: sentinez.types.secrule.v1.Event
-	(v1.RuleService)(0),  // 1: sentinez.types.rule.v1.RuleService
-	(v1.RuleBehavior)(0), // 2: sentinez.types.rule.v1.RuleBehavior
+	(*RuleEvent)(nil),   // 0: sentinez.types.secrule.v1.RuleEvent
+	(*v1.Action)(nil),   // 1: sentinez.types.rule.v1.Action
+	(v1.RuleService)(0), // 2: sentinez.types.rule.v1.RuleService
 }
 var file_sentinez_types_secrule_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.secrule.v1.Event.service:type_name -> sentinez.types.rule.v1.RuleService
-	2, // 1: sentinez.types.secrule.v1.Event.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
+	1, // 0: sentinez.types.secrule.v1.RuleEvent.action:type_name -> sentinez.types.rule.v1.Action
+	2, // 1: sentinez.types.secrule.v1.RuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

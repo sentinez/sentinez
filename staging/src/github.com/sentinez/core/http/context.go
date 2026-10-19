@@ -23,46 +23,32 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
-type RequestContext interface {
+type Request interface {
 	Context() context.Context
-
 	Headers() map[string][][]byte
 	Queries() map[string][][]byte
-
 	Query(k []byte) []byte
 	QueryStr() []byte
-
 	Header(k []byte) []byte
-
 	Path() []byte
 	URI() []byte
-
 	Body() []byte
 	JA4() string
 	TLS() bool
-
 	Method() []byte
 	Host() []byte
-
 	StatusCode() int
 	Protocol() string
 	Scheme() string
-
 	RemoteAddr() []byte
 	RequestIP() []byte
-
-	RequestId() string
 	RequestTime() time.Time
-
 	SetHeader(key, value []byte)
 	SetQuery(key []byte, values ...[]byte)
-
 	SetPath(p []byte)
 	SetURI(u []byte)
-
 	SetBody(b []byte)
 	SetStatusCode(code int)
-	SetRequestId(id string)
 	SetHost(h []byte)
 }
 
@@ -81,8 +67,20 @@ type ResponseWriter interface {
 	Copy(src io.Reader) error
 }
 
+type RequestContext interface {
+	RequestId() string
+	SetRequestId(id string)
+
+	ResourceId() string
+	SetResourceId(id string)
+
+	TenantId() string
+	SetTenantId(id string)
+}
+
 type Context interface {
 	RequestContext
+	Request
 	ResponseWriter
 	Unwrap() any
 	X() *edgepb.ContextExtra

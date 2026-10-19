@@ -30,7 +30,8 @@ func NewTable(appConf *settingpb.Config, tableName string) string {
 }
 
 func NewPrimaryKey(tableName string) string {
-	return fmt.Sprintf("%s.%s.", strings.ToLower(core.Code), tableName)
+	key := fmt.Sprintf("%s_%s_", strings.ToLower(core.Code), tableName)
+	return strings.ReplaceAll(key, ".", "_")
 }
 
 func IsValidTableName(tableName string) bool {

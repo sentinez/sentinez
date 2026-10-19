@@ -19,7 +19,7 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
-func visit(ctx corehttp.RequestContext, cond *rulepb.Condition) bool {
+func visit(ctx corehttp.Request, cond *rulepb.Condition) bool {
 	// zlog.Debugf("ev: visit with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {

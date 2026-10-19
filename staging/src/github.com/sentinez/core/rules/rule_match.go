@@ -68,14 +68,14 @@ func matchBytes(op rulepb.Operator, src []byte, des string) bool {
 	}
 }
 
-func matchSourcePath(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourcePath(ctx chttp.Request, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := ctx.Path()
 
 	return matchBytes(cond.GetOperator(), src, des)
 }
 
-func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceBody(ctx chttp.Request, cond *rulepb.Condition) bool {
 	src := ctx.Body()
 	des := cond.GetValue().GetStringValue()
 
@@ -83,7 +83,7 @@ func matchSourceBody(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 }
 
 // nolint:funlen
-func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceHeader(ctx chttp.Request, cond *rulepb.Condition) bool {
 	key := cond.GetKey()
 	val := cond.GetValue()
 	op := cond.GetOperator()
@@ -149,7 +149,7 @@ func matchSourceHeader(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	return matchBytes(op, srcVal, desString)
 }
 
-func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceHost(ctx chttp.Request, cond *rulepb.Condition) bool {
 	src := ctx.Host()
 	des := cond.GetValue().GetStringValue()
 
@@ -157,7 +157,7 @@ func matchSourceHost(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 }
 
 // nolint:funlen
-func matchSourceQuery(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceQuery(ctx chttp.Request, cond *rulepb.Condition) bool {
 	key := cond.GetKey()
 	val := cond.GetValue()
 	op := cond.GetOperator()
@@ -253,7 +253,7 @@ func matchIP(src []byte, des string) bool {
 	return prefix.Contains(addr)
 }
 
-func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceIP(ctx chttp.Request, cond *rulepb.Condition) bool {
 	src := ctx.RequestIP()
 
 	switch cond.GetOperator() {
@@ -288,7 +288,7 @@ func matchSourceIP(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 }
 
-func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceMethod(ctx chttp.Request, cond *rulepb.Condition) bool {
 	src := ctx.Method()
 
 	switch cond.GetOperator() {
@@ -318,7 +318,7 @@ func matchSourceMethod(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 }
 
-func matchSourceTLS(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceTLS(ctx chttp.Request, cond *rulepb.Condition) bool {
 	des := cond.GetValue().GetStringValue()
 	src := "false"
 	if ctx.TLS() {
@@ -335,7 +335,7 @@ func matchSourceTLS(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
 	}
 }
 
-func matchSourceJA4(ctx chttp.RequestContext, cond *rulepb.Condition) bool {
+func matchSourceJA4(ctx chttp.Request, cond *rulepb.Condition) bool {
 	src := ctx.JA4()
 	if src == "" {
 		return _unmatched

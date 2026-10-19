@@ -1669,6 +1669,9 @@
         "timeout": {
           "type": "string",
           "description": "Block duration once the limit is exceeded, as a Go duration string."
+        },
+        "exprPreview": {
+          "type": "string"
         }
       }
     },
@@ -1814,6 +1817,9 @@
         "priority": {
           "type": "integer",
           "format": "int32"
+        },
+        "exprPreview": {
+          "type": "string"
         }
       }
     },
