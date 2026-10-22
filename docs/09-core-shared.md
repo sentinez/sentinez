@@ -65,7 +65,7 @@ either. An `https://` endpoint uses TLS.
 | `core/szstorage/szcache/szmem` | Generic cache on top of `patrickmn/go-cache` |
 | `core/szstorage/szdbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstorageszdbx) |
 | `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Empty packages (planned) |
-| `core/szlimiter`, `core/szrule`, `core/szrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
+| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 

@@ -18,9 +18,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/szchains"
-	"github.com/sentinez/core/szrs"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -67,7 +67,7 @@ func (w *WAF) Handle(ctx szhttp.Context) error {
 		return nil
 	}
 
-	ruleset := szrs.NewRulesets(ctx, waf)
+	ruleset := szcrs.NewRulesets(ctx, waf)
 	defer func() {
 		ruleset.Final(func() { w.capture(ctx, ruleset) })
 		ruleset.Release()
@@ -95,7 +95,7 @@ func (w *WAF) Handle(ctx szhttp.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx szhttp.Context, ruleset *szrs.Rulesets) {
+func (w *WAF) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 
 	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {

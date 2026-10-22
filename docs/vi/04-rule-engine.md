@@ -138,8 +138,8 @@ Chạy lại toàn bộ: `bash hack/ruleparser.sh`.
 
 ### Ghép directive
 
-`szrs.GenerateRulesets(version, flag)`
-([waf_loader.go](../../staging/src/github.com/sentinez/core/szrs/waf_loader.go))
+`szcrs.GenerateRulesets(version, flag)`
+([waf_loader.go](../../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
 nối theo thứ tự:
 
 1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. rule theo version + flag →
@@ -156,13 +156,13 @@ chỉ hai flag có rule sinh sẵn:
 Kết quả cũng được ghi ra file `WAF.conf.lock` ở thư mục làm việc (dùng để
 xem directive cuối cùng).
 
-`szrs.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
+`szcrs.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
 `*.data` nhúng trong [sentinez.go](../../sentinez.go) (`WAF4160()`,
 `WAF4170()`).
 
 ### Xử lý trong request
 
-[core/szrs](../../staging/src/github.com/sentinez/core/szrs/) — phỏng
+[core/szcrs](../../staging/src/github.com/sentinez/core/szcrs/) — phỏng
 theo middleware HTTP của Coraza:
 
 | Bước | Hàm | Chi tiết |

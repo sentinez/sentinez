@@ -20,8 +20,8 @@ import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
+	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szrs"
 	"github.com/sentinez/sentinez"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	ssync "github.com/sentinez/shared/sync"
@@ -102,7 +102,7 @@ func NewWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
 		return nil, err
 	}
 
-	return szrs.NewWAF(setting.GetVersion(), rootFs, setting)
+	return szcrs.NewWAF(setting.GetVersion(), rootFs, setting)
 }
 
 func crsMap(version corerulesetpb.Version) (fs.FS, error) {

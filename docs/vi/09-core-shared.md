@@ -65,7 +65,7 @@ dùng TLS.
 | `core/szstorage/szcache/szmem` | Cache generic dựa trên `patrickmn/go-cache` |
 | `core/szstorage/szdbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstorageszdbx) |
 | `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Package rỗng (dự kiến) |
-| `core/szlimiter`, `core/szrule`, `core/szrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
+| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 

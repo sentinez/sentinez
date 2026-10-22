@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szrs_test
+package szcrs_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/corazawaf/coraza/v3"
+	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp/szhttpreq"
-	"github.com/sentinez/core/szrs"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,7 +78,7 @@ func TestEvaluate(t *testing.T) {
 					Headers:       tt.giveHeaders,
 				})
 
-			eval, err := szrs.Evaluate(waf, req)
+			eval, err := szcrs.Evaluate(waf, req)
 			require.NoError(t, err)
 
 			var ids []int

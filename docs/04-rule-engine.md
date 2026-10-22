@@ -145,8 +145,8 @@ Regenerate everything with `bash hack/ruleparser.sh`.
 
 ### Assembling directives
 
-`szrs.GenerateRulesets(version, flag)`
-([waf_loader.go](../staging/src/github.com/sentinez/core/szrs/waf_loader.go))
+`szcrs.GenerateRulesets(version, flag)`
+([waf_loader.go](../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
 concatenates, in order:
 
 1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. version + flag rules →
@@ -163,13 +163,13 @@ concatenates, in order:
 The result is also written to `WAF.conf.lock` in the working directory (handy
 for inspecting the final directives).
 
-`szrs.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
+`szcrs.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
 set of `*.data` files embedded in [sentinez.go](../sentinez.go) (`WAF4160()`,
 `WAF4170()`).
 
 ### Per-request processing
 
-[core/szrs](../staging/src/github.com/sentinez/core/szrs/) — modeled
+[core/szcrs](../staging/src/github.com/sentinez/core/szcrs/) — modeled
 on Coraza's HTTP middleware:
 
 | Step | Function | Details |
