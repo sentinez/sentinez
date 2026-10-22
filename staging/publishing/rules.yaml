@@ -12,3 +12,4 @@ rules:
   - destination: controlplane
   - destination: bpf
   - destination: mcp
+  - destination: go-import
