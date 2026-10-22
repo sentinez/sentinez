@@ -15,41 +15,48 @@
 package logging
 
 import (
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/bpf"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-var _ corechains.ChainNode = (*Logging)(nil)
+var _ chains.ChainNode = (*Logging)(nil)
 
-func NewLogging(logLevel zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+// NewLogging logs every request of the chain and exports the records
+// through the option.WithLogger provider; without one they are not
+// exported.
+func NewLogging(opts ...option.Option) chains.ChainNode {
+	o := option.New(opts...)
+
 	return &Logging{
-		Node: corechains.NewNode(),
-		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_HTTP, logLevel,
+		Node: chains.NewNode(),
+		log: szlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_HTTP,
+			o.Level,
+			o.OTLP(),
 		),
 	}
 }
 
 type Logging struct {
-	*corechains.Node
-	log zlog.LogCloser
+	*chains.Node
+	log szlog.LogCloser
 }
 
-func (l *Logging) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit logging")
+func (l *Logging) Handle(ctx szhttp.Context) error {
+	// szlog.Debug("[edge] >>> visit logging")
 	err := l.HandleNext(ctx)
 
 	ip := ctx.RequestIP()
 	bw, _ := bpf.LookupBandwidth(bytesconv.B2s(ip))
-	zlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
+	szlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
 	event := request.Acquire()
 
@@ -61,10 +68,9 @@ func (l *Logging) Handle(ctx corehttp.Context) error {
 	event.Status = int32(ctx.StatusCode())
 	event.Protocol = ctx.Protocol()
 	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
-
 	event.Queries = string(ctx.QueryStr())
 
-	if l.log.V(zlog.LevelInfo.Int()) {
+	if l.log.V(szlog.LevelInfo.Int()) {
 		l.log.Info("http: request", event, event)
 	}
 

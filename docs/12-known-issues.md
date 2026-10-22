@@ -17,7 +17,7 @@ have not been reproduced. Remove an entry once it is fixed.
 | 10 | [internal/memory/memory.go](../internal/memory/memory.go) `LoadRulesets` | Ignores the contents of `rulesets[]`; always CRS v4.16.0 + the RCE flag; the status check is commented out | The rule version/groups cannot be configured; SQLi (942) is never enabled |
 | 11 | [internal/funcs/logging/logging.go](../internal/funcs/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
 | 12 | [internal/bpf/security.go](../internal/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
-| 13 | [shared/eventq/eventq.go](../staging/src/github.com/sentinez/shared/eventq/eventq.go) `Close`, `CloseAll` | Type-asserts to `chan string` / `chan any` instead of `chan T` | Panics for any other `T` (no callers yet) |
+| 13 | [shared/szeventq/eventq.go](../staging/src/github.com/sentinez/shared/szeventq/eventq.go) `Close`, `CloseAll` | Type-asserts to `chan string` / `chan any` instead of `chan T` | Panics for any other `T` (no callers yet) |
 
 ## 12.2 Security
 
@@ -45,7 +45,7 @@ have not been reproduced. Remove an entry once it is fixed.
   an empty `Expression` (always matches) and ignores `ruleset_id`.
 - SecRule actions other than `BLOCK` are not executed; operators
   `GT/GTE/LT/LTE` are not implemented.
-- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/storage/{keyval,
+- Waiting room (`ROM`), `pkg/queue`, `shared/sztopic`, `core/szstorage/{keyval,
   clickhouse,kafka,elastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
@@ -71,7 +71,7 @@ have not been reproduced. Remove an entry once it is fixed.
   `senz.security.secrules.`; users get `senz.iam.users.` but
   `GetUserRequest/UpdateUserRequest/DeleteUserRequest` require `senz.users.`.
   Not visible today because the gRPC server doesn't validate requests.
-- `corehttp.Forbidden/NotFound/...` render under one global `sync.Mutex`,
+- `szhttp.Forbidden/NotFound/...` render under one global `sync.Mutex`,
   serializing every error response.
 - `preflightHandler` sets `Access-Control-Max-Age` after `WriteHeader` (no
   effect); the grpc-gateway `extendHeader` sets the `Server` header after
@@ -83,7 +83,7 @@ have not been reproduced. Remove an entry once it is fixed.
   into `./cmd/edge/v1/`.
 - The tenant repo's `scan` ignores `rows.Err()`; `UpdateResource` does not
   update `resource_setting`.
-- `LoadRateLimiter` calls `zlog.Fatalf` on a bad duration (kills the whole
+- `LoadRateLimiter` calls `szlog.Fatalf` on a bad duration (kills the whole
   edge).
 - CI only lints/tests the root module; staging modules are only linted
   locally via `make lint`.

@@ -33,7 +33,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EdgeService_EvaluateRuleset_FullMethodName = "/sentinez.dmz.edge.v1.EdgeService/EvaluateRuleset"
+	EdgeService_EvalCoreRuleset_FullMethodName = "/sentinez.dmz.edge.v1.EdgeService/EvalCoreRuleset"
 	EdgeService_Status_FullMethodName          = "/sentinez.dmz.edge.v1.EdgeService/Status"
 )
 
@@ -41,7 +41,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EdgeServiceClient interface {
-	EvaluateRuleset(ctx context.Context, in *EvaluateRulesetRequest, opts ...grpc.CallOption) (*EvaluateRulesetResponse, error)
+	EvalCoreRuleset(ctx context.Context, in *EvalCoreRulesetRequest, opts ...grpc.CallOption) (*EvalCoreRulesetResponse, error)
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
@@ -53,10 +53,10 @@ func NewEdgeServiceClient(cc grpc.ClientConnInterface) EdgeServiceClient {
 	return &edgeServiceClient{cc}
 }
 
-func (c *edgeServiceClient) EvaluateRuleset(ctx context.Context, in *EvaluateRulesetRequest, opts ...grpc.CallOption) (*EvaluateRulesetResponse, error) {
+func (c *edgeServiceClient) EvalCoreRuleset(ctx context.Context, in *EvalCoreRulesetRequest, opts ...grpc.CallOption) (*EvalCoreRulesetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(EvaluateRulesetResponse)
-	err := c.cc.Invoke(ctx, EdgeService_EvaluateRuleset_FullMethodName, in, out, cOpts...)
+	out := new(EvalCoreRulesetResponse)
+	err := c.cc.Invoke(ctx, EdgeService_EvalCoreRuleset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *edgeServiceClient) Status(ctx context.Context, in *StatusRequest, opts 
 // All implementations should embed UnimplementedEdgeServiceServer
 // for forward compatibility.
 type EdgeServiceServer interface {
-	EvaluateRuleset(context.Context, *EvaluateRulesetRequest) (*EvaluateRulesetResponse, error)
+	EvalCoreRuleset(context.Context, *EvalCoreRulesetRequest) (*EvalCoreRulesetResponse, error)
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
 
@@ -88,8 +88,8 @@ type EdgeServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedEdgeServiceServer struct{}
 
-func (UnimplementedEdgeServiceServer) EvaluateRuleset(context.Context, *EvaluateRulesetRequest) (*EvaluateRulesetResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method EvaluateRuleset not implemented")
+func (UnimplementedEdgeServiceServer) EvalCoreRuleset(context.Context, *EvalCoreRulesetRequest) (*EvalCoreRulesetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method EvalCoreRuleset not implemented")
 }
 func (UnimplementedEdgeServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -114,20 +114,20 @@ func RegisterEdgeServiceServer(s grpc.ServiceRegistrar, srv EdgeServiceServer) {
 	s.RegisterService(&EdgeService_ServiceDesc, srv)
 }
 
-func _EdgeService_EvaluateRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EvaluateRulesetRequest)
+func _EdgeService_EvalCoreRuleset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EvalCoreRulesetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EdgeServiceServer).EvaluateRuleset(ctx, in)
+		return srv.(EdgeServiceServer).EvalCoreRuleset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EdgeService_EvaluateRuleset_FullMethodName,
+		FullMethod: EdgeService_EvalCoreRuleset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EdgeServiceServer).EvaluateRuleset(ctx, req.(*EvaluateRulesetRequest))
+		return srv.(EdgeServiceServer).EvalCoreRuleset(ctx, req.(*EvalCoreRulesetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,8 +158,8 @@ var EdgeService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*EdgeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "EvaluateRuleset",
-			Handler:    _EdgeService_EvaluateRuleset_Handler,
+			MethodName: "EvalCoreRuleset",
+			Handler:    _EdgeService_EvalCoreRuleset_Handler,
 		},
 		{
 			MethodName: "Status",

@@ -235,7 +235,7 @@ setting:
 
     limiters:
       - timeWindow: 5s
-        maxRequests: 500
+        maxRequests: 5000
         timeout: 5s
 
   # ----------------------------------------------------------

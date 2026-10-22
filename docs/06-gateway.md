@@ -10,7 +10,7 @@
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Serves OpenAPI JSON + Swagger UI |
-| [core/grpc/gateway/](../staging/src/github.com/sentinez/core/grpc/gateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
 
 ### Initialization
 
@@ -51,11 +51,11 @@ httpMux:
 
 - `Logging`: reads the whole body (so it can be logged on error), calls the
   handler, debug-logs when status ≥ 400, then writes an `httppb.Event` (kind
-  `LOG_TYPE_HTTP`) through `zlog`.
+  `LOG_TYPE_HTTP`) through `szlog`.
 - `AllowCORS`: reflects any `Origin`, sets `Allow-Credentials: true`, returns
   `204` for preflight with methods `GET, HEAD, POST, PUT, DELETE` and headers
   `Content-Type, Accept, Authorization`.
-- The gateway error handler maps `errorx.ErrNotFound/ErrInvalidData/
+- The gateway error handler maps `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` to the matching gRPC status before converting to HTTP.
 
 grpc-gateway forwards the `Authorization` header as gRPC metadata
@@ -90,9 +90,9 @@ and `Shutdown` is currently a no-op.
 | `local` | `RegisterServiceServer` runs an in-memory gRPC server (`bufconn`, 1 MiB) per service key |
 | [client.go](../api/client/client.go) | `NewIAM` (via Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalEdgeEngine` (via bufconn) |
 
-On the server side, `coregrpc.Server.Serve` calls `Register` (TTL 15s,
+On the server side, `szgrpc.Server.Serve` calls `Register` (TTL 15s,
 retries through a circuit breaker, heartbeat every 10s) **only if** the
-server was built with `coregrpc.WithDiscorvery(true)` — no service enables it
+server was built with `szgrpc.WithDiscorvery(true)` — no service enables it
 yet.
 
 IAM uses `client.NewLocalGreeter` to call Greeter over bufconn in its

@@ -21,20 +21,21 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepb";
 
-message Event {
+message RuleEvent {
   option (sentinez.types.v1.x_message).database_model = true;
 
-  repeated int32 rule_ids = 1;
-  repeated string severities = 2;
+  string id = 1;
+  repeated string matched_secrule_ids = 2;
   repeated string messages = 3;
-  string path = 4;
-  int32 score = 5;
-  string ip = 6;
-  string request_domain = 7;
-  string transaction_id = 8;
-  int64 request_time = 9; // milisec
-  sentinez.types.rule.v1.RuleService service = 10;
-  sentinez.types.rule.v1.RuleBehavior behavior = 11;
-  string http_req_id = 12;
-  string content_type = 13;
+  string resource_id = 4;
+  string tenant_id = 5;
+  int64 matched_time = 6; // milisec
+  sentinez.types.rule.v1.Action action = 7;
+  sentinez.types.rule.v1.RuleService service = 8;
+
+  string request_domain = 10;
+  string request_path = 11;
+  string request_query = 12;
+  string request_ip = 13;
+  string request_id = 14;
 }

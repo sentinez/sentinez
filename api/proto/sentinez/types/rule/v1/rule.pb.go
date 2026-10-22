@@ -250,25 +250,25 @@ func (ActionType) EnumDescriptor() ([]byte, []int) {
 type RuleService int32
 
 const (
-	RuleService_RULE_SERVICE_UNSPECIFIED   RuleService = 0
-	RuleService_RULE_SERVICE_CORE_RULESETS RuleService = 1
-	RuleService_RULE_SERVICE_CUSTOM_RULES  RuleService = 2
-	RuleService_RULE_SERVICE_RATE_LIMIT    RuleService = 3
+	RuleService_RULE_SERVICE_UNSPECIFIED  RuleService = 0
+	RuleService_RULE_SERVICE_WAF_RULESETS RuleService = 1
+	RuleService_RULE_SERVICE_SEC_RULE     RuleService = 2
+	RuleService_RULE_SERVICE_RATE_LIMIT   RuleService = 3
 )
 
 // Enum value maps for RuleService.
 var (
 	RuleService_name = map[int32]string{
 		0: "RULE_SERVICE_UNSPECIFIED",
-		1: "RULE_SERVICE_CORE_RULESETS",
-		2: "RULE_SERVICE_CUSTOM_RULES",
+		1: "RULE_SERVICE_WAF_RULESETS",
+		2: "RULE_SERVICE_SEC_RULE",
 		3: "RULE_SERVICE_RATE_LIMIT",
 	}
 	RuleService_value = map[string]int32{
-		"RULE_SERVICE_UNSPECIFIED":   0,
-		"RULE_SERVICE_CORE_RULESETS": 1,
-		"RULE_SERVICE_CUSTOM_RULES":  2,
-		"RULE_SERVICE_RATE_LIMIT":    3,
+		"RULE_SERVICE_UNSPECIFIED":  0,
+		"RULE_SERVICE_WAF_RULESETS": 1,
+		"RULE_SERVICE_SEC_RULE":     2,
+		"RULE_SERVICE_RATE_LIMIT":   3,
 	}
 )
 
@@ -1007,11 +1007,11 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x19ACTION_TYPE_MODIFY_HEADER\x10\x03\x12\x18\n" +
 	"\x14ACTION_TYPE_REDIRECT\x10\x04\x12\x17\n" +
 	"\x13ACTION_TYPE_SET_TAG\x10\x05\x12\x18\n" +
-	"\x14ACTION_TYPE_ROUTE_TO\x10\x06*\x87\x01\n" +
+	"\x14ACTION_TYPE_ROUTE_TO\x10\x06*\x82\x01\n" +
 	"\vRuleService\x12\x1c\n" +
-	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aRULE_SERVICE_CORE_RULESETS\x10\x01\x12\x1d\n" +
-	"\x19RULE_SERVICE_CUSTOM_RULES\x10\x02\x12\x1b\n" +
+	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19RULE_SERVICE_WAF_RULESETS\x10\x01\x12\x19\n" +
+	"\x15RULE_SERVICE_SEC_RULE\x10\x02\x12\x1b\n" +
 	"\x17RULE_SERVICE_RATE_LIMIT\x10\x03*E\n" +
 	"\fRuleBehavior\x12\x1d\n" +
 	"\x19RULE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\x16\n" +

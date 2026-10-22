@@ -7,12 +7,10 @@ package secrulepb
 import (
 	fmt "fmt"
 	protohelpers "github.com/planetscale/vtprotobuf/protohelpers"
-	timestamppb "github.com/planetscale/vtprotobuf/types/known/timestamppb"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb1 "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 )
 
@@ -53,23 +51,10 @@ func (m *SecRule) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.UpdatedAt != nil {
-		size, err := (*timestamppb.Timestamp)(m.UpdatedAt).MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x4a
-	}
-	if m.CreatedAt != nil {
-		size, err := (*timestamppb.Timestamp)(m.CreatedAt).MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
+	if len(m.ExprPreview) > 0 {
+		i -= len(m.ExprPreview)
+		copy(dAtA[i:], m.ExprPreview)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.ExprPreview)))
 		i--
 		dAtA[i] = 0x42
 	}
@@ -300,12 +285,8 @@ func (m *SecRule) SizeVT() (n int) {
 	if m.Priority != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.Priority))
 	}
-	if m.CreatedAt != nil {
-		l = (*timestamppb.Timestamp)(m.CreatedAt).SizeVT()
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	if m.UpdatedAt != nil {
-		l = (*timestamppb.Timestamp)(m.UpdatedAt).SizeVT()
+	l = len(m.ExprPreview)
+	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
@@ -611,9 +592,9 @@ func (m *SecRule) UnmarshalVT(dAtA []byte) error {
 			}
 		case 8:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ExprPreview", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -623,63 +604,23 @@ func (m *SecRule) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return protohelpers.ErrInvalidLength
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.CreatedAt == nil {
-				m.CreatedAt = &timestamppb1.Timestamp{}
-			}
-			if err := (*timestamppb.Timestamp)(m.CreatedAt).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UpdatedAt", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.UpdatedAt == nil {
-				m.UpdatedAt = &timestamppb1.Timestamp{}
-			}
-			if err := (*timestamppb.Timestamp)(m.UpdatedAt).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.ExprPreview = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

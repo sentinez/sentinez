@@ -18,13 +18,13 @@ import (
 	"io"
 
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
 	_ io.Closer = (*RequestEvent)(nil)
 
-	_pool = sync.NewPoolCtr(func() *RequestEvent {
+	_pool = szsync.NewPoolCtr(func() *RequestEvent {
 		return &RequestEvent{Event: &httppb.Event{}}
 	})
 )

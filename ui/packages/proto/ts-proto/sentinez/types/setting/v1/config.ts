@@ -29,7 +29,10 @@ export enum Senz {
   SENZ_DISCOVERY_ADDRESS = 10,
   SENZ_ADMIN_USERNAME = 11,
   SENZ_ADMIN_PASSWORD = 12,
-  SENZ_OTLP_ENDPOINT = 13,
+  /** SENZ_OTLP_INTERNAL_ENDPOINT - OTLP/gRPC collector of the system (application) logs; unset: not exported */
+  SENZ_OTLP_INTERNAL_ENDPOINT = 13,
+  /** SENZ_OTLP_EXTERNAL_ENDPOINT - OTLP/gRPC collector of the edge traffic logs; unset: not exported */
+  SENZ_OTLP_EXTERNAL_ENDPOINT = 14,
   UNRECOGNIZED = -1,
 }
 
@@ -75,8 +78,11 @@ export function senzFromJSON(object: any): Senz {
     case "SENZ_ADMIN_PASSWORD":
       return Senz.SENZ_ADMIN_PASSWORD;
     case 13:
-    case "SENZ_OTLP_ENDPOINT":
-      return Senz.SENZ_OTLP_ENDPOINT;
+    case "SENZ_OTLP_INTERNAL_ENDPOINT":
+      return Senz.SENZ_OTLP_INTERNAL_ENDPOINT;
+    case 14:
+    case "SENZ_OTLP_EXTERNAL_ENDPOINT":
+      return Senz.SENZ_OTLP_EXTERNAL_ENDPOINT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -112,8 +118,10 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_ADMIN_USERNAME";
     case Senz.SENZ_ADMIN_PASSWORD:
       return "SENZ_ADMIN_PASSWORD";
-    case Senz.SENZ_OTLP_ENDPOINT:
-      return "SENZ_OTLP_ENDPOINT";
+    case Senz.SENZ_OTLP_INTERNAL_ENDPOINT:
+      return "SENZ_OTLP_INTERNAL_ENDPOINT";
+    case Senz.SENZ_OTLP_EXTERNAL_ENDPOINT:
+      return "SENZ_OTLP_EXTERNAL_ENDPOINT";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

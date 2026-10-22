@@ -17,14 +17,14 @@ package greeter
 
 import (
 	greeterhdl "github.com/sentinez/controlplane/apps/greeter/v1/handler"
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 func NewService(conf *settingpb.Config) *Greeter {
 	return &Greeter{
-		Server:  coregrpc.New(),
+		Server:  szgrpc.New(),
 		handler: greeterhdl.New(),
 		conf:    conf,
 	}
@@ -32,7 +32,7 @@ func NewService(conf *settingpb.Config) *Greeter {
 
 // Greeter implements GreeterServiceServer.
 type Greeter struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	handler greeterpb.GreeterServiceServer
 	conf    *settingpb.Config
 }
@@ -40,5 +40,5 @@ type Greeter struct {
 func (g *Greeter) Start() error {
 	greeterpb.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	return g.Serve(g.conf, coregrpc.WithDiscorvery(true))
+	return g.Serve(g.conf, szgrpc.WithDiscorvery(true))
 }

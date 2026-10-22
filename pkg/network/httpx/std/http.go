@@ -17,12 +17,12 @@ package stdhttpx
 import (
 	"net/http"
 
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-func HandlerFunc(path string, handler corehttp.RequestHandler) {
+func HandlerFunc(path string, handler szhttp.RequestHandler) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		ctx := httpx.NewContext(r, w)
 
@@ -32,15 +32,12 @@ func HandlerFunc(path string, handler corehttp.RequestHandler) {
 	})
 }
 
-func ListenAndServe(addr string, opts ...corehttp.ServerOption) error {
-	var option corehttp.Option
-	for _, opt := range opts {
-		opt(&option)
-	}
+func ListenAndServe(addr string, opts ...szhttp.ServerOption) error {
+	option := szhttp.NewOption(opts...)
 
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		if option.TLSConfig != nil {
-			zlog.Warnf("network: http ignore TLS config")
+			szlog.Warnf("network: http ignore TLS config")
 		}
 
 		return http.ListenAndServeTLS(addr,
@@ -56,13 +53,13 @@ func Shutdown() error {
 	return nil
 }
 
-func Convert(handler corehttp.RequestHandler) http.HandlerFunc {
+func Convert(handler szhttp.RequestHandler) http.HandlerFunc {
 	return func(resp http.ResponseWriter, req *http.Request) {
 		StandardConverter(handler, resp, req)
 	}
 }
 
-func StandardConverter(handler corehttp.RequestHandler,
+func StandardConverter(handler szhttp.RequestHandler,
 	resp http.ResponseWriter, req *http.Request) {
 
 	ctx := httpx.NewContext(req, resp)

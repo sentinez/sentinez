@@ -19,15 +19,15 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -48,7 +48,7 @@ var _ IRateLimit = (*RateLimit)(nil)
 // New creates a RateLimit repository backed by Postgres.
 func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
 	storage, err := postgres.New[securitypb.RateLimit](ctx, appConf,
-		dbx.WithTable(tables.SecurityRateLimits),
+		dbx.WithTable(sztable.SecurityRateLimits),
 		dbx.WithColumns(dbx.ColumnM{
 			securitypb.RateLimit_Id:              postgres.String,
 			securitypb.RateLimit_Name:            postgres.String,
@@ -107,7 +107,7 @@ func (r *RateLimit) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	zlog.Debug("[security.ratelimits] query: ", query, " args: ", args)
+	szlog.Debug("[security.ratelimits] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -141,7 +141,7 @@ func (r *RateLimit) total(
 
 func (r *RateLimit) Create(ctx context.Context,
 	model *securitypb.RateLimit) (*securitypb.RateLimit, error) {
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityRateLimits))
+	model.Id = szrand.NewId(table.NewPrimaryKey(sztable.SecurityRateLimits))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.RateLimit_Id:              model.GetId(),
 		securitypb.RateLimit_Name:            model.GetName(),

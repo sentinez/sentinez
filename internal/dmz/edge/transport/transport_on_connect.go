@@ -21,36 +21,36 @@ import (
 	"reflect"
 
 	netstd "github.com/sentinez/contrib/httphz/net/std"
-	corecontext "github.com/sentinez/core/context"
+	"github.com/sentinez/core/szcontext"
 	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 	netTlsConn, ok := conn.(*netstd.TLSConn)
 	if !ok {
-		zlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
+		szlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
 		return ctx
 	}
 
 	tlsConn, ok := netTlsConn.Unwrap().(*tls.Conn)
 	if !ok {
-		zlog.Debugf("transport: type: %s",
+		szlog.Debugf("transport: type: %s",
 			reflect.TypeOf(netTlsConn.Conn.Unwrap()).String())
 		return ctx
 	}
 
 	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
-		zlog.Debugf("transport: type: %s",
+		szlog.Debugf("transport: type: %s",
 			reflect.TypeOf(tlsConn.NetConn()).String())
 		return ctx
 	}
 
-	zlog.Debugf("transport: connection id: %s", netConn.Id)
+	szlog.Debugf("transport: connection id: %s", netConn.Id)
 
-	return corecontext.WithTransportValue(ctx, &netpb.Transport{
+	return szcontext.WithTransportValue(ctx, &netpb.Transport{
 		ConnId:     netConn.Id,
 		ServerName: tlsConn.ConnectionState().ServerName,
 	})
@@ -59,20 +59,20 @@ func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 func OnStandardConnect(ctx context.Context, conn net.Conn) context.Context {
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
-		zlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
+		szlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
 		return ctx
 	}
 
 	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
-		zlog.Debugf("transport: type: %s",
+		szlog.Debugf("transport: type: %s",
 			reflect.TypeOf(tlsConn.NetConn()).String())
 		return ctx
 	}
 
-	zlog.Debugf("transport: connection id: %s", netConn.Id)
+	szlog.Debugf("transport: connection id: %s", netConn.Id)
 
-	return corecontext.WithTransportValue(ctx, &netpb.Transport{
+	return szcontext.WithTransportValue(ctx, &netpb.Transport{
 		ConnId:     netConn.Id,
 		ServerName: tlsConn.ConnectionState().ServerName,
 	})

@@ -18,38 +18,44 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	corers "github.com/sentinez/core/rulesets"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/core/szcrs"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/sentinez/pkg/pools/ruleevent"
+	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-func NewWAF(logLevel zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewWAF(
+	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &WAF{
-		Node: corechains.NewNode(),
-		log: zlog.NewLogCloser(edgepb.GetMetaEdgeServiceKey(),
-			typepb.LogType_LOG_TYPE_WAF, logLevel,
+		Node: chains.NewNode(),
+		log: szlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_WAF,
+			o.Level,
+			o.OTLP(),
 		),
 		store: store,
 	}
 }
 
 type WAF struct {
-	*corechains.Node
-	log   zlog.LogCloser
+	*chains.Node
+	log   szlog.LogCloser
 	store *memory.MemStore
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit WAF")
+func (w *WAF) Handle(ctx szhttp.Context) error {
+	// szlog.Debug("[edge] >>> visit WAF")
 
 	waf, ok := w.store.Rulesets().LoadContext(ctx)
 	if !ok {
@@ -61,7 +67,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 		return nil
 	}
 
-	ruleset := corers.NewRulesets(ctx, waf)
+	ruleset := szcrs.NewRulesets(ctx, waf)
 	defer func() {
 		ruleset.Final(func() { w.capture(ctx, ruleset) })
 		ruleset.Release()
@@ -73,7 +79,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 
 	if err := ruleset.ExecIngress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return corehttp.Forbidden(ctx)
+			return szhttp.Forbidden(ctx)
 		}
 	}
 
@@ -81,7 +87,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 
 	if err := ruleset.ExecEgress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return corehttp.Forbidden(ctx)
+			return szhttp.Forbidden(ctx)
 		}
 	}
 
@@ -89,14 +95,12 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
+func (w *WAF) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 
 	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {
 		return
 	}
-
-	event := ruleevent.Acquire()
 
 	var (
 		ruleIds    []int32
@@ -120,19 +124,22 @@ func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
 		}
 	}
 
-	event.RuleIds = ruleIds
+	event := coreruleset.Acquire()
+
+	event.Id = ruleset.GetTxId()
+	event.MatchedRuleIds = ruleIds
 	event.Severities = severities
 	event.Messages = msgs
-	event.Path = bytesconv.B2s(ctx.URI())
-	event.Score = int32(score)
-	event.Ip = bytesconv.B2s(ctx.RequestIP())
-	event.RequestDomain = bytesconv.B2s(ctx.Host())
-	event.TransactionId = ruleset.GetTxId()
-	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
+	event.TotalScore = int32(score)
+	event.Service = rulepb.RuleService_RULE_SERVICE_WAF_RULESETS
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
-	event.RequestTime = ctx.RequestTime().UnixMilli()
-	event.HttpReqId = ctx.RequestId()
-	event.ContentType = bytesconv.B2s(ctx.Header(bytestr.HeaderContentType))
+	event.MatchedTime = ctx.RequestTime().UnixMilli()
+
+	event.RequestId = ctx.RequestId()
+	event.RequestDomain = bytesconv.B2s(ctx.Host())
+	event.RequestPath = bytesconv.B2s(ctx.URI())
+	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
+	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 
 	w.log.Info("rulesets: matched", event, event)
 }

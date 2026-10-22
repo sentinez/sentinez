@@ -13,8 +13,8 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
 | `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
-| ↳ `core` | Runtime framework: `runner`, `http`, `grpc`, `limiter`, `modsec` (Coraza), `rules`, `rulesets`, `storage`, `context` |
-| ↳ `shared` | Utility libs: `zlog` (zap + OTLP), `config`, `errorx`, `eventq`, `store`, `topic`, `jsonx`, `perms`, `cron`, etc. |
+| ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szstorage/dbx/postgres`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szstorage`, `szcontext`, `szcmn` |
+| ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`): `szlog` (zap + OTLP), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
 | ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, plus `pkg/{crypto,headers,passkey}` |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
@@ -44,7 +44,7 @@ make lint.core | lint.shared | lint.controlplane | lint.proto
 make fmt.proto               # buf format
 ```
 
-Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — run tests inside each module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./zlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
+Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — run tests inside each module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 
 Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` for protobuf (`cd api && buf generate`).
 
@@ -92,7 +92,7 @@ Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-styl
 
 - Every Go file starts with the Apache 2.0 license header (`// Copyright 2026 Duc-Hung Ho.`).
 - Lint is golangci-lint per module; CI runs `hack/golint.sh` and `hack/protolint.sh`.
-- Services are bootstrapped through `core/runner`: `runner.New(conf, scope)` then `r.Run(ctx, runner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
-- Logging goes through `shared/zlog` (zap). OTLP log export lives in `shared/zlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/runner/runner.go` on branch `feat/OTLP`.
+- Services are bootstrapped through `core/szrunner`: `szrunner.New(conf, scope)` then `r.Run(ctx, szrunner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
+- Logging goes through `shared/szlog` (zap). OTLP log export lives in `shared/szlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/szrunner/runner.go` on branch `feat/OTLP`.
 - Commit style: conventional commits (`chore:`, `refactor:`, `feat:`), PR number suffix on main.
 - CI (`.github/workflows`): `ci_lint`, `ci_test` (`go test ./...`), `ci_sync_repo`.

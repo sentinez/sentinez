@@ -18,19 +18,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
 )
 
-var _ corechains.ChainNode = (*Static)(nil)
+var _ chains.ChainNode = (*Static)(nil)
 
-func NewStatic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+func NewStatic(
+	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
+
 	return &Static{
-		Node: corechains.NewNode(),
+		Node: chains.NewNode(),
 		staticExits: map[string]struct{}{
 			".css": {}, ".js": {}, ".png": {}, ".jpg": {}, ".jpeg": {},
 			".gif": {}, ".ico": {}, ".svg": {}, ".woff": {}, ".woff2": {},
@@ -40,12 +42,12 @@ func NewStatic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 }
 
 type Static struct {
-	*corechains.Node
+	*chains.Node
 	staticExits map[string]struct{}
 }
 
-func (s *Static) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit static")
+func (s *Static) Handle(ctx szhttp.Context) error {
+	// szlog.Debug("[edge] >>> visit static")
 
 	err := s.HandleNext(ctx)
 

@@ -16,6 +16,7 @@ const (
 	SecRule_ActionValue     = "action_value"
 	SecRule_Status          = "status"
 	SecRule_Priority        = "priority"
+	SecRule_ExprPreview     = "expr_preview"
 )
 
 const (
@@ -34,6 +35,7 @@ const (
 	RateLimit_TimeWindow      = "time_window"
 	RateLimit_MaxRequests     = "max_requests"
 	RateLimit_Timeout         = "timeout"
+	RateLimit_ExprPreview     = "expr_preview"
 )
 
 const (

@@ -30,40 +30,40 @@ import (
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core"
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
-	_ corehttp.Server = (*XServer)(nil)
+	_ szhttp.Server = (*XServer)(nil)
 )
 
 // NewServer creates a new hertz server instance.
 // It implements the platform.Server interface.
-func NewServer(conf *settingpb.Config) corehttp.Server {
-	return corehttp.DecoreServer(conf, &XServer{})
+func NewServer(conf *settingpb.Config) szhttp.Server {
+	return szhttp.DecoreServer(conf, &XServer{})
 }
 
 // XServer implements the Server interface.
 type XServer struct {
-	chains  []func(corehttp.RequestHandler) corehttp.RequestHandler
+	chains  []func(szhttp.RequestHandler) szhttp.RequestHandler
 	handler app.HandlerFunc
 	core    *server.Hertz
 }
 
-// AcceptReverse implements [corehttp.Server].
-func (s *XServer) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+// AcceptReverse implements [szhttp.Server].
+func (s *XServer) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
 	return proxyhz.NewReverseProxy(target)
 }
 
 // Use implements Server.
 func (s *XServer) Use(
-	mdw ...func(handler corehttp.RequestHandler) corehttp.RequestHandler) {
+	mdw ...func(handler szhttp.RequestHandler) szhttp.RequestHandler) {
 	s.chains = append(s.chains, mdw...)
 }
 
-func (s *XServer) Handle(fn corehttp.RequestHandler) {
+func (s *XServer) Handle(fn szhttp.RequestHandler) {
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
 
@@ -72,7 +72,7 @@ func (s *XServer) Handle(fn corehttp.RequestHandler) {
 		}
 
 		if err := fn(inCtx); err != nil {
-			zlog.Errorf("[httpxdmz]: internal err=%v", err)
+			szlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = inCtx.String(
 				http.StatusInternalServerError, []byte("Internal server error"))
 		}
@@ -121,7 +121,7 @@ func (s *XServer) TLS(
 	return tlsConfig, nil
 }
 
-func (s *XServer) initialize(addr string, opt *corehttp.Option) error {
+func (s *XServer) initialize(addr string, opt *szhttp.Option) error {
 	hlog.SetLevel(hlog.LevelError)
 
 	tlsConf, err := s.TLS(opt.CertFile, opt.CertKeyFile, opt.TLSConfig)
@@ -159,14 +159,11 @@ func (s *XServer) initialize(addr string, opt *corehttp.Option) error {
 
 // ListenAndServe implements platform.Server.
 func (s *XServer) ListenAndServe(
-	addr string, opts ...corehttp.ServerOption) error {
+	addr string, opts ...szhttp.ServerOption) error {
 
-	var option corehttp.Option
-	for _, opt := range opts {
-		opt(&option)
-	}
+	option := szhttp.NewOption(opts...)
 
-	if err := s.initialize(addr, &option); err != nil {
+	if err := s.initialize(addr, option); err != nil {
 		return err
 	}
 

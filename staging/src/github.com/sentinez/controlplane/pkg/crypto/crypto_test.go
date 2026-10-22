@@ -21,14 +21,14 @@ import (
 
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/config"
+	"github.com/sentinez/shared/szconfig"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestGenAndVerifyToken(t *testing.T) {
 	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-	config.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
+	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
 
 	token, err := TokenGenerator(&typepb.Context{
 		Name:     "test gen & verify",

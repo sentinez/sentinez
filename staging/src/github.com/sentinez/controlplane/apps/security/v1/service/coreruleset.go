@@ -18,7 +18,7 @@ import (
 	"context"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset
@@ -129,10 +129,10 @@ func (srv *SecurityService) ListCoreRulesets(ctx context.Context,
 // setting itself is validated by the edge when it builds the rulesets.
 func validateCoreRuleset(crs *securitypb.CoreRuleset) error {
 	if crs == nil {
-		return errorx.StatusInvalidArgumentF("core_ruleset is required")
+		return szerror.StatusInvalidArgumentF("core_ruleset is required")
 	}
 	if crs.GetContent() == nil {
-		return errorx.StatusInvalidArgumentF("content is required")
+		return szerror.StatusInvalidArgumentF("content is required")
 	}
 	return nil
 }

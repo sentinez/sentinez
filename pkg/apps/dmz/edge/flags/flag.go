@@ -21,7 +21,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/flagx"
+	"github.com/sentinez/shared/szflag"
 	"github.com/spf13/pflag"
 )
 
@@ -30,33 +30,33 @@ var _onceEdge sync.Once
 // Parse flag args for grpc service
 func Parse() (*settingpb.Flag, error) {
 	_onceEdge.Do(func() {
-		flagx.Get().ProxyConfig = "./proxy.yaml"
-		flagx.Get().EnvFile = "./.env"
-		flagx.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
-		flagx.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
-		flagx.Get().Engine = "quic"
+		szflag.Get().ProxyConfig = "./proxy.yaml"
+		szflag.Get().EnvFile = "./.env"
+		szflag.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
+		szflag.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
+		szflag.Get().Engine = "quic"
 
-		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
-			flagx.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
+			szflag.Get().GetEnvFile(), "environment variables config file")
 
-		pflag.StringVar(&flagx.Get().ProxyConfig, settingpb.XFlag_ProxyConfig,
-			flagx.Get().GetProxyConfig(), "origin config yaml configuration")
+		pflag.StringVar(&szflag.Get().ProxyConfig, settingpb.XFlag_ProxyConfig,
+			szflag.Get().GetProxyConfig(), "origin config yaml configuration")
 
-		pflag.StringVar(&flagx.Get().CertFile, settingpb.XFlag_CertFile,
-			flagx.Get().GetCertFile(), "TLS certificate file")
+		pflag.StringVar(&szflag.Get().CertFile, settingpb.XFlag_CertFile,
+			szflag.Get().GetCertFile(), "TLS certificate file")
 
-		pflag.StringVar(&flagx.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
-			flagx.Get().GetCertKeyFile(), "TLS certificate key")
+		pflag.StringVar(&szflag.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
+			szflag.Get().GetCertKeyFile(), "TLS certificate key")
 
-		pflag.StringVar(&flagx.Get().Engine, settingpb.XFlag_Engine,
-			flagx.Get().GetEngine(), "HTTP server engine")
+		pflag.StringVar(&szflag.Get().Engine, settingpb.XFlag_Engine,
+			szflag.Get().GetEngine(), "HTTP server engine")
 
-		flagx.Parse(edgepb.GetMetaEdge())
+		szflag.Parse(edgepb.GetMetaEdge())
 	})
 
-	if err := flagx.Validate(flagx.Get()); err != nil {
+	if err := szflag.Validate(szflag.Get()); err != nil {
 		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get(), nil
+	return szflag.Get(), nil
 }

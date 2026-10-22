@@ -84,6 +84,8 @@ func (m *Rule) Validate() error {
 		}
 	}
 
+	// no validation rules for ExprPreview
+
 	return nil
 }
 

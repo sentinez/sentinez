@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/olric-data/olric"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -32,15 +32,6 @@ type objKV[T any] struct {
 	key   string
 }
 
-func NewDMap[T any](name string) *DMap[T] {
-	m := &DMap[T]{
-		name: name,
-		temp: make(chan objKV[T], _defaultChanBufferSize),
-	}
-	go m.wait()
-	return m
-}
-
 type DMap[T any] struct {
 	name string
 	temp chan objKV[T]
@@ -48,20 +39,20 @@ type DMap[T any] struct {
 }
 
 func (m *DMap[T]) wait() {
-	zlog.Infof("dmap: %s waitting to connection", m.name)
+	szlog.Infof("dmap: %s waitting to connection", m.name)
 	<-_dictReady
 
 	var err error
 	m.dmap, err = _dict.client.NewDMap(m.name)
 	if err != nil {
-		zlog.Errorf("dmap: create %s got err: %v", m.name, err)
+		szlog.Errorf("dmap: create %s got err: %v", m.name, err)
 	}
 
-	zlog.Infof("dmap: create %s successfully", m.name)
+	szlog.Infof("dmap: create %s successfully", m.name)
 	for obj := range m.temp {
 		err = m.Put(context.Background(), obj.key, obj.value)
 		if err != nil {
-			zlog.Errorf("dmap: put %s got err: %v", obj.key, err)
+			szlog.Errorf("dmap: put %s got err: %v", obj.key, err)
 		}
 	}
 }

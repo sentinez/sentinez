@@ -19,26 +19,26 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/core/http/variable"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/variable"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/errorx"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
 	_inst   *Router
 	_once   sync.Once
-	_buffer = ssync.NewPool[bytes.Buffer]()
+	_buffer = szsync.NewPool[bytes.Buffer]()
 )
 
 func New() *Router {
 	_once.Do(func() {
 		_inst = &Router{
-			routes: ssync.NewMap[string, []*edgepb.Location](),
+			routes: szsync.NewMap[string, []*edgepb.Location](),
 		}
 	})
 
@@ -46,7 +46,7 @@ func New() *Router {
 }
 
 type Router struct {
-	routes *ssync.Map[string, []*edgepb.Location]
+	routes *szsync.Map[string, []*edgepb.Location]
 }
 
 // nolint:funlen
@@ -57,7 +57,7 @@ func (r *Router) Store(server *edgepb.Server) {
 
 	var validRoutes []*edgepb.Location
 	for _, routeConfig := range server.GetLocations() {
-		zlog.Debugf(
+		szlog.Debugf(
 			"edge: ns=%s %s -> %s (rewrite: %s)",
 			server.GetName(), routeConfig.GetLocation(),
 			routeConfig.GetProxyPass(), routeConfig.GetProxyRewrite(),
@@ -74,7 +74,7 @@ func (r *Router) Store(server *edgepb.Server) {
 			if variable.IsValidHeaderKey(k) {
 				route.ProxySetHeaders[k] = v
 			} else {
-				zlog.Warnf(
+				szlog.Warnf(
 					"invalid proxy header %q in ns=%q location=%q, ignoring",
 					k, server.GetName(), routeConfig.GetLocation(),
 				)
@@ -99,14 +99,14 @@ func (r *Router) Store(server *edgepb.Server) {
 }
 
 // nolint:funlen
-func (r *Router) Match(ctx corehttp.Context) (string, error) {
+func (r *Router) Match(ctx szhttp.Context) (string, error) {
 
 	namespace := ctx.X().GetNamespace()
 	path := ctx.Path()
 
 	routes, ok := r.routes.Load(namespace)
 	if !ok {
-		return "", errorx.F("not found: %s", path)
+		return "", szerror.F("not found: %s", path)
 	}
 
 	for _, route := range routes {
@@ -114,7 +114,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 		rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
 
 		if matchLocation(path, locationBytes) {
-			zlog.Debugf(
+			szlog.Debugf(
 				"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
 				namespace, route.GetProxyRewrite(), route.GetProxyPass(),
 				route.GetLocation(),
@@ -151,7 +151,7 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 		}
 	}
 
-	return "", errorx.F("not found: %s", path)
+	return "", szerror.F("not found: %s", path)
 }
 
 // matchLocation reports whether path is under location on a segment

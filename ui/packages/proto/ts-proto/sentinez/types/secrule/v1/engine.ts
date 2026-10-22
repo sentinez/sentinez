@@ -6,7 +6,6 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Timestamp } from "../../../../google/protobuf/timestamp";
 import { Action, Expression, ExpressionLite } from "../../rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../v1/known";
 
@@ -20,8 +19,7 @@ export interface SecRule {
   action?: Action | undefined;
   status: Status;
   priority: number;
-  createdAt?: Date | undefined;
-  updatedAt?: Date | undefined;
+  exprPreview: string;
 }
 
 export interface SecRuleLite {
@@ -42,8 +40,7 @@ function createBaseSecRule(): SecRule {
     action: undefined,
     status: 0,
     priority: 0,
-    createdAt: undefined,
-    updatedAt: undefined,
+    exprPreview: "",
   };
 }
 
@@ -70,11 +67,8 @@ export const SecRule: MessageFns<SecRule> = {
     if (message.priority !== 0) {
       writer.uint32(56).int32(message.priority);
     }
-    if (message.createdAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.createdAt), writer.uint32(66).fork()).join();
-    }
-    if (message.updatedAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(74).fork()).join();
+    if (message.exprPreview !== "") {
+      writer.uint32(66).string(message.exprPreview);
     }
     return writer;
   },
@@ -153,15 +147,7 @@ export const SecRule: MessageFns<SecRule> = {
               break;
             }
 
-            message.createdAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-            continue;
-          }
-          case 9: {
-            if (tag !== 74) {
-              break;
-            }
-
-            message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            message.exprPreview = reader.string();
             continue;
           }
         }
@@ -185,16 +171,11 @@ export const SecRule: MessageFns<SecRule> = {
       action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
-      createdAt: isSet(object.createdAt)
-        ? fromJsonTimestamp(object.createdAt)
-        : isSet(object.created_at)
-        ? fromJsonTimestamp(object.created_at)
-        : undefined,
-      updatedAt: isSet(object.updatedAt)
-        ? fromJsonTimestamp(object.updatedAt)
-        : isSet(object.updated_at)
-        ? fromJsonTimestamp(object.updated_at)
-        : undefined,
+      exprPreview: isSet(object.exprPreview)
+        ? globalThis.String(object.exprPreview)
+        : isSet(object.expr_preview)
+        ? globalThis.String(object.expr_preview)
+        : "",
     };
   },
 
@@ -221,11 +202,8 @@ export const SecRule: MessageFns<SecRule> = {
     if (message.priority !== 0) {
       obj.priority = Math.round(message.priority);
     }
-    if (message.createdAt !== undefined) {
-      obj.createdAt = message.createdAt.toISOString();
-    }
-    if (message.updatedAt !== undefined) {
-      obj.updatedAt = message.updatedAt.toISOString();
+    if (message.exprPreview !== "") {
+      obj.exprPreview = message.exprPreview;
     }
     return obj;
   },
@@ -246,8 +224,7 @@ export const SecRule: MessageFns<SecRule> = {
       : undefined;
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
-    message.createdAt = object.createdAt ?? undefined;
-    message.updatedAt = object.updatedAt ?? undefined;
+    message.exprPreview = object.exprPreview ?? "";
     return message;
   },
 };
@@ -416,28 +393,6 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
-
-function toTimestamp(date: Date): Timestamp {
-  const seconds = Math.trunc(date.getTime() / 1_000);
-  const nanos = (date.getTime() % 1_000) * 1_000_000;
-  return { seconds, nanos };
-}
-
-function fromTimestamp(t: Timestamp): Date {
-  let millis = (t.seconds || 0) * 1_000;
-  millis += (t.nanos || 0) / 1_000_000;
-  return new globalThis.Date(millis);
-}
-
-function fromJsonTimestamp(o: any): Date {
-  if (o instanceof globalThis.Date) {
-    return o;
-  } else if (typeof o === "string") {
-    return new globalThis.Date(o);
-  } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
-  }
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

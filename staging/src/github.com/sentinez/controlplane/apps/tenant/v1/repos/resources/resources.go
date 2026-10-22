@@ -19,22 +19,22 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/protobuf/protox"
-	"github.com/sentinez/shared/rand"
+	"github.com/sentinez/shared/szprotobuf/protox"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
 	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
-		dbx.WithTable(tables.TenantResources),
+		dbx.WithTable(sztable.TenantResources),
 		dbx.WithColumns(dbx.ColumnM{
 			tenantpb.Resource_Id:              postgres.String,
 			tenantpb.Resource_ResourceSetting: postgres.ByteA,
@@ -93,7 +93,7 @@ func (rsc *Resources) List(ctx context.Context,
 func (rsc *Resources) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 
-	rs.Id = rand.NewId(table.NewPrimaryKey(tables.TenantResources))
+	rs.Id = szrand.NewId(table.NewPrimaryKey(sztable.TenantResources))
 
 	st, _ := protox.Marshal(rs.GetResourceSetting())
 

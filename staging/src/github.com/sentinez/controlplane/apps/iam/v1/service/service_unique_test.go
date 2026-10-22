@@ -24,7 +24,7 @@ import (
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -45,7 +45,7 @@ func existing(email string) lookup {
 	}}}
 }
 
-var _missing = lookup{acc: &accrepos.AccountX{}, err: errorx.ErrNotFound}
+var _missing = lookup{acc: &accrepos.AccountX{}, err: szerror.ErrNotFound}
 
 // newTestService returns a service whose account repo answers lookups of
 // any provider (GetByUsernameOrEmail) with lookups.
@@ -187,7 +187,7 @@ func TestCreateUser_EmailTaken(t *testing.T) {
 func TestCreateUser_EmailFree(t *testing.T) {
 	svc, userRepo := newTestService(t, nil)
 	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
-		Return(nil, errorx.ErrNotFound)
+		Return(nil, szerror.ErrNotFound)
 	userRepo.On("Create", mock.Anything, mock.Anything).
 		Return(&iampb.User{Id: "senz.iam.users.2"}, nil)
 

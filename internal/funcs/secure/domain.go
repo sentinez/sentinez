@@ -17,38 +17,43 @@ package secure
 import (
 	"strings"
 
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
-var _ corechains.ChainNode = (*DomainBased)(nil)
+var _ chains.ChainNode = (*DomainBased)(nil)
 
-func NewDomainBased(hostname string, _ *memory.MemStore) corechains.ChainNode {
+// NewDomainBased resolves the tenant namespace from single-level
+// subdomains of the hostname set by option.WithHostname.
+func NewDomainBased(
+	_ *memory.MemStore, opts ...option.Option) chains.ChainNode {
+
 	return &DomainBased{
-		Node:     corechains.NewNode(),
-		hostname: hostname,
+		Node:     chains.NewNode(),
+		hostname: option.New(opts...).Hostname,
 	}
 }
 
 type DomainBased struct {
-	*corechains.Node
+	*chains.Node
 	hostname string
 }
 
-func (d *DomainBased) Handle(ctx corehttp.Context) error {
-	// zlog.Debug("[edge] >>> visit domain")
+func (d *DomainBased) Handle(ctx szhttp.Context) error {
+	// szlog.Debug("[edge] >>> visit domain")
 
 	xctx := ctx.X()
 	if xctx == nil {
-		return corehttp.BadRequest(ctx)
+		return szhttp.BadRequest(ctx)
 	}
 
 	ns, ok := d.isValidSingleLevelSubdomain(
 		bytesconv.B2s(ctx.Host()), d.hostname)
 	if !ok {
-		return corehttp.Forbidden(ctx)
+		return szhttp.Forbidden(ctx)
 	}
 
 	xctx.Namespace = ns

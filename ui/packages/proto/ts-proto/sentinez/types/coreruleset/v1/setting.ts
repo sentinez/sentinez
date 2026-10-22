@@ -98,7 +98,7 @@ export function versionToJSON(object: Version): string {
   }
 }
 
-/** Category CRS rule group, 1:1 with corers.Flag. */
+/** Category CRS rule group, 1:1 with szcrs.Flag. */
 export enum Category {
   CATEGORY_UNSPECIFIED = 0,
   /** CATEGORY_COMMON_EXCEPTIONS - ====== REQUEST PHASE ====== */

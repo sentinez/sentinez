@@ -17,7 +17,7 @@ package controlplane
 import (
 	"context"
 
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )

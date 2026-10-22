@@ -18,7 +18,7 @@ import (
 	"context"
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -33,13 +33,13 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *Analytic {
 	return &Analytic{
-		Server: coregrpc.New(),
+		Server: szgrpc.New(),
 		hdl:    analyticfac.NewDefaultHandler(ctx, appConf),
 	}
 }
 
 type Analytic struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	hdl pb.AnalyticServiceServer
 }
 

@@ -3,9 +3,9 @@
 Sentinéz có hai cơ chế lọc request độc lập:
 
 1. **SecRule / CDN rule** — expression do người dùng định nghĩa, đánh giá bởi
-   `core/rules` (nhanh, không phụ thuộc thư viện ngoài).
+   `core/szrule` (nhanh, không phụ thuộc thư viện ngoài).
 2. **Rulesets (WAF)** — OWASP Core Rule Set chạy trên Coraza, nạp từ code Go
-   sinh sẵn trong `core/modsec/gen`.
+   sinh sẵn trong `core/szmodsec/gen`.
 
 ## 4.1 Mô hình expression
 
@@ -20,7 +20,7 @@ Expression
       └─ or_condition: []AndCondition    // lồng nhau: AND(rules) && OR(con)
 ```
 
-Ngữ nghĩa ([core/rules/rule_expr.go](../../staging/src/github.com/sentinez/core/rules/rule_expr.go)):
+Ngữ nghĩa ([core/szrule/rule_expr.go](../../staging/src/github.com/sentinez/core/szrule/rule_expr.go)):
 
 - `execOrCond(nil) == true` — expression rỗng **luôn khớp**.
 - Một `AndCondition` khớp khi mọi `rules` khớp **và** `or_condition` con (nếu
@@ -30,14 +30,14 @@ Ngữ nghĩa ([core/rules/rule_expr.go](../../staging/src/github.com/sentinez/co
 API:
 
 ```go
-eval := corerule.NewEval(expr)            // compile một lần
-ok := eval(ctx corehttp.RequestContext, matched *rulepb.MatchedRules)
+eval := szrule.NewEval(expr)            // compile một lần
+ok := eval(ctx szhttp.RequestContext, matched *rulepb.MatchedRules)
 ```
 
 ## 4.2 Nguồn dữ liệu (`FieldSource`) và toán tử
 
 Bộ so khớp ở
-[core/rules/rule_match.go](../../staging/src/github.com/sentinez/core/rules/rule_match.go).
+[core/szrule/rule_match.go](../../staging/src/github.com/sentinez/core/szrule/rule_match.go).
 
 | Source | Lấy từ | Toán tử hỗ trợ |
 |---|---|---|
@@ -98,7 +98,7 @@ Cache là `patrickmn/go-cache` TTL 1h.
 
 ## 4.5 Rate limiter
 
-[core/limiter](../../staging/src/github.com/sentinez/core/limiter/) cài đặt
+[core/szlimiter](../../staging/src/github.com/sentinez/core/szlimiter/) cài đặt
 thuật toán **sliding window counter**:
 
 ```
@@ -122,24 +122,24 @@ Cấu hình ở `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout` (c
 ### Sinh rule
 
 CRS gốc (`.conf`) nằm ở [deploy/ruleroot](../../deploy/ruleroot/). Công cụ
-`ruleparser-sentinez`
-([tools/cmd/ruleparser-sentinez](../../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
+`szruleparser`
+([tools/cmd/szruleparser](../../staging/src/github.com/sentinez/tools/cmd/szruleparser/main.go)):
 
 1. Parse SecLang bằng parser ANTLR
-   ([core/modsec/ruleparser](../../staging/src/github.com/sentinez/core/modsec/ruleparser/)):
+   ([core/szmodsec/ruleparser](../../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    mỗi statement là một rule; rule kết thúc bằng `chain"` được nối với
    statement sau; trích `ver`, `paranoia-level`, các action field.
 2. Đổ vào `coreruleset.v1.CoreRulesets` rồi render template Go: mỗi rule thành
    một hàm trả về `*CoreRule` với `Configuration` mã hoá base64, cùng slice
    `XxxOrder` giữ thứ tự.
-3. Ghi ra `core/modsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
+3. Ghi ra `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
 
 Chạy lại toàn bộ: `bash hack/ruleparser.sh`.
 
 ### Ghép directive
 
-`corers.GenerateRulesets(version, flag)`
-([waf_loader.go](../../staging/src/github.com/sentinez/core/rulesets/waf_loader.go))
+`szcrs.GenerateRulesets(version, flag)`
+([waf_loader.go](../../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
 nối theo thứ tự:
 
 1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. rule theo version + flag →
@@ -156,13 +156,13 @@ chỉ hai flag có rule sinh sẵn:
 Kết quả cũng được ghi ra file `WAF.conf.lock` ở thư mục làm việc (dùng để
 xem directive cuối cùng).
 
-`corers.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
+`szcrs.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
 `*.data` nhúng trong [sentinez.go](../../sentinez.go) (`WAF4160()`,
 `WAF4170()`).
 
 ### Xử lý trong request
 
-[core/rulesets](../../staging/src/github.com/sentinez/core/rulesets/) — phỏng
+[core/szcrs](../../staging/src/github.com/sentinez/core/szcrs/) — phỏng
 theo middleware HTTP của Coraza:
 
 | Bước | Hàm | Chi tiết |

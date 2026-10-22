@@ -20,15 +20,15 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -51,7 +51,7 @@ type ITenant interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (ITenant, error) {
 	storage, err := postgres.New[tenantpb.Tenant](ctx, appConf,
-		dbx.WithTable(tables.Tenants),
+		dbx.WithTable(sztable.Tenants),
 		dbx.WithColumns(dbx.ColumnM{
 			tenantpb.Tenant_Id:          postgres.String,
 			tenantpb.Tenant_Name:        postgres.String,
@@ -93,7 +93,7 @@ func (t *Tenants) List(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	zlog.Debug("[tenants] query: ", query, " args: ", args)
+	szlog.Debug("[tenants] query: ", query, " args: ", args)
 
 	tenants, err := t.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -150,7 +150,7 @@ func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
 func (t *Tenants) Create(ctx context.Context,
 	tenant *tenantpb.Tenant) (*tenantpb.Tenant, error) {
 
-	tenant.Id = rand.NewId(table.NewPrimaryKey(tables.Tenants))
+	tenant.Id = szrand.NewId(table.NewPrimaryKey(sztable.Tenants))
 	query := postgres.InsertBuilder(t.storage, postgres.M{
 		tenantpb.Tenant_Id:          tenant.GetId(),
 		tenantpb.Tenant_Name:        tenant.GetName(),

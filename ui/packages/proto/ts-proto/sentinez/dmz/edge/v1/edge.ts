@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
 import { Request } from "../../../types/net/http/v1/http";
 import { Action } from "../../../types/rule/v1/rule";
 
@@ -18,19 +19,19 @@ export interface StatusResponse {
   msg: string;
 }
 
-export interface EvaluateRulesetRequest {
-  rulesetId: string;
+export interface EvalCoreRulesetRequest {
+  coreRuleset?: CoreRuleset | undefined;
   requestContext?: Request | undefined;
 }
 
-export interface EvaluationResult {
+export interface EvalResult {
   ruleId: string;
   matched: boolean;
   actions: Action[];
 }
 
-export interface EvaluateRulesetResponse {
-  results: EvaluationResult[];
+export interface EvalCoreRulesetResponse {
+  results: EvalResult[];
 }
 
 function createBaseStatusRequest(): StatusRequest {
@@ -152,14 +153,14 @@ export const StatusResponse: MessageFns<StatusResponse> = {
   },
 };
 
-function createBaseEvaluateRulesetRequest(): EvaluateRulesetRequest {
-  return { rulesetId: "", requestContext: undefined };
+function createBaseEvalCoreRulesetRequest(): EvalCoreRulesetRequest {
+  return { coreRuleset: undefined, requestContext: undefined };
 }
 
-export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
-  encode(message: EvaluateRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rulesetId !== "") {
-      writer.uint32(10).string(message.rulesetId);
+export const EvalCoreRulesetRequest: MessageFns<EvalCoreRulesetRequest> = {
+  encode(message: EvalCoreRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.coreRuleset !== undefined) {
+      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
     }
     if (message.requestContext !== undefined) {
       Request.encode(message.requestContext, writer.uint32(18).fork()).join();
@@ -167,7 +168,7 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EvaluateRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): EvalCoreRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -176,7 +177,7 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseEvaluateRulesetRequest();
+      const message = createBaseEvalCoreRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -185,7 +186,7 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
               break;
             }
 
-            message.rulesetId = reader.string();
+            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -208,13 +209,13 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): EvaluateRulesetRequest {
+  fromJSON(object: any): EvalCoreRulesetRequest {
     return {
-      rulesetId: isSet(object.rulesetId)
-        ? globalThis.String(object.rulesetId)
-        : isSet(object.ruleset_id)
-        ? globalThis.String(object.ruleset_id)
-        : "",
+      coreRuleset: isSet(object.coreRuleset)
+        ? CoreRuleset.fromJSON(object.coreRuleset)
+        : isSet(object.core_ruleset)
+        ? CoreRuleset.fromJSON(object.core_ruleset)
+        : undefined,
       requestContext: isSet(object.requestContext)
         ? Request.fromJSON(object.requestContext)
         : isSet(object.request_context)
@@ -223,10 +224,10 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
     };
   },
 
-  toJSON(message: EvaluateRulesetRequest): unknown {
+  toJSON(message: EvalCoreRulesetRequest): unknown {
     const obj: any = {};
-    if (message.rulesetId !== "") {
-      obj.rulesetId = message.rulesetId;
+    if (message.coreRuleset !== undefined) {
+      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
     }
     if (message.requestContext !== undefined) {
       obj.requestContext = Request.toJSON(message.requestContext);
@@ -234,12 +235,14 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EvaluateRulesetRequest>, I>>(base?: I): EvaluateRulesetRequest {
-    return EvaluateRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<EvalCoreRulesetRequest>, I>>(base?: I): EvalCoreRulesetRequest {
+    return EvalCoreRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<EvaluateRulesetRequest>, I>>(object: I): EvaluateRulesetRequest {
-    const message = createBaseEvaluateRulesetRequest();
-    message.rulesetId = object.rulesetId ?? "";
+  fromPartial<I extends Exact<DeepPartial<EvalCoreRulesetRequest>, I>>(object: I): EvalCoreRulesetRequest {
+    const message = createBaseEvalCoreRulesetRequest();
+    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
+      ? CoreRuleset.fromPartial(object.coreRuleset)
+      : undefined;
     message.requestContext = (object.requestContext !== undefined && object.requestContext !== null)
       ? Request.fromPartial(object.requestContext)
       : undefined;
@@ -247,12 +250,12 @@ export const EvaluateRulesetRequest: MessageFns<EvaluateRulesetRequest> = {
   },
 };
 
-function createBaseEvaluationResult(): EvaluationResult {
+function createBaseEvalResult(): EvalResult {
   return { ruleId: "", matched: false, actions: [] };
 }
 
-export const EvaluationResult: MessageFns<EvaluationResult> = {
-  encode(message: EvaluationResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const EvalResult: MessageFns<EvalResult> = {
+  encode(message: EvalResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ruleId !== "") {
       writer.uint32(10).string(message.ruleId);
     }
@@ -265,7 +268,7 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EvaluationResult {
+  decode(input: BinaryReader | Uint8Array, length?: number): EvalResult {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -274,7 +277,7 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseEvaluationResult();
+      const message = createBaseEvalResult();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -314,7 +317,7 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
     }
   },
 
-  fromJSON(object: any): EvaluationResult {
+  fromJSON(object: any): EvalResult {
     return {
       ruleId: isSet(object.ruleId)
         ? globalThis.String(object.ruleId)
@@ -326,7 +329,7 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
     };
   },
 
-  toJSON(message: EvaluationResult): unknown {
+  toJSON(message: EvalResult): unknown {
     const obj: any = {};
     if (message.ruleId !== "") {
       obj.ruleId = message.ruleId;
@@ -340,11 +343,11 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EvaluationResult>, I>>(base?: I): EvaluationResult {
-    return EvaluationResult.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<EvalResult>, I>>(base?: I): EvalResult {
+    return EvalResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<EvaluationResult>, I>>(object: I): EvaluationResult {
-    const message = createBaseEvaluationResult();
+  fromPartial<I extends Exact<DeepPartial<EvalResult>, I>>(object: I): EvalResult {
+    const message = createBaseEvalResult();
     message.ruleId = object.ruleId ?? "";
     message.matched = object.matched ?? false;
     message.actions = object.actions?.map((e) => Action.fromPartial(e)) || [];
@@ -352,19 +355,19 @@ export const EvaluationResult: MessageFns<EvaluationResult> = {
   },
 };
 
-function createBaseEvaluateRulesetResponse(): EvaluateRulesetResponse {
+function createBaseEvalCoreRulesetResponse(): EvalCoreRulesetResponse {
   return { results: [] };
 }
 
-export const EvaluateRulesetResponse: MessageFns<EvaluateRulesetResponse> = {
-  encode(message: EvaluateRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const EvalCoreRulesetResponse: MessageFns<EvalCoreRulesetResponse> = {
+  encode(message: EvalCoreRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.results) {
-      EvaluationResult.encode(v!, writer.uint32(10).fork()).join();
+      EvalResult.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): EvaluateRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): EvalCoreRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -373,7 +376,7 @@ export const EvaluateRulesetResponse: MessageFns<EvaluateRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseEvaluateRulesetResponse();
+      const message = createBaseEvalCoreRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -382,7 +385,7 @@ export const EvaluateRulesetResponse: MessageFns<EvaluateRulesetResponse> = {
               break;
             }
 
-            message.results.push(EvaluationResult.decode(reader, reader.uint32()));
+            message.results.push(EvalResult.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -397,28 +400,26 @@ export const EvaluateRulesetResponse: MessageFns<EvaluateRulesetResponse> = {
     }
   },
 
-  fromJSON(object: any): EvaluateRulesetResponse {
+  fromJSON(object: any): EvalCoreRulesetResponse {
     return {
-      results: globalThis.Array.isArray(object?.results)
-        ? object.results.map((e: any) => EvaluationResult.fromJSON(e))
-        : [],
+      results: globalThis.Array.isArray(object?.results) ? object.results.map((e: any) => EvalResult.fromJSON(e)) : [],
     };
   },
 
-  toJSON(message: EvaluateRulesetResponse): unknown {
+  toJSON(message: EvalCoreRulesetResponse): unknown {
     const obj: any = {};
     if (message.results?.length) {
-      obj.results = message.results.map((e) => EvaluationResult.toJSON(e));
+      obj.results = message.results.map((e) => EvalResult.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<EvaluateRulesetResponse>, I>>(base?: I): EvaluateRulesetResponse {
-    return EvaluateRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<EvalCoreRulesetResponse>, I>>(base?: I): EvalCoreRulesetResponse {
+    return EvalCoreRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<EvaluateRulesetResponse>, I>>(object: I): EvaluateRulesetResponse {
-    const message = createBaseEvaluateRulesetResponse();
-    message.results = object.results?.map((e) => EvaluationResult.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<EvalCoreRulesetResponse>, I>>(object: I): EvalCoreRulesetResponse {
+    const message = createBaseEvalCoreRulesetResponse();
+    message.results = object.results?.map((e) => EvalResult.fromPartial(e)) || [];
     return message;
   },
 };

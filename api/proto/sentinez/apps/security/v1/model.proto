@@ -43,6 +43,7 @@ message SecRule {
   ActionValue action_value = 7;
   sentinez.types.v1.Status status = 8;
   int32 priority = 9;
+  string expr_preview = 10;
 }
 
 message RateLimit {
@@ -75,6 +76,8 @@ message RateLimit {
   string timeout = 12 [(buf.validate.field) = {
     string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
   }];
+
+  string expr_preview = 13;
 }
 
 message ActionValue {

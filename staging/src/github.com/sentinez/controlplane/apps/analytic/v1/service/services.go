@@ -18,7 +18,7 @@ import (
 	"context"
 
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )

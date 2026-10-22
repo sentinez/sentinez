@@ -14,7 +14,7 @@ Mã nguồn liên quan:
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
 | [internal/cluster/](../../internal/cluster/) | Olric embedded + `DMap[T]` generic |
-| [contrib/httphz](../../staging/src/github.com/sentinez/contrib/httphz/) | Server Hertz + `corehttp.Context` + reverse proxy |
+| [contrib/httphz](../../staging/src/github.com/sentinez/contrib/httphz/) | Server Hertz + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../../pkg/network/) | Listener TCP (`StdListener`/`StdConn`, có ID) và QUIC (`QuicListener`), transport `net/http` |
 | [pkg/network/httpx/](../../pkg/network/httpx/) | `Context` + `ReverseProxy` `net/http` dùng chung; server ở `std/` (`stdhttpx`) và `quic/` (`quichttpx`) |
 
@@ -30,7 +30,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(p
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.NewServer(conf, setting)
- ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
+ ├─ szcmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
  ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map + DMap
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
@@ -100,10 +100,10 @@ Luồng này chỉ áp dụng cho kết nối TCP. Với HTTP/3, `chi.Conn` khô
 HTTP/3 không có JA4 fingerprint lẫn `netpb.Transport` (xem
 [12-known-issues.md](12-known-issues.md)).
 
-## 3.3 `corehttp.Context`
+## 3.3 `szhttp.Context`
 
 Interface trừu tượng hoá request/response
-([core/http/context.go](../../staging/src/github.com/sentinez/core/http/context.go)),
+([core/szhttp/context.go](../../staging/src/github.com/sentinez/core/szhttp/context.go)),
 gồm `RequestContext` (đọc/ghi header, query, path, body, IP, JA4, ...) +
 `ResponseWriter` + `X()` trả về `edgepb.ContextExtra` (chứa `namespace`).
 
@@ -113,7 +113,7 @@ Có ba cài đặt:
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge chế độ `Quic` (HTTP/3 và TCP) và `Standard`, realtime |
-| `corehttpreq.RequestContext` | `core/http/request/context_value.go` | Đánh giá rule trên `httppb.Request` (gRPC `EvaluateRuleset`) |
+| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Đánh giá rule trên `httppb.Request` (gRPC `EvaluateRuleset`) |
 
 Context được lấy từ `sync.Pool` và trả lại trong `Close()`.
 
@@ -132,7 +132,7 @@ có thể truyền buffer lấy từ pool.
 
 Định nghĩa trong
 [internal/dmz/edge/http/init.go](../../internal/dmz/edge/http/init.go). Mỗi node
-nhúng `*corechains.Node` (giữ `next`) và cài `Handle(ctx) error`. Node được bọc
+nhúng `*chains.Node` (giữ `next`) và cài `Handle(ctx) error`. Node được bọc
 bởi `trace.Wrap(name, node)` để gắn tên stage vào lỗi
 (`tracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
 gây lỗi.
@@ -151,7 +151,7 @@ gây lỗi.
 | 9 | `ROU` | `routing.StandardRouter` | Tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
-([core/common/render](../../staging/src/github.com/sentinez/core/common/render/))
+([core/szcmn/render](../../staging/src/github.com/sentinez/core/szcmn/render/))
 kèm `X-Request-ID`; nếu render lỗi thì fallback text thuần.
 
 ## 3.5 Cấu hình `proxy.yaml`
@@ -263,7 +263,7 @@ Ghi chú:
   `structpb.Value` dạng string, và sinh ID `senz.rule.<nanoid>` /
   `senz.cond.<nanoid>`.
 - Biến hỗ trợ trong `proxySetHeaders`
-  ([core/http/variable](../../staging/src/github.com/sentinez/core/http/variable/variable.go)):
+  ([core/szhttp/variable](../../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,
   `$proxy_add_x_forwarded_for`. Chỉ hỗ trợ khi **toàn bộ giá trị** là một biến;
   chuỗi khác chứa `$` gây lỗi khi route. Header key không hợp lệ (RFC 7230) bị
@@ -314,13 +314,13 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` + `cluster.DMap` | Setting gốc; ghi vào Olric DMap `sentinez.dmz.edge.setting` |
 | `routes.Router` | `Map[string,[]*Location]` | Location đã sắp xếp |
-| `reverseproxy.ReverseProxy` | `Map[string,corehttp.ReverseProxy]` | Key = upstream server |
+| `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | `Entry{Eval, Rule}` đã compile, lọc active, sort theo priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | Một limiter / namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | WAF instance / namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | Một CDN rule / namespace |
 
-Mọi map dùng `shared/sync.Map[K,V]` (bọc `sync.Map` có generic).
+Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 
 ## 3.8 Cluster (Olric)
 

@@ -23,10 +23,10 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/setti
 
 enum Senz {
   SENZ_UNSPECIFIED = 0;
-  SENZ_HOSTNAME = 1;       // hostname of service. eg s6z.io.vn
-  SENZ_ADDRESS = 2;        // http address, api, application ...
-  SENZ_SECRET_KEY = 3;     // secret key base64 encoded
-  SENZ_CLIENT_ORIGIN = 4;  // origin of client, used to gen passkey
+  SENZ_HOSTNAME = 1; // hostname of service. eg s6z.io.vn
+  SENZ_ADDRESS = 2; // http address, api, application ...
+  SENZ_SECRET_KEY = 3; // secret key base64 encoded
+  SENZ_CLIENT_ORIGIN = 4; // origin of client, used to gen passkey
   SENZ_TIMESCALE_URI = 5;
   SENZ_POSTGRES_URI = 6;
   SENZ_CLICKHOUSE_URI = 7;
@@ -35,7 +35,10 @@ enum Senz {
   SENZ_DISCOVERY_ADDRESS = 10;
   SENZ_ADMIN_USERNAME = 11;
   SENZ_ADMIN_PASSWORD = 12;
-  SENZ_OTLP_ENDPOINT = 13;
+  // OTLP/gRPC collector of the system (application) logs; unset: not exported
+  SENZ_OTLP_INTERNAL_ENDPOINT = 13;
+  // OTLP/gRPC collector of the edge traffic logs; unset: not exported
+  SENZ_OTLP_EXTERNAL_ENDPOINT = 14;
 }
 
 message Config {

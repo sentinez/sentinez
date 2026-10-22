@@ -24,11 +24,11 @@ import (
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/controlplane/apps/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/passkey"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/sentinez/api/client"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // nolint:funlen
@@ -41,7 +41,7 @@ func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 		greeterfac.NewDefaultHandler(appConf),
 	)
 	if err != nil {
-		zlog.Errorf("iamfactory: new greeter client err=%v", err)
+		szlog.Errorf("iamfactory: new greeter client err=%v", err)
 	}
 
 	return iamhdl.New(service, geeterCli)
@@ -51,12 +51,12 @@ func NewDefaultService(
 	ctx context.Context, appConf *settingpb.Config) *iamsvc.IAMService {
 	userrepos, err := usersrepo.New(ctx, appConf)
 	if err != nil {
-		zlog.Errorf("iamfactory: init user repo err=%v", err)
+		szlog.Errorf("iamfactory: init user repo err=%v", err)
 	}
 
 	accountrepos, err := accountrepo.New(ctx, appConf)
 	if err != nil {
-		zlog.Errorf("iamfactory: init account repo err=%v", err)
+		szlog.Errorf("iamfactory: init account repo err=%v", err)
 	}
 
 	tx := postgres.NewTX(appConf)

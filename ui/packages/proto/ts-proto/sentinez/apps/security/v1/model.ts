@@ -23,6 +23,7 @@ export interface SecRule {
   actionValue?: ActionValue | undefined;
   status: Status;
   priority: number;
+  exprPreview: string;
 }
 
 export interface RateLimit {
@@ -41,6 +42,7 @@ export interface RateLimit {
   maxRequests: number;
   /** Block duration once the limit is exceeded, as a Go duration string. */
   timeout: string;
+  exprPreview: string;
 }
 
 export interface ActionValue {
@@ -72,6 +74,7 @@ function createBaseSecRule(): SecRule {
     actionValue: undefined,
     status: 0,
     priority: 0,
+    exprPreview: "",
   };
 }
 
@@ -103,6 +106,9 @@ export const SecRule: MessageFns<SecRule> = {
     }
     if (message.priority !== 0) {
       writer.uint32(72).int32(message.priority);
+    }
+    if (message.exprPreview !== "") {
+      writer.uint32(82).string(message.exprPreview);
     }
     return writer;
   },
@@ -192,6 +198,14 @@ export const SecRule: MessageFns<SecRule> = {
             message.priority = reader.int32();
             continue;
           }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.exprPreview = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -219,6 +233,11 @@ export const SecRule: MessageFns<SecRule> = {
         : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       priority: isSet(object.priority) ? globalThis.Number(object.priority) : 0,
+      exprPreview: isSet(object.exprPreview)
+        ? globalThis.String(object.exprPreview)
+        : isSet(object.expr_preview)
+        ? globalThis.String(object.expr_preview)
+        : "",
     };
   },
 
@@ -251,6 +270,9 @@ export const SecRule: MessageFns<SecRule> = {
     if (message.priority !== 0) {
       obj.priority = Math.round(message.priority);
     }
+    if (message.exprPreview !== "") {
+      obj.exprPreview = message.exprPreview;
+    }
     return obj;
   },
 
@@ -272,6 +294,7 @@ export const SecRule: MessageFns<SecRule> = {
       : undefined;
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
+    message.exprPreview = object.exprPreview ?? "";
     return message;
   },
 };
@@ -290,6 +313,7 @@ function createBaseRateLimit(): RateLimit {
     timeWindow: "",
     maxRequests: 0,
     timeout: "",
+    exprPreview: "",
   };
 }
 
@@ -330,6 +354,9 @@ export const RateLimit: MessageFns<RateLimit> = {
     }
     if (message.timeout !== "") {
       writer.uint32(98).string(message.timeout);
+    }
+    if (message.exprPreview !== "") {
+      writer.uint32(106).string(message.exprPreview);
     }
     return writer;
   },
@@ -443,6 +470,14 @@ export const RateLimit: MessageFns<RateLimit> = {
             message.timeout = reader.string();
             continue;
           }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.exprPreview = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -481,6 +516,11 @@ export const RateLimit: MessageFns<RateLimit> = {
         ? globalThis.Number(object.max_requests)
         : 0,
       timeout: isSet(object.timeout) ? globalThis.String(object.timeout) : "",
+      exprPreview: isSet(object.exprPreview)
+        ? globalThis.String(object.exprPreview)
+        : isSet(object.expr_preview)
+        ? globalThis.String(object.expr_preview)
+        : "",
     };
   },
 
@@ -522,6 +562,9 @@ export const RateLimit: MessageFns<RateLimit> = {
     if (message.timeout !== "") {
       obj.timeout = message.timeout;
     }
+    if (message.exprPreview !== "") {
+      obj.exprPreview = message.exprPreview;
+    }
     return obj;
   },
 
@@ -546,6 +589,7 @@ export const RateLimit: MessageFns<RateLimit> = {
     message.timeWindow = object.timeWindow ?? "";
     message.maxRequests = object.maxRequests ?? 0;
     message.timeout = object.timeout ?? "";
+    message.exprPreview = object.exprPreview ?? "";
     return message;
   },
 };

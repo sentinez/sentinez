@@ -50,6 +50,7 @@ type SecRule struct {
 	ActionValue   *ActionValue           `protobuf:"bytes,7,opt,name=action_value,json=actionValue,proto3" json:"action_value,omitempty"`
 	Status        v1.Status              `protobuf:"varint,8,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	Priority      int32                  `protobuf:"varint,9,opt,name=priority,proto3" json:"priority,omitempty"`
+	ExprPreview   string                 `protobuf:"bytes,10,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -147,6 +148,13 @@ func (x *SecRule) GetPriority() int32 {
 	return 0
 }
 
+func (x *SecRule) GetExprPreview() string {
+	if x != nil {
+		return x.ExprPreview
+	}
+	return ""
+}
+
 type RateLimit struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Owner       *v1.Owner              `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
@@ -164,6 +172,7 @@ type RateLimit struct {
 	MaxRequests int64 `protobuf:"varint,11,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty"`
 	// Block duration once the limit is exceeded, as a Go duration string.
 	Timeout       string `protobuf:"bytes,12,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	ExprPreview   string `protobuf:"bytes,13,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -278,6 +287,13 @@ func (x *RateLimit) GetMaxRequests() int64 {
 func (x *RateLimit) GetTimeout() string {
 	if x != nil {
 		return x.Timeout
+	}
+	return ""
+}
+
+func (x *RateLimit) GetExprPreview() string {
+	if x != nil {
+		return x.ExprPreview
 	}
 	return ""
 }
@@ -414,7 +430,7 @@ var File_sentinez_apps_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\x9c\x03\n" +
+	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\xbf\x03\n" +
 	"\aSecRule\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x121\n" +
 	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.security.secrules.R\x02id\x12\x12\n" +
@@ -424,7 +440,9 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
 	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority:\x06\xca\xf3\x18\x02\b\x01\"\xe8\x04\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority\x12!\n" +
+	"\fexpr_preview\x18\n" +
+	" \x01(\tR\vexprPreview:\x06\xca\xf3\x18\x02\b\x01\"\x8b\x05\n" +
 	"\tRateLimit\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x123\n" +
 	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.ratelimits.R\x02id\x12\x12\n" +
@@ -439,7 +457,8 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	" \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12!\n" +
 	"\fmax_requests\x18\v \x01(\x03R\vmaxRequests\x12M\n" +
-	"\atimeout\x18\f \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
+	"\atimeout\x18\f \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\x12!\n" +
+	"\fexpr_preview\x18\r \x01(\tR\vexprPreview:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
 	"\vActionValue\x12\x1b\n" +
 	"\tstr_value\x18\x01 \x01(\tR\bstrValue\x12Q\n" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +

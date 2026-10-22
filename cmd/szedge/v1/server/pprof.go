@@ -21,8 +21,8 @@ import (
 	_ "net/http/pprof" // registers the /debug/pprof handlers
 	"time"
 
-	"github.com/sentinez/core/runner"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/shared/szlog"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 // Pprof exposes runtime profiling data at :6060.
 //
 //	go tool pprof http://localhost:6060/debug/pprof/profile
-func Pprof(c *runner.Context[http.Server]) {
+func Pprof(c *szrunner.Context[http.Server]) {
 	c.Inject(func() *http.Server {
 		return &http.Server{
 			Addr:              _pprofAddr,
@@ -45,7 +45,7 @@ func Pprof(c *runner.Context[http.Server]) {
 		err := server.ListenAndServe()
 		if !errors.Is(err, http.ErrServerClosed) {
 			// Profiling is optional: the edge keeps serving without it.
-			zlog.Warnf("pprof: %v", err)
+			szlog.Warnf("pprof: %v", err)
 		}
 
 		return nil

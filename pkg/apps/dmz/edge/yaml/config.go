@@ -23,7 +23,7 @@ import (
 	"github.com/goccy/go-yaml"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -49,7 +49,7 @@ func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 		return nil, errMissingSetting
 	}
 
-	zlog.Debugf("setting: %v", settingRaw)
+	szlog.Debugf("setting: %v", settingRaw)
 
 	settingJSON, err := json.Marshal(settingRaw)
 	if err != nil {

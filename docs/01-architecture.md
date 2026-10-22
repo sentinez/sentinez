@@ -43,7 +43,7 @@ README warns that backward compatibility is not guaranteed before v1.0.0.
 
 ## 1.3 Binaries (`cmd/`)
 
-| Binary | Entry point | Service type (`runner.App[T]`) | Role |
+| Binary | Entry point | Service type (`szrunner.App[T]`) | Role |
 |---|---|---|---|
 | `szapiserver` | [cmd/szapiserver/main.go](../cmd/szapiserver/main.go) | `apiserver.Server` | HTTP gateway from REST to control-plane gRPC handlers; serves Swagger UI |
 | `szrealtime` | [cmd/szrealtime/main.go](../cmd/szrealtime/main.go) | `realtime.Realtime` | WebSocket server that broadcasts messages between clients |
@@ -57,7 +57,7 @@ Every binary (except `szcentraldata`) follows the same pattern:
 ```go
 func main() {
     if err := run(); err != nil {
-        zlog.Fatal(err)
+        szlog.Fatal(err)
     }
 }
 
@@ -67,25 +67,25 @@ func run() error {
         return err
     }
 
-    r, err := runner.New(conf, core.Code)
+    r, err := szrunner.New(conf, core.Code)
     if err != nil {
         return err
     }
 
-    return r.Run(context.Background(), runner.NewApp(app))
+    return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[T]) {
+func app(c *szrunner.Context[T]) {
     c.Inject(config.Config, <constructor>...)   // fx.Provide
     c.Serve(func(ctx, *T) error { ... })        // blocking main loop
     c.OnStop(func(ctx, *T) error { ... })
 }
 ```
 
-A binary can run several apps by passing several `runner.NewApp(...)` to
+A binary can run several apps by passing several `szrunner.NewApp(...)` to
 `Main`; `szedge` runs the HTTPS proxy and its gRPC API this way.
 
-See [09-core-shared.md](09-core-shared.md#91-corerunner) for `runner`.
+See [09-core-shared.md](09-core-shared.md#91-coreszrunner) for `runner`.
 
 ## 1.4 Monorepo layout
 
@@ -131,7 +131,7 @@ Top-level directories:
    on later requests. A TCP accept in `network.StdListener` is wrapped as a
    `network.StdConn` with a random 8-byte hex `Id`.
 2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint and
-   stores it in `shared/store/ja4` keyed by `conn.Id`.
+   stores it in `shared/szstore/ja4` keyed by `conn.Id`.
 3. `OnStdConnect` puts `netpb.Transport{ConnId, ServerName}` into the
    `context` (TCP only; HTTP/3 requests have no fingerprint yet).
 4. The server (`quichttpx` by default) calls the handler → an `httpx.Context`

@@ -25,7 +25,7 @@ import (
 	"github.com/olric-data/olric/config"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
@@ -34,25 +34,6 @@ var (
 	_dictReady = make(chan bool, 1)
 	_newErr    error
 )
-
-func Start(conf *settingpb.Config) error {
-	c, err := NewCluster(conf)
-	if err != nil {
-		return err
-	}
-
-	c.Start()
-
-	return nil
-}
-
-func Shutdown(ctx context.Context) {
-	if _dict == nil {
-		return
-	}
-
-	_dict.Shutdown(ctx)
-}
 
 func newConfig(appConf *settingpb.Config) *config.Config {
 	membership := appConf.Get(settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS)
@@ -71,14 +52,14 @@ func newConfig(appConf *settingpb.Config) *config.Config {
 			return conf
 		}
 
-		zlog.Warnf("cluster: discovery address invalid, use default")
+		szlog.Warnf("cluster: discovery address invalid, use default")
 		conf.MemberlistConfig.BindAddr = defaults.DiscoveryAddress
 		conf.MemberlistConfig.BindPort = defaults.DiscoveryPort
 	}
 
 	conf.Started = func() {
 		_dictReady <- true
-		zlog.Infof("cluster:olric: ready to accept connection")
+		szlog.Infof("cluster:olric: ready to accept connection")
 	}
 
 	return conf
@@ -108,23 +89,37 @@ type Cluster struct {
 	done   chan struct{}
 }
 
-// Start serves the cluster in the background until Shutdown is called.
-func (d *Cluster) Start() {
-	go func() {
-		defer close(d.done)
+func (c *Cluster) NewDMap[T any](name string) *DMap[T] {
+	m := &DMap[T]{
+		name: name,
+		temp: make(chan objKV[T], _defaultChanBufferSize),
+	}
+	go m.wait()
+	return m
+}
 
-		if err := d.db.Start(); err != nil {
-			zlog.Errorf("cluster: start: %v", err)
+// Start serves the cluster in the background until Shutdown is called.
+func (c *Cluster) Start() {
+	go func() {
+		defer close(c.done)
+
+		if err := c.db.Start(); err != nil {
+			szlog.Errorf("cluster: start: %v", err)
 		}
 	}()
 }
 
 // Shutdown stops the cluster and waits for Start to return or ctx to end.
-func (d *Cluster) Shutdown(ctx context.Context) {
-	_ = d.db.Shutdown(ctx)
+func (c *Cluster) Shutdown(ctx context.Context) error {
+	err := c.db.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
 
 	select {
-	case <-d.done:
+	case <-c.done:
 	case <-ctx.Done():
 	}
+
+	return nil
 }

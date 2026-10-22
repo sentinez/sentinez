@@ -20,45 +20,45 @@ import (
 	"slices"
 	"time"
 
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 )
 
-var _ corehttp.Server = (*Server)(nil)
+var _ szhttp.Server = (*Server)(nil)
 
-func NewServer(appConf *settingpb.Config) corehttp.Server {
-	return corehttp.DecoreServer(appConf, &Server{
+func NewServer(appConf *settingpb.Config) szhttp.Server {
+	return szhttp.DecoreServer(appConf, &Server{
 		core: &http.Server{},
 		mux:  http.NewServeMux(),
 	})
 }
 
 type Server struct {
-	mdw  []func(corehttp.RequestHandler) corehttp.RequestHandler
+	mdw  []func(szhttp.RequestHandler) szhttp.RequestHandler
 	core *http.Server
 	mux  *http.ServeMux
-	opt  corehttp.Option
+	opt  szhttp.Option
 }
 
-// AcceptReverse implements [corehttp.Server].
-func (s *Server) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+// AcceptReverse implements [szhttp.Server].
+func (s *Server) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
 	return httpx.NewReverseProxy(target, network.StandardTransporter())
 }
 
 func (s *Server) Use(
-	mdw ...func(next corehttp.RequestHandler) corehttp.RequestHandler) {
+	mdw ...func(next szhttp.RequestHandler) szhttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
-func (s *Server) Handle(fn corehttp.RequestHandler) {
+func (s *Server) Handle(fn szhttp.RequestHandler) {
 
 	s.mux.Handle("/", Convert(chain(fn, s.mdw...)))
 }
 
 func (s *Server) ListenAndServe(
-	addr string, opts ...corehttp.ServerOption) error {
+	addr string, opts ...szhttp.ServerOption) error {
 	for _, opt := range opts {
 		opt(&s.opt)
 	}
@@ -129,9 +129,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func chain(
-	h corehttp.RequestHandler,
-	m ...func(corehttp.RequestHandler) corehttp.RequestHandler,
-) corehttp.RequestHandler {
+	h szhttp.RequestHandler,
+	m ...func(szhttp.RequestHandler) szhttp.RequestHandler,
+) szhttp.RequestHandler {
 	for _, v := range slices.Backward(m) {
 		h = v(h)
 	}

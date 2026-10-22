@@ -23,7 +23,7 @@ counterpart in [vi/](vi/)).
 | 6 | [Gateway: API server & realtime](06-gateway.md) | grpc-gateway, middleware, Swagger, WebSocket, service discovery |
 | 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata; DB layer; auth |
 | 8 | [API & Protobuf](08-api-protobuf.md) | Proto layout, custom options, codegen, REST endpoint table |
-| 9 | [Framework & shared libraries](09-core-shared.md) | `core/runner`, `core/http`, `zlog`, `config`, `errorx`, ... |
+| 9 | [Framework & shared libraries](09-core-shared.md) | `core/szrunner`, `core/szhttp`, `szlog`, `config`, `szerror`, ... |
 | 10 | [Web console (UI)](10-ui.md) | pnpm/turbo workspace, console app, API calls |
 | 11 | [Deployment, CI & module publishing](11-deploy-ci.md) | Docker, monitoring, GitHub Actions, staging sync |
 | 12 | [Known issues](12-known-issues.md) | Bugs, unfinished parts and risks found while reading the code |

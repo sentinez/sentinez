@@ -25,7 +25,6 @@ import (
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -47,8 +46,7 @@ type SecRule struct {
 	Action        *v1.Action             `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
 	Status        v11.Status             `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	Priority      int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ExprPreview   string                 `protobuf:"bytes,8,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -132,18 +130,11 @@ func (x *SecRule) GetPriority() int32 {
 	return 0
 }
 
-func (x *SecRule) GetCreatedAt() *timestamppb.Timestamp {
+func (x *SecRule) GetExprPreview() string {
 	if x != nil {
-		return x.CreatedAt
+		return x.ExprPreview
 	}
-	return nil
-}
-
-func (x *SecRule) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
+	return ""
 }
 
 type SecRuleLite struct {
@@ -234,7 +225,7 @@ var File_sentinez_types_secrule_v1_engine_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1dsentinez/types/v1/known.proto\x1a!sentinez/types/rule/v1/rule.proto\"\x84\x03\n" +
+	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a\x1dsentinez/types/v1/known.proto\x1a!sentinez/types/rule/v1/rule.proto\"\xb1\x02\n" +
 	"\aSecRule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -242,11 +233,8 @@ const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\x04expr\x18\x04 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x126\n" +
 	"\x06action\x18\x05 \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x121\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\a \x01(\x05R\bpriority\x129\n" +
-	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
-	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xdf\x01\n" +
+	"\bpriority\x18\a \x01(\x05R\bpriority\x12!\n" +
+	"\fexpr_preview\x18\b \x01(\tR\vexprPreview\"\xdf\x01\n" +
 	"\vSecRuleLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -269,27 +257,24 @@ func file_sentinez_types_secrule_v1_engine_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secrule_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_secrule_v1_engine_proto_goTypes = []any{
-	(*SecRule)(nil),               // 0: sentinez.types.secrule.v1.SecRule
-	(*SecRuleLite)(nil),           // 1: sentinez.types.secrule.v1.SecRuleLite
-	(*v1.Expression)(nil),         // 2: sentinez.types.rule.v1.Expression
-	(*v1.Action)(nil),             // 3: sentinez.types.rule.v1.Action
-	(v11.Status)(0),               // 4: sentinez.types.v1.Status
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*v1.ExpressionLite)(nil),     // 6: sentinez.types.rule.v1.ExpressionLite
+	(*SecRule)(nil),           // 0: sentinez.types.secrule.v1.SecRule
+	(*SecRuleLite)(nil),       // 1: sentinez.types.secrule.v1.SecRuleLite
+	(*v1.Expression)(nil),     // 2: sentinez.types.rule.v1.Expression
+	(*v1.Action)(nil),         // 3: sentinez.types.rule.v1.Action
+	(v11.Status)(0),           // 4: sentinez.types.v1.Status
+	(*v1.ExpressionLite)(nil), // 5: sentinez.types.rule.v1.ExpressionLite
 }
 var file_sentinez_types_secrule_v1_engine_proto_depIdxs = []int32{
 	2, // 0: sentinez.types.secrule.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
 	3, // 1: sentinez.types.secrule.v1.SecRule.action:type_name -> sentinez.types.rule.v1.Action
 	4, // 2: sentinez.types.secrule.v1.SecRule.status:type_name -> sentinez.types.v1.Status
-	5, // 3: sentinez.types.secrule.v1.SecRule.created_at:type_name -> google.protobuf.Timestamp
-	5, // 4: sentinez.types.secrule.v1.SecRule.updated_at:type_name -> google.protobuf.Timestamp
-	6, // 5: sentinez.types.secrule.v1.SecRuleLite.expr:type_name -> sentinez.types.rule.v1.ExpressionLite
-	3, // 6: sentinez.types.secrule.v1.SecRuleLite.action:type_name -> sentinez.types.rule.v1.Action
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5, // 3: sentinez.types.secrule.v1.SecRuleLite.expr:type_name -> sentinez.types.rule.v1.ExpressionLite
+	3, // 4: sentinez.types.secrule.v1.SecRuleLite.action:type_name -> sentinez.types.rule.v1.Action
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_secrule_v1_engine_proto_init() }

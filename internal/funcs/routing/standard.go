@@ -15,29 +15,29 @@
 package routing
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-func NewStandardRouter(store *memory.MemStore) corechains.ChainNode {
+func NewStandardRouter(store *memory.MemStore) chains.ChainNode {
 	return &StandardRouter{
-		Node:  corechains.NewNode(),
+		Node:  chains.NewNode(),
 		store: store,
 	}
 }
 
 type StandardRouter struct {
-	*corechains.Node
+	*chains.Node
 	store *memory.MemStore
 }
 
-func (r *StandardRouter) Handle(ctx corehttp.Context) error {
+func (r *StandardRouter) Handle(ctx szhttp.Context) error {
 	target, err := r.store.Route().Match(ctx)
 	if err != nil {
-		zlog.Error("[edge] routing match error: ", err)
-		return corehttp.NotFound(ctx)
+		szlog.Error("[edge] routing match error: ", err)
+		return szhttp.NotFound(ctx)
 	}
 
 	rprx, ok := r.store.ReverseProxy().Load(target)

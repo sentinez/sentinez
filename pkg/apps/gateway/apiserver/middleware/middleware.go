@@ -23,10 +23,10 @@ import (
 	"net/http"
 	"strings"
 
-	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/sentinez/pkg/pools/request"
-	"github.com/sentinez/shared/color"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szcolor"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/grpc/grpclog"
 )
 
@@ -56,9 +56,9 @@ func Logging(h http.Handler) http.Handler {
 		h.ServeHTTP(lw, clonedR)
 
 		if lw.statusCode >= 400 {
-			zlog.Debugf("%s %v code=%+v body=%+v", color.Blue.Add(r.Method),
-				color.Green.Add(r.URL.Path),
-				color.Status(lw.statusCode),
+			szlog.Debugf("%s %v code=%+v body=%+v", szcolor.Blue.Add(r.Method),
+				szcolor.Green.Add(r.URL.Path),
+				szcolor.Status(lw.statusCode),
 				string(body))
 		}
 

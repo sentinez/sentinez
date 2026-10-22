@@ -139,7 +139,7 @@ func (Version) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_coreruleset_v1_setting_proto_rawDescGZIP(), []int{1}
 }
 
-// Category CRS rule group, 1:1 with corers.Flag.
+// Category CRS rule group, 1:1 with szcrs.Flag.
 type Category int32
 
 const (

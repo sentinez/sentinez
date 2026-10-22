@@ -20,12 +20,12 @@ import (
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
-	corehttp "github.com/sentinez/core/http"
-	corers "github.com/sentinez/core/rulesets"
+	"github.com/sentinez/core/szcrs"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -36,7 +36,7 @@ var (
 func New() *Rulesets {
 	_once.Do(func() {
 		_rulesetsInst = &Rulesets{
-			space: ssync.NewMap[string, coraza.WAF](),
+			space: szsync.NewMap[string, coraza.WAF](),
 		}
 	})
 
@@ -48,7 +48,7 @@ type Rulesets struct {
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	space *ssync.Map[string, coraza.WAF]
+	space *szsync.Map[string, coraza.WAF]
 }
 
 func (rs *Rulesets) Store(
@@ -59,19 +59,14 @@ func (rs *Rulesets) Store(
 		return nil
 	}
 
-	rootFs, err := crsMap(setting.GetVersion())
-	if err != nil {
-		return err
-	}
-
-	waf, err := corers.NewWAF(setting.GetVersion(), rootFs, setting)
+	waf, err := NewWAF(setting)
 	if err != nil {
 		return err
 	}
 
 	rs.space.Store(namespace, waf)
 	if waf != nil {
-		zlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
+		szlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
 	}
 
 	return nil
@@ -90,13 +85,24 @@ func (rs *Rulesets) Load(namespace string) (coraza.WAF, bool) {
 	return value, true
 }
 
-func (rs *Rulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
+func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 	if rs == nil {
 		return nil, false
 	}
 
-	zlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
+	szlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
 	return rs.Load(ctx.X().GetNamespace())
+}
+
+// NewWAF builds the coraza.WAF of setting from the embedded CRS of its
+// version.
+func NewWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
+	rootFs, err := crsMap(setting.GetVersion())
+	if err != nil {
+		return nil, err
+	}
+
+	return szcrs.NewWAF(setting.GetVersion(), rootFs, setting)
 }
 
 func crsMap(version corerulesetpb.Version) (fs.FS, error) {

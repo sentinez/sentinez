@@ -26,12 +26,12 @@ import (
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -102,7 +102,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 	}
 
 	if acc != nil {
-		return errorx.StatusAlreadyExistsF("email %s already exists", email)
+		return szerror.StatusAlreadyExistsF("email %s already exists", email)
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func (srv *IAMService) usernameMustFree(
 	ctx context.Context, username string) error {
 	// the admin signs in with this name and has no account row
 	if username == srv.config.Get(settingpb.Senz_SENZ_ADMIN_USERNAME) {
-		return errorx.StatusAlreadyExistsF(
+		return szerror.StatusAlreadyExistsF(
 			"username %s already exists", username)
 	}
 
@@ -122,7 +122,7 @@ func (srv *IAMService) usernameMustFree(
 	}
 
 	if acc != nil {
-		return errorx.StatusAlreadyExistsF(
+		return szerror.StatusAlreadyExistsF(
 			"username %s already exists", username)
 	}
 
@@ -150,9 +150,9 @@ func (srv *IAMService) findUser(
 	return found(srv.users.GetByEmail(ctx, email))
 }
 
-// found turns errorx.ErrNotFound into a nil result.
+// found turns szerror.ErrNotFound into a nil result.
 func found[T any](v *T, err error) (*T, error) {
-	if errors.Is(err, errorx.ErrNotFound) {
+	if errors.Is(err, szerror.ErrNotFound) {
 		return nil, nil
 	}
 
@@ -207,7 +207,7 @@ func (srv *IAMService) emailMustFree(ctx context.Context, email string) error {
 	}
 
 	if user != nil {
-		return errorx.StatusAlreadyExistsF("email %s already exists", email)
+		return szerror.StatusAlreadyExistsF("email %s already exists", email)
 	}
 
 	return nil
@@ -261,7 +261,7 @@ func (srv *IAMService) loginAdmin(
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
 	if req.GetPassword() != srv.config.Get(settingpb.Senz_SENZ_ADMIN_PASSWORD) {
-		return nil, errorx.StatusUnauthorizedF(
+		return nil, szerror.StatusUnauthorizedF(
 			"username, email or password is wrong!")
 	}
 
@@ -293,18 +293,18 @@ func (srv *IAMService) Login(ctx context.Context,
 	acc, err := srv.accounts.GetByProvider(
 		ctx, iampb.Provider_PROVIDER_LOCAL, req.GetEmailOrUsername())
 	if err != nil {
-		zlog.Debugf("faild to get account by username or email")
+		szlog.Debugf("faild to get account by username or email")
 		return nil, err
 	}
 
 	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPasswordHash()) {
 		return nil,
-			errorx.StatusUnauthorizedF("username, email or password is wrong!")
+			szerror.StatusUnauthorizedF("username, email or password is wrong!")
 	}
 
 	user, err := srv.users.Get(ctx, acc.GetUserId())
 	if err != nil {
-		zlog.Debugf("faild to get user by username or email")
+		szlog.Debugf("faild to get user by username or email")
 		return nil, err
 	}
 
@@ -345,7 +345,7 @@ func (srv *IAMService) GetUser(ctx context.Context,
 		return &iampb.GetUserResponse{User: user}, nil
 	}
 
-	return nil, errorx.StatusInvalidDataF(
+	return nil, szerror.StatusInvalidDataF(
 		"invalid argument: must provide either id or username")
 }
 
@@ -398,7 +398,7 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 
 	fullName := strings.TrimSpace(request.GetFullName())
 	if fullName == "" {
-		return nil, errorx.StatusInvalidArgumentF("full name is required")
+		return nil, szerror.StatusInvalidArgumentF("full name is required")
 	}
 
 	user, err := srv.users.Get(ctx, auth.GetUserId())

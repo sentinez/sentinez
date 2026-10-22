@@ -42,7 +42,7 @@ cảnh báo chưa đảm bảo tương thích ngược trước v1.0.0.
 
 ## 1.3 Các binary (`cmd/`)
 
-| Binary | Entry point | Service type (`runner.App[T]`) | Vai trò |
+| Binary | Entry point | Service type (`szrunner.App[T]`) | Vai trò |
 |---|---|---|---|
 | `szapiserver` | [cmd/szapiserver/main.go](../../cmd/szapiserver/main.go) | `apiserver.Server` | HTTP gateway REST → gRPC handler của control plane, phục vụ Swagger UI |
 | `szrealtime` | [cmd/szrealtime/main.go](../../cmd/szrealtime/main.go) | `realtime.Realtime` | WebSocket server, broadcast tin nhắn giữa các client |
@@ -56,7 +56,7 @@ Mọi binary (trừ `szcentraldata`) đều theo một khuôn:
 ```go
 func main() {
     if err := run(); err != nil {
-        zlog.Fatal(err)
+        szlog.Fatal(err)
     }
 }
 
@@ -66,25 +66,25 @@ func run() error {
         return err
     }
 
-    r, err := runner.New(conf, core.Code)
+    r, err := szrunner.New(conf, core.Code)
     if err != nil {
         return err
     }
 
-    return r.Run(context.Background(), runner.NewApp(app))
+    return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[T]) {
+func app(c *szrunner.Context[T]) {
     c.Inject(config.Config, <constructor>...)   // fx.Provide
     c.Serve(func(ctx, *T) error { ... })        // vòng lặp chính, block
     c.OnStop(func(ctx, *T) error { ... })
 }
 ```
 
-Một binary có thể chạy nhiều app bằng cách truyền nhiều `runner.NewApp(...)`
+Một binary có thể chạy nhiều app bằng cách truyền nhiều `szrunner.NewApp(...)`
 vào `Main`; `szedge` chạy HTTPS proxy và gRPC API của nó theo cách này.
 
-Chi tiết `runner` ở [09-core-shared.md](09-core-shared.md#91-corerunner).
+Chi tiết `runner` ở [09-core-shared.md](09-core-shared.md#91-coreszrunner).
 
 ## 1.4 Cấu trúc monorepo
 
@@ -130,7 +130,7 @@ Thư mục cấp root:
    các request sau. TCP accept tại `network.StdListener` → bọc thành
    `network.StdConn` có `Id` ngẫu nhiên 8 byte (hex).
 2. TLS ClientHello → `transport.TLSConfig` tính JA4 fingerprint và lưu vào
-   `shared/store/ja4` theo `conn.Id`.
+   `shared/szstore/ja4` theo `conn.Id`.
 3. `OnStdConnect` gắn `netpb.Transport{ConnId, ServerName}` vào `context`
    (chỉ TCP; request HTTP/3 hiện chưa có fingerprint).
 4. Server (mặc định `quichttpx`) gọi handler → tạo `httpx.Context` (lấy từ

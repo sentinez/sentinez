@@ -19,15 +19,15 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -45,7 +45,7 @@ type ISecRule interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
-		dbx.WithTable(tables.SecuritySecRules),
+		dbx.WithTable(sztable.SecuritySecRules),
 		dbx.WithColumns(dbx.ColumnM{
 			securitypb.SecRule_Id:              postgres.String,
 			securitypb.SecRule_Name:            postgres.String,
@@ -100,7 +100,7 @@ func (r *SecRule) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	zlog.Debug("[security.secrules] query: ", query, " args: ", args)
+	szlog.Debug("[security.secrules] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -134,7 +134,7 @@ func (r *SecRule) total(
 
 func (r *SecRule) Create(ctx context.Context,
 	model *securitypb.SecRule) (*securitypb.SecRule, error) {
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecuritySecRules))
+	model.Id = szrand.NewId(table.NewPrimaryKey(sztable.SecuritySecRules))
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.SecRule_Id:              model.GetId(),
 		securitypb.SecRule_Name:            model.GetName(),

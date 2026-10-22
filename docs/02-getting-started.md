@@ -93,7 +93,7 @@ The console calls `/api`, which its Next.js server forwards to
 
 Variable names are the values of the `Senz` enum in
 [types/setting/v1/config.proto](../api/proto/sentinez/types/setting/v1/config.proto).
-They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
+They are loaded by `shared/szconfig.LoadEnv` (using `godotenv`) and read with
 `conf.Get(settingpb.Senz_...)` or `config.GetEnv(...)`.
 
 | Variable | Used by | Meaning |
@@ -108,7 +108,8 @@ They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
 | `SENZ_MEMBERSHIP_ADDRESS` | edge | Olric peer to join |
 | `SENZ_DISCOVERY_ADDRESS` | edge | `host:port` memberlist bind (default `0.0.0.0:3322`) |
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Static admin account |
-| `SENZ_OTLP_ENDPOINT` | all | OTLP/gRPC collector (default `localhost:4317`) |
+| `SENZ_OTLP_INTERNAL_ENDPOINT` | all | OTLP/gRPC collector of the system logs; unset: not exported |
+| `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | OTLP/gRPC collector of the edge traffic logs (func chain `LOG` node); unset: not exported |
 
 Some services (edge, dataplane, realtime) load only a specific list of
 variables; the others load the whole `Senz` enum.
@@ -117,7 +118,7 @@ variables; the others load the whole `Senz` enum.
 
 Defined in
 [types/setting/v1/flags.proto](../api/proto/sentinez/types/setting/v1/flags.proto),
-parsed with `pflag` in `shared/flagx` and `pkg/apps/**/flags`. Values are
+parsed with `pflag` in `shared/szflag` and `pkg/apps/**/flags`. Values are
 validated with protovalidate.
 
 | Flag | Default | Constraint | Service |
@@ -142,9 +143,9 @@ make lint                  # golangci-lint for root, core, shared, controlplane,
 make fmt.proto             # buf format -w
 ```
 
-Existing tests cover: `core/limiter`, `core/rules`, `core/modsec/ruleparser`,
+Existing tests cover: `core/szlimiter`, `core/szrule`, `core/szmodsec/ruleparser`,
 `controlplane/iam` (handler, service with mocks), `controlplane/pkg/crypto`,
-`shared/{config,errorx,perms,protobuf,zlog}`, `pkg/apps/dmz/edge`,
+`shared/{szconfig,szerror,szperms,szprotobuf,szlog}`, `pkg/apps/dmz/edge`,
 `pkg/apps/gateway/apiserver`.
 
 Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
@@ -158,8 +159,8 @@ Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript for the UI | `cd api && buf generate` (`ts-proto` plugin → `ui/packages/proto/ts-proto`) |
-| Error page templates | `cd staging/.../core/common/render && templ generate` |
-| CRS rules → Go | `bash hack/ruleparser.sh` (needs `ruleparser-sentinez` on PATH) |
+| Error page templates | `cd staging/.../core/szcmn/render && templ generate` |
+| CRS rules → Go | `bash hack/ruleparser.sh` (needs `szruleparser` on PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy third-party protos | `bash hack/copy_proto3pt.sh` |
 | Copy CRS `.data` files | `bash hack/copy_rule_data.sh` |

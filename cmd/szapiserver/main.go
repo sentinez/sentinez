@@ -19,11 +19,11 @@ import (
 	"context"
 
 	"github.com/sentinez/core"
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/config"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // This is the sentinez apiserver application, it will automatically
@@ -40,20 +40,20 @@ import (
 //	make sz.<service>.run // start service
 func main() {
 	if err := run(); err != nil {
-		zlog.Fatal(err)
+		szlog.Fatal(err)
 	}
 }
 
 func run() error {
-	r, err := runner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
 
-	return r.Run(context.Background(), runner.NewApp(app))
+	return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[apiserver.Server]) {
+func app(c *szrunner.Context[apiserver.Server]) {
 	c.Inject(grpcgateway.NewServer, apiserver.New)
 
 	c.Serve(func(ctx context.Context, server *apiserver.Server) error {

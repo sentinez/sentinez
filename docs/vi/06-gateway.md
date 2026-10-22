@@ -10,7 +10,7 @@
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
-| [core/grpc/gateway/](../../staging/src/github.com/sentinez/core/grpc/gateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
 
 ### Khởi tạo
 
@@ -49,11 +49,11 @@ httpMux:
 ```
 
 - `Logging`: đọc toàn bộ body (để log khi lỗi), gọi handler, log debug nếu
-  status ≥ 400, rồi ghi `httppb.Event` (kind `LOG_TYPE_HTTP`) qua `zlog`.
+  status ≥ 400, rồi ghi `httppb.Event` (kind `LOG_TYPE_HTTP`) qua `szlog`.
 - `AllowCORS`: phản chiếu `Origin` bất kỳ, `Allow-Credentials: true`, trả
   `204` cho preflight với methods `GET, HEAD, POST, PUT, DELETE` và headers
   `Content-Type, Accept, Authorization`.
-- Error handler của gateway map `errorx.ErrNotFound/ErrInvalidData/
+- Error handler của gateway map `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` sang gRPC status tương ứng trước khi chuyển thành HTTP.
 
 Header `Authorization` được grpc-gateway chuyển thành gRPC metadata
@@ -88,9 +88,9 @@ chấp nhận mọi origin) → `Manager.AddClient(id, conn)` → mỗi tin nh�
 | `local` | `RegisterServiceServer` chạy một gRPC server in-memory (`bufconn`, 1 MiB) cho mỗi service key |
 | [client.go](../../api/client/client.go) | `NewIAM` (qua Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalEdgeEngine` (qua bufconn) |
 
-Phía server, `coregrpc.Server.Serve` sẽ gọi `Register` (đăng ký TTL 15s, retry
+Phía server, `szgrpc.Server.Serve` sẽ gọi `Register` (đăng ký TTL 15s, retry
 qua circuit breaker, heartbeat mỗi 10s) **nếu** tạo server với
-`coregrpc.WithDiscorvery(true)` — hiện chưa service nào bật.
+`szgrpc.WithDiscorvery(true)` — hiện chưa service nào bật.
 
 IAM dùng `client.NewLocalGreeter` để gọi Greeter qua bufconn trong RPC
 `Status`.

@@ -20,7 +20,7 @@ import (
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/flags"
-	"github.com/sentinez/shared/config"
+	"github.com/sentinez/shared/szconfig"
 )
 
 var (
@@ -41,10 +41,11 @@ func load() (*settingpb.Config, error) {
 		return nil, err
 	}
 
-	env, err := config.LoadEnv(flag.GetEnvFile(),
+	env, err := szconfig.LoadEnv(flag.GetEnvFile(),
 		settingpb.Senz_SENZ_HOSTNAME,
 		settingpb.Senz_SENZ_ADDRESS,
 		settingpb.Senz_SENZ_SECRET_KEY,
+		settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT,
 	)
 	if err != nil {
 		return nil, err

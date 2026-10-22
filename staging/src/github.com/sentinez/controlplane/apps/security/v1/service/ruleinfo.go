@@ -21,12 +21,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/modsec/catalog"
-	"github.com/sentinez/core/storage/dbx/query"
+	"github.com/sentinez/core/szmodsec/catalog"
+	"github.com/sentinez/core/szstorage/dbx/query"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 // ── RuleInfo ───────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ func (srv *SecurityService) GetRuleInfo(_ context.Context,
 ) (*securitypb.GetRuleInfoResponse, error) {
 	rule, ok := catalog.Rule(req.GetVersion(), req.GetId())
 	if !ok {
-		return nil, errorx.StatusNotFoundF(
+		return nil, szerror.StatusNotFoundF(
 			"rule not found: id=%d", req.GetId())
 	}
 

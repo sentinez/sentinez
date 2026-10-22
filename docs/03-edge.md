@@ -14,7 +14,7 @@ Relevant source:
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [internal/cluster/](../internal/cluster/) | Embedded Olric + generic `DMap[T]` |
-| [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `corehttp.Context` + reverse proxy |
+| [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../pkg/network/) | TCP (`StdListener`/`StdConn`, with IDs) and QUIC (`QuicListener`) listeners, `net/http` transport |
 | [pkg/network/httpx/](../pkg/network/httpx/) | Shared `net/http` `Context` + `ReverseProxy`; servers in `std/` (`stdhttpx`) and `quic/` (`quichttpx`) |
 
@@ -30,7 +30,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(p
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.NewServer(conf, setting)
- ├─ corecmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
+ ├─ szcmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
  ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
@@ -103,10 +103,10 @@ This only applies to TCP connections. For HTTP/3, `chi.Conn` is not a
 HTTP/3 requests carry no JA4 fingerprint and no `netpb.Transport` (see
 [12-known-issues.md](12-known-issues.md)).
 
-## 3.3 `corehttp.Context`
+## 3.3 `szhttp.Context`
 
 An interface that abstracts request/response
-([core/http/context.go](../staging/src/github.com/sentinez/core/http/context.go)):
+([core/szhttp/context.go](../staging/src/github.com/sentinez/core/szhttp/context.go)):
 `RequestContext` (read/write headers, query, path, body, IP, JA4, ...) +
 `ResponseWriter` + `X()`, which returns `edgepb.ContextExtra` (holding the
 `namespace`).
@@ -117,7 +117,7 @@ There are three implementations:
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge in `Quic` (HTTP/3 and TCP) and `Standard` modes, realtime |
-| `corehttpreq.RequestContext` | `core/http/request/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
+| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
 
 Contexts come from a `sync.Pool` and are returned in `Close()`.
 
@@ -137,7 +137,7 @@ buffers.
 
 Defined in
 [internal/dmz/edge/http/init.go](../internal/dmz/edge/http/init.go). Each
-node embeds `*corechains.Node` (which holds `next`) and implements
+node embeds `*chains.Node` (which holds `next`) and implements
 `Handle(ctx) error`. Nodes are wrapped with `trace.Wrap(name, node)`, which
 tags errors with the stage name (`tracer.StageError{Stage, Elapsed, Err}`)
 and logs them once, at the stage that produced them.
@@ -156,7 +156,7 @@ and logs them once, at the stage that produced them.
 | 9 | `ROU` | `routing.StandardRouter` | Finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
-([core/common/render](../staging/src/github.com/sentinez/core/common/render/))
+([core/szcmn/render](../staging/src/github.com/sentinez/core/szcmn/render/))
 that include the `X-Request-ID`; if rendering fails they fall back to plain
 text.
 
@@ -270,7 +270,7 @@ Notes:
   enums, turns `value` into a string `structpb.Value`, and generates IDs
   `senz.rule.<nanoid>` / `senz.cond.<nanoid>`.
 - Variables supported in `proxySetHeaders`
-  ([core/http/variable](../staging/src/github.com/sentinez/core/http/variable/variable.go)):
+  ([core/szhttp/variable](../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,
   `$proxy_add_x_forwarded_for`. They only work when the **whole value** is
   one variable; any other string containing `$` makes routing fail. Invalid
@@ -322,13 +322,13 @@ A reverse proxy is created once per `upstream.server` in
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` + `cluster.DMap` | Original Settings; also written to the Olric DMap `sentinez.dmz.edge.setting` |
 | `routes.Router` | `Map[string,[]*Location]` | Sorted locations |
-| `reverseproxy.ReverseProxy` | `Map[string,corehttp.ReverseProxy]` | Key = upstream server |
+| `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | Compiled `Entry{Eval, Rule}`, active only, sorted by priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | One limiter per namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | One CDN rule per namespace |
 
-All maps use `shared/sync.Map[K,V]` (a generic wrapper around `sync.Map`).
+All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 ## 3.8 Cluster (Olric)
 

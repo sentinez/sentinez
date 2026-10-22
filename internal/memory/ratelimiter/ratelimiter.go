@@ -17,12 +17,12 @@ package ratelimiter
 import (
 	"sync"
 
-	corehttp "github.com/sentinez/core/http"
-	corelimiter "github.com/sentinez/core/limiter"
-	corerule "github.com/sentinez/core/rules"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szlimiter"
+	"github.com/sentinez/core/szrule"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 func New() *Limiter {
 	_once.Do(func() {
 		_limiterInst = &Limiter{
-			space: ssync.NewMap[string, []Entry](),
+			space: szsync.NewMap[string, []Entry](),
 		}
 	})
 
@@ -42,13 +42,13 @@ func New() *Limiter {
 
 // Entry is a rate limiter applied to the requests matching Eval.
 type Entry struct {
-	Eval    corerule.EvalFunc
+	Eval    szrule.EvalFunc
 	Rule    *secrulepb.SecRule
-	Limiter *corelimiter.RateLimiter
+	Limiter *szlimiter.RateLimiter
 }
 
 type Limiter struct {
-	space *ssync.Map[string, []Entry]
+	space *szsync.Map[string, []Entry]
 }
 
 // Store replaces the limiters of serverName.
@@ -68,11 +68,11 @@ func (lim *Limiter) Load(serverName string) []Entry {
 	return entries
 }
 
-func (lim *Limiter) LoadContext(ctx corehttp.Context) []Entry {
+func (lim *Limiter) LoadContext(ctx szhttp.Context) []Entry {
 	if lim == nil {
 		return nil
 	}
 
-	zlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
+	szlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
 	return lim.Load(ctx.X().GetNamespace())
 }

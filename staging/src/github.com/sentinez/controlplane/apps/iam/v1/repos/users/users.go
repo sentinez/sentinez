@@ -19,16 +19,16 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -53,7 +53,7 @@ type IUser interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
-		dbx.WithTable(tables.IAMUsers),
+		dbx.WithTable(sztable.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.User_Id:           postgres.String,
 			iampb.User_Email:        postgres.String,
@@ -114,7 +114,7 @@ func (u *Users) List(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	zlog.Debug("[users] query: ", query, " args: ", args)
+	szlog.Debug("[users] query: ", query, " args: ", args)
 
 	users, err := u.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -152,7 +152,7 @@ func (u *Users) total(
 func (u *Users) Create(ctx context.Context,
 	user *iampb.User) (*iampb.User, error) {
 
-	user.Id = rand.NewId(table.NewPrimaryKey(tables.IAMUsers))
+	user.Id = szrand.NewId(table.NewPrimaryKey(sztable.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:           user.GetId(),
 		iampb.User_Email:        user.GetEmail(),
@@ -178,7 +178,7 @@ func (u *Users) Get(ctx context.Context, id string) (*iampb.User, error) {
 	return u.storage.Select(ctx, builder, scanOne)
 }
 
-// GetByEmail implements IUser. It returns errorx.ErrNotFound if no user
+// GetByEmail implements IUser. It returns szerror.ErrNotFound if no user
 // owns the email.
 func (u *Users) GetByEmail(
 	ctx context.Context, email string) (*iampb.User, error) {
@@ -187,11 +187,11 @@ func (u *Users) GetByEmail(
 
 	user, err := u.storage.CollectOneRow(ctx, builder, scanOne)
 	if err != nil {
-		if !errorx.IsNoRows(err) {
+		if !szerror.IsNoRows(err) {
 			return nil, err
 		}
 
-		return nil, errorx.ErrNotFound
+		return nil, szerror.ErrNotFound
 	}
 
 	return user, nil

@@ -1,31 +1,31 @@
 services:
-  # sentinez.redis:
-  #   image: redis
-  #   container_name: sentinez.redis
-  #   hostname: sentinez.redis
-  #   ports:
-  #     - "6379:6379"
-  #   command: /bin/sh -c "redis-server --requirepass password"
-  #   volumes:
-  #     - ./_volume/redis:/data
-  #   networks:
-  #     - sentinez-network
+  sentinez.redis:
+    image: redis
+    container_name: sentinez.redis
+    hostname: sentinez.redis
+    ports:
+      - "6379:6379"
+    command: /bin/sh -c "redis-server --requirepass password"
+    volumes:
+      - ./_volume/redis:/data
+    networks:
+      - sentinez-network
 
-  # sentinez.timescale:
-  #   image: timescale/timescaledb:latest-pg16
-  #   hostname: sentinez.timescale
-  #   container_name: sentinez.timescale
-  #   ports:
-  #     - "5432:5432"
-  #   restart: on-failure:3
-  #   environment:
-  #     POSTGRES_USER: root
-  #     POSTGRES_PASSWORD: root
-  #     POSTGRES_DB: sentinez
-  #   volumes:
-  #     - ./_volume/timescale:/var/lib/timescale/data
-  #   networks:
-  #     - sentinez-network
+  sentinez.timescale:
+    image: timescale/timescaledb:latest-pg16
+    hostname: sentinez.timescale
+    container_name: sentinez.timescale
+    ports:
+      - "5432:5432"
+    restart: on-failure:3
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: sentinez
+    volumes:
+      - ./_volume/timescale:/var/lib/timescale/data
+    networks:
+      - sentinez-network
 
   sentinez.postgres:
     image: postgres:16

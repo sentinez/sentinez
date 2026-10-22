@@ -132,7 +132,7 @@ enum Version {
   VERSION_V4_17_0 = 2;
 }
 
-// Category CRS rule group, 1:1 with corers.Flag.
+// Category CRS rule group, 1:1 with szcrs.Flag.
 enum Category {
   CATEGORY_UNSPECIFIED = 0;
 

@@ -48,6 +48,7 @@ type Rule struct {
 	Priority      int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ExprPreview   string                 `protobuf:"bytes,10,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +137,13 @@ func (x *Rule) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *Rule) GetExprPreview() string {
+	if x != nil {
+		return x.ExprPreview
+	}
+	return ""
 }
 
 type RuleLite struct {
@@ -278,7 +286,7 @@ var File_sentinez_types_cdn_v1_rule_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_cdn_v1_rule_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/types/cdn/v1/rule.proto\x12\x15sentinez.types.cdn.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc9\x02\n" +
+	" sentinez/types/cdn/v1/rule.proto\x12\x15sentinez.types.cdn.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xec\x02\n" +
 	"\x04Rule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -289,7 +297,9 @@ const file_sentinez_types_cdn_v1_rule_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc0\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12!\n" +
+	"\fexpr_preview\x18\n" +
+	" \x01(\tR\vexprPreview\"\xc0\x01\n" +
 	"\bRuleLite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +

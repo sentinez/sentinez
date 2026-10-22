@@ -88,6 +88,8 @@ func (m *SecRule) Validate() error {
 
 	// no validation rules for Priority
 
+	// no validation rules for ExprPreview
+
 	return nil
 }
 
@@ -199,6 +201,8 @@ func (m *RateLimit) Validate() error {
 	// no validation rules for MaxRequests
 
 	// no validation rules for Timeout
+
+	// no validation rules for ExprPreview
 
 	return nil
 }

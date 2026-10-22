@@ -1,0 +1,17 @@
+# kafbat/kafka-ui (https://github.com/kafbat/kafka-ui): decode the OTLP
+# protobuf messages the collector writes, so they show as JSON. The kafka
+# exporter's otlp_proto encoding is wire-compatible with LogsData /
+# TracesData / MetricsData.
+kafka:
+  clusters:
+    - name: sentinez
+      bootstrapServers: sentinez.telemetry.kafka:9092
+      defaultValueSerde: ProtobufFile
+      serde:
+        - name: ProtobufFile
+          properties:
+            protobufFilesDir: /protofiles
+            protobufMessageNameByTopic:
+              otlp_logs: opentelemetry.proto.logs.v1.LogsData
+              otlp_spans: opentelemetry.proto.trace.v1.TracesData
+              otlp_metrics: opentelemetry.proto.metrics.v1.MetricsData

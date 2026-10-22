@@ -15,53 +15,29 @@
 package http
 
 import (
-	corechains "github.com/sentinez/core/http/chains"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/internal/funcs/cdn"
-	"github.com/sentinez/sentinez/internal/funcs/logging"
-	"github.com/sentinez/sentinez/internal/funcs/ratelimiter"
-	"github.com/sentinez/sentinez/internal/funcs/room"
-	"github.com/sentinez/sentinez/internal/funcs/routing"
-	"github.com/sentinez/sentinez/internal/funcs/secure"
-	"github.com/sentinez/sentinez/internal/funcs/static"
-	"github.com/sentinez/sentinez/internal/funcs/trace"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
+	"github.com/sentinez/sentinez/internal/funcs"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/zlog"
 )
 
-// nolint
-func NewHandler(appConf *settingpb.Config, ms *memory.MemStore) corechains.ChainNode {
-	var (
-		hostname = appConf.Get(settingpb.Senz_SENZ_HOSTNAME)
-		ll       = zlog.LevelInfo
-		curr     corechains.ChainNode
-		income   corechains.ChainNode
-	)
-	// begin first middleware when request income
-	income = trace.NewTracer(ll)
+// NewHandler links the edge chain nodes reading ms and returns its head;
+// opts are passed to every node (see option.WithLogger,
+// option.WithHostname).
+func NewHandler(
+	ms *memory.MemStore, opts ...option.Option) chains.ChainNode {
 
-	// current middleware
-	curr = income
+	handlers := funcs.New(ms, opts...)
+	if len(handlers) == 0 {
+		return nil
+	}
 
-	curr = curr.SetNext(trace.Wrap("LOG", logging.NewLogging(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("DMA", secure.NewDomainBased(hostname, ms)))
-
-	curr = curr.SetNext(trace.Wrap("PUB", cdn.NewPublic(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("CDN", cdn.NewCache(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("LMT", ratelimiter.NewLimiter(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("ROM", room.NewRoom(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("STC", static.NewStatic(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("RUL", secure.NewSecRule(ll, ms)))
-
-	curr = curr.SetNext(trace.Wrap("WAF", secure.NewWAF(ll, ms)))
-
-	_ = curr.SetNext(trace.Wrap("ROU", routing.NewStandardRouter(ms)))
+	// first node is head of all chains, link the rest in order
+	income := handlers[0]
+	curr := income
+	for _, handler := range handlers[1:] {
+		curr = curr.SetNext(handler)
+	}
 
 	return income
 }

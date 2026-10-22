@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go/http3"
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -32,7 +32,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var _ corehttp.Server = (*Server)(nil)
+var _ szhttp.Server = (*Server)(nil)
 
 var errNoCertificate = errors.New("quic: tls certificate required")
 
@@ -41,8 +41,8 @@ const (
 	_readHeaderTimeout = 10 * time.Second
 )
 
-func NewServer(appConf *settingpb.Config) corehttp.Server {
-	return corehttp.DecoreServer(appConf, &Server{
+func NewServer(appConf *settingpb.Config) szhttp.Server {
+	return szhttp.DecoreServer(appConf, &Server{
 		h3: &http3.Server{IdleTimeout: _idleTimeout},
 		tcp: &http.Server{
 			IdleTimeout:       _idleTimeout,
@@ -56,31 +56,31 @@ func NewServer(appConf *settingpb.Config) corehttp.Server {
 // HTTP/2 over TCP. Clients always reach TCP first and only switch to HTTP/3
 // after seeing the Alt-Svc header, so both listeners must be served.
 type Server struct {
-	mdw []func(corehttp.RequestHandler) corehttp.RequestHandler
+	mdw []func(szhttp.RequestHandler) szhttp.RequestHandler
 	h3  *http3.Server
 	tcp *http.Server
 	mux *http.ServeMux
-	opt corehttp.Option
+	opt szhttp.Option
 }
 
-// AcceptReverse implements [corehttp.Server].
-func (s *Server) AcceptReverse(target string) (corehttp.ReverseProxy, error) {
+// AcceptReverse implements [szhttp.Server].
+func (s *Server) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
 	// QUIC is only terminated at the edge; upstreams are plain TCP
 	// backends (HTTP/1.1 or HTTP/2), so dialing them over HTTP/3 hangs.
 	return httpx.NewReverseProxy(target, network.StandardTransporter())
 }
 
 func (s *Server) Use(
-	mdw ...func(next corehttp.RequestHandler) corehttp.RequestHandler) {
+	mdw ...func(next szhttp.RequestHandler) szhttp.RequestHandler) {
 	s.mdw = append(s.mdw, mdw...)
 }
 
-func (s *Server) Handle(fn corehttp.RequestHandler) {
+func (s *Server) Handle(fn szhttp.RequestHandler) {
 	s.mux.Handle("/", stdhttpx.Convert(chain(fn, s.mdw...)))
 }
 
 func (s *Server) ListenAndServe(
-	addr string, opts ...corehttp.ServerOption) error {
+	addr string, opts ...szhttp.ServerOption) error {
 	for _, opt := range opts {
 		opt(&s.opt)
 	}
@@ -176,9 +176,9 @@ func (s *Server) tlsConfig() (*tls.Config, error) {
 }
 
 func chain(
-	h corehttp.RequestHandler,
-	m ...func(corehttp.RequestHandler) corehttp.RequestHandler,
-) corehttp.RequestHandler {
+	h szhttp.RequestHandler,
+	m ...func(szhttp.RequestHandler) szhttp.RequestHandler,
+) szhttp.RequestHandler {
 	for _, v := range slices.Backward(m) {
 		h = v(h)
 	}

@@ -20,37 +20,49 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	httpconst "github.com/sentinez/core/http/const"
-	corerule "github.com/sentinez/core/rules"
-	"github.com/sentinez/core/storage/cache/mem"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/core/szrule"
+	"github.com/sentinez/core/szstorage/cache/mem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
-func NewCache(_ zlog.Level, store *memory.MemStore) corechains.ChainNode {
+func NewCache(
+	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+
+	o := option.New(opts...)
+
 	return &Cache{
 		store:  store,
-		Node:   corechains.NewNode(),
+		Node:   chains.NewNode(),
 		cached: mem.New[*CachedResponse](time.Hour, time.Hour),
-		buf:    sync.NewPool[bytes.Buffer](),
+		buf:    szsync.NewPool[bytes.Buffer](),
+		log: szlog.NewLogCloser(
+			o.Named,
+			typepb.LogType_LOG_TYPE_CDN_RULE,
+			o.Level,
+			o.OTLP(),
+		),
 	}
 }
 
 type Cache struct {
-	*corechains.Node
+	*chains.Node
 	store *memory.MemStore
 
 	cached *mem.Cache[*CachedResponse]
-	buf    *sync.Pool[bytes.Buffer]
+	buf    *szsync.Pool[bytes.Buffer]
+	log    szlog.LogCloser
 }
 
-func (c *Cache) Handle(ctx corehttp.Context) error {
+func (c *Cache) Handle(ctx szhttp.Context) error {
 	eval, rule := c.store.CDNRules().LoadContext(ctx)
 	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return c.HandleNext(ctx)
@@ -70,7 +82,7 @@ func (c *Cache) Handle(ctx corehttp.Context) error {
 }
 
 func (c *Cache) caching(
-	ctx corehttp.Context, eval corerule.EvalFunc, key string) error {
+	ctx szhttp.Context, eval szrule.EvalFunc, key string) error {
 
 	resp, ok := c.cached.Get(key)
 	if !ok {
@@ -103,7 +115,7 @@ type CachedResponse struct {
 	Body       []byte
 }
 
-func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
+func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	keyBuffer := c.buf.Get()
 	_, _ = keyBuffer.Write(ctx.Method())
 	_, _ = keyBuffer.WriteString(ctx.Scheme())
@@ -117,7 +129,7 @@ func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
 }
 
 func (c *Cache) setCache(
-	ctx corehttp.Context, ef corerule.EvalFunc, key string) {
+	ctx szhttp.Context, ef szrule.EvalFunc, key string) {
 	if ef == nil {
 		return
 	}
@@ -151,7 +163,7 @@ func (c *Cache) setCache(
 // cacheable reports whether a response can be replayed to other clients.
 // Only complete 200 responses are stored: 206/304 bodies are partial or
 // empty, and an empty body means it was not captured (e.g. too large).
-func cacheable(ctx corehttp.Context, headers map[string][][]byte) bool {
+func cacheable(ctx szhttp.Context, headers map[string][][]byte) bool {
 	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
 		return false
 	}

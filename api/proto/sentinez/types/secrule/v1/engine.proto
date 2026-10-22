@@ -16,7 +16,6 @@ syntax = "proto3";
 
 package sentinez.types.secrule.v1;
 
-import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/rule/v1/rule.proto";
 
@@ -31,8 +30,7 @@ message SecRule {
   sentinez.types.rule.v1.Action action = 5;
   sentinez.types.v1.Status status = 6;
   int32 priority = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  string expr_preview = 8;
 }
 
 message SecRuleLite {

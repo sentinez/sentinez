@@ -1,0 +1,94 @@
+# OpenTelemetry Collector: receive OTLP, push each signal to its Kafka topic.
+# Messages are OTLP protobuf (ExportLogsServiceRequest, ...), so consumers
+# decode them with the opentelemetry-proto definitions.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # refuse data before the collector runs out of memory
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+  batch:
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+    timeout: 5s
+
+exporters:
+  kafka/logs:
+    brokers: [sentinez.telemetry.kafka:9092]
+    protocol_version: 3.9.0
+    topic: otlp_logs
+    encoding: otlp_proto
+    # keep the records of one service in one partition, in order
+    partition_logs_by_resource_attributes: true
+    producer:
+      compression: zstd
+      required_acks: 1
+      max_message_bytes: 1000000
+    retry_on_failure:
+      enabled: true
+    sending_queue:
+      enabled: true
+      queue_size: 1000
+
+  kafka/traces:
+    brokers: [sentinez.telemetry.kafka:9092]
+    protocol_version: 3.9.0
+    topic: otlp_spans
+    encoding: otlp_proto
+    # all spans of a trace land in the same partition
+    partition_traces_by_id: true
+    producer:
+      compression: zstd
+      required_acks: 1
+    retry_on_failure:
+      enabled: true
+    sending_queue:
+      enabled: true
+
+  kafka/metrics:
+    brokers: [sentinez.telemetry.kafka:9092]
+    protocol_version: 3.9.0
+    topic: otlp_metrics
+    encoding: otlp_proto
+    partition_metrics_by_resource_attributes: true
+    producer:
+      compression: zstd
+      required_acks: 1
+    retry_on_failure:
+      enabled: true
+    sending_queue:
+      enabled: true
+
+  # uncomment and add to a pipeline to also print what is received
+  # debug:
+  #   verbosity: basic
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [kafka/logs]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [kafka/traces]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [kafka/metrics]

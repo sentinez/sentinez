@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/apps/iam/v1/repos/users"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 )

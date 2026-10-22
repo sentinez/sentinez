@@ -256,8 +256,8 @@ export function actionTypeToJSON(object: ActionType): string {
 
 export enum RuleService {
   RULE_SERVICE_UNSPECIFIED = 0,
-  RULE_SERVICE_CORE_RULESETS = 1,
-  RULE_SERVICE_CUSTOM_RULES = 2,
+  RULE_SERVICE_WAF_RULESETS = 1,
+  RULE_SERVICE_SEC_RULE = 2,
   RULE_SERVICE_RATE_LIMIT = 3,
   UNRECOGNIZED = -1,
 }
@@ -268,11 +268,11 @@ export function ruleServiceFromJSON(object: any): RuleService {
     case "RULE_SERVICE_UNSPECIFIED":
       return RuleService.RULE_SERVICE_UNSPECIFIED;
     case 1:
-    case "RULE_SERVICE_CORE_RULESETS":
-      return RuleService.RULE_SERVICE_CORE_RULESETS;
+    case "RULE_SERVICE_WAF_RULESETS":
+      return RuleService.RULE_SERVICE_WAF_RULESETS;
     case 2:
-    case "RULE_SERVICE_CUSTOM_RULES":
-      return RuleService.RULE_SERVICE_CUSTOM_RULES;
+    case "RULE_SERVICE_SEC_RULE":
+      return RuleService.RULE_SERVICE_SEC_RULE;
     case 3:
     case "RULE_SERVICE_RATE_LIMIT":
       return RuleService.RULE_SERVICE_RATE_LIMIT;
@@ -287,10 +287,10 @@ export function ruleServiceToJSON(object: RuleService): string {
   switch (object) {
     case RuleService.RULE_SERVICE_UNSPECIFIED:
       return "RULE_SERVICE_UNSPECIFIED";
-    case RuleService.RULE_SERVICE_CORE_RULESETS:
-      return "RULE_SERVICE_CORE_RULESETS";
-    case RuleService.RULE_SERVICE_CUSTOM_RULES:
-      return "RULE_SERVICE_CUSTOM_RULES";
+    case RuleService.RULE_SERVICE_WAF_RULESETS:
+      return "RULE_SERVICE_WAF_RULESETS";
+    case RuleService.RULE_SERVICE_SEC_RULE:
+      return "RULE_SERVICE_SEC_RULE";
     case RuleService.RULE_SERVICE_RATE_LIMIT:
       return "RULE_SERVICE_RATE_LIMIT";
     case RuleService.UNRECOGNIZED:

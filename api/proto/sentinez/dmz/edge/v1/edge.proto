@@ -19,6 +19,7 @@ package sentinez.dmz.edge.v1;
 import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/options.proto";
 import "sentinez/types/net/http/v1/http.proto";
+import "sentinez/types/coreruleset/v1/setting.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 option (sentinez.types.v1.x_meta) = {
@@ -28,7 +29,7 @@ option (sentinez.types.v1.x_meta) = {
 };
 
 service EdgeService {
-  rpc EvaluateRuleset(EvaluateRulesetRequest) returns (EvaluateRulesetResponse);
+  rpc EvalCoreRuleset(EvalCoreRulesetRequest) returns (EvalCoreRulesetResponse);
   rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
@@ -38,17 +39,17 @@ message StatusResponse {
   string msg = 1;
 }
 
-message EvaluateRulesetRequest {
-  string ruleset_id = 1;
+message EvalCoreRulesetRequest {
+  sentinez.types.coreruleset.v1.CoreRuleset core_ruleset = 1;
   sentinez.types.net.http.v1.Request request_context = 2;
 }
 
-message EvaluationResult {
+message EvalResult {
   string rule_id = 1;
   bool matched = 2;
   repeated sentinez.types.rule.v1.Action actions = 3;
 }
 
-message EvaluateRulesetResponse {
-  repeated EvaluationResult results = 1;
+message EvalCoreRulesetResponse {
+  repeated EvalResult results = 1;
 }

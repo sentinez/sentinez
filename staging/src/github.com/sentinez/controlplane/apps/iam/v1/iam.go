@@ -19,7 +19,7 @@ import (
 	"context"
 
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -34,7 +34,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
 	return &IAM{
-		Server: coregrpc.New(),
+		Server: szgrpc.New(),
 		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }
@@ -42,7 +42,7 @@ func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
 // New creates a new Greeter module.
 
 type IAM struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	hdl iampb.IdentityAccessManagementServiceServer
 }
 

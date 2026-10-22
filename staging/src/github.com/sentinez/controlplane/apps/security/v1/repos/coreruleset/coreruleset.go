@@ -19,16 +19,16 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -60,7 +60,7 @@ func New(
 	ctx context.Context, appConf *settingpb.Config,
 ) (ICoreRuleset, error) {
 	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
-		dbx.WithTable(tables.SecurityCoreRulesets),
+		dbx.WithTable(sztable.SecurityCoreRulesets),
 		dbx.WithColumns(dbx.ColumnM{
 			securitypb.CoreRuleset_Id:              postgres.String,
 			securitypb.CoreRuleset_Name:            postgres.String,
@@ -112,7 +112,7 @@ func (r *CoreRuleset) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	zlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
+	szlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -155,7 +155,7 @@ func (r *CoreRuleset) Create(ctx context.Context,
 		return nil, err
 	}
 
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityCoreRulesets))
+	model.Id = szrand.NewId(table.NewPrimaryKey(sztable.SecurityCoreRulesets))
 	owner := model.GetOwner()
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.CoreRuleset_Id:              model.GetId(),

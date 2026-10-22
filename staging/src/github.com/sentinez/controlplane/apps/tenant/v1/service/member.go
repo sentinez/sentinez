@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 // ListMember implements tenantpb.TenantServiceServer.
@@ -49,14 +49,14 @@ func (svc *Service) CreateMember(ctx context.Context,
 
 	existing, err := svc.member.List(ctx, &tenantpb.ListMemberRequest{
 		TenantIds: []string{req.GetTenantId()},
-		UserId:   req.GetUserId(),
+		UserId:    req.GetUserId(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("member.List: %w", err)
 	}
 
 	if len(existing.GetMembers()) != 0 {
-		return nil, errorx.StatusAlreadyExistsF(
+		return nil, szerror.StatusAlreadyExistsF(
 			"member already exists: user_id=%s tenant_id=%s",
 			req.GetUserId(), req.GetTenantId())
 	}
@@ -114,8 +114,8 @@ func (svc *Service) getMember(
 	ctx context.Context, id string) (*tenantpb.Member, error) {
 
 	member, err := svc.member.Get(ctx, id)
-	if errorx.IsNoRows(err) {
-		return nil, errorx.StatusNotFoundF("member not found: id=%s", id)
+	if szerror.IsNoRows(err) {
+		return nil, szerror.StatusNotFoundF("member not found: id=%s", id)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("member.Get: %w", err)

@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
-	corehttp "github.com/sentinez/core/http"
-	corelimiter "github.com/sentinez/core/limiter"
-	corerule "github.com/sentinez/core/rules"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szlimiter"
+	"github.com/sentinez/core/szrule"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -38,30 +38,41 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/protocol"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-var _store *MemStore
-var _once sync.Once
+var (
+	_store  *MemStore
+	_lock   sync.Mutex
+	_shared *cluster.Cluster
+)
 
-func NewMemStore(st *edgepb.Setting) *MemStore {
-	_once.Do(func() {
-		_store = &MemStore{
-			setting:      settings.New(),
-			limiter:      ratelimiter.New(),
-			reverseProxy: reverseproxy.New(),
-			route:        routes.New(),
-			secRule:      secrules.New(),
-			rulesets:     rulesets.New(),
-			cdnRules:     cdnrules.New(),
-		}
+func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
+	_lock.Lock()
+	defer _lock.Unlock()
 
-		if err := _store.setting.Store(st); err != nil {
-			zlog.Errorf("memory: save distribute setting err: %v", err)
-		}
-	})
+	if _store != nil {
+		return _store, nil
+	}
 
-	return _store
+	_shared, err := cluster.NewCluster(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	_shared.Start()
+
+	_store = &MemStore{
+		setting:      settings.New(_shared),
+		limiter:      ratelimiter.New(),
+		reverseProxy: reverseproxy.New(),
+		route:        routes.New(),
+		secRule:      secrules.New(),
+		rulesets:     rulesets.New(),
+		cdnRules:     cdnrules.New(),
+	}
+
+	return _store, nil
 }
 
 type MemStore struct {
@@ -74,12 +85,12 @@ type MemStore struct {
 	cdnRules     *cdnrules.Rule
 }
 
-func (m *MemStore) Start(conf *settingpb.Config) error {
-	return cluster.Start(conf)
-}
+func (m *MemStore) Shutdown(ctx context.Context) error {
+	if _shared == nil {
+		return nil
+	}
 
-func (m *MemStore) Shutdown(ctx context.Context) {
-	cluster.Shutdown(ctx)
+	return _shared.Shutdown(ctx)
 }
 
 func (m *MemStore) Rulesets() *rulesets.Rulesets {
@@ -138,7 +149,7 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 	return m.cdnRules
 }
 
-func (m *MemStore) LoadServer(server corehttp.Server) {
+func (m *MemStore) LoadServer(server szhttp.Server) {
 	m.setting.Visit(func(s *edgepb.Setting) bool {
 		err := errors.Join(
 			m.LoadRouter(s),
@@ -149,7 +160,7 @@ func (m *MemStore) LoadServer(server corehttp.Server) {
 			m.LoadRulesets(s),
 		)
 		if err != nil {
-			zlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
+			szlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
 		}
 
 		return true
@@ -173,7 +184,7 @@ func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {
 	for _, s := range st {
 		if err := m.setting.Store(s); err != nil {
-			zlog.Errorf("edge: %v", err)
+			szlog.Errorf("edge: %v", err)
 		}
 	}
 }
@@ -184,7 +195,7 @@ func (m *MemStore) LoadRouter(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadReverseProxy(
-	server corehttp.Server, s *edgepb.Setting) error {
+	server szhttp.Server, s *edgepb.Setting) error {
 
 	for _, routeConfig := range s.GetServer().GetLocations() {
 		for _, upstream := range routeConfig.GetProxyPass() {
@@ -215,7 +226,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 
 	for _, l := range limiters {
 		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
-			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
+			szlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 			continue
 		}
 
@@ -268,8 +279,8 @@ func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
 	rule := l.GetIngressRuntime()
 
 	return ratelimiter.Entry{
-		Eval:    corerule.NewEval(rule.GetExpr()),
+		Eval:    szrule.NewEval(rule.GetExpr()),
 		Rule:    rule,
-		Limiter: corelimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
+		Limiter: szlimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
 	}, nil
 }

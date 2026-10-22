@@ -25,12 +25,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez"
+	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // PublicPrefix is the path the embedded images are served under, e.g.
@@ -59,17 +60,19 @@ var _imageTypes = map[string]string{
 	".ico":  "image/x-icon",
 }
 
-var _ corechains.ChainNode = (*Public)(nil)
+var _ chains.ChainNode = (*Public)(nil)
 
 // NewPublic returns a node serving the images embedded in the binary.
-func NewPublic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
+func NewPublic(
+	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
+
 	images, err := loadImages(sentinez.Logo, _publicRoot)
 	if err != nil {
-		zlog.Error("[edge] load public images: ", err)
+		szlog.Error("[edge] load public images: ", err)
 	}
 
 	return &Public{
-		Node:   corechains.NewNode(),
+		Node:   chains.NewNode(),
 		images: images,
 	}
 }
@@ -77,7 +80,7 @@ func NewPublic(_ zlog.Level, _ *memory.MemStore) corechains.ChainNode {
 // Public serves embedded images under PublicPrefix. Requests outside the
 // prefix are passed to the next node untouched.
 type Public struct {
-	*corechains.Node
+	*chains.Node
 
 	// images is keyed by the path relative to PublicPrefix and is
 	// read-only after construction.
@@ -91,7 +94,7 @@ type image struct {
 	etag        []byte
 }
 
-func (p *Public) Handle(ctx corehttp.Context) error {
+func (p *Public) Handle(ctx szhttp.Context) error {
 	name, ok := bytes.CutPrefix(ctx.Path(), _publicPrefix)
 	if !ok {
 		return p.HandleNext(ctx)
@@ -107,13 +110,13 @@ func (p *Public) Handle(ctx corehttp.Context) error {
 
 	img, ok := p.images[string(name)]
 	if !ok {
-		return corehttp.NotFound(ctx)
+		return szhttp.NotFound(ctx)
 	}
 
 	return serveImage(ctx, img)
 }
 
-func serveImage(ctx corehttp.Context, img *image) error {
+func serveImage(ctx szhttp.Context, img *image) error {
 	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
 	ctx.SetResponseHeader(bytestr.HeaderCacheControl, _publicCacheControl)
 	ctx.SetResponseHeader(bytestr.HeaderETag, img.etag)

@@ -19,8 +19,8 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/storage/cache/mem"
-	"github.com/sentinez/shared/rand"
+	"github.com/sentinez/core/szstorage/cache/mem"
+	"github.com/sentinez/shared/szrand"
 )
 
 func NewMemoryStorage(ttl time.Duration) Store {
@@ -60,7 +60,7 @@ func (s *MemoryStorage) TakeRegistration(token string) (*Registration, bool) {
 
 // GenSessionId implements Store.
 func (s *MemoryStorage) GenSessionId() (string, error) {
-	return rand.NewNanoId(core.Code + "SS"), nil
+	return szrand.NewNanoId(core.Code + "SS"), nil
 }
 
 // DeleteSession implements Store.

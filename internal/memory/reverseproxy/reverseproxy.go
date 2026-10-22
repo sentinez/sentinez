@@ -17,8 +17,8 @@ package reverseproxy
 import (
 	"sync"
 
-	corehttp "github.com/sentinez/core/http"
-	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 func New() *ReverseProxy {
 	_once.Do(func() {
 		_reverseProxyInst = &ReverseProxy{
-			space: ssync.NewMap[string, corehttp.ReverseProxy](),
+			space: szsync.NewMap[string, szhttp.ReverseProxy](),
 		}
 	})
 
@@ -38,14 +38,14 @@ func New() *ReverseProxy {
 }
 
 type ReverseProxy struct {
-	space *ssync.Map[string, corehttp.ReverseProxy]
+	space *szsync.Map[string, szhttp.ReverseProxy]
 }
 
-func (rp *ReverseProxy) Store(target string, rproxy corehttp.ReverseProxy) {
+func (rp *ReverseProxy) Store(target string, rproxy szhttp.ReverseProxy) {
 	rp.space.Store(target, rproxy)
 }
 
-func (rp *ReverseProxy) Load(target string) (corehttp.ReverseProxy, bool) {
+func (rp *ReverseProxy) Load(target string) (szhttp.ReverseProxy, bool) {
 	expr, ok := rp.space.Load(target)
 	if !ok {
 		return nil, false

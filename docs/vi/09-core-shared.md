@@ -1,8 +1,8 @@
 # 9. Framework & thư viện dùng chung
 
-## 9.1 `core/runner`
+## 9.1 `core/szrunner`
 
-[core/runner](../../staging/src/github.com/sentinez/core/runner/) bọc
+[core/szrunner](../../staging/src/github.com/sentinez/core/szrunner/) bọc
 `uber/fx` để chuẩn hoá vòng đời service và chạy nhiều app trong cùng một
 binary.
 
@@ -21,12 +21,16 @@ Mỗi app có fx container riêng, nên các app trong cùng process có thể c
 provide một kiểu (ví dụ `config.Config`). Hook dừng có timeout 15 s. Ở mode
 khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
-OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service name
-= `meta.service_key`. Exporter được shutdown sau khi mọi app đã dừng.
+OTLP: log hệ thống đẩy về `SENZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
+không push; service name = `meta.service_key`. Exporter được shutdown sau khi
+mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) dùng
+provider riêng trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, do edge server sở hữu và
+flush trong `Shutdown`; không đặt thì cũng không push. Endpoint `https://`
+dùng TLS.
 
-## 9.2 `core/http` và `core/http/chains`
+## 9.2 `core/szhttp` và `core/szhttp/chains`
 
-- `corehttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
+- `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
@@ -35,61 +39,61 @@ OTLP: endpoint `SENZ_OTLP_ENDPOINT` (mặc định `localhost:4317`), service na
   khi listen.
 - Helper trả lỗi: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (render templ).
-- `corechains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
+- `chains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
   `GetNext` — nền cho chain middleware edge.
-- `core/http/variable`: biến kiểu nginx cho header proxy.
-- `core/http/const`, `core/common/bytestr`: hằng header/giá trị (dạng string
+- `core/szhttp/variable`: biến kiểu nginx cho header proxy.
+- `core/szhttp/httpconst`, `core/szcmn/bytestr`: hằng header/giá trị (dạng string
   và `[]byte`).
 
-## 9.3 `core/grpc`
+## 9.3 `core/szgrpc`
 
-- `coregrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
+- `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf)` listen TCP `SENZ_ADDRESS`, in
   banner, tuỳ chọn đăng ký Consul. `BufServe(bufLis)` phục vụ qua bufconn.
   `Shutdown` = `GracefulStop`.
-- `core/grpc/gateway`: xem [06-gateway.md](06-gateway.md).
+- `core/szgrpc/grpcgateway`: xem [06-gateway.md](06-gateway.md).
 
 ## 9.4 Các gói `core` khác
 
 | Gói | Nội dung |
 |---|---|
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
-| `core/context` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
-| `core/common` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/common/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
-| `core/common/render` | Template `templ` cho trang 400/403/404/429/500 |
-| `core/storage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
-| `core/storage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-corestoragedbx) |
-| `core/storage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Package rỗng (dự kiến) |
-| `core/limiter`, `core/rules`, `core/rulesets`, `core/modsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
+| `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
+| `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `core/szcmn/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
+| `core/szcmn/render` | Template `templ` cho trang 400/403/404/429/500 |
+| `core/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
+| `core/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstoragedbx) |
+| `core/szstorage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Package rỗng (dự kiến) |
+| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 
 | Gói | Nội dung |
 |---|---|
-| `zlog` | Logging (chi tiết dưới) |
-| `config` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SENZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
-| `flagx` | Flag chung `--mode`, `--log_level`; `Parse(meta)` (usage in banner); `Validate` bằng protovalidate |
-| `errorx` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
-| `perms` | `Allow(XMethod, ControlPlane)` |
-| `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
+| `szlog` | Logging (chi tiết dưới) |
+| `szconfig` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SENZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
+| `szflag` | Flag chung `--mode`, `--log_level`; `Parse(meta)` (usage in banner); `Validate` bằng protovalidate |
+| `szerror` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
+| `szperms` | `Allow(XMethod, ControlPlane)` |
+| `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
+| `szrand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
 | `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
-| `jsonx` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
-| `protobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
-| `protobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |
-| `copier` | Sao chép proto/JSON qua marshal |
-| `cron` | `Start(ctx, interval, job)`: chạy job ngay rồi lặp theo ticker đến khi ctx huỷ |
-| `eventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
-| `store/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
-| `color` | Màu ANSI cho log console |
-| `topic` | Package rỗng |
+| `szjson` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
+| `szprotobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
+| `szprotobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |
+| `szcopier` | Sao chép proto/JSON qua marshal |
+| `szcron` | `Start(ctx, interval, job)`: chạy job ngay rồi lặp theo ticker đến khi ctx huỷ |
+| `szeventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
+| `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
+| `szcolor` | Màu ANSI cho log console |
+| `sztopic` | Package rỗng |
 
-### `zlog`
+### `szlog`
 
 Hai loại logger:
 
-1. **Console (sugar)** — dùng qua hàm toàn cục `zlog.Info/Debugf/Errorf/
+1. **Console (sugar)** — dùng qua hàm toàn cục `szlog.Info/Debugf/Errorf/
    Fatal...`. Encoder console có màu; level đặt bởi `SetScopeLogLevel`.
 2. **Structured event** — `NewLog(name, kind, level)` / `NewLogCloser(...)`
    ghi JSON ra stdout với trường `kind` (`LogType`) và `event` (proto được
@@ -110,9 +114,9 @@ khi `level >= verbosity`.
 | `pkg/apps/**/config` | `Config()` singleton: parse flag + nạp env + gắn `XMeta` |
 | `pkg/apps/**/flags` | Flag riêng của service, giá trị mặc định `--env_file` |
 | `pkg/network` | `StdListen` (TCP, `StdConn` có ID), `QuicListen` (UDP, cần `WithTLSConfig`, thêm ALPN `h3`), `StandardTransporter` (dial timeout 30s), `QuicTransporter` (client HTTP/3, chưa dùng), `GetInterface` |
-| `pkg/network/httpx` | Cài đặt `corehttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
-| `pkg/network/httpx/std` | `corehttp.Server` trên `net/http` (TCP) |
-| `pkg/network/httpx/quic` | `corehttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
+| `pkg/network/httpx` | Cài đặt `szhttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
+| `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
+| `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
@@ -121,11 +125,11 @@ khi `level >= verbosity`.
 
 ## 9.7 `contrib/httphz`
 
-Adapter Hertz cho `corehttp`:
+Adapter Hertz cho `szhttp`:
 
-- `NewServer(conf)`: `XServer` cài `corehttp.Server` bằng Hertz (TLS, ALPN,
+- `NewServer(conf)`: `XServer` cài `szhttp.Server` bằng Hertz (TLS, ALPN,
   H2C, HTTP/2, stream body, custom transport).
-- `Context`: cài `corehttp.Context` trên `*app.RequestContext`.
+- `Context`: cài `szhttp.Context` trên `*app.RequestContext`.
 - `proxy`: reverse proxy HTTP(S) và WebSocket dựa trên
   `hertz-contrib/reverseproxy`, với option kiểu functional (`WithTLS`,
   `WithTimeout`, `WithStreamResponseBody`, ...).
@@ -137,5 +141,5 @@ Adapter Hertz cho `corehttp`:
 | Công cụ | Mô tả |
 |---|---|
 | `protoc-gen-go-senz` | Plugin protoc xử lý `x_meta`, `x_message`, `x_method` |
-| `ruleparser-sentinez` | `-file <crs.conf> -out <dir>` → file Go chứa rule CRS mã hoá base64 |
+| `szruleparser` | `-file <crs.conf> -out <dir>` → file Go chứa rule CRS mã hoá base64 |
 | [tools.go](../../staging/src/github.com/sentinez/tools/tools.go) | Ghim phiên bản các công cụ: templ, buf, bpf2go, bombardier, protoc-go-inject-tag, grpc-gateway, openapiv2, vtproto, sqlc, mockery, protoc-gen-go(-grpc) |

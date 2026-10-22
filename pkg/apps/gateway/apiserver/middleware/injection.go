@@ -25,9 +25,9 @@ import (
 
 	"github.com/corazawaf/libinjection-go"
 	"github.com/google/uuid"
-	"github.com/sentinez/core/common/render"
-	httpconst "github.com/sentinez/core/http/const"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/core/szcmn/render"
+	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/shared/szlog"
 )
 
 const (
@@ -226,7 +226,7 @@ func forbidden(w http.ResponseWriter, r *http.Request, v violation) {
 		id = uuid.NewString()
 	}
 
-	zlog.Warnf("deny http request: %s in %s method=%s path=%s id=%s",
+	szlog.Warnf("deny http request: %s in %s method=%s path=%s id=%s",
 		v.attack, v.location, r.Method, r.URL.Path, id)
 
 	var page bytes.Buffer

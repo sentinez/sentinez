@@ -3,9 +3,9 @@
 Sentinéz has two independent request-filtering mechanisms:
 
 1. **SecRule / CDN rules** — user-defined expressions evaluated by
-   `core/rules` (fast, no external dependency).
+   `core/szrule` (fast, no external dependency).
 2. **Rulesets (WAF)** — the OWASP Core Rule Set running on Coraza, loaded
-   from pre-generated Go code in `core/modsec/gen`.
+   from pre-generated Go code in `core/szmodsec/gen`.
 
 ## 4.1 Expression model
 
@@ -20,7 +20,7 @@ Expression
       └─ or_condition: []AndCondition    // nested: AND(rules) && OR(children)
 ```
 
-Semantics ([core/rules/rule_expr.go](../staging/src/github.com/sentinez/core/rules/rule_expr.go)):
+Semantics ([core/szrule/rule_expr.go](../staging/src/github.com/sentinez/core/szrule/rule_expr.go)):
 
 - `execOrCond(nil) == true` — an empty expression **always matches**.
 - An `AndCondition` matches when all its `rules` match **and** its child
@@ -31,14 +31,14 @@ Semantics ([core/rules/rule_expr.go](../staging/src/github.com/sentinez/core/rul
 API:
 
 ```go
-eval := corerule.NewEval(expr)            // compile once
-ok := eval(ctx corehttp.RequestContext, matched *rulepb.MatchedRules)
+eval := szrule.NewEval(expr)            // compile once
+ok := eval(ctx szhttp.RequestContext, matched *rulepb.MatchedRules)
 ```
 
 ## 4.2 Field sources and operators
 
 Matchers live in
-[core/rules/rule_match.go](../staging/src/github.com/sentinez/core/rules/rule_match.go).
+[core/szrule/rule_match.go](../staging/src/github.com/sentinez/core/szrule/rule_match.go).
 
 | Source | Read from | Supported operators |
 |---|---|---|
@@ -104,7 +104,7 @@ rule is active and its expression matches. The cache is
 
 ## 4.5 Rate limiter
 
-[core/limiter](../staging/src/github.com/sentinez/core/limiter/) implements
+[core/szlimiter](../staging/src/github.com/sentinez/core/szlimiter/) implements
 the **sliding window counter** algorithm:
 
 ```
@@ -128,25 +128,25 @@ Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
 ### Rule generation
 
 The original CRS (`.conf`) lives in [deploy/ruleroot](../deploy/ruleroot/).
-The `ruleparser-sentinez` tool
-([tools/cmd/ruleparser-sentinez](../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
+The `szruleparser` tool
+([tools/cmd/szruleparser](../staging/src/github.com/sentinez/tools/cmd/szruleparser/main.go)):
 
 1. Parses SecLang with an ANTLR parser
-   ([core/modsec/ruleparser](../staging/src/github.com/sentinez/core/modsec/ruleparser/)):
+   ([core/szmodsec/ruleparser](../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    each statement is a rule; a rule ending in `chain"` is joined with the
    next statement; `ver`, `paranoia-level` and action fields are extracted.
 2. Loads the result into `coreruleset.v1.CoreRulesets` and renders a Go
    template: each rule becomes a function returning a `*CoreRule` whose
    `Configuration` is base64-encoded, plus an `XxxOrder` slice that keeps the
    order.
-3. Writes `core/modsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
+3. Writes `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
 
 Regenerate everything with `bash hack/ruleparser.sh`.
 
 ### Assembling directives
 
-`corers.GenerateRulesets(version, flag)`
-([waf_loader.go](../staging/src/github.com/sentinez/core/rulesets/waf_loader.go))
+`szcrs.GenerateRulesets(version, flag)`
+([waf_loader.go](../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
 concatenates, in order:
 
 1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. version + flag rules →
@@ -163,13 +163,13 @@ concatenates, in order:
 The result is also written to `WAF.conf.lock` in the working directory (handy
 for inspecting the final directives).
 
-`corers.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
+`szcrs.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
 set of `*.data` files embedded in [sentinez.go](../sentinez.go) (`WAF4160()`,
 `WAF4170()`).
 
 ### Per-request processing
 
-[core/rulesets](../staging/src/github.com/sentinez/core/rulesets/) — modeled
+[core/szcrs](../staging/src/github.com/sentinez/core/szcrs/) — modeled
 on Coraza's HTTP middleware:
 
 | Step | Function | Details |

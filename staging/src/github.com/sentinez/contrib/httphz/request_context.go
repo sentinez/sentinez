@@ -22,23 +22,26 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
-	corecontext "github.com/sentinez/core/context"
-	corehttp "github.com/sentinez/core/http"
-	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/core"
+	"github.com/sentinez/core/szcontext"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/httpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/store/ja4"
-	"github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szstore/ja4"
+	"github.com/sentinez/shared/szsync"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
-	_ corehttp.Context = (*Context)(nil)
-	_ io.Closer        = (*Context)(nil)
+	_ szhttp.Context = (*Context)(nil)
+	_ io.Closer      = (*Context)(nil)
 
-	_ctxPool = sync.NewPoolCtr(func() *Context {
+	_ctxPool = szsync.NewPoolCtr(func() *Context {
 		return &Context{
+			BaseContext: &szhttp.BaseContext{},
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},
@@ -48,49 +51,41 @@ var (
 )
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
-	httpCtx := _ctxPool.Get()
+	hctx := _ctxPool.Get()
+	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.req = c
+	hctx.ctx = ctx
 
-	httpCtx.req = c
-	httpCtx.ctx = ctx
-
-	transport := corecontext.GetTransport(ctx)
+	transport := szcontext.GetTransport(ctx)
 	if transport != nil {
 		connId := transport.GetConnId()
-		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
-		httpCtx.ectx.Request.Fingerprint = ja4.Get(connId)
+		szlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
+		hctx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
-	httpCtx.ectx.Transport = transport
+	hctx.ectx.Transport = transport
 
-	httpCtx.ectx.Request.Status = http.StatusOK
-	httpCtx.ectx.Request.Timestamp = timestamppb.Now()
+	hctx.ectx.Request.Status = http.StatusOK
+	hctx.ectx.Request.Timestamp = timestamppb.Now()
 
-	return httpCtx
+	return hctx
 }
 
 type Context struct {
+	*szhttp.BaseContext
 	req *app.RequestContext
 	ctx context.Context
 
 	ectx *edgepb.Context
 }
 
-// X implements [corehttp.Context].
+// X implements [szhttp.Context].
 func (c *Context) X() *edgepb.ContextExtra {
 	return c.ectx.GetX()
 }
 
 func (c *Context) SetHost(h []byte) {
 	c.req.Request.SetHost(bytesToString(h))
-}
-
-func (c *Context) SetRequestId(id string) {
-	if id == "" {
-		return
-	}
-
-	c.ectx.Request.Id = id
-	c.req.Request.SetHeader(httpconst.HeaderXRequestId, id)
 }
 
 func (c *Context) AddResponseHeader(key, value []byte) {
@@ -111,10 +106,6 @@ func (c *Context) Query(k []byte) []byte {
 
 func (c *Context) RemoteAddr() []byte {
 	return []byte(c.req.RemoteAddr().String())
-}
-
-func (c *Context) RequestId() string {
-	return c.ectx.Request.GetId()
 }
 
 func (c *Context) ResponseBody() []byte {
@@ -300,6 +291,8 @@ func (c *Context) Unwrap() any {
 }
 
 func (c *Context) Close() error {
+	c.Reset()
+
 	c.req = nil
 	c.ctx = nil
 	c.ectx.Metadata = nil

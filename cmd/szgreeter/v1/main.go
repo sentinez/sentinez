@@ -20,27 +20,27 @@ import (
 
 	"github.com/sentinez/controlplane/apps/greeter/v1"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func main() {
 	if err := run(); err != nil {
-		zlog.Fatal(err)
+		szlog.Fatal(err)
 	}
 }
 
 func run() error {
-	r, err := runner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
 
-	return r.Run(context.Background(), runner.NewApp(app))
+	return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[greeter.Greeter]) {
+func app(c *szrunner.Context[greeter.Greeter]) {
 	c.Inject(greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {

@@ -141,7 +141,7 @@ Edge config for one namespace — see
 
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
 ContextExtra{namespace, ...matched ids/names}}` — per-request edge state,
-attached to `corehttp.Context`.
+attached to `szhttp.Context`.
 
 ### Log events
 

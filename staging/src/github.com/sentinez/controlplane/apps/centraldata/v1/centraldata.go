@@ -18,7 +18,7 @@ import (
 	"context"
 
 	centraldatafac "github.com/sentinez/controlplane/apps/centraldata/v1/factory"
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -33,13 +33,13 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *CentralData {
 	return &CentralData{
-		Server: coregrpc.New(),
+		Server: szgrpc.New(),
 		hdl:    centraldatafac.NewDefaultHandler(ctx, appConf),
 	}
 }
 
 type CentralData struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	hdl pb.CentralDataServiceServer
 }
 

@@ -16,6 +16,7 @@ package core
 
 import (
 	"runtime"
+	"strings"
 )
 
 const (
@@ -33,7 +34,7 @@ const (
 	Code = "SENZ"
 
 	// PrefixXRequestId is prefix of request id
-	PrefixXRequestId = "SENZ:REQ:"
+	PrefixXRequestId = "SENZREQ_" // senzreq_
 
 	BaseName = "sentinez"
 
@@ -44,5 +45,5 @@ var (
 	// GoVersion is Go tree's version.
 	GoVersion = runtime.Version()
 
-	PrefixXRequestIdBytes = []byte("senz:req:")
+	PrefixXRequestIdBytes = []byte(strings.ToLower(PrefixXRequestId))
 )

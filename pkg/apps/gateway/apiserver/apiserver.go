@@ -19,9 +19,9 @@ import (
 	"context"
 	"fmt"
 
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func New(conf *settingpb.Config, server grpcgateway.Server) *Server {
@@ -91,6 +91,6 @@ func (srv *Server) Start(ctx context.Context) error {
 }
 
 func (srv *Server) Shutdown(ctx context.Context) error {
-	zlog.Debug("apiserver: shutdown")
+	szlog.Debug("apiserver: shutdown")
 	return srv.server.Shutdown(ctx)
 }

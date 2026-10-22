@@ -21,7 +21,7 @@ Tài liệu được viết từ việc đọc trực tiếp source code tại c
 | 6 | [Gateway: API server & realtime](06-gateway.md) | grpc-gateway, middleware, Swagger, WebSocket, service discovery |
 | 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata; lớp DB; xác thực |
 | 8 | [API & Protobuf](08-api-protobuf.md) | Cấu trúc proto, custom option, codegen, bảng REST endpoint |
-| 9 | [Framework & thư viện dùng chung](09-core-shared.md) | `core/runner`, `core/http`, `zlog`, `config`, `errorx`, ... |
+| 9 | [Framework & thư viện dùng chung](09-core-shared.md) | `core/szrunner`, `core/szhttp`, `szlog`, `config`, `szerror`, ... |
 | 10 | [Web console (UI)](10-ui.md) | Workspace pnpm/turbo, app console, gọi API |
 | 11 | [Triển khai, CI & phát hành module](11-deploy-ci.md) | Docker, monitoring, GitHub Actions, đồng bộ staging |
 | 12 | [Các vấn đề đã biết](12-known-issues.md) | Lỗi, phần chưa hoàn thiện và rủi ro phát hiện khi đọc code |

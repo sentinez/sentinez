@@ -17,7 +17,7 @@ package centraldatasvc
 import (
 	"context"
 
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )

@@ -18,7 +18,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // Registration is a passkey registration that waits for the authenticator
@@ -56,7 +56,7 @@ func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 
 	wauth, err := webauthn.New(wconfig)
 	if err != nil {
-		zlog.Errorf("[PASSKEY] error when create webauthn: %v", err)
+		szlog.Errorf("[PASSKEY] error when create webauthn: %v", err)
 	}
 
 	return wauth
