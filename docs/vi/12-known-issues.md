@@ -43,8 +43,8 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `EdgeService.EvaluateRuleset` đánh giá
   `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
 - SecRule action ngoài `BLOCK` chưa thực thi; toán tử `GT/GTE/LT/LTE` chưa cài.
-- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/storage/{keyval,
-  clickhouse,kafka,elastic}`, `eventpub/eventsub` là package rỗng.
+- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/szstorage/{szkeyval,
+  szclickhouse,szkafka,szelastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
@@ -69,7 +69,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
   user `senz.iam.users.` nhưng `GetUserRequest/UpdateUserRequest/
   DeleteUserRequest` yêu cầu `senz.users.`. Hiện không lộ vì gRPC server chưa
   bật validate request.
-- `corehttp.Forbidden/NotFound/...` dùng một `sync.Mutex` toàn cục khi render,
+- `szhttp.Forbidden/NotFound/...` dùng một `sync.Mutex` toàn cục khi render,
   tuần tự hoá mọi response lỗi.
 - `preflightHandler` set `Access-Control-Max-Age` sau `WriteHeader` (không có
   tác dụng); `extendHeader` của grpc-gateway set header `Server` sau khi

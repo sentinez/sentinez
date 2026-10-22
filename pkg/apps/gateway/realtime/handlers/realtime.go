@@ -18,7 +18,7 @@ package realtimehdl
 import (
 	"fmt"
 
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/shared/bytesconv"
@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-func Handler(ctx corehttp.Context) error {
+func Handler(ctx szhttp.Context) error {
 	hCtx, ok := ctx.Unwrap().(*httpx.Context)
 	if !ok {
 		zlog.Error("wshandlers.Handler: context protocol not supported")

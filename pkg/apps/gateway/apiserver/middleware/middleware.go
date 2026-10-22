@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strings"
 
-	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/core/szhttp/szhttpconst"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/shared/color"
 	"github.com/sentinez/shared/zlog"
@@ -73,7 +73,7 @@ func Logging(h http.Handler) http.Handler {
 		event.Protocol = r.Proto
 		event.Queries = r.URL.Query().Encode()
 		event.UserAgent = r.UserAgent()
-		event.ContentType = r.Header.Get(httpconst.HeaderContentType)
+		event.ContentType = r.Header.Get(szhttpconst.HeaderContentType)
 
 		lw.Logging.Info("allow http request", event, event)
 	})

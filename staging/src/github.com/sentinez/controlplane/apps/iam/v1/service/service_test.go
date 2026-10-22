@@ -25,7 +25,7 @@ import (
 	accountrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
 	"github.com/sentinez/controlplane/pkg/crypto"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -73,7 +73,7 @@ func TestLogin(t *testing.T) {
 	}()
 
 	tx, _ := pgxMock.Begin(context.Background())
-	txss := postgres.NewTXMock(tx)
+	txss := szpostgres.NewTXMock(tx)
 	conf := &settingpb.Config{Env: map[string]string{
 		settingpb.Senz_SENZ_SECRET_KEY.String(): secBase64,
 	}}

@@ -18,7 +18,7 @@ import (
 	"context"
 
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -27,12 +27,12 @@ var _ pb.AnalyticServiceServer = (*AnalyticService)(nil)
 
 type AnalyticService struct {
 	config     *settingpb.Config
-	tx         *postgres.Tx
+	tx         *szpostgres.Tx
 	activities activitiesrepo.IActivity
 }
 
 func New(config *settingpb.Config,
-	tx *postgres.Tx,
+	tx *szpostgres.Tx,
 	activities activitiesrepo.IActivity,
 ) *AnalyticService {
 

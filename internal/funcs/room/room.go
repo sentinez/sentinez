@@ -15,29 +15,29 @@
 package room
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/queue"
 )
 
-var _ corechains.ChainNode = (*WaitingRoom)(nil)
+var _ szchains.ChainNode = (*WaitingRoom)(nil)
 
 func NewRoom(
-	_ *memory.MemStore, _ ...option.Option) corechains.ChainNode {
+	_ *memory.MemStore, _ ...option.Option) szchains.ChainNode {
 
 	return &WaitingRoom{
-		Node: corechains.NewNode(),
+		Node: szchains.NewNode(),
 	}
 }
 
 type WaitingRoom struct {
-	*corechains.Node
+	*szchains.Node
 	_ *queue.Queue
 }
 
-func (wr *WaitingRoom) Handle(ctx corehttp.Context) error {
+func (wr *WaitingRoom) Handle(ctx szhttp.Context) error {
 
 	return wr.HandleNext(ctx)
 }

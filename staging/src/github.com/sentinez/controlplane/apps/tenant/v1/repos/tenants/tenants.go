@@ -20,10 +20,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szcmn/sztables"
+	"github.com/sentinez/core/szstorage/szdbx"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -44,19 +44,19 @@ type ITenant interface {
 	Get(ctx context.Context, id string) (*tenantpb.Tenant, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) ITenant
+	WithTX(tx *szpostgres.TxSession) ITenant
 
 	List(ctx context.Context, req *tenantpb.ListTenantRequest) (*tenantpb.ListTenantResponse, error)
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (ITenant, error) {
-	storage, err := postgres.New[tenantpb.Tenant](ctx, appConf,
-		dbx.WithTable(tables.Tenants),
-		dbx.WithColumns(dbx.ColumnM{
-			tenantpb.Tenant_Id:          postgres.String,
-			tenantpb.Tenant_Name:        postgres.String,
-			tenantpb.Tenant_Description: postgres.String,
-			tenantpb.Tenant_Plan:        postgres.Int4,
+	storage, err := szpostgres.New[tenantpb.Tenant](ctx, appConf,
+		szdbx.WithTable(sztables.Tenants),
+		szdbx.WithColumns(szdbx.ColumnM{
+			tenantpb.Tenant_Id:          szpostgres.String,
+			tenantpb.Tenant_Name:        szpostgres.String,
+			tenantpb.Tenant_Description: szpostgres.String,
+			tenantpb.Tenant_Plan:        szpostgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -69,12 +69,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (ITenant, error) {
 }
 
 type Tenants struct {
-	storage dbx.Database[tenantpb.Tenant]
+	storage szdbx.Database[tenantpb.Tenant]
 }
 
-func (t *Tenants) WithTX(tx *postgres.TxSession) ITenant {
+func (t *Tenants) WithTX(tx *szpostgres.TxSession) ITenant {
 	return &Tenants{
-		storage: postgres.WithTx(tx, t.storage),
+		storage: szpostgres.WithTx(tx, t.storage),
 	}
 }
 
@@ -150,8 +150,8 @@ func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
 func (t *Tenants) Create(ctx context.Context,
 	tenant *tenantpb.Tenant) (*tenantpb.Tenant, error) {
 
-	tenant.Id = rand.NewId(table.NewPrimaryKey(tables.Tenants))
-	query := postgres.InsertBuilder(t.storage, postgres.M{
+	tenant.Id = rand.NewId(sztable.NewPrimaryKey(sztables.Tenants))
+	query := szpostgres.InsertBuilder(t.storage, szpostgres.M{
 		tenantpb.Tenant_Id:          tenant.GetId(),
 		tenantpb.Tenant_Name:        tenant.GetName(),
 		tenantpb.Tenant_Description: tenant.GetDescription(),
@@ -180,7 +180,7 @@ func (t *Tenants) Get(
 
 // Update implements ITenant. Zero-valued fields are left unchanged.
 func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
-	query := postgres.UpdateBuilder(t.storage, tenant.GetId())
+	query := szpostgres.UpdateBuilder(t.storage, tenant.GetId())
 
 	if tenant.GetName() != "" {
 		query = query.Set(tenantpb.Tenant_Name, tenant.GetName())
@@ -198,18 +198,18 @@ func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
 }
 
 func (t *Tenants) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(t.storage, page,
+	return szpostgres.SelectBuilder(t.storage, page,
 		tenantpb.Tenant_Id,
 		// rows created before these columns existed hold NULL
-		postgres.SelectCoalesce(tenantpb.Tenant_Name),
-		postgres.SelectCoalesce(tenantpb.Tenant_Description),
+		szpostgres.SelectCoalesce(tenantpb.Tenant_Name),
+		szpostgres.SelectCoalesce(tenantpb.Tenant_Description),
 		tenantpb.Tenant_Plan,
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
 }
 
-func scan(rows dbx.Rows) ([]*tenantpb.Tenant, error) {
+func scan(rows szdbx.Rows) ([]*tenantpb.Tenant, error) {
 	var tenants []*tenantpb.Tenant
 
 	for rows.Next() {
@@ -224,7 +224,7 @@ func scan(rows dbx.Rows) ([]*tenantpb.Tenant, error) {
 	return tenants, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*tenantpb.Tenant, error) {
+func scanOne(row szdbx.Row) (*tenantpb.Tenant, error) {
 	var (
 		createdAt, updatedAt time.Time
 		tenant               tenantpb.Tenant

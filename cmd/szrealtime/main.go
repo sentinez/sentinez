@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/config"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
@@ -32,15 +32,15 @@ func main() {
 }
 
 func run() error {
-	r, err := runner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
 
-	return r.Run(context.Background(), runner.NewApp(app))
+	return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[realtime.Realtime]) {
+func app(c *szrunner.Context[realtime.Realtime]) {
 	c.Inject(wscore.NewServer, realtime.New)
 
 	c.Serve(func(_ context.Context, server *realtime.Realtime) error {

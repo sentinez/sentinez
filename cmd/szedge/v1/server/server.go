@@ -17,11 +17,11 @@ package server
 import (
 	"context"
 
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
 )
 
-func Edge(c *runner.Context[edge.Server]) {
+func Edge(c *szrunner.Context[edge.Server]) {
 	c.Inject(edge.NewServer)
 
 	c.Serve(func(_ context.Context, server *edge.Server) error {
@@ -33,7 +33,7 @@ func Edge(c *runner.Context[edge.Server]) {
 	})
 }
 
-func GRPC(c *runner.Context[edge.Service]) {
+func GRPC(c *szrunner.Context[edge.Service]) {
 	c.Inject(edge.NewService)
 
 	c.Serve(func(_ context.Context, server *edge.Service) error {

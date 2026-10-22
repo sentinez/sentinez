@@ -23,9 +23,9 @@ import (
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/sentinez/core"
-	corecontext "github.com/sentinez/core/context"
-	corehttp "github.com/sentinez/core/http"
-	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/core/szcontext"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szhttpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/rand"
@@ -36,12 +36,12 @@ import (
 )
 
 var (
-	_ corehttp.Context = (*Context)(nil)
-	_ io.Closer        = (*Context)(nil)
+	_ szhttp.Context = (*Context)(nil)
+	_ io.Closer      = (*Context)(nil)
 
 	_ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
-			BaseContext: &corehttp.BaseContext{},
+			BaseContext: &szhttp.BaseContext{},
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},
@@ -56,7 +56,7 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 	hctx.req = c
 	hctx.ctx = ctx
 
-	transport := corecontext.GetTransport(ctx)
+	transport := szcontext.GetTransport(ctx)
 	if transport != nil {
 		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
@@ -72,14 +72,14 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 }
 
 type Context struct {
-	*corehttp.BaseContext
+	*szhttp.BaseContext
 	req *app.RequestContext
 	ctx context.Context
 
 	ectx *edgepb.Context
 }
 
-// X implements [corehttp.Context].
+// X implements [szhttp.Context].
 func (c *Context) X() *edgepb.ContextExtra {
 	return c.ectx.GetX()
 }
@@ -242,7 +242,7 @@ func (c *Context) Queries() map[string][][]byte {
 }
 
 func (c *Context) TLS() bool {
-	return c.Scheme() == httpconst.SchemeSecure
+	return c.Scheme() == szhttpconst.SchemeSecure
 }
 
 func (c *Context) RequestTime() time.Time {
@@ -255,7 +255,7 @@ func (c *Context) Context() context.Context {
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.req.SetContentType(httpconst.ValueAppJSON)
+	c.req.SetContentType(szhttpconst.ValueAppJSON)
 	c.req.SetStatusCode(statusCode)
 
 	_, err := c.req.Write(body)
@@ -272,7 +272,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) String(statusCode int, body []byte) error {
-	c.req.SetContentType(httpconst.ValueTextPlain)
+	c.req.SetContentType(szhttpconst.ValueTextPlain)
 	c.req.SetStatusCode(statusCode)
 
 	_, err := c.req.Write(body)
@@ -281,7 +281,7 @@ func (c *Context) String(statusCode int, body []byte) error {
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
 	c.req.SetStatusCode(statusCode)
-	c.req.SetContentType(httpconst.ValueTextHTML)
+	c.req.SetContentType(szhttpconst.ValueTextHTML)
 
 	return component.Render(c.Context(), c.req.Response.BodyWriter())
 }

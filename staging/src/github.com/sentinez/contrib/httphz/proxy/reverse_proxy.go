@@ -24,24 +24,24 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/sync"
 )
 
-var _ corehttp.ReverseProxy = (*ReverseProxy)(nil)
+var _ szhttp.ReverseProxy = (*ReverseProxy)(nil)
 
 const (
 	_hzHostClientName = "sentinez-edge-reverse-proxy"
 )
 
-func NewReverseProxyDefault(target string) (corehttp.ReverseProxy, error) {
+func NewReverseProxyDefault(target string) (szhttp.ReverseProxy, error) {
 	return NewReverseProxy(target)
 }
 
 // nolint
 func NewReverseProxy(target string,
-	options ...Option) (corehttp.ReverseProxy, error) {
+	options ...Option) (szhttp.ReverseProxy, error) {
 
 	option := defaultBuildOption()
 	for _, opt := range options {
@@ -91,9 +91,9 @@ type ReverseProxy struct {
 	target      string
 }
 
-func (p *ReverseProxy) Serve(ctx corehttp.Context) {
+func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 
-	upgrade := string(ctx.Header(bytestr.HeaderUpgrade))
+	upgrade := string(ctx.Header(szbytestr.HeaderUpgrade))
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		p.ws.Serve(ctx)
 		return

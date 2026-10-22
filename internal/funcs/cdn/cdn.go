@@ -20,12 +20,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	httpconst "github.com/sentinez/core/http/const"
-	corerule "github.com/sentinez/core/rules"
-	"github.com/sentinez/core/storage/cache/mem"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/szhttpconst"
+	"github.com/sentinez/core/szrule"
+	"github.com/sentinez/core/szstorage/szcache/szmem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
@@ -35,14 +35,14 @@ import (
 )
 
 func NewCache(
-	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &Cache{
 		store:  store,
-		Node:   corechains.NewNode(),
-		cached: mem.New[*CachedResponse](time.Hour, time.Hour),
+		Node:   szchains.NewNode(),
+		cached: szmem.New[*CachedResponse](time.Hour, time.Hour),
 		buf:    sync.NewPool[bytes.Buffer](),
 		log: zlog.NewLogCloser(
 			o.Named,
@@ -54,15 +54,15 @@ func NewCache(
 }
 
 type Cache struct {
-	*corechains.Node
+	*szchains.Node
 	store *memory.MemStore
 
-	cached *mem.Cache[*CachedResponse]
+	cached *szmem.Cache[*CachedResponse]
 	buf    *sync.Pool[bytes.Buffer]
 	log    zlog.LogCloser
 }
 
-func (c *Cache) Handle(ctx corehttp.Context) error {
+func (c *Cache) Handle(ctx szhttp.Context) error {
 	eval, rule := c.store.CDNRules().LoadContext(ctx)
 	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return c.HandleNext(ctx)
@@ -82,7 +82,7 @@ func (c *Cache) Handle(ctx corehttp.Context) error {
 }
 
 func (c *Cache) caching(
-	ctx corehttp.Context, eval corerule.EvalFunc, key string) error {
+	ctx szhttp.Context, eval szrule.EvalFunc, key string) error {
 
 	resp, ok := c.cached.Get(key)
 	if !ok {
@@ -100,8 +100,8 @@ func (c *Cache) caching(
 		}
 	}
 
-	ctx.SetResponseHeader(bytestr.HeaderXCache, bytestr.HitCache)
-	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
+	ctx.SetResponseHeader(szbytestr.HeaderXCache, szbytestr.HitCache)
+	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(resp.StatusCode)
 	ctx.SetBody(bytes.Clone(resp.Body))
@@ -115,7 +115,7 @@ type CachedResponse struct {
 	Body       []byte
 }
 
-func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
+func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	keyBuffer := c.buf.Get()
 	_, _ = keyBuffer.Write(ctx.Method())
 	_, _ = keyBuffer.WriteString(ctx.Scheme())
@@ -123,13 +123,13 @@ func (c *Cache) makeKey(ctx corehttp.Context) *bytes.Buffer {
 	_, _ = keyBuffer.Write(ctx.Path())
 	_, _ = keyBuffer.Write(ctx.QueryStr())
 	// The cached body is stored as encoded by the upstream (gzip, br, ...).
-	_, _ = keyBuffer.Write(ctx.Header(bytestr.HeaderAcceptEncoding))
+	_, _ = keyBuffer.Write(ctx.Header(szbytestr.HeaderAcceptEncoding))
 
 	return keyBuffer
 }
 
 func (c *Cache) setCache(
-	ctx corehttp.Context, ef corerule.EvalFunc, key string) {
+	ctx szhttp.Context, ef szrule.EvalFunc, key string) {
 	if ef == nil {
 		return
 	}
@@ -148,7 +148,7 @@ func (c *Cache) setCache(
 	for k, vs := range headers {
 		// Alt-Svc describes the edge listener, not the content; the server
 		// sets it on every response, so caching it would duplicate it.
-		if k == httpconst.HeaderAltSvc {
+		if k == szhttpconst.HeaderAltSvc {
 			continue
 		}
 
@@ -163,16 +163,16 @@ func (c *Cache) setCache(
 // cacheable reports whether a response can be replayed to other clients.
 // Only complete 200 responses are stored: 206/304 bodies are partial or
 // empty, and an empty body means it was not captured (e.g. too large).
-func cacheable(ctx corehttp.Context, headers map[string][][]byte) bool {
+func cacheable(ctx szhttp.Context, headers map[string][][]byte) bool {
 	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
 		return false
 	}
 
-	if len(headers[httpconst.HeaderSetCookie]) > 0 {
+	if len(headers[szhttpconst.HeaderSetCookie]) > 0 {
 		return false
 	}
 
-	for _, v := range headers[httpconst.HeaderCacheControl] {
+	for _, v := range headers[szhttpconst.HeaderCacheControl] {
 		cc := strings.ToLower(string(v))
 		if strings.Contains(cc, "no-store") ||
 			strings.Contains(cc, "private") ||

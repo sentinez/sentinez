@@ -19,9 +19,9 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	"github.com/sentinez/core/http/variable"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szvariable"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/errorx"
@@ -71,7 +71,7 @@ func (r *Router) Store(server *edgepb.Server) {
 		}
 
 		for k, v := range routeConfig.GetProxySetHeaders() {
-			if variable.IsValidHeaderKey(k) {
+			if szvariable.IsValidHeaderKey(k) {
 				route.ProxySetHeaders[k] = v
 			} else {
 				zlog.Warnf(
@@ -99,7 +99,7 @@ func (r *Router) Store(server *edgepb.Server) {
 }
 
 // nolint:funlen
-func (r *Router) Match(ctx corehttp.Context) (string, error) {
+func (r *Router) Match(ctx szhttp.Context) (string, error) {
 
 	namespace := ctx.X().GetNamespace()
 	path := ctx.Path()
@@ -135,11 +135,11 @@ func (r *Router) Match(ctx corehttp.Context) (string, error) {
 			ctx.SetPath(remainingPath.Bytes())
 
 			// Set default proxy routing headers
-			ctx.SetHeader(bytestr.HeaderXForwardedPrefix, locationBytes)
+			ctx.SetHeader(szbytestr.HeaderXForwardedPrefix, locationBytes)
 
 			// Add custom headers from config
 			for hk, hv := range route.GetProxySetHeaders() {
-				val, err := variable.ParseProxyVal(ctx, hv)
+				val, err := szvariable.ParseProxyVal(ctx, hv)
 				if err != nil {
 					return "", err
 				}

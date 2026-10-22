@@ -19,10 +19,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szcmn/sztables"
+	"github.com/sentinez/core/szstorage/szdbx"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -43,7 +43,7 @@ type IUser interface {
 	Get(ctx context.Context, id string) (*iampb.User, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IUser
+	WithTX(tx *szpostgres.TxSession) IUser
 
 	// extra methods
 
@@ -52,13 +52,13 @@ type IUser interface {
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
-	storage, err := postgres.New[iampb.User](ctx, appConf,
-		dbx.WithTable(tables.IAMUsers),
-		dbx.WithColumns(dbx.ColumnM{
-			iampb.User_Id:           postgres.String,
-			iampb.User_Email:        postgres.String,
-			iampb.User_FullName:     postgres.String,
-			iampb.User_ControlPlane: postgres.Int4,
+	storage, err := szpostgres.New[iampb.User](ctx, appConf,
+		szdbx.WithTable(sztables.IAMUsers),
+		szdbx.WithColumns(szdbx.ColumnM{
+			iampb.User_Id:           szpostgres.String,
+			iampb.User_Email:        szpostgres.String,
+			iampb.User_FullName:     szpostgres.String,
+			iampb.User_ControlPlane: szpostgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -71,12 +71,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 }
 
 type Users struct {
-	storage dbx.Database[iampb.User]
+	storage szdbx.Database[iampb.User]
 }
 
-func (u *Users) WithTX(tx *postgres.TxSession) IUser {
+func (u *Users) WithTX(tx *szpostgres.TxSession) IUser {
 	return &Users{
-		storage: postgres.WithTx(tx, u.storage),
+		storage: szpostgres.WithTx(tx, u.storage),
 	}
 }
 
@@ -152,8 +152,8 @@ func (u *Users) total(
 func (u *Users) Create(ctx context.Context,
 	user *iampb.User) (*iampb.User, error) {
 
-	user.Id = rand.NewId(table.NewPrimaryKey(tables.IAMUsers))
-	query := postgres.InsertBuilder(u.storage, postgres.M{
+	user.Id = rand.NewId(sztable.NewPrimaryKey(sztables.IAMUsers))
+	query := szpostgres.InsertBuilder(u.storage, szpostgres.M{
 		iampb.User_Id:           user.GetId(),
 		iampb.User_Email:        user.GetEmail(),
 		iampb.User_FullName:     user.GetFullName(),
@@ -200,7 +200,7 @@ func (u *Users) GetByEmail(
 // Update implements IUser.
 func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 
-	query := postgres.UpdateBuilder(u.storage, user.GetId())
+	query := szpostgres.UpdateBuilder(u.storage, user.GetId())
 
 	if user.GetEmail() != "" {
 		query = query.Set(iampb.User_Email, user.GetEmail())
@@ -219,7 +219,7 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 }
 
 func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(u.storage, page,
+	return szpostgres.SelectBuilder(u.storage, page,
 		iampb.User_Id,
 		iampb.User_Email,
 		iampb.User_FullName,
@@ -229,7 +229,7 @@ func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	)
 }
 
-func scan(rows dbx.Rows) ([]*iampb.User, error) {
+func scan(rows szdbx.Rows) ([]*iampb.User, error) {
 	var users []*iampb.User
 
 	for rows.Next() {
@@ -244,7 +244,7 @@ func scan(rows dbx.Rows) ([]*iampb.User, error) {
 	return users, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*iampb.User, error) {
+func scanOne(row szdbx.Row) (*iampb.User, error) {
 	var (
 		createdAt, updatedAt time.Time
 		user                 iampb.User

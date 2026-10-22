@@ -19,7 +19,7 @@ import (
 	"context"
 
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -43,14 +43,14 @@ func NewService(
 	}
 
 	return &Security{
-		Server: coregrpc.New(),
+		Server: szgrpc.New(),
 		hdl:    hdl,
 	}, nil
 }
 
 // Security orchestrates the security core domain.
 type Security struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	hdl securitypb.SecurityServiceServer
 }
 

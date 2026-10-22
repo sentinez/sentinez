@@ -19,12 +19,12 @@ import (
 	"context"
 	"fmt"
 
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/core/szgrpc/szgrpcgateway"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
 )
 
-func New(conf *settingpb.Config, server grpcgateway.Server) *Server {
+func New(conf *settingpb.Config, server szgrpcgateway.Server) *Server {
 	srv := &Server{
 		server: server,
 		conf:   conf,
@@ -44,14 +44,14 @@ func New(conf *settingpb.Config, server grpcgateway.Server) *Server {
 type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server grpcgateway.Server
+	server szgrpcgateway.Server
 	conf   *settingpb.Config
 }
 
 // visitToEndpoint all service to external grpc server
 func (srv *Server) VisitToEndpoint(ctx context.Context,
 	conf *settingpb.Config,
-	services ...grpcgateway.ServiceRegistrar) error {
+	services ...szgrpcgateway.ServiceRegistrar) error {
 
 	for _, service := range services {
 		err := service.AcceptFromEndpoint(ctx, srv.server, conf)
@@ -66,7 +66,7 @@ func (srv *Server) VisitToEndpoint(ctx context.Context,
 
 // Visit all service to internal grpc handler
 func (srv *Server) Visit(ctx context.Context,
-	services ...grpcgateway.ServiceRegistrar) error {
+	services ...szgrpcgateway.ServiceRegistrar) error {
 
 	for _, service := range services {
 		if err := service.Accept(ctx, srv.server); err != nil {

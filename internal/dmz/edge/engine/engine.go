@@ -16,24 +16,24 @@ package engine
 
 import (
 	"github.com/sentinez/contrib/httphz"
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	quichttpx "github.com/sentinez/sentinez/pkg/network/httpx/quic"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )
 
-func Hertz(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+func Hertz(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
 	return httphz.NewServer(conf),
-		corehttp.WithOnStdConnect(transport.OnHertzConnect)
+		szhttp.WithOnStdConnect(transport.OnHertzConnect)
 }
 
-func Standard(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+func Standard(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
 	return stdhttpx.NewServer(conf),
-		corehttp.WithOnStdConnect(transport.OnStandardConnect)
+		szhttp.WithOnStdConnect(transport.OnStandardConnect)
 }
 
-func Quic(conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+func Quic(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
 	return quichttpx.NewServer(conf),
-		corehttp.WithOnStdConnect(transport.OnStandardConnect)
+		szhttp.WithOnStdConnect(transport.OnStandardConnect)
 }

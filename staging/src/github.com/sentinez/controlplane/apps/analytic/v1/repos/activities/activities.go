@@ -19,10 +19,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szcmn/sztables"
+	"github.com/sentinez/core/szstorage/szdbx"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -42,19 +42,19 @@ type IActivity interface {
 	Get(ctx context.Context, id string) (*analyticpb.Activity, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IActivity
+	WithTX(tx *szpostgres.TxSession) IActivity
 
 	List(ctx context.Context, req *analyticpb.ListActivitiesRequest) (*analyticpb.ListActivitiesResponse, error)
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
-	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
-		dbx.WithTable(tables.AnalyticActivities),
-		dbx.WithColumns(dbx.ColumnM{
-			analyticpb.Activity_Id:              postgres.String,
-			analyticpb.Activity_OwnerResourceId: postgres.String,
-			analyticpb.Activity_OwnerTenantId:   postgres.String,
-			analyticpb.Activity_UniqueVisitor:   postgres.IntArr,
+	storage, err := szpostgres.New[analyticpb.Activity](ctx, appConf,
+		szdbx.WithTable(sztables.AnalyticActivities),
+		szdbx.WithColumns(szdbx.ColumnM{
+			analyticpb.Activity_Id:              szpostgres.String,
+			analyticpb.Activity_OwnerResourceId: szpostgres.String,
+			analyticpb.Activity_OwnerTenantId:   szpostgres.String,
+			analyticpb.Activity_UniqueVisitor:   szpostgres.IntArr,
 		}),
 	)
 	if err != nil {
@@ -67,12 +67,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
 }
 
 type Activities struct {
-	storage dbx.Database[analyticpb.Activity]
+	storage szdbx.Database[analyticpb.Activity]
 }
 
-func (a *Activities) WithTX(tx *postgres.TxSession) IActivity {
+func (a *Activities) WithTX(tx *szpostgres.TxSession) IActivity {
 	return &Activities{
-		storage: postgres.WithTx(tx, a.storage),
+		storage: szpostgres.WithTx(tx, a.storage),
 	}
 }
 
@@ -142,9 +142,9 @@ func (a *Activities) total(
 func (a *Activities) Create(ctx context.Context,
 	activity *analyticpb.Activity) (*analyticpb.Activity, error) {
 
-	activity.Id = rand.NewId(table.NewPrimaryKey(tables.AnalyticActivities))
+	activity.Id = rand.NewId(sztable.NewPrimaryKey(sztables.AnalyticActivities))
 	owner := activity.GetOwner()
-	query := postgres.InsertBuilder(a.storage, postgres.M{
+	query := szpostgres.InsertBuilder(a.storage, szpostgres.M{
 		analyticpb.Activity_Id:              activity.GetId(),
 		analyticpb.Activity_OwnerResourceId: owner.GetResourceId(),
 		analyticpb.Activity_OwnerTenantId:   owner.GetTenantId(),
@@ -174,7 +174,7 @@ func (a *Activities) Get(ctx context.Context,
 func (a *Activities) Update(ctx context.Context,
 	activity *analyticpb.Activity) error {
 
-	query := postgres.UpdateBuilder(a.storage, activity.GetId())
+	query := szpostgres.UpdateBuilder(a.storage, activity.GetId())
 
 	if len(activity.GetUniqueVisitor()) > 0 {
 		query = query.Set(
@@ -190,17 +190,17 @@ func (a *Activities) Update(ctx context.Context,
 }
 
 func (a *Activities) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(a.storage, page,
+	return szpostgres.SelectBuilder(a.storage, page,
 		analyticpb.Activity_Id,
-		postgres.SelectCoalesce(analyticpb.Activity_OwnerResourceId),
-		postgres.SelectCoalesce(analyticpb.Activity_OwnerTenantId),
+		szpostgres.SelectCoalesce(analyticpb.Activity_OwnerResourceId),
+		szpostgres.SelectCoalesce(analyticpb.Activity_OwnerTenantId),
 		analyticpb.Activity_UniqueVisitor,
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
 }
 
-func scan(rows dbx.Rows) ([]*analyticpb.Activity, error) {
+func scan(rows szdbx.Rows) ([]*analyticpb.Activity, error) {
 	var activities []*analyticpb.Activity
 
 	for rows.Next() {
@@ -215,7 +215,7 @@ func scan(rows dbx.Rows) ([]*analyticpb.Activity, error) {
 	return activities, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*analyticpb.Activity, error) {
+func scanOne(row szdbx.Row) (*analyticpb.Activity, error) {
 	var (
 		createdAt, updatedAt time.Time
 		resourceId, tenantId string

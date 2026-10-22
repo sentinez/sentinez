@@ -27,7 +27,7 @@ import (
 	tenantmock "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants/mock"
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -66,7 +66,7 @@ func authContext(t *testing.T, userId string) context.Context {
 
 // mockTx returns a Tx backed by pgxmock; the caller sets what must
 // happen to the transaction (commit or rollback).
-func mockTx(t *testing.T) (*postgres.Tx, pgxmock.PgxConnIface) {
+func mockTx(t *testing.T) (*szpostgres.Tx, pgxmock.PgxConnIface) {
 	t.Helper()
 
 	conn, err := pgxmock.NewConn()
@@ -77,7 +77,7 @@ func mockTx(t *testing.T) (*postgres.Tx, pgxmock.PgxConnIface) {
 	tx, err := conn.Begin(t.Context())
 	require.NoError(t, err)
 
-	return postgres.NewTXMock(tx), conn
+	return szpostgres.NewTXMock(tx), conn
 }
 
 // tenantRepo expects the tenant of _createTenantReq to be created.

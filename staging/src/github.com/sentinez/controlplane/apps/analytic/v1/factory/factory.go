@@ -20,7 +20,7 @@ import (
 	analytichdl "github.com/sentinez/controlplane/apps/analytic/v1/handler"
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/zlog"
@@ -34,7 +34,7 @@ func NewDefaultService(ctx context.Context,
 		zlog.Errorf("analyticfac: init activities repo err=%v", err)
 	}
 
-	tx := postgres.NewTX(appConf)
+	tx := szpostgres.NewTX(appConf)
 
 	return analyticsvc.New(appConf, tx, activitiesrepos)
 }

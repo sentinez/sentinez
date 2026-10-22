@@ -28,7 +28,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/sentinez/core/modsec/ruleparser"
+	"github.com/sentinez/core/szmodsec/szruleparser"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	templatez "github.com/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
@@ -112,7 +112,7 @@ func PascalCaseFileName(filePath string) string {
 }
 
 func parse(filePath string) (*ruleFile, error) {
-	result, err := ruleparser.Parse(filePath)
+	result, err := szruleparser.Parse(filePath)
 	if err != nil {
 		return nil, err
 	}

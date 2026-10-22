@@ -15,8 +15,8 @@
 package secure
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -29,12 +29,12 @@ import (
 )
 
 func NewLimiter(
-	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &Limiter{
-		Node:  corechains.NewNode(),
+		Node:  szchains.NewNode(),
 		store: store,
 		log: zlog.NewLogCloser(
 			o.Named,
@@ -46,7 +46,7 @@ func NewLimiter(
 }
 
 type Limiter struct {
-	*corechains.Node
+	*szchains.Node
 	store *memory.MemStore
 	log   zlog.LogCloser
 }
@@ -54,13 +54,13 @@ type Limiter struct {
 // Handle counts the request against every limiter whose expression matches
 // it, keyed by client IP. The request is rejected by the first limiter
 // over its limit.
-func (l *Limiter) Handle(ctx corehttp.Context) error {
+func (l *Limiter) Handle(ctx szhttp.Context) error {
 	key := string(ctx.RequestIP())
 
 	for _, e := range l.store.Limiter().LoadContext(ctx) {
 		if e.Eval(ctx, nil) && !e.Limiter.Allow(key) {
 			l.logExceeded(ctx, e)
-			return corehttp.TooManyRequests(ctx)
+			return szhttp.TooManyRequests(ctx)
 		}
 	}
 
@@ -69,7 +69,7 @@ func (l *Limiter) Handle(ctx corehttp.Context) error {
 
 // logExceeded emits a rate limit event for the request rejected by e: the
 // limiter rule first, then the conditions of its expression that matched.
-func (l *Limiter) logExceeded(ctx corehttp.Context, e memlimiter.Entry) {
+func (l *Limiter) logExceeded(ctx szhttp.Context, e memlimiter.Entry) {
 	// Eval again to collect the matched conditions, only on rejection so
 	// that the common path stays allocation free.
 	mr := matchedrule.Acquire()

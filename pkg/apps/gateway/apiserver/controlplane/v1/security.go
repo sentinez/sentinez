@@ -17,16 +17,16 @@ package controlplane
 import (
 	"context"
 
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/core/szgrpc/szgrpcgateway"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ grpcgateway.ServiceRegistrar = (*security)(nil)
+var _ szgrpcgateway.ServiceRegistrar = (*security)(nil)
 
 // NewSecurity creates a new security service registrar.
 func NewSecurity(
-	srv securitypb.SecurityServiceServer) grpcgateway.ServiceRegistrar {
+	srv securitypb.SecurityServiceServer) szgrpcgateway.ServiceRegistrar {
 	return &security{server: srv}
 }
 
@@ -37,9 +37,9 @@ type security struct {
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
 func (s *security) AcceptFromEndpoint(ctx context.Context,
-	server grpcgateway.Server, appConf *settingpb.Config) error {
+	server szgrpcgateway.Server, appConf *settingpb.Config) error {
 
-	return grpcgateway.RegisterServiceFromEndpoint(ctx,
+	return szgrpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		securitypb.GetMetaSecurityServiceKey(),
@@ -49,11 +49,11 @@ func (s *security) AcceptFromEndpoint(ctx context.Context,
 
 // Accept to visit the security service.
 func (s *security) Accept(ctx context.Context,
-	server grpcgateway.Server) error {
+	server szgrpcgateway.Server) error {
 
 	// a local conn, unlike RegisterSecurityServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := szgrpcgateway.NewLocalConn()
 	securitypb.RegisterSecurityServiceServer(conn, s.server)
 
 	return securitypb.RegisterSecurityServiceHandlerClient(ctx,

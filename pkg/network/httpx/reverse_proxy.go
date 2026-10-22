@@ -20,13 +20,13 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/zlog"
 )
 
 func NewReverseProxy(
-	target string, trans http.RoundTripper) (corehttp.ReverseProxy, error) {
+	target string, trans http.RoundTripper) (szhttp.ReverseProxy, error) {
 	urlParsed, err := url.Parse(target)
 	if err != nil {
 		return nil, err
@@ -46,16 +46,16 @@ type ReverseProxy struct {
 	host   []byte
 }
 
-func (p *ReverseProxy) Serve(ctx corehttp.Context) {
+func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 	if p == nil {
-		_ = corehttp.NotFound(ctx)
+		_ = szhttp.NotFound(ctx)
 		zlog.Errorf("target not found in reverse proxy memory")
 		return
 	}
 
 	nctx, ok := ctx.Unwrap().(*Context)
 	if !ok {
-		_ = corehttp.InternalServerError(ctx)
+		_ = szhttp.InternalServerError(ctx)
 		zlog.Errorf("request context not supported")
 		return
 	}

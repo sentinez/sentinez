@@ -24,7 +24,7 @@ Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` (aliased as `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
 - The factory package from `github.com/sentinez/controlplane/<domain>/v1/factory` (aliased as `<domain>fac`)
-- Default gRPC server utilities from `github.com/sentinez/core/grpc` (aliased as `coregrpc`)
+- Default gRPC server utilities from `github.com/sentinez/core/szgrpc` (aliased as `szgrpc`)
 - Buffer connection from `google.golang.org/grpc/test/bufconn`
 
 ## 2. Buffer Listener Setup
@@ -48,11 +48,11 @@ func GetListener() *bufconn.Listener {
 
 ## 3. Module Struct Definition
 
-Define the main module struct (usually named `<Domain>`, e.g. `IAM`, `Analytic`). It embeds `*coregrpc.Server` allowing it to function as a server, and it holds the gRPC handler interface.
+Define the main module struct (usually named `<Domain>`, e.g. `IAM`, `Analytic`). It embeds `*szgrpc.Server` allowing it to function as a server, and it holds the gRPC handler interface.
 
 ```go
 type <Domain> struct {
-	*coregrpc.Server
+	*szgrpc.Server
 	hdl <domain>pb.<Domain>ServiceServer
 }
 ```
@@ -64,7 +64,7 @@ Define the constructor `NewService` (this is what `cmd/` / `pkg/apps` inject int
 ```go
 func NewService(ctx context.Context, appConf *settingpb.Config) *<Domain> {
 	return &<Domain>{
-		Server: coregrpc.New(coregrpc.WithXMeta(appConf.GetMeta())),
+		Server: szgrpc.New(szgrpc.WithXMeta(appConf.GetMeta())),
 		hdl:    <domain>fac.NewDefaultHandler(ctx, appConf),
 	}
 }

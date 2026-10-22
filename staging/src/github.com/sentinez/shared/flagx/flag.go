@@ -19,7 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sentinez/core/common/console"
+	"github.com/sentinez/core/szcmn/szconsole"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/protobuf"
@@ -39,7 +39,7 @@ var _flags = &settingpb.Flag{
 
 func info(meta *typepb.XMeta) string {
 	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
-	return console.GenFigure(service, meta.GetServiceKey())
+	return szconsole.GenFigure(service, meta.GetServiceKey())
 }
 
 // Parse flag args

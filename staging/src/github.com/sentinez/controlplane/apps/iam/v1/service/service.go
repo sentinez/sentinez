@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -38,7 +38,7 @@ import (
 var _ iampb.IdentityAccessManagementServiceServer = (*IAMService)(nil)
 
 func New(config *settingpb.Config,
-	tx *postgres.Tx,
+	tx *szpostgres.Tx,
 	store passkey.Store,
 	users usersrepo.IUser,
 	account accrepos.IAccount,
@@ -58,7 +58,7 @@ func New(config *settingpb.Config,
 
 type IAMService struct {
 	config   *settingpb.Config
-	tx       *postgres.Tx
+	tx       *szpostgres.Tx
 	users    usersrepo.IUser
 	accounts accrepos.IAccount
 	store    passkey.Store

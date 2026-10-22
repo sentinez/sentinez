@@ -18,9 +18,9 @@ import (
 	"net/http"
 	"strconv"
 
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
-	corers "github.com/sentinez/core/rulesets"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szrs"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -31,12 +31,12 @@ import (
 )
 
 func NewWAF(
-	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &WAF{
-		Node: corechains.NewNode(),
+		Node: szchains.NewNode(),
 		log: zlog.NewLogCloser(
 			o.Named,
 			typepb.LogType_LOG_TYPE_WAF,
@@ -48,13 +48,13 @@ func NewWAF(
 }
 
 type WAF struct {
-	*corechains.Node
+	*szchains.Node
 	log   zlog.LogCloser
 	store *memory.MemStore
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx corehttp.Context) error {
+func (w *WAF) Handle(ctx szhttp.Context) error {
 	// zlog.Debug("[edge] >>> visit WAF")
 
 	waf, ok := w.store.Rulesets().LoadContext(ctx)
@@ -67,7 +67,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 		return nil
 	}
 
-	ruleset := corers.NewRulesets(ctx, waf)
+	ruleset := szrs.NewRulesets(ctx, waf)
 	defer func() {
 		ruleset.Final(func() { w.capture(ctx, ruleset) })
 		ruleset.Release()
@@ -79,7 +79,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 
 	if err := ruleset.ExecIngress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return corehttp.Forbidden(ctx)
+			return szhttp.Forbidden(ctx)
 		}
 	}
 
@@ -87,7 +87,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 
 	if err := ruleset.ExecEgress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {
-			return corehttp.Forbidden(ctx)
+			return szhttp.Forbidden(ctx)
 		}
 	}
 
@@ -95,7 +95,7 @@ func (w *WAF) Handle(ctx corehttp.Context) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx corehttp.Context, ruleset *corers.Rulesets) {
+func (w *WAF) capture(ctx szhttp.Context, ruleset *szrs.Rulesets) {
 
 	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {

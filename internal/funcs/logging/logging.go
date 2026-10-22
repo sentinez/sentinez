@@ -15,9 +15,9 @@
 package logging
 
 import (
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -26,16 +26,16 @@ import (
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ corechains.ChainNode = (*Logging)(nil)
+var _ szchains.ChainNode = (*Logging)(nil)
 
 // NewLogging logs every request of the chain and exports the records
 // through the option.WithLogger provider; without one they are not
 // exported.
-func NewLogging(opts ...option.Option) corechains.ChainNode {
+func NewLogging(opts ...option.Option) szchains.ChainNode {
 	o := option.New(opts...)
 
 	return &Logging{
-		Node: corechains.NewNode(),
+		Node: szchains.NewNode(),
 		log: zlog.NewLogCloser(
 			o.Named,
 			typepb.LogType_LOG_TYPE_HTTP,
@@ -46,11 +46,11 @@ func NewLogging(opts ...option.Option) corechains.ChainNode {
 }
 
 type Logging struct {
-	*corechains.Node
+	*szchains.Node
 	log zlog.LogCloser
 }
 
-func (l *Logging) Handle(ctx corehttp.Context) error {
+func (l *Logging) Handle(ctx szhttp.Context) error {
 	// zlog.Debug("[edge] >>> visit logging")
 	err := l.HandleNext(ctx)
 
@@ -67,7 +67,7 @@ func (l *Logging) Handle(ctx corehttp.Context) error {
 	event.Method = string(ctx.Method())
 	event.Status = int32(ctx.StatusCode())
 	event.Protocol = ctx.Protocol()
-	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
+	event.UserAgent = string(ctx.Header(szbytestr.HeaderUserAgent))
 	event.Queries = string(ctx.QueryStr())
 
 	if l.log.V(zlog.LevelInfo.Int()) {

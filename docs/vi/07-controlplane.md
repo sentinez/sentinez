@@ -16,14 +16,14 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Lớp lưu trữ (`core/storage/dbx`)
+## 7.1 Lớp lưu trữ (`core/szstorage/szdbx`)
 
-[core/storage/dbx](../../staging/src/github.com/sentinez/core/storage/dbx/):
+[core/szstorage/szdbx](../../staging/src/github.com/sentinez/core/szstorage/szdbx/):
 
-- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
-  `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
+- `szdbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
+  `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `szquery.Query`
   (interface `ToSql()` của squirrel).
-- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `szpostgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
   - Tên bảng thật = `<mode>.sentinez.<name>` thay `.` bằng `_`, ví dụ
     `dev_sentinez_iam_users`; phải khớp regex
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
@@ -33,13 +33,13 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 - Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY created_at DESC`
   khi `page.index` và `page.size` > 0), `InsertBuilder` (`RETURNING id`),
   `UpdateBuilder` (tự set `updated_at`).
-- Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
-  `postgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
+- Transaction: `szpostgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
+  `szpostgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
   cung cấp `WithTX(ss)`.
-- ID bản ghi: `rand.NewId(table.NewPrimaryKey(name))` =
+- ID bản ghi: `rand.NewId(sztable.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
-Tên bảng ([core/common/tables](../../staging/src/github.com/sentinez/core/common/tables/tables.go)):
+Tên bảng ([core/szcmn/sztables](../../staging/src/github.com/sentinez/core/szcmn/sztables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 

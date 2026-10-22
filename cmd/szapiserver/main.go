@@ -19,8 +19,8 @@ import (
 	"context"
 
 	"github.com/sentinez/core"
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szgrpc/szgrpcgateway"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/config"
 	"github.com/sentinez/shared/zlog"
@@ -45,16 +45,16 @@ func main() {
 }
 
 func run() error {
-	r, err := runner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
 
-	return r.Run(context.Background(), runner.NewApp(app))
+	return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[apiserver.Server]) {
-	c.Inject(grpcgateway.NewServer, apiserver.New)
+func app(c *szrunner.Context[apiserver.Server]) {
+	c.Inject(szgrpcgateway.NewServer, apiserver.New)
 
 	c.Serve(func(ctx context.Context, server *apiserver.Server) error {
 		return server.Start(ctx)

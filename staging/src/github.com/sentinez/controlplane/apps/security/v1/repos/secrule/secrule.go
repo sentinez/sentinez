@@ -19,10 +19,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szcmn/sztables"
+	"github.com/sentinez/core/szstorage/szdbx"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -38,24 +38,24 @@ type ISecRule interface {
 	Get(ctx context.Context, id string) (*securitypb.SecRule, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) ISecRule
+	WithTX(tx *szpostgres.TxSession) ISecRule
 
 	List(ctx context.Context, req *securitypb.ListSecRulesRequest) ([]*securitypb.SecRule, int64, error)
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
-	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
-		dbx.WithTable(tables.SecuritySecRules),
-		dbx.WithColumns(dbx.ColumnM{
-			securitypb.SecRule_Id:              postgres.String,
-			securitypb.SecRule_Name:            postgres.String,
-			securitypb.SecRule_Description:     postgres.String,
-			securitypb.SecRule_Expr:            postgres.JSONB,
-			securitypb.SecRule_Status:          postgres.Int4,
-			securitypb.SecRule_Priority:        postgres.Int4,
-			securitypb.SecRule_Action:          postgres.JSONB,
-			securitypb.SecRule_OwnerResourceId: postgres.String,
-			securitypb.SecRule_OwnerTenantId:   postgres.String,
+	storage, err := szpostgres.New[securitypb.SecRule](ctx, appConf,
+		szdbx.WithTable(sztables.SecuritySecRules),
+		szdbx.WithColumns(szdbx.ColumnM{
+			securitypb.SecRule_Id:              szpostgres.String,
+			securitypb.SecRule_Name:            szpostgres.String,
+			securitypb.SecRule_Description:     szpostgres.String,
+			securitypb.SecRule_Expr:            szpostgres.JSONB,
+			securitypb.SecRule_Status:          szpostgres.Int4,
+			securitypb.SecRule_Priority:        szpostgres.Int4,
+			securitypb.SecRule_Action:          szpostgres.JSONB,
+			securitypb.SecRule_OwnerResourceId: szpostgres.String,
+			securitypb.SecRule_OwnerTenantId:   szpostgres.String,
 		}),
 	)
 	if err != nil {
@@ -68,12 +68,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 }
 
 type SecRule struct {
-	storage dbx.Database[securitypb.SecRule]
+	storage szdbx.Database[securitypb.SecRule]
 }
 
-func (r *SecRule) WithTX(tx *postgres.TxSession) ISecRule {
+func (r *SecRule) WithTX(tx *szpostgres.TxSession) ISecRule {
 	return &SecRule{
-		storage: postgres.WithTx(tx, r.storage),
+		storage: szpostgres.WithTx(tx, r.storage),
 	}
 }
 
@@ -134,8 +134,8 @@ func (r *SecRule) total(
 
 func (r *SecRule) Create(ctx context.Context,
 	model *securitypb.SecRule) (*securitypb.SecRule, error) {
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecuritySecRules))
-	query := postgres.InsertBuilder(r.storage, postgres.M{
+	model.Id = rand.NewId(sztable.NewPrimaryKey(sztables.SecuritySecRules))
+	query := szpostgres.InsertBuilder(r.storage, szpostgres.M{
 		securitypb.SecRule_Id:              model.GetId(),
 		securitypb.SecRule_Name:            model.GetName(),
 		securitypb.SecRule_Description:     model.GetDescription(),
@@ -170,7 +170,7 @@ func (r *SecRule) Update(
 	ctx context.Context,
 	model *securitypb.SecRule,
 ) error {
-	query := postgres.UpdateBuilder(r.storage, model.GetId())
+	query := szpostgres.UpdateBuilder(r.storage, model.GetId())
 
 	if model.GetName() != "" {
 		query = query.Set(securitypb.SecRule_Name, model.GetName())
@@ -192,7 +192,7 @@ func (r *SecRule) Update(
 }
 
 func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(r.storage, page,
+	return szpostgres.SelectBuilder(r.storage, page,
 		securitypb.SecRule_Id,
 		securitypb.SecRule_Name,
 		securitypb.SecRule_Description,
@@ -200,14 +200,14 @@ func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.SecRule_Status,
 		securitypb.SecRule_Priority,
 		securitypb.SecRule_Action,
-		postgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
-		postgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
+		szpostgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
+		szpostgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
 }
 
-func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
+func scan(rows szdbx.Rows) ([]*securitypb.SecRule, error) {
 	var models []*securitypb.SecRule
 	for rows.Next() {
 		model, err := scanOne(rows)
@@ -219,7 +219,7 @@ func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
 	return models, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
+func scanOne(row szdbx.Row) (*securitypb.SecRule, error) {
 	var (
 		createdAt, updatedAt time.Time
 		resourceId, tenantId string

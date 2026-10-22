@@ -13,7 +13,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
 | `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
-| ↳ `core` | Runtime framework: `runner`, `http`, `grpc`, `limiter`, `modsec` (Coraza), `rules`, `rulesets`, `storage`, `context` |
+| ↳ `core` | Runtime framework (every package/folder is `sz`-prefixed): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szrs` (rulesets), `szstorage`, `szcontext`, `szcmn` |
 | ↳ `shared` | Utility libs: `zlog` (zap + OTLP), `config`, `errorx`, `eventq`, `store`, `topic`, `jsonx`, `perms`, `cron`, etc. |
 | ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, plus `pkg/{crypto,headers,passkey}` |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
@@ -92,7 +92,7 @@ Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-styl
 
 - Every Go file starts with the Apache 2.0 license header (`// Copyright 2026 Duc-Hung Ho.`).
 - Lint is golangci-lint per module; CI runs `hack/golint.sh` and `hack/protolint.sh`.
-- Services are bootstrapped through `core/runner`: `runner.New(conf, scope)` then `r.Run(ctx, runner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
-- Logging goes through `shared/zlog` (zap). OTLP log export lives in `shared/zlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/runner/runner.go` on branch `feat/OTLP`.
+- Services are bootstrapped through `core/szrunner`: `szrunner.New(conf, scope)` then `r.Run(ctx, szrunner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
+- Logging goes through `shared/zlog` (zap). OTLP log export lives in `shared/zlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/szrunner/runner.go` on branch `feat/OTLP`.
 - Commit style: conventional commits (`chore:`, `refactor:`, `feat:`), PR number suffix on main.
 - CI (`.github/workflows`): `ci_lint`, `ci_test` (`go test ./...`), `ci_sync_repo`.

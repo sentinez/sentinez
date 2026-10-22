@@ -43,7 +43,7 @@ README warns that backward compatibility is not guaranteed before v1.0.0.
 
 ## 1.3 Binaries (`cmd/`)
 
-| Binary | Entry point | Service type (`runner.App[T]`) | Role |
+| Binary | Entry point | Service type (`szrunner.App[T]`) | Role |
 |---|---|---|---|
 | `szapiserver` | [cmd/szapiserver/main.go](../cmd/szapiserver/main.go) | `apiserver.Server` | HTTP gateway from REST to control-plane gRPC handlers; serves Swagger UI |
 | `szrealtime` | [cmd/szrealtime/main.go](../cmd/szrealtime/main.go) | `realtime.Realtime` | WebSocket server that broadcasts messages between clients |
@@ -67,25 +67,25 @@ func run() error {
         return err
     }
 
-    r, err := runner.New(conf, core.Code)
+    r, err := szrunner.New(conf, core.Code)
     if err != nil {
         return err
     }
 
-    return r.Run(context.Background(), runner.NewApp(app))
+    return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[T]) {
+func app(c *szrunner.Context[T]) {
     c.Inject(config.Config, <constructor>...)   // fx.Provide
     c.Serve(func(ctx, *T) error { ... })        // blocking main loop
     c.OnStop(func(ctx, *T) error { ... })
 }
 ```
 
-A binary can run several apps by passing several `runner.NewApp(...)` to
+A binary can run several apps by passing several `szrunner.NewApp(...)` to
 `Main`; `szedge` runs the HTTPS proxy and its gRPC API this way.
 
-See [09-core-shared.md](09-core-shared.md#91-corerunner) for `runner`.
+See [09-core-shared.md](09-core-shared.md#91-coreszrunner) for `runner`.
 
 ## 1.4 Monorepo layout
 

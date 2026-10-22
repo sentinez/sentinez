@@ -139,7 +139,7 @@ Cấu hình edge cho một namespace — xem [03-edge.md](03-edge.md#35-cấu-h�
 
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
 ContextExtra{namespace, ...matched ids/names}}` — trạng thái của một request ở
-edge, gắn với `corehttp.Context`.
+edge, gắn với `szhttp.Context`.
 
 ### Event log
 

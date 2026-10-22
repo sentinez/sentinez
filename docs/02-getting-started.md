@@ -143,7 +143,7 @@ make lint                  # golangci-lint for root, core, shared, controlplane,
 make fmt.proto             # buf format -w
 ```
 
-Existing tests cover: `core/limiter`, `core/rules`, `core/modsec/ruleparser`,
+Existing tests cover: `core/szlimiter`, `core/szrule`, `core/szmodsec/szruleparser`,
 `controlplane/iam` (handler, service with mocks), `controlplane/pkg/crypto`,
 `shared/{config,errorx,perms,protobuf,zlog}`, `pkg/apps/dmz/edge`,
 `pkg/apps/gateway/apiserver`.
@@ -159,7 +159,7 @@ Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript for the UI | `cd api && buf generate` (`ts-proto` plugin → `ui/packages/proto/ts-proto`) |
-| Error page templates | `cd staging/.../core/common/render && templ generate` |
+| Error page templates | `cd staging/.../core/szcmn/szrender && templ generate` |
 | CRS rules → Go | `bash hack/ruleparser.sh` (needs `ruleparser-sentinez` on PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy third-party protos | `bash hack/copy_proto3pt.sh` |

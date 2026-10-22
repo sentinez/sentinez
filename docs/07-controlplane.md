@@ -16,14 +16,14 @@ holds the domain services. Every domain follows the same layout:
 Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Storage layer (`core/storage/dbx`)
+## 7.1 Storage layer (`core/szstorage/szdbx`)
 
-[core/storage/dbx](../staging/src/github.com/sentinez/core/storage/dbx/):
+[core/szstorage/szdbx](../staging/src/github.com/sentinez/core/szstorage/szdbx/):
 
-- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
-  `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `query.Query`
+- `szdbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
+  `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `szquery.Query`
   (squirrel's `ToSql()` interface).
-- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `szpostgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
   - The real table name is `<mode>.sentinez.<name>` with `.` replaced by `_`,
     e.g. `dev_sentinez_iam_users`; it must match
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
@@ -33,13 +33,13 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 - Helpers: `SelectBuilder` (+ paging `LIMIT/OFFSET ORDER BY created_at DESC`
   when `page.index` and `page.size` are > 0), `InsertBuilder`
   (`RETURNING id`), `UpdateBuilder` (sets `updated_at` automatically).
-- Transactions: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
-  `postgres.WithTx(ss, db)` returns a `Database[T]` bound to the
+- Transactions: `szpostgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
+  `szpostgres.WithTx(ss, db)` returns a `Database[T]` bound to the
   transaction; repositories expose `WithTX(ss)`.
-- Record IDs: `rand.NewId(table.NewPrimaryKey(name))` =
+- Record IDs: `rand.NewId(sztable.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
-Table names ([core/common/tables](../staging/src/github.com/sentinez/core/common/tables/tables.go)):
+Table names ([core/szcmn/sztables](../staging/src/github.com/sentinez/core/szcmn/sztables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 

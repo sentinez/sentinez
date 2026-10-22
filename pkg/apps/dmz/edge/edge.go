@@ -21,8 +21,8 @@ import (
 	"errors"
 	"fmt"
 
-	corecmn "github.com/sentinez/core/common"
-	corehttp "github.com/sentinez/core/http"
+	"github.com/sentinez/core/szcmn"
+	"github.com/sentinez/core/szhttp"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -65,7 +65,7 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		return nil, err
 	}
 
-	corecmn.NormalizeEdgeSetting(localSetting)
+	szcmn.NormalizeEdgeSetting(localSetting)
 
 	mem, err := memory.NewMemStore(conf)
 	if err != nil {
@@ -93,7 +93,7 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 // The Server is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
 type Server struct {
-	server      corehttp.Server
+	server      szhttp.Server
 	conf        *settingpb.Config
 	setting     *edgepb.Setting
 	memstore    *memory.MemStore
@@ -163,11 +163,11 @@ func (s *Server) Start() error {
 	}
 	defer func() { _ = quicLis.Close() }()
 
-	opts := []corehttp.ServerOption{
-		corehttp.WithCertificate(certFile, keyFile),
-		corehttp.WithTLSConfig(tlsConf),
-		corehttp.WithStdListener(stdLis),
-		corehttp.WithQuicListener(quicLis),
+	opts := []szhttp.ServerOption{
+		szhttp.WithCertificate(certFile, keyFile),
+		szhttp.WithTLSConfig(tlsConf),
+		szhttp.WithStdListener(stdLis),
+		szhttp.WithQuicListener(quicLis),
 	}
 
 	return s.server.ListenAndServe(addr, append(opts, opt)...)
@@ -196,7 +196,7 @@ func newTLSConfig(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func newServer(
-	conf *settingpb.Config) (corehttp.Server, corehttp.ServerOption) {
+	conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
 
 	// set engine for edge server
 	switch conf.GetFlag().GetEngine() {

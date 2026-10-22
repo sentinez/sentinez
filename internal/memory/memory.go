@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
-	corehttp "github.com/sentinez/core/http"
-	corelimiter "github.com/sentinez/core/limiter"
-	corerule "github.com/sentinez/core/rules"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szlimiter"
+	"github.com/sentinez/core/szrule"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -149,7 +149,7 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 	return m.cdnRules
 }
 
-func (m *MemStore) LoadServer(server corehttp.Server) {
+func (m *MemStore) LoadServer(server szhttp.Server) {
 	m.setting.Visit(func(s *edgepb.Setting) bool {
 		err := errors.Join(
 			m.LoadRouter(s),
@@ -195,7 +195,7 @@ func (m *MemStore) LoadRouter(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadReverseProxy(
-	server corehttp.Server, s *edgepb.Setting) error {
+	server szhttp.Server, s *edgepb.Setting) error {
 
 	for _, routeConfig := range s.GetServer().GetLocations() {
 		for _, upstream := range routeConfig.GetProxyPass() {
@@ -279,8 +279,8 @@ func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
 	rule := l.GetIngressRuntime()
 
 	return ratelimiter.Entry{
-		Eval:    corerule.NewEval(rule.GetExpr()),
+		Eval:    szrule.NewEval(rule.GetExpr()),
 		Rule:    rule,
-		Limiter: corelimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
+		Limiter: szlimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
 	}, nil
 }

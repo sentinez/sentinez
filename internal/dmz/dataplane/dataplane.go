@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	coregrpc "github.com/sentinez/core/grpc"
+	"github.com/sentinez/core/szgrpc"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
@@ -28,12 +28,12 @@ import (
 func New(conf *settingpb.Config) *Server {
 	return &Server{
 		conf: conf,
-		grpc: coregrpc.New(),
+		grpc: szgrpc.New(),
 	}
 }
 
 type Server struct {
-	grpc *coregrpc.Server
+	grpc *szgrpc.Server
 	conf *settingpb.Config
 }
 
@@ -53,7 +53,7 @@ func (s *Server) Start(networkInterface string) error {
 
 	zlog.Infof("stream: attaching xdp successfully")
 
-	return s.grpc.Serve(s.conf, coregrpc.WithDiscorvery(false))
+	return s.grpc.Serve(s.conf, szgrpc.WithDiscorvery(false))
 }
 
 func (s *Server) Stop(ctx context.Context) error {

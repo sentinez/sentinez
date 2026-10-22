@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -368,7 +368,7 @@ func (_c *MockITenant_Update_Call) RunAndReturn(run func(ctx context.Context, te
 }
 
 // WithTX provides a mock function for the type MockITenant
-func (_mock *MockITenant) WithTX(tx *postgres.TxSession) tenantrepo.ITenant {
+func (_mock *MockITenant) WithTX(tx *szpostgres.TxSession) tenantrepo.ITenant {
 	ret := _mock.Called(tx)
 
 	if len(ret) == 0 {
@@ -376,7 +376,7 @@ func (_mock *MockITenant) WithTX(tx *postgres.TxSession) tenantrepo.ITenant {
 	}
 
 	var r0 tenantrepo.ITenant
-	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) tenantrepo.ITenant); ok {
+	if returnFunc, ok := ret.Get(0).(func(*szpostgres.TxSession) tenantrepo.ITenant); ok {
 		r0 = returnFunc(tx)
 	} else {
 		if ret.Get(0) != nil {
@@ -392,16 +392,16 @@ type MockITenant_WithTX_Call struct {
 }
 
 // WithTX is a helper method to define mock.On call
-//   - tx *postgres.TxSession
+//   - tx *szpostgres.TxSession
 func (_e *MockITenant_Expecter) WithTX(tx any) *MockITenant_WithTX_Call {
 	return &MockITenant_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
 }
 
-func (_c *MockITenant_WithTX_Call) Run(run func(tx *postgres.TxSession)) *MockITenant_WithTX_Call {
+func (_c *MockITenant_WithTX_Call) Run(run func(tx *szpostgres.TxSession)) *MockITenant_WithTX_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *postgres.TxSession
+		var arg0 *szpostgres.TxSession
 		if args[0] != nil {
-			arg0 = args[0].(*postgres.TxSession)
+			arg0 = args[0].(*szpostgres.TxSession)
 		}
 		run(
 			arg0,
@@ -415,7 +415,7 @@ func (_c *MockITenant_WithTX_Call) Return(iTenant tenantrepo.ITenant) *MockITena
 	return _c
 }
 
-func (_c *MockITenant_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) tenantrepo.ITenant) *MockITenant_WithTX_Call {
+func (_c *MockITenant_WithTX_Call) RunAndReturn(run func(tx *szpostgres.TxSession) tenantrepo.ITenant) *MockITenant_WithTX_Call {
 	_c.Call.Return(run)
 	return _c
 }

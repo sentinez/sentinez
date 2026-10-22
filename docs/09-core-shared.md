@@ -1,8 +1,8 @@
 # 9. Framework & shared libraries
 
-## 9.1 `core/runner`
+## 9.1 `core/szrunner`
 
-[core/runner](../staging/src/github.com/sentinez/core/runner/) wraps
+[core/szrunner](../staging/src/github.com/sentinez/core/szrunner/) wraps
 `uber/fx` to standardize service lifecycles and run several apps in one
 binary.
 
@@ -28,44 +28,44 @@ node) use their own provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`, owned by the
 edge server and flushed in its `Shutdown`; unset, they are not exported
 either. An `https://` endpoint uses TLS.
 
-## 9.2 `core/http` and `core/http/chains`
+## 9.2 `core/szhttp` and `core/szhttp/szchains`
 
-- `corehttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
+- `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).
 - `DecoreServer(conf, s)`: a decorator that prints the ASCII banner
-  (`console.INFO`) before listening.
+  (`szconsole.INFO`) before listening.
 - Error helpers: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (rendered with templ).
-- `corechains.ChainNode{SetNext, Handle}` + `Node{next}` with `HandleNext`,
+- `szchains.ChainNode{SetNext, Handle}` + `Node{next}` with `HandleNext`,
   `GetNext` — the basis of the edge middleware chain.
-- `core/http/variable`: nginx-style variables for proxy headers.
-- `core/http/const`, `core/common/bytestr`: header/value constants (as
+- `core/szhttp/szvariable`: nginx-style variables for proxy headers.
+- `core/szhttp/szhttpconst`, `core/szcmn/szbytestr`: header/value constants (as
   `string` and `[]byte`).
 
-## 9.3 `core/grpc`
+## 9.3 `core/szgrpc`
 
-- `coregrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
+- `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf)` listens on TCP `SENZ_ADDRESS`,
   prints the banner, optionally registers with Consul. `BufServe(bufLis)`
   serves over bufconn. `Shutdown` = `GracefulStop`.
-- `core/grpc/gateway`: see [06-gateway.md](06-gateway.md).
+- `core/szgrpc/szgrpcgateway`: see [06-gateway.md](06-gateway.md).
 
 ## 9.4 Other `core` packages
 
 | Package | Contents |
 |---|---|
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
-| `core/context` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
-| `core/common` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/common/console` | ASCII banner (`go-figure`) printed once at startup |
-| `core/common/render` | `templ` templates for the 400/403/404/429/500 pages |
-| `core/storage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
-| `core/storage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-corestoragedbx) |
-| `core/storage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Empty packages (planned) |
-| `core/limiter`, `core/rules`, `core/rulesets`, `core/modsec` | See [04-rule-engine.md](04-rule-engine.md) |
+| `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
+| `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `core/szcmn/szconsole` | ASCII banner (`go-figure`) printed once at startup |
+| `core/szcmn/szrender` | `templ` templates for the 400/403/404/429/500 pages |
+| `core/szstorage/szcache/szmem` | Generic cache on top of `patrickmn/go-cache` |
+| `core/szstorage/szdbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstorageszdbx) |
+| `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Empty packages (planned) |
+| `core/szlimiter`, `core/szrule`, `core/szrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 
@@ -115,9 +115,9 @@ when `level >= verbosity`.
 | `pkg/apps/**/config` | Singleton `Config()`: parses flags + loads env + attaches `XMeta` |
 | `pkg/apps/**/flags` | Service-specific flags, default `--env_file` |
 | `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN), `StandardTransporter` (30s dial timeout), `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
-| `pkg/network/httpx` | `corehttp.Context` and `ReverseProxy` implemented with `net/http`, shared by both servers below |
-| `pkg/network/httpx/std` | `corehttp.Server` on `net/http` (TCP) |
-| `pkg/network/httpx/quic` | `corehttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |
+| `pkg/network/httpx` | `szhttp.Context` and `ReverseProxy` implemented with `net/http`, shared by both servers below |
+| `pkg/network/httpx/std` | `szhttp.Server` on `net/http` (TCP) |
+| `pkg/network/httpx/quic` | `szhttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pools for `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
@@ -126,11 +126,11 @@ when `level >= verbosity`.
 
 ## 9.7 `contrib/httphz`
 
-Hertz adapter for `corehttp`:
+Hertz adapter for `szhttp`:
 
-- `NewServer(conf)`: `XServer` implements `corehttp.Server` with Hertz (TLS,
+- `NewServer(conf)`: `XServer` implements `szhttp.Server` with Hertz (TLS,
   ALPN, H2C, HTTP/2, body streaming, custom transport).
-- `Context`: implements `corehttp.Context` on top of `*app.RequestContext`.
+- `Context`: implements `szhttp.Context` on top of `*app.RequestContext`.
 - `proxy`: HTTP(S) and WebSocket reverse proxies built on
   `hertz-contrib/reverseproxy`, with functional options (`WithTLS`,
   `WithTimeout`, `WithStreamResponseBody`, ...).

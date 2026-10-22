@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
 	"github.com/sentinez/shared/zlog"
@@ -31,15 +31,15 @@ func main() {
 }
 
 func run() error {
-	r, err := runner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, core.Code)
 	if err != nil {
 		return err
 	}
 
-	return r.Run(context.Background(), runner.NewApp(app))
+	return r.Run(context.Background(), szrunner.NewApp(app))
 }
 
-func app(c *runner.Context[dataplane.Server]) {
+func app(c *szrunner.Context[dataplane.Server]) {
 	c.Inject(dataplane.New)
 
 	c.Serve(func(_ context.Context, server *dataplane.Server) error {

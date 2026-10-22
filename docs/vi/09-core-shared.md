@@ -1,8 +1,8 @@
 # 9. Framework & thư viện dùng chung
 
-## 9.1 `core/runner`
+## 9.1 `core/szrunner`
 
-[core/runner](../../staging/src/github.com/sentinez/core/runner/) bọc
+[core/szrunner](../../staging/src/github.com/sentinez/core/szrunner/) bọc
 `uber/fx` để chuẩn hoá vòng đời service và chạy nhiều app trong cùng một
 binary.
 
@@ -28,44 +28,44 @@ provider riêng trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, do edge server sở hữu v
 flush trong `Shutdown`; không đặt thì cũng không push. Endpoint `https://`
 dùng TLS.
 
-## 9.2 `core/http` và `core/http/chains`
+## 9.2 `core/szhttp` và `core/szhttp/szchains`
 
-- `corehttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
+- `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).
-- `DecoreServer(conf, s)`: decorator in banner ASCII (`console.INFO`) trước
+- `DecoreServer(conf, s)`: decorator in banner ASCII (`szconsole.INFO`) trước
   khi listen.
 - Helper trả lỗi: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (render templ).
-- `corechains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
+- `szchains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
   `GetNext` — nền cho chain middleware edge.
-- `core/http/variable`: biến kiểu nginx cho header proxy.
-- `core/http/const`, `core/common/bytestr`: hằng header/giá trị (dạng string
+- `core/szhttp/szvariable`: biến kiểu nginx cho header proxy.
+- `core/szhttp/szhttpconst`, `core/szcmn/szbytestr`: hằng header/giá trị (dạng string
   và `[]byte`).
 
-## 9.3 `core/grpc`
+## 9.3 `core/szgrpc`
 
-- `coregrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
+- `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf)` listen TCP `SENZ_ADDRESS`, in
   banner, tuỳ chọn đăng ký Consul. `BufServe(bufLis)` phục vụ qua bufconn.
   `Shutdown` = `GracefulStop`.
-- `core/grpc/gateway`: xem [06-gateway.md](06-gateway.md).
+- `core/szgrpc/szgrpcgateway`: xem [06-gateway.md](06-gateway.md).
 
 ## 9.4 Các gói `core` khác
 
 | Gói | Nội dung |
 |---|---|
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
-| `core/context` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
-| `core/common` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/common/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
-| `core/common/render` | Template `templ` cho trang 400/403/404/429/500 |
-| `core/storage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
-| `core/storage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-corestoragedbx) |
-| `core/storage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Package rỗng (dự kiến) |
-| `core/limiter`, `core/rules`, `core/rulesets`, `core/modsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
+| `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
+| `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `core/szcmn/szconsole` | Banner ASCII (`go-figure`) in một lần khi service chạy |
+| `core/szcmn/szrender` | Template `templ` cho trang 400/403/404/429/500 |
+| `core/szstorage/szcache/szmem` | Cache generic dựa trên `patrickmn/go-cache` |
+| `core/szstorage/szdbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstorageszdbx) |
+| `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Package rỗng (dự kiến) |
+| `core/szlimiter`, `core/szrule`, `core/szrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 
@@ -114,9 +114,9 @@ khi `level >= verbosity`.
 | `pkg/apps/**/config` | `Config()` singleton: parse flag + nạp env + gắn `XMeta` |
 | `pkg/apps/**/flags` | Flag riêng của service, giá trị mặc định `--env_file` |
 | `pkg/network` | `StdListen` (TCP, `StdConn` có ID), `QuicListen` (UDP, cần `WithTLSConfig`, thêm ALPN `h3`), `StandardTransporter` (dial timeout 30s), `QuicTransporter` (client HTTP/3, chưa dùng), `GetInterface` |
-| `pkg/network/httpx` | Cài đặt `corehttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
-| `pkg/network/httpx/std` | `corehttp.Server` trên `net/http` (TCP) |
-| `pkg/network/httpx/quic` | `corehttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
+| `pkg/network/httpx` | Cài đặt `szhttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
+| `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
+| `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
@@ -125,11 +125,11 @@ khi `level >= verbosity`.
 
 ## 9.7 `contrib/httphz`
 
-Adapter Hertz cho `corehttp`:
+Adapter Hertz cho `szhttp`:
 
-- `NewServer(conf)`: `XServer` cài `corehttp.Server` bằng Hertz (TLS, ALPN,
+- `NewServer(conf)`: `XServer` cài `szhttp.Server` bằng Hertz (TLS, ALPN,
   H2C, HTTP/2, stream body, custom transport).
-- `Context`: cài `corehttp.Context` trên `*app.RequestContext`.
+- `Context`: cài `szhttp.Context` trên `*app.RequestContext`.
 - `proxy`: reverse proxy HTTP(S) và WebSocket dựa trên
   `hertz-contrib/reverseproxy`, với option kiểu functional (`WithTLS`,
   `WithTimeout`, `WithStreamResponseBody`, ...).

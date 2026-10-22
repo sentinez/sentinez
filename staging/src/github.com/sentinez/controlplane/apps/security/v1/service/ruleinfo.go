@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/modsec/catalog"
-	"github.com/sentinez/core/storage/dbx/query"
+	"github.com/sentinez/core/szmodsec/szcatalog"
+	"github.com/sentinez/core/szstorage/szdbx/szquery"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -35,7 +35,7 @@ import (
 func (srv *SecurityService) GetRuleInfo(_ context.Context,
 	req *securitypb.GetRuleInfoRequest,
 ) (*securitypb.GetRuleInfoResponse, error) {
-	rule, ok := catalog.Rule(req.GetVersion(), req.GetId())
+	rule, ok := szcatalog.Rule(req.GetVersion(), req.GetId())
 	if !ok {
 		return nil, errorx.StatusNotFoundF(
 			"rule not found: id=%d", req.GetId())
@@ -51,7 +51,7 @@ func (srv *SecurityService) ListRuleInfos(_ context.Context,
 	match := ruleInfoMatcher(req)
 
 	var rules []*corerulesetpb.RuleInfo
-	for _, rule := range catalog.Rules(req.GetVersion()) {
+	for _, rule := range szcatalog.Rules(req.GetVersion()) {
 		if match(rule) {
 			rules = append(rules, rule)
 		}
@@ -70,7 +70,7 @@ func (srv *SecurityService) ListRuleTags(_ context.Context,
 	search := strings.ToLower(strings.TrimSpace(req.GetSearch()))
 	counts := make(map[string]uint32)
 
-	for _, rule := range catalog.Rules(req.GetVersion()) {
+	for _, rule := range szcatalog.Rules(req.GetVersion()) {
 		if rule.GetSystem() && !req.GetIncludeSystem() {
 			continue
 		}
@@ -158,7 +158,7 @@ func pageOf[T any](items []T, page *typepb.Pages) []T {
 		return items
 	}
 
-	offset := query.GetOffset(int(page.GetIndex()), size)
+	offset := szquery.GetOffset(int(page.GetIndex()), size)
 	if offset >= len(items) {
 		return nil
 	}

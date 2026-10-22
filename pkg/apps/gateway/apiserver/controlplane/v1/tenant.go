@@ -17,15 +17,15 @@ package controlplane
 import (
 	"context"
 
-	grpcgateway "github.com/sentinez/core/grpc/gateway"
+	"github.com/sentinez/core/szgrpc/szgrpcgateway"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ grpcgateway.ServiceRegistrar = (*tenant)(nil)
+var _ szgrpcgateway.ServiceRegistrar = (*tenant)(nil)
 
 // NewTenant creates a new tenant service registrar.
-func NewTenant(srv tenantpb.TenantServiceServer) grpcgateway.ServiceRegistrar {
+func NewTenant(srv tenantpb.TenantServiceServer) szgrpcgateway.ServiceRegistrar {
 	return &tenant{server: srv}
 }
 
@@ -36,9 +36,9 @@ type tenant struct {
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
 func (t *tenant) AcceptFromEndpoint(ctx context.Context,
-	server grpcgateway.Server, appConf *settingpb.Config) error {
+	server szgrpcgateway.Server, appConf *settingpb.Config) error {
 
-	return grpcgateway.RegisterServiceFromEndpoint(ctx,
+	return szgrpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		tenantpb.GetMetaTenantServiceKey(),
@@ -47,11 +47,11 @@ func (t *tenant) AcceptFromEndpoint(ctx context.Context,
 }
 
 // Accept to visit the tenant service.
-func (t *tenant) Accept(ctx context.Context, server grpcgateway.Server) error {
+func (t *tenant) Accept(ctx context.Context, server szgrpcgateway.Server) error {
 
 	// a local conn, unlike RegisterTenantServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := szgrpcgateway.NewLocalConn()
 	tenantpb.RegisterTenantServiceServer(conn, t.server)
 
 	return tenantpb.RegisterTenantServiceHandlerClient(ctx,

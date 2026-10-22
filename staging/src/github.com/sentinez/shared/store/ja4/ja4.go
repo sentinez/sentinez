@@ -17,11 +17,11 @@ package ja4
 import (
 	"time"
 
-	"github.com/sentinez/core/storage/cache/mem"
+	"github.com/sentinez/core/szstorage/szcache/szmem"
 )
 
 var (
-	_ja4plus = mem.New[string](time.Hour*24, time.Hour*24)
+	_ja4plus = szmem.New[string](time.Hour*24, time.Hour*24)
 )
 
 func Set(connId, fingerprint string) {

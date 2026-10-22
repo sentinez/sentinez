@@ -29,10 +29,10 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/common/bytestr"
-	corecontext "github.com/sentinez/core/context"
-	corehttp "github.com/sentinez/core/http"
-	httpconst "github.com/sentinez/core/http/const"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcontext"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szhttpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/bytesconv"
@@ -44,14 +44,14 @@ import (
 )
 
 var (
-	_ corehttp.Context = (*Context)(nil)
-	_ io.Closer        = (*Context)(nil)
+	_ szhttp.Context = (*Context)(nil)
+	_ io.Closer      = (*Context)(nil)
 )
 
 var (
 	_ctxPool = sync.NewPoolCtr(func() *Context {
 		return &Context{
-			BaseContext: &corehttp.BaseContext{},
+			BaseContext: &szhttp.BaseContext{},
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},
@@ -82,7 +82,7 @@ func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	hctx.req = req
 	hctx.resp = resp
 
-	transport := corecontext.GetTransport(req.Context())
+	transport := szcontext.GetTransport(req.Context())
 	if transport != nil {
 		connId := transport.GetConnId()
 		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
@@ -97,7 +97,7 @@ func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 }
 
 type Context struct {
-	*corehttp.BaseContext
+	*szhttp.BaseContext
 	req         *http.Request
 	resp        http.ResponseWriter
 	respBodyBuf bytes.Buffer
@@ -106,23 +106,23 @@ type Context struct {
 	ectx         *edgepb.Context
 }
 
-// X implements [corehttp.Context].
+// X implements [szhttp.Context].
 func (c *Context) X() *edgepb.ContextExtra {
 	return c.ectx.GetX()
 }
 
-// Copy implements corehttp.Context.
+// Copy implements szhttp.Context.
 func (c *Context) Copy(src io.Reader) error {
 	_, err := io.Copy(c.resp, src)
 	return err
 }
 
-// RequestBodyStream implements corehttp.Context.
+// RequestBodyStream implements szhttp.Context.
 func (c *Context) RequestBodyStream() io.Reader {
 	return c.req.Body
 }
 
-// VisitRequestHeaders implements corehttp.Context.
+// VisitRequestHeaders implements szhttp.Context.
 func (c *Context) VisitRequestHeaders(visitor func(k []byte, v []byte)) {
 	for key, values := range c.req.Header {
 		for _, v := range values {
@@ -131,7 +131,7 @@ func (c *Context) VisitRequestHeaders(visitor func(k []byte, v []byte)) {
 	}
 }
 
-// VisitResponseHeaders implements corehttp.Context.
+// VisitResponseHeaders implements szhttp.Context.
 func (c *Context) VisitResponseHeaders(visitor func(k []byte, v []byte)) {
 	for key, values := range c.resp.Header() {
 		for _, v := range values {
@@ -140,7 +140,7 @@ func (c *Context) VisitResponseHeaders(visitor func(k []byte, v []byte)) {
 	}
 }
 
-// Header implements corehttp.Context.
+// Header implements szhttp.Context.
 func (c *Context) Header(k []byte) []byte {
 	values, ok := c.req.Header[string(k)]
 	if !ok || len(values) == 0 {
@@ -150,7 +150,7 @@ func (c *Context) Header(k []byte) []byte {
 	return []byte(values[0])
 }
 
-// Headers implements corehttp.Context.
+// Headers implements szhttp.Context.
 func (c *Context) Headers() map[string][][]byte {
 	headers := make(map[string][][]byte)
 	c.VisitRequestHeaders(func(key, value []byte) {
@@ -160,12 +160,12 @@ func (c *Context) Headers() map[string][][]byte {
 	return headers
 }
 
-// AddResponseHeader implements corehttp.Context.
+// AddResponseHeader implements szhttp.Context.
 func (c *Context) AddResponseHeader(key, value []byte) {
 	c.resp.Header().Add(string(key), string(value))
 }
 
-// Body implements corehttp.Context.
+// Body implements szhttp.Context.
 func (c *Context) Body() []byte {
 	body, err := io.ReadAll(c.req.Body)
 	if err != nil {
@@ -177,16 +177,16 @@ func (c *Context) Body() []byte {
 	return body
 }
 
-// RequestIP implements corehttp.Context.
+// RequestIP implements szhttp.Context.
 func (c *Context) RequestIP() []byte {
 	// 1. X-Forwarded-For
-	if xff := c.Header(bytestr.HeaderXForwardedFor); len(xff) > 0 {
+	if xff := c.Header(szbytestr.HeaderXForwardedFor); len(xff) > 0 {
 		ips := strings.Split(string(xff), ",")
 		return []byte(strings.TrimSpace(ips[0]))
 	}
 
 	// 2. X-Real-IP
-	if xrip := c.Header(bytestr.HeaderXRealIP); len(xrip) > 0 {
+	if xrip := c.Header(szbytestr.HeaderXRealIP); len(xrip) > 0 {
 		return xrip
 	}
 
@@ -198,13 +198,13 @@ func (c *Context) RequestIP() []byte {
 	return []byte(host)
 }
 
-// File implements corehttp.Context.
+// File implements szhttp.Context.
 func (c *Context) File(path string) error {
 	http.ServeFile(c.resp, c.req, path)
 	return nil
 }
 
-// Flush implements corehttp.Context.
+// Flush implements szhttp.Context.
 func (c *Context) Flush() error {
 	flusher, ok := c.resp.(http.Flusher)
 	if !ok {
@@ -215,22 +215,22 @@ func (c *Context) Flush() error {
 	return nil
 }
 
-// Host implements corehttp.Context.
+// Host implements szhttp.Context.
 func (c *Context) Host() []byte {
 	return []byte(c.req.Host)
 }
 
-// JA4 implements corehttp.Context.
+// JA4 implements szhttp.Context.
 func (c *Context) JA4() string {
 	return c.ectx.GetRequest().GetFingerprint()
 }
 
-// Protocol implements corehttp.Context.
+// Protocol implements szhttp.Context.
 func (c *Context) Protocol() string {
 	return c.req.Proto
 }
 
-// Queries implements corehttp.Context.
+// Queries implements szhttp.Context.
 func (c *Context) Queries() map[string][][]byte {
 	values := c.req.URL.Query()
 	queries := make(map[string][][]byte, len(values))
@@ -244,23 +244,23 @@ func (c *Context) Queries() map[string][][]byte {
 	return queries
 }
 
-// Query implements corehttp.Context.
+// Query implements szhttp.Context.
 func (c *Context) Query(k []byte) []byte {
 	return []byte(c.req.URL.Query().Get(string(k)))
 }
 
-// RemoteAddr implements corehttp.Context.
+// RemoteAddr implements szhttp.Context.
 func (c *Context) RemoteAddr() []byte {
 	return []byte(c.req.RemoteAddr)
 }
 
-// ResetResponse implements corehttp.Context.
+// ResetResponse implements szhttp.Context.
 func (c *Context) ResetResponse() {
 	c.respBodyBuf.Reset()
 	c.bodyOverflow = false
 }
 
-// ResponseBody implements corehttp.Context. It returns nil when the body
+// ResponseBody implements szhttp.Context. It returns nil when the body
 // was too large to capture.
 func (c *Context) ResponseBody() []byte {
 	if c.bodyOverflow {
@@ -270,7 +270,7 @@ func (c *Context) ResponseBody() []byte {
 	return c.respBodyBuf.Bytes()
 }
 
-// ResponseHeader implements corehttp.Context.
+// ResponseHeader implements szhttp.Context.
 func (c *Context) ResponseHeader() map[string][][]byte {
 	headers := make(map[string][][]byte)
 	c.VisitResponseHeaders(func(key, value []byte) {
@@ -280,7 +280,7 @@ func (c *Context) ResponseHeader() map[string][][]byte {
 	return headers
 }
 
-// SetBody implements corehttp.Context.
+// SetBody implements szhttp.Context.
 func (c *Context) SetBody(b []byte) {
 	_, _ = c.respBodyBuf.Write(b)
 	_, _ = c.resp.Write(b)
@@ -305,7 +305,7 @@ func (c *Context) SetHost(host []byte) {
 	c.ectx.Request.Host = sHost
 }
 
-// SetQuery implements corehttp.Context.
+// SetQuery implements szhttp.Context.
 func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	q := c.req.URL.Query()
 
@@ -341,12 +341,12 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 	}
 }
 
-// SetResponseHeader implements corehttp.Context.
+// SetResponseHeader implements szhttp.Context.
 func (c *Context) SetResponseHeader(key []byte, value []byte) {
 	c.resp.Header().Set(string(key), string(value))
 }
 
-// SetStatusCode implements corehttp.Context.
+// SetStatusCode implements szhttp.Context.
 func (c *Context) SetStatusCode(code int) {
 	c.ectx.Request.Status = int32(code)
 	c.resp.WriteHeader(code)
@@ -384,22 +384,22 @@ func (c *Context) SetHeader(k, v []byte) {
 	current.Values = append(current.Values, []byte(v))
 }
 
-// StatusCode implements corehttp.Context.
+// StatusCode implements szhttp.Context.
 func (c *Context) StatusCode() int {
 	return int(c.ectx.GetRequest().GetStatus())
 }
 
-// TLS implements corehttp.Context.
+// TLS implements szhttp.Context.
 func (c *Context) TLS() bool {
-	return c.Scheme() == httpconst.SchemeSecure
+	return c.Scheme() == szhttpconst.SchemeSecure
 }
 
-// URI implements corehttp.Context.
+// URI implements szhttp.Context.
 func (c *Context) URI() []byte {
 	return []byte(c.req.URL.String())
 }
 
-// Unwrap implements corehttp.Context.
+// Unwrap implements szhttp.Context.
 func (c *Context) Unwrap() any {
 	return c
 }
@@ -425,7 +425,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueAppJSON)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueAppJSON)
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -434,7 +434,7 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 }
 
 func (c *Context) String(statusCode int, msg []byte) error {
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextPlain)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextPlain)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(msg)
@@ -448,7 +448,7 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 		return err
 	}
 
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextHTML)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextHTML)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(buf.Bytes())
@@ -465,9 +465,9 @@ func (c *Context) Upgrade() (*websocket.Conn, error) {
 }
 
 func (c *Context) Scheme() string {
-	scheme := httpconst.SchemeInsecure
+	scheme := szhttpconst.SchemeInsecure
 	if c.req.TLS != nil {
-		scheme = httpconst.SchemeSecure
+		scheme = szhttpconst.SchemeSecure
 	}
 
 	return scheme

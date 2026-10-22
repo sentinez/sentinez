@@ -24,7 +24,7 @@ import (
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users"
 	iamsvc "github.com/sentinez/controlplane/apps/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/passkey"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	"github.com/sentinez/sentinez/api/client"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -59,7 +59,7 @@ func NewDefaultService(
 		zlog.Errorf("iamfactory: init account repo err=%v", err)
 	}
 
-	tx := postgres.NewTX(appConf)
+	tx := szpostgres.NewTX(appConf)
 	dataStore := passkey.NewMemoryStorage(time.Hour)
 
 	return iamsvc.New(appConf, tx, dataStore, userrepos, accountrepos)

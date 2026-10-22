@@ -19,10 +19,10 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/common/tables"
-	"github.com/sentinez/core/storage/dbx"
-	"github.com/sentinez/core/storage/dbx/postgres"
-	"github.com/sentinez/core/storage/utils/table"
+	"github.com/sentinez/core/szcmn/sztables"
+	"github.com/sentinez/core/szstorage/szdbx"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -38,7 +38,7 @@ type IRateLimit interface {
 	Get(ctx context.Context, id string) (*securitypb.RateLimit, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IRateLimit
+	WithTX(tx *szpostgres.TxSession) IRateLimit
 
 	List(ctx context.Context, req *securitypb.ListRateLimitsRequest) ([]*securitypb.RateLimit, int64, error)
 }
@@ -47,21 +47,21 @@ var _ IRateLimit = (*RateLimit)(nil)
 
 // New creates a RateLimit repository backed by Postgres.
 func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
-	storage, err := postgres.New[securitypb.RateLimit](ctx, appConf,
-		dbx.WithTable(tables.SecurityRateLimits),
-		dbx.WithColumns(dbx.ColumnM{
-			securitypb.RateLimit_Id:              postgres.String,
-			securitypb.RateLimit_Name:            postgres.String,
-			securitypb.RateLimit_Description:     postgres.String,
-			securitypb.RateLimit_Expr:            postgres.JSONB,
-			securitypb.RateLimit_Status:          postgres.Int4,
-			securitypb.RateLimit_Priority:        postgres.Int4,
-			securitypb.RateLimit_Action:          postgres.String,
-			securitypb.RateLimit_TimeWindow:      postgres.String,
-			securitypb.RateLimit_MaxRequests:     postgres.Int8,
-			securitypb.RateLimit_Timeout:         postgres.String,
-			securitypb.RateLimit_OwnerResourceId: postgres.String,
-			securitypb.RateLimit_OwnerTenantId:   postgres.String,
+	storage, err := szpostgres.New[securitypb.RateLimit](ctx, appConf,
+		szdbx.WithTable(sztables.SecurityRateLimits),
+		szdbx.WithColumns(szdbx.ColumnM{
+			securitypb.RateLimit_Id:              szpostgres.String,
+			securitypb.RateLimit_Name:            szpostgres.String,
+			securitypb.RateLimit_Description:     szpostgres.String,
+			securitypb.RateLimit_Expr:            szpostgres.JSONB,
+			securitypb.RateLimit_Status:          szpostgres.Int4,
+			securitypb.RateLimit_Priority:        szpostgres.Int4,
+			securitypb.RateLimit_Action:          szpostgres.String,
+			securitypb.RateLimit_TimeWindow:      szpostgres.String,
+			securitypb.RateLimit_MaxRequests:     szpostgres.Int8,
+			securitypb.RateLimit_Timeout:         szpostgres.String,
+			securitypb.RateLimit_OwnerResourceId: szpostgres.String,
+			securitypb.RateLimit_OwnerTenantId:   szpostgres.String,
 		}),
 	)
 	if err != nil {
@@ -75,12 +75,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
 
 // RateLimit is the Postgres repository for rate limit rules.
 type RateLimit struct {
-	storage dbx.Database[securitypb.RateLimit]
+	storage szdbx.Database[securitypb.RateLimit]
 }
 
-func (r *RateLimit) WithTX(tx *postgres.TxSession) IRateLimit {
+func (r *RateLimit) WithTX(tx *szpostgres.TxSession) IRateLimit {
 	return &RateLimit{
-		storage: postgres.WithTx(tx, r.storage),
+		storage: szpostgres.WithTx(tx, r.storage),
 	}
 }
 
@@ -141,8 +141,8 @@ func (r *RateLimit) total(
 
 func (r *RateLimit) Create(ctx context.Context,
 	model *securitypb.RateLimit) (*securitypb.RateLimit, error) {
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.SecurityRateLimits))
-	query := postgres.InsertBuilder(r.storage, postgres.M{
+	model.Id = rand.NewId(sztable.NewPrimaryKey(sztables.SecurityRateLimits))
+	query := szpostgres.InsertBuilder(r.storage, szpostgres.M{
 		securitypb.RateLimit_Id:              model.GetId(),
 		securitypb.RateLimit_Name:            model.GetName(),
 		securitypb.RateLimit_Description:     model.GetDescription(),
@@ -181,7 +181,7 @@ func (r *RateLimit) Update(
 	ctx context.Context,
 	model *securitypb.RateLimit,
 ) error {
-	query := postgres.UpdateBuilder(r.storage, model.GetId()).
+	query := szpostgres.UpdateBuilder(r.storage, model.GetId()).
 		SetMap(sq.Eq{
 			securitypb.RateLimit_Name:        model.GetName(),
 			securitypb.RateLimit_Description: model.GetDescription(),
@@ -199,7 +199,7 @@ func (r *RateLimit) Update(
 }
 
 func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return postgres.SelectBuilder(r.storage, page,
+	return szpostgres.SelectBuilder(r.storage, page,
 		securitypb.RateLimit_Id,
 		securitypb.RateLimit_Name,
 		securitypb.RateLimit_Description,
@@ -210,14 +210,14 @@ func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.RateLimit_TimeWindow,
 		securitypb.RateLimit_MaxRequests,
 		securitypb.RateLimit_Timeout,
-		postgres.SelectCoalesce(securitypb.RateLimit_OwnerResourceId),
-		postgres.SelectCoalesce(securitypb.RateLimit_OwnerTenantId),
+		szpostgres.SelectCoalesce(securitypb.RateLimit_OwnerResourceId),
+		szpostgres.SelectCoalesce(securitypb.RateLimit_OwnerTenantId),
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
 }
 
-func scan(rows dbx.Rows) ([]*securitypb.RateLimit, error) {
+func scan(rows szdbx.Rows) ([]*securitypb.RateLimit, error) {
 	var models []*securitypb.RateLimit
 	for rows.Next() {
 		model, err := scanOne(rows)
@@ -229,7 +229,7 @@ func scan(rows dbx.Rows) ([]*securitypb.RateLimit, error) {
 	return models, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
+func scanOne(row szdbx.Row) (*securitypb.RateLimit, error) {
 	var (
 		createdAt, updatedAt time.Time
 		resourceId, tenantId string

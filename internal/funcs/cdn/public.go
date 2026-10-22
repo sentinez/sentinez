@@ -25,9 +25,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/common/bytestr"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
@@ -60,11 +60,11 @@ var _imageTypes = map[string]string{
 	".ico":  "image/x-icon",
 }
 
-var _ corechains.ChainNode = (*Public)(nil)
+var _ szchains.ChainNode = (*Public)(nil)
 
 // NewPublic returns a node serving the images embedded in the binary.
 func NewPublic(
-	_ *memory.MemStore, _ ...option.Option) corechains.ChainNode {
+	_ *memory.MemStore, _ ...option.Option) szchains.ChainNode {
 
 	images, err := loadImages(sentinez.Logo, _publicRoot)
 	if err != nil {
@@ -72,7 +72,7 @@ func NewPublic(
 	}
 
 	return &Public{
-		Node:   corechains.NewNode(),
+		Node:   szchains.NewNode(),
 		images: images,
 	}
 }
@@ -80,7 +80,7 @@ func NewPublic(
 // Public serves embedded images under PublicPrefix. Requests outside the
 // prefix are passed to the next node untouched.
 type Public struct {
-	*corechains.Node
+	*szchains.Node
 
 	// images is keyed by the path relative to PublicPrefix and is
 	// read-only after construction.
@@ -94,7 +94,7 @@ type image struct {
 	etag        []byte
 }
 
-func (p *Public) Handle(ctx corehttp.Context) error {
+func (p *Public) Handle(ctx szhttp.Context) error {
 	name, ok := bytes.CutPrefix(ctx.Path(), _publicPrefix)
 	if !ok {
 		return p.HandleNext(ctx)
@@ -103,33 +103,33 @@ func (p *Public) Handle(ctx corehttp.Context) error {
 	method := string(ctx.Method())
 	if method != http.MethodGet && method != http.MethodHead {
 		ctx.SetResponseHeader(
-			bytestr.HeaderAllow, bytestr.ValueAllowGetHead)
+			szbytestr.HeaderAllow, szbytestr.ValueAllowGetHead)
 		return ctx.String(
-			http.StatusMethodNotAllowed, bytestr.MethodNotAllowed)
+			http.StatusMethodNotAllowed, szbytestr.MethodNotAllowed)
 	}
 
 	img, ok := p.images[string(name)]
 	if !ok {
-		return corehttp.NotFound(ctx)
+		return szhttp.NotFound(ctx)
 	}
 
 	return serveImage(ctx, img)
 }
 
-func serveImage(ctx corehttp.Context, img *image) error {
-	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
-	ctx.SetResponseHeader(bytestr.HeaderCacheControl, _publicCacheControl)
-	ctx.SetResponseHeader(bytestr.HeaderETag, img.etag)
+func serveImage(ctx szhttp.Context, img *image) error {
+	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
+	ctx.SetResponseHeader(szbytestr.HeaderCacheControl, _publicCacheControl)
+	ctx.SetResponseHeader(szbytestr.HeaderETag, img.etag)
 
-	if bytes.Contains(ctx.Header(bytestr.HeaderIfNoneMatch), img.etag) {
+	if bytes.Contains(ctx.Header(szbytestr.HeaderIfNoneMatch), img.etag) {
 		ctx.SetStatusCode(http.StatusNotModified)
 		return nil
 	}
 
-	ctx.SetResponseHeader(bytestr.HeaderContentType, img.contentType)
-	ctx.SetResponseHeader(bytestr.HeaderContentLength, img.length)
+	ctx.SetResponseHeader(szbytestr.HeaderContentType, img.contentType)
+	ctx.SetResponseHeader(szbytestr.HeaderContentLength, img.length)
 	ctx.SetResponseHeader(
-		bytestr.HeaderXContentTypeOpts, bytestr.ValueNoSniff)
+		szbytestr.HeaderXContentTypeOpts, szbytestr.ValueNoSniff)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(http.StatusOK)
 	ctx.SetBody(img.body)

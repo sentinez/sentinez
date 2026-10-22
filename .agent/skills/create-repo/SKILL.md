@@ -19,9 +19,9 @@ The repository should be placed in an appropriate package under `repos/<model_pl
 Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
 - Protobuf models from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1`
-- `github.com/sentinez/core/common/tables` for table definitions (add the new table constant there)
-- `github.com/sentinez/core/storage/dbx` and `github.com/sentinez/core/storage/dbx/postgres` for database interactions
-- `github.com/sentinez/core/storage/utils/table`
+- `github.com/sentinez/core/szcmn/sztables` for table definitions (add the new table constant there)
+- `github.com/sentinez/core/szstorage/szdbx` and `github.com/sentinez/core/szstorage/szdbx/szpostgres` for database interactions
+- `github.com/sentinez/core/szstorage/szstorageutils/sztable`
 - `github.com/sentinez/shared/rand` for ID generation (`rand.NewId`)
 
 ## 2. Define the Interface

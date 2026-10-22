@@ -18,8 +18,8 @@ import (
 	"sort"
 	"sync"
 
-	corehttp "github.com/sentinez/core/http"
-	corerule "github.com/sentinez/core/rules"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szrule"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/jsonx"
@@ -44,7 +44,7 @@ func New() *SecRule {
 
 // Entry is a compiled rule ready to be evaluated.
 type Entry struct {
-	Eval corerule.EvalFunc
+	Eval szrule.EvalFunc
 	Rule *secrulepb.SecRule
 }
 
@@ -66,7 +66,7 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 		zlog.Debugf("rule: load config: %s", val)
 
 		chain = append(chain, Entry{
-			Eval: corerule.NewEval(r.GetExpr()),
+			Eval: szrule.NewEval(r.GetExpr()),
 			Rule: r,
 		})
 	}
@@ -90,7 +90,7 @@ func (sr *SecRule) Load(namespace string) []Entry {
 	return chain
 }
 
-func (sr *SecRule) LoadContext(ctx corehttp.Context) []Entry {
+func (sr *SecRule) LoadContext(ctx szhttp.Context) []Entry {
 	if sr == nil {
 		return nil
 	}

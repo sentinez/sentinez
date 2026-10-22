@@ -21,9 +21,9 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
-	corehttpreq "github.com/sentinez/core/http/request"
-	corers "github.com/sentinez/core/rulesets"
-	"github.com/sentinez/core/storage/cache/mem"
+	"github.com/sentinez/core/szhttp/szhttpreq"
+	"github.com/sentinez/core/szrs"
+	"github.com/sentinez/core/szstorage/szcache/szmem"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
@@ -34,12 +34,12 @@ var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)
 
 func New() *EdgeService {
 	return &EdgeService{
-		space: mem.NewDefault[coraza.WAF](),
+		space: szmem.NewDefault[coraza.WAF](),
 	}
 }
 
 type EdgeService struct {
-	space *mem.Cache[coraza.WAF]
+	space *szmem.Cache[coraza.WAF]
 }
 
 // Status implements [edgepb.EdgeServiceServer].
@@ -71,9 +71,9 @@ func (e *EdgeService) EvalCoreRuleset(ctx context.Context,
 
 	e.space.SetWithTTL(request.String(), waf, time.Hour)
 
-	req := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
+	req := szhttpreq.NewRequestContext(ctx, request.GetRequestContext())
 
-	eval, err := corers.Evaluate(waf, req)
+	eval, err := szrs.Evaluate(waf, req)
 	if err != nil {
 		return nil, errorx.StatusInternalErrorF("evaluate: %v", err)
 	}
@@ -83,7 +83,7 @@ func (e *EdgeService) EvalCoreRuleset(ctx context.Context,
 
 // toResults maps each matched rule to a result. Only the rule that
 // interrupted the request carries an action.
-func toResults(eval corers.Evaluation) []*edgepb.EvalResult {
+func toResults(eval szrs.Evaluation) []*edgepb.EvalResult {
 	results := make([]*edgepb.EvalResult, 0, len(eval.Matched))
 
 	for _, mr := range eval.Matched {

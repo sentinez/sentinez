@@ -45,8 +45,8 @@ have not been reproduced. Remove an entry once it is fixed.
   an empty `Expression` (always matches) and ignores `ruleset_id`.
 - SecRule actions other than `BLOCK` are not executed; operators
   `GT/GTE/LT/LTE` are not implemented.
-- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/storage/{keyval,
-  clickhouse,kafka,elastic}`, `eventpub/eventsub` are empty packages.
+- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/szstorage/{szkeyval,
+  szclickhouse,szkafka,szelastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - `network.QuicTransporter` and the `onQuicAccept` listener hook exist but
@@ -71,7 +71,7 @@ have not been reproduced. Remove an entry once it is fixed.
   `senz.security.secrules.`; users get `senz.iam.users.` but
   `GetUserRequest/UpdateUserRequest/DeleteUserRequest` require `senz.users.`.
   Not visible today because the gRPC server doesn't validate requests.
-- `corehttp.Forbidden/NotFound/...` render under one global `sync.Mutex`,
+- `szhttp.Forbidden/NotFound/...` render under one global `sync.Mutex`,
   serializing every error response.
 - `preflightHandler` sets `Access-Control-Max-Age` after `WriteHeader` (no
   effect); the grpc-gateway `extendHeader` sets the `Server` header after

@@ -21,7 +21,7 @@ import (
 	_ "net/http/pprof" // registers the /debug/pprof handlers
 	"time"
 
-	"github.com/sentinez/core/runner"
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/shared/zlog"
 )
 
@@ -33,7 +33,7 @@ const (
 // Pprof exposes runtime profiling data at :6060.
 //
 //	go tool pprof http://localhost:6060/debug/pprof/profile
-func Pprof(c *runner.Context[http.Server]) {
+func Pprof(c *szrunner.Context[http.Server]) {
 	c.Inject(func() *http.Server {
 		return &http.Server{
 			Addr:              _pprofAddr,

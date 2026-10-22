@@ -20,30 +20,30 @@ import (
 	"time"
 
 	"github.com/sentinez/core"
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/pkg/tracer"
 	"github.com/sentinez/shared/rand"
 	"github.com/sentinez/shared/zlog"
 )
 
-var _ corechains.ChainNode = (*stage)(nil)
+var _ szchains.ChainNode = (*stage)(nil)
 
-func NewTracer(_ ...option.Option) corechains.ChainNode {
+func NewTracer(_ ...option.Option) szchains.ChainNode {
 	return &Trace{
-		Node: corechains.NewNode(),
+		Node: szchains.NewNode(),
 	}
 }
 
 type Trace struct {
-	*corechains.Node
+	*szchains.Node
 }
 
 // Handle makes sure the request has an id. The engine context assigns it
 // once when the request is accepted; one is only generated here for a
 // context that has none, so a request never gets a second id.
-func (t *Trace) Handle(ctx corehttp.Context) error {
+func (t *Trace) Handle(ctx szhttp.Context) error {
 	if ctx.RequestId() == "" {
 		ctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
 	}
@@ -55,21 +55,21 @@ func (t *Trace) Handle(ctx corehttp.Context) error {
 // attributed to a deeper stage) is tagged with name and logged once.
 // Because errors unwind from the innermost node outwards, the first
 // stage to see an error is the one that produced it.
-func Wrap(name string, node corechains.ChainNode) corechains.ChainNode {
+func Wrap(name string, node szchains.ChainNode) szchains.ChainNode {
 	return &stage{name: name, node: node}
 }
 
 type stage struct {
 	name string
-	node corechains.ChainNode
+	node szchains.ChainNode
 }
 
-func (s *stage) SetNext(next corechains.ChainNode) corechains.ChainNode {
+func (s *stage) SetNext(next szchains.ChainNode) szchains.ChainNode {
 	s.node.SetNext(next)
 	return next
 }
 
-func (s *stage) Handle(ctx corehttp.Context) error {
+func (s *stage) Handle(ctx szhttp.Context) error {
 	begin := time.Now()
 	err := s.node.Handle(ctx)
 	if err == nil {
@@ -93,7 +93,7 @@ func (s *stage) Handle(ctx corehttp.Context) error {
 // error, e.g. a node that rendered a 403 page. Errors unwind from the
 // innermost node outwards, so for a request the first stage logged is
 // the one that answered; the stages after it only passed it through.
-func (s *stage) traceStatus(ctx corehttp.Context, begin time.Time) {
+func (s *stage) traceStatus(ctx szhttp.Context, begin time.Time) {
 	status := ctx.StatusCode()
 	if status < http.StatusBadRequest {
 		return

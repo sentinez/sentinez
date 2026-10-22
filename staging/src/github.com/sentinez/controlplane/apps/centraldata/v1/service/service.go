@@ -17,7 +17,7 @@ package centraldatasvc
 import (
 	"context"
 
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -26,11 +26,11 @@ var _ pb.CentralDataServiceServer = (*CentralDataService)(nil)
 
 type CentralDataService struct {
 	config *settingpb.Config
-	tx     *postgres.Tx
+	tx     *szpostgres.Tx
 }
 
 func New(config *settingpb.Config,
-	tx *postgres.Tx,
+	tx *szpostgres.Tx,
 ) *CentralDataService {
 
 	return &CentralDataService{

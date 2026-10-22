@@ -15,8 +15,8 @@
 package secure
 
 import (
-	corehttp "github.com/sentinez/core/http"
-	corechains "github.com/sentinez/core/http/chains"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/szchains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -29,12 +29,12 @@ import (
 )
 
 func NewSecRule(
-	store *memory.MemStore, opts ...option.Option) corechains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &SecRule{
-		Node:  corechains.NewNode(),
+		Node:  szchains.NewNode(),
 		store: store,
 		log: zlog.NewLogCloser(
 			o.Named,
@@ -46,7 +46,7 @@ func NewSecRule(
 }
 
 type SecRule struct {
-	*corechains.Node
+	*szchains.Node
 	log   zlog.LogCloser
 	store *memory.MemStore
 }
@@ -54,7 +54,7 @@ type SecRule struct {
 // Handle runs the active rules of the namespace in priority order. The
 // first matching rule with a terminal action (block) ends the chain; other
 // matches fall through to the next rule.
-func (sr *SecRule) Handle(ctx corehttp.Context) error {
+func (sr *SecRule) Handle(ctx szhttp.Context) error {
 	chain := sr.store.SecRule().LoadContext(ctx)
 	if len(chain) == 0 {
 		return sr.HandleNext(ctx)
@@ -71,7 +71,7 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 	sr.logMatched(ctx, action, matched.MatchedRules)
 
 	if action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK {
-		return corehttp.Forbidden(ctx)
+		return szhttp.Forbidden(ctx)
 	}
 
 	return sr.HandleNext(ctx)
@@ -79,7 +79,7 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 
 // logMatched emits a secrule event for the request matched by mr.
 func (sr *SecRule) logMatched(
-	ctx corehttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
+	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
 ) {
 	event := secrule.Acquire()
 
@@ -103,7 +103,7 @@ func (sr *SecRule) logMatched(
 // action (block), else of the last matching rule. A rule that does not
 // match has no say: nil when no rule matches.
 func matchAction(
-	ctx corehttp.Context, chain []secrules.Entry, mr *rulepb.MatchedRules,
+	ctx szhttp.Context, chain []secrules.Entry, mr *rulepb.MatchedRules,
 ) *rulepb.Action {
 	var action *rulepb.Action
 

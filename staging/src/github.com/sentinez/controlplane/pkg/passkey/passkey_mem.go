@@ -19,7 +19,7 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/storage/cache/mem"
+	"github.com/sentinez/core/szstorage/szcache/szmem"
 	"github.com/sentinez/shared/rand"
 )
 
@@ -28,17 +28,17 @@ func NewMemoryStorage(ttl time.Duration) Store {
 		ttl: ttl,
 
 		// key: token
-		sessions: mem.NewDefault[*webauthn.SessionData](),
+		sessions: szmem.NewDefault[*webauthn.SessionData](),
 
 		// key: token
-		registrations: mem.NewDefault[*Registration](),
+		registrations: szmem.NewDefault[*Registration](),
 	}
 }
 
 type MemoryStorage struct {
 	ttl           time.Duration
-	sessions      *mem.Cache[*webauthn.SessionData]
-	registrations *mem.Cache[*Registration]
+	sessions      *szmem.Cache[*webauthn.SessionData]
+	registrations *szmem.Cache[*Registration]
 }
 
 // SaveRegistration implements Store.

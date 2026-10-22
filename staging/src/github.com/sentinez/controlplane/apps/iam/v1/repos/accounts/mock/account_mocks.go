@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
-	"github.com/sentinez/core/storage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -717,7 +717,7 @@ func (_c *MockIAccount_Update_Call) RunAndReturn(run func(ctx context.Context, a
 }
 
 // WithTX provides a mock function for the type MockIAccount
-func (_mock *MockIAccount) WithTX(tx *postgres.TxSession) accrepos.IAccount {
+func (_mock *MockIAccount) WithTX(tx *szpostgres.TxSession) accrepos.IAccount {
 	ret := _mock.Called(tx)
 
 	if len(ret) == 0 {
@@ -725,7 +725,7 @@ func (_mock *MockIAccount) WithTX(tx *postgres.TxSession) accrepos.IAccount {
 	}
 
 	var r0 accrepos.IAccount
-	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) accrepos.IAccount); ok {
+	if returnFunc, ok := ret.Get(0).(func(*szpostgres.TxSession) accrepos.IAccount); ok {
 		r0 = returnFunc(tx)
 	} else {
 		if ret.Get(0) != nil {
@@ -741,16 +741,16 @@ type MockIAccount_WithTX_Call struct {
 }
 
 // WithTX is a helper method to define mock.On call
-//   - tx *postgres.TxSession
+//   - tx *szpostgres.TxSession
 func (_e *MockIAccount_Expecter) WithTX(tx any) *MockIAccount_WithTX_Call {
 	return &MockIAccount_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
 }
 
-func (_c *MockIAccount_WithTX_Call) Run(run func(tx *postgres.TxSession)) *MockIAccount_WithTX_Call {
+func (_c *MockIAccount_WithTX_Call) Run(run func(tx *szpostgres.TxSession)) *MockIAccount_WithTX_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *postgres.TxSession
+		var arg0 *szpostgres.TxSession
 		if args[0] != nil {
-			arg0 = args[0].(*postgres.TxSession)
+			arg0 = args[0].(*szpostgres.TxSession)
 		}
 		run(
 			arg0,
@@ -764,7 +764,7 @@ func (_c *MockIAccount_WithTX_Call) Return(iAccount accrepos.IAccount) *MockIAcc
 	return _c
 }
 
-func (_c *MockIAccount_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) accrepos.IAccount) *MockIAccount_WithTX_Call {
+func (_c *MockIAccount_WithTX_Call) RunAndReturn(run func(tx *szpostgres.TxSession) accrepos.IAccount) *MockIAccount_WithTX_Call {
 	_c.Call.Return(run)
 	return _c
 }
