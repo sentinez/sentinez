@@ -142,5 +142,5 @@ Hertz adapter for `szhttp`:
 | Tool | Description |
 |---|---|
 | `protoc-gen-go-senz` | protoc plugin handling `x_meta`, `x_message`, `x_method` |
-| `ruleparser-sentinez` | `-file <crs.conf> -out <dir>` → Go file containing base64-encoded CRS rules |
+| `szruleparser` | `-file <crs.conf> -out <dir>` → Go file containing base64-encoded CRS rules |
 | [tools.go](../staging/src/github.com/sentinez/tools/tools.go) | Pins tool versions: templ, buf, bpf2go, bombardier, protoc-go-inject-tag, grpc-gateway, openapiv2, vtproto, sqlc, mockery, protoc-gen-go(-grpc) |

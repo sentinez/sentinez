@@ -19,7 +19,6 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/tables"
 	"github.com/sentinez/core/szstorage/dbx"
 	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/core/szstorage/storageutils/table"
@@ -29,6 +28,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -60,7 +60,7 @@ func New(
 	ctx context.Context, appConf *settingpb.Config,
 ) (ICoreRuleset, error) {
 	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
-		dbx.WithTable(tables.SecurityCoreRulesets),
+		dbx.WithTable(sztable.SecurityCoreRulesets),
 		dbx.WithColumns(dbx.ColumnM{
 			securitypb.CoreRuleset_Id:              postgres.String,
 			securitypb.CoreRuleset_Name:            postgres.String,
@@ -155,7 +155,7 @@ func (r *CoreRuleset) Create(ctx context.Context,
 		return nil, err
 	}
 
-	model.Id = szrand.NewId(table.NewPrimaryKey(tables.SecurityCoreRulesets))
+	model.Id = szrand.NewId(table.NewPrimaryKey(sztable.SecurityCoreRulesets))
 	owner := model.GetOwner()
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.CoreRuleset_Id:              model.GetId(),

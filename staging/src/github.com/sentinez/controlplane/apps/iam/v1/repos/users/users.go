@@ -19,7 +19,6 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/tables"
 	"github.com/sentinez/core/szstorage/dbx"
 	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/core/szstorage/storageutils/table"
@@ -29,6 +28,7 @@ import (
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -53,7 +53,7 @@ type IUser interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
-		dbx.WithTable(tables.IAMUsers),
+		dbx.WithTable(sztable.IAMUsers),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.User_Id:           postgres.String,
 			iampb.User_Email:        postgres.String,
@@ -152,7 +152,7 @@ func (u *Users) total(
 func (u *Users) Create(ctx context.Context,
 	user *iampb.User) (*iampb.User, error) {
 
-	user.Id = szrand.NewId(table.NewPrimaryKey(tables.IAMUsers))
+	user.Id = szrand.NewId(table.NewPrimaryKey(sztable.IAMUsers))
 	query := postgres.InsertBuilder(u.storage, postgres.M{
 		iampb.User_Id:           user.GetId(),
 		iampb.User_Email:        user.GetEmail(),

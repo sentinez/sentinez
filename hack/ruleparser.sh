@@ -14,30 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen \
     -file deploy/ruleroot/setup.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen \
     -file deploy/ruleroot/default.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen \
     -file deploy/ruleroot/REQUEST-901-INITIALIZATION.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen \
     -file deploy/ruleroot/REQUEST-949-BLOCKING-EVALUATION.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen \
     -file deploy/ruleroot/audit.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen/v4-16-0 \
     -file deploy/ruleroot/v4-16-0/*.conf
 
-ruleparser-sentinez \
+szruleparser \
     -out staging/src/github.com/sentinez/core/szmodsec/gen/v4-17-0 \
     -file deploy/ruleroot/v4-17-0/*.conf

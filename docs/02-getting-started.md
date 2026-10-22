@@ -160,7 +160,7 @@ Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript for the UI | `cd api && buf generate` (`ts-proto` plugin → `ui/packages/proto/ts-proto`) |
 | Error page templates | `cd staging/.../core/szcmn/render && templ generate` |
-| CRS rules → Go | `bash hack/ruleparser.sh` (needs `ruleparser-sentinez` on PATH) |
+| CRS rules → Go | `bash hack/ruleparser.sh` (needs `szruleparser` on PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy third-party protos | `bash hack/copy_proto3pt.sh` |
 | Copy CRS `.data` files | `bash hack/copy_rule_data.sh` |

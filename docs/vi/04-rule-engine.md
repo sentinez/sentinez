@@ -122,8 +122,8 @@ Cấu hình ở `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout` (c
 ### Sinh rule
 
 CRS gốc (`.conf`) nằm ở [deploy/ruleroot](../../deploy/ruleroot/). Công cụ
-`ruleparser-sentinez`
-([tools/cmd/ruleparser-sentinez](../../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
+`szruleparser`
+([tools/cmd/szruleparser](../../staging/src/github.com/sentinez/tools/cmd/szruleparser/main.go)):
 
 1. Parse SecLang bằng parser ANTLR
    ([core/szmodsec/ruleparser](../../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):

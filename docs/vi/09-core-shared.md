@@ -141,5 +141,5 @@ Adapter Hertz cho `szhttp`:
 | Công cụ | Mô tả |
 |---|---|
 | `protoc-gen-go-senz` | Plugin protoc xử lý `x_meta`, `x_message`, `x_method` |
-| `ruleparser-sentinez` | `-file <crs.conf> -out <dir>` → file Go chứa rule CRS mã hoá base64 |
+| `szruleparser` | `-file <crs.conf> -out <dir>` → file Go chứa rule CRS mã hoá base64 |
 | [tools.go](../../staging/src/github.com/sentinez/tools/tools.go) | Ghim phiên bản các công cụ: templ, buf, bpf2go, bombardier, protoc-go-inject-tag, grpc-gateway, openapiv2, vtproto, sqlc, mockery, protoc-gen-go(-grpc) |

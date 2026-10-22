@@ -19,7 +19,6 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/tables"
 	"github.com/sentinez/core/szstorage/dbx"
 	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/core/szstorage/storageutils/table"
@@ -29,6 +28,7 @@ import (
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -58,7 +58,7 @@ type IAccount interface {
 func New(ctx context.Context, appConf *settingpb.Config) (IAccount, error) {
 
 	storage, err := postgres.New[AccountX](ctx, appConf,
-		dbx.WithTable(tables.IAMAccounts),
+		dbx.WithTable(sztable.IAMAccounts),
 		dbx.WithColumns(dbx.ColumnM{
 			iampb.Account_Id:             postgres.String,
 			iampb.Account_Email:          postgres.String,
@@ -227,7 +227,7 @@ func (acc *Accounts) getOne(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	account.Id = szrand.NewId(table.NewPrimaryKey(tables.IAMAccounts))
+	account.Id = szrand.NewId(table.NewPrimaryKey(sztable.IAMAccounts))
 
 	if account.GetUsername() == "" {
 		account.Username = account.GetEmail()

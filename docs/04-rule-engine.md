@@ -128,8 +128,8 @@ Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
 ### Rule generation
 
 The original CRS (`.conf`) lives in [deploy/ruleroot](../deploy/ruleroot/).
-The `ruleparser-sentinez` tool
-([tools/cmd/ruleparser-sentinez](../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
+The `szruleparser` tool
+([tools/cmd/szruleparser](../staging/src/github.com/sentinez/tools/cmd/szruleparser/main.go)):
 
 1. Parses SecLang with an ANTLR parser
    ([core/szmodsec/ruleparser](../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):

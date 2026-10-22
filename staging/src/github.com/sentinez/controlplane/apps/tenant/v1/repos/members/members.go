@@ -19,7 +19,6 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/tables"
 	"github.com/sentinez/core/szstorage/dbx"
 	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/core/szstorage/storageutils/table"
@@ -28,6 +27,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -47,7 +47,7 @@ type IMember interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IMember, error) {
 	storage, err := postgres.New[tenantpb.Member](ctx, appConf,
-		dbx.WithTable(tables.TenantMembers),
+		dbx.WithTable(sztable.TenantMembers),
 		dbx.WithColumns(dbx.ColumnM{
 			tenantpb.Member_Id:       postgres.String,
 			tenantpb.Member_UserId:   postgres.String,
@@ -145,7 +145,7 @@ func (m *Members) total(
 func (m *Members) Create(ctx context.Context,
 	member *tenantpb.Member) (*tenantpb.Member, error) {
 
-	member.Id = szrand.NewId(table.NewPrimaryKey(tables.TenantMembers))
+	member.Id = szrand.NewId(table.NewPrimaryKey(sztable.TenantMembers))
 	query := postgres.InsertBuilder(m.storage, postgres.M{
 		tenantpb.Member_Id:       member.GetId(),
 		tenantpb.Member_UserId:   member.GetUserId(),

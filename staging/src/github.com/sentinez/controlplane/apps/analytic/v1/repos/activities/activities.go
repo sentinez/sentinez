@@ -19,7 +19,6 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/tables"
 	"github.com/sentinez/core/szstorage/dbx"
 	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/core/szstorage/storageutils/table"
@@ -28,6 +27,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -49,7 +49,7 @@ type IActivity interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
 	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
-		dbx.WithTable(tables.AnalyticActivities),
+		dbx.WithTable(sztable.AnalyticActivities),
 		dbx.WithColumns(dbx.ColumnM{
 			analyticpb.Activity_Id:              postgres.String,
 			analyticpb.Activity_OwnerResourceId: postgres.String,
@@ -142,7 +142,7 @@ func (a *Activities) total(
 func (a *Activities) Create(ctx context.Context,
 	activity *analyticpb.Activity) (*analyticpb.Activity, error) {
 
-	activity.Id = szrand.NewId(table.NewPrimaryKey(tables.AnalyticActivities))
+	activity.Id = szrand.NewId(table.NewPrimaryKey(sztable.AnalyticActivities))
 	owner := activity.GetOwner()
 	query := postgres.InsertBuilder(a.storage, postgres.M{
 		analyticpb.Activity_Id:              activity.GetId(),

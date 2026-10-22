@@ -158,7 +158,7 @@ Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript cho UI | `cd api && buf generate` (plugin `ts-proto` → `ui/packages/proto/ts-proto`) |
 | Template trang lỗi | `cd staging/.../core/szcmn/render && templ generate` |
-| Rule CRS → Go | `bash hack/ruleparser.sh` (cần `ruleparser-sentinez` trong PATH) |
+| Rule CRS → Go | `bash hack/ruleparser.sh` (cần `szruleparser` trong PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy proto bên thứ ba | `bash hack/copy_proto3pt.sh` |
 | Copy file `.data` của CRS | `bash hack/copy_rule_data.sh` |
