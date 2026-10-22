@@ -291,7 +291,7 @@ func (c *Context) Unwrap() any {
 }
 
 func (c *Context) Close() error {
-	c.BaseContext.Reset()
+	c.Reset()
 
 	c.req = nil
 	c.ctx = nil

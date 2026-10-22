@@ -498,7 +498,7 @@ func (c *Context) Response() http.ResponseWriter {
 }
 
 func (c *Context) Close() error {
-	c.BaseContext.Reset()
+	c.Reset()
 
 	c.req = nil
 	c.resp = nil
