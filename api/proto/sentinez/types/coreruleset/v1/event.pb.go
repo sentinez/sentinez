@@ -197,7 +197,7 @@ var File_sentinez_types_coreruleset_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/types/coreruleset/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xbd\x04\n" +
+	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xbd\x04\n" +
 	"\rCoreRuleEvent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
@@ -236,13 +236,13 @@ func file_sentinez_types_coreruleset_v1_event_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_coreruleset_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_coreruleset_v1_event_proto_goTypes = []any{
-	(*CoreRuleEvent)(nil), // 0: sentinez.types.secrule.v1.CoreRuleEvent
+	(*CoreRuleEvent)(nil), // 0: sentinez.types.coreruleset.v1.CoreRuleEvent
 	(v1.RuleService)(0),   // 1: sentinez.types.rule.v1.RuleService
 	(v1.RuleBehavior)(0),  // 2: sentinez.types.rule.v1.RuleBehavior
 }
 var file_sentinez_types_coreruleset_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.secrule.v1.CoreRuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
-	2, // 1: sentinez.types.secrule.v1.CoreRuleEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
+	1, // 0: sentinez.types.coreruleset.v1.CoreRuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
+	2, // 1: sentinez.types.coreruleset.v1.CoreRuleEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
