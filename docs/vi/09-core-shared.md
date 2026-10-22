@@ -28,21 +28,21 @@ provider riêng trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, do edge server sở hữu v
 flush trong `Shutdown`; không đặt thì cũng không push. Endpoint `https://`
 dùng TLS.
 
-## 9.2 `core/szhttp` và `core/szhttp/szchains`
+## 9.2 `core/szhttp` và `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).
-- `DecoreServer(conf, s)`: decorator in banner ASCII (`szconsole.INFO`) trước
+- `DecoreServer(conf, s)`: decorator in banner ASCII (`console.INFO`) trước
   khi listen.
 - Helper trả lỗi: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (render templ).
-- `szchains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
+- `chains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
   `GetNext` — nền cho chain middleware edge.
-- `core/szhttp/szvariable`: biến kiểu nginx cho header proxy.
-- `core/szhttp/szhttpconst`, `core/szcmn/szbytestr`: hằng header/giá trị (dạng string
+- `core/szhttp/variable`: biến kiểu nginx cho header proxy.
+- `core/szhttp/httpconst`, `core/szcmn/bytestr`: hằng header/giá trị (dạng string
   và `[]byte`).
 
 ## 9.3 `core/szgrpc`
@@ -51,7 +51,7 @@ dùng TLS.
   `WithGRPCServerOption(...)`. `Serve(conf)` listen TCP `SENZ_ADDRESS`, in
   banner, tuỳ chọn đăng ký Consul. `BufServe(bufLis)` phục vụ qua bufconn.
   `Shutdown` = `GracefulStop`.
-- `core/szgrpc/szgrpcgateway`: xem [06-gateway.md](06-gateway.md).
+- `core/szgrpc/grpcgateway`: xem [06-gateway.md](06-gateway.md).
 
 ## 9.4 Các gói `core` khác
 
@@ -60,40 +60,40 @@ dùng TLS.
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
 | `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/szcmn/szconsole` | Banner ASCII (`go-figure`) in một lần khi service chạy |
-| `core/szcmn/szrender` | Template `templ` cho trang 400/403/404/429/500 |
-| `core/szstorage/szcache/szmem` | Cache generic dựa trên `patrickmn/go-cache` |
-| `core/szstorage/szdbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstorageszdbx) |
-| `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Package rỗng (dự kiến) |
+| `core/szcmn/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
+| `core/szcmn/render` | Template `templ` cho trang 400/403/404/429/500 |
+| `core/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
+| `core/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstoragedbx) |
+| `core/szstorage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 
 | Gói | Nội dung |
 |---|---|
-| `zlog` | Logging (chi tiết dưới) |
-| `config` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SENZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
-| `flagx` | Flag chung `--mode`, `--log_level`; `Parse(meta)` (usage in banner); `Validate` bằng protovalidate |
-| `errorx` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
-| `perms` | `Allow(XMethod, ControlPlane)` |
-| `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
+| `szlog` | Logging (chi tiết dưới) |
+| `szconfig` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SENZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
+| `szflag` | Flag chung `--mode`, `--log_level`; `Parse(meta)` (usage in banner); `Validate` bằng protovalidate |
+| `szerror` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
+| `szperms` | `Allow(XMethod, ControlPlane)` |
+| `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
+| `szrand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
 | `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
-| `jsonx` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
-| `protobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
-| `protobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |
-| `copier` | Sao chép proto/JSON qua marshal |
-| `cron` | `Start(ctx, interval, job)`: chạy job ngay rồi lặp theo ticker đến khi ctx huỷ |
-| `eventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
-| `store/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
-| `color` | Màu ANSI cho log console |
-| `topic` | Package rỗng |
+| `szjson` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
+| `szprotobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
+| `szprotobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |
+| `szcopier` | Sao chép proto/JSON qua marshal |
+| `szcron` | `Start(ctx, interval, job)`: chạy job ngay rồi lặp theo ticker đến khi ctx huỷ |
+| `szeventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
+| `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
+| `szcolor` | Màu ANSI cho log console |
+| `sztopic` | Package rỗng |
 
-### `zlog`
+### `szlog`
 
 Hai loại logger:
 
-1. **Console (sugar)** — dùng qua hàm toàn cục `zlog.Info/Debugf/Errorf/
+1. **Console (sugar)** — dùng qua hàm toàn cục `szlog.Info/Debugf/Errorf/
    Fatal...`. Encoder console có màu; level đặt bởi `SetScopeLogLevel`.
 2. **Structured event** — `NewLog(name, kind, level)` / `NewLogCloser(...)`
    ghi JSON ra stdout với trường `kind` (`LogType`) và `event` (proto được

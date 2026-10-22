@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/cmd/szedge/v1/server"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // main is the entrypoint of the Edge application.
@@ -30,7 +30,7 @@ import (
 // and registers their start/stop hooks with the runner framework.
 func main() {
 	if err := run(); err != nil {
-		zlog.Fatal(err)
+		szlog.Fatal(err)
 	}
 }
 

@@ -20,9 +20,9 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szrule"
 	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
-	"github.com/sentinez/shared/jsonx"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szjson"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -33,21 +33,21 @@ var (
 func New() *Rule {
 	_once.Do(func() {
 		_inst = &Rule{
-			space:   ssync.NewMap[string, szrule.EvalFunc](),
-			cdnRule: ssync.NewMap[string, *cdnpb.CDN](),
+			space:   szsync.NewMap[string, szrule.EvalFunc](),
+			cdnRule: szsync.NewMap[string, *cdnpb.CDN](),
 		}
 	})
 	return _inst
 }
 
 type Rule struct {
-	space   *ssync.Map[string, szrule.EvalFunc]
-	cdnRule *ssync.Map[string, *cdnpb.CDN]
+	space   *szsync.Map[string, szrule.EvalFunc]
+	cdnRule *szsync.Map[string, *cdnpb.CDN]
 }
 
 func (rc *Rule) Store(namespace string, rule *cdnpb.CDN) {
-	val, _ := jsonx.Marshal(rule)
-	zlog.Debugf("cdn rule: load config: %s", val)
+	val, _ := szjson.Marshal(rule)
+	szlog.Debugf("cdn rule: load config: %s", val)
 
 	ev := szrule.NewEval(rule.GetRuleRuntime().GetExpr())
 

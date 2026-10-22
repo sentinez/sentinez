@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/apps/iam/v1/repos/users"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -436,7 +436,7 @@ func (_c *MockIUser_Update_Call) RunAndReturn(run func(ctx context.Context, user
 }
 
 // WithTX provides a mock function for the type MockIUser
-func (_mock *MockIUser) WithTX(tx *szpostgres.TxSession) usersrepo.IUser {
+func (_mock *MockIUser) WithTX(tx *postgres.TxSession) usersrepo.IUser {
 	ret := _mock.Called(tx)
 
 	if len(ret) == 0 {
@@ -444,7 +444,7 @@ func (_mock *MockIUser) WithTX(tx *szpostgres.TxSession) usersrepo.IUser {
 	}
 
 	var r0 usersrepo.IUser
-	if returnFunc, ok := ret.Get(0).(func(*szpostgres.TxSession) usersrepo.IUser); ok {
+	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) usersrepo.IUser); ok {
 		r0 = returnFunc(tx)
 	} else {
 		if ret.Get(0) != nil {
@@ -460,16 +460,16 @@ type MockIUser_WithTX_Call struct {
 }
 
 // WithTX is a helper method to define mock.On call
-//   - tx *szpostgres.TxSession
+//   - tx *postgres.TxSession
 func (_e *MockIUser_Expecter) WithTX(tx any) *MockIUser_WithTX_Call {
 	return &MockIUser_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
 }
 
-func (_c *MockIUser_WithTX_Call) Run(run func(tx *szpostgres.TxSession)) *MockIUser_WithTX_Call {
+func (_c *MockIUser_WithTX_Call) Run(run func(tx *postgres.TxSession)) *MockIUser_WithTX_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *szpostgres.TxSession
+		var arg0 *postgres.TxSession
 		if args[0] != nil {
-			arg0 = args[0].(*szpostgres.TxSession)
+			arg0 = args[0].(*postgres.TxSession)
 		}
 		run(
 			arg0,
@@ -483,7 +483,7 @@ func (_c *MockIUser_WithTX_Call) Return(iUser usersrepo.IUser) *MockIUser_WithTX
 	return _c
 }
 
-func (_c *MockIUser_WithTX_Call) RunAndReturn(run func(tx *szpostgres.TxSession) usersrepo.IUser) *MockIUser_WithTX_Call {
+func (_c *MockIUser_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) usersrepo.IUser) *MockIUser_WithTX_Call {
 	_c.Call.Return(run)
 	return _c
 }

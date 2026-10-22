@@ -20,24 +20,24 @@ import (
 
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func NewWAF(
-	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &WAF{
-		Node: szchains.NewNode(),
-		log: zlog.NewLogCloser(
+		Node: chains.NewNode(),
+		log: szlog.NewLogCloser(
 			o.Named,
 			typepb.LogType_LOG_TYPE_WAF,
 			o.Level,
@@ -48,14 +48,14 @@ func NewWAF(
 }
 
 type WAF struct {
-	*szchains.Node
-	log   zlog.LogCloser
+	*chains.Node
+	log   szlog.LogCloser
 	store *memory.MemStore
 }
 
 // nolint:funlen
 func (w *WAF) Handle(ctx szhttp.Context) error {
-	// zlog.Debug("[edge] >>> visit WAF")
+	// szlog.Debug("[edge] >>> visit WAF")
 
 	waf, ok := w.store.Rulesets().LoadContext(ctx)
 	if !ok {

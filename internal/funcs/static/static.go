@@ -18,21 +18,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
-var _ szchains.ChainNode = (*Static)(nil)
+var _ chains.ChainNode = (*Static)(nil)
 
 func NewStatic(
-	_ *memory.MemStore, _ ...option.Option) szchains.ChainNode {
+	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
 
 	return &Static{
-		Node: szchains.NewNode(),
+		Node: chains.NewNode(),
 		staticExits: map[string]struct{}{
 			".css": {}, ".js": {}, ".png": {}, ".jpg": {}, ".jpeg": {},
 			".gif": {}, ".ico": {}, ".svg": {}, ".woff": {}, ".woff2": {},
@@ -42,18 +42,18 @@ func NewStatic(
 }
 
 type Static struct {
-	*szchains.Node
+	*chains.Node
 	staticExits map[string]struct{}
 }
 
 func (s *Static) Handle(ctx szhttp.Context) error {
-	// zlog.Debug("[edge] >>> visit static")
+	// szlog.Debug("[edge] >>> visit static")
 
 	err := s.HandleNext(ctx)
 
 	if s.isStaticAsset(bytesconv.B2s(ctx.Path())) {
 		ctx.SetResponseHeader(
-			szbytestr.HeaderCacheControl,
+			bytestr.HeaderCacheControl,
 			[]byte("public, max-age=3600, immutable"),
 		)
 	}

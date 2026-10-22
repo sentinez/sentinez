@@ -17,7 +17,7 @@ package network
 import (
 	"net"
 
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func StdListen(addr string, opts ...NetworkOption) (*StdListener, error) {
@@ -60,7 +60,7 @@ func (l *StdListener) Accept() (net.Conn, error) {
 		}
 	}
 
-	zlog.Debugf("network: new conn: %s", connWrapper.Id)
+	szlog.Debugf("network: new conn: %s", connWrapper.Id)
 
 	return connWrapper, nil
 }

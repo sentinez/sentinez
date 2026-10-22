@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 func New() *Limiter {
 	_once.Do(func() {
 		_limiterInst = &Limiter{
-			space: ssync.NewMap[string, []Entry](),
+			space: szsync.NewMap[string, []Entry](),
 		}
 	})
 
@@ -48,7 +48,7 @@ type Entry struct {
 }
 
 type Limiter struct {
-	space *ssync.Map[string, []Entry]
+	space *szsync.Map[string, []Entry]
 }
 
 // Store replaces the limiters of serverName.
@@ -73,6 +73,6 @@ func (lim *Limiter) LoadContext(ctx szhttp.Context) []Entry {
 		return nil
 	}
 
-	zlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
+	szlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
 	return lim.Load(ctx.X().GetNamespace())
 }

@@ -38,7 +38,7 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/protocol"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
@@ -160,7 +160,7 @@ func (m *MemStore) LoadServer(server szhttp.Server) {
 			m.LoadRulesets(s),
 		)
 		if err != nil {
-			zlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
+			szlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
 		}
 
 		return true
@@ -184,7 +184,7 @@ func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {
 	for _, s := range st {
 		if err := m.setting.Store(s); err != nil {
-			zlog.Errorf("edge: %v", err)
+			szlog.Errorf("edge: %v", err)
 		}
 	}
 }
@@ -226,7 +226,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 
 	for _, l := range limiters {
 		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
-			zlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
+			szlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 			continue
 		}
 

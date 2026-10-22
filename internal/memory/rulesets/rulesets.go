@@ -24,8 +24,8 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -36,7 +36,7 @@ var (
 func New() *Rulesets {
 	_once.Do(func() {
 		_rulesetsInst = &Rulesets{
-			space: ssync.NewMap[string, coraza.WAF](),
+			space: szsync.NewMap[string, coraza.WAF](),
 		}
 	})
 
@@ -48,7 +48,7 @@ type Rulesets struct {
 	// ex: dev.sentinez.vn
 	//	- domain: sentinez.vn
 	// 	- namespace: dev
-	space *ssync.Map[string, coraza.WAF]
+	space *szsync.Map[string, coraza.WAF]
 }
 
 func (rs *Rulesets) Store(
@@ -66,7 +66,7 @@ func (rs *Rulesets) Store(
 
 	rs.space.Store(namespace, waf)
 	if waf != nil {
-		zlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
+		szlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 		return nil, false
 	}
 
-	zlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
+	szlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
 	return rs.Load(ctx.X().GetNamespace())
 }
 

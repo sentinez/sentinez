@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/sdk/log"
 )
@@ -26,7 +26,7 @@ import (
 func TestNewDefaults(t *testing.T) {
 	want := Options{
 		Named: edgepb.GetMetaEdgeServiceKey(),
-		Level: zlog.LevelInfo,
+		Level: szlog.LevelInfo,
 	}
 
 	assert.Equal(t, want, New())
@@ -43,13 +43,13 @@ func TestNew(t *testing.T) {
 			name: "all options",
 			giveOpts: []Option{
 				WithNamed("edge-test"),
-				WithLevel(zlog.LevelError),
+				WithLevel(szlog.LevelError),
 				WithLogger(provider),
 				WithHostname("is.s6z.io.vn"),
 			},
 			want: Options{
 				Named:    "edge-test",
-				Level:    zlog.LevelError,
+				Level:    szlog.LevelError,
 				Logger:   provider,
 				Hostname: "is.s6z.io.vn",
 			},
@@ -57,9 +57,9 @@ func TestNew(t *testing.T) {
 		{
 			name: "last option wins",
 			giveOpts: []Option{
-				WithNamed("a"), WithNamed("b"), WithLevel(zlog.LevelError),
+				WithNamed("a"), WithNamed("b"), WithLevel(szlog.LevelError),
 			},
-			want: Options{Named: "b", Level: zlog.LevelError},
+			want: Options{Named: "b", Level: szlog.LevelError},
 		},
 	}
 

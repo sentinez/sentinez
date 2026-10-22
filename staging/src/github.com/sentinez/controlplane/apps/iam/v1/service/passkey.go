@@ -26,10 +26,10 @@ import (
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/protobuf/protox"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprotobuf/protox"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -41,7 +41,7 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	sid := req.GetSessionId()
 	ss, ok := srv.store.GetSession(sid)
 	if !ok {
-		return nil, errorx.StatusNotFoundF("session not found id=%s", sid)
+		return nil, szerror.StatusNotFoundF("session not found id=%s", sid)
 	}
 
 	// ss.UserID is the handle returned by AccountX.WebAuthnID
@@ -86,7 +86,7 @@ func (srv *IAMService) validateLogin(acc *accrepos.AccountX,
 	}
 
 	if credential.Authenticator.CloneWarning {
-		zlog.Warnf("can't finish login: %s", "CloneWarning")
+		szlog.Warnf("can't finish login: %s", "CloneWarning")
 	}
 
 	return credential, nil
@@ -120,8 +120,8 @@ func (srv *IAMService) PasskeyLoginChallenge(
 	emailOrUsername := req.GetEmailOrUsername()
 	acc, err := srv.accounts.GetByProvider(
 		ctx, iampb.Provider_PROVIDER_PASSKEY, emailOrUsername)
-	if errors.Is(err, errorx.ErrNotFound) {
-		return nil, errorx.StatusNotFoundF(
+	if errors.Is(err, szerror.ErrNotFound) {
+		return nil, szerror.StatusNotFoundF(
 			"not found username or email=%s", emailOrUsername)
 	}
 
@@ -131,7 +131,7 @@ func (srv *IAMService) PasskeyLoginChallenge(
 
 	options, session, err := srv.auth.BeginLogin(acc)
 	if err != nil {
-		return nil, errorx.StatusInternalErrorF("begin login err=%v", err)
+		return nil, szerror.StatusInternalErrorF("begin login err=%v", err)
 	}
 
 	sid, _ := srv.store.GenSessionId()
@@ -152,7 +152,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
 
 	email := req.GetEmailOrUsername()
 	if _, err := mail.ParseAddress(email); err != nil {
-		return nil, errorx.StatusInvalidDataF(
+		return nil, szerror.StatusInvalidDataF(
 			"passkey registration needs an email, got %s", email)
 	}
 
@@ -162,7 +162,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
 
 	options, sid, err := srv.beginRegistration(&passkey.Registration{
 		Email:  email,
-		Handle: rand.NewId(""),
+		Handle: szrand.NewId(""),
 	})
 	if err != nil {
 		return nil, err
@@ -217,7 +217,7 @@ func (srv *IAMService) linkRegistration(ctx context.Context,
 	reg := &passkey.Registration{
 		UserId: user.GetId(),
 		Email:  user.GetEmail(),
-		Handle: rand.NewId(""),
+		Handle: szrand.NewId(""),
 	}
 	if acc != nil {
 		// every passkey of a user shares the handle of its account
@@ -235,13 +235,13 @@ func (srv *IAMService) beginRegistration(
 	opt, ss, err := srv.auth.BeginRegistration(passkeyAccount(reg))
 	if err != nil {
 		return nil, "",
-			errorx.StatusInternalErrorF("can't begin registration: %v", err)
+			szerror.StatusInternalErrorF("can't begin registration: %v", err)
 	}
 
 	sid, err := srv.store.GenSessionId()
 	if err != nil {
 		return nil, "",
-			errorx.StatusInternalErrorF("can't generate session id: %v", err)
+			szerror.StatusInternalErrorF("can't generate session id: %v", err)
 	}
 
 	srv.store.SaveSession(sid, ss)
@@ -260,12 +260,12 @@ func (srv *IAMService) PasskeyRegisterVerify(ctx context.Context,
 	sid := req.GetSessionId()
 	ss, ok := srv.store.GetSession(sid)
 	if !ok {
-		return nil, errorx.StatusNotFoundF("session not found=%s", sid)
+		return nil, szerror.StatusNotFoundF("session not found=%s", sid)
 	}
 
 	reg, ok := srv.store.TakeRegistration(sid)
 	if !ok {
-		return nil, errorx.StatusNotFoundF("session not found=%s", sid)
+		return nil, szerror.StatusNotFoundF("session not found=%s", sid)
 	}
 
 	srv.store.DeleteSession(sid)
@@ -300,7 +300,7 @@ func authorizeLink(ctx context.Context, reg *passkey.Registration) error {
 	}
 
 	if auth.GetUserId() != reg.UserId {
-		return errorx.StatusForbiddenF("passkey belongs to another user")
+		return szerror.StatusForbiddenF("passkey belongs to another user")
 	}
 
 	return nil
@@ -323,7 +323,7 @@ func (srv *IAMService) createCredential(reg *passkey.Registration,
 		passkeyAccount(reg), *ss, parsedCCR)
 	if err != nil {
 		return nil,
-			errorx.StatusInternalErrorF("can't finish registration: %v", err)
+			szerror.StatusInternalErrorF("can't finish registration: %v", err)
 	}
 
 	return credential, nil
@@ -367,7 +367,7 @@ func (srv *IAMService) addCredential(ctx context.Context,
 	// the authenticator stored reg.Handle; under another handle the
 	// credential could never sign in
 	if acc.GetProviderUserId() != reg.Handle {
-		return errorx.StatusInvalidDataF(
+		return szerror.StatusInvalidDataF(
 			"passkey registration is stale, start again")
 	}
 

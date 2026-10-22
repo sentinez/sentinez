@@ -20,7 +20,7 @@ import (
 	"time"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 var errNonPositiveDuration = errors.New("must be greater than 0")
@@ -141,20 +141,20 @@ func (srv *SecurityService) ListRateLimits(ctx context.Context,
 // validateRateLimit checks the limiter settings the edge relies on.
 func validateRateLimit(rl *securitypb.RateLimit) error {
 	if rl == nil {
-		return errorx.StatusInvalidArgumentF("rate_limit is required")
+		return szerror.StatusInvalidArgumentF("rate_limit is required")
 	}
 	if rl.GetMaxRequests() <= 0 {
-		return errorx.StatusInvalidArgumentF(
+		return szerror.StatusInvalidArgumentF(
 			"max_requests must be greater than 0")
 	}
 	if err := validatePositiveDuration(rl.GetTimeWindow()); err != nil {
-		return errorx.StatusInvalidArgumentF("time_window: %v", err)
+		return szerror.StatusInvalidArgumentF("time_window: %v", err)
 	}
 	if rl.GetTimeout() == "" {
 		return nil
 	}
 	if err := validatePositiveDuration(rl.GetTimeout()); err != nil {
-		return errorx.StatusInvalidArgumentF("timeout: %v", err)
+		return szerror.StatusInvalidArgumentF("timeout: %v", err)
 	}
 	return nil
 }

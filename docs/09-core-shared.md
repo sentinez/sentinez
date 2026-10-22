@@ -28,7 +28,7 @@ node) use their own provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`, owned by the
 edge server and flushed in its `Shutdown`; unset, they are not exported
 either. An `https://` endpoint uses TLS.
 
-## 9.2 `core/szhttp` and `core/szhttp/szchains`
+## 9.2 `core/szhttp` and `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
   `Handle(RequestHandler)`, `AcceptReverse(target)`.
@@ -36,13 +36,13 @@ either. An `https://` endpoint uses TLS.
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).
 - `DecoreServer(conf, s)`: a decorator that prints the ASCII banner
-  (`szconsole.INFO`) before listening.
+  (`console.INFO`) before listening.
 - Error helpers: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (rendered with templ).
-- `szchains.ChainNode{SetNext, Handle}` + `Node{next}` with `HandleNext`,
+- `chains.ChainNode{SetNext, Handle}` + `Node{next}` with `HandleNext`,
   `GetNext` — the basis of the edge middleware chain.
-- `core/szhttp/szvariable`: nginx-style variables for proxy headers.
-- `core/szhttp/szhttpconst`, `core/szcmn/szbytestr`: header/value constants (as
+- `core/szhttp/variable`: nginx-style variables for proxy headers.
+- `core/szhttp/httpconst`, `core/szcmn/bytestr`: header/value constants (as
   `string` and `[]byte`).
 
 ## 9.3 `core/szgrpc`
@@ -51,7 +51,7 @@ either. An `https://` endpoint uses TLS.
   `WithGRPCServerOption(...)`. `Serve(conf)` listens on TCP `SENZ_ADDRESS`,
   prints the banner, optionally registers with Consul. `BufServe(bufLis)`
   serves over bufconn. `Shutdown` = `GracefulStop`.
-- `core/szgrpc/szgrpcgateway`: see [06-gateway.md](06-gateway.md).
+- `core/szgrpc/grpcgateway`: see [06-gateway.md](06-gateway.md).
 
 ## 9.4 Other `core` packages
 
@@ -60,41 +60,41 @@ either. An `https://` endpoint uses TLS.
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
 | `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/szcmn/szconsole` | ASCII banner (`go-figure`) printed once at startup |
-| `core/szcmn/szrender` | `templ` templates for the 400/403/404/429/500 pages |
-| `core/szstorage/szcache/szmem` | Generic cache on top of `patrickmn/go-cache` |
-| `core/szstorage/szdbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstorageszdbx) |
-| `core/szstorage/{szcache/szkeyval,szdbx/szclickhouse,szmsgx/szkafka,szsearch/szelastic}` | Empty packages (planned) |
+| `core/szcmn/console` | ASCII banner (`go-figure`) printed once at startup |
+| `core/szcmn/render` | `templ` templates for the 400/403/404/429/500 pages |
+| `core/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
+| `core/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstoragedbx) |
+| `core/szstorage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Empty packages (planned) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 
 ## 9.5 `shared`
 
 | Package | Contents |
 |---|---|
-| `zlog` | Logging (details below) |
-| `config` | `LoadEnv(file, keys...)` loads `.env` with godotenv and snapshots `SENZ_*` values into a global map; `GetEnv`/`SetEnv` are mutex-protected |
-| `flagx` | Common flags `--mode`, `--log_level`; `Parse(meta)` (usage prints the banner); `Validate` with protovalidate |
-| `errorx` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
-| `perms` | `Allow(XMethod, ControlPlane)` |
-| `sync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `rand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — all with prefixes; results are copied out of the pooled buffer |
+| `szlog` | Logging (details below) |
+| `szconfig` | `LoadEnv(file, keys...)` loads `.env` with godotenv and snapshots `SENZ_*` values into a global map; `GetEnv`/`SetEnv` are mutex-protected |
+| `szflag` | Common flags `--mode`, `--log_level`; `Parse(meta)` (usage prints the banner); `Validate` with protovalidate |
+| `szerror` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
+| `szperms` | `Allow(XMethod, ControlPlane)` |
+| `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
+| `szrand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — all with prefixes; results are copied out of the pooled buffer |
 | `bytesconv` | Fork of fasthttp/Hertz: zero-copy `B2s`/`S2b`, character tables, number parsing |
-| `jsonx` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
-| `protobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |
-| `protobuf/protox` | Binary `Marshal`/`Unmarshal`, `Struct(any)` → `structpb.Struct` |
-| `copier` | Copies proto/JSON values via marshaling |
-| `cron` | `Start(ctx, interval, job)`: runs the job immediately, then on a ticker until ctx is cancelled |
-| `eventq` | In-process pub/sub per namespace on channels (no callers yet) |
-| `store/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
-| `color` | ANSI colors for console logs |
-| `topic` | Empty package |
+| `szjson` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
+| `szprotobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |
+| `szprotobuf/protox` | Binary `Marshal`/`Unmarshal`, `Struct(any)` → `structpb.Struct` |
+| `szcopier` | Copies proto/JSON values via marshaling |
+| `szcron` | `Start(ctx, interval, job)`: runs the job immediately, then on a ticker until ctx is cancelled |
+| `szeventq` | In-process pub/sub per namespace on channels (no callers yet) |
+| `szstore/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
+| `szcolor` | ANSI colors for console logs |
+| `sztopic` | Empty package |
 
-### `zlog`
+### `szlog`
 
 Two kinds of logger:
 
 1. **Console (sugar)** — used through the global functions
-   `zlog.Info/Debugf/Errorf/Fatal...`. Colored console encoder; the level is
+   `szlog.Info/Debugf/Errorf/Fatal...`. Colored console encoder; the level is
    set by `SetScopeLogLevel`.
 2. **Structured events** — `NewLog(name, kind, level)` /
    `NewLogCloser(...)` write JSON to stdout with a `kind` field (`LogType`)

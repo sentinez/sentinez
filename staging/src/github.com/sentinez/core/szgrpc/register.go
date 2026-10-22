@@ -23,8 +23,8 @@ import (
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/cron"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szcron"
+	"github.com/sentinez/shared/szlog"
 	"github.com/sony/gobreaker"
 )
 
@@ -34,7 +34,7 @@ import (
 func Register(ctx context.Context, name string, conf *settingpb.Config) {
 	addr, port, err := net.SplitHostPort(conf.Get(settingpb.Senz_SENZ_ADDRESS))
 	if err != nil {
-		zlog.Errorf("failed to split address: %v", err)
+		szlog.Errorf("failed to split address: %v", err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func Register(ctx context.Context, name string, conf *settingpb.Config) {
 	cb := circuitBreaker(timeout)
 	for {
 		if state := cb.State(); state == gobreaker.StateOpen {
-			zlog.Warnf("breaker is OPEN - waiting %v before retry...", timeout)
+			szlog.Warnf("breaker is OPEN - waiting %v before retry...", timeout)
 			if !sleep(ctx, timeout) {
 				return
 			}
@@ -69,7 +69,7 @@ func Register(ctx context.Context, name string, conf *settingpb.Config) {
 			return nil, err
 
 		}); err != nil {
-			zlog.Errorf("failed to register service: %v, retrying...", err)
+			szlog.Errorf("failed to register service: %v, retrying...", err)
 			if !sleep(ctx, time.Second) {
 				return
 			}
@@ -103,12 +103,12 @@ func startCron(
 	timeout time.Duration,
 ) <-chan struct{} {
 	// Periodic heartbeat, also protected by breaker
-	return cron.Start(ctx, timeout, func() {
+	return szcron.Start(ctx, timeout, func() {
 		if _, err := cb.Execute(func() (any, error) {
 			return nil, d.Heartbeat(serviceId)
 
 		}); err != nil {
-			zlog.Warnf(
+			szlog.Warnf(
 				"heartbeat failed for %s: %v (breaker: %s)",
 				serviceId,
 				err,
@@ -129,7 +129,7 @@ func circuitBreaker(timeout time.Duration) *gobreaker.CircuitBreaker {
 			return counts.ConsecutiveFailures >= 1
 		},
 		OnStateChange: func(name string, from, to gobreaker.State) {
-			zlog.Infof(
+			szlog.Infof(
 				"CircuitBreaker[%s] state changed: %s > %s", name, from, to)
 		},
 	})

@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/flagx"
+	"github.com/sentinez/shared/szflag"
 	"github.com/spf13/pflag"
 )
 
@@ -30,17 +30,17 @@ var _onceAPIServer sync.Once
 // Parse flag args for apiserver service
 func Parse() (*settingpb.Flag, error) {
 	_onceAPIServer.Do(func() {
-		flagx.Get().EnvFile = "./cmd/szapiserver/.env"
+		szflag.Get().EnvFile = "./cmd/szapiserver/.env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
-			flagx.Get().GetEnvFile(), "environment variable config file")
+		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
+			szflag.Get().GetEnvFile(), "environment variable config file")
 
-		flagx.Parse(apiserver.GetMetaApiserver())
+		szflag.Parse(apiserver.GetMetaApiserver())
 	})
 
-	if err := flagx.Validate(flagx.Get()); err != nil {
+	if err := szflag.Validate(szflag.Get()); err != nil {
 		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get(), nil
+	return szflag.Get(), nil
 }

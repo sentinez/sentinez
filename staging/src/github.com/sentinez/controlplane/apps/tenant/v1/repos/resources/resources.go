@@ -19,29 +19,29 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/sztables"
-	"github.com/sentinez/core/szstorage/szdbx"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
-	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
+	"github.com/sentinez/core/szcmn/tables"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/protobuf/protox"
-	"github.com/sentinez/shared/rand"
+	"github.com/sentinez/shared/szprotobuf/protox"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
-	storage, err := szpostgres.New[tenantpb.Resource](ctx, appConf,
-		szdbx.WithTable(sztables.TenantResources),
-		szdbx.WithColumns(szdbx.ColumnM{
-			tenantpb.Resource_Id:              szpostgres.String,
-			tenantpb.Resource_ResourceSetting: szpostgres.ByteA,
-			tenantpb.Resource_ResourceName:    szpostgres.String,
-			tenantpb.Resource_ResourceDomain:  szpostgres.String,
-			tenantpb.Resource_TenantId:        szpostgres.String,
-			tenantpb.Resource_Status:          szpostgres.Int4,
+	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
+		dbx.WithTable(tables.TenantResources),
+		dbx.WithColumns(dbx.ColumnM{
+			tenantpb.Resource_Id:              postgres.String,
+			tenantpb.Resource_ResourceSetting: postgres.ByteA,
+			tenantpb.Resource_ResourceName:    postgres.String,
+			tenantpb.Resource_ResourceDomain:  postgres.String,
+			tenantpb.Resource_TenantId:        postgres.String,
+			tenantpb.Resource_Status:          postgres.Int4,
 		}),
 	)
 	if err != nil {
@@ -65,7 +65,7 @@ type IResource interface {
 }
 
 type Resources struct {
-	storage szdbx.Database[tenantpb.Resource]
+	storage dbx.Database[tenantpb.Resource]
 }
 
 // List implements IResource.
@@ -93,11 +93,11 @@ func (rsc *Resources) List(ctx context.Context,
 func (rsc *Resources) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 
-	rs.Id = rand.NewId(sztable.NewPrimaryKey(sztables.TenantResources))
+	rs.Id = szrand.NewId(table.NewPrimaryKey(tables.TenantResources))
 
 	st, _ := protox.Marshal(rs.GetResourceSetting())
 
-	query := szpostgres.InsertBuilder(rsc.storage, szpostgres.M{
+	query := postgres.InsertBuilder(rsc.storage, postgres.M{
 		tenantpb.Resource_Id:              rs.GetId(),
 		tenantpb.Resource_TenantId:        rs.GetTenantId(),
 		tenantpb.Resource_Status:          rs.GetStatus(),
@@ -123,7 +123,7 @@ func (rsc *Resources) Update(
 		return err
 	}
 
-	q := szpostgres.UpdateBuilder(rsc.storage, req.GetId())
+	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
 	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Set(tenantpb.Resource_Status, req.GetStatus())
 	}
@@ -201,9 +201,9 @@ func (rsc *Resources) listQ(req *tenantpb.ListResourceRequest) sq.SelectBuilder 
 }
 
 func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
-	return szpostgres.SelectBuilder(rsc.storage, page,
-		szpostgres.SelectCoalesce(tenantpb.Resource_Id),
-		szpostgres.SelectCoalesce(tenantpb.Resource_TenantId),
+	return postgres.SelectBuilder(rsc.storage, page,
+		postgres.SelectCoalesce(tenantpb.Resource_Id),
+		postgres.SelectCoalesce(tenantpb.Resource_TenantId),
 		tenantpb.Resource_Status,
 		tenantpb.Resource_ResourceName,
 		tenantpb.Resource_ResourceDomain,
@@ -213,7 +213,7 @@ func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	)
 }
 
-func scan(rows szdbx.Rows) ([]*tenantpb.Resource, error) {
+func scan(rows dbx.Rows) ([]*tenantpb.Resource, error) {
 	var resources []*tenantpb.Resource
 	for rows.Next() {
 		resource, err := scanOne(rows)
@@ -227,7 +227,7 @@ func scan(rows szdbx.Rows) ([]*tenantpb.Resource, error) {
 	return resources, nil
 }
 
-func scanOne(row szdbx.Row) (*tenantpb.Resource, error) {
+func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 	var (
 		rsc                  tenantpb.Resource
 		createdAt, updatedAt time.Time

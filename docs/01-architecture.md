@@ -57,7 +57,7 @@ Every binary (except `szcentraldata`) follows the same pattern:
 ```go
 func main() {
     if err := run(); err != nil {
-        zlog.Fatal(err)
+        szlog.Fatal(err)
     }
 }
 
@@ -131,7 +131,7 @@ Top-level directories:
    on later requests. A TCP accept in `network.StdListener` is wrapped as a
    `network.StdConn` with a random 8-byte hex `Id`.
 2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint and
-   stores it in `shared/store/ja4` keyed by `conn.Id`.
+   stores it in `shared/szstore/ja4` keyed by `conn.Id`.
 3. `OnStdConnect` puts `netpb.Transport{ConnId, ServerName}` into the
    `context` (TCP only; HTTP/3 requests have no fingerprint yet).
 4. The server (`quichttpx` by default) calls the handler → an `httpx.Context`

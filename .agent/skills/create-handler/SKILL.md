@@ -21,9 +21,9 @@ The package name should be `<domain>hdl`.
 Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` (aliased as `<domain>pb`)
 - The service package from `github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
-- Standard error handling from `github.com/sentinez/shared/errorx`
+- Standard error handling from `github.com/sentinez/shared/szerror`
 - Request context headers and auth from `github.com/sentinez/controlplane/pkg/headers`
-- Logging from `github.com/sentinez/shared/zlog`
+- Logging from `github.com/sentinez/shared/szlog`
 
 ## 2. Interface Implementation Assertion
 
@@ -72,7 +72,7 @@ func (hdl *<Domain>Handler) <MethodName>(ctx context.Context,
 	req *<domain>pb.<MethodName>Request) (*<domain>pb.<MethodName>Response, error) {
 	
 	// 1. Log the incoming request
-	zlog.Debugf("[<Handler>.<MethodName>] req = %v", req)
+	szlog.Debugf("[<Handler>.<MethodName>] req = %v", req)
 
 	// 2. Perform Authorization Check (only if the method requires specific permissions)
 	ss, err := headers.GetAuth(ctx)
@@ -90,7 +90,7 @@ func (hdl *<Domain>Handler) <MethodName>(ctx context.Context,
 	// 3. Delegate to the service
 	resp, err := hdl.service.<MethodName>(ctx, req)
 	if err != nil {
-		zlog.Errorf("[<Handler>.<MethodName>] error: %v", err)
+		szlog.Errorf("[<Handler>.<MethodName>] error: %v", err)
 		return nil, err
 	}
 
@@ -105,11 +105,11 @@ For public methods (e.g., Login, Status), you might skip the `headers.GetAuth(ct
 func (hdl *<Domain>Handler) Status(ctx context.Context, 
 	req *<domain>pb.StatusRequest) (*<domain>pb.StatusResponse, error) {
 	
-	zlog.Debugf("[<Handler>.Status] req = %v", req)
+	szlog.Debugf("[<Handler>.Status] req = %v", req)
 
 	resp, err := hdl.service.Status(ctx, req)
 	if err != nil {
-		zlog.Errorf("[<Handler>.Status] failed: %v", err)
+		szlog.Errorf("[<Handler>.Status] failed: %v", err)
 		return nil, err
 	}
 

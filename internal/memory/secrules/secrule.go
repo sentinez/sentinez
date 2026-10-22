@@ -22,9 +22,9 @@ import (
 	"github.com/sentinez/core/szrule"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/jsonx"
-	ssync "github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szjson"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -35,7 +35,7 @@ var (
 func New() *SecRule {
 	_once.Do(func() {
 		_ruleInst = &SecRule{
-			chains: ssync.NewMap[string, []Entry](),
+			chains: szsync.NewMap[string, []Entry](),
 		}
 	})
 
@@ -49,7 +49,7 @@ type Entry struct {
 }
 
 type SecRule struct {
-	chains *ssync.Map[string, []Entry]
+	chains *szsync.Map[string, []Entry]
 }
 
 // Store replaces the rule chain of namespace. Inactive rules are skipped
@@ -62,8 +62,8 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 			continue
 		}
 
-		val, _ := jsonx.Marshal(r)
-		zlog.Debugf("rule: load config: %s", val)
+		val, _ := szjson.Marshal(r)
+		szlog.Debugf("rule: load config: %s", val)
 
 		chain = append(chain, Entry{
 			Eval: szrule.NewEval(r.GetExpr()),

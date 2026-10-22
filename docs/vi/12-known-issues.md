@@ -16,7 +16,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | 10 | [internal/memory/memory.go](../../internal/memory/memory.go) `LoadRulesets` | Bỏ qua nội dung `rulesets[]`; luôn CRS v4.16.0 + flag RCE; kiểm tra status bị comment | Không cấu hình được phiên bản/nhóm rule; SQLi (942) không bao giờ bật |
 | 11 | [internal/funcs/logging/logging.go](../../internal/funcs/logging/logging.go) | Gọi `bpf.LookupBandwidth` mỗi request, nhưng object eBPF chỉ được nạp trong tiến trình dataplane | Luôn lỗi/0, tốn chi phí và log `Infof` ở mọi request |
 | 12 | [internal/bpf/security.go](../../internal/bpf/security.go) `BlockCIDR` | Ghi `ip` bằng `binary.BigEndian.Uint32` trong khi XDP tra bằng `saddr` thô (thứ tự byte mạng trong bộ nhớ) | Trên máy little-endian khoá không khớp, CIDR bị chặn không có tác dụng *(cần xác minh)*. Hàm hiện chưa được gọi |
-| 13 | [shared/eventq/eventq.go](../../staging/src/github.com/sentinez/shared/eventq/eventq.go) `Close`, `CloseAll` | Ép kiểu `chan string` / `chan any` thay vì `chan T` | Panic với `T` khác (chưa có nơi dùng) |
+| 13 | [shared/szeventq/eventq.go](../../staging/src/github.com/sentinez/shared/szeventq/eventq.go) `Close`, `CloseAll` | Ép kiểu `chan string` / `chan any` thay vì `chan T` | Panic với `T` khác (chưa có nơi dùng) |
 
 ## 12.2 Bảo mật
 
@@ -43,8 +43,8 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `EdgeService.EvaluateRuleset` đánh giá
   `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
 - SecRule action ngoài `BLOCK` chưa thực thi; toán tử `GT/GTE/LT/LTE` chưa cài.
-- Waiting room (`ROM`), `pkg/queue`, `shared/topic`, `core/szstorage/{szkeyval,
-  szclickhouse,szkafka,szelastic}`, `eventpub/eventsub` là package rỗng.
+- Waiting room (`ROM`), `pkg/queue`, `shared/sztopic`, `core/szstorage/{keyval,
+  clickhouse,kafka,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
@@ -80,6 +80,6 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
   `./cmd/edge/v1/`.
 - `tenant` repo `scan` bỏ qua `rows.Err()`; `UpdateResource` không cập nhật
   `resource_setting`.
-- `LoadRateLimiter` dùng `zlog.Fatalf` khi parse duration lỗi (dừng cả edge).
+- `LoadRateLimiter` dùng `szlog.Fatalf` khi parse duration lỗi (dừng cả edge).
 - CI chỉ lint/test module root; module staging chỉ được lint qua `make lint`
   local.

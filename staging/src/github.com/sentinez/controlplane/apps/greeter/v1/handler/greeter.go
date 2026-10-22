@@ -21,7 +21,7 @@ import (
 	"time"
 
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // New creates a new Greeter module.
@@ -38,7 +38,7 @@ type Greeter struct {
 func (g *Greeter) SayHello(_ context.Context,
 	msg *greeterpb.SayHelloRequest) (*greeterpb.SayHelloResponse, error) {
 
-	zlog.Debugf("greeter.SayHello: req = %v", msg)
+	szlog.Debugf("greeter.SayHello: req = %v", msg)
 
 	resp := fmt.Sprintf("Hello %s! Current time is %s",
 		msg.Name, time.Now().Format(time.DateTime),
@@ -53,7 +53,7 @@ func (g *Greeter) SayHello(_ context.Context,
 func (g *Greeter) Status(ctx context.Context,
 	msg *greeterpb.StatusRequest) (*greeterpb.StatusResponse, error) {
 
-	zlog.Debugf("greeter.Status: req = %v", msg)
+	szlog.Debugf("greeter.Status: req = %v", msg)
 
 	_ = ctx
 	_ = msg

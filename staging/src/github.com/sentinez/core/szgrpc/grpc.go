@@ -20,8 +20,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/szconsole"
-	"github.com/sentinez/core/szgrpc/szgrpcgateway"
+	"github.com/sentinez/core/szcmn/console"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/sentinez/api/interceptor/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
@@ -94,7 +94,7 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 		addr = s.option.address
 	}
 
-	listener, err := szgrpcgateway.ListenNetworkTCP(addr)
+	listener, err := grpcgateway.ListenNetworkTCP(addr)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 	}
 
 	host, port, _ := net.SplitHostPort(addr)
-	szconsole.INFO(
+	console.INFO(
 		conf.GetMeta().GetServiceName(),
 		conf.GetMeta().GetServiceKey(),
 		fmt.Sprintf("grpc running on %s:%s", host, port),

@@ -19,16 +19,16 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/sztables"
-	"github.com/sentinez/core/szstorage/szdbx"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
-	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
+	"github.com/sentinez/core/szcmn/tables"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -48,7 +48,7 @@ type ICoreRuleset interface {
 	Get(ctx context.Context, id string) (*securitypb.CoreRuleset, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *szpostgres.TxSession) ICoreRuleset
+	WithTX(tx *postgres.TxSession) ICoreRuleset
 
 	List(ctx context.Context, req *securitypb.ListCoreRulesetsRequest) ([]*securitypb.CoreRuleset, int64, error)
 }
@@ -59,20 +59,20 @@ var _ ICoreRuleset = (*CoreRuleset)(nil)
 func New(
 	ctx context.Context, appConf *settingpb.Config,
 ) (ICoreRuleset, error) {
-	storage, err := szpostgres.New[securitypb.CoreRuleset](ctx, appConf,
-		szdbx.WithTable(sztables.SecurityCoreRulesets),
-		szdbx.WithColumns(szdbx.ColumnM{
-			securitypb.CoreRuleset_Id:              szpostgres.String,
-			securitypb.CoreRuleset_Name:            szpostgres.String,
-			securitypb.CoreRuleset_Description:     szpostgres.String,
-			securitypb.CoreRuleset_Content:         szpostgres.JSONB,
-			securitypb.CoreRuleset_OwnerResourceId: szpostgres.String,
-			securitypb.CoreRuleset_OwnerTenantId:   szpostgres.String,
+	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
+		dbx.WithTable(tables.SecurityCoreRulesets),
+		dbx.WithColumns(dbx.ColumnM{
+			securitypb.CoreRuleset_Id:              postgres.String,
+			securitypb.CoreRuleset_Name:            postgres.String,
+			securitypb.CoreRuleset_Description:     postgres.String,
+			securitypb.CoreRuleset_Content:         postgres.JSONB,
+			securitypb.CoreRuleset_OwnerResourceId: postgres.String,
+			securitypb.CoreRuleset_OwnerTenantId:   postgres.String,
 		}),
 		// The list filters on content are JSONB containments.
-		szdbx.WithIndexes(szdbx.Index{
+		dbx.WithIndexes(dbx.Index{
 			Column: securitypb.CoreRuleset_Content,
-			Method: szpostgres.GIN,
+			Method: postgres.GIN,
 		}),
 	)
 	if err != nil {
@@ -86,12 +86,12 @@ func New(
 
 // CoreRuleset is the Postgres repository for OWASP CRS configurations.
 type CoreRuleset struct {
-	storage szdbx.Database[securitypb.CoreRuleset]
+	storage dbx.Database[securitypb.CoreRuleset]
 }
 
-func (r *CoreRuleset) WithTX(tx *szpostgres.TxSession) ICoreRuleset {
+func (r *CoreRuleset) WithTX(tx *postgres.TxSession) ICoreRuleset {
 	return &CoreRuleset{
-		storage: szpostgres.WithTx(tx, r.storage),
+		storage: postgres.WithTx(tx, r.storage),
 	}
 }
 
@@ -112,7 +112,7 @@ func (r *CoreRuleset) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	zlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
+	szlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -155,9 +155,9 @@ func (r *CoreRuleset) Create(ctx context.Context,
 		return nil, err
 	}
 
-	model.Id = rand.NewId(sztable.NewPrimaryKey(sztables.SecurityCoreRulesets))
+	model.Id = szrand.NewId(table.NewPrimaryKey(tables.SecurityCoreRulesets))
 	owner := model.GetOwner()
-	query := szpostgres.InsertBuilder(r.storage, szpostgres.M{
+	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.CoreRuleset_Id:              model.GetId(),
 		securitypb.CoreRuleset_Name:            model.GetName(),
 		securitypb.CoreRuleset_Description:     model.GetDescription(),
@@ -195,7 +195,7 @@ func (r *CoreRuleset) Update(
 		return err
 	}
 
-	query := szpostgres.UpdateBuilder(r.storage, model.GetId()).
+	query := postgres.UpdateBuilder(r.storage, model.GetId()).
 		SetMap(sq.Eq{
 			securitypb.CoreRuleset_Name:        model.GetName(),
 			securitypb.CoreRuleset_Description: model.GetDescription(),
@@ -207,13 +207,13 @@ func (r *CoreRuleset) Update(
 }
 
 func (r *CoreRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return szpostgres.SelectBuilder(r.storage, page,
+	return postgres.SelectBuilder(r.storage, page,
 		securitypb.CoreRuleset_Id,
 		securitypb.CoreRuleset_Name,
 		securitypb.CoreRuleset_Description,
 		securitypb.CoreRuleset_Content,
-		szpostgres.SelectCoalesce(securitypb.CoreRuleset_OwnerResourceId),
-		szpostgres.SelectCoalesce(securitypb.CoreRuleset_OwnerTenantId),
+		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerResourceId),
+		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerTenantId),
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
@@ -248,7 +248,7 @@ func unmarshalContent(data []byte) (*corerulesetpb.CoreRuleset, error) {
 	return content, nil
 }
 
-func scan(rows szdbx.Rows) ([]*securitypb.CoreRuleset, error) {
+func scan(rows dbx.Rows) ([]*securitypb.CoreRuleset, error) {
 	var models []*securitypb.CoreRuleset
 	for rows.Next() {
 		model, err := scanOne(rows)
@@ -260,7 +260,7 @@ func scan(rows szdbx.Rows) ([]*securitypb.CoreRuleset, error) {
 	return models, rows.Err()
 }
 
-func scanOne(row szdbx.Row) (*securitypb.CoreRuleset, error) {
+func scanOne(row dbx.Row) (*securitypb.CoreRuleset, error) {
 	var (
 		createdAt, updatedAt time.Time
 		resourceId, tenantId string

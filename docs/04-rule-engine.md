@@ -5,7 +5,7 @@ Sentinéz has two independent request-filtering mechanisms:
 1. **SecRule / CDN rules** — user-defined expressions evaluated by
    `core/szrule` (fast, no external dependency).
 2. **Rulesets (WAF)** — the OWASP Core Rule Set running on Coraza, loaded
-   from pre-generated Go code in `core/szmodsec/szgen`.
+   from pre-generated Go code in `core/szmodsec/gen`.
 
 ## 4.1 Expression model
 
@@ -132,14 +132,14 @@ The `ruleparser-sentinez` tool
 ([tools/cmd/ruleparser-sentinez](../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
 
 1. Parses SecLang with an ANTLR parser
-   ([core/szmodsec/szruleparser](../staging/src/github.com/sentinez/core/szmodsec/szruleparser/)):
+   ([core/szmodsec/ruleparser](../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    each statement is a rule; a rule ending in `chain"` is joined with the
    next statement; `ver`, `paranoia-level` and action fields are extracted.
 2. Loads the result into `coreruleset.v1.CoreRulesets` and renders a Go
    template: each rule becomes a function returning a `*CoreRule` whose
    `Configuration` is base64-encoded, plus an `XxxOrder` slice that keeps the
    order.
-3. Writes `core/szmodsec/szgen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
+3. Writes `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
 
 Regenerate everything with `bash hack/ruleparser.sh`.
 

@@ -18,8 +18,8 @@ import (
 	"io"
 
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -27,7 +27,7 @@ var (
 
 	_ io.Closer = (*CoreRuleEvent)(nil)
 
-	_pool = sync.NewPoolCtr(func() *CoreRuleEvent {
+	_pool = szsync.NewPoolCtr(func() *CoreRuleEvent {
 		return &CoreRuleEvent{CoreRuleEvent: &corerulesetpb.CoreRuleEvent{}}
 	})
 )
@@ -44,7 +44,7 @@ func (re *CoreRuleEvent) Close() error {
 
 func Acquire() *CoreRuleEvent {
 	obj := _pool.Get()
-	obj.Id = rand.NewId(_prefix)
+	obj.Id = szrand.NewId(_prefix)
 
 	return obj
 }

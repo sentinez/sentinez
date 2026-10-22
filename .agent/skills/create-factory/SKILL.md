@@ -25,8 +25,8 @@ Use standard imports, especially:
 - Repository interfaces from `github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
 - The service package from `github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
 - The handler package from `github.com/sentinez/controlplane/<domain>/v1/handler` (aliased as `<domain>hdl`)
-- Database context/transactions from `github.com/sentinez/core/szstorage/szdbx/szpostgres`
-- Logging from `github.com/sentinez/shared/zlog`
+- Database context/transactions from `github.com/sentinez/core/szstorage/dbx/postgres`
+- Logging from `github.com/sentinez/shared/szlog`
 
 ## 2. Initialize the Service: `NewDefaultService`
 
@@ -39,7 +39,7 @@ func NewDefaultService(
 	// 1. Initialize all necessary repositories
 	<model>repos, err := <model>repo.New(ctx, appConf)
 	if err != nil {
-		zlog.Errorf("<domain>fac: init <model> repo err=%v", err)
+		szlog.Errorf("<domain>fac: init <model> repo err=%v", err)
 	}
 
 	// Wait for other initializations if necessary...
@@ -70,7 +70,7 @@ func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 	// 	greeterfac.NewDefaultHandler(appConf),
 	// )
 	// if err != nil {
-	// 	zlog.Errorf("<domain>fac: new greeter client err=%v", err)
+	// 	szlog.Errorf("<domain>fac: new greeter client err=%v", err)
 	// }
 
 	// 3. Mount the service and external clients to the Handler
@@ -80,5 +80,5 @@ func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 
 ## Rules to Remember:
 1. **Follow Go Style Guide:** Always apply the coding conventions from the `go-style-guide` skill.
-2. Ensure you initialize dependencies safely; prefer logging errors (`zlog.Errorf`) and returning partially instantiated services/handlers than outright panicking unless critically required.
+2. Ensure you initialize dependencies safely; prefer logging errors (`szlog.Errorf`) and returning partially instantiated services/handlers than outright panicking unless critically required.
 3. Keep the factory focused on wiring dependencies; do NOT put business logic inside `factory.go`.

@@ -21,23 +21,23 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/pkg/tracer"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 )
 
-var _ szchains.ChainNode = (*stage)(nil)
+var _ chains.ChainNode = (*stage)(nil)
 
-func NewTracer(_ ...option.Option) szchains.ChainNode {
+func NewTracer(_ ...option.Option) chains.ChainNode {
 	return &Trace{
-		Node: szchains.NewNode(),
+		Node: chains.NewNode(),
 	}
 }
 
 type Trace struct {
-	*szchains.Node
+	*chains.Node
 }
 
 // Handle makes sure the request has an id. The engine context assigns it
@@ -45,7 +45,7 @@ type Trace struct {
 // context that has none, so a request never gets a second id.
 func (t *Trace) Handle(ctx szhttp.Context) error {
 	if ctx.RequestId() == "" {
-		ctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
+		ctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
 	}
 
 	return t.HandleNext(ctx)
@@ -55,16 +55,16 @@ func (t *Trace) Handle(ctx szhttp.Context) error {
 // attributed to a deeper stage) is tagged with name and logged once.
 // Because errors unwind from the innermost node outwards, the first
 // stage to see an error is the one that produced it.
-func Wrap(name string, node szchains.ChainNode) szchains.ChainNode {
+func Wrap(name string, node chains.ChainNode) chains.ChainNode {
 	return &stage{name: name, node: node}
 }
 
 type stage struct {
 	name string
-	node szchains.ChainNode
+	node chains.ChainNode
 }
 
-func (s *stage) SetNext(next szchains.ChainNode) szchains.ChainNode {
+func (s *stage) SetNext(next chains.ChainNode) chains.ChainNode {
 	s.node.SetNext(next)
 	return next
 }
@@ -83,7 +83,7 @@ func (s *stage) Handle(ctx szhttp.Context) error {
 	}
 
 	se = &tracer.StageError{Stage: s.name, Elapsed: time.Since(begin), Err: err}
-	zlog.Errorf("tracer: request %s failed at stage %q status %d after %s: %v",
+	szlog.Errorf("tracer: request %s failed at stage %q status %d after %s: %v",
 		ctx.RequestId(), se.Stage, ctx.StatusCode(), se.Elapsed, err)
 
 	return se
@@ -99,7 +99,7 @@ func (s *stage) traceStatus(ctx szhttp.Context, begin time.Time) {
 		return
 	}
 
-	zlog.Debugf("tracer: request %s stage %q status %d after %s: %s%s",
+	szlog.Debugf("tracer: request %s stage %q status %d after %s: %s%s",
 		ctx.RequestId(), s.name, status, time.Since(begin),
 		ctx.Host(), ctx.URI())
 }

@@ -20,9 +20,9 @@ Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` (aliased as `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
 - Repository interfaces from `github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
-- Standard error handling from `github.com/sentinez/shared/errorx`
-- Postgres transaction support from `github.com/sentinez/core/szstorage/szdbx/szpostgres`
-- Logging from `github.com/sentinez/shared/zlog`
+- Standard error handling from `github.com/sentinez/shared/szerror`
+- Postgres transaction support from `github.com/sentinez/core/szstorage/dbx/postgres`
+- Logging from `github.com/sentinez/shared/szlog`
 
 ## 2. Interface Implementation Assertion
 
@@ -66,7 +66,7 @@ func New(config *settingpb.Config,
 
 ## 4. Implement RPC Methods
 
-Each gRPC method defined in the proto file must be implemented by the service struct. Use the `errorx` package for unified gRPC error handling.
+Each gRPC method defined in the proto file must be implemented by the service struct. Use the `szerror` package for unified gRPC error handling.
 
 ### Basic Method Signature
 
@@ -81,7 +81,7 @@ func (srv *<Domain>Service) <MethodName>(ctx context.Context,
 ```
 
 ### Utilizing Repositories and Error Handling
-When interacting with repositories, correctly handle missing rows or data validation using `errorx`.
+When interacting with repositories, correctly handle missing rows or data validation using `szerror`.
 
 ```go
 func (srv *<Domain>Service) Get<Model>(ctx context.Context, 
@@ -89,11 +89,11 @@ func (srv *<Domain>Service) Get<Model>(ctx context.Context,
 	
 	model, err := srv.<model>.Get(ctx, req.GetId())
 	if err != nil {
-		if errorx.IsNoRows(err) {
+		if szerror.IsNoRows(err) {
 			return nil, err
 		}
 		// Custom not found error if necessary
-		return nil, errorx.StatusNotFoundF("<Model> not found: id=%s", req.GetId())
+		return nil, szerror.StatusNotFoundF("<Model> not found: id=%s", req.GetId())
 	}
 
 	return &<domain>pb.Get<Model>Response{<Model>: model}, nil
@@ -109,7 +109,7 @@ func (srv *<Domain>Service) Create<Model>(ctx context.Context,
 	
 	txss, err := srv.tx.Begin(ctx)
 	if err != nil {
-		return nil, errorx.StatusInternalErrorF("failed to begin tx: %v", err)
+		return nil, szerror.StatusInternalErrorF("failed to begin tx: %v", err)
 	}
 	// Explicit commit/rollback based on success/failure is handled
 

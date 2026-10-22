@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/szmodsec/szruleparser"
+	"github.com/sentinez/core/szmodsec/ruleparser"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
@@ -64,7 +64,7 @@ func categoryOf(filePath string) rulepb.Category {
 }
 
 // ruleInfos builds the catalog of the rules that have an ID.
-func ruleInfos(filePath string, rules []szruleparser.Rule) []*rulepb.RuleInfo {
+func ruleInfos(filePath string, rules []ruleparser.Rule) []*rulepb.RuleInfo {
 	category := categoryOf(filePath)
 
 	infos := make([]*rulepb.RuleInfo, 0, len(rules))
@@ -77,7 +77,7 @@ func ruleInfos(filePath string, rules []szruleparser.Rule) []*rulepb.RuleInfo {
 }
 
 func ruleInfo(
-	category rulepb.Category, rule szruleparser.Rule,
+	category rulepb.Category, rule ruleparser.Rule,
 ) *rulepb.RuleInfo {
 	if rule.Actions == nil {
 		return nil

@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
@@ -32,8 +32,8 @@ func NewProvider(conf *settingpb.Config) (*sdklog.LoggerProvider, error) {
 		return nil, nil
 	}
 
-	provider, err := zlog.NewOTLPProvider(context.Background(),
-		zlog.OTLPConfigOf(endpoint, conf.GetMeta().GetServiceKey()))
+	provider, err := szlog.NewOTLPProvider(context.Background(),
+		szlog.OTLPConfigOf(endpoint, conf.GetMeta().GetServiceKey()))
 	if err != nil {
 		return nil, fmt.Errorf("edge log: %w", err)
 	}

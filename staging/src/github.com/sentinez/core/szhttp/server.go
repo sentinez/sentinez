@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sentinez/core/szcmn/szconsole"
+	"github.com/sentinez/core/szcmn/console"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -56,11 +56,11 @@ func (s *server) ListenAndServe(addr string, opts ...ServerOption) error {
 
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		host, port, _ := net.SplitHostPort(addr)
-		szconsole.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
 			fmt.Sprintf("https[%s] running on %s:%s", s.engine, host, port))
 	} else {
 		host, port, _ := net.SplitHostPort(addr)
-		szconsole.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
+		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
 			fmt.Sprintf("http[%s] running on %s:%s", s.engine, host, port))
 	}
 

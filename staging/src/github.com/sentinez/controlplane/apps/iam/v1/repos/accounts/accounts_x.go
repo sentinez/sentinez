@@ -17,8 +17,8 @@ package accrepos
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/jsonx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szjson"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -35,9 +35,9 @@ type AccountX struct {
 }
 
 func (ax *AccountX) AddCredential(credential *webauthn.Credential) {
-	data, err := jsonx.Marshal(credential)
+	data, err := szjson.Marshal(credential)
 	if err != nil {
-		zlog.Errorf("failed to marshal credential: %v", err)
+		szlog.Errorf("failed to marshal credential: %v", err)
 	}
 	ax.Credentials = append(ax.Credentials, string(data))
 }
@@ -46,15 +46,15 @@ func (ax *AccountX) UpdateCredential(credential *webauthn.Credential) {
 	for i, c := range ax.GetCredentials() {
 		var cred webauthn.Credential
 
-		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
-			zlog.Errorf("failed to unmarshal credential: %v", err)
+		if err := szjson.Unmarshal([]byte(c), &cred); err != nil {
+			szlog.Errorf("failed to unmarshal credential: %v", err)
 			return
 		}
 
 		if string(cred.ID) == string(credential.ID) {
-			data, err := jsonx.Marshal(credential)
+			data, err := szjson.Marshal(credential)
 			if err != nil {
-				zlog.Errorf("failed to marshal credential: %v", err)
+				szlog.Errorf("failed to marshal credential: %v", err)
 				return
 			}
 
@@ -81,8 +81,8 @@ func (ax *AccountX) WebAuthnCredentials() []webauthn.Credential {
 	var resp []webauthn.Credential
 	for _, c := range ax.GetCredentials() {
 		var cred webauthn.Credential
-		if err := jsonx.Unmarshal([]byte(c), &cred); err != nil {
-			zlog.Errorf("failed to unmarshal credential: %v", err)
+		if err := szjson.Unmarshal([]byte(c), &cred); err != nil {
+			szlog.Errorf("failed to unmarshal credential: %v", err)
 			continue
 		}
 

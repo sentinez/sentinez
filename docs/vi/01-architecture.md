@@ -56,7 +56,7 @@ Mọi binary (trừ `szcentraldata`) đều theo một khuôn:
 ```go
 func main() {
     if err := run(); err != nil {
-        zlog.Fatal(err)
+        szlog.Fatal(err)
     }
 }
 
@@ -130,7 +130,7 @@ Thư mục cấp root:
    các request sau. TCP accept tại `network.StdListener` → bọc thành
    `network.StdConn` có `Id` ngẫu nhiên 8 byte (hex).
 2. TLS ClientHello → `transport.TLSConfig` tính JA4 fingerprint và lưu vào
-   `shared/store/ja4` theo `conn.Id`.
+   `shared/szstore/ja4` theo `conn.Id`.
 3. `OnStdConnect` gắn `netpb.Transport{ConnId, ServerName}` vào `context`
    (chỉ TCP; request HTTP/3 hiện chưa có fingerprint).
 4. Server (mặc định `quichttpx`) gọi handler → tạo `httpx.Context` (lấy từ

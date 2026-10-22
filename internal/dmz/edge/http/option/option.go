@@ -18,14 +18,14 @@ package option
 
 import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"go.opentelemetry.io/otel/sdk/log"
 )
 
 // Options is the resolved configuration of a chain node.
 type Options struct {
 	Named    string
-	Level    zlog.Level
+	Level    szlog.Level
 	Logger   *log.LoggerProvider
 	Hostname string
 }
@@ -40,7 +40,7 @@ type Option interface {
 func New(opts ...Option) Options {
 	o := Options{
 		Named: edgepb.GetMetaEdgeServiceKey(),
-		Level: zlog.LevelInfo,
+		Level: szlog.LevelInfo,
 	}
 	for _, opt := range opts {
 		opt.apply(&o)
@@ -49,14 +49,14 @@ func New(opts ...Option) Options {
 	return o
 }
 
-// OTLP returns the zlog option exporting records through Logger; with a
+// OTLP returns the szlog option exporting records through Logger; with a
 // nil Logger the records are not exported.
-func (o Options) OTLP() zlog.Option {
+func (o Options) OTLP() szlog.Option {
 	if o.Logger == nil {
-		return zlog.WithoutOTLP()
+		return szlog.WithoutOTLP()
 	}
 
-	return zlog.WithOTLPProvider(o.Logger)
+	return szlog.WithOTLPProvider(o.Logger)
 }
 
 type namedOption string
@@ -70,14 +70,14 @@ func WithNamed(named string) Option {
 	return namedOption(named)
 }
 
-type levelOption zlog.Level
+type levelOption szlog.Level
 
 func (l levelOption) apply(o *Options) {
-	o.Level = zlog.Level(l)
+	o.Level = szlog.Level(l)
 }
 
 // WithLevel sets the log level of the node.
-func WithLevel(level zlog.Level) Option {
+func WithLevel(level szlog.Level) Option {
 	return levelOption(level)
 }
 

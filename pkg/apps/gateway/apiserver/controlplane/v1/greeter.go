@@ -18,12 +18,12 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/core/szgrpc/szgrpcgateway"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ szgrpcgateway.ServiceRegistrar = (*Greeter)(nil)
+var _ grpcgateway.ServiceRegistrar = (*Greeter)(nil)
 
 // NewGreeter creates a new greeter service to register handler to gateway
 func NewGreeter(server greeterpb.GreeterServiceServer) *Greeter {
@@ -37,9 +37,9 @@ type Greeter struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
-	server szgrpcgateway.Server, appConf *settingpb.Config) error {
+	server grpcgateway.Server, appConf *settingpb.Config) error {
 
-	return szgrpcgateway.RegisterServiceFromEndpoint(ctx,
+	return grpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		greeterpb.GetMetaGreeterServiceKey(),
@@ -48,11 +48,11 @@ func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
 }
 
 // Accept accepts the greeter service
-func (g *Greeter) Accept(ctx context.Context, server szgrpcgateway.Server) error {
+func (g *Greeter) Accept(ctx context.Context, server grpcgateway.Server) error {
 
 	// a local conn, unlike RegisterGreeterServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := szgrpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn()
 	greeterpb.RegisterGreeterServiceServer(conn, g.server)
 
 	return greeterpb.RegisterGreeterServiceHandlerClient(ctx,

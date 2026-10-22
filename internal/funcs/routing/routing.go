@@ -19,17 +19,17 @@ import (
 	"net/http"
 
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 )
 
-func NewMockRouter() szchains.ChainNode {
+func NewMockRouter() chains.ChainNode {
 	return &Mock{
-		Node: szchains.NewNode(),
+		Node: chains.NewNode(),
 	}
 }
 
 type Mock struct {
-	*szchains.Node
+	*chains.Node
 }
 
 func (r *Mock) Handle(ctx szhttp.Context) error {

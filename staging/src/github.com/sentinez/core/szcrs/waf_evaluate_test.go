@@ -20,7 +20,7 @@ import (
 
 	"github.com/corazawaf/coraza/v3"
 	"github.com/sentinez/core/szcrs"
-	"github.com/sentinez/core/szhttp/szhttpreq"
+	"github.com/sentinez/core/szhttp/httpreq"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -68,7 +68,7 @@ func TestEvaluate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := szhttpreq.NewRequestContext(
+			req := httpreq.NewRequestContext(
 				context.Background(), &httppb.Request{
 					Method:        "GET",
 					Uri:           []byte(tt.giveURI),

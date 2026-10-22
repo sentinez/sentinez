@@ -16,27 +16,27 @@ package routing
 
 import (
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-func NewStandardRouter(store *memory.MemStore) szchains.ChainNode {
+func NewStandardRouter(store *memory.MemStore) chains.ChainNode {
 	return &StandardRouter{
-		Node:  szchains.NewNode(),
+		Node:  chains.NewNode(),
 		store: store,
 	}
 }
 
 type StandardRouter struct {
-	*szchains.Node
+	*chains.Node
 	store *memory.MemStore
 }
 
 func (r *StandardRouter) Handle(ctx szhttp.Context) error {
 	target, err := r.store.Route().Match(ctx)
 	if err != nil {
-		zlog.Error("[edge] routing match error: ", err)
+		szlog.Error("[edge] routing match error: ", err)
 		return szhttp.NotFound(ctx)
 	}
 

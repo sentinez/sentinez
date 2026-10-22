@@ -19,8 +19,8 @@ import (
 
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 
 	_ io.Closer = (*RuleEvent)(nil)
 
-	_pool = sync.NewPoolCtr(func() *RuleEvent {
+	_pool = szsync.NewPoolCtr(func() *RuleEvent {
 		return &RuleEvent{RuleEvent: &secrulepb.RuleEvent{
 			Action: &rulepb.Action{},
 		}}
@@ -48,7 +48,7 @@ func (re *RuleEvent) Close() error {
 func Acquire() *RuleEvent {
 
 	obj := _pool.Get()
-	obj.Id = rand.NewId(_prefix)
+	obj.Id = szrand.NewId(_prefix)
 
 	return obj
 }

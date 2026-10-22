@@ -19,16 +19,16 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/sztables"
-	"github.com/sentinez/core/szstorage/szdbx"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
-	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
+	"github.com/sentinez/core/szcmn/tables"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -43,7 +43,7 @@ type IAccount interface {
 	Get(ctx context.Context, id string) (*AccountX, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *szpostgres.TxSession) IAccount
+	WithTX(tx *postgres.TxSession) IAccount
 
 	// extra methods
 
@@ -57,17 +57,17 @@ type IAccount interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IAccount, error) {
 
-	storage, err := szpostgres.New[AccountX](ctx, appConf,
-		szdbx.WithTable(sztables.IAMAccounts),
-		szdbx.WithColumns(szdbx.ColumnM{
-			iampb.Account_Id:             szpostgres.String,
-			iampb.Account_Email:          szpostgres.String,
-			iampb.Account_Username:       szpostgres.String,
-			iampb.Account_PasswordHash:   szpostgres.String,
-			iampb.Account_Credentials:    szpostgres.StringArr,
-			iampb.Account_UserId:         szpostgres.String,
-			iampb.Account_Provider:       szpostgres.Int4,
-			iampb.Account_ProviderUserId: szpostgres.String,
+	storage, err := postgres.New[AccountX](ctx, appConf,
+		dbx.WithTable(tables.IAMAccounts),
+		dbx.WithColumns(dbx.ColumnM{
+			iampb.Account_Id:             postgres.String,
+			iampb.Account_Email:          postgres.String,
+			iampb.Account_Username:       postgres.String,
+			iampb.Account_PasswordHash:   postgres.String,
+			iampb.Account_Credentials:    postgres.StringArr,
+			iampb.Account_UserId:         postgres.String,
+			iampb.Account_Provider:       postgres.Int4,
+			iampb.Account_ProviderUserId: postgres.String,
 		}),
 	)
 	if err != nil {
@@ -80,7 +80,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (IAccount, error) {
 }
 
 type Accounts struct {
-	storage szdbx.Database[AccountX]
+	storage dbx.Database[AccountX]
 }
 
 // nolint:funlen
@@ -107,9 +107,9 @@ func buildListQuery(builder sq.SelectBuilder,
 	return builder
 }
 
-func (acc *Accounts) WithTX(tx *szpostgres.TxSession) IAccount {
+func (acc *Accounts) WithTX(tx *postgres.TxSession) IAccount {
 	return &Accounts{
-		storage: szpostgres.WithTx(tx, acc.storage),
+		storage: postgres.WithTx(tx, acc.storage),
 	}
 }
 
@@ -205,7 +205,7 @@ func usernameOrEmail(input string) sq.Or {
 }
 
 // getOne returns the account matching where, or an empty account and
-// errorx.ErrNotFound if there is none.
+// szerror.ErrNotFound if there is none.
 func (acc *Accounts) getOne(ctx context.Context,
 	where sq.Sqlizer) (*AccountX, error) {
 
@@ -213,11 +213,11 @@ func (acc *Accounts) getOne(ctx context.Context,
 
 	resp, err := acc.storage.CollectOneRow(ctx, builder, scanOne)
 	if err != nil {
-		if !errorx.IsNoRows(err) {
+		if !szerror.IsNoRows(err) {
 			return nil, err
 		}
 
-		return &AccountX{}, errorx.ErrNotFound
+		return &AccountX{}, szerror.ErrNotFound
 	}
 
 	return resp, nil
@@ -227,13 +227,13 @@ func (acc *Accounts) getOne(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	account.Id = rand.NewId(sztable.NewPrimaryKey(sztables.IAMAccounts))
+	account.Id = szrand.NewId(table.NewPrimaryKey(tables.IAMAccounts))
 
 	if account.GetUsername() == "" {
 		account.Username = account.GetEmail()
 	}
 
-	query := szpostgres.InsertBuilder(acc.storage, szpostgres.M{
+	query := postgres.InsertBuilder(acc.storage, postgres.M{
 		iampb.Account_Id:             account.GetId(),
 		iampb.Account_Credentials:    account.GetCredentials(),
 		iampb.Account_Username:       account.GetUsername(),
@@ -267,7 +267,7 @@ func (acc *Accounts) Get(ctx context.Context, id string) (*AccountX, error) {
 // nolint:funlen
 func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 
-	query := szpostgres.UpdateBuilder(acc.storage, account.GetId())
+	query := postgres.UpdateBuilder(acc.storage, account.GetId())
 
 	if account.GetEmail() != "" {
 		query = query.Set(iampb.Account_Email, account.GetEmail())
@@ -307,7 +307,7 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 }
 
 func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return szpostgres.SelectBuilder(acc.storage, page,
+	return postgres.SelectBuilder(acc.storage, page,
 		iampb.Account_Id,
 		iampb.Account_Credentials,
 		iampb.Account_Username,
@@ -321,7 +321,7 @@ func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	)
 }
 
-func scan(rows szdbx.Rows) ([]*AccountX, error) {
+func scan(rows dbx.Rows) ([]*AccountX, error) {
 	var accounts []*AccountX
 
 	for rows.Next() {
@@ -336,7 +336,7 @@ func scan(rows szdbx.Rows) ([]*AccountX, error) {
 	return accounts, rows.Err()
 }
 
-func scanOne(row szdbx.Row) (*AccountX, error) {
+func scanOne(row dbx.Row) (*AccountX, error) {
 	var createdAt, updatedAt time.Time
 	account := AccountX{Account: &iampb.Account{}}
 
@@ -353,7 +353,7 @@ func scanOne(row szdbx.Row) (*AccountX, error) {
 		&updatedAt,
 	)
 	if err != nil {
-		zlog.Debugf("postgres: in tx=false query: %v", row)
+		szlog.Debugf("postgres: in tx=false query: %v", row)
 		return nil, err
 	}
 

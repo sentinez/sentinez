@@ -18,13 +18,13 @@ import (
 	"io"
 
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
 	_ io.Closer = (*RuleEvent)(nil)
 
-	_pool = sync.NewPoolCtr(func() *RuleEvent {
+	_pool = szsync.NewPoolCtr(func() *RuleEvent {
 		return &RuleEvent{MatchedRules: &rulepb.MatchedRules{}}
 	})
 )

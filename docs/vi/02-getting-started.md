@@ -91,7 +91,7 @@ Console gọi `/api`, server Next.js chuyển tiếp tới `API_BASE_PATH`
 
 Tên biến là các giá trị của enum `Senz` trong
 [types/setting/v1/config.proto](../../api/proto/sentinez/types/setting/v1/config.proto).
-Đọc qua `shared/config.LoadEnv` (dùng `godotenv`), truy cập bằng
+Đọc qua `shared/szconfig.LoadEnv` (dùng `godotenv`), truy cập bằng
 `conf.Get(settingpb.Senz_...)` hoặc `config.GetEnv(...)`.
 
 | Biến | Dùng ở | Ý nghĩa |
@@ -116,7 +116,7 @@ service khác nạp toàn bộ enum `Senz`.
 
 Định nghĩa trong
 [types/setting/v1/flags.proto](../../api/proto/sentinez/types/setting/v1/flags.proto),
-parse bằng `pflag` trong `shared/flagx` và `pkg/apps/**/flags`. Giá trị được
+parse bằng `pflag` trong `shared/szflag` và `pkg/apps/**/flags`. Giá trị được
 validate bằng protovalidate.
 
 | Flag | Mặc định | Ràng buộc | Service |
@@ -141,9 +141,9 @@ make lint                  # golangci-lint cho root, core, shared, controlplane,
 make fmt.proto             # buf format -w
 ```
 
-Test hiện có tập trung ở: `core/szlimiter`, `core/szrule`, `core/szmodsec/szruleparser`,
+Test hiện có tập trung ở: `core/szlimiter`, `core/szrule`, `core/szmodsec/ruleparser`,
 `controlplane/iam` (handler, service với mock), `controlplane/pkg/crypto`,
-`shared/{config,errorx,perms,protobuf,zlog}`, `pkg/apps/dmz/edge`,
+`shared/{szconfig,szerror,szperms,szprotobuf,szlog}`, `pkg/apps/dmz/edge`,
 `pkg/apps/gateway/apiserver`.
 
 Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
@@ -157,7 +157,7 @@ Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript cho UI | `cd api && buf generate` (plugin `ts-proto` → `ui/packages/proto/ts-proto`) |
-| Template trang lỗi | `cd staging/.../core/szcmn/szrender && templ generate` |
+| Template trang lỗi | `cd staging/.../core/szcmn/render && templ generate` |
 | Rule CRS → Go | `bash hack/ruleparser.sh` (cần `ruleparser-sentinez` trong PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy proto bên thứ ba | `bash hack/copy_proto3pt.sh` |

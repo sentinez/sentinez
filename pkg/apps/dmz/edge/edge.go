@@ -33,7 +33,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/sentinez/pkg/sdklog"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	otelsdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
@@ -109,7 +109,7 @@ type Server struct {
 // This method is automatically invoked by the `runner` package
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
-	zlog.Debugf("application is shutting down")
+	szlog.Debugf("application is shutting down")
 	err := s.memstore.Shutdown(ctx)
 
 	// stop serving first, so the logs of the last requests are flushed

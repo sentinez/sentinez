@@ -14,14 +14,14 @@
 
 package szhttp
 
-import "github.com/sentinez/shared/atomic"
+import "github.com/sentinez/shared/szatomic"
 
 var _ RequestContext = (*BaseContext)(nil)
 
 type BaseContext struct {
-	requestId  atomic.WriteOnce[string]
-	resourceId atomic.WriteOnce[string]
-	tenantId   atomic.WriteOnce[string]
+	requestId  szatomic.WriteOnce[string]
+	resourceId szatomic.WriteOnce[string]
+	tenantId   szatomic.WriteOnce[string]
 }
 
 // RequestId implements [RequestContext].

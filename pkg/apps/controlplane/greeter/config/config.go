@@ -20,7 +20,7 @@ import (
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/flags"
-	"github.com/sentinez/shared/config"
+	"github.com/sentinez/shared/szconfig"
 )
 
 var (
@@ -41,7 +41,7 @@ func load() (*settingpb.Config, error) {
 		return nil, err
 	}
 
-	env, err := config.LoadEnv(flag.GetEnvFile())
+	env, err := szconfig.LoadEnv(flag.GetEnvFile())
 	if err != nil {
 		return nil, err
 	}

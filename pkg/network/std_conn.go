@@ -19,7 +19,7 @@ import (
 	"encoding/hex"
 	"net"
 
-	"github.com/sentinez/shared/store/ja4"
+	"github.com/sentinez/shared/szstore/ja4"
 )
 
 func newStdConn(conn net.Conn) *StdConn {

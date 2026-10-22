@@ -21,16 +21,16 @@ import (
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
 
 func New(
-	tx *szpostgres.Tx,
+	tx *postgres.Tx,
 	resource resourcerepo.IResource,
 	member memberrepo.IMember,
 	tenant tenantrepo.ITenant,
@@ -44,7 +44,7 @@ func New(
 }
 
 type Service struct {
-	tx       *szpostgres.Tx
+	tx       *postgres.Tx
 	resource resourcerepo.IResource
 	member   memberrepo.IMember
 	tenant   tenantrepo.ITenant
@@ -63,7 +63,7 @@ func (svc *Service) GetResourceByDomain(ctx context.Context,
 	}
 
 	if len(rsrc.GetResources()) == 0 {
-		return nil, errorx.StatusNotFoundF("resource not found!")
+		return nil, szerror.StatusNotFoundF("resource not found!")
 	}
 
 	resp := &tenantpb.GetResourceByDomainResponse{
@@ -158,7 +158,7 @@ func (svc *Service) Status(_ context.Context,
 func (svc *Service) ListResource(ctx context.Context,
 	req *tenantpb.ListResourceRequest,
 ) (*tenantpb.ListResourceResponse, error) {
-	zlog.Infof("tenant svc: req = %v", req)
+	szlog.Infof("tenant svc: req = %v", req)
 
 	return svc.resource.List(ctx, req)
 }

@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/controlplane/pkg/crypto"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/perms"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szperms"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -31,19 +31,19 @@ type Auth struct {
 }
 
 func (a *Auth) Check(method *typepb.XMethod) error {
-	return perms.Allow(method, a.GetControlPlane())
+	return szperms.Allow(method, a.GetControlPlane())
 }
 
 func GetAuth(ctx context.Context) (*Auth, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
 	if len(accessToken) == 0 {
-		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
+		return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
 	}
 
 	pl, ok := crypto.BearerTokenVerifier(accessToken[0])
 	if !ok {
-		return nil, errorx.StatusUnauthorizedF("Invalid Access Token")
+		return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
 	}
 
 	return &Auth{Context: pl}, nil

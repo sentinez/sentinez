@@ -5,7 +5,7 @@ Sentinéz có hai cơ chế lọc request độc lập:
 1. **SecRule / CDN rule** — expression do người dùng định nghĩa, đánh giá bởi
    `core/szrule` (nhanh, không phụ thuộc thư viện ngoài).
 2. **Rulesets (WAF)** — OWASP Core Rule Set chạy trên Coraza, nạp từ code Go
-   sinh sẵn trong `core/szmodsec/szgen`.
+   sinh sẵn trong `core/szmodsec/gen`.
 
 ## 4.1 Mô hình expression
 
@@ -126,13 +126,13 @@ CRS gốc (`.conf`) nằm ở [deploy/ruleroot](../../deploy/ruleroot/). Công c
 ([tools/cmd/ruleparser-sentinez](../../staging/src/github.com/sentinez/tools/cmd/ruleparser-sentinez/main.go)):
 
 1. Parse SecLang bằng parser ANTLR
-   ([core/szmodsec/szruleparser](../../staging/src/github.com/sentinez/core/szmodsec/szruleparser/)):
+   ([core/szmodsec/ruleparser](../../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    mỗi statement là một rule; rule kết thúc bằng `chain"` được nối với
    statement sau; trích `ver`, `paranoia-level`, các action field.
 2. Đổ vào `coreruleset.v1.CoreRulesets` rồi render template Go: mỗi rule thành
    một hàm trả về `*CoreRule` với `Configuration` mã hoá base64, cùng slice
    `XxxOrder` giữ thứ tự.
-3. Ghi ra `core/szmodsec/szgen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
+3. Ghi ra `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
 
 Chạy lại toàn bộ: `bash hack/ruleparser.sh`.
 

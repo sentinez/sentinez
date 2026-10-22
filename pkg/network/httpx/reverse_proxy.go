@@ -22,7 +22,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func NewReverseProxy(
@@ -49,14 +49,14 @@ type ReverseProxy struct {
 func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 	if p == nil {
 		_ = szhttp.NotFound(ctx)
-		zlog.Errorf("target not found in reverse proxy memory")
+		szlog.Errorf("target not found in reverse proxy memory")
 		return
 	}
 
 	nctx, ok := ctx.Unwrap().(*Context)
 	if !ok {
 		_ = szhttp.InternalServerError(ctx)
-		zlog.Errorf("request context not supported")
+		szlog.Errorf("request context not supported")
 		return
 	}
 

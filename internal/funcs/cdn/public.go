@@ -25,13 +25,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // PublicPrefix is the path the embedded images are served under, e.g.
@@ -60,19 +60,19 @@ var _imageTypes = map[string]string{
 	".ico":  "image/x-icon",
 }
 
-var _ szchains.ChainNode = (*Public)(nil)
+var _ chains.ChainNode = (*Public)(nil)
 
 // NewPublic returns a node serving the images embedded in the binary.
 func NewPublic(
-	_ *memory.MemStore, _ ...option.Option) szchains.ChainNode {
+	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
 
 	images, err := loadImages(sentinez.Logo, _publicRoot)
 	if err != nil {
-		zlog.Error("[edge] load public images: ", err)
+		szlog.Error("[edge] load public images: ", err)
 	}
 
 	return &Public{
-		Node:   szchains.NewNode(),
+		Node:   chains.NewNode(),
 		images: images,
 	}
 }
@@ -80,7 +80,7 @@ func NewPublic(
 // Public serves embedded images under PublicPrefix. Requests outside the
 // prefix are passed to the next node untouched.
 type Public struct {
-	*szchains.Node
+	*chains.Node
 
 	// images is keyed by the path relative to PublicPrefix and is
 	// read-only after construction.
@@ -103,9 +103,9 @@ func (p *Public) Handle(ctx szhttp.Context) error {
 	method := string(ctx.Method())
 	if method != http.MethodGet && method != http.MethodHead {
 		ctx.SetResponseHeader(
-			szbytestr.HeaderAllow, szbytestr.ValueAllowGetHead)
+			bytestr.HeaderAllow, bytestr.ValueAllowGetHead)
 		return ctx.String(
-			http.StatusMethodNotAllowed, szbytestr.MethodNotAllowed)
+			http.StatusMethodNotAllowed, bytestr.MethodNotAllowed)
 	}
 
 	img, ok := p.images[string(name)]
@@ -117,19 +117,19 @@ func (p *Public) Handle(ctx szhttp.Context) error {
 }
 
 func serveImage(ctx szhttp.Context, img *image) error {
-	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
-	ctx.SetResponseHeader(szbytestr.HeaderCacheControl, _publicCacheControl)
-	ctx.SetResponseHeader(szbytestr.HeaderETag, img.etag)
+	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
+	ctx.SetResponseHeader(bytestr.HeaderCacheControl, _publicCacheControl)
+	ctx.SetResponseHeader(bytestr.HeaderETag, img.etag)
 
-	if bytes.Contains(ctx.Header(szbytestr.HeaderIfNoneMatch), img.etag) {
+	if bytes.Contains(ctx.Header(bytestr.HeaderIfNoneMatch), img.etag) {
 		ctx.SetStatusCode(http.StatusNotModified)
 		return nil
 	}
 
-	ctx.SetResponseHeader(szbytestr.HeaderContentType, img.contentType)
-	ctx.SetResponseHeader(szbytestr.HeaderContentLength, img.length)
+	ctx.SetResponseHeader(bytestr.HeaderContentType, img.contentType)
+	ctx.SetResponseHeader(bytestr.HeaderContentLength, img.length)
 	ctx.SetResponseHeader(
-		szbytestr.HeaderXContentTypeOpts, szbytestr.ValueNoSniff)
+		bytestr.HeaderXContentTypeOpts, bytestr.ValueNoSniff)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(http.StatusOK)
 	ctx.SetBody(img.body)

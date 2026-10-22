@@ -21,7 +21,7 @@ import (
 
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/flagx"
+	"github.com/sentinez/shared/szflag"
 	"github.com/spf13/pflag"
 )
 
@@ -30,18 +30,18 @@ var _onceWS sync.Once
 // ParseFlag flag args for apiserver service
 func Parse() (*settingpb.Flag, error) {
 	_onceWS.Do(func() {
-		flagx.Get().EnvFile = "./cmd/realtime/.env"
+		szflag.Get().EnvFile = "./cmd/realtime/.env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
-			flagx.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
+			szflag.Get().GetEnvFile(), "environment variables config file")
 
-		flagx.Parse(realtimepb.GetMetaRealtime())
+		szflag.Parse(realtimepb.GetMetaRealtime())
 
 	})
 
-	if err := flagx.Validate(flagx.Get()); err != nil {
+	if err := szflag.Validate(szflag.Get()); err != nil {
 		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get(), nil
+	return szflag.Get(), nil
 }

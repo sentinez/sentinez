@@ -15,7 +15,7 @@
 package http
 
 import (
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/funcs"
 	"github.com/sentinez/sentinez/internal/memory"
@@ -25,7 +25,7 @@ import (
 // opts are passed to every node (see option.WithLogger,
 // option.WithHostname).
 func NewHandler(
-	ms *memory.MemStore, opts ...option.Option) szchains.ChainNode {
+	ms *memory.MemStore, opts ...option.Option) chains.ChainNode {
 
 	handlers := funcs.New(ms, opts...)
 	if len(handlers) == 0 {

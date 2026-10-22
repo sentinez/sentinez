@@ -16,14 +16,14 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Lớp lưu trữ (`core/szstorage/szdbx`)
+## 7.1 Lớp lưu trữ (`core/szstorage/dbx`)
 
-[core/szstorage/szdbx](../../staging/src/github.com/sentinez/core/szstorage/szdbx/):
+[core/szstorage/dbx](../../staging/src/github.com/sentinez/core/szstorage/dbx/):
 
-- `szdbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
-  `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `szquery.Query`
+- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
+  `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
   (interface `ToSql()` của squirrel).
-- `szpostgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
   - Tên bảng thật = `<mode>.sentinez.<name>` thay `.` bằng `_`, ví dụ
     `dev_sentinez_iam_users`; phải khớp regex
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
@@ -33,13 +33,13 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 - Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY created_at DESC`
   khi `page.index` và `page.size` > 0), `InsertBuilder` (`RETURNING id`),
   `UpdateBuilder` (tự set `updated_at`).
-- Transaction: `szpostgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
-  `szpostgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
+- Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
+  `postgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
   cung cấp `WithTX(ss)`.
-- ID bản ghi: `rand.NewId(sztable.NewPrimaryKey(name))` =
+- ID bản ghi: `szrand.NewId(table.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
-Tên bảng ([core/szcmn/sztables](../../staging/src/github.com/sentinez/core/szcmn/sztables/tables.go)):
+Tên bảng ([core/szcmn/tables](../../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 
@@ -195,7 +195,7 @@ email đổi. Mọi passkey của một user dùng chung handle này.
 | `accounts.DeleteByUserId(userId)` | Dùng bởi `DeleteUser` |
 | `users.GetByEmail(email)` | Email thuộc user nào |
 
-"Không tìm thấy" là `errorx.ErrNotFound`; helper `found` của service đổi nó
+"Không tìm thấy" là `szerror.ErrNotFound`; helper `found` của service đổi nó
 thành kết quả nil.
 
 ### Nâng cấp DB đang có
@@ -256,7 +256,7 @@ ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu �
 
 ## 7.7 Mã lỗi
 
-[shared/errorx](../../staging/src/github.com/sentinez/shared/errorx/errors.go)
+[shared/szerror](../../staging/src/github.com/sentinez/shared/szerror/errors.go)
 cung cấp gRPC status có định dạng `SENZ-<code>: <ERRORS_...>` và các hàm
 `StatusXxxF(format, ...)` (`NotFound`, `Unauthorized`, `Forbidden`,
 `InvalidData`/`InvalidArgument`, `AlreadyExists`, `Internal`,

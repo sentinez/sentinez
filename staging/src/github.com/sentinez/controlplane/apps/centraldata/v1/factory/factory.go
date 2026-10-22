@@ -19,7 +19,7 @@ import (
 
 	centraldatahdl "github.com/sentinez/controlplane/apps/centraldata/v1/handler"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -27,7 +27,7 @@ import (
 func NewDefaultService(_ context.Context,
 	appConf *settingpb.Config) *centraldatasvc.CentralDataService {
 
-	tx := szpostgres.NewTX(appConf)
+	tx := postgres.NewTX(appConf)
 
 	return centraldatasvc.New(appConf, tx)
 }

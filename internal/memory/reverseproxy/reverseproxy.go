@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/sentinez/core/szhttp"
-	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 func New() *ReverseProxy {
 	_once.Do(func() {
 		_reverseProxyInst = &ReverseProxy{
-			space: ssync.NewMap[string, szhttp.ReverseProxy](),
+			space: szsync.NewMap[string, szhttp.ReverseProxy](),
 		}
 	})
 
@@ -38,7 +38,7 @@ func New() *ReverseProxy {
 }
 
 type ReverseProxy struct {
-	space *ssync.Map[string, szhttp.ReverseProxy]
+	space *szsync.Map[string, szhttp.ReverseProxy]
 }
 
 func (rp *ReverseProxy) Store(target string, rproxy szhttp.ReverseProxy) {

@@ -29,7 +29,7 @@ import (
 	"github.com/sentinez/sentinez/internal/funcs/trace"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var _reqPool = sync.Pool{
@@ -63,9 +63,9 @@ func putRecorder(w *httptest.ResponseRecorder) {
 }
 
 func BenchmarkStandardConverter(b *testing.B) {
-	zlog.SetLogLevel(zlog.LevelInfo)
+	szlog.SetLogLevel(szlog.LevelInfo)
 
-	lvl := option.WithLevel(zlog.LevelError)
+	lvl := option.WithLevel(szlog.LevelError)
 	begin := trace.NewTracer(lvl)
 	begin.
 		SetNext(room.NewRoom(nil, lvl)).
@@ -98,9 +98,9 @@ func TestHandleChain(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx := httpx.NewContext(req, w)
 
-	zlog.SetLogLevel(zlog.LevelInfo)
+	szlog.SetLogLevel(szlog.LevelInfo)
 
-	lvl := option.WithLevel(zlog.LevelError)
+	lvl := option.WithLevel(szlog.LevelError)
 	begin := trace.NewTracer(lvl)
 	begin.
 		SetNext(room.NewRoom(nil, lvl)).

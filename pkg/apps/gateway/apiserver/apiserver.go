@@ -19,12 +19,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sentinez/core/szgrpc/szgrpcgateway"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
-func New(conf *settingpb.Config, server szgrpcgateway.Server) *Server {
+func New(conf *settingpb.Config, server grpcgateway.Server) *Server {
 	srv := &Server{
 		server: server,
 		conf:   conf,
@@ -44,14 +44,14 @@ func New(conf *settingpb.Config, server szgrpcgateway.Server) *Server {
 type Server struct {
 	// server is the core server, manage http.ServeMux,
 	// runtime.ServeMux and HTTP server
-	server szgrpcgateway.Server
+	server grpcgateway.Server
 	conf   *settingpb.Config
 }
 
 // visitToEndpoint all service to external grpc server
 func (srv *Server) VisitToEndpoint(ctx context.Context,
 	conf *settingpb.Config,
-	services ...szgrpcgateway.ServiceRegistrar) error {
+	services ...grpcgateway.ServiceRegistrar) error {
 
 	for _, service := range services {
 		err := service.AcceptFromEndpoint(ctx, srv.server, conf)
@@ -66,7 +66,7 @@ func (srv *Server) VisitToEndpoint(ctx context.Context,
 
 // Visit all service to internal grpc handler
 func (srv *Server) Visit(ctx context.Context,
-	services ...szgrpcgateway.ServiceRegistrar) error {
+	services ...grpcgateway.ServiceRegistrar) error {
 
 	for _, service := range services {
 		if err := service.Accept(ctx, srv.server); err != nil {
@@ -91,6 +91,6 @@ func (srv *Server) Start(ctx context.Context) error {
 }
 
 func (srv *Server) Shutdown(ctx context.Context) error {
-	zlog.Debug("apiserver: shutdown")
+	szlog.Debug("apiserver: shutdown")
 	return srv.server.Shutdown(ctx)
 }

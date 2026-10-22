@@ -32,7 +32,7 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
@@ -72,7 +72,7 @@ func (s *XServer) Handle(fn szhttp.RequestHandler) {
 		}
 
 		if err := fn(inCtx); err != nil {
-			zlog.Errorf("[httpxdmz]: internal err=%v", err)
+			szlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = inCtx.String(
 				http.StatusInternalServerError, []byte("Internal server error"))
 		}

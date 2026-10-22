@@ -30,8 +30,8 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/config"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szconfig"
+	"github.com/sentinez/shared/szerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -77,7 +77,7 @@ func newPasskeyFixture(t *testing.T) *passkeyFixture {
 func signedIn(t *testing.T, userId string) context.Context {
 	t.Helper()
 
-	config.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte("congchualunglinh")))
 
 	token, err := crypto.TokenGenerator(&typepb.Context{
@@ -132,7 +132,7 @@ func TestPasskeyRegisterChallenge_Rejected(t *testing.T) {
 func TestPasskeyRegisterChallenge_PersistsNothing(t *testing.T) {
 	f := newPasskeyFixture(t)
 	f.users.On("GetByEmail", mock.Anything, _bobEmail).
-		Return(nil, errorx.ErrNotFound)
+		Return(nil, szerror.ErrNotFound)
 
 	resp, err := f.svc.PasskeyRegisterChallenge(context.Background(),
 		&iampb.PasskeyRegisterChallengeRequest{EmailOrUsername: _bobEmail})
@@ -161,7 +161,7 @@ func TestPasskeyRegisterVerify_UnknownSession(t *testing.T) {
 func TestPasskeyRegisterVerify_BadResponse(t *testing.T) {
 	f := newPasskeyFixture(t)
 	f.users.On("GetByEmail", mock.Anything, _bobEmail).
-		Return(nil, errorx.ErrNotFound)
+		Return(nil, szerror.ErrNotFound)
 
 	ctx := context.Background()
 	challenge, err := f.svc.PasskeyRegisterChallenge(ctx,
@@ -196,7 +196,7 @@ func TestPasskeyLinkChallenge_FirstPasskey(t *testing.T) {
 		Return(&iampb.User{Id: _bobId, Email: _bobEmail}, nil)
 	f.accounts.On("GetByUserId",
 		mock.Anything, iampb.Provider_PROVIDER_PASSKEY, _bobId).
-		Return(&accrepos.AccountX{}, errorx.ErrNotFound)
+		Return(&accrepos.AccountX{}, szerror.ErrNotFound)
 
 	resp, err := f.svc.PasskeyLinkChallenge(
 		signedIn(t, _bobId), &iampb.PasskeyLinkChallengeRequest{})
@@ -273,7 +273,7 @@ func TestSavePasskey_LinkFirstPasskey(t *testing.T) {
 	f := newPasskeyFixture(t)
 	f.accounts.On("GetByUserId",
 		mock.Anything, iampb.Provider_PROVIDER_PASSKEY, _bobId).
-		Return(&accrepos.AccountX{}, errorx.ErrNotFound)
+		Return(&accrepos.AccountX{}, szerror.ErrNotFound)
 	f.accounts.On("Create", mock.Anything, mock.MatchedBy(
 		func(acc *accrepos.AccountX) bool {
 			return acc.GetUserId() == _bobId &&
@@ -338,7 +338,7 @@ func TestPasskeyLoginChallenge_NoPasskeyAccount(t *testing.T) {
 	f := newPasskeyFixture(t)
 	f.accounts.On("GetByProvider",
 		mock.Anything, iampb.Provider_PROVIDER_PASSKEY, _bobEmail).
-		Return(&accrepos.AccountX{}, errorx.ErrNotFound)
+		Return(&accrepos.AccountX{}, szerror.ErrNotFound)
 
 	resp, err := f.svc.PasskeyLoginChallenge(context.Background(),
 		&iampb.PasskeyLoginChallengeRequest{EmailOrUsername: _bobEmail})
@@ -354,11 +354,11 @@ func TestPasskeyLoginVerify_LooksUpByHandle(t *testing.T) {
 	})
 	f.accounts.On("GetByProviderUserId",
 		mock.Anything, iampb.Provider_PROVIDER_PASSKEY, "handle-1").
-		Return(&accrepos.AccountX{}, errorx.ErrNotFound)
+		Return(&accrepos.AccountX{}, szerror.ErrNotFound)
 
 	resp, err := f.svc.PasskeyLoginVerify(context.Background(),
 		&iampb.PasskeyLoginVerifyRequest{SessionId: "sid"})
 
 	assert.Nil(t, resp)
-	assert.ErrorIs(t, err, errorx.ErrNotFound)
+	assert.ErrorIs(t, err, szerror.ErrNotFound)
 }

@@ -25,9 +25,9 @@ import (
 
 	"github.com/corazawaf/libinjection-go"
 	"github.com/google/uuid"
-	"github.com/sentinez/core/szcmn/szrender"
-	"github.com/sentinez/core/szhttp/szhttpconst"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/core/szcmn/render"
+	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/shared/szlog"
 )
 
 const (
@@ -94,7 +94,7 @@ func inspect(r *http.Request, body []byte) (violation, bool) {
 		return violation{attack: attack, location: _locationCookie}, true
 	}
 
-	ctype := r.Header.Get(szhttpconst.HeaderContentType)
+	ctype := r.Header.Get(httpconst.HeaderContentType)
 	if attack, ok := scanBody(ctype, body); ok {
 		return violation{attack: attack, location: _locationBody}, true
 	}
@@ -221,24 +221,24 @@ func detect(input string) (string, bool) {
 
 // forbidden writes the HTML 403 page for a request that tripped v.
 func forbidden(w http.ResponseWriter, r *http.Request, v violation) {
-	id := r.Header.Get(szhttpconst.HeaderXRequestId)
+	id := r.Header.Get(httpconst.HeaderXRequestId)
 	if id == "" {
 		id = uuid.NewString()
 	}
 
-	zlog.Warnf("deny http request: %s in %s method=%s path=%s id=%s",
+	szlog.Warnf("deny http request: %s in %s method=%s path=%s id=%s",
 		v.attack, v.location, r.Method, r.URL.Path, id)
 
 	var page bytes.Buffer
-	if err := szrender.Forbidden(id).Render(r.Context(), &page); err != nil {
+	if err := render.Forbidden(id).Render(r.Context(), &page); err != nil {
 		http.Error(w, http.StatusText(http.StatusForbidden),
 			http.StatusForbidden)
 
 		return
 	}
 
-	w.Header().Set(szhttpconst.HeaderContentType, _mimeHTML)
-	w.Header().Set(szhttpconst.HeaderXRequestId, id)
+	w.Header().Set(httpconst.HeaderContentType, _mimeHTML)
+	w.Header().Set(httpconst.HeaderXRequestId, id)
 	w.WriteHeader(http.StatusForbidden)
 
 	_, _ = w.Write(page.Bytes())

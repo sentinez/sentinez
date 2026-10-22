@@ -22,30 +22,30 @@ import (
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/errorx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szlog"
 )
 
 func Handler(ctx szhttp.Context) error {
 	hCtx, ok := ctx.Unwrap().(*httpx.Context)
 	if !ok {
-		zlog.Error("wshandlers.Handler: context protocol not supported")
-		return errorx.StatusInternalError
+		szlog.Error("wshandlers.Handler: context protocol not supported")
+		return szerror.StatusInternalError
 	}
 
 	conn, err := hCtx.Upgrade()
 	if err != nil {
-		zlog.Errorf("wshandlers.Handler upgrade error: %v", err)
+		szlog.Errorf("wshandlers.Handler upgrade error: %v", err)
 		return err
 	}
 	defer func() { _ = conn.Close() }()
 
-	zlog.Debugf("wshandlers.Handler full path %s", ctx.Path())
+	szlog.Debugf("wshandlers.Handler full path %s", ctx.Path())
 
 	clientId := ctx.Query([]byte("id"))
 	if len(clientId) == 0 {
-		zlog.Error("wshandlers.Handler missing client ID")
-		return errorx.StatusInvalidData
+		szlog.Error("wshandlers.Handler missing client ID")
+		return szerror.StatusInvalidData
 	}
 
 	realtimemnt.Manager().AddClient(bytesconv.B2s(clientId), conn)
@@ -54,12 +54,12 @@ func Handler(ctx szhttp.Context) error {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			zlog.Errorf("wshandlers.Handler read error from %s: %v",
+			szlog.Errorf("wshandlers.Handler read error from %s: %v",
 				clientId, err)
 			break
 		}
 
-		zlog.Debugf("wshandlers.Handler received from %s: %s", clientId, msg)
+		szlog.Debugf("wshandlers.Handler received from %s: %s", clientId, msg)
 		realtimemnt.Manager().
 			Broadcast(fmt.Appendf(nil, "From %s: %s", clientId, msg))
 	}

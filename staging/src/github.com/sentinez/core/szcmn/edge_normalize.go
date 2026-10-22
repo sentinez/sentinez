@@ -20,8 +20,8 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -90,7 +90,7 @@ func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 		return nil
 	}
 
-	zlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
+	szlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
 
 	return &secrulepb.SecRule{
 		Id:          rgLite.GetId(),
@@ -178,7 +178,7 @@ func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	}
 
 	return &rulepb.Condition{
-		Id:       rand.NewNanoId(_condPrefix),
+		Id:       szrand.NewNanoId(_condPrefix),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -192,7 +192,7 @@ func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 	}
 
 	return &rulepb.Rule{
-		Id:        rand.NewNanoId(_rulePrefix),
+		Id:        szrand.NewNanoId(_rulePrefix),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

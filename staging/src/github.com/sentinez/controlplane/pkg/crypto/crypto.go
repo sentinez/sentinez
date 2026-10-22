@@ -22,8 +22,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/config"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szconfig"
+	"github.com/sentinez/shared/szlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
 )
@@ -36,7 +36,7 @@ const (
 
 func TokenGenerator(payload *typepb.Context) (string, error) {
 
-	sec := config.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
+	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
 	if sec == "" {
 		return "", fmt.Errorf("crypto: secret key is empty")
 	}
@@ -62,7 +62,7 @@ func TokenGenerator(payload *typepb.Context) (string, error) {
 
 func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 
-	sec := config.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
+	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
 	if sec == "" {
 		return nil, false
 	}
@@ -70,7 +70,7 @@ func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 	token := strings.TrimPrefix(bearerToken, _bearer)
 	jwtToken, err := parseJWT(token, sec)
 	if err != nil {
-		zlog.Debugf("crypto: invalid token: %v", err)
+		szlog.Debugf("crypto: invalid token: %v", err)
 		return nil, false
 	}
 
@@ -88,7 +88,7 @@ func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 		var resp typepb.Context
 		err = prototext.Unmarshal([]byte(text), &resp)
 		if err != nil {
-			zlog.Debugf("crypto: error when get claims: %v", err)
+			szlog.Debugf("crypto: error when get claims: %v", err)
 			return nil, false
 		}
 
@@ -113,7 +113,7 @@ func parseJWT(token, secretBase64 string) (*jwt.Token, error) {
 		return secret, nil
 	})
 	if err != nil {
-		zlog.Debugf("crypto: invalid token: %v", err)
+		szlog.Debugf("crypto: invalid token: %v", err)
 		return nil, err
 	}
 

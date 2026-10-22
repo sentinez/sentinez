@@ -18,9 +18,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sentinez/core/szmodsec/szgen"
-	rulev4160 "github.com/sentinez/core/szmodsec/szgen/v4-16-0"
-	rulev4170 "github.com/sentinez/core/szmodsec/szgen/v4-17-0"
+	"github.com/sentinez/core/szmodsec/gen"
+	rulev4160 "github.com/sentinez/core/szmodsec/gen/v4-16-0"
+	rulev4170 "github.com/sentinez/core/szmodsec/gen/v4-17-0"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
@@ -156,21 +156,21 @@ func loadRulesets(
 	flag := FlagOf(setting.GetCategories())
 
 	// load setup rules, then the setting on top of them
-	rulesets.Load(szgen.SetupOrder)
+	rulesets.Load(gen.SetupOrder)
 	rulesets.Write(setupDirectives(setting))
 
 	// load init rule
-	rulesets.Load(szgen.Request901InitializationOrder)
+	rulesets.Load(gen.Request901InitializationOrder)
 
 	// load core rulesets
 	loadGroups(rulesets, groups.request, flag)
 
 	// load extension rules
-	rulesets.Load(szgen.AuditOrder)
-	rulesets.Load(szgen.DefaultOrder)
+	rulesets.Load(gen.AuditOrder)
+	rulesets.Load(gen.DefaultOrder)
 
 	// load evaluation rules
-	rulesets.Load(szgen.Request949BlockingEvaluationOrder)
+	rulesets.Load(gen.Request949BlockingEvaluationOrder)
 
 	loadGroups(rulesets, groups.response, flag)
 

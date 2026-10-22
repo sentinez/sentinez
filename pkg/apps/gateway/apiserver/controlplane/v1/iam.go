@@ -17,17 +17,17 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/core/szgrpc/szgrpcgateway"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ szgrpcgateway.ServiceRegistrar = (*identityAccessManagement)(nil)
+var _ grpcgateway.ServiceRegistrar = (*identityAccessManagement)(nil)
 
 // NewIAM creates a new iam service registrar.
 func NewIAM(
 	srv iampb.IdentityAccessManagementServiceServer,
-) szgrpcgateway.ServiceRegistrar {
+) grpcgateway.ServiceRegistrar {
 	return &identityAccessManagement{server: srv}
 }
 
@@ -38,9 +38,9 @@ type identityAccessManagement struct {
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
 func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
-	server szgrpcgateway.Server, appConf *settingpb.Config) error {
+	server grpcgateway.Server, appConf *settingpb.Config) error {
 
-	return szgrpcgateway.RegisterServiceFromEndpoint(ctx,
+	return grpcgateway.RegisterServiceFromEndpoint(ctx,
 		appConf,
 		server.RuntimeMux(),
 		iampb.GetMetaIamServiceKey(),
@@ -50,11 +50,11 @@ func (i *identityAccessManagement) AcceptFromEndpoint(ctx context.Context,
 
 // Accept to visit the iam service.
 func (i *identityAccessManagement) Accept(ctx context.Context,
-	server szgrpcgateway.Server) error {
+	server grpcgateway.Server) error {
 
 	// a local conn, unlike the generated HandlerServer registration, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := szgrpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn()
 	iampb.RegisterIdentityAccessManagementServiceServer(conn, i.server)
 
 	return iampb.RegisterIdentityAccessManagementServiceHandlerClient(ctx,

@@ -19,10 +19,10 @@ The repository should be placed in an appropriate package under `repos/<model_pl
 Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
 - Protobuf models from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1`
-- `github.com/sentinez/core/szcmn/sztables` for table definitions (add the new table constant there)
-- `github.com/sentinez/core/szstorage/szdbx` and `github.com/sentinez/core/szstorage/szdbx/szpostgres` for database interactions
-- `github.com/sentinez/core/szstorage/szstorageutils/sztable`
-- `github.com/sentinez/shared/rand` for ID generation (`rand.NewId`)
+- `github.com/sentinez/core/szcmn/tables` for table definitions (add the new table constant there)
+- `github.com/sentinez/core/szstorage/dbx` and `github.com/sentinez/core/szstorage/dbx/postgres` for database interactions
+- `github.com/sentinez/core/szstorage/storageutils/table`
+- `github.com/sentinez/shared/szrand` for ID generation (`szrand.NewId`)
 
 ## 2. Define the Interface
 
@@ -99,7 +99,7 @@ func (r *<ModelNamePlural>) List(ctx context.Context, req *<domain>pb.List<Model
 	if err != nil {
 		return nil, err
 	}
-	zlog.Debug("[<model_name_plural>] query: ", query, " args: ", args)
+	szlog.Debug("[<model_name_plural>] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(ctx, builder, scan)
 	if err != nil {

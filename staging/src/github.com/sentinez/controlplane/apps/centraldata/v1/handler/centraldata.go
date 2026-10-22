@@ -19,7 +19,7 @@ import (
 
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var _ pb.CentralDataServiceServer = (*CentralDataHandler)(nil)
@@ -39,11 +39,11 @@ func New(
 func (hdl *CentralDataHandler) Status(ctx context.Context,
 	req *pb.StatusRequest) (*pb.StatusResponse, error) {
 
-	zlog.Debugf("[CentralDataHandler.Status] req = %v", req)
+	szlog.Debugf("[CentralDataHandler.Status] req = %v", req)
 
 	resp, err := hdl.service.Status(ctx, req)
 	if err != nil {
-		zlog.Errorf("[CentralDataHandler.Status] failed: %v", err)
+		szlog.Errorf("[CentralDataHandler.Status] failed: %v", err)
 		return nil, err
 	}
 

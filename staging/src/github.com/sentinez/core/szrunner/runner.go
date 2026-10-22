@@ -28,7 +28,7 @@ import (
 	"time"
 
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/grpclog"
@@ -51,11 +51,11 @@ func New(confConstr func() (*settingpb.Config, error),
 		return nil, err
 	}
 
-	logging := zlog.NewConsole(scopeName, zlog.LevelError)
+	logging := szlog.NewConsole(scopeName, szlog.LevelError)
 	grpclog.SetLoggerV2(logging)
 
-	level := zlog.ToLevel(appConf.GetFlag().GetLogLevel())
-	zlog.SetScopeLogLevel(scopeName, level)
+	level := szlog.ToLevel(appConf.GetFlag().GetLogLevel())
+	szlog.SetScopeLogLevel(scopeName, level)
 
 	r := &Runner{}
 	if appConf.GetFlag().GetEnvMode() != "dev" {
@@ -124,7 +124,7 @@ func serve(ctx context.Context, apps []*App, stop func() error) error {
 	}
 
 	<-gctx.Done()
-	zlog.Infof("[runner] shutting down")
+	szlog.Infof("[runner] shutting down")
 
 	stopErr := stop()
 
@@ -166,7 +166,7 @@ func setupOTLP(appConf *settingpb.Config,
 		return func(context.Context) error { return nil }, nil
 	}
 
-	shutdown, err := zlog.SetupOTLP(context.Background(), zlog.OTLPConfigOf(
+	shutdown, err := szlog.SetupOTLP(context.Background(), szlog.OTLPConfigOf(
 		endpoint, appConf.GetMeta().GetServiceKey()))
 	if err != nil {
 		return nil, fmt.Errorf("runner: setup otlp: %w", err)

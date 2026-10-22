@@ -4,13 +4,13 @@
 
 | Path | Role |
 |---|---|
-| [cmd/szapiserver/main.go](../cmd/szapiserver/main.go) | Injects `config.Config`, `szgrpcgateway.NewServer`, `apiserver.New` |
+| [cmd/szapiserver/main.go](../cmd/szapiserver/main.go) | Injects `config.Config`, `grpcgateway.NewServer`, `apiserver.New` |
 | [pkg/apps/gateway/apiserver/apiserver.go](../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, service registration |
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Serves OpenAPI JSON + Swagger UI |
-| [core/szgrpc/szgrpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/szgrpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
 
 ### Initialization
 
@@ -51,11 +51,11 @@ httpMux:
 
 - `Logging`: reads the whole body (so it can be logged on error), calls the
   handler, debug-logs when status ≥ 400, then writes an `httppb.Event` (kind
-  `LOG_TYPE_HTTP`) through `zlog`.
+  `LOG_TYPE_HTTP`) through `szlog`.
 - `AllowCORS`: reflects any `Origin`, sets `Allow-Credentials: true`, returns
   `204` for preflight with methods `GET, HEAD, POST, PUT, DELETE` and headers
   `Content-Type, Accept, Authorization`.
-- The gateway error handler maps `errorx.ErrNotFound/ErrInvalidData/
+- The gateway error handler maps `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` to the matching gRPC status before converting to HTTP.
 
 grpc-gateway forwards the `Authorization` header as gRPC metadata

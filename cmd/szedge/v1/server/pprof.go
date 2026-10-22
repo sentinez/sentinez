@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/sentinez/core/szrunner"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 const (
@@ -45,7 +45,7 @@ func Pprof(c *szrunner.Context[http.Server]) {
 		err := server.ListenAndServe()
 		if !errors.Is(err, http.ErrServerClosed) {
 			// Profiling is optional: the edge keeps serving without it.
-			zlog.Warnf("pprof: %v", err)
+			szlog.Warnf("pprof: %v", err)
 		}
 
 		return nil

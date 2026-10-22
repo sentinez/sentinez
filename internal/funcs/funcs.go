@@ -15,7 +15,7 @@
 package funcs
 
 import (
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/funcs/cdn"
 	"github.com/sentinez/sentinez/internal/funcs/logging"
@@ -29,8 +29,8 @@ import (
 
 // New returns a Function whose nodes read mem and are configured by
 // opts (see option.WithLevel, option.WithLogger, option.WithHostname).
-func New(mem *memory.MemStore, opts ...option.Option) []szchains.ChainNode {
-	return []szchains.ChainNode{
+func New(mem *memory.MemStore, opts ...option.Option) []chains.ChainNode {
+	return []chains.ChainNode{
 		trace.NewTracer(opts...),
 		trace.Wrap("LOG", logging.NewLogging(opts...)),
 		trace.Wrap("DMA", secure.NewDomainBased(mem, opts...)),

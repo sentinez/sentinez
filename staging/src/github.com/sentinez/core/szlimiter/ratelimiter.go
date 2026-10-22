@@ -18,13 +18,13 @@ import (
 	"sync"
 	"time"
 
-	ssync "github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 func NewRateLimiter(timeout time.Duration,
 	windowSize time.Duration, limit int64) *RateLimiter {
 	return &RateLimiter{
-		records:       ssync.NewMap[string, *record](),
+		records:       szsync.NewMap[string, *record](),
 		windowSize:    windowSize,
 		limit:         limit,
 		timeoutMillis: timeout.Milliseconds(),
@@ -32,7 +32,7 @@ func NewRateLimiter(timeout time.Duration,
 }
 
 type RateLimiter struct {
-	records       *ssync.Map[string, *record]
+	records       *szsync.Map[string, *record]
 	mu            sync.Mutex
 	windowSize    time.Duration
 	limit         int64

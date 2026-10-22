@@ -4,13 +4,13 @@
 
 | Đường dẫn | Vai trò |
 |---|---|
-| [cmd/szapiserver/main.go](../../cmd/szapiserver/main.go) | Inject `config.Config`, `szgrpcgateway.NewServer`, `apiserver.New` |
+| [cmd/szapiserver/main.go](../../cmd/szapiserver/main.go) | Inject `config.Config`, `grpcgateway.NewServer`, `apiserver.New` |
 | [pkg/apps/gateway/apiserver/apiserver.go](../../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, đăng ký service |
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
-| [core/szgrpc/szgrpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/szgrpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
 
 ### Khởi tạo
 
@@ -49,11 +49,11 @@ httpMux:
 ```
 
 - `Logging`: đọc toàn bộ body (để log khi lỗi), gọi handler, log debug nếu
-  status ≥ 400, rồi ghi `httppb.Event` (kind `LOG_TYPE_HTTP`) qua `zlog`.
+  status ≥ 400, rồi ghi `httppb.Event` (kind `LOG_TYPE_HTTP`) qua `szlog`.
 - `AllowCORS`: phản chiếu `Origin` bất kỳ, `Allow-Credentials: true`, trả
   `204` cho preflight với methods `GET, HEAD, POST, PUT, DELETE` và headers
   `Content-Type, Accept, Authorization`.
-- Error handler của gateway map `errorx.ErrNotFound/ErrInvalidData/
+- Error handler của gateway map `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` sang gRPC status tương ứng trước khi chuyển thành HTTP.
 
 Header `Authorization` được grpc-gateway chuyển thành gRPC metadata

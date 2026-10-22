@@ -24,9 +24,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 var _ szhttp.ReverseProxy = (*ReverseProxy)(nil)
@@ -75,7 +75,7 @@ func NewReverseProxy(target string,
 	proxy := &ReverseProxy{
 		tlsClient:   tlsClient,
 		plainClient: plainClient,
-		rPrxPool:    sync.NewPool[reverseproxy.ReverseProxy](),
+		rPrxPool:    szsync.NewPool[reverseproxy.ReverseProxy](),
 		ws:          ws,
 		target:      target,
 	}
@@ -86,14 +86,14 @@ func NewReverseProxy(target string,
 type ReverseProxy struct {
 	tlsClient   *client.Client
 	plainClient *client.Client
-	rPrxPool    *sync.Pool[reverseproxy.ReverseProxy]
+	rPrxPool    *szsync.Pool[reverseproxy.ReverseProxy]
 	ws          *WSReverseProxy
 	target      string
 }
 
 func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 
-	upgrade := string(ctx.Header(szbytestr.HeaderUpgrade))
+	upgrade := string(ctx.Header(bytestr.HeaderUpgrade))
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		p.ws.Serve(ctx)
 		return

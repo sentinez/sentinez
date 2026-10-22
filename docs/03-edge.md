@@ -117,7 +117,7 @@ There are three implementations:
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge in `Quic` (HTTP/3 and TCP) and `Standard` modes, realtime |
-| `szhttpreq.RequestContext` | `core/szhttp/szhttpreq/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
+| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
 
 Contexts come from a `sync.Pool` and are returned in `Close()`.
 
@@ -137,7 +137,7 @@ buffers.
 
 Defined in
 [internal/dmz/edge/http/init.go](../internal/dmz/edge/http/init.go). Each
-node embeds `*szchains.Node` (which holds `next`) and implements
+node embeds `*chains.Node` (which holds `next`) and implements
 `Handle(ctx) error`. Nodes are wrapped with `trace.Wrap(name, node)`, which
 tags errors with the stage name (`tracer.StageError{Stage, Elapsed, Err}`)
 and logs them once, at the stage that produced them.
@@ -156,7 +156,7 @@ and logs them once, at the stage that produced them.
 | 9 | `ROU` | `routing.StandardRouter` | Finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
-([core/szcmn/szrender](../staging/src/github.com/sentinez/core/szcmn/szrender/))
+([core/szcmn/render](../staging/src/github.com/sentinez/core/szcmn/render/))
 that include the `X-Request-ID`; if rendering fails they fall back to plain
 text.
 
@@ -270,7 +270,7 @@ Notes:
   enums, turns `value` into a string `structpb.Value`, and generates IDs
   `senz.rule.<nanoid>` / `senz.cond.<nanoid>`.
 - Variables supported in `proxySetHeaders`
-  ([core/szhttp/szvariable](../staging/src/github.com/sentinez/core/szhttp/szvariable/variable.go)):
+  ([core/szhttp/variable](../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,
   `$proxy_add_x_forwarded_for`. They only work when the **whole value** is
   one variable; any other string containing `$` makes routing fail. Invalid
@@ -328,7 +328,7 @@ A reverse proxy is created once per `upstream.server` in
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | One CDN rule per namespace |
 
-All maps use `shared/sync.Map[K,V]` (a generic wrapper around `sync.Map`).
+All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 ## 3.8 Cluster (Olric)
 

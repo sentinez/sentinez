@@ -19,15 +19,15 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szcmn/sztables"
-	"github.com/sentinez/core/szstorage/szdbx"
-	"github.com/sentinez/core/szstorage/szdbx/szpostgres"
-	"github.com/sentinez/core/szstorage/szstorageutils/sztable"
+	"github.com/sentinez/core/szcmn/tables"
+	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/core/szstorage/dbx/postgres"
+	"github.com/sentinez/core/szstorage/storageutils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -40,19 +40,19 @@ type IMember interface {
 	Get(ctx context.Context, id string) (*tenantpb.Member, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *szpostgres.TxSession) IMember
+	WithTX(tx *postgres.TxSession) IMember
 
 	List(ctx context.Context, req *tenantpb.ListMemberRequest) (*tenantpb.ListMemberResponse, error)
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (IMember, error) {
-	storage, err := szpostgres.New[tenantpb.Member](ctx, appConf,
-		szdbx.WithTable(sztables.TenantMembers),
-		szdbx.WithColumns(szdbx.ColumnM{
-			tenantpb.Member_Id:       szpostgres.String,
-			tenantpb.Member_UserId:   szpostgres.String,
-			tenantpb.Member_TenantId: szpostgres.String,
-			tenantpb.Member_Roles:    szpostgres.IntArr,
+	storage, err := postgres.New[tenantpb.Member](ctx, appConf,
+		dbx.WithTable(tables.TenantMembers),
+		dbx.WithColumns(dbx.ColumnM{
+			tenantpb.Member_Id:       postgres.String,
+			tenantpb.Member_UserId:   postgres.String,
+			tenantpb.Member_TenantId: postgres.String,
+			tenantpb.Member_Roles:    postgres.IntArr,
 		}),
 	)
 	if err != nil {
@@ -65,12 +65,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (IMember, error) {
 }
 
 type Members struct {
-	storage szdbx.Database[tenantpb.Member]
+	storage dbx.Database[tenantpb.Member]
 }
 
-func (m *Members) WithTX(tx *szpostgres.TxSession) IMember {
+func (m *Members) WithTX(tx *postgres.TxSession) IMember {
 	return &Members{
-		storage: szpostgres.WithTx(tx, m.storage),
+		storage: postgres.WithTx(tx, m.storage),
 	}
 }
 
@@ -106,7 +106,7 @@ func (m *Members) List(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	zlog.Debug("[members] query: ", query, " args: ", args)
+	szlog.Debug("[members] query: ", query, " args: ", args)
 
 	members, err := m.storage.CollectRows(ctx, builder, scan)
 	if err != nil {
@@ -145,8 +145,8 @@ func (m *Members) total(
 func (m *Members) Create(ctx context.Context,
 	member *tenantpb.Member) (*tenantpb.Member, error) {
 
-	member.Id = rand.NewId(sztable.NewPrimaryKey(sztables.TenantMembers))
-	query := szpostgres.InsertBuilder(m.storage, szpostgres.M{
+	member.Id = szrand.NewId(table.NewPrimaryKey(tables.TenantMembers))
+	query := postgres.InsertBuilder(m.storage, postgres.M{
 		tenantpb.Member_Id:       member.GetId(),
 		tenantpb.Member_UserId:   member.GetUserId(),
 		tenantpb.Member_TenantId: member.GetTenantId(),
@@ -175,7 +175,7 @@ func (m *Members) Get(
 
 // Update implements IMember. Only the roles of a member can change.
 func (m *Members) Update(ctx context.Context, member *tenantpb.Member) error {
-	query := szpostgres.UpdateBuilder(m.storage, member.GetId())
+	query := postgres.UpdateBuilder(m.storage, member.GetId())
 
 	if len(member.GetRoles()) != 0 {
 		query = query.Set(
@@ -187,7 +187,7 @@ func (m *Members) Update(ctx context.Context, member *tenantpb.Member) error {
 }
 
 func (m *Members) selectQuery(page *typepb.Pages) sq.SelectBuilder {
-	return szpostgres.SelectBuilder(m.storage, page,
+	return postgres.SelectBuilder(m.storage, page,
 		tenantpb.Member_Id,
 		tenantpb.Member_UserId,
 		tenantpb.Member_TenantId,
@@ -197,7 +197,7 @@ func (m *Members) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	)
 }
 
-func scan(rows szdbx.Rows) ([]*tenantpb.Member, error) {
+func scan(rows dbx.Rows) ([]*tenantpb.Member, error) {
 	var members []*tenantpb.Member
 
 	for rows.Next() {
@@ -212,7 +212,7 @@ func scan(rows szdbx.Rows) ([]*tenantpb.Member, error) {
 	return members, rows.Err()
 }
 
-func scanOne(row szdbx.Row) (*tenantpb.Member, error) {
+func scanOne(row dbx.Row) (*tenantpb.Member, error) {
 	var (
 		createdAt, updatedAt time.Time
 		member               tenantpb.Member

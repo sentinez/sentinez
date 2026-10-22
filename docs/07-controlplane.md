@@ -16,14 +16,14 @@ holds the domain services. Every domain follows the same layout:
 Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Storage layer (`core/szstorage/szdbx`)
+## 7.1 Storage layer (`core/szstorage/dbx`)
 
-[core/szstorage/szdbx](../staging/src/github.com/sentinez/core/szstorage/szdbx/):
+[core/szstorage/dbx](../staging/src/github.com/sentinez/core/szstorage/dbx/):
 
-- `szdbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
-  `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `szquery.Query`
+- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
+  `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `query.Query`
   (squirrel's `ToSql()` interface).
-- `szpostgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
   - The real table name is `<mode>.sentinez.<name>` with `.` replaced by `_`,
     e.g. `dev_sentinez_iam_users`; it must match
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
@@ -33,13 +33,13 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 - Helpers: `SelectBuilder` (+ paging `LIMIT/OFFSET ORDER BY created_at DESC`
   when `page.index` and `page.size` are > 0), `InsertBuilder`
   (`RETURNING id`), `UpdateBuilder` (sets `updated_at` automatically).
-- Transactions: `szpostgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
-  `szpostgres.WithTx(ss, db)` returns a `Database[T]` bound to the
+- Transactions: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
+  `postgres.WithTx(ss, db)` returns a `Database[T]` bound to the
   transaction; repositories expose `WithTX(ss)`.
-- Record IDs: `rand.NewId(sztable.NewPrimaryKey(name))` =
+- Record IDs: `szrand.NewId(table.NewPrimaryKey(name))` =
   `senz.<name>.<uuid>`.
 
-Table names ([core/szcmn/sztables](../staging/src/github.com/sentinez/core/szcmn/sztables/tables.go)):
+Table names ([core/szcmn/tables](../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 
@@ -198,7 +198,7 @@ when the email does. All passkeys of one user share it.
 | `accounts.DeleteByUserId(userId)` | Used by `DeleteUser` |
 | `users.GetByEmail(email)` | Who owns an email |
 
-"Not found" is `errorx.ErrNotFound`; the service helper `found` turns it
+"Not found" is `szerror.ErrNotFound`; the service helper `found` turns it
 into a nil result.
 
 ### Upgrading an existing database
@@ -260,7 +260,7 @@ Rules stored here are **not pushed to the edge yet**.
 
 ## 7.7 Error codes
 
-[shared/errorx](../staging/src/github.com/sentinez/shared/errorx/errors.go)
+[shared/szerror](../staging/src/github.com/sentinez/shared/szerror/errors.go)
 provides gRPC statuses formatted as `SENZ-<code>: <ERRORS_...>` and
 `StatusXxxF(format, ...)` helpers (`NotFound`, `Unauthorized`, `Forbidden`,
 `InvalidData`/`InvalidArgument`, `AlreadyExists`, `Internal`,

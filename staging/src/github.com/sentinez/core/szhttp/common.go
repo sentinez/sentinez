@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/szbytestr"
-	"github.com/sentinez/core/szcmn/szrender"
+	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szcmn/render"
 )
 
 var _mu sync.Mutex
@@ -28,10 +28,10 @@ func Forbidden(ctx Context) error {
 	_mu.Lock()
 	defer _mu.Unlock()
 
-	err := ctx.Render(http.StatusForbidden, szrender.Forbidden(ctx.RequestId()))
+	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusForbidden, szbytestr.AccessDenied)
+		return ctx.String(http.StatusForbidden, bytestr.AccessDenied)
 	}
 
 	return nil
@@ -42,11 +42,11 @@ func BadRequest(ctx Context) error {
 	defer _mu.Unlock()
 
 	err := ctx.Render(
-		http.StatusBadRequest, szrender.BadRequest(ctx.RequestId()),
+		http.StatusBadRequest, render.BadRequest(ctx.RequestId()),
 	)
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusBadRequest, szbytestr.BadRequest)
+		return ctx.String(http.StatusBadRequest, bytestr.BadRequest)
 	}
 
 	return nil
@@ -57,11 +57,11 @@ func InternalServerError(ctx Context) error {
 	defer _mu.Unlock()
 
 	err := ctx.Render(
-		http.StatusInternalServerError, szrender.InternalError(ctx.RequestId()))
+		http.StatusInternalServerError, render.InternalError(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
 		return ctx.String(
-			http.StatusInternalServerError, szbytestr.InternalServerError)
+			http.StatusInternalServerError, bytestr.InternalServerError)
 	}
 
 	return nil
@@ -71,10 +71,10 @@ func NotFound(ctx Context) error {
 	_mu.Lock()
 	defer _mu.Unlock()
 
-	err := ctx.Render(http.StatusNotFound, szrender.NotFound(ctx.RequestId()))
+	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusNotFound, szbytestr.NotFound)
+		return ctx.String(http.StatusNotFound, bytestr.NotFound)
 	}
 
 	return nil
@@ -85,10 +85,10 @@ func TooManyRequests(ctx Context) error {
 	defer _mu.Unlock()
 
 	err := ctx.Render(http.StatusTooManyRequests,
-		szrender.TooManyRequests(ctx.RequestId()))
+		render.TooManyRequests(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusTooManyRequests, szbytestr.TooManyRequests)
+		return ctx.String(http.StatusTooManyRequests, bytestr.TooManyRequests)
 	}
 
 	return nil

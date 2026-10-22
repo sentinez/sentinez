@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/olric-data/olric"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -39,20 +39,20 @@ type DMap[T any] struct {
 }
 
 func (m *DMap[T]) wait() {
-	zlog.Infof("dmap: %s waitting to connection", m.name)
+	szlog.Infof("dmap: %s waitting to connection", m.name)
 	<-_dictReady
 
 	var err error
 	m.dmap, err = _dict.client.NewDMap(m.name)
 	if err != nil {
-		zlog.Errorf("dmap: create %s got err: %v", m.name, err)
+		szlog.Errorf("dmap: create %s got err: %v", m.name, err)
 	}
 
-	zlog.Infof("dmap: create %s successfully", m.name)
+	szlog.Infof("dmap: create %s successfully", m.name)
 	for obj := range m.temp {
 		err = m.Put(context.Background(), obj.key, obj.value)
 		if err != nil {
-			zlog.Errorf("dmap: put %s got err: %v", obj.key, err)
+			szlog.Errorf("dmap: put %s got err: %v", obj.key, err)
 		}
 	}
 }

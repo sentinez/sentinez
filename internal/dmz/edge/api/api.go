@@ -22,24 +22,24 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/core/szcrs"
-	"github.com/sentinez/core/szhttp/szhttpreq"
-	"github.com/sentinez/core/szstorage/szcache/szmem"
+	"github.com/sentinez/core/szhttp/httpreq"
+	"github.com/sentinez/core/szstorage/cache/mem"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)
 
 func New() *EdgeService {
 	return &EdgeService{
-		space: szmem.NewDefault[coraza.WAF](),
+		space: mem.NewDefault[coraza.WAF](),
 	}
 }
 
 type EdgeService struct {
-	space *szmem.Cache[coraza.WAF]
+	space *mem.Cache[coraza.WAF]
 }
 
 // Status implements [edgepb.EdgeServiceServer].
@@ -65,17 +65,17 @@ func (e *EdgeService) EvalCoreRuleset(ctx context.Context,
 	if !ok {
 		waf, err = rulesets.NewWAF(request.GetCoreRuleset())
 		if err != nil {
-			return nil, errorx.StatusInvalidArgumentF("core ruleset: %v", err)
+			return nil, szerror.StatusInvalidArgumentF("core ruleset: %v", err)
 		}
 	}
 
 	e.space.SetWithTTL(request.String(), waf, time.Hour)
 
-	req := szhttpreq.NewRequestContext(ctx, request.GetRequestContext())
+	req := httpreq.NewRequestContext(ctx, request.GetRequestContext())
 
 	eval, err := szcrs.Evaluate(waf, req)
 	if err != nil {
-		return nil, errorx.StatusInternalErrorF("evaluate: %v", err)
+		return nil, szerror.StatusInternalErrorF("evaluate: %v", err)
 	}
 
 	return &edgepb.EvalCoreRulesetResponse{Results: toResults(eval)}, nil

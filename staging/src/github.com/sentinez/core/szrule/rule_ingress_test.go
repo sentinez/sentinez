@@ -21,11 +21,11 @@ import (
 	"testing"
 
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szhttpreq"
+	"github.com/sentinez/core/szhttp/httpreq"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -59,7 +59,7 @@ func newBaseContext() *httppb.Request {
 //nolint:lll
 func newContext() szhttp.Request {
 	reqCtx := newBaseContext()
-	return szhttpreq.NewRequestContext(context.Background(), reqCtx)
+	return httpreq.NewRequestContext(context.Background(), reqCtx)
 }
 
 func TestRulePath(t *testing.T) {
@@ -331,7 +331,7 @@ func newRule(src rulepb.FieldSource, op rulepb.Operator, val any) *rulepb.Rule {
 
 	v, err := structpb.NewValue(finalVal)
 	if err != nil {
-		zlog.Warnf("rule: new value error: %v", err)
+		szlog.Warnf("rule: new value error: %v", err)
 	}
 
 	key := ""
@@ -362,7 +362,7 @@ func newRuleValue(src rulepb.FieldSource, op rulepb.Operator, val *structpb.Valu
 }
 
 func BenchmarkEvalRule(b *testing.B) {
-	zlog.SetLogLevel(zlog.LevelFatal)
+	szlog.SetLogLevel(szlog.LevelFatal)
 
 	req := &rulepb.Rule{
 		Condition: &rulepb.Condition{
@@ -383,7 +383,7 @@ func BenchmarkEvalRule(b *testing.B) {
 
 // nolint
 func BenchmarkEvalSecRule_Simple(b *testing.B) {
-	zlog.SetLogLevel(zlog.LevelFatal)
+	szlog.SetLogLevel(szlog.LevelFatal)
 
 	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
@@ -412,7 +412,7 @@ func BenchmarkEvalSecRule_Simple(b *testing.B) {
 
 // nolint
 func BenchmarkEvalSecRule_Complex(b *testing.B) {
-	zlog.SetLogLevel(zlog.LevelFatal)
+	szlog.SetLogLevel(szlog.LevelFatal)
 
 	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{
@@ -455,7 +455,7 @@ func BenchmarkEvalSecRule_Complex(b *testing.B) {
 
 // nolint
 func BenchmarkEvalSecRule_Complex_Parallel(b *testing.B) {
-	zlog.SetLogLevel(zlog.LevelFatal)
+	szlog.SetLogLevel(szlog.LevelFatal)
 
 	rg := &secrulepb.SecRule{
 		Expr: &rulepb.Expression{

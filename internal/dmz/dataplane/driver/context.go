@@ -20,7 +20,7 @@ import (
 
 	"github.com/cilium/ebpf/link"
 	sentinezbpf "github.com/sentinez/bpf/sentinez"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
@@ -31,13 +31,13 @@ var (
 func NewContext() *Context {
 	_once.Do(func() {
 		if err := setupRlimit(); err != nil {
-			zlog.Errorf("stream: remove mem lock err=%v", err)
+			szlog.Errorf("stream: remove mem lock err=%v", err)
 			return
 		}
 
 		var objs sentinezbpf.SenzObjects
 		if err := sentinezbpf.LoadSenzObjects(&objs, nil); err != nil {
-			zlog.Errorf("stream: load bpf object err: %v", err)
+			szlog.Errorf("stream: load bpf object err: %v", err)
 			return
 		}
 

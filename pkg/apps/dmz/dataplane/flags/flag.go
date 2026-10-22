@@ -21,7 +21,7 @@ import (
 
 	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/flagx"
+	"github.com/sentinez/shared/szflag"
 	"github.com/spf13/pflag"
 )
 
@@ -30,17 +30,17 @@ var _onceGRPCService sync.Once
 // ParseFlag flag args for grpc service
 func Parse() (*settingpb.Flag, error) {
 	_onceGRPCService.Do(func() {
-		flagx.Get().EnvFile = ".env"
+		szflag.Get().EnvFile = ".env"
 
-		pflag.StringVar(&flagx.Get().EnvFile, settingpb.XFlag_EnvFile,
-			flagx.Get().GetEnvFile(), "environment variables config file")
+		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
+			szflag.Get().GetEnvFile(), "environment variables config file")
 
-		flagx.Parse(dataplanepb.GetMetaDataplane())
+		szflag.Parse(dataplanepb.GetMetaDataplane())
 	})
 
-	if err := flagx.Validate(flagx.Get()); err != nil {
+	if err := szflag.Validate(szflag.Get()); err != nil {
 		return nil, fmt.Errorf("validate flags: %w", err)
 	}
 
-	return flagx.Get(), nil
+	return szflag.Get(), nil
 }

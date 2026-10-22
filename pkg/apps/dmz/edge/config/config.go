@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	edgeflags "github.com/sentinez/sentinez/pkg/apps/dmz/edge/flags"
-	"github.com/sentinez/shared/config"
+	"github.com/sentinez/shared/szconfig"
 )
 
 var (
@@ -41,7 +41,7 @@ func load() (*settingpb.Config, error) {
 		return nil, err
 	}
 
-	env, err := config.LoadEnv(flag.GetEnvFile(),
+	env, err := szconfig.LoadEnv(flag.GetEnvFile(),
 		settingpb.Senz_SENZ_HOSTNAME,
 		settingpb.Senz_SENZ_ADDRESS,
 		settingpb.Senz_SENZ_SECRET_KEY,

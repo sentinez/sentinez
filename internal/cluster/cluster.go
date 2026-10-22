@@ -25,7 +25,7 @@ import (
 	"github.com/olric-data/olric/config"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var (
@@ -52,14 +52,14 @@ func newConfig(appConf *settingpb.Config) *config.Config {
 			return conf
 		}
 
-		zlog.Warnf("cluster: discovery address invalid, use default")
+		szlog.Warnf("cluster: discovery address invalid, use default")
 		conf.MemberlistConfig.BindAddr = defaults.DiscoveryAddress
 		conf.MemberlistConfig.BindPort = defaults.DiscoveryPort
 	}
 
 	conf.Started = func() {
 		_dictReady <- true
-		zlog.Infof("cluster:olric: ready to accept connection")
+		szlog.Infof("cluster:olric: ready to accept connection")
 	}
 
 	return conf
@@ -104,7 +104,7 @@ func (c *Cluster) Start() {
 		defer close(c.done)
 
 		if err := c.db.Start(); err != nil {
-			zlog.Errorf("cluster: start: %v", err)
+			szlog.Errorf("cluster: start: %v", err)
 		}
 	}()
 }

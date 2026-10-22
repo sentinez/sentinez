@@ -93,7 +93,7 @@ The console calls `/api`, which its Next.js server forwards to
 
 Variable names are the values of the `Senz` enum in
 [types/setting/v1/config.proto](../api/proto/sentinez/types/setting/v1/config.proto).
-They are loaded by `shared/config.LoadEnv` (using `godotenv`) and read with
+They are loaded by `shared/szconfig.LoadEnv` (using `godotenv`) and read with
 `conf.Get(settingpb.Senz_...)` or `config.GetEnv(...)`.
 
 | Variable | Used by | Meaning |
@@ -118,7 +118,7 @@ variables; the others load the whole `Senz` enum.
 
 Defined in
 [types/setting/v1/flags.proto](../api/proto/sentinez/types/setting/v1/flags.proto),
-parsed with `pflag` in `shared/flagx` and `pkg/apps/**/flags`. Values are
+parsed with `pflag` in `shared/szflag` and `pkg/apps/**/flags`. Values are
 validated with protovalidate.
 
 | Flag | Default | Constraint | Service |
@@ -143,9 +143,9 @@ make lint                  # golangci-lint for root, core, shared, controlplane,
 make fmt.proto             # buf format -w
 ```
 
-Existing tests cover: `core/szlimiter`, `core/szrule`, `core/szmodsec/szruleparser`,
+Existing tests cover: `core/szlimiter`, `core/szrule`, `core/szmodsec/ruleparser`,
 `controlplane/iam` (handler, service with mocks), `controlplane/pkg/crypto`,
-`shared/{config,errorx,perms,protobuf,zlog}`, `pkg/apps/dmz/edge`,
+`shared/{szconfig,szerror,szperms,szprotobuf,szlog}`, `pkg/apps/dmz/edge`,
 `pkg/apps/gateway/apiserver`.
 
 Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
@@ -159,7 +159,7 @@ Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript for the UI | `cd api && buf generate` (`ts-proto` plugin → `ui/packages/proto/ts-proto`) |
-| Error page templates | `cd staging/.../core/szcmn/szrender && templ generate` |
+| Error page templates | `cd staging/.../core/szcmn/render && templ generate` |
 | CRS rules → Go | `bash hack/ruleparser.sh` (needs `ruleparser-sentinez` on PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy third-party protos | `bash hack/copy_proto3pt.sh` |

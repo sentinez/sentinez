@@ -19,13 +19,13 @@ import (
 
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	commonpb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 type logResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
-	Logging    zlog.LogCloser
+	Logging    szlog.LogCloser
 }
 
 func (rsp *logResponseWriter) WriteHeader(code int) {
@@ -40,10 +40,10 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 }
 
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
-	logging := zlog.NewLogCloser(
+	logging := szlog.NewLogCloser(
 		apiserver.GetMetaApiserverServiceKey(),
 		commonpb.LogType_LOG_TYPE_HTTP,
-		zlog.LevelInfo,
+		szlog.LevelInfo,
 	)
 	return &logResponseWriter{w, http.StatusOK, logging}
 }

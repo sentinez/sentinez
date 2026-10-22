@@ -16,24 +16,24 @@ package room
 
 import (
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/queue"
 )
 
-var _ szchains.ChainNode = (*WaitingRoom)(nil)
+var _ chains.ChainNode = (*WaitingRoom)(nil)
 
 func NewRoom(
-	_ *memory.MemStore, _ ...option.Option) szchains.ChainNode {
+	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
 
 	return &WaitingRoom{
-		Node: szchains.NewNode(),
+		Node: chains.NewNode(),
 	}
 }
 
 type WaitingRoom struct {
-	*szchains.Node
+	*chains.Node
 	_ *queue.Queue
 }
 

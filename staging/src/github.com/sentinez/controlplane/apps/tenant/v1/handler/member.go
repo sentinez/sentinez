@@ -20,14 +20,14 @@ import (
 	"github.com/sentinez/controlplane/pkg/headers"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 // ListMember implements tenantpb.TenantServiceServer.
 func (t *Tenant) ListMember(ctx context.Context,
 	req *tenantpb.ListMemberRequest) (*tenantpb.ListMemberResponse, error) {
 
-	zlog.Debugf("[Tenant.ListMember] req = %v", req)
+	szlog.Debugf("[Tenant.ListMember] req = %v", req)
 
 	if err := allow(ctx, tenantpb.GetTenantServiceListMember()); err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (t *Tenant) ListMember(ctx context.Context,
 func (t *Tenant) GetMember(ctx context.Context,
 	req *tenantpb.GetMemberRequest) (*tenantpb.GetMemberResponse, error) {
 
-	zlog.Debugf("[Tenant.GetMember] req = %v", req)
+	szlog.Debugf("[Tenant.GetMember] req = %v", req)
 
 	if err := allow(ctx, tenantpb.GetTenantServiceGetMember()); err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (t *Tenant) CreateMember(ctx context.Context,
 	req *tenantpb.CreateMemberRequest,
 ) (*tenantpb.CreateMemberResponse, error) {
 
-	zlog.Debugf("[Tenant.CreateMember] req = %v", req)
+	szlog.Debugf("[Tenant.CreateMember] req = %v", req)
 
 	err := allow(ctx, tenantpb.GetTenantServiceCreateMember())
 	if err != nil {
@@ -69,7 +69,7 @@ func (t *Tenant) UpdateMember(ctx context.Context,
 	req *tenantpb.UpdateMemberRequest,
 ) (*tenantpb.UpdateMemberResponse, error) {
 
-	zlog.Debugf("[Tenant.UpdateMember] req = %v", req)
+	szlog.Debugf("[Tenant.UpdateMember] req = %v", req)
 
 	err := allow(ctx, tenantpb.GetTenantServiceUpdateMember())
 	if err != nil {
@@ -84,7 +84,7 @@ func (t *Tenant) DeleteMember(ctx context.Context,
 	req *tenantpb.DeleteMemberRequest,
 ) (*tenantpb.DeleteMemberResponse, error) {
 
-	zlog.Debugf("[Tenant.DeleteMember] req = %v", req)
+	szlog.Debugf("[Tenant.DeleteMember] req = %v", req)
 
 	err := allow(ctx, tenantpb.GetTenantServiceDeleteMember())
 	if err != nil {

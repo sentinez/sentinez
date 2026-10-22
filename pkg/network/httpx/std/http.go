@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func HandlerFunc(path string, handler szhttp.RequestHandler) {
@@ -37,7 +37,7 @@ func ListenAndServe(addr string, opts ...szhttp.ServerOption) error {
 
 	if option.CertFile != "" && option.CertKeyFile != "" {
 		if option.TLSConfig != nil {
-			zlog.Warnf("network: http ignore TLS config")
+			szlog.Warnf("network: http ignore TLS config")
 		}
 
 		return http.ListenAndServeTLS(addr,

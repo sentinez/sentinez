@@ -20,7 +20,7 @@ import (
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticHandler)(nil)
@@ -40,11 +40,11 @@ func New(
 func (hdl *AnalyticHandler) Status(ctx context.Context,
 	req *pb.StatusRequest) (*pb.StatusResponse, error) {
 
-	zlog.Debugf("[AnalyticHandler.Status] req = %v", req)
+	szlog.Debugf("[AnalyticHandler.Status] req = %v", req)
 
 	resp, err := hdl.service.Status(ctx, req)
 	if err != nil {
-		zlog.Errorf("[AnalyticHandler.Status] failed: %v", err)
+		szlog.Errorf("[AnalyticHandler.Status] failed: %v", err)
 		return nil, err
 	}
 
@@ -54,7 +54,7 @@ func (hdl *AnalyticHandler) Status(ctx context.Context,
 func (hdl *AnalyticHandler) ListActivities(ctx context.Context,
 	req *pb.ListActivitiesRequest) (*pb.ListActivitiesResponse, error) {
 
-	zlog.Debugf("[AnalyticHandler.ListActivities] req = %v", req)
+	szlog.Debugf("[AnalyticHandler.ListActivities] req = %v", req)
 
 	ss, err := headers.GetAuth(ctx)
 	if err != nil {
@@ -68,7 +68,7 @@ func (hdl *AnalyticHandler) ListActivities(ctx context.Context,
 
 	resp, err := hdl.service.ListActivities(ctx, req)
 	if err != nil {
-		zlog.Errorf("[AnalyticHandler.ListActivities] error: %v", err)
+		szlog.Errorf("[AnalyticHandler.ListActivities] error: %v", err)
 		return nil, err
 	}
 

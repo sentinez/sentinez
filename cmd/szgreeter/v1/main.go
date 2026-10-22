@@ -22,12 +22,12 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func main() {
 	if err := run(); err != nil {
-		zlog.Fatal(err)
+		szlog.Fatal(err)
 	}
 }
 

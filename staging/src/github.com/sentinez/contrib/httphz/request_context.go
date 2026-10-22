@@ -25,13 +25,13 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szhttpconst"
+	"github.com/sentinez/core/szhttp/httpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/store/ja4"
-	"github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szstore/ja4"
+	"github.com/sentinez/shared/szsync"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -39,7 +39,7 @@ var (
 	_ szhttp.Context = (*Context)(nil)
 	_ io.Closer      = (*Context)(nil)
 
-	_ctxPool = sync.NewPoolCtr(func() *Context {
+	_ctxPool = szsync.NewPoolCtr(func() *Context {
 		return &Context{
 			BaseContext: &szhttp.BaseContext{},
 			ectx: &edgepb.Context{
@@ -52,14 +52,14 @@ var (
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 	hctx := _ctxPool.Get()
-	hctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
 	hctx.req = c
 	hctx.ctx = ctx
 
 	transport := szcontext.GetTransport(ctx)
 	if transport != nil {
 		connId := transport.GetConnId()
-		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
+		szlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
 		hctx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
@@ -242,7 +242,7 @@ func (c *Context) Queries() map[string][][]byte {
 }
 
 func (c *Context) TLS() bool {
-	return c.Scheme() == szhttpconst.SchemeSecure
+	return c.Scheme() == httpconst.SchemeSecure
 }
 
 func (c *Context) RequestTime() time.Time {
@@ -255,7 +255,7 @@ func (c *Context) Context() context.Context {
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.req.SetContentType(szhttpconst.ValueAppJSON)
+	c.req.SetContentType(httpconst.ValueAppJSON)
 	c.req.SetStatusCode(statusCode)
 
 	_, err := c.req.Write(body)
@@ -272,7 +272,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) String(statusCode int, body []byte) error {
-	c.req.SetContentType(szhttpconst.ValueTextPlain)
+	c.req.SetContentType(httpconst.ValueTextPlain)
 	c.req.SetStatusCode(statusCode)
 
 	_, err := c.req.Write(body)
@@ -281,7 +281,7 @@ func (c *Context) String(statusCode int, body []byte) error {
 
 func (c *Context) Render(statusCode int, component templ.Component) error {
 	c.req.SetStatusCode(statusCode)
-	c.req.SetContentType(szhttpconst.ValueTextHTML)
+	c.req.SetContentType(httpconst.ValueTextHTML)
 
 	return component.Render(c.Context(), c.req.Response.BodyWriter())
 }

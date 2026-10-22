@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/controlplane/pkg/headers"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 // ListTenant implements tenantpb.TenantServiceServer.
@@ -55,7 +55,7 @@ func (svc *Service) CreateTenant(ctx context.Context,
 	}
 
 	if auth.GetUserId() == "" {
-		return nil, errorx.StatusUnauthorizedF("token has no user")
+		return nil, szerror.StatusUnauthorizedF("token has no user")
 	}
 
 	tenant, err := svc.createTenantWithOwner(ctx, &tenantpb.Tenant{
@@ -146,8 +146,8 @@ func (svc *Service) getTenant(
 	ctx context.Context, id string) (*tenantpb.Tenant, error) {
 
 	tenant, err := svc.tenant.Get(ctx, id)
-	if errorx.IsNoRows(err) {
-		return nil, errorx.StatusNotFoundF("tenant not found: id=%s", id)
+	if szerror.IsNoRows(err) {
+		return nil, szerror.StatusNotFoundF("tenant not found: id=%s", id)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("tenant.Get: %w", err)

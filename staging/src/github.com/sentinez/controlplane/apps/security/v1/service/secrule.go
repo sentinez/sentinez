@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/errorx"
+	"github.com/sentinez/shared/szerror"
 )
 
 var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
@@ -77,7 +77,7 @@ func (srv *SecurityService) CreateSecRule(ctx context.Context,
 	req *securitypb.CreateSecRuleRequest,
 ) (*securitypb.CreateSecRuleResponse, error) {
 	if req.GetSecRule() == nil {
-		return nil, errorx.StatusInvalidArgumentF("sec_rule is required")
+		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
 	}
 
 	created, err := srv.secRuleRepo.Create(ctx, req.GetSecRule())
@@ -105,7 +105,7 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	req *securitypb.UpdateSecRuleRequest,
 ) (*securitypb.UpdateSecRuleResponse, error) {
 	if req.GetSecRule() == nil {
-		return nil, errorx.StatusInvalidArgumentF("sec_rule is required")
+		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
 	}
 
 	dbRB, err := srv.secRuleRepo.Get(ctx, req.GetId())

@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/controlplane/pkg/headers"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 var _ iampb.
@@ -66,7 +66,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterVerify(
 	ctx context.Context,
 	req *iampb.PasskeyRegisterVerifyRequest,
 ) (*iampb.PasskeyRegisterVerifyResponse, error) {
-	zlog.Debug("[IdentityAccessManagement.PasskeyRegisterVerify]")
+	szlog.Debug("[IdentityAccessManagement.PasskeyRegisterVerify]")
 
 	return iam.service.PasskeyRegisterVerify(ctx, req)
 }
@@ -76,7 +76,7 @@ func (iam *IdentityAccessManagement) PasskeyRegisterChallenge(
 	ctx context.Context,
 	req *iampb.PasskeyRegisterChallengeRequest,
 ) (*iampb.PasskeyRegisterChallengeResponse, error) {
-	zlog.Debugf("[IAMMNT.PasskeyRegisterChallenge] req = %v", req)
+	szlog.Debugf("[IAMMNT.PasskeyRegisterChallenge] req = %v", req)
 
 	return iam.service.PasskeyRegisterChallenge(ctx, req)
 }
@@ -92,7 +92,7 @@ func (iam *IdentityAccessManagement) PasskeyLinkChallenge(
 
 func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
+	szlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
 	ss, err := headers.GetAuth(ctx)
 	if err != nil {
@@ -114,11 +114,11 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 
 func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.GetUser] request= %v", request)
+	szlog.Debugf("[IdentityAccessManagement.GetUser] request= %v", request)
 
 	resp, err := iam.service.GetUser(ctx, request)
 	if err != nil {
-		zlog.Errorf("failed to get users: %v", err)
+		szlog.Errorf("failed to get users: %v", err)
 		return nil, err
 	}
 
@@ -127,11 +127,11 @@ func (iam *IdentityAccessManagement) GetUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
 	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.ListUsers] request= %v", request)
+	szlog.Debugf("[IdentityAccessManagement.ListUsers] request= %v", request)
 
 	resp, err := iam.service.ListUsers(ctx, request)
 	if err != nil {
-		zlog.Errorf("failed to list users: %v", err)
+		szlog.Errorf("failed to list users: %v", err)
 		return nil, err
 	}
 
@@ -140,11 +140,11 @@ func (iam *IdentityAccessManagement) ListUsers(ctx context.Context,
 
 func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
 	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.DeleteUser] request= %v", request)
+	szlog.Debugf("[IdentityAccessManagement.DeleteUser] request= %v", request)
 
 	resp, err := iam.service.DeleteUser(ctx, request)
 	if err != nil {
-		zlog.Errorf("faild to delete users: %s", err)
+		szlog.Errorf("faild to delete users: %s", err)
 		return nil, err
 	}
 
@@ -153,11 +153,11 @@ func (iam *IdentityAccessManagement) DeleteUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 	request *iampb.UpdateUserRequest) (*iampb.UpdateUserResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.UpdateUser] request= %v", request)
+	szlog.Debugf("[IdentityAccessManagement.UpdateUser] request= %v", request)
 
 	resp, err := iam.service.UpdateUser(ctx, request)
 	if err != nil {
-		zlog.Errorf("[IdentityAccessManagement.UpdateUser] update err: %v", err)
+		szlog.Errorf("[IdentityAccessManagement.UpdateUser] update err: %v", err)
 		return nil, err
 	}
 
@@ -166,7 +166,7 @@ func (iam *IdentityAccessManagement) UpdateUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 	req *iampb.CreateAccountRequest) (*iampb.CreateAccountResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
+	szlog.Debugf("[IdentityAccessManagement.CreateAccount] request= %v", req)
 
 	accResp, err := iam.service.CreateAccount(ctx, &iampb.CreateAccountRequest{
 		Username: req.GetUsername(),
@@ -175,7 +175,7 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 		FullName: req.GetFullName(),
 	})
 	if err != nil {
-		zlog.Errorf("failed to create account: %v", err)
+		szlog.Errorf("failed to create account: %v", err)
 		return nil, err
 	}
 
@@ -186,11 +186,11 @@ func (iam *IdentityAccessManagement) CreateAccount(ctx context.Context,
 
 func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 	req *iampb.CreateUserRequest) (*iampb.CreateUserResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.CreateUser] request= %v", req)
+	szlog.Debugf("[IdentityAccessManagement.CreateUser] request= %v", req)
 
 	resp, err := iam.service.CreateUser(ctx, req)
 	if err != nil {
-		zlog.Errorf("failed to create user: %v", err)
+		szlog.Errorf("failed to create user: %v", err)
 		return nil, err
 	}
 
@@ -199,12 +199,12 @@ func (iam *IdentityAccessManagement) CreateUser(ctx context.Context,
 
 func (iam *IdentityAccessManagement) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
-	zlog.Debugf("[IdentityAccessManagement.Login] username = %s",
+	szlog.Debugf("[IdentityAccessManagement.Login] username = %s",
 		req.GetEmailOrUsername())
 
 	resp, err := iam.service.Login(ctx, req)
 	if err != nil {
-		zlog.Errorf("IAM.Login: failed to login user err=%v", err)
+		szlog.Errorf("IAM.Login: failed to login user err=%v", err)
 		return nil, err
 	}
 
@@ -213,11 +213,11 @@ func (iam *IdentityAccessManagement) Login(ctx context.Context,
 
 func (iam *IdentityAccessManagement) Status(ctx context.Context,
 	req *iampb.StatusRequest) (*iampb.StatusResponse, error) {
-	zlog.Debugf("request= %v", req)
+	szlog.Debugf("request= %v", req)
 
 	_, err := iam.greeterCli.Status(ctx, &greeterpb.StatusRequest{})
 	if err != nil {
-		zlog.Errorf("IAM.Status call greeter err=%v", err)
+		szlog.Errorf("IAM.Status call greeter err=%v", err)
 		return nil, err
 	}
 

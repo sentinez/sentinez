@@ -16,7 +16,7 @@ package secure
 
 import (
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
@@ -25,18 +25,18 @@ import (
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 	"github.com/sentinez/sentinez/pkg/pools/secrule"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
 )
 
 func NewSecRule(
-	store *memory.MemStore, opts ...option.Option) szchains.ChainNode {
+	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
 
 	o := option.New(opts...)
 
 	return &SecRule{
-		Node:  szchains.NewNode(),
+		Node:  chains.NewNode(),
 		store: store,
-		log: zlog.NewLogCloser(
+		log: szlog.NewLogCloser(
 			o.Named,
 			typepb.LogType_LOG_TYPE_SEC_RULE,
 			o.Level,
@@ -46,8 +46,8 @@ func NewSecRule(
 }
 
 type SecRule struct {
-	*szchains.Node
-	log   zlog.LogCloser
+	*chains.Node
+	log   szlog.LogCloser
 	store *memory.MemStore
 }
 

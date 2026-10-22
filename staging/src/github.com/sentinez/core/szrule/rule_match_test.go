@@ -19,7 +19,7 @@ import (
 	"testing"
 
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szhttpreq"
+	"github.com/sentinez/core/szhttp/httpreq"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -44,7 +44,7 @@ func newTestContext() szhttp.Request {
 		},
 		Scheme: "https",
 	}
-	return szhttpreq.NewRequestContext(context.Background(), reqCtx)
+	return httpreq.NewRequestContext(context.Background(), reqCtx)
 }
 
 // nolint

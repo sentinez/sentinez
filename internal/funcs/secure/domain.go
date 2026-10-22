@@ -18,32 +18,32 @@ import (
 	"strings"
 
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szchains"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
-var _ szchains.ChainNode = (*DomainBased)(nil)
+var _ chains.ChainNode = (*DomainBased)(nil)
 
 // NewDomainBased resolves the tenant namespace from single-level
 // subdomains of the hostname set by option.WithHostname.
 func NewDomainBased(
-	_ *memory.MemStore, opts ...option.Option) szchains.ChainNode {
+	_ *memory.MemStore, opts ...option.Option) chains.ChainNode {
 
 	return &DomainBased{
-		Node:     szchains.NewNode(),
+		Node:     chains.NewNode(),
 		hostname: option.New(opts...).Hostname,
 	}
 }
 
 type DomainBased struct {
-	*szchains.Node
+	*chains.Node
 	hostname string
 }
 
 func (d *DomainBased) Handle(ctx szhttp.Context) error {
-	// zlog.Debug("[edge] >>> visit domain")
+	// szlog.Debug("[edge] >>> visit domain")
 
 	xctx := ctx.X()
 	if xctx == nil {

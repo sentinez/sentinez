@@ -20,7 +20,7 @@ import (
 )
 
 func visit(ctx szhttp.Request, cond *rulepb.Condition) bool {
-	// zlog.Debugf("ev: visit with source: %s", cond.GetSource())
+	// szlog.Debugf("ev: visit with source: %s", cond.GetSource())
 
 	switch cond.GetSource() {
 

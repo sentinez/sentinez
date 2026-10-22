@@ -21,18 +21,18 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/sync"
+	"github.com/sentinez/shared/szsync"
 )
 
 func NewServer(appConf *settingpb.Config) *WebSocket {
 	return &WebSocket{
-		routers: sync.Map[string, func(szhttp.Context) error]{},
+		routers: szsync.Map[string, func(szhttp.Context) error]{},
 		meta:    appConf.GetMeta(),
 	}
 }
 
 type WebSocket struct {
-	routers sync.Map[string, func(szhttp.Context) error]
+	routers szsync.Map[string, func(szhttp.Context) error]
 	meta    *typepb.XMeta
 }
 

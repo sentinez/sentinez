@@ -23,9 +23,9 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
-	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szhttpconst"
+	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/shared/bytesconv"
 )
 
@@ -81,10 +81,10 @@ func processRequestHeader(ctx szhttp.Context,
 		tx.SetServerName(host)
 	}
 
-	transferEncoding := ctx.Header(szbytestr.HeaderTransferEncoding)
+	transferEncoding := ctx.Header(bytestr.HeaderTransferEncoding)
 	if transferEncoding != nil {
 		tx.AddRequestHeader(
-			szhttpconst.HeaderTransferEncoding,
+			httpconst.HeaderTransferEncoding,
 			bytesconv.B2s(transferEncoding),
 		)
 	}

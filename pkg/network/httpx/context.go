@@ -29,17 +29,17 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/szcmn/szbytestr"
+	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/szhttpconst"
+	"github.com/sentinez/core/szhttp/httpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/rand"
-	"github.com/sentinez/shared/store/ja4"
-	"github.com/sentinez/shared/sync"
-	"github.com/sentinez/shared/zlog"
+	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szstore/ja4"
+	"github.com/sentinez/shared/szsync"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -49,7 +49,7 @@ var (
 )
 
 var (
-	_ctxPool = sync.NewPoolCtr(func() *Context {
+	_ctxPool = szsync.NewPoolCtr(func() *Context {
 		return &Context{
 			BaseContext: &szhttp.BaseContext{},
 			ectx: &edgepb.Context{
@@ -75,9 +75,9 @@ var _upgrade = websocket.Upgrader{
 }
 
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
-	zlog.Debug("http context: connection: new context")
+	szlog.Debug("http context: connection: new context")
 	hctx := _ctxPool.Get()
-	hctx.SetRequestId(rand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
 
 	hctx.req = req
 	hctx.resp = resp
@@ -85,7 +85,7 @@ func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	transport := szcontext.GetTransport(req.Context())
 	if transport != nil {
 		connId := transport.GetConnId()
-		zlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
+		szlog.Debugf("context: found fingerprint: %s", ja4.Get(connId))
 		hctx.ectx.Request.Fingerprint = ja4.Get(connId)
 	}
 
@@ -180,13 +180,13 @@ func (c *Context) Body() []byte {
 // RequestIP implements szhttp.Context.
 func (c *Context) RequestIP() []byte {
 	// 1. X-Forwarded-For
-	if xff := c.Header(szbytestr.HeaderXForwardedFor); len(xff) > 0 {
+	if xff := c.Header(bytestr.HeaderXForwardedFor); len(xff) > 0 {
 		ips := strings.Split(string(xff), ",")
 		return []byte(strings.TrimSpace(ips[0]))
 	}
 
 	// 2. X-Real-IP
-	if xrip := c.Header(szbytestr.HeaderXRealIP); len(xrip) > 0 {
+	if xrip := c.Header(bytestr.HeaderXRealIP); len(xrip) > 0 {
 		return xrip
 	}
 
@@ -391,7 +391,7 @@ func (c *Context) StatusCode() int {
 
 // TLS implements szhttp.Context.
 func (c *Context) TLS() bool {
-	return c.Scheme() == szhttpconst.SchemeSecure
+	return c.Scheme() == httpconst.SchemeSecure
 }
 
 // URI implements szhttp.Context.
@@ -425,7 +425,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueAppJSON)
+	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueAppJSON)
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -434,7 +434,7 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 }
 
 func (c *Context) String(statusCode int, msg []byte) error {
-	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextPlain)
+	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextPlain)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(msg)
@@ -448,7 +448,7 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 		return err
 	}
 
-	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextHTML)
+	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextHTML)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(buf.Bytes())
@@ -465,9 +465,9 @@ func (c *Context) Upgrade() (*websocket.Conn, error) {
 }
 
 func (c *Context) Scheme() string {
-	scheme := szhttpconst.SchemeInsecure
+	scheme := httpconst.SchemeInsecure
 	if c.req.TLS != nil {
-		scheme = szhttpconst.SchemeSecure
+		scheme = httpconst.SchemeSecure
 	}
 
 	return scheme
