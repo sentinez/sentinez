@@ -98,18 +98,7 @@ func processRequestHeader(ctx corehttp.Context,
 }
 
 func processRequestConnection(ctx corehttp.Context, tx types.Transaction) {
-
-	var client string
-	var cport int
-
-	remoteAddr := ctx.RemoteAddr()
-	idx := bytes.LastIndexByte(remoteAddr, ':')
-	if idx != -1 {
-		client = bytesconv.B2s(remoteAddr[:idx])
-		cport, _ = strconv.Atoi(bytesconv.B2s(remoteAddr[idx+1:]))
-	} else {
-		client = bytesconv.B2s(remoteAddr)
-	}
+	client, cport := splitAddr(ctx.RemoteAddr())
 
 	tx.ProcessConnection(client, cport, "", 0)
 	tx.ProcessURI(
@@ -195,14 +184,26 @@ func releaseBodyReader(ctx corehttp.Context, tx types.Transaction) error {
 	return nil
 }
 
-func newTransaction(waf coraza.WAF, ctx corehttp.Context) types.Transaction {
+// splitAddr splits a "host:port" remote address; port is 0 if missing.
+func splitAddr(remoteAddr []byte) (string, int) {
+	idx := bytes.LastIndexByte(remoteAddr, ':')
+	if idx == -1 {
+		return bytesconv.B2s(remoteAddr), 0
+	}
 
-	newTX := func(corehttp.Context) types.Transaction {
+	port, _ := strconv.Atoi(bytesconv.B2s(remoteAddr[idx+1:]))
+
+	return bytesconv.B2s(remoteAddr[:idx]), port
+}
+
+func newTransaction(waf coraza.WAF, ctx corehttp.Request) types.Transaction {
+
+	newTX := func(corehttp.Request) types.Transaction {
 		return waf.NewTransaction()
 	}
 
 	if ctxWAF, ok := waf.(experimental.WAFWithOptions); ok {
-		newTX = func(ctx corehttp.Context) types.Transaction {
+		newTX = func(ctx corehttp.Request) types.Transaction {
 			return ctxWAF.NewTransactionWithOptions(experimental.Options{
 				Context: ctx.Context(),
 			})

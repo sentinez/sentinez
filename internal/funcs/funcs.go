@@ -19,7 +19,6 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/funcs/cdn"
 	"github.com/sentinez/sentinez/internal/funcs/logging"
-	"github.com/sentinez/sentinez/internal/funcs/ratelimiter"
 	"github.com/sentinez/sentinez/internal/funcs/room"
 	"github.com/sentinez/sentinez/internal/funcs/routing"
 	"github.com/sentinez/sentinez/internal/funcs/secure"
@@ -37,7 +36,7 @@ func New(mem *memory.MemStore, opts ...option.Option) []corechains.ChainNode {
 		trace.Wrap("DMA", secure.NewDomainBased(mem, opts...)),
 		trace.Wrap("PUB", cdn.NewPublic(mem, opts...)),
 		trace.Wrap("CDN", cdn.NewCache(mem, opts...)),
-		trace.Wrap("LMT", ratelimiter.NewLimiter(mem, opts...)),
+		trace.Wrap("LMT", secure.NewLimiter(mem, opts...)),
 		trace.Wrap("ROM", room.NewRoom(mem, opts...)),
 		trace.Wrap("STC", static.NewStatic(mem, opts...)),
 		trace.Wrap("RUL", secure.NewSecRule(mem, opts...)),

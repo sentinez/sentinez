@@ -21,8 +21,9 @@
 package edgepb
 
 import (
-	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -118,28 +119,28 @@ func (x *StatusResponse) GetMsg() string {
 	return ""
 }
 
-type EvaluateRulesetRequest struct {
+type EvalCoreRulesetRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	RulesetId      string                 `protobuf:"bytes,1,opt,name=ruleset_id,json=rulesetId,proto3" json:"ruleset_id,omitempty"`
-	RequestContext *v1.Request            `protobuf:"bytes,2,opt,name=request_context,json=requestContext,proto3" json:"request_context,omitempty"`
+	CoreRuleset    *v1.CoreRuleset        `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	RequestContext *v11.Request           `protobuf:"bytes,2,opt,name=request_context,json=requestContext,proto3" json:"request_context,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *EvaluateRulesetRequest) Reset() {
-	*x = EvaluateRulesetRequest{}
+func (x *EvalCoreRulesetRequest) Reset() {
+	*x = EvalCoreRulesetRequest{}
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EvaluateRulesetRequest) String() string {
+func (x *EvalCoreRulesetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EvaluateRulesetRequest) ProtoMessage() {}
+func (*EvalCoreRulesetRequest) ProtoMessage() {}
 
-func (x *EvaluateRulesetRequest) ProtoReflect() protoreflect.Message {
+func (x *EvalCoreRulesetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -151,48 +152,48 @@ func (x *EvaluateRulesetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EvaluateRulesetRequest.ProtoReflect.Descriptor instead.
-func (*EvaluateRulesetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use EvalCoreRulesetRequest.ProtoReflect.Descriptor instead.
+func (*EvalCoreRulesetRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *EvaluateRulesetRequest) GetRulesetId() string {
+func (x *EvalCoreRulesetRequest) GetCoreRuleset() *v1.CoreRuleset {
 	if x != nil {
-		return x.RulesetId
+		return x.CoreRuleset
 	}
-	return ""
+	return nil
 }
 
-func (x *EvaluateRulesetRequest) GetRequestContext() *v1.Request {
+func (x *EvalCoreRulesetRequest) GetRequestContext() *v11.Request {
 	if x != nil {
 		return x.RequestContext
 	}
 	return nil
 }
 
-type EvaluationResult struct {
+type EvalResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RuleId        string                 `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	Matched       bool                   `protobuf:"varint,2,opt,name=matched,proto3" json:"matched,omitempty"`
-	Actions       []*v11.Action          `protobuf:"bytes,3,rep,name=actions,proto3" json:"actions,omitempty"`
+	Actions       []*v12.Action          `protobuf:"bytes,3,rep,name=actions,proto3" json:"actions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EvaluationResult) Reset() {
-	*x = EvaluationResult{}
+func (x *EvalResult) Reset() {
+	*x = EvalResult{}
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EvaluationResult) String() string {
+func (x *EvalResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EvaluationResult) ProtoMessage() {}
+func (*EvalResult) ProtoMessage() {}
 
-func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
+func (x *EvalResult) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -204,53 +205,53 @@ func (x *EvaluationResult) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EvaluationResult.ProtoReflect.Descriptor instead.
-func (*EvaluationResult) Descriptor() ([]byte, []int) {
+// Deprecated: Use EvalResult.ProtoReflect.Descriptor instead.
+func (*EvalResult) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *EvaluationResult) GetRuleId() string {
+func (x *EvalResult) GetRuleId() string {
 	if x != nil {
 		return x.RuleId
 	}
 	return ""
 }
 
-func (x *EvaluationResult) GetMatched() bool {
+func (x *EvalResult) GetMatched() bool {
 	if x != nil {
 		return x.Matched
 	}
 	return false
 }
 
-func (x *EvaluationResult) GetActions() []*v11.Action {
+func (x *EvalResult) GetActions() []*v12.Action {
 	if x != nil {
 		return x.Actions
 	}
 	return nil
 }
 
-type EvaluateRulesetResponse struct {
+type EvalCoreRulesetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*EvaluationResult    `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Results       []*EvalResult          `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EvaluateRulesetResponse) Reset() {
-	*x = EvaluateRulesetResponse{}
+func (x *EvalCoreRulesetResponse) Reset() {
+	*x = EvalCoreRulesetResponse{}
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EvaluateRulesetResponse) String() string {
+func (x *EvalCoreRulesetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EvaluateRulesetResponse) ProtoMessage() {}
+func (*EvalCoreRulesetResponse) ProtoMessage() {}
 
-func (x *EvaluateRulesetResponse) ProtoReflect() protoreflect.Message {
+func (x *EvalCoreRulesetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_dmz_edge_v1_edge_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -262,12 +263,12 @@ func (x *EvaluateRulesetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EvaluateRulesetResponse.ProtoReflect.Descriptor instead.
-func (*EvaluateRulesetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use EvalCoreRulesetResponse.ProtoReflect.Descriptor instead.
+func (*EvalCoreRulesetResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_edge_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *EvaluateRulesetResponse) GetResults() []*EvaluationResult {
+func (x *EvalCoreRulesetResponse) GetResults() []*EvalResult {
 	if x != nil {
 		return x.Results
 	}
@@ -278,22 +279,22 @@ var File_sentinez_dmz_edge_v1_edge_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\x1a%sentinez/types/net/http/v1/http.proto\"\x0f\n" +
+	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\x1a%sentinez/types/net/http/v1/http.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg\"\x85\x01\n" +
-	"\x16EvaluateRulesetRequest\x12\x1d\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg\"\xb5\x01\n" +
+	"\x16EvalCoreRulesetRequest\x12M\n" +
+	"\fcore_ruleset\x18\x01 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\vcoreRuleset\x12L\n" +
+	"\x0frequest_context\x18\x02 \x01(\v2#.sentinez.types.net.http.v1.RequestR\x0erequestContext\"y\n" +
 	"\n" +
-	"ruleset_id\x18\x01 \x01(\tR\trulesetId\x12L\n" +
-	"\x0frequest_context\x18\x02 \x01(\v2#.sentinez.types.net.http.v1.RequestR\x0erequestContext\"\x7f\n" +
-	"\x10EvaluationResult\x12\x17\n" +
+	"EvalResult\x12\x17\n" +
 	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x18\n" +
 	"\amatched\x18\x02 \x01(\bR\amatched\x128\n" +
-	"\aactions\x18\x03 \x03(\v2\x1e.sentinez.types.rule.v1.ActionR\aactions\"[\n" +
-	"\x17EvaluateRulesetResponse\x12@\n" +
-	"\aresults\x18\x01 \x03(\v2&.sentinez.dmz.edge.v1.EvaluationResultR\aresults2\xd4\x01\n" +
+	"\aactions\x18\x03 \x03(\v2\x1e.sentinez.types.rule.v1.ActionR\aactions\"U\n" +
+	"\x17EvalCoreRulesetResponse\x12:\n" +
+	"\aresults\x18\x01 \x03(\v2 .sentinez.dmz.edge.v1.EvalResultR\aresults2\xd4\x01\n" +
 	"\vEdgeService\x12n\n" +
-	"\x0fEvaluateRuleset\x12,.sentinez.dmz.edge.v1.EvaluateRulesetRequest\x1a-.sentinez.dmz.edge.v1.EvaluateRulesetResponse\x12U\n" +
+	"\x0fEvalCoreRuleset\x12,.sentinez.dmz.edge.v1.EvalCoreRulesetRequest\x1a-.sentinez.dmz.edge.v1.EvalCoreRulesetResponse\x12U\n" +
 	"\x06Status\x12#.sentinez.dmz.edge.v1.StatusRequest\x1a$.sentinez.dmz.edge.v1.StatusResponse\"\x00Br\x8a\xb2\x19*\n" +
 	"\x10SENTINEZ // EDGE\x10\x01\x1a\x14sentinez.dmz.edge.v1ZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"
 
@@ -313,25 +314,27 @@ var file_sentinez_dmz_edge_v1_edge_proto_msgTypes = make([]protoimpl.MessageInfo
 var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
 	(*StatusRequest)(nil),           // 0: sentinez.dmz.edge.v1.StatusRequest
 	(*StatusResponse)(nil),          // 1: sentinez.dmz.edge.v1.StatusResponse
-	(*EvaluateRulesetRequest)(nil),  // 2: sentinez.dmz.edge.v1.EvaluateRulesetRequest
-	(*EvaluationResult)(nil),        // 3: sentinez.dmz.edge.v1.EvaluationResult
-	(*EvaluateRulesetResponse)(nil), // 4: sentinez.dmz.edge.v1.EvaluateRulesetResponse
-	(*v1.Request)(nil),              // 5: sentinez.types.net.http.v1.Request
-	(*v11.Action)(nil),              // 6: sentinez.types.rule.v1.Action
+	(*EvalCoreRulesetRequest)(nil),  // 2: sentinez.dmz.edge.v1.EvalCoreRulesetRequest
+	(*EvalResult)(nil),              // 3: sentinez.dmz.edge.v1.EvalResult
+	(*EvalCoreRulesetResponse)(nil), // 4: sentinez.dmz.edge.v1.EvalCoreRulesetResponse
+	(*v1.CoreRuleset)(nil),          // 5: sentinez.types.coreruleset.v1.CoreRuleset
+	(*v11.Request)(nil),             // 6: sentinez.types.net.http.v1.Request
+	(*v12.Action)(nil),              // 7: sentinez.types.rule.v1.Action
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	5, // 0: sentinez.dmz.edge.v1.EvaluateRulesetRequest.request_context:type_name -> sentinez.types.net.http.v1.Request
-	6, // 1: sentinez.dmz.edge.v1.EvaluationResult.actions:type_name -> sentinez.types.rule.v1.Action
-	3, // 2: sentinez.dmz.edge.v1.EvaluateRulesetResponse.results:type_name -> sentinez.dmz.edge.v1.EvaluationResult
-	2, // 3: sentinez.dmz.edge.v1.EdgeService.EvaluateRuleset:input_type -> sentinez.dmz.edge.v1.EvaluateRulesetRequest
-	0, // 4: sentinez.dmz.edge.v1.EdgeService.Status:input_type -> sentinez.dmz.edge.v1.StatusRequest
-	4, // 5: sentinez.dmz.edge.v1.EdgeService.EvaluateRuleset:output_type -> sentinez.dmz.edge.v1.EvaluateRulesetResponse
-	1, // 6: sentinez.dmz.edge.v1.EdgeService.Status:output_type -> sentinez.dmz.edge.v1.StatusResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 0: sentinez.dmz.edge.v1.EvalCoreRulesetRequest.core_ruleset:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
+	6, // 1: sentinez.dmz.edge.v1.EvalCoreRulesetRequest.request_context:type_name -> sentinez.types.net.http.v1.Request
+	7, // 2: sentinez.dmz.edge.v1.EvalResult.actions:type_name -> sentinez.types.rule.v1.Action
+	3, // 3: sentinez.dmz.edge.v1.EvalCoreRulesetResponse.results:type_name -> sentinez.dmz.edge.v1.EvalResult
+	2, // 4: sentinez.dmz.edge.v1.EdgeService.EvalCoreRuleset:input_type -> sentinez.dmz.edge.v1.EvalCoreRulesetRequest
+	0, // 5: sentinez.dmz.edge.v1.EdgeService.Status:input_type -> sentinez.dmz.edge.v1.StatusRequest
+	4, // 6: sentinez.dmz.edge.v1.EdgeService.EvalCoreRuleset:output_type -> sentinez.dmz.edge.v1.EvalCoreRulesetResponse
+	1, // 7: sentinez.dmz.edge.v1.EdgeService.Status:output_type -> sentinez.dmz.edge.v1.StatusResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_edge_proto_init() }

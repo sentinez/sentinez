@@ -36,7 +36,7 @@ func NewSecRule(
 	return &SecRule{
 		Node:  corechains.NewNode(),
 		store: store,
-		logging: zlog.NewLogCloser(
+		log: zlog.NewLogCloser(
 			o.Named,
 			typepb.LogType_LOG_TYPE_SEC_RULE,
 			o.Level,
@@ -47,8 +47,8 @@ func NewSecRule(
 
 type SecRule struct {
 	*corechains.Node
-	logging zlog.LogCloser
-	store   *memory.MemStore
+	log   zlog.LogCloser
+	store *memory.MemStore
 }
 
 // Handle runs the active rules of the namespace in priority order. The
@@ -64,14 +64,28 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 	defer func() { _ = matched.Close() }()
 
 	action := matchAction(ctx, chain, matched.MatchedRules)
+	if action == nil {
+		return sr.HandleNext(ctx)
+	}
 
+	sr.logMatched(ctx, action, matched.MatchedRules)
+
+	if action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK {
+		return corehttp.Forbidden(ctx)
+	}
+
+	return sr.HandleNext(ctx)
+}
+
+// logMatched emits a secrule event for the request matched by mr.
+func (sr *SecRule) logMatched(
+	ctx corehttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
+) {
 	event := secrule.Acquire()
-	defer func() { _ = event.Close() }()
 
 	event.Action = action
-	event.MatchedSecruleIds = append(
-		event.MatchedSecruleIds, matched.GetIds()...)
-	event.Messages = append(event.Messages, matched.GetNames()...)
+	event.MatchedSecruleIds = append(event.MatchedSecruleIds, mr.GetIds()...)
+	event.Messages = append(event.Messages, mr.GetNames()...)
 	event.Service = rulepb.RuleService_RULE_SERVICE_SEC_RULE
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
@@ -81,11 +95,8 @@ func (sr *SecRule) Handle(ctx corehttp.Context) error {
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 
-	if action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK {
-		return corehttp.Forbidden(ctx)
-	}
-
-	return sr.HandleNext(ctx)
+	// Info releases the event back to the pool.
+	sr.log.Info("secrule: matched", event, event)
 }
 
 // matchAction the action of the first matching rule with a terminal

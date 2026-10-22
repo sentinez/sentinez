@@ -165,19 +165,27 @@ var _ interface {
 	ErrorName() string
 } = StatusResponseValidationError{}
 
-// Validate checks the field values on EvaluateRulesetRequest with the rules
+// Validate checks the field values on EvalCoreRulesetRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *EvaluateRulesetRequest) Validate() error {
+func (m *EvalCoreRulesetRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
-	// no validation rules for RulesetId
+	if v, ok := interface{}(m.GetCoreRuleset()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EvalCoreRulesetRequestValidationError{
+				field:  "CoreRuleset",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if v, ok := interface{}(m.GetRequestContext()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return EvaluateRulesetRequestValidationError{
+			return EvalCoreRulesetRequestValidationError{
 				field:  "RequestContext",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -188,9 +196,9 @@ func (m *EvaluateRulesetRequest) Validate() error {
 	return nil
 }
 
-// EvaluateRulesetRequestValidationError is the validation error returned by
-// EvaluateRulesetRequest.Validate if the designated constraints aren't met.
-type EvaluateRulesetRequestValidationError struct {
+// EvalCoreRulesetRequestValidationError is the validation error returned by
+// EvalCoreRulesetRequest.Validate if the designated constraints aren't met.
+type EvalCoreRulesetRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -198,24 +206,24 @@ type EvaluateRulesetRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e EvaluateRulesetRequestValidationError) Field() string { return e.field }
+func (e EvalCoreRulesetRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EvaluateRulesetRequestValidationError) Reason() string { return e.reason }
+func (e EvalCoreRulesetRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EvaluateRulesetRequestValidationError) Cause() error { return e.cause }
+func (e EvalCoreRulesetRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EvaluateRulesetRequestValidationError) Key() bool { return e.key }
+func (e EvalCoreRulesetRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EvaluateRulesetRequestValidationError) ErrorName() string {
-	return "EvaluateRulesetRequestValidationError"
+func (e EvalCoreRulesetRequestValidationError) ErrorName() string {
+	return "EvalCoreRulesetRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e EvaluateRulesetRequestValidationError) Error() string {
+func (e EvalCoreRulesetRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -227,14 +235,14 @@ func (e EvaluateRulesetRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEvaluateRulesetRequest.%s: %s%s",
+		"invalid %sEvalCoreRulesetRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EvaluateRulesetRequestValidationError{}
+var _ error = EvalCoreRulesetRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -242,12 +250,11 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EvaluateRulesetRequestValidationError{}
+} = EvalCoreRulesetRequestValidationError{}
 
-// Validate checks the field values on EvaluationResult with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
-func (m *EvaluationResult) Validate() error {
+// Validate checks the field values on EvalResult with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *EvalResult) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -261,7 +268,7 @@ func (m *EvaluationResult) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return EvaluationResultValidationError{
+				return EvalResultValidationError{
 					field:  fmt.Sprintf("Actions[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -274,9 +281,9 @@ func (m *EvaluationResult) Validate() error {
 	return nil
 }
 
-// EvaluationResultValidationError is the validation error returned by
-// EvaluationResult.Validate if the designated constraints aren't met.
-type EvaluationResultValidationError struct {
+// EvalResultValidationError is the validation error returned by
+// EvalResult.Validate if the designated constraints aren't met.
+type EvalResultValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -284,22 +291,22 @@ type EvaluationResultValidationError struct {
 }
 
 // Field function returns field value.
-func (e EvaluationResultValidationError) Field() string { return e.field }
+func (e EvalResultValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EvaluationResultValidationError) Reason() string { return e.reason }
+func (e EvalResultValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EvaluationResultValidationError) Cause() error { return e.cause }
+func (e EvalResultValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EvaluationResultValidationError) Key() bool { return e.key }
+func (e EvalResultValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EvaluationResultValidationError) ErrorName() string { return "EvaluationResultValidationError" }
+func (e EvalResultValidationError) ErrorName() string { return "EvalResultValidationError" }
 
 // Error satisfies the builtin error interface
-func (e EvaluationResultValidationError) Error() string {
+func (e EvalResultValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -311,14 +318,14 @@ func (e EvaluationResultValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEvaluationResult.%s: %s%s",
+		"invalid %sEvalResult.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EvaluationResultValidationError{}
+var _ error = EvalResultValidationError{}
 
 var _ interface {
 	Field() string
@@ -326,12 +333,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EvaluationResultValidationError{}
+} = EvalResultValidationError{}
 
-// Validate checks the field values on EvaluateRulesetResponse with the rules
+// Validate checks the field values on EvalCoreRulesetResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *EvaluateRulesetResponse) Validate() error {
+func (m *EvalCoreRulesetResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -341,7 +348,7 @@ func (m *EvaluateRulesetResponse) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return EvaluateRulesetResponseValidationError{
+				return EvalCoreRulesetResponseValidationError{
 					field:  fmt.Sprintf("Results[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -354,9 +361,9 @@ func (m *EvaluateRulesetResponse) Validate() error {
 	return nil
 }
 
-// EvaluateRulesetResponseValidationError is the validation error returned by
-// EvaluateRulesetResponse.Validate if the designated constraints aren't met.
-type EvaluateRulesetResponseValidationError struct {
+// EvalCoreRulesetResponseValidationError is the validation error returned by
+// EvalCoreRulesetResponse.Validate if the designated constraints aren't met.
+type EvalCoreRulesetResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -364,24 +371,24 @@ type EvaluateRulesetResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e EvaluateRulesetResponseValidationError) Field() string { return e.field }
+func (e EvalCoreRulesetResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EvaluateRulesetResponseValidationError) Reason() string { return e.reason }
+func (e EvalCoreRulesetResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EvaluateRulesetResponseValidationError) Cause() error { return e.cause }
+func (e EvalCoreRulesetResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EvaluateRulesetResponseValidationError) Key() bool { return e.key }
+func (e EvalCoreRulesetResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EvaluateRulesetResponseValidationError) ErrorName() string {
-	return "EvaluateRulesetResponseValidationError"
+func (e EvalCoreRulesetResponseValidationError) ErrorName() string {
+	return "EvalCoreRulesetResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e EvaluateRulesetResponseValidationError) Error() string {
+func (e EvalCoreRulesetResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -393,14 +400,14 @@ func (e EvaluateRulesetResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEvaluateRulesetResponse.%s: %s%s",
+		"invalid %sEvalCoreRulesetResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EvaluateRulesetResponseValidationError{}
+var _ error = EvalCoreRulesetResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -408,4 +415,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EvaluateRulesetResponseValidationError{}
+} = EvalCoreRulesetResponseValidationError{}

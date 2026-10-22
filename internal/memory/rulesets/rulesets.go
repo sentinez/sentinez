@@ -59,12 +59,7 @@ func (rs *Rulesets) Store(
 		return nil
 	}
 
-	rootFs, err := crsMap(setting.GetVersion())
-	if err != nil {
-		return err
-	}
-
-	waf, err := corers.NewWAF(setting.GetVersion(), rootFs, setting)
+	waf, err := NewWAF(setting)
 	if err != nil {
 		return err
 	}
@@ -97,6 +92,17 @@ func (rs *Rulesets) LoadContext(ctx corehttp.Context) (coraza.WAF, bool) {
 
 	zlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
 	return rs.Load(ctx.X().GetNamespace())
+}
+
+// NewWAF builds the coraza.WAF of setting from the embedded CRS of its
+// version.
+func NewWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
+	rootFs, err := crsMap(setting.GetVersion())
+	if err != nil {
+		return nil, err
+	}
+
+	return corers.NewWAF(setting.GetVersion(), rootFs, setting)
 }
 
 func crsMap(version corerulesetpb.Version) (fs.FS, error) {

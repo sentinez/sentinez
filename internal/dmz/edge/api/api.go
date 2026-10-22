@@ -16,20 +16,31 @@ package edgeapi
 
 import (
 	"context"
+	"strconv"
+	"time"
 
+	"github.com/corazawaf/coraza/v3"
+	"github.com/corazawaf/coraza/v3/types"
 	corehttpreq "github.com/sentinez/core/http/request"
-	corerules "github.com/sentinez/core/rules"
+	corers "github.com/sentinez/core/rulesets"
+	"github.com/sentinez/core/storage/cache/mem"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	"github.com/sentinez/sentinez/internal/memory/rulesets"
+	"github.com/sentinez/shared/errorx"
 )
 
 var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)
 
 func New() *EdgeService {
-	return &EdgeService{}
+	return &EdgeService{
+		space: mem.NewDefault[coraza.WAF](),
+	}
 }
 
-type EdgeService struct{}
+type EdgeService struct {
+	space *mem.Cache[coraza.WAF]
+}
 
 // Status implements [edgepb.EdgeServiceServer].
 func (e *EdgeService) Status(_ context.Context,
@@ -38,22 +49,64 @@ func (e *EdgeService) Status(_ context.Context,
 	return &edgepb.StatusResponse{Msg: "OK"}, nil
 }
 
-func (e *EdgeService) EvaluateRuleset(ctx context.Context,
-	request *edgepb.EvaluateRulesetRequest,
-) (*edgepb.EvaluateRulesetResponse, error) {
+// EvalCoreRuleset replays request_context against a WAF built from
+// core_ruleset and reports every CRS rule it matched.
+func (e *EdgeService) EvalCoreRuleset(ctx context.Context,
+	request *edgepb.EvalCoreRulesetRequest,
+) (*edgepb.EvalCoreRulesetResponse, error) {
 
-	enginectx := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
+	var (
+		waf coraza.WAF
+		ok  bool
+		err error
+	)
 
-	eval := corerules.NewEval(&rulepb.Expression{})
-	matched := &rulepb.MatchedRules{}
-	ok := eval(enginectx, matched)
+	waf, ok = e.space.Get(request.String())
 	if !ok {
-		return &edgepb.EvaluateRulesetResponse{}, nil
+		waf, err = rulesets.NewWAF(request.GetCoreRuleset())
+		if err != nil {
+			return nil, errorx.StatusInvalidArgumentF("core ruleset: %v", err)
+		}
 	}
 
-	return &edgepb.EvaluateRulesetResponse{
-		Results: []*edgepb.EvaluationResult{{
-			Matched: ok,
-		}},
-	}, nil
+	e.space.SetWithTTL(request.String(), waf, time.Hour)
+
+	req := corehttpreq.NewRequestContext(ctx, request.GetRequestContext())
+
+	eval, err := corers.Evaluate(waf, req)
+	if err != nil {
+		return nil, errorx.StatusInternalErrorF("evaluate: %v", err)
+	}
+
+	return &edgepb.EvalCoreRulesetResponse{Results: toResults(eval)}, nil
+}
+
+// toResults maps each matched rule to a result. Only the rule that
+// interrupted the request carries an action.
+func toResults(eval corers.Evaluation) []*edgepb.EvalResult {
+	results := make([]*edgepb.EvalResult, 0, len(eval.Matched))
+
+	for _, mr := range eval.Matched {
+		result := &edgepb.EvalResult{
+			RuleId:  strconv.Itoa(mr.Rule().ID()),
+			Matched: true,
+		}
+
+		it := eval.Interruption
+		if it != nil && it.RuleID == mr.Rule().ID() {
+			result.Actions = []*rulepb.Action{{Type: actionType(it)}}
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+func actionType(it *types.Interruption) rulepb.ActionType {
+	if it.Action == "redirect" {
+		return rulepb.ActionType_ACTION_TYPE_REDIRECT
+	}
+
+	return rulepb.ActionType_ACTION_TYPE_BLOCK
 }
