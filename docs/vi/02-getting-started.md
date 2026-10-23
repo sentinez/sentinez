@@ -125,8 +125,8 @@ validate bằng protovalidate.
 | `--log_level` | `debug` | `debug\|info\|warn\|error` | tất cả |
 | `--env_file` | tuỳ service | — | tất cả (`""` = không đọc file) |
 | `--proxy_config` | `./proxy.yaml` | — | edge |
-| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` | — | edge |
-| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` | — | edge |
+| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` (edge), `""` (apiserver) | — | edge, apiserver (có certificate thì apiserver phục vụ HTTPS và HTTP/3) |
+| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` (edge), `""` (apiserver) | — | edge, apiserver |
 | `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, xem [03-edge.md](03-edge.md#310-chọn-engine)) |
 
 `--mode` còn quyết định tiền tố tên bảng DB (`dev_sentinez_iam_users`, ...)
