@@ -29,7 +29,6 @@ import (
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
@@ -37,6 +36,7 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
+	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/szlog"
 )

@@ -17,32 +17,37 @@ package secure
 import (
 	"strings"
 
-	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
+
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/shared/bytesconv"
 )
 
-var _ chains.ChainNode = (*DomainBased)(nil)
+// DomainBasedId is the chain stage name of DomainBased.
+const DomainBasedId = "DMA"
 
-// NewDomainBased resolves the tenant namespace from single-level
-// subdomains of the hostname set by option.WithHostname.
-func NewDomainBased(
-	_ *memory.MemStore, opts ...option.Option) chains.ChainNode {
+var (
+	_ chains.Plugin                      = (*DomainBased)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*DomainBased)(nil)
+)
 
-	return &DomainBased{
-		Node:     chains.NewNode(),
-		hostname: option.New(opts...).Hostname,
-	}
-}
-
+// DomainBased resolves the tenant namespace from single-level
+// subdomains of the Env hostname.
 type DomainBased struct {
-	*chains.Node
 	hostname string
 }
 
-func (d *DomainBased) Handle(ctx szhttp.Context) error {
+func (*DomainBased) ID() string { return DomainBasedId }
+
+func (d *DomainBased) Provision(env *envplugin.Env) error {
+	d.hostname = env.Hostname()
+	return nil
+}
+
+func (d *DomainBased) Handle(
+	ctx szhttp.Context, next chains.Handler) error {
+
 	// szlog.Debug("[edge] >>> visit domain")
 
 	xctx := ctx.X()
@@ -58,7 +63,7 @@ func (d *DomainBased) Handle(ctx szhttp.Context) error {
 
 	xctx.Namespace = ns
 
-	return d.HandleNext(ctx)
+	return next.Handle(ctx)
 }
 
 func (d *DomainBased) isValidSingleLevelSubdomain(

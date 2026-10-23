@@ -10,7 +10,7 @@ have not been reproduced. Remove an entry once it is fixed.
 | # | Location | Problem | Consequence |
 |---|---|---|---|
 | 2 | [controlplane/security/v1/repos/secrule/secrule.go](../staging/src/github.com/sentinez/controlplane/security/v1/repos/secrule/secrule.go) `Update` | Only updates `name`, `description`, `expr`, `status` | Changing `priority`/`action` through the API is not persisted |
-| 3 | [internal/cluster/cluster.go](../internal/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; after 1024 `Put`s the caller goroutine blocks |
+| 3 | [pkg/cluster/cluster.go](../pkg/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; after 1024 `Put`s the caller goroutine blocks |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` mutates a field of a shared proxy | The WebSocket target grows with every request, and there is a data race |
 | 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
 | 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
@@ -27,7 +27,7 @@ have not been reproduced. Remove an entry once it is fixed.
 | S2 | Control-plane handlers | Authorization must be called in each handler; only `ListAccounts` and `ListActivities` do it. Tenant, Security, `ListUsers`, `DeleteUser`, … require no token |
 | S3 | IAM `loginAdmin` | Compares the admin password in plaintext, not in constant time; no limit on failed admin logins |
 | S4 | apiserver `Logging` middleware | Reads the whole body and debug-logs it on error — can write passwords from `/iam/login` to the logs |
-| S5 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) `init` | pprof is always open on `:6060` (compose also publishes this port) |
+| S5 | [cmd/szedge/v1/server/pprof.go](../cmd/szedge/v1/server/pprof.go) | pprof is always open on `defaults.PprofAddress` (`0.0.0.0:6060`; compose also publishes this port) |
 | S6 | [pkg/network/httpx/context.go](../pkg/network/httpx/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | The image bakes in the cert/key pair from the source tree |
 | S8 | `httpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Quic` and `Standard` modes, i.e. the default) |
@@ -45,8 +45,8 @@ have not been reproduced. Remove an entry once it is fixed.
   an empty `Expression` (always matches) and ignores `ruleset_id`.
 - SecRule actions other than `BLOCK` are not executed; operators
   `GT/GTE/LT/LTE` are not implemented.
-- Waiting room (`ROM`), `pkg/queue`, `shared/sztopic`, `core/szstorage/{keyval,
-  clickhouse,kafka,elastic}`, `eventpub/eventsub` are empty packages.
+- Waiting room (`ROM`), `core/szqueue`, `shared/sztopic`, `core/szstorage/{keyval,
+  clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - `network.QuicTransporter` and the `onQuicAccept` listener hook exist but

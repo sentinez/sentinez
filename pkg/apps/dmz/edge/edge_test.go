@@ -20,7 +20,11 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
+	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/funcs"
 	"github.com/sentinez/sentinez/internal/funcs/logging"
 	"github.com/sentinez/sentinez/internal/funcs/room"
 	"github.com/sentinez/sentinez/internal/funcs/routing"
@@ -30,6 +34,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/szlog"
+	"github.com/stretchr/testify/require"
 )
 
 var _reqPool = sync.Pool{
@@ -65,17 +70,7 @@ func putRecorder(w *httptest.ResponseRecorder) {
 func BenchmarkStandardConverter(b *testing.B) {
 	szlog.SetLogLevel(szlog.LevelInfo)
 
-	lvl := option.WithLevel(szlog.LevelError)
-	begin := trace.NewTracer(lvl)
-	begin.
-		SetNext(room.NewRoom(nil, lvl)).
-		SetNext(static.NewStatic(nil, lvl)).
-		SetNext(logging.NewLogging(lvl)).
-		SetNext(secure.NewDomainBased(nil,
-			option.WithHostname("is.s6z.io.vn"))).
-		SetNext(secure.NewSecRule(nil, lvl)).
-		SetNext(secure.NewWAF(nil, lvl)).
-		SetNext(routing.NewMockRouter())
+	begin := newTestChain(b)
 
 	b.ReportAllocs()
 
@@ -100,19 +95,32 @@ func TestHandleChain(t *testing.T) {
 
 	szlog.SetLogLevel(szlog.LevelInfo)
 
-	lvl := option.WithLevel(szlog.LevelError)
-	begin := trace.NewTracer(lvl)
-	begin.
-		SetNext(room.NewRoom(nil, lvl)).
-		SetNext(static.NewStatic(nil, lvl)).
-		SetNext(logging.NewLogging(lvl)).
-		SetNext(secure.NewDomainBased(nil,
-			option.WithHostname("is.s6z.io.vn"))).
-		SetNext(secure.NewSecRule(nil, lvl)).
-		SetNext(secure.NewWAF(nil, lvl)).
-		SetNext(routing.NewMockRouter())
+	begin := newTestChain(t)
 
-	if err := begin.Handle(ctx); err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, begin.Handle(ctx))
+}
+
+// newTestChain links the edge plugins without a memory store, ending
+// with a mock router.
+func newTestChain(tb testing.TB) *chains.Chain {
+	tb.Helper()
+
+	env := envplugin.NewEnv(nil,
+		option.WithLevel(szlog.LevelError),
+		option.WithHostname("is.s6z.io.vn"),
+	)
+	chain, err := chains.Build(env, funcs.Stage,
+		&trace.Tracer{},
+		&room.WaitingRoom{},
+		&static.Static{},
+		&logging.Logging{},
+		&secure.DomainBased{},
+		&secure.SecRule{},
+		&secure.WAF{},
+		&routing.Mock{},
+	)
+	require.NoError(tb, err)
+	tb.Cleanup(func() { require.NoError(tb, chain.Close()) })
+
+	return chain
 }

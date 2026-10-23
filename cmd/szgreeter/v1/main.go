@@ -20,7 +20,10 @@ import (
 
 	"github.com/sentinez/controlplane/apps/greeter/v1"
 	"github.com/sentinez/core"
+	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/core/szrunner"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
 	"github.com/sentinez/shared/szlog"
 )
@@ -44,7 +47,13 @@ func app(c *szrunner.Context[greeter.Greeter]) {
 	c.Inject(greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
-		return server.Start()
+		conf, err := config.Config()
+		if err != nil {
+			return err
+		}
+
+		return server.Start(szgrpc.WithAddress(conf.GetDefault(
+			settingpb.Senz_SENZ_ADDRESS, defaults.GreeterAddress)))
 	})
 
 	c.OnStop(func(ctx context.Context, server *greeter.Greeter) error {

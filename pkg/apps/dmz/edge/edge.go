@@ -21,8 +21,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/core/szcmn"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szsdklog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -32,7 +35,6 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/sentinez/pkg/sdklog"
 	"github.com/sentinez/shared/szlog"
 	otelsdklog "go.opentelemetry.io/otel/sdk/log"
 )
@@ -72,7 +74,7 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		return nil, err
 	}
 
-	logExporter, err := sdklog.NewProvider(conf)
+	logExporter, err := szsdklog.NewProvider(conf)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +99,7 @@ type Server struct {
 	conf        *settingpb.Config
 	setting     *edgepb.Setting
 	memstore    *memory.MemStore
+	chain       *chains.Chain
 	service     *edgeapi.EdgeService
 	logExporter *otelsdklog.LoggerProvider
 }
@@ -119,6 +122,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 		s.server.Shutdown(ctx),
 	)
 
+	// the chain is unused once the server stopped; nil if never started
+	if s.chain != nil {
+		err = errors.Join(err, s.chain.Close())
+	}
+
 	return err
 }
 
@@ -136,7 +144,9 @@ func (s *Server) Start() error {
 	server, opt := newServer(s.conf)
 	s.server = server
 
-	s.initialize()
+	if err := s.initialize(); err != nil {
+		return err
+	}
 
 	var (
 		addr = s.conf.GetDefault(

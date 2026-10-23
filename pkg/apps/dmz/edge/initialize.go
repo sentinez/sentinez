@@ -15,20 +15,29 @@
 package edge
 
 import (
+	"fmt"
+
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 )
 
-func (s *Server) initialize() {
+func (s *Server) initialize() error {
 
 	// init cache repository
 	s.memstore.LoadSetting(s.setting)
 	s.memstore.LoadServer(s.server)
 
-	income := http.NewHandler(s.memstore,
+	chain, err := http.NewHandler(s.memstore,
 		option.WithLogger(s.logExporter),
 		option.WithHostname(s.conf.Get(settingpb.Senz_SENZ_HOSTNAME)),
 	)
-	s.server.Handle(income.Handle)
+	if err != nil {
+		return fmt.Errorf("build chain: %w", err)
+	}
+
+	s.chain = chain
+	s.server.Handle(chain.Handle)
+
+	return nil
 }

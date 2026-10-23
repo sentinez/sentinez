@@ -12,26 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package routing provides the WAF handler.
+// Package routing provides the plugins ending the edge chain.
 package routing
 
 import (
 	"net/http"
 
-	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+
+	"github.com/sentinez/core/szhttp"
 )
 
-func NewMockRouter() chains.ChainNode {
-	return &Mock{
-		Node: chains.NewNode(),
-	}
-}
+// MockId is the chain stage name of Mock.
+const MockId = "MCK"
 
-type Mock struct {
-	*chains.Node
-}
+var _ chains.Plugin = (*Mock)(nil)
 
-func (r *Mock) Handle(ctx szhttp.Context) error {
+// Mock answers every request with an empty 200.
+type Mock struct{}
+
+func (*Mock) ID() string { return MockId }
+
+func (*Mock) Handle(ctx szhttp.Context, _ chains.Handler) error {
 	return ctx.String(http.StatusOK, []byte(""))
 }

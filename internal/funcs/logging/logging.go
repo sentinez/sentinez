@@ -20,39 +20,36 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
+	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/pools/request"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 )
 
-var _ chains.ChainNode = (*Logging)(nil)
+// LoggingId is the chain stage name of Logging.
+const LoggingId = "LOG"
 
-// NewLogging logs every request of the chain and exports the records
-// through the option.WithLogger provider; without one they are not
-// exported.
-func NewLogging(opts ...option.Option) chains.ChainNode {
-	o := option.New(opts...)
+var (
+	_ chains.Plugin                      = (*Logging)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*Logging)(nil)
+)
 
-	return &Logging{
-		Node: chains.NewNode(),
-		log: szlog.NewLogCloser(
-			o.Named,
-			typepb.LogType_LOG_TYPE_HTTP,
-			o.Level,
-			o.OTLP(),
-		),
-	}
-}
-
+// Logging logs every request of the chain and exports the records
+// through the Env logger provider; without one they are not exported.
 type Logging struct {
-	*chains.Node
 	log szlog.LogCloser
 }
 
-func (l *Logging) Handle(ctx szhttp.Context) error {
+func (*Logging) ID() string { return LoggingId }
+
+func (l *Logging) Provision(env *envplugin.Env) error {
+	l.log = env.Logger(typepb.LogType_LOG_TYPE_HTTP)
+	return nil
+}
+
+func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit logging")
-	err := l.HandleNext(ctx)
+	err := next.Handle(ctx)
 
 	ip := ctx.RequestIP()
 	bw, _ := bpf.LookupBandwidth(bytesconv.B2s(ip))

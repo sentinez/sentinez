@@ -9,11 +9,11 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | Path | Purpose |
 |---|---|
 | `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
-| `internal/` | Root-module private code: `dmz` (edge/dataplane), `funcs` (edge HTTP middleware nodes, chained in `dmz/edge/http/init.go`), `cluster`, `bpf`, `memory`, `defaults` |
-| `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `queue`, `tracer` |
+| `internal/` | Root-module private code: `dmz` (edge/dataplane), `funcs` (edge HTTP chain plugins, listed in `funcs/funcs.go` and linked by `core/szhttp/chains.Build`), `envplugin` (`Env` the plugins provision themselves from), `bpf`, `memory`, `defaults` (fallback listen addresses) |
+| `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `cluster` (embedded Olric) |
 | `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
-| ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szstorage/dbx/postgres`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szstorage`, `szcontext`, `szcmn` |
+| ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szstorage/dbx/postgres`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szstorage`, `szcontext`, `szcmn`, `sztracer` (`StageError`), `szqueue`, `szsdklog` (OTLP log provider) |
 | ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`): `szlog` (zap + OTLP), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
 | ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, plus `pkg/{crypto,headers,passkey}` |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |

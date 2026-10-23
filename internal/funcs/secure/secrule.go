@@ -19,8 +19,7 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 	"github.com/sentinez/sentinez/pkg/pools/secrule"
@@ -28,36 +27,34 @@ import (
 	"github.com/sentinez/shared/szlog"
 )
 
-func NewSecRule(
-	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+// SecRuleId is the chain stage name of SecRule.
+const SecRuleId = "RUL"
 
-	o := option.New(opts...)
-
-	return &SecRule{
-		Node:  chains.NewNode(),
-		store: store,
-		log: szlog.NewLogCloser(
-			o.Named,
-			typepb.LogType_LOG_TYPE_SEC_RULE,
-			o.Level,
-			o.OTLP(),
-		),
-	}
-}
+var (
+	_ chains.Plugin                      = (*SecRule)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*SecRule)(nil)
+)
 
 type SecRule struct {
-	*chains.Node
 	log   szlog.LogCloser
-	store *memory.MemStore
+	store *secrules.SecRule
+}
+
+func (*SecRule) ID() string { return SecRuleId }
+
+func (sr *SecRule) Provision(env *envplugin.Env) error {
+	sr.store = env.Store().SecRule()
+	sr.log = env.Logger(typepb.LogType_LOG_TYPE_SEC_RULE)
+	return nil
 }
 
 // Handle runs the active rules of the namespace in priority order. The
 // first matching rule with a terminal action (block) ends the chain; other
 // matches fall through to the next rule.
-func (sr *SecRule) Handle(ctx szhttp.Context) error {
-	chain := sr.store.SecRule().LoadContext(ctx)
+func (sr *SecRule) Handle(ctx szhttp.Context, next chains.Handler) error {
+	chain := sr.store.LoadContext(ctx)
 	if len(chain) == 0 {
-		return sr.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	matched := matchedrule.Acquire()
@@ -65,7 +62,7 @@ func (sr *SecRule) Handle(ctx szhttp.Context) error {
 
 	action := matchAction(ctx, chain, matched.MatchedRules)
 	if action == nil {
-		return sr.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	sr.logMatched(ctx, action, matched.MatchedRules)
@@ -74,7 +71,7 @@ func (sr *SecRule) Handle(ctx szhttp.Context) error {
 		return szhttp.Forbidden(ctx)
 	}
 
-	return sr.HandleNext(ctx)
+	return next.Handle(ctx)
 }
 
 // logMatched emits a secrule event for the request matched by mr.

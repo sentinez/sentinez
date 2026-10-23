@@ -20,6 +20,7 @@ import (
 
 	"github.com/sentinez/core/szgrpc"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/szlog"
@@ -53,7 +54,11 @@ func (s *Server) Start(networkInterface string) error {
 
 	szlog.Infof("stream: attaching xdp successfully")
 
-	return s.grpc.Serve(s.conf, szgrpc.WithDiscorvery(false))
+	return s.grpc.Serve(s.conf,
+		szgrpc.WithDiscorvery(false),
+		szgrpc.WithAddress(s.conf.GetDefault(
+			settingpb.Senz_SENZ_ADDRESS, defaults.DataplaneAddress)),
+	)
 }
 
 func (s *Server) Stop(ctx context.Context) error {

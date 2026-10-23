@@ -19,6 +19,7 @@ import (
 	"context"
 
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	realtimehdl "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/handlers"
 	"github.com/sentinez/sentinez/pkg/network/wsz"
 )
@@ -45,7 +46,8 @@ func (r *Realtime) Start() error {
 		return err
 	}
 
-	return r.core.ListenAndServe(r.conf.Get(settingpb.Senz_SENZ_ADDRESS))
+	return r.core.ListenAndServe(r.conf.GetDefault(
+		settingpb.Senz_SENZ_ADDRESS, defaults.RealtimeAddress))
 }
 
 func (r *Realtime) Shutdown(_ context.Context) error {

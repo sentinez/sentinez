@@ -39,8 +39,13 @@ dùng TLS.
   khi listen.
 - Helper trả lỗi: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (render templ).
-- `chains.ChainNode{SetNext, Handle}` + `Node{next}` với `HandleNext`,
-  `GetNext` — nền cho chain middleware edge.
+- `chains.Plugin{ID, Handle(ctx, next)}`: plugin của chain (kiểu Caddy). Plugin
+  là zero value, tự lấy dependency trong `Provision` (`Provisioner[E]`, chỉ
+  cài khi cần) và nhận `next` ở mỗi lần gọi; `Cleaner.Cleanup` giải phóng tài
+  nguyên. `chains.Build(env, wrap, plugins...)` provision các plugin bằng
+  `env`, nối theo thứ tự (bọc bởi `wrap` nếu có) và trả `*Chain` (`Handle`,
+  `Close` cleanup theo thứ tự ngược). API cũ `ChainNode`/`Node` không còn
+  được dùng.
 - `core/szhttp/variable`: biến kiểu nginx cho header proxy.
 - `core/szhttp/httpconst`, `core/szcmn/bytestr`: hằng header/giá trị (dạng string
   và `[]byte`).
@@ -48,8 +53,9 @@ dùng TLS.
 ## 9.3 `core/szgrpc`
 
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
-  `WithGRPCServerOption(...)`. `Serve(conf)` listen TCP `SENZ_ADDRESS`, in
-  banner, tuỳ chọn đăng ký Consul. `BufServe(bufLis)` phục vụ qua bufconn.
+  `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listen TCP
+  `SENZ_ADDRESS` (`WithAddress(addr)` ghi đè), in banner, tuỳ chọn đăng ký
+  địa chỉ listen với Consul. `BufServe(bufLis)` phục vụ qua bufconn.
   `Shutdown` = `GracefulStop`.
 - `core/szgrpc/grpcgateway`: xem [06-gateway.md](06-gateway.md).
 
@@ -64,8 +70,11 @@ dùng TLS.
 | `core/szcmn/render` | Template `templ` cho trang 400/403/404/429/500 |
 | `core/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
 | `core/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstoragedbx) |
-| `core/szstorage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Package rỗng (dự kiến) |
+| `core/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
+| `core/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `core/szqueue` | `Queue{}` rỗng (cho waiting room) |
+| `core/szsdklog` | `NewProvider(conf)`: OTLP `LoggerProvider` cho `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt |
 
 ## 9.5 `shared`
 
@@ -120,8 +129,7 @@ khi `level >= verbosity`.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/tracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `pkg/queue` | `Queue{}` rỗng (cho waiting room) |
+| `pkg/cluster` | Olric embedded + `DMap[T]` generic, xem [03-edge.md](03-edge.md#38-cluster-olric) |
 
 ## 9.7 `contrib/httphz`
 

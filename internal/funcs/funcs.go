@@ -17,6 +17,7 @@ package funcs
 import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
+	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/funcs/cdn"
 	"github.com/sentinez/sentinez/internal/funcs/logging"
 	"github.com/sentinez/sentinez/internal/funcs/room"
@@ -27,20 +28,29 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 )
 
-// New returns a Function whose nodes read mem and are configured by
-// opts (see option.WithLevel, option.WithLogger, option.WithHostname).
-func New(mem *memory.MemStore, opts ...option.Option) []chains.ChainNode {
-	return []chains.ChainNode{
-		trace.NewTracer(opts...),
-		trace.Wrap("LOG", logging.NewLogging(opts...)),
-		trace.Wrap("DMA", secure.NewDomainBased(mem, opts...)),
-		trace.Wrap("PUB", cdn.NewPublic(mem, opts...)),
-		trace.Wrap("CDN", cdn.NewCache(mem, opts...)),
-		trace.Wrap("LMT", secure.NewLimiter(mem, opts...)),
-		trace.Wrap("ROM", room.NewRoom(mem, opts...)),
-		trace.Wrap("STC", static.NewStatic(mem, opts...)),
-		trace.Wrap("RUL", secure.NewSecRule(mem, opts...)),
-		trace.Wrap("WAF", secure.NewWAF(mem, opts...)),
-		trace.Wrap("ROU", routing.NewStandardRouter(mem)),
+// New builds the edge chain: the plugins, in request order, provision
+// themselves from mem and opts (see option.WithLevel, option.WithLogger,
+// option.WithHostname).
+func New(
+	mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
+
+	return chains.Build(
+		envplugin.NewEnv(mem, opts...), Stage, plugins()...)
+}
+
+// plugins returns the edge chain plugins, in request order.
+func plugins() []chains.Plugin {
+	return []chains.Plugin{
+		&trace.Tracer{},
+		&logging.Logging{},
+		&secure.DomainBased{},
+		&cdn.Public{},
+		&cdn.Cache{},
+		&secure.Limiter{},
+		&room.WaitingRoom{},
+		&static.Static{},
+		&secure.SecRule{},
+		&secure.WAF{},
+		&routing.StandardRouter{},
 	}
 }

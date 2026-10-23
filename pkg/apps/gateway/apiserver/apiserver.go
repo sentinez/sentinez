@@ -21,6 +21,7 @@ import (
 
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/szlog"
 )
 
@@ -85,7 +86,8 @@ func (srv *Server) Start(ctx context.Context) error {
 	}
 
 	// Listen HTTP server (and apiserver calls to gRPC server endpoint)
-	return srv.server.ListenAndServe(srv.conf.Get(settingpb.Senz_SENZ_ADDRESS))
+	return srv.server.ListenAndServe(srv.conf.GetDefault(
+		settingpb.Senz_SENZ_ADDRESS, defaults.APIServerAddress))
 	// for DEBUG:
 	// return fmt.Errorf("apiserver: failed to listen and serve")
 }

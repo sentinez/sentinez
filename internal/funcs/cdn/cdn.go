@@ -20,56 +20,55 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/core/szstorage/cache/mem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szsync"
 )
 
-func NewCache(
-	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+// CacheId is the chain stage name of Cache.
+const CacheId = "CDN"
 
-	o := option.New(opts...)
-
-	return &Cache{
-		store:  store,
-		Node:   chains.NewNode(),
-		cached: mem.New[*CachedResponse](time.Hour, time.Hour),
-		buf:    szsync.NewPool[bytes.Buffer](),
-		log: szlog.NewLogCloser(
-			o.Named,
-			typepb.LogType_LOG_TYPE_CDN_RULE,
-			o.Level,
-			o.OTLP(),
-		),
-	}
-}
+var (
+	_ chains.Plugin                      = (*Cache)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*Cache)(nil)
+)
 
 type Cache struct {
-	*chains.Node
-	store *memory.MemStore
+	store *cdnrules.Rule
 
 	cached *mem.Cache[*CachedResponse]
 	buf    *szsync.Pool[bytes.Buffer]
 	log    szlog.LogCloser
 }
 
-func (c *Cache) Handle(ctx szhttp.Context) error {
-	eval, rule := c.store.CDNRules().LoadContext(ctx)
+func (*Cache) ID() string { return CacheId }
+
+func (c *Cache) Provision(env *envplugin.Env) error {
+	c.store = env.Store().CDNRules()
+	c.cached = mem.New[*CachedResponse](time.Hour, time.Hour)
+	c.buf = szsync.NewPool[bytes.Buffer]()
+	c.log = env.Logger(typepb.LogType_LOG_TYPE_CDN_RULE)
+	return nil
+}
+
+func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
+	eval, rule := c.store.LoadContext(ctx)
 	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
-		return c.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	if !eval(ctx, nil) {
-		return c.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	keyBuf := c.makeKey(ctx)
@@ -78,15 +77,15 @@ func (c *Cache) Handle(ctx szhttp.Context) error {
 		c.buf.Put(keyBuf)
 	}()
 
-	return c.caching(ctx, eval, keyBuf.String())
+	return c.caching(ctx, next, eval, keyBuf.String())
 }
 
-func (c *Cache) caching(
-	ctx szhttp.Context, eval szrule.EvalFunc, key string) error {
+func (c *Cache) caching(ctx szhttp.Context, next chains.Handler,
+	eval szrule.EvalFunc, key string) error {
 
 	resp, ok := c.cached.Get(key)
 	if !ok {
-		if err := c.HandleNext(ctx); err != nil {
+		if err := next.Handle(ctx); err != nil {
 			return err
 		}
 

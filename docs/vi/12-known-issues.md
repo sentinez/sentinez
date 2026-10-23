@@ -9,7 +9,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | # | Vị trí | Vấn đề | Hậu quả |
 |---|---|---|---|
 | 2 | [controlplane/security/v1/repos/secrule/secrule.go](../../staging/src/github.com/sentinez/controlplane/security/v1/repos/secrule/secrule.go) `Update` | Chỉ cập nhật `name`, `description`, `expr`, `status` | Sửa `priority`/`action` qua API không được lưu |
-| 3 | [internal/cluster/cluster.go](../../internal/cluster/cluster.go) `newConfig` | Khi có cả membership và discovery address hợp lệ, hàm `return conf` trước khi gán `conf.Started` | `dictReady` không bao giờ được báo → DMap không khởi tạo; sau 1024 lần `Put`, goroutine gọi sẽ bị block |
+| 3 | [pkg/cluster/cluster.go](../../pkg/cluster/cluster.go) `newConfig` | Khi có cả membership và discovery address hợp lệ, hàm `return conf` trước khi gán `conf.Started` | `dictReady` không bao giờ được báo → DMap không khởi tạo; sau 1024 lần `Put`, goroutine gọi sẽ bị block |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` sửa trường của proxy dùng chung | Target WebSocket dài thêm sau mỗi request, có data race |
 | 8 | [contrib/httphz/server.go](../../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | Vòng `fn = s.chains[i](fn)` nằm **trong** handler, gán lại biến capture | Mỗi request bọc thêm middleware một lần nữa (hiện chưa lộ vì edge không gọi `Use`) |
 | 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy` | Location không có upstream gây panic; không cân bằng tải |
@@ -26,7 +26,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | S2 | Handler controlplane | Phân quyền phải tự gọi trong từng handler; chỉ `ListAccounts`, `ListActivities` có kiểm tra. Tenant, Security, `ListUsers`, `DeleteUser`… không yêu cầu token |
 | S3 | IAM `loginAdmin` | So mật khẩu admin dạng plaintext, không constant-time; admin không có giới hạn đăng nhập sai |
 | S4 | Middleware `Logging` (apiserver) | Đọc toàn bộ body và log ở mức debug khi lỗi — có thể ghi mật khẩu từ `/iam/login` vào log |
-| S5 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) `init` | pprof luôn mở ở `:6060` (compose cũng publish port này) |
+| S5 | [cmd/szedge/v1/server/pprof.go](../../cmd/szedge/v1/server/pprof.go) | pprof luôn mở ở `defaults.PprofAddress` (`0.0.0.0:6060`; compose cũng publish port này) |
 | S6 | [pkg/network/httpx/context.go](../../pkg/network/httpx/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | Image đóng gói cặp cert/key từ thư mục source |
 | S8 | `httpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Quic` và `Standard`, tức mặc định) |
@@ -43,8 +43,8 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `EdgeService.EvaluateRuleset` đánh giá
   `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
 - SecRule action ngoài `BLOCK` chưa thực thi; toán tử `GT/GTE/LT/LTE` chưa cài.
-- Waiting room (`ROM`), `pkg/queue`, `shared/sztopic`, `core/szstorage/{keyval,
-  clickhouse,kafka,elastic}`, `eventpub/eventsub` là package rỗng.
+- Waiting room (`ROM`), `core/szqueue`, `shared/sztopic`, `core/szstorage/{keyval,
+  clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
