@@ -22,21 +22,19 @@ import (
 	"time"
 
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/szlog"
 )
 
-const (
-	_pprofAddr          = ":6060"
-	_pprofHeaderTimeout = 10 * time.Second
-)
+const _pprofHeaderTimeout = 10 * time.Second
 
-// Pprof exposes runtime profiling data at :6060.
+// Pprof exposes runtime profiling data at defaults.PprofAddress.
 //
 //	go tool pprof http://localhost:6060/debug/pprof/profile
 func Pprof(c *szrunner.Context[http.Server]) {
 	c.Inject(func() *http.Server {
 		return &http.Server{
-			Addr:              _pprofAddr,
+			Addr:              defaults.PprofAddress,
 			ReadHeaderTimeout: _pprofHeaderTimeout,
 		}
 	})

@@ -17,27 +17,20 @@ package room
 import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/sentinez/pkg/queue"
+	"github.com/sentinez/core/szqueue"
 )
 
-var _ chains.ChainNode = (*WaitingRoom)(nil)
+// WaitingRoomId is the chain stage name of WaitingRoom.
+const WaitingRoomId = "ROM"
 
-func NewRoom(
-	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
-
-	return &WaitingRoom{
-		Node: chains.NewNode(),
-	}
-}
+var _ chains.Plugin = (*WaitingRoom)(nil)
 
 type WaitingRoom struct {
-	*chains.Node
-	_ *queue.Queue
+	_ *szqueue.Queue
 }
 
-func (wr *WaitingRoom) Handle(ctx szhttp.Context) error {
+func (*WaitingRoom) ID() string { return WaitingRoomId }
 
-	return wr.HandleNext(ctx)
+func (*WaitingRoom) Handle(ctx szhttp.Context, next chains.Handler) error {
+	return next.Handle(ctx)
 }

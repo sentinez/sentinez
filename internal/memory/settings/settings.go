@@ -19,8 +19,8 @@ import (
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/sentinez/internal/cluster"
 	"github.com/sentinez/sentinez/internal/defaults"
+	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szsync"
 )

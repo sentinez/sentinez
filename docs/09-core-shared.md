@@ -39,8 +39,14 @@ either. An `https://` endpoint uses TLS.
   (`console.INFO`) before listening.
 - Error helpers: `Forbidden`, `BadRequest`, `NotFound`, `TooManyRequests`,
   `InternalServerError` (rendered with templ).
-- `chains.ChainNode{SetNext, Handle}` + `Node{next}` with `HandleNext`,
-  `GetNext` — the basis of the edge middleware chain.
+- `chains.Plugin{ID, Handle(ctx, next)}`: a chain plugin (Caddy-style). It
+  is a zero value that pulls its dependencies in `Provision`
+  (`Provisioner[E]`, implemented only when needed) and receives `next` on
+  every call; `Cleaner.Cleanup` releases resources.
+  `chains.Build(env, wrap, plugins...)` provisions the plugins with `env`,
+  links them in order (each wrapped by `wrap` when set) and returns a
+  `*Chain` (`Handle`, `Close` cleaning up in reverse). The legacy
+  `ChainNode`/`Node` API is unused.
 - `core/szhttp/variable`: nginx-style variables for proxy headers.
 - `core/szhttp/httpconst`, `core/szcmn/bytestr`: header/value constants (as
   `string` and `[]byte`).
@@ -48,8 +54,9 @@ either. An `https://` endpoint uses TLS.
 ## 9.3 `core/szgrpc`
 
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
-  `WithGRPCServerOption(...)`. `Serve(conf)` listens on TCP `SENZ_ADDRESS`,
-  prints the banner, optionally registers with Consul. `BufServe(bufLis)`
+  `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listens on TCP
+  `SENZ_ADDRESS` (`WithAddress(addr)` overrides it), prints the banner,
+  optionally registers the listen address with Consul. `BufServe(bufLis)`
   serves over bufconn. `Shutdown` = `GracefulStop`.
 - `core/szgrpc/grpcgateway`: see [06-gateway.md](06-gateway.md).
 
@@ -64,8 +71,11 @@ either. An `https://` endpoint uses TLS.
 | `core/szcmn/render` | `templ` templates for the 400/403/404/429/500 pages |
 | `core/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
 | `core/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstoragedbx) |
-| `core/szstorage/{cache/keyval,dbx/clickhouse,msgx/kafka,search/elastic}` | Empty packages (planned) |
+| `core/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
+| `core/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `core/szqueue` | Empty `Queue{}` (for the waiting room) |
+| `core/szsdklog` | `NewProvider(conf)`: OTLP `LoggerProvider` for `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when unset |
 
 ## 9.5 `shared`
 
@@ -121,8 +131,7 @@ when `level >= verbosity`.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pools for `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/tracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `pkg/queue` | Empty `Queue{}` (for the waiting room) |
+| `pkg/cluster` | Embedded Olric + generic `DMap[T]`, see [03-edge.md](03-edge.md#38-cluster-olric) |
 
 ## 9.7 `contrib/httphz`
 

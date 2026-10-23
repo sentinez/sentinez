@@ -19,8 +19,7 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/envplugin"
 	memlimiter "github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 	"github.com/sentinez/sentinez/pkg/pools/secrule"
@@ -28,43 +27,41 @@ import (
 	"github.com/sentinez/shared/szlog"
 )
 
-func NewLimiter(
-	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+// LimiterId is the chain stage name of Limiter.
+const LimiterId = "LMT"
 
-	o := option.New(opts...)
-
-	return &Limiter{
-		Node:  chains.NewNode(),
-		store: store,
-		log: szlog.NewLogCloser(
-			o.Named,
-			typepb.LogType_LOG_TYPE_RATE_LIMIT,
-			o.Level,
-			o.OTLP(),
-		),
-	}
-}
+var (
+	_ chains.Plugin                      = (*Limiter)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*Limiter)(nil)
+)
 
 type Limiter struct {
-	*chains.Node
-	store *memory.MemStore
+	store *memlimiter.Limiter
 	log   szlog.LogCloser
+}
+
+func (*Limiter) ID() string { return LimiterId }
+
+func (l *Limiter) Provision(env *envplugin.Env) error {
+	l.store = env.Store().Limiter()
+	l.log = env.Logger(typepb.LogType_LOG_TYPE_RATE_LIMIT)
+	return nil
 }
 
 // Handle counts the request against every limiter whose expression matches
 // it, keyed by client IP. The request is rejected by the first limiter
 // over its limit.
-func (l *Limiter) Handle(ctx szhttp.Context) error {
+func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	key := string(ctx.RequestIP())
 
-	for _, e := range l.store.Limiter().LoadContext(ctx) {
+	for _, e := range l.store.LoadContext(ctx) {
 		if e.Eval(ctx, nil) && !e.Limiter.Allow(key) {
 			l.logExceeded(ctx, e)
 			return szhttp.TooManyRequests(ctx)
 		}
 	}
 
-	return l.HandleNext(ctx)
+	return next.Handle(ctx)
 }
 
 // logExceeded emits a rate limit event for the request rejected by e: the

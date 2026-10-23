@@ -25,13 +25,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/sentinez/internal/envplugin"
 )
 
 // PublicPrefix is the path the embedded images are served under, e.g.
@@ -60,30 +59,19 @@ var _imageTypes = map[string]string{
 	".ico":  "image/x-icon",
 }
 
-var _ chains.ChainNode = (*Public)(nil)
+// PublicId is the chain stage name of Public.
+const PublicId = "PUB"
 
-// NewPublic returns a node serving the images embedded in the binary.
-func NewPublic(
-	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
+var (
+	_ chains.Plugin                      = (*Public)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*Public)(nil)
+)
 
-	images, err := loadImages(sentinez.Logo, _publicRoot)
-	if err != nil {
-		szlog.Error("[edge] load public images: ", err)
-	}
-
-	return &Public{
-		Node:   chains.NewNode(),
-		images: images,
-	}
-}
-
-// Public serves embedded images under PublicPrefix. Requests outside the
-// prefix are passed to the next node untouched.
+// Public serves the images embedded in the binary under PublicPrefix.
+// Requests outside the prefix are passed to the next plugin untouched.
 type Public struct {
-	*chains.Node
-
 	// images is keyed by the path relative to PublicPrefix and is
-	// read-only after construction.
+	// read-only after provisioning.
 	images map[string]*image
 }
 
@@ -94,10 +82,23 @@ type image struct {
 	etag        []byte
 }
 
-func (p *Public) Handle(ctx szhttp.Context) error {
+func (*Public) ID() string { return PublicId }
+
+func (p *Public) Provision(*envplugin.Env) error {
+	images, err := loadImages(sentinez.Logo, _publicRoot)
+	if err != nil {
+		return fmt.Errorf("load public images: %w", err)
+	}
+
+	p.images = images
+
+	return nil
+}
+
+func (p *Public) Handle(ctx szhttp.Context, next chains.Handler) error {
 	name, ok := bytes.CutPrefix(ctx.Path(), _publicPrefix)
 	if !ok {
-		return p.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	method := string(ctx.Method())

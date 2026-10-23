@@ -37,8 +37,12 @@ type Greeter struct {
 	conf    *settingpb.Config
 }
 
-func (g *Greeter) Start() error {
+// Start serves the greeter, registered in consul; opts are applied after
+// the defaults, e.g. szgrpc.WithAddress.
+func (g *Greeter) Start(opts ...szgrpc.ServerOption) error {
 	greeterpb.RegisterGreeterServiceServer(g.AsServer(), g.handler)
 
-	return g.Serve(g.conf, szgrpc.WithDiscorvery(true))
+	opts = append([]szgrpc.ServerOption{szgrpc.WithDiscorvery(true)}, opts...)
+
+	return g.Serve(g.conf, opts...)
 }

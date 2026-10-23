@@ -97,7 +97,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | Biến | Dùng ở | Ý nghĩa |
 |---|---|---|
 | `SENZ_HOSTNAME` | edge, IAM | Domain gốc của edge (`sentinez.vn`); RP ID cho WebAuthn |
-| `SENZ_ADDRESS` | tất cả | Địa chỉ listen. Edge mặc định `0.0.0.0:443` và lắng nghe cả TCP lẫn UDP (HTTP/3) trên địa chỉ đó, apiserver mặc định `:9000` nếu rỗng |
+| `SENZ_ADDRESS` | tất cả | Địa chỉ listen; nếu rỗng mỗi service dùng hằng trong [internal/defaults](../../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP và UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane và greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Origin được phép cho WebAuthn (URL console) |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |
@@ -125,8 +125,8 @@ validate bằng protovalidate.
 | `--log_level` | `debug` | `debug\|info\|warn\|error` | tất cả |
 | `--env_file` | tuỳ service | — | tất cả (`""` = không đọc file) |
 | `--proxy_config` | `./proxy.yaml` | — | edge |
-| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` | — | edge |
-| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` | — | edge |
+| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` (edge), `""` (apiserver) | — | edge, apiserver (có certificate thì apiserver phục vụ HTTPS và HTTP/3) |
+| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` (edge), `""` (apiserver) | — | edge, apiserver |
 | `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, xem [03-edge.md](03-edge.md#310-chọn-engine)) |
 
 `--mode` còn quyết định tiền tố tên bảng DB (`dev_sentinez_iam_users`, ...)

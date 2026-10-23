@@ -10,7 +10,7 @@
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
-| [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
 ### Khởi tạo
 
@@ -25,6 +25,14 @@ srv.Visit(ctx,
     controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
 )
 ```
+
+`XServer.ListenAndServe(addr, opts...)` listen trên `SENZ_ADDRESS` (mặc định
+`defaults.APIServerAddress`, `:9000` bên trong `grpcgateway`). Listener và TLS
+config lấy từ option `szhttp` nếu có (`WithStdListener`, `WithQuicListener`,
+`WithTLSConfig`). Có certificate (`--cert_file`/`--cert_key_file`, hoặc có sẵn
+trong TLS config) thì phục vụ HTTPS qua TCP và HTTP/3 qua UDP trên cùng địa
+chỉ, quảng bá HTTP/3 bằng `Alt-Svc`; không có thì phục vụ HTTP thường.
+`Shutdown` dừng cả hai.
 
 `ServiceRegistrar` có hai cách gắn service vào `runtime.ServeMux`:
 

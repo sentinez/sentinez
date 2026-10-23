@@ -18,40 +18,35 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/core/szcmn/bytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/shared/bytesconv"
 )
 
-var _ chains.ChainNode = (*Static)(nil)
+// StaticId is the chain stage name of Static.
+const StaticId = "STC"
 
-func NewStatic(
-	_ *memory.MemStore, _ ...option.Option) chains.ChainNode {
+var _ chains.Plugin = (*Static)(nil)
 
-	return &Static{
-		Node: chains.NewNode(),
-		staticExits: map[string]struct{}{
-			".css": {}, ".js": {}, ".png": {}, ".jpg": {}, ".jpeg": {},
-			".gif": {}, ".ico": {}, ".svg": {}, ".woff": {}, ".woff2": {},
-			".ttf": {}, ".eot": {}, ".map": {},
-		},
-	}
+// _staticExts lists the extensions of the assets marked cacheable.
+var _staticExts = map[string]struct{}{
+	".css": {}, ".js": {}, ".png": {}, ".jpg": {}, ".jpeg": {},
+	".gif": {}, ".ico": {}, ".svg": {}, ".woff": {}, ".woff2": {},
+	".ttf": {}, ".eot": {}, ".map": {},
 }
 
-type Static struct {
-	*chains.Node
-	staticExits map[string]struct{}
-}
+type Static struct{}
 
-func (s *Static) Handle(ctx szhttp.Context) error {
+func (*Static) ID() string { return StaticId }
+
+func (*Static) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit static")
 
-	err := s.HandleNext(ctx)
+	err := next.Handle(ctx)
 
-	if s.isStaticAsset(bytesconv.B2s(ctx.Path())) {
+	if isStaticAsset(bytesconv.B2s(ctx.Path())) {
 		ctx.SetResponseHeader(
 			bytestr.HeaderCacheControl,
 			[]byte("public, max-age=3600, immutable"),
@@ -61,8 +56,8 @@ func (s *Static) Handle(ctx szhttp.Context) error {
 	return err
 }
 
-func (s *Static) isStaticAsset(pathStr string) bool {
+func isStaticAsset(pathStr string) bool {
 	ext := strings.ToLower(filepath.Ext(pathStr))
-	_, ok := s.staticExits[ext]
+	_, ok := _staticExts[ext]
 	return ok
 }

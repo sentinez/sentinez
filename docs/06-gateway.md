@@ -10,7 +10,7 @@
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Greeter, IAM, Security, Tenant |
 | [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Serves OpenAPI JSON + Swagger UI |
-| [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux), `ServiceRegistrar` |
+| [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
 ### Initialization
 
@@ -25,6 +25,14 @@ srv.Visit(ctx,
     controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
 )
 ```
+
+`XServer.ListenAndServe(addr, opts...)` listens on `SENZ_ADDRESS` (default
+`defaults.APIServerAddress`, `:9000` inside `grpcgateway`). Listeners and TLS
+config come from the `szhttp` options when set (`WithStdListener`,
+`WithQuicListener`, `WithTLSConfig`). With a certificate
+(`--cert_file`/`--cert_key_file`, or one in the TLS config) it serves HTTPS
+over TCP and HTTP/3 over UDP on the same address, advertising HTTP/3 with
+`Alt-Svc`; without one it serves plain HTTP. `Shutdown` stops both.
 
 A `ServiceRegistrar` can attach a service to `runtime.ServeMux` in two ways:
 

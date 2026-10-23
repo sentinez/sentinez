@@ -21,23 +21,11 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 )
 
-// NewHandler links the edge chain nodes reading ms and returns its head;
-// opts are passed to every node (see option.WithLogger,
-// option.WithHostname).
+// NewHandler builds the edge chain reading ms; opts configure every
+// plugin (see option.WithLogger, option.WithHostname). The chain is
+// closed by the caller once it stops serving.
 func NewHandler(
-	ms *memory.MemStore, opts ...option.Option) chains.ChainNode {
+	ms *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
 
-	handlers := funcs.New(ms, opts...)
-	if len(handlers) == 0 {
-		return nil
-	}
-
-	// first node is head of all chains, link the rest in order
-	income := handlers[0]
-	curr := income
-	for _, handler := range handlers[1:] {
-		curr = curr.SetNext(handler)
-	}
-
-	return income
+	return funcs.New(ms, opts...)
 }

@@ -31,7 +31,7 @@ counterpart in [vi/](vi/)).
 ## Reading conventions
 
 - File paths are relative to the repository root, e.g.
-  [internal/dmz/edge/http/init.go](../internal/dmz/edge/http/init.go).
+  [internal/funcs/funcs.go](../internal/funcs/funcs.go).
 - Modules under `staging/src/github.com/sentinez/<name>` are referred to by
   their import path: `core`, `shared`, `controlplane`, `contrib/httphz`,
   `bpf`, `tools`.

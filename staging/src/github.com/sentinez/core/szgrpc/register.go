@@ -29,10 +29,12 @@ import (
 )
 
 // nolint:funlen
-// Register registers the service in consul and sends heartbeats until ctx
-// is done.
-func Register(ctx context.Context, name string, conf *settingpb.Config) {
-	addr, port, err := net.SplitHostPort(conf.Get(settingpb.Senz_SENZ_ADDRESS))
+// Register registers the service listening on address in consul and sends
+// heartbeats until ctx is done.
+func Register(ctx context.Context, name, address string,
+	conf *settingpb.Config) {
+
+	addr, port, err := net.SplitHostPort(address)
 	if err != nil {
 		szlog.Errorf("failed to split address: %v", err)
 		return

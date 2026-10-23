@@ -10,10 +10,10 @@ Relevant source:
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
 | [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
-| [internal/funcs/](../internal/funcs/) | Middleware chain nodes |
+| [internal/funcs/](../internal/funcs/) | Middleware chain plugins |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
-| [internal/cluster/](../internal/cluster/) | Embedded Olric + generic `DMap[T]` |
+| [pkg/cluster/](../pkg/cluster/) | Embedded Olric + generic `DMap[T]` |
 | [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../pkg/network/) | TCP (`StdListener`/`StdConn`, with IDs) and QUIC (`QuicListener`) listeners, `net/http` transport |
 | [pkg/network/httpx/](../pkg/network/httpx/) | Shared `net/http` `Context` + `ReverseProxy`; servers in `std/` (`stdhttpx`) and `quic/` (`quichttpx`) |
@@ -135,25 +135,31 @@ buffers.
 
 ## 3.4 Middleware chain
 
-Defined in
-[internal/dmz/edge/http/init.go](../internal/dmz/edge/http/init.go). Each
-node embeds `*chains.Node` (which holds `next`) and implements
-`Handle(ctx) error`. Nodes are wrapped with `trace.Wrap(name, node)`, which
-tags errors with the stage name (`tracer.StageError{Stage, Elapsed, Err}`)
-and logs them once, at the stage that produced them.
+Built in [internal/funcs/funcs.go](../internal/funcs/funcs.go) with
+`chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)`. Each
+plugin implements `chains.Plugin` (`ID()`, `Handle(ctx, next)`) and, when it
+needs dependencies, `Provision(*envplugin.Env)`: the
+[Env](../internal/envplugin/env.go) resolves the options once and hands out
+the sub-stores of `MemStore`, the hostname and event loggers
+(`Env.Logger(kind)`), so plugins take no constructor arguments. Every plugin
+is wrapped by `funcs.Stage`, which tags errors with the plugin `ID()`
+(`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
+stage that produced them; the stage names are exported constants (e.g.
+`secure.WAFId`). The edge closes the chain (`Chain.Close`) on shutdown.
 
-| Order | Stage | Node | Behavior |
+| Order | Stage | Plugin | Behavior |
 |---|---|---|---|
-| 0 | — | `trace.Trace` | Generates request ID `senz:req:<xid>`, sets header `X-Request-Id` |
+| 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`). Also looks up eBPF bandwidth by IP |
 | 2 | `DMA` | `secure.DomainBased` | Host must be `<ns>.<SENZ_HOSTNAME>` (single level, port stripped). Otherwise → `403`. Sets `X().Namespace = ns` |
-| 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `LMT` | `ratelimiter.Limiter` | `limiter.Allow(IP)`; exceeded → `429` |
-| 5 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
-| 6 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 8 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_WAF`) if the transaction was interrupted |
-| 9 | `ROU` | `routing.StandardRouter` | Finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
+| 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
+| 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 5 | `LMT` | `secure.Limiter` | `limiter.Allow(IP)`; exceeded → `429` |
+| 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
+| 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
+| 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_WAF`) if the transaction was interrupted |
+| 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
 ([core/szcmn/render](../staging/src/github.com/sentinez/core/szcmn/render/))
@@ -332,7 +338,7 @@ All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 ## 3.8 Cluster (Olric)
 
-[internal/cluster](../internal/cluster/):
+[pkg/cluster](../pkg/cluster/):
 
 - `NewCluster` creates Olric with the `local` config. If both
   `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS` are set, it sets

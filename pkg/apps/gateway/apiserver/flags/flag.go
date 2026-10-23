@@ -35,6 +35,14 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variable config file")
 
+		// with a certificate the apiserver serves HTTPS and HTTP/3,
+		// otherwise plain HTTP
+		pflag.StringVar(&szflag.Get().CertFile, settingpb.XFlag_CertFile,
+			szflag.Get().GetCertFile(), "TLS certificate file")
+
+		pflag.StringVar(&szflag.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
+			szflag.Get().GetCertKeyFile(), "TLS certificate key")
+
 		szflag.Parse(apiserver.GetMetaApiserver())
 	})
 

@@ -29,7 +29,7 @@ Tài liệu được viết từ việc đọc trực tiếp source code tại c
 ## Quy ước đọc tài liệu
 
 - Đường dẫn file là tương đối so với gốc repo, ví dụ
-  [internal/dmz/edge/http/init.go](../../internal/dmz/edge/http/init.go).
+  [internal/funcs/funcs.go](../../internal/funcs/funcs.go).
 - Module trong `staging/src/github.com/sentinez/<tên>` được gọi tắt theo
   import path: `core`, `shared`, `controlplane`, `contrib/httphz`, `bpf`,
   `tools`.

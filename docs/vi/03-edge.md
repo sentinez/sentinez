@@ -10,10 +10,10 @@ Mã nguồn liên quan:
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
 | [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, nạp YAML |
 | [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
-| [internal/funcs/](../../internal/funcs/) | Các node của chain middleware |
+| [internal/funcs/](../../internal/funcs/) | Các plugin của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
-| [internal/cluster/](../../internal/cluster/) | Olric embedded + `DMap[T]` generic |
+| [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `DMap[T]` generic |
 | [contrib/httphz](../../staging/src/github.com/sentinez/contrib/httphz/) | Server Hertz + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../../pkg/network/) | Listener TCP (`StdListener`/`StdConn`, có ID) và QUIC (`QuicListener`), transport `net/http` |
 | [pkg/network/httpx/](../../pkg/network/httpx/) | `Context` + `ReverseProxy` `net/http` dùng chung; server ở `std/` (`stdhttpx`) và `quic/` (`quichttpx`) |
@@ -130,25 +130,31 @@ có thể truyền buffer lấy từ pool.
 
 ## 3.4 Chain middleware
 
-Định nghĩa trong
-[internal/dmz/edge/http/init.go](../../internal/dmz/edge/http/init.go). Mỗi node
-nhúng `*chains.Node` (giữ `next`) và cài `Handle(ctx) error`. Node được bọc
-bởi `trace.Wrap(name, node)` để gắn tên stage vào lỗi
-(`tracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
-gây lỗi.
+Dựng trong [internal/funcs/funcs.go](../../internal/funcs/funcs.go) bằng
+`chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)`. Mỗi
+plugin cài `chains.Plugin` (`ID()`, `Handle(ctx, next)`) và, nếu cần
+dependency, `Provision(*envplugin.Env)`:
+[Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
+sub-store của `MemStore`, hostname và logger sự kiện (`Env.Logger(kind)`),
+nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
+`funcs.Stage` để gắn `ID()` của plugin vào lỗi
+(`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
+gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chain
+(`Chain.Close`) khi shutdown.
 
-| Thứ tự | Stage | Node | Hành vi |
+| Thứ tự | Stage | Plugin | Hành vi |
 |---|---|---|---|
-| 0 | — | `trace.Trace` | Sinh request ID `senz:req:<xid>`, set header `X-Request-Id` |
+| 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
 | 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`). Có tra bandwidth eBPF theo IP |
 | 2 | `DMA` | `secure.DomainBased` | Host phải có dạng `<ns>.<SENZ_HOSTNAME>` (một cấp, bỏ port). Sai → `403`. Gán `X().Namespace = ns` |
-| 3 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `LMT` | `ratelimiter.Limiter` | `limiter.Allow(IP)`; vượt → `429` |
-| 5 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
-| 6 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 8 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_WAF`) nếu bị interrupt |
-| 9 | `ROU` | `routing.StandardRouter` | Tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
+| 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
+| 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 5 | `LMT` | `secure.Limiter` | `limiter.Allow(IP)`; vượt → `429` |
+| 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
+| 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
+| 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_WAF`) nếu bị interrupt |
+| 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
 ([core/szcmn/render](../../staging/src/github.com/sentinez/core/szcmn/render/))
@@ -324,7 +330,7 @@ Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 
 ## 3.8 Cluster (Olric)
 
-[internal/cluster](../../internal/cluster/):
+[pkg/cluster](../../pkg/cluster/):
 
 - `NewCluster` tạo Olric với config `local`. Nếu có cả
   `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS` thì đặt `Peers` và bind

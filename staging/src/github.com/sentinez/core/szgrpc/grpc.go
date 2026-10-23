@@ -61,8 +61,9 @@ func (s *Server) Shutdown(_ context.Context) error {
 	return nil
 }
 
-// register keeps the service registered in consul until Shutdown.
-func (s *Server) register(conf *settingpb.Config) {
+// register keeps the service listening on addr registered in consul until
+// Shutdown.
+func (s *Server) register(conf *settingpb.Config, addr string) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s.mu.Lock()
@@ -72,7 +73,7 @@ func (s *Server) register(conf *settingpb.Config) {
 	s.wg.Add(1)
 	go func() {
 		defer s.wg.Done()
-		Register(ctx, conf.GetMeta().GetServiceKey(), conf)
+		Register(ctx, conf.GetMeta().GetServiceKey(), addr, conf)
 	}()
 }
 
@@ -100,7 +101,7 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 	}
 
 	if s.option.consul {
-		s.register(conf)
+		s.register(conf, addr)
 	}
 
 	host, port, _ := net.SplitHostPort(addr)

@@ -18,53 +18,47 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/sentinez/core/szhttp/chains"
+
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szhttp/chains"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 )
 
-func NewWAF(
-	store *memory.MemStore, opts ...option.Option) chains.ChainNode {
+// WAFId is the chain stage name of WAF.
+const WAFId = "WAF"
 
-	o := option.New(opts...)
-
-	return &WAF{
-		Node: chains.NewNode(),
-		log: szlog.NewLogCloser(
-			o.Named,
-			typepb.LogType_LOG_TYPE_WAF,
-			o.Level,
-			o.OTLP(),
-		),
-		store: store,
-	}
-}
+var (
+	_ chains.Plugin                      = (*WAF)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*WAF)(nil)
+)
 
 type WAF struct {
-	*chains.Node
 	log   szlog.LogCloser
-	store *memory.MemStore
+	store *rulesets.Rulesets
+}
+
+func (*WAF) ID() string { return WAFId }
+
+func (w *WAF) Provision(env *envplugin.Env) error {
+	w.store = env.Store().Rulesets()
+	w.log = env.Logger(typepb.LogType_LOG_TYPE_WAF)
+	return nil
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx szhttp.Context) error {
+func (w *WAF) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit WAF")
 
-	waf, ok := w.store.Rulesets().LoadContext(ctx)
+	waf, ok := w.store.LoadContext(ctx)
 	if !ok {
-		return w.HandleNext(ctx)
-	}
-
-	next := w.GetNext()
-	if next == nil {
-		return nil
+		return next.Handle(ctx)
 	}
 
 	ruleset := szcrs.NewRulesets(ctx, waf)
@@ -74,7 +68,7 @@ func (w *WAF) Handle(ctx szhttp.Context) error {
 	}()
 
 	if ruleset.IsRuleEngineOff() {
-		return w.HandleNext(ctx)
+		return next.Handle(ctx)
 	}
 
 	if err := ruleset.ExecIngress(ctx); err != nil {
@@ -83,7 +77,7 @@ func (w *WAF) Handle(ctx szhttp.Context) error {
 		}
 	}
 
-	err := w.HandleNext(ctx)
+	err := next.Handle(ctx)
 
 	if err := ruleset.ExecEgress(ctx); err != nil {
 		if ctx.StatusCode() == http.StatusForbidden {

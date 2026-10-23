@@ -17,30 +17,43 @@ package routing
 import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
+	"github.com/sentinez/sentinez/internal/memory/routes"
 	"github.com/sentinez/shared/szlog"
 )
 
-func NewStandardRouter(store *memory.MemStore) chains.ChainNode {
-	return &StandardRouter{
-		Node:  chains.NewNode(),
-		store: store,
-	}
-}
+// StandardRouterId is the chain stage name of StandardRouter.
+const StandardRouterId = "ROU"
 
+var (
+	_ chains.Plugin                      = (*StandardRouter)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*StandardRouter)(nil)
+)
+
+// StandardRouter proxies the request to the upstream of its route. It
+// ends the chain: next is never called.
 type StandardRouter struct {
-	*chains.Node
-	store *memory.MemStore
+	route *routes.Router
+	proxy *reverseproxy.ReverseProxy
 }
 
-func (r *StandardRouter) Handle(ctx szhttp.Context) error {
-	target, err := r.store.Route().Match(ctx)
+func (*StandardRouter) ID() string { return StandardRouterId }
+
+func (r *StandardRouter) Provision(env *envplugin.Env) error {
+	r.route = env.Store().Route()
+	r.proxy = env.Store().ReverseProxy()
+	return nil
+}
+
+func (r *StandardRouter) Handle(ctx szhttp.Context, _ chains.Handler) error {
+	target, err := r.route.Match(ctx)
 	if err != nil {
 		szlog.Error("[edge] routing match error: ", err)
 		return szhttp.NotFound(ctx)
 	}
 
-	rprx, ok := r.store.ReverseProxy().Load(target)
+	rprx, ok := r.proxy.Load(target)
 	if ok {
 		rprx.Serve(ctx)
 	}
