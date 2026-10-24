@@ -20,6 +20,7 @@ package vanity
 import (
 	"embed"
 	"net/http"
+	"path"
 	"slices"
 	"strings"
 
@@ -68,6 +69,7 @@ type metaPage struct {
 type infoPage struct {
 	Project     string
 	Description string
+	Org         string
 	// Path is the requested import path; empty on the index page.
 	Path  string
 	Repos []repoView
@@ -77,8 +79,19 @@ type repoView struct {
 	Name        string
 	Description string
 	Import      string
-	Repo        string
-	Docs        string
+	// Module is the module path, i.e. Import's first segment under Host.
+	Module string
+	Repo   string
+	// Source is the repo tree URL of Import's directory.
+	Source string
+	Docs   string
+	// Crumbs are Import's path segments, the first one with the host.
+	Crumbs []crumb
+}
+
+type crumb struct {
+	Name string
+	Href string
 }
 
 var _ http.Handler = (*Handler)(nil)
@@ -174,6 +187,24 @@ func (p infoPage) title() string {
 	return p.Project + " Go modules"
 }
 
+// title is the last element of the import path, as on pkg.go.dev.
+func (v repoView) title() string {
+	return path.Base(v.Import)
+}
+
+// kind is "module" for a repo root and "package" below it.
+func (v repoView) kind() string {
+	if len(v.Crumbs) > 1 {
+		return "package"
+	}
+	return "module"
+}
+
+// repoHost is Repo without its scheme, e.g. "github.com/sentinez/core".
+func (v repoView) repoHost() string {
+	return strings.TrimPrefix(v.Repo, "https://")
+}
+
 func (h *Handler) meta(repo Repo) metaPage {
 	return metaPage{
 		Root:   h.conf.Host + "/" + repo.Name,
@@ -190,6 +221,7 @@ func (h *Handler) index() infoPage {
 	return infoPage{
 		Project:     h.conf.Project,
 		Description: h.conf.Description,
+		Org:         h.conf.Org,
 		Repos:       views,
 	}
 }
@@ -198,19 +230,41 @@ func (h *Handler) info(repo Repo, path string) infoPage {
 	return infoPage{
 		Project:     h.conf.Project,
 		Description: h.conf.Description,
+		Org:         h.conf.Org,
 		Path:        h.conf.Host + "/" + path,
 		Repos:       []repoView{h.view(repo, path)},
 	}
 }
 
 func (h *Handler) view(repo Repo, path string) repoView {
+	src := h.conf.Org + "/" + repo.Name
+	if _, sub, ok := strings.Cut(path, "/"); ok {
+		src += "/tree/" + h.conf.Branch + "/" + sub
+	}
 	return repoView{
 		Name:        repo.Name,
 		Description: repo.Description,
 		Import:      h.conf.Host + "/" + path,
+		Module:      h.conf.Host + "/" + repo.Name,
 		Repo:        h.conf.Org + "/" + repo.Name,
+		Source:      src,
 		Docs:        "https://pkg.go.dev/" + h.conf.Host + "/" + path,
+		Crumbs:      h.crumbs(path),
 	}
+}
+
+// crumbs splits path into breadcrumb links: "core/szhttp" ->
+// [{go.sentinez.com/core /core} {szhttp /core/szhttp}].
+func (h *Handler) crumbs(path string) []crumb {
+	parts := strings.Split(path, "/")
+	out := make([]crumb, 0, len(parts))
+	var href string
+	for _, part := range parts {
+		href += "/" + part
+		out = append(out, crumb{Name: part, Href: href})
+	}
+	out[0].Name = h.conf.Host + "/" + parts[0]
+	return out
 }
 
 func _defaultRepos() []Repo {
