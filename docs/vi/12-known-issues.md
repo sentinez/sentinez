@@ -14,7 +14,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | 8 | [contrib/httphz/server.go](../../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | Vòng `fn = s.chains[i](fn)` nằm **trong** handler, gán lại biến capture | Mỗi request bọc thêm middleware một lần nữa (hiện chưa lộ vì edge không gọi `Use`) |
 | 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy` | Location không có upstream gây panic; không cân bằng tải |
 | 10 | [internal/memory/memory.go](../../internal/memory/memory.go) `LoadRulesets` | Bỏ qua nội dung `rulesets[]`; luôn CRS v4.16.0 + flag RCE; kiểm tra status bị comment | Không cấu hình được phiên bản/nhóm rule; SQLi (942) không bao giờ bật |
-| 11 | [internal/funcs/logging/logging.go](../../internal/funcs/logging/logging.go) | Gọi `bpf.LookupBandwidth` mỗi request, nhưng object eBPF chỉ được nạp trong tiến trình dataplane | Luôn lỗi/0, tốn chi phí và log `Infof` ở mọi request |
+| 11 | [internal/handlers/logging/logging.go](../../internal/handlers/logging/logging.go) | Gọi `bpf.LookupBandwidth` mỗi request, nhưng object eBPF chỉ được nạp trong tiến trình dataplane | Luôn lỗi/0, tốn chi phí và log `Infof` ở mọi request |
 | 12 | [internal/bpf/security.go](../../internal/bpf/security.go) `BlockCIDR` | Ghi `ip` bằng `binary.BigEndian.Uint32` trong khi XDP tra bằng `saddr` thô (thứ tự byte mạng trong bộ nhớ) | Trên máy little-endian khoá không khớp, CIDR bị chặn không có tác dụng *(cần xác minh)*. Hàm hiện chưa được gọi |
 | 13 | [shared/szeventq/eventq.go](../../staging/src/github.com/sentinez/shared/szeventq/eventq.go) `Close`, `CloseAll` | Ép kiểu `chan string` / `chan any` thay vì `chan T` | Panic với `T` khác (chưa có nơi dùng) |
 
@@ -30,7 +30,6 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 | S6 | [pkg/network/httpx/context.go](../../pkg/network/httpx/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | Image đóng gói cặp cert/key từ thư mục source |
 | S8 | `httpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Quic` và `Standard`, tức mặc định) |
-| S9 | [internal/dmz/edge/engine/engine.go](../../internal/dmz/edge/engine/engine.go) `Quic` | Không đặt hook `OnQuicConnect`, và `transport.TLSConfig` chỉ tính fingerprint cho `*network.StdConn` → request HTTP/3 không có JA4 fingerprint lẫn `netpb.Transport`; client có thể né rule dựa trên fingerprint bằng cách dùng HTTP/3 |
 
 ## 12.3 Chức năng chưa hoàn thiện
 

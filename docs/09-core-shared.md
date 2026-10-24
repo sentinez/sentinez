@@ -68,7 +68,7 @@ exported. An `https://` endpoint uses TLS.
 |---|---|
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
-| `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `shared/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
 | `core/internal/console` | ASCII banner (`go-figure`) printed once at startup |
 | `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
 | `shared/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
@@ -127,7 +127,7 @@ when `level >= verbosity`.
 |---|---|
 | `pkg/apps/**/config` | Singleton `Config()`: parses flags + loads env + attaches `XMeta` |
 | `pkg/apps/**/flags` | Service-specific flags, default `--env_file` |
-| `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN), `StandardTransporter` (30s dial timeout), `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
+| `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN, own `quic.Transport` that gives each connection an ID read with `ConnId(ctx)`), `StandardTransporter` (30s dial timeout), `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
 | `pkg/network/httpx` | `szhttp.Context` and `ReverseProxy` implemented with `net/http`, shared by both servers below |
 | `pkg/network/httpx/std` | `szhttp.Server` on `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |

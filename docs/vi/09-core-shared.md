@@ -66,7 +66,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 |---|---|
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
-| `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `shared/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
 | `core/internal/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
 | `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
 | `shared/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
@@ -124,7 +124,7 @@ khi `level >= verbosity`.
 |---|---|
 | `pkg/apps/**/config` | `Config()` singleton: parse flag + nạp env + gắn `XMeta` |
 | `pkg/apps/**/flags` | Flag riêng của service, giá trị mặc định `--env_file` |
-| `pkg/network` | `StdListen` (TCP, `StdConn` có ID), `QuicListen` (UDP, cần `WithTLSConfig`, thêm ALPN `h3`), `StandardTransporter` (dial timeout 30s), `QuicTransporter` (client HTTP/3, chưa dùng), `GetInterface` |
+| `pkg/network` | `StdListen` (TCP, `StdConn` có ID), `QuicListen` (UDP, cần `WithTLSConfig`, thêm ALPN `h3`, tự tạo `quic.Transport` cấp ID cho mỗi kết nối, đọc bằng `ConnId(ctx)`), `StandardTransporter` (dial timeout 30s), `QuicTransporter` (client HTTP/3, chưa dùng), `GetInterface` |
 | `pkg/network/httpx` | Cài đặt `szhttp.Context` và `ReverseProxy` bằng `net/http`, dùng chung cho hai server bên dưới |
 | `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |

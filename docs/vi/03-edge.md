@@ -10,7 +10,7 @@ Mã nguồn liên quan:
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
 | [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, nạp YAML |
 | [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
-| [internal/funcs/](../../internal/funcs/) | Các plugin của chain middleware |
+| [internal/handlers/](../../internal/handlers/) | Các plugin của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
 | [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `DMap[T]` generic |
@@ -30,7 +30,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(p
      └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
 
 edge.NewServer(conf, setting)
- ├─ szcmn.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
+ ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
  ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map + DMap
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
@@ -84,21 +84,43 @@ handler duy nhất cho mọi path. Chỉ dùng listener TCP (`opt.StdListener`).
 
 ## 3.2 Fingerprint & context kết nối
 
-1. `network.StdListener.Accept` bọc `net.Conn` thành
-   `*network.StdConn{Id}` (8 byte ngẫu nhiên, hex).
-2. `transport.TLSConfig(chi)` (callback `GetConfigForClient`) tính
-   `ja4plus.JA4(chi)` và `ja4.Set(conn.Id, fp)` — cache in-memory TTL 24h.
-3. `OnHertzConnect` / `OnStandardConnect` (đăng ký qua `WithOnStdConnect`)
-   bóc lớp `TLSConn → tls.Conn → network.StdConn`, đưa `netpb.Transport{ConnId, ServerName(SNI)}` vào
-   `context`.
-4. `httphz.NewContext` đọc transport từ context, gán
-   `Request.Fingerprint = ja4.Get(connId)`.
-5. `network.StdConn.Close` xoá fingerprint khỏi cache.
+Mỗi kết nối TLS được cấp một ID trước khi handshake. `transport.TLSConfig`
+(callback `GetConfigForClient`) lưu JA4 fingerprint theo ID đó vào
+`shared/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
+context của request dưới dạng `netpb.Transport{ConnId, ServerName(SNI)}`, và
+`httpx.NewContext` / `httphz.NewContext` gán
+`Request.Fingerprint = ja4.Get(connId)`. TCP và QUIC chỉ khác nhau ở chỗ giữ
+ID:
 
-Luồng này chỉ áp dụng cho kết nối TCP. Với HTTP/3, `chi.Conn` không phải
-`*network.StdConn` và engine QUIC không đặt hook `OnQuicConnect`, nên request
-HTTP/3 không có JA4 fingerprint lẫn `netpb.Transport` (xem
-[12-known-issues.md](12-known-issues.md)).
+| | TCP (HTTP/1.1, HTTP/2) | QUIC (HTTP/3) |
+|---|---|---|
+| Tạo ID | `network.StdListener.Accept`, dạng `*network.StdConn{Id}` | `quic.Transport.ConnContext` trong `network.QuicListen`, gắn vào context của kết nối |
+| `TLSConfig` đọc ID từ | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
+| Hook connect | `OnStandardConnect` / `OnHertzConnect` (`WithOnStdConnect`) bóc lớp `TLSConn → tls.Conn → network.StdConn` | `OnQuicConnect` (`WithOnQuicConnect`) đọc `network.ConnId(conn.Context())` |
+| Ký tự đầu JA4 | `t` | `q` |
+| Xoá khỏi cache | `network.StdConn.Close` | `context.AfterFunc` khi quic-go huỷ context của kết nối (đóng kết nối hoặc handshake lỗi) |
+
+ID là 8 byte ngẫu nhiên dạng hex (`network.newConnId`).
+
+**Chi tiết QUIC**
+
+- `QuicListen` tự tạo `quic.Transport` trên một UDP socket (thay cho
+  `quic.ListenAddr`) để đặt được `ConnContext`. quic-go dẫn xuất context
+  truyền cho `crypto/tls` (`tls.ClientHelloInfo.Context`) và context trả về
+  từ `quic.Conn.Context` từ context mà `ConnContext` trả về, nên handshake và
+  các request thấy cùng một ID. `QuicListener.Close` đóng listener, transport
+  và UDP socket.
+- ID do server sinh, không phải QUIC Connection ID. quic-go chỉ đưa Destination
+  Connection ID gốc (do client chọn) cho `Tracer` của qlog, mà callback này
+  không sửa được context. Client cũng có thể cố tình dùng lại một DCID để ghi
+  đè mục của kết nối khác. ID tự sinh không phụ thuộc địa chỉ client, nên vẫn
+  giữ nguyên khi kết nối migrate.
+- `ja4plus` (v0.0.3) chọn ký tự giao thức theo `LocalAddr().Network()`; với
+  QUIC giá trị này là `"udp"` nên nó ghi `d` (DTLS). `TLSConfig` đổi thành
+  `q` như spec JA4 yêu cầu cho QUIC.
+- Test: [transport_quic_test.go](../../internal/dmz/edge/transport/transport_quic_test.go)
+  chạy handshake QUIC thật và kiểm tra fingerprint `q13…`, SNI và việc xoá
+  mục sau khi đóng kết nối.
 
 ## 3.3 `szhttp.Context`
 
@@ -130,14 +152,14 @@ có thể truyền buffer lấy từ pool.
 
 ## 3.4 Chain middleware
 
-Dựng trong [internal/funcs/funcs.go](../../internal/funcs/funcs.go) bằng
+Dựng trong [internal/handlers/handlers.go](../../internal/handlers/handlers.go) bằng
 `chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)`. Mỗi
 plugin cài `chains.Plugin` (`ID()`, `Handle(ctx, next)`) và, nếu cần
 dependency, `Provision(*envplugin.Env)`:
 [Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
 sub-store của `MemStore`, hostname và logger sự kiện (`Env.Logger(kind)`),
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
-`funcs.Stage` để gắn `ID()` của plugin vào lỗi
+`handlers.Stage` để gắn `ID()` của plugin vào lỗi
 (`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
 gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chain
 (`Chain.Close`) khi shutdown.
