@@ -24,13 +24,13 @@ import (
 
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
-	"github.com/sentinez/sentinez/internal/funcs"
-	"github.com/sentinez/sentinez/internal/funcs/logging"
-	"github.com/sentinez/sentinez/internal/funcs/room"
-	"github.com/sentinez/sentinez/internal/funcs/routing"
-	"github.com/sentinez/sentinez/internal/funcs/secure"
-	"github.com/sentinez/sentinez/internal/funcs/static"
-	"github.com/sentinez/sentinez/internal/funcs/trace"
+	"github.com/sentinez/sentinez/internal/handlers"
+	"github.com/sentinez/sentinez/internal/handlers/logging"
+	"github.com/sentinez/sentinez/internal/handlers/room"
+	"github.com/sentinez/sentinez/internal/handlers/routing"
+	"github.com/sentinez/sentinez/internal/handlers/secure"
+	"github.com/sentinez/sentinez/internal/handlers/static"
+	"github.com/sentinez/sentinez/internal/handlers/trace"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/sentinez/shared/szlog"
@@ -109,7 +109,7 @@ func newTestChain(tb testing.TB) *chains.Chain {
 		option.WithLevel(szlog.LevelError),
 		option.WithHostname("is.s6z.io.vn"),
 	)
-	chain, err := chains.Build(env, funcs.Stage,
+	chain, err := chains.Build(env, handlers.Stage,
 		&trace.Tracer{},
 		&room.WaitingRoom{},
 		&static.Static{},

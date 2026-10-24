@@ -1,4 +1,4 @@
-<img src="./_logo/sentinez/3/3.png" width="600"/>
+![banner](./_logo/banner.png)
 
 **Sentinez** *stylized as* **Sentinéz** /sen-ti-nɛz/
 

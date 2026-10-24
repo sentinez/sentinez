@@ -12,30 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package funcs
+package handlers
 
 import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
-	"github.com/sentinez/sentinez/internal/funcs/cdn"
-	"github.com/sentinez/sentinez/internal/funcs/logging"
-	"github.com/sentinez/sentinez/internal/funcs/room"
-	"github.com/sentinez/sentinez/internal/funcs/routing"
-	"github.com/sentinez/sentinez/internal/funcs/secure"
-	"github.com/sentinez/sentinez/internal/funcs/static"
-	"github.com/sentinez/sentinez/internal/funcs/trace"
+	"github.com/sentinez/sentinez/internal/handlers/cdn"
+	"github.com/sentinez/sentinez/internal/handlers/logging"
+	"github.com/sentinez/sentinez/internal/handlers/room"
+	"github.com/sentinez/sentinez/internal/handlers/routing"
+	"github.com/sentinez/sentinez/internal/handlers/secure"
+	"github.com/sentinez/sentinez/internal/handlers/static"
+	"github.com/sentinez/sentinez/internal/handlers/trace"
 	"github.com/sentinez/sentinez/internal/memory"
 )
 
 // New builds the edge chain: the plugins, in request order, provision
 // themselves from mem and opts (see option.WithLevel, option.WithExporter,
 // option.WithHostname).
-func New(
-	mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
-
-	return chains.Build(
-		envplugin.NewEnv(mem, opts...), Stage, plugins()...)
+func New(mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
+	return chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)
 }
 
 // plugins returns the edge chain plugins, in request order.

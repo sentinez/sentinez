@@ -21,10 +21,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sentinez/core/szhttp/chains"
-
-	"github.com/sentinez/core/szcmn"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -35,6 +33,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/sznormalize"
 	"github.com/sentinez/shared/szsdklog"
 )
 
@@ -66,7 +65,7 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		return nil, err
 	}
 
-	szcmn.NormalizeEdgeSetting(localSetting)
+	sznormalize.NormalizeEdgeSetting(localSetting)
 
 	mem, err := memory.NewMemStore(conf)
 	if err != nil {

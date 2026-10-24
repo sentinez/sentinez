@@ -15,7 +15,7 @@ have not been reproduced. Remove an entry once it is fixed.
 | 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
 | 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
 | 10 | [internal/memory/memory.go](../internal/memory/memory.go) `LoadRulesets` | Ignores the contents of `rulesets[]`; always CRS v4.16.0 + the RCE flag; the status check is commented out | The rule version/groups cannot be configured; SQLi (942) is never enabled |
-| 11 | [internal/funcs/logging/logging.go](../internal/funcs/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
+| 11 | [internal/handlers/logging/logging.go](../internal/handlers/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
 | 12 | [internal/bpf/security.go](../internal/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
 | 13 | [shared/szeventq/eventq.go](../staging/src/github.com/sentinez/shared/szeventq/eventq.go) `Close`, `CloseAll` | Type-asserts to `chan string` / `chan any` instead of `chan T` | Panics for any other `T` (no callers yet) |
 
@@ -31,7 +31,6 @@ have not been reproduced. Remove an entry once it is fixed.
 | S6 | [pkg/network/httpx/context.go](../pkg/network/httpx/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | The image bakes in the cert/key pair from the source tree |
 | S8 | `httpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Quic` and `Standard` modes, i.e. the default) |
-| S9 | [internal/dmz/edge/engine/engine.go](../internal/dmz/edge/engine/engine.go) `Quic` | No `OnQuicConnect` hook is set and `transport.TLSConfig` only fingerprints `*network.StdConn` → HTTP/3 requests have no JA4 fingerprint or `netpb.Transport`; clients can avoid fingerprint-based rules by using HTTP/3 |
 
 ## 12.3 Unfinished features
 

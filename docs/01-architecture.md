@@ -128,12 +128,15 @@ Top-level directories:
 
 1. The edge listens on the same address over TCP (HTTP/1.1, HTTP/2) and UDP
    (HTTP/3 / QUIC). TCP responses carry `Alt-Svc`, so clients move to HTTP/3
-   on later requests. A TCP accept in `network.StdListener` is wrapped as a
-   `network.StdConn` with a random 8-byte hex `Id`.
-2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint and
-   stores it in `shared/szstore/ja4` keyed by `conn.Id`.
-3. `OnStdConnect` puts `netpb.Transport{ConnId, ServerName}` into the
-   `context` (TCP only; HTTP/3 requests have no fingerprint yet).
+   on later requests. Each connection gets a random 8-byte hex ID: a TCP
+   accept is wrapped as a `network.StdConn{Id}`, a QUIC connection gets the
+   ID on its context from `quic.Transport.ConnContext`.
+2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint
+   (`t…` for TCP, `q…` for QUIC) and stores it in `shared/szstore/ja4` keyed
+   by that ID.
+3. `OnStdConnect` (TCP) or `OnQuicConnect` (HTTP/3) puts
+   `netpb.Transport{ConnId, ServerName}` into the `context` (see
+   [03-edge.md](03-edge.md#32-fingerprints--connection-context)).
 4. The server (`quichttpx` by default) calls the handler → an `httpx.Context`
    is taken from a pool and given the fingerprint.
 5. The middleware chain runs in order `TRACE → LOG → DMA → CDN → LMT → ROM →

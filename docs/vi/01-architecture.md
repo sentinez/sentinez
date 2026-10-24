@@ -127,12 +127,14 @@ Thư mục cấp root:
 
 1. Edge lắng nghe trên cùng một địa chỉ qua TCP (HTTP/1.1, HTTP/2) và UDP
    (HTTP/3 / QUIC). Response TCP có `Alt-Svc` để client chuyển sang HTTP/3 ở
-   các request sau. TCP accept tại `network.StdListener` → bọc thành
-   `network.StdConn` có `Id` ngẫu nhiên 8 byte (hex).
-2. TLS ClientHello → `transport.TLSConfig` tính JA4 fingerprint và lưu vào
-   `shared/szstore/ja4` theo `conn.Id`.
-3. `OnStdConnect` gắn `netpb.Transport{ConnId, ServerName}` vào `context`
-   (chỉ TCP; request HTTP/3 hiện chưa có fingerprint).
+   các request sau. Mỗi kết nối có một ID ngẫu nhiên 8 byte (hex): TCP accept
+   được bọc thành `network.StdConn{Id}`, kết nối QUIC nhận ID trên context
+   từ `quic.Transport.ConnContext`.
+2. TLS ClientHello → `transport.TLSConfig` tính JA4 fingerprint (`t…` với
+   TCP, `q…` với QUIC) và lưu vào `shared/szstore/ja4` theo ID đó.
+3. `OnStdConnect` (TCP) hoặc `OnQuicConnect` (HTTP/3) gắn
+   `netpb.Transport{ConnId, ServerName}` vào `context` (xem
+   [03-edge.md](03-edge.md#32-fingerprint--context-kết-nối)).
 4. Server (mặc định `quichttpx`) gọi handler → tạo `httpx.Context` (lấy từ
    pool), gán fingerprint.
 5. Chain middleware chạy theo thứ tự `TRACE → LOG → DMA → CDN → LMT → ROM →
