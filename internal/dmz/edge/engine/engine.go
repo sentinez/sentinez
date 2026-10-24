@@ -23,19 +23,23 @@ import (
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )
 
-func Hertz(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
-	return httphz.NewServer(conf),
-		szhttp.WithOnStdConnect(transport.OnHertzConnect)
+func Hertz(conf *settingpb.Config) (szhttp.Server, []szhttp.ServerOption) {
+	return httphz.NewServer(conf), []szhttp.ServerOption{
+		szhttp.WithOnStdConnect(transport.OnHertzConnect),
+	}
 }
 
-func Standard(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
-	return stdhttpx.NewServer(conf),
-		szhttp.WithOnStdConnect(transport.OnStandardConnect)
+func Standard(
+	conf *settingpb.Config) (szhttp.Server, []szhttp.ServerOption) {
+
+	return stdhttpx.NewServer(conf), []szhttp.ServerOption{
+		szhttp.WithOnStdConnect(transport.OnStandardConnect),
+	}
 }
 
-func Quic(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
-	return quichttpx.NewServer(conf), func(opt *szhttp.Option) {
-		szhttp.WithOnStdConnect(transport.OnStandardConnect)(opt)
-		szhttp.WithOnQuicConnect(transport.OnQuicConnect)(opt)
+func Quic(conf *settingpb.Config) (szhttp.Server, []szhttp.ServerOption) {
+	return quichttpx.NewServer(conf), []szhttp.ServerOption{
+		szhttp.WithOnStdConnect(transport.OnStandardConnect),
+		szhttp.WithOnQuicConnect(transport.OnQuicConnect),
 	}
 }
