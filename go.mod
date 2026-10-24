@@ -30,7 +30,7 @@ require (
 	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
-	golang.org/x/sync v0.23.0
+	golang.org/x/sync v0.24.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 )
