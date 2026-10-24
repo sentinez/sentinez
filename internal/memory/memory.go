@@ -37,7 +37,6 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/sentinez/pkg/protocol"
 	"github.com/sentinez/shared/szlog"
 )
 
@@ -203,7 +202,7 @@ func (m *MemStore) LoadReverseProxy(
 				continue
 			}
 
-			target, err := protocol.Upstream2Target(upstream)
+			target, err := szhttp.Upstream2Target(upstream)
 			if err != nil {
 				return fmt.Errorf("reverse proxy: target: %w", err)
 			}
