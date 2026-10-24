@@ -18,7 +18,7 @@ package dbx
 import (
 	"context"
 
-	"github.com/sentinez/core/szstorage/dbx/query"
+	"github.com/sentinez/shared/szstorage/dbx/query"
 )
 
 type ScanOneFn[T any] func(Row) (*T, error)

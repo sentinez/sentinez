@@ -22,16 +22,16 @@ import (
 
 	"github.com/sentinez/core/szhttp/chains"
 
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/core/szrule"
-	"github.com/sentinez/core/szstorage/cache/mem"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szstorage/cache/mem"
 	"github.com/sentinez/shared/szsync"
 )
 
@@ -99,8 +99,8 @@ func (c *Cache) caching(ctx szhttp.Context, next chains.Handler,
 		}
 	}
 
-	ctx.SetResponseHeader(bytestr.HeaderXCache, bytestr.HitCache)
-	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
+	ctx.SetResponseHeader(szbytestr.HeaderXCache, szbytestr.HitCache)
+	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(resp.StatusCode)
 	ctx.SetBody(bytes.Clone(resp.Body))
@@ -122,7 +122,7 @@ func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	_, _ = keyBuffer.Write(ctx.Path())
 	_, _ = keyBuffer.Write(ctx.QueryStr())
 	// The cached body is stored as encoded by the upstream (gzip, br, ...).
-	_, _ = keyBuffer.Write(ctx.Header(bytestr.HeaderAcceptEncoding))
+	_, _ = keyBuffer.Write(ctx.Header(szbytestr.HeaderAcceptEncoding))
 
 	return keyBuffer
 }

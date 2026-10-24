@@ -21,7 +21,7 @@ Use standard imports, especially:
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
 - Repository interfaces from `github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
 - Standard error handling from `github.com/sentinez/shared/szerror`
-- Postgres transaction support from `github.com/sentinez/core/szstorage/dbx/postgres`
+- Postgres transaction support from `github.com/sentinez/shared/szstorage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/szlog`
 
 ## 2. Interface Implementation Assertion

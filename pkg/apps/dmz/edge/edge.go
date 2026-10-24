@@ -25,7 +25,6 @@ import (
 
 	"github.com/sentinez/core/szcmn"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/core/szsdklog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -36,7 +35,7 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/szlog"
-	otelsdklog "go.opentelemetry.io/otel/sdk/log"
+	"github.com/sentinez/shared/szsdklog"
 )
 
 //
@@ -74,7 +73,7 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		return nil, err
 	}
 
-	logExporter, err := szsdklog.NewProvider(conf)
+	logExporter, err := szsdklog.New(conf)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +100,7 @@ type Server struct {
 	memstore    *memory.MemStore
 	chain       *chains.Chain
 	service     *edgeapi.EdgeService
-	logExporter *otelsdklog.LoggerProvider
+	logExporter *szsdklog.Exporter
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -117,7 +116,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	// stop serving first, so the logs of the last requests are flushed
 	err = errors.Join(err,
-		s.logExporter.ForceFlush(ctx),
 		s.logExporter.Shutdown(ctx),
 		s.server.Shutdown(ctx),
 	)

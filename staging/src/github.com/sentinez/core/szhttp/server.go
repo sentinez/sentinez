@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/sentinez/core/szcmn/console"
+	"github.com/sentinez/core/internal/console"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )

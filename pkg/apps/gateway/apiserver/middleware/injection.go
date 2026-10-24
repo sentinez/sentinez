@@ -25,7 +25,7 @@ import (
 
 	"github.com/corazawaf/libinjection-go"
 	"github.com/google/uuid"
-	"github.com/sentinez/core/szcmn/render"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/shared/szlog"
 )
@@ -230,7 +230,7 @@ func forbidden(w http.ResponseWriter, r *http.Request, v violation) {
 		v.attack, v.location, r.Method, r.URL.Path, id)
 
 	var page bytes.Buffer
-	if err := render.Forbidden(id).Render(r.Context(), &page); err != nil {
+	if err := szhttp.ForbiddenPage(id).Render(r.Context(), &page); err != nil {
 		http.Error(w, http.StatusText(http.StatusForbidden),
 			http.StatusForbidden)
 

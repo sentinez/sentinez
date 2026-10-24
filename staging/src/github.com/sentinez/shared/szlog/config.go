@@ -171,21 +171,11 @@ func marshalProto(enc zapcore.ObjectEncoder, msg proto.Message) error {
 		switch {
 		case fd.IsList():
 			// repeated field -> log slice
-			arr := make([]any, 0, v.List().Len())
-			for i := 0; i < v.List().Len(); i++ {
-				arr = append(arr, valueOf(fd, v.List().Get(i)))
-			}
-			_ = enc.AddReflected(name, arr)
+			_ = enc.AddReflected(name, listOf(fd, v.List()))
 
 		case fd.IsMap():
 			// map field -> log map
-			tmp := make(map[string]any)
-			v.Map().Range(
-				func(k protoreflect.MapKey, v protoreflect.Value) bool {
-					tmp[k.String()] = valueOf(fd.MapValue(), v)
-					return true
-				})
-			_ = enc.AddReflected(name, tmp)
+			_ = enc.AddReflected(name, mapOf(fd, v.Map()))
 
 		default:
 			// scalar field
@@ -262,11 +252,42 @@ func valueOf(fd protoreflect.FieldDescriptor, v protoreflect.Value) any {
 		m := make(map[string]any)
 		v.Message().Range(
 			func(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
-				m[string(fd.Name())] = valueOf(fd, val)
+				m[string(fd.Name())] = fieldValueOf(fd, val)
 				return true
 			})
 		return m
 	default:
 		return nil
 	}
+}
+
+// fieldValueOf converts a field of a nested message, which unlike a list
+// element or map value may itself be repeated or a map.
+func fieldValueOf(fd protoreflect.FieldDescriptor, v protoreflect.Value) any {
+	switch {
+	case fd.IsList():
+		return listOf(fd, v.List())
+	case fd.IsMap():
+		return mapOf(fd, v.Map())
+	default:
+		return valueOf(fd, v)
+	}
+}
+
+func listOf(fd protoreflect.FieldDescriptor, l protoreflect.List) []any {
+	arr := make([]any, 0, l.Len())
+	for i := 0; i < l.Len(); i++ {
+		arr = append(arr, valueOf(fd, l.Get(i)))
+	}
+	return arr
+}
+
+func mapOf(fd protoreflect.FieldDescriptor,
+	mp protoreflect.Map) map[string]any {
+	m := make(map[string]any, mp.Len())
+	mp.Range(func(k protoreflect.MapKey, v protoreflect.Value) bool {
+		m[k.String()] = valueOf(fd.MapValue(), v)
+		return true
+	})
+	return m
 }

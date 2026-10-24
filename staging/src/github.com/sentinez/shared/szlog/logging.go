@@ -53,37 +53,44 @@ type LogCloser interface {
 func NewLog(named string, logKind typepb.LogType, level Level,
 	opts ...Option) Log {
 
-	logging := configJSONLogging(named, newLoggingOptions(opts))
-	return createLogging(logging, logKind, ToLevel(level.String()).Int())
+	o := newLoggingOptions(opts)
+	logging := configJSONLogging(named, o)
+	return createLogging(logging, logKind, ToLevel(level.String()).Int(), o)
 }
 
-// NewLogCloser creates a LogCloser; pass WithOTLPProvider to export its
+// NewLogCloser creates a LogCloser; pass WithEventExporter to hand its
+// events to e.g. a Kafka producer, or WithOTLPProvider to export its
 // records through a dedicated OTLP setup.
 func NewLogCloser(named string, logKind typepb.LogType, level Level,
 	opts ...Option) LogCloser {
 
-	logging := configJSONLogging(named, newLoggingOptions(opts))
+	o := newLoggingOptions(opts)
+	logging := configJSONLogging(named, o)
 	return &logCloser{
-		logging: createLogging(logging, logKind, ToLevel(level.String()).Int()),
+		logging: createLogging(logging, logKind,
+			ToLevel(level.String()).Int(), o),
 	}
 
 }
 
-func createLogging(log *zap.Logger,
-	kind typepb.LogType, verbosity int) *logging {
-	return &logging{log: log, verbosity: verbosity, kind: kind}
+func createLogging(log *zap.Logger, kind typepb.LogType, verbosity int,
+	o loggingOptions) *logging {
+	return &logging{log: log, verbosity: verbosity, kind: kind,
+		exporter: o.exporter}
 }
 
 type logging struct {
 	log       *zap.Logger
 	kind      typepb.LogType
 	verbosity int
+	exporter  EventExporter
 }
 
 func (l *logging) Debug(msg string, event proto.Message) {
 	if l.V(LevelDebug.Int()) {
 		l.log.Debug(msg,
 			zap.Object(_loggingEvent, marshaler(event)))
+		l.export(LevelDebug, msg, event)
 	}
 }
 
@@ -91,6 +98,7 @@ func (l *logging) Error(msg string, event proto.Message) {
 	if l.V(LevelError.Int()) {
 		l.log.Error(msg,
 			zap.Object(_loggingEvent, marshaler(event)))
+		l.export(LevelError, msg, event)
 	}
 }
 
@@ -98,6 +106,7 @@ func (l *logging) Info(msg string, event proto.Message) {
 	if l.V(LevelInfo.Int()) {
 		l.log.Info(msg, zap.String(_loggingKind, l.kind.String()),
 			zap.Object(_loggingEvent, marshaler(event)))
+		l.export(LevelInfo, msg, event)
 	}
 }
 
@@ -113,6 +122,14 @@ func (l *logging) Warn(msg string, event proto.Message) {
 	if l.V(LevelWarning.Int()) {
 		l.log.Warn(msg,
 			zap.Object(_loggingEvent, marshaler(event)))
+		l.export(LevelWarning, msg, event)
+	}
+}
+
+// export hands event to the logger's EventExporter, if it has one.
+func (l *logging) export(level Level, msg string, event proto.Message) {
+	if l.exporter != nil {
+		l.exporter.Export(l.kind, level, msg, event)
 	}
 }
 

@@ -25,7 +25,7 @@ Use standard imports, especially:
 - Repository interfaces from `github.com/sentinez/controlplane/<domain>/v1/repos/<model>`
 - The service package from `github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
 - The handler package from `github.com/sentinez/controlplane/<domain>/v1/handler` (aliased as `<domain>hdl`)
-- Database context/transactions from `github.com/sentinez/core/szstorage/dbx/postgres`
+- Database context/transactions from `github.com/sentinez/shared/szstorage/dbx/postgres`
 - Logging from `github.com/sentinez/shared/szlog`
 
 ## 2. Initialize the Service: `NewDefaultService`

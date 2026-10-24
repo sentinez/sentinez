@@ -17,7 +17,7 @@ package ja4
 import (
 	"time"
 
-	"github.com/sentinez/core/szstorage/cache/mem"
+	"github.com/sentinez/shared/szstorage/cache/mem"
 )
 
 var (

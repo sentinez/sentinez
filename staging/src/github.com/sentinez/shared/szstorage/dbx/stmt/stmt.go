@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx"
 )
 
 const (

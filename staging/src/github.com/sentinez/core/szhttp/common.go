@@ -18,11 +18,17 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/bytestr"
-	"github.com/sentinez/core/szcmn/render"
+	"github.com/a-h/templ"
+	"github.com/sentinez/core/internal/render"
+	"github.com/sentinez/core/szbytestr"
 )
 
 var _mu sync.Mutex
+
+// ForbiddenPage returns the HTML 403 page for the request requestId.
+func ForbiddenPage(requestId string) templ.Component {
+	return render.Forbidden(requestId)
+}
 
 func Forbidden(ctx Context) error {
 	_mu.Lock()
@@ -31,7 +37,7 @@ func Forbidden(ctx Context) error {
 	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusForbidden, bytestr.AccessDenied)
+		return ctx.String(http.StatusForbidden, szbytestr.AccessDenied)
 	}
 
 	return nil
@@ -46,7 +52,7 @@ func BadRequest(ctx Context) error {
 	)
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusBadRequest, bytestr.BadRequest)
+		return ctx.String(http.StatusBadRequest, szbytestr.BadRequest)
 	}
 
 	return nil
@@ -61,7 +67,7 @@ func InternalServerError(ctx Context) error {
 	if err != nil {
 		ctx.ResetResponse()
 		return ctx.String(
-			http.StatusInternalServerError, bytestr.InternalServerError)
+			http.StatusInternalServerError, szbytestr.InternalServerError)
 	}
 
 	return nil
@@ -74,7 +80,7 @@ func NotFound(ctx Context) error {
 	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusNotFound, bytestr.NotFound)
+		return ctx.String(http.StatusNotFound, szbytestr.NotFound)
 	}
 
 	return nil
@@ -88,7 +94,7 @@ func TooManyRequests(ctx Context) error {
 		render.TooManyRequests(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusTooManyRequests, bytestr.TooManyRequests)
+		return ctx.String(http.StatusTooManyRequests, szbytestr.TooManyRequests)
 	}
 
 	return nil

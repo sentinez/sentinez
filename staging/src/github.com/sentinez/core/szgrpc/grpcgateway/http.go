@@ -28,7 +28,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/quic-go/quic-go/http3"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/szcmn/console"
+	"github.com/sentinez/core/internal/console"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"

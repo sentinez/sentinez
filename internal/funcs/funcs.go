@@ -29,7 +29,7 @@ import (
 )
 
 // New builds the edge chain: the plugins, in request order, provision
-// themselves from mem and opts (see option.WithLevel, option.WithLogger,
+// themselves from mem and opts (see option.WithLevel, option.WithExporter,
 // option.WithHostname).
 func New(
 	mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
@@ -50,7 +50,7 @@ func plugins() []chains.Plugin {
 		&room.WaitingRoom{},
 		&static.Static{},
 		&secure.SecRule{},
-		&secure.WAF{},
+		&secure.Rulesets{},
 		&routing.StandardRouter{},
 	}
 }

@@ -22,7 +22,7 @@ export function toQuery(json: unknown, prefix = ''): Record<string, unknown> {
 }
 
 /**
- * Pages a sample list the way the backend does (core/szstorage/szdbx/szpostgres
+ * Pages a sample list the way the backend does (shared/szstorage/szdbx/szpostgres
  * Paging): 1-based index, and index or size 0 returns everything.
  */
 export function paginate<T>(list: T[], page?: Partial<Pages>): T[] {

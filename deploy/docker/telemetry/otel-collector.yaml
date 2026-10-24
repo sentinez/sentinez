@@ -22,8 +22,34 @@ processors:
     send_batch_max_size: 2048
     timeout: 5s
 
+  # szlog puts the log type on each record as the "kind" attribute; lift it
+  # to the resource so records of one kind share a ResourceLogs and the
+  # routing connector can split them
+  groupbyattrs/kind:
+    keys: [kind]
+
+connectors:
+  # one Kafka topic per log type; records without a kind (debug/error, other
+  # services) stay on otlp_logs. The *.otlp topics hold OTLP LogsData; the
+  # edge produces raw proto events to the same names without .otlp when
+  # SENZ_KAFKA_BROKERS is set (shared/szkafka)
+  routing/logs:
+    default_pipelines: [logs/default]
+    error_mode: ignore
+    table:
+      - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP"
+        pipelines: [logs/http]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_WAF"
+        pipelines: [logs/rulesets]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_SEC_RULE"
+        pipelines: [logs/secrule]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_RATE_LIMIT"
+        pipelines: [logs/ratelimit]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_CDN_RULE"
+        pipelines: [logs/cdn]
+
 exporters:
-  kafka/logs:
+  kafka/logs: &kafka_logs
     brokers: [sentinez.telemetry.kafka:9092]
     protocol_version: 3.9.0
     topic: otlp_logs
@@ -39,6 +65,22 @@ exporters:
     sending_queue:
       enabled: true
       queue_size: 1000
+
+  kafka/logs_http:
+    <<: *kafka_logs
+    topic: sentinez.event.http.ingress.otlp
+  kafka/logs_rulesets:
+    <<: *kafka_logs
+    topic: sentinez.event.http.rulesets.otlp
+  kafka/logs_secrule:
+    <<: *kafka_logs
+    topic: sentinez.event.http.secrule.otlp
+  kafka/logs_ratelimit:
+    <<: *kafka_logs
+    topic: sentinez.event.http.ratelimit.otlp
+  kafka/logs_cdn:
+    <<: *kafka_logs
+    topic: sentinez.event.http.cdnrule.otlp
 
   kafka/traces:
     brokers: [sentinez.telemetry.kafka:9092]
@@ -82,8 +124,32 @@ service:
   pipelines:
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, groupbyattrs/kind]
+      exporters: [routing/logs]
+    logs/default:
+      receivers: [routing/logs]
+      processors: [batch]
       exporters: [kafka/logs]
+    logs/http:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_http]
+    logs/rulesets:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_rulesets]
+    logs/secrule:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_secrule]
+    logs/ratelimit:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_ratelimit]
+    logs/cdn:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_cdn]
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]

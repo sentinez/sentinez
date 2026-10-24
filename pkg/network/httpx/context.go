@@ -29,7 +29,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core"
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
@@ -180,13 +180,13 @@ func (c *Context) Body() []byte {
 // RequestIP implements szhttp.Context.
 func (c *Context) RequestIP() []byte {
 	// 1. X-Forwarded-For
-	if xff := c.Header(bytestr.HeaderXForwardedFor); len(xff) > 0 {
+	if xff := c.Header(szbytestr.HeaderXForwardedFor); len(xff) > 0 {
 		ips := strings.Split(string(xff), ",")
 		return []byte(strings.TrimSpace(ips[0]))
 	}
 
 	// 2. X-Real-IP
-	if xrip := c.Header(bytestr.HeaderXRealIP); len(xrip) > 0 {
+	if xrip := c.Header(szbytestr.HeaderXRealIP); len(xrip) > 0 {
 		return xrip
 	}
 
@@ -425,7 +425,7 @@ func (c *Context) Path() []byte {
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueAppJSON)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueAppJSON)
 	c.SetStatusCode(statusCode)
 
 	// Use a JSON encoder to write the data
@@ -434,7 +434,7 @@ func (c *Context) JSON(statusCode int, body []byte) error {
 }
 
 func (c *Context) String(statusCode int, msg []byte) error {
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextPlain)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextPlain)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(msg)
@@ -448,7 +448,7 @@ func (c *Context) Render(statusCode int, component templ.Component) error {
 		return err
 	}
 
-	c.SetResponseHeader(bytestr.HeaderContentType, bytestr.ValueTextHTML)
+	c.SetResponseHeader(szbytestr.HeaderContentType, szbytestr.ValueTextHTML)
 	c.SetStatusCode(statusCode)
 
 	_, err := c.resp.Write(buf.Bytes())

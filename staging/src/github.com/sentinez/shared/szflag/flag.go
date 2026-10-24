@@ -16,12 +16,9 @@ package szflag
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/console"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szprotobuf"
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"
@@ -37,13 +34,8 @@ var _flags = &settingpb.Flag{
 	LogLevel: "debug",
 }
 
-func info(meta *typepb.XMeta) string {
-	service := strings.Replace(meta.GetServiceName(), "_", " // ", 1)
-	return console.GenFigure(service, meta.GetServiceKey())
-}
-
-// Parse flag args
-func Parse(meta *typepb.XMeta) {
+// Parse flag args; banner is printed above the usage text.
+func Parse(banner string) {
 	_once.Do(func() {
 
 		pflag.StringVarP(&_flags.EnvMode, "mode", "m",
@@ -53,7 +45,7 @@ func Parse(meta *typepb.XMeta) {
 			_flags.GetLogLevel(), "log level (debug|info|warn|error)")
 
 		pflag.Usage = func() {
-			fmt.Print(info(meta))
+			fmt.Print(banner)
 			fmt.Println("Usage: <service> [Flags]")
 			pflag.PrintDefaults()
 		}

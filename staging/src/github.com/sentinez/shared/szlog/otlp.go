@@ -146,6 +146,7 @@ type Option func(*loggingOptions)
 
 type loggingOptions struct {
 	provider otellog.LoggerProvider
+	exporter EventExporter
 	noOTLP   bool
 }
 
@@ -171,13 +172,14 @@ func newLoggingOptions(opts []Option) loggingOptions {
 }
 
 // withOTLP tees the core with an OpenTelemetry bridge, unless WithoutOTLP
-// was given. Without a provider the bridge resolves the global
-// LoggerProvider lazily, so it is a no-op until SetupOTLP is called.
+// or WithEventExporter was given. Without a provider the bridge resolves
+// the global LoggerProvider lazily, so it is a no-op until SetupOTLP is
+// called.
 func withOTLP(core zapcore.Core, scope string,
 	o loggingOptions) zapcore.Core {
 
 	switch {
-	case o.noOTLP:
+	case o.noOTLP, o.exporter != nil:
 		return core
 	case o.provider == nil:
 		return zapcore.NewTee(core, otelzap.NewCore(scope))

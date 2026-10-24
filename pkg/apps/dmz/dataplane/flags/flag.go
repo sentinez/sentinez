@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/sentinez/core/szrunner"
 	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szflag"
@@ -35,7 +36,7 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variables config file")
 
-		szflag.Parse(dataplanepb.GetMetaDataplane())
+		szflag.Parse(szrunner.Banner(dataplanepb.GetMetaDataplane()))
 	})
 
 	if err := szflag.Validate(szflag.Get()); err != nil {

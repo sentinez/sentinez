@@ -14,7 +14,7 @@
 
 package postgres
 
-import "github.com/sentinez/core/szstorage/dbx"
+import "github.com/sentinez/shared/szstorage/dbx"
 
 const (
 	Timestamp dbx.ColumnType = "TIMESTAMPTZ"

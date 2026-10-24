@@ -19,15 +19,15 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/core/szstorage/dbx"
-	"github.com/sentinez/core/szstorage/dbx/postgres"
-	"github.com/sentinez/core/szstorage/storageutils/table"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szprotobuf/protox"
 	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/shared/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/shared/szstorage/storageutils/table"
 	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

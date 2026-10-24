@@ -27,7 +27,7 @@ import (
 
 	"github.com/sentinez/core/szhttp/chains"
 
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/internal/envplugin"
@@ -104,9 +104,9 @@ func (p *Public) Handle(ctx szhttp.Context, next chains.Handler) error {
 	method := string(ctx.Method())
 	if method != http.MethodGet && method != http.MethodHead {
 		ctx.SetResponseHeader(
-			bytestr.HeaderAllow, bytestr.ValueAllowGetHead)
+			szbytestr.HeaderAllow, szbytestr.ValueAllowGetHead)
 		return ctx.String(
-			http.StatusMethodNotAllowed, bytestr.MethodNotAllowed)
+			http.StatusMethodNotAllowed, szbytestr.MethodNotAllowed)
 	}
 
 	img, ok := p.images[string(name)]
@@ -118,19 +118,19 @@ func (p *Public) Handle(ctx szhttp.Context, next chains.Handler) error {
 }
 
 func serveImage(ctx szhttp.Context, img *image) error {
-	ctx.SetResponseHeader(bytestr.HeaderServer, bytestr.DefaultServerName)
-	ctx.SetResponseHeader(bytestr.HeaderCacheControl, _publicCacheControl)
-	ctx.SetResponseHeader(bytestr.HeaderETag, img.etag)
+	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
+	ctx.SetResponseHeader(szbytestr.HeaderCacheControl, _publicCacheControl)
+	ctx.SetResponseHeader(szbytestr.HeaderETag, img.etag)
 
-	if bytes.Contains(ctx.Header(bytestr.HeaderIfNoneMatch), img.etag) {
+	if bytes.Contains(ctx.Header(szbytestr.HeaderIfNoneMatch), img.etag) {
 		ctx.SetStatusCode(http.StatusNotModified)
 		return nil
 	}
 
-	ctx.SetResponseHeader(bytestr.HeaderContentType, img.contentType)
-	ctx.SetResponseHeader(bytestr.HeaderContentLength, img.length)
+	ctx.SetResponseHeader(szbytestr.HeaderContentType, img.contentType)
+	ctx.SetResponseHeader(szbytestr.HeaderContentLength, img.length)
 	ctx.SetResponseHeader(
-		bytestr.HeaderXContentTypeOpts, bytestr.ValueNoSniff)
+		szbytestr.HeaderXContentTypeOpts, szbytestr.ValueNoSniff)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(http.StatusOK)
 	ctx.SetBody(img.body)

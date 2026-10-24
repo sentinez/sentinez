@@ -108,6 +108,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Tài khoản admin tĩnh |
 | `SENZ_OTLP_INTERNAL_ENDPOINT` | tất cả | Collector OTLP/gRPC cho log hệ thống; không đặt thì không push |
 | `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `LOG` trong func chains); không đặt thì không push |
+| `SENZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`shared/szkafka`); được ưu tiên hơn `SENZ_OTLP_EXTERNAL_ENDPOINT` |
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
 service khác nạp toàn bộ enum `Senz`.
@@ -157,7 +158,7 @@ Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript cho UI | `cd api && buf generate` (plugin `ts-proto` → `ui/packages/proto/ts-proto`) |
-| Template trang lỗi | `cd staging/.../core/szcmn/render && templ generate` |
+| Template trang lỗi | `cd staging/.../core/internal/render && templ generate` |
 | Rule CRS → Go | `bash hack/ruleparser.sh` (cần `szruleparser` trong PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy proto bên thứ ba | `bash hack/copy_proto3pt.sh` |

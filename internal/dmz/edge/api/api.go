@@ -23,11 +23,11 @@ import (
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp/httpreq"
-	"github.com/sentinez/core/szstorage/cache/mem"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/shared/szstorage/cache/mem"
 )
 
 var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)

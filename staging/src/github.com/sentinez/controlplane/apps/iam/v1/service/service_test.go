@@ -25,11 +25,11 @@ import (
 	accountrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
 	"github.com/sentinez/controlplane/pkg/crypto"
-	"github.com/sentinez/core/szstorage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szconfig"
+	"github.com/sentinez/shared/szstorage/dbx/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

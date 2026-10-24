@@ -20,7 +20,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/console"
+	"github.com/sentinez/core/internal/console"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/sentinez/api/interceptor/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
