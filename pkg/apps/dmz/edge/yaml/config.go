@@ -39,7 +39,7 @@ func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 		return nil, fmt.Errorf("read proxy config: %w", err)
 	}
 
-	var raw map[string]interface{}
+	var raw map[string]any
 	if err := yaml.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("parse proxy config: %w", err)
 	}
