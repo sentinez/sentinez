@@ -1,5 +1,7 @@
 package vanity
 
+import "strconv"
+
 // metaView is served to `go get` (?go-get=1) and carries only meta tags.
 templ metaView(p metaPage) {
 	<!DOCTYPE html>
@@ -13,7 +15,8 @@ templ metaView(p metaPage) {
 	</html>
 }
 
-// infoView is the human-readable index or repo page.
+// infoView is the human-readable index or repo page, laid out like
+// pkg.go.dev: a search-results list on the index, a unit page per repo.
 templ infoView(p infoPage) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -25,81 +28,303 @@ templ infoView(p infoPage) {
 			@infoStyle()
 		</head>
 		<body>
-			<main>
-				<a class="logo" href="/">
-					<img src="/_static/logo.png" alt={ p.Project } width="180" height="48"/>
-				</a>
+			@siteHeader(p)
+			<main class="container">
 				if p.Path != "" {
-					<p><a href="/">← { p.Project } Go modules</a></p>
-					<h1>{ p.Path }</h1>
+					for _, repo := range p.Repos {
+						@unitView(p, repo)
+					}
 				} else {
-					<h1>{ p.Project } Go modules</h1>
-					<p class="lead">{ p.Description }</p>
-				}
-				for _, repo := range p.Repos {
-					@repoCard(repo, p.Path == "")
+					@indexView(p)
 				}
 			</main>
+			@siteFooter(p)
+			@copyScript()
 		</body>
 	</html>
 }
 
-templ repoCard(repo repoView, linked bool) {
-	<section class="card">
-		<h2>
-			if linked {
-				<a href={ templ.URL("/" + repo.Name) }>{ repo.Name }</a>
-			} else {
-				{ repo.Name }
-			}
+templ siteHeader(p infoPage) {
+	<header class="site-header">
+		<div class="container site-header-inner">
+			<a class="logo" href="/">
+				<img src="/_static/logo.png" alt={ p.Project } width="120" height="32"/>
+			</a>
+			<nav class="site-nav">
+				<a href="/">Modules</a>
+				<a href={ templ.URL(p.Org) }>GitHub</a>
+			</nav>
+		</div>
+	</header>
+}
+
+templ indexView(p infoPage) {
+	<div class="hero">
+		<h1>{ p.Project } Go modules</h1>
+		<p class="lead">{ p.Description }</p>
+	</div>
+	<div class="results-summary">
+		<strong>{ strconv.Itoa(len(p.Repos)) }</strong> modules
+	</div>
+	<ul class="results">
+		for _, repo := range p.Repos {
+			@resultItem(repo)
+		}
+	</ul>
+}
+
+templ resultItem(repo repoView) {
+	<li class="result">
+		<h2 class="result-header">
+			<a href={ templ.URL("/" + repo.Name) }>{ repo.Name }</a>
+			<span class="result-path">({ repo.Import })</span>
 		</h2>
-		<p>{ repo.Description }</p>
-		<pre>go get { repo.Import }</pre>
-		<nav>
-			<a href={ templ.URL(repo.Docs) }>Docs</a>
-			<a href={ templ.URL(repo.Repo) }>Source</a>
-		</nav>
-	</section>
+		<p class="result-synopsis">{ repo.Description }</p>
+		<div class="result-info">
+			<span class="chip">module</span>
+			<span>
+				Repository:
+				<a href={ templ.URL(repo.Repo) }>{ repo.repoHost() }</a>
+			</span>
+			<a href={ templ.URL(repo.Docs) }>Documentation</a>
+		</div>
+	</li>
+}
+
+templ unitView(p infoPage, repo repoView) {
+	<nav class="breadcrumb" aria-label="Breadcrumb">
+		<ol>
+			<li><a href="/">{ p.Project } modules</a></li>
+			for i, c := range repo.Crumbs {
+				<li>
+					if i == len(repo.Crumbs)-1 {
+						<span aria-current="page">{ c.Name }</span>
+					} else {
+						<a href={ templ.URL(c.Href) }>{ c.Name }</a>
+					}
+				</li>
+			}
+		</ol>
+	</nav>
+	<div class="unit-header">
+		<h1>{ repo.title() }</h1>
+		<span class="chip">{ repo.kind() }</span>
+	</div>
+	<div class="unit-meta">
+		<span>
+			Module:
+			<a href={ templ.URL("/" + repo.Name) }>{ repo.Module }</a>
+		</span>
+		<span>
+			Repository:
+			<a href={ templ.URL(repo.Repo) }>{ repo.repoHost() }</a>
+		</span>
+	</div>
+	<div class="unit-layout">
+		@unitDetails(repo)
+		<div class="unit-main">
+			<section>
+				<h2 id="overview">Overview</h2>
+				<p>{ repo.Description }</p>
+			</section>
+			<section>
+				<h2 id="install">Install</h2>
+				<div class="install">
+					<pre>go get { repo.Import }</pre>
+					<button
+						type="button"
+						class="copy"
+						data-copy={ "go get " + repo.Import }
+						aria-label="Copy go get command"
+					>Copy</button>
+				</div>
+			</section>
+		</div>
+	</div>
+}
+
+templ unitDetails(repo repoView) {
+	<aside class="unit-details">
+		<h3>Details</h3>
+		<dl>
+			<dt>Import path</dt>
+			<dd><code>{ repo.Import }</code></dd>
+			<dt>Repository</dt>
+			<dd><a href={ templ.URL(repo.Repo) }>{ repo.repoHost() }</a></dd>
+		</dl>
+		<h3>Links</h3>
+		<ul>
+			<li><a href={ templ.URL(repo.Docs) }>Documentation</a></li>
+			<li><a href={ templ.URL(repo.Source) }>Source files</a></li>
+		</ul>
+	</aside>
+}
+
+templ siteFooter(p infoPage) {
+	<footer class="site-footer">
+		<div class="container site-footer-inner">
+			<span>{ p.Project }</span>
+			<a href={ templ.URL(p.Org) }>GitHub</a>
+			<a href="https://pkg.go.dev">pkg.go.dev</a>
+		</div>
+	</footer>
+}
+
+templ copyScript() {
+	<script>
+		document.addEventListener("click", function (e) {
+			var b = e.target.closest("[data-copy]");
+			if (!b || !navigator.clipboard) return;
+			navigator.clipboard.writeText(b.dataset.copy).then(function () {
+				b.textContent = "Copied";
+				setTimeout(function () { b.textContent = "Copy"; }, 1500);
+			});
+		});
+	</script>
 }
 
 templ infoStyle() {
 	<style>
 		:root {
-			--bg: #fafafa; --fg: #1a1a1a; --muted: #666;
-			--card: #fff; --border: #e5e5e5; --code: #f2f2f2; --link: #0b62d6;
+			--bg: #fff; --fg: #202224; --muted: #6e7072;
+			--brand: #007d9c; --border: #dadce0; --surface: #f8f8f8;
+			--chip: #e9f6fb; --chip-fg: #007d9c; --footer: #f0f1f2;
 		}
 		@media (prefers-color-scheme: dark) {
 			:root {
-				--bg: #111; --fg: #eee; --muted: #999;
-				--card: #1a1a1a; --border: #2a2a2a; --code: #222; --link: #6aa8ff;
+				--bg: #202224; --fg: #eaeaea; --muted: #9aa0a6;
+				--brand: #50b7e0; --border: #3c4043; --surface: #2a2c2e;
+				--chip: #1d3a45; --chip-fg: #8fd3ef; --footer: #2a2c2e;
 			}
 			.logo img { filter: brightness(0) invert(1); }
 		}
 		* { box-sizing: border-box; }
 		body {
 			margin: 0; background: var(--bg); color: var(--fg);
-			font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+			display: flex; flex-direction: column; min-height: 100vh;
+			font: 16px/1.5 Roboto, system-ui, -apple-system, "Segoe UI",
+				sans-serif;
 		}
-		main { max-width: 760px; margin: 0 auto; padding: 48px 16px; }
-		.logo { display: inline-block; margin-bottom: 24px; }
-		.logo img { display: block; width: 180px; height: auto; }
-		h1 { margin: 0 0 8px; font-size: 28px; }
-		p.lead { margin: 0 0 32px; color: var(--muted); }
-		.card {
-			background: var(--card); border: 1px solid var(--border);
-			border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;
-		}
-		.card h2 { margin: 0 0 4px; font-size: 18px; }
-		.card p { margin: 0 0 12px; color: var(--muted); }
-		code, pre {
-			font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-		}
-		pre {
-			margin: 0 0 12px; padding: 8px 12px; overflow-x: auto;
-			background: var(--code); border-radius: 6px;
-		}
-		a { color: var(--link); text-decoration: none; }
+		a { color: var(--brand); text-decoration: none; }
 		a:hover { text-decoration: underline; }
-		nav a { margin-right: 16px; font-size: 14px; }
+		code, pre {
+			font: 14px/1.5 "Roboto Mono", ui-monospace, SFMono-Regular,
+				Menlo, monospace;
+		}
+		.container {
+			width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px;
+		}
+		main.container { flex: 1; padding-top: 24px; padding-bottom: 48px; }
+
+		.site-header {
+			border-bottom: 1px solid var(--border);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+		}
+		.site-header-inner {
+			display: flex; align-items: center; justify-content: space-between;
+			height: 56px;
+		}
+		.logo img { display: block; width: 120px; height: auto; }
+		.site-nav { display: flex; gap: 24px; }
+		.site-nav a { color: var(--fg); font-size: 15px; }
+
+		.hero { padding: 24px 0 8px; }
+		.hero h1 { margin: 0 0 8px; font-size: 32px; font-weight: 400; }
+		.lead { margin: 0; color: var(--muted); max-width: 720px; }
+		.results-summary {
+			margin: 24px 0 0; padding-bottom: 12px; font-size: 14px;
+			color: var(--muted); border-bottom: 1px solid var(--border);
+		}
+		.results-summary strong { color: var(--fg); }
+		.results { list-style: none; margin: 0; padding: 0; }
+		.result { padding: 20px 0; border-bottom: 1px solid var(--border); }
+		.result-header {
+			margin: 0; font-size: 20px; font-weight: 500;
+			display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+		}
+		.result-path { font-size: 15px; font-weight: 400; color: var(--muted); }
+		.result-synopsis { margin: 6px 0 10px; }
+		.result-info {
+			display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+			font-size: 14px; color: var(--muted);
+		}
+
+		.chip {
+			display: inline-block; padding: 0 8px; border-radius: 4px;
+			background: var(--chip); color: var(--chip-fg);
+			font-size: 12px; line-height: 20px; text-transform: lowercase;
+		}
+
+		.breadcrumb ol {
+			display: flex; flex-wrap: wrap; list-style: none;
+			margin: 0 0 16px; padding: 0; font-size: 14px;
+		}
+		.breadcrumb li + li::before {
+			content: ">"; margin: 0 8px; color: var(--muted);
+		}
+		.breadcrumb [aria-current] { color: var(--muted); }
+		.unit-header { display: flex; align-items: center; gap: 12px; }
+		.unit-header h1 {
+			margin: 0; font-size: 32px; font-weight: 400;
+			overflow-wrap: anywhere;
+		}
+		.unit-meta {
+			display: flex; flex-wrap: wrap; gap: 4px 24px;
+			margin: 8px 0 0; padding-bottom: 16px;
+			font-size: 14px; color: var(--muted);
+			border-bottom: 1px solid var(--border);
+		}
+		.unit-layout {
+			display: grid; grid-template-columns: 240px minmax(0, 1fr);
+			gap: 40px; margin-top: 24px;
+		}
+		.unit-details h3 {
+			margin: 0 0 8px; font-size: 14px; font-weight: 500;
+			text-transform: uppercase; letter-spacing: 0.04em;
+			color: var(--muted);
+		}
+		.unit-details dl, .unit-details ul {
+			margin: 0 0 24px; padding: 0; font-size: 14px;
+		}
+		.unit-details dt { font-weight: 500; }
+		.unit-details dd { margin: 0 0 12px; overflow-wrap: anywhere; }
+		.unit-details ul { list-style: none; }
+		.unit-details li { margin-bottom: 6px; }
+		.unit-main h2 {
+			margin: 0 0 12px; font-size: 22px; font-weight: 400;
+			padding-bottom: 8px; border-bottom: 1px solid var(--border);
+		}
+		.unit-main section { margin-bottom: 32px; }
+		.unit-main p { margin: 0; }
+		.install {
+			display: flex; align-items: stretch;
+			border: 1px solid var(--border); border-radius: 4px;
+			background: var(--surface);
+		}
+		.install pre { flex: 1; min-width: 0; margin: 0; padding: 10px 12px; overflow-x: auto; }
+		.copy {
+			border: 0; border-left: 1px solid var(--border);
+			background: transparent; color: var(--brand); cursor: pointer;
+			padding: 0 16px; font-family: inherit;
+			font-size: 14px; font-weight: 500;
+		}
+		.copy:hover { background: var(--chip); }
+
+		.site-footer {
+			background: var(--footer); border-top: 1px solid var(--border);
+			font-size: 14px;
+		}
+		.site-footer-inner {
+			display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 20px 24px;
+			color: var(--muted);
+		}
+
+		@media (max-width: 768px) {
+			.container { padding: 0 16px; }
+			.site-footer-inner { padding: 20px 16px; }
+			.unit-layout { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+			.unit-details { order: 2; }
+			.hero h1, .unit-header h1 { font-size: 26px; }
+		}
 	</style>
 }
