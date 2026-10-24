@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package option holds the functional options shared by the edge chain
-// handler and its chain nodes in internal/funcs.
+// handler and its chain nodes in internal/handlers.
 package option
 
 import (
