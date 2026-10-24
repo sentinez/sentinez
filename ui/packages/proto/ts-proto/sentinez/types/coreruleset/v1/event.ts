@@ -15,7 +15,7 @@ import {
   ruleServiceToJSON,
 } from "../../rule/v1/rule";
 
-export const protobufPackage = "sentinez.types.secrule.v1";
+export const protobufPackage = "sentinez.types.coreruleset.v1";
 
 export interface CoreRuleEvent {
   id: string;

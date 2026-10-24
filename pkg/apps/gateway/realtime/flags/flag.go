@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/sentinez/core/szrunner"
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szflag"
@@ -35,7 +36,7 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variables config file")
 
-		szflag.Parse(realtimepb.GetMetaRealtime())
+		szflag.Parse(szrunner.Banner(realtimepb.GetMetaRealtime()))
 
 	})
 

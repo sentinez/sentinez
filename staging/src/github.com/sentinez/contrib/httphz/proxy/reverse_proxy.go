@@ -24,7 +24,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/hertz-contrib/reverseproxy"
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/szsync"
 )
@@ -93,7 +93,7 @@ type ReverseProxy struct {
 
 func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 
-	upgrade := string(ctx.Header(bytestr.HeaderUpgrade))
+	upgrade := string(ctx.Header(szbytestr.HeaderUpgrade))
 	if upgrade == "websocket" || upgrade == "WebSocket" {
 		p.ws.Serve(ctx)
 		return

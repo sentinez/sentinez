@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sentinez/core/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/stretchr/testify/assert"
 )
 

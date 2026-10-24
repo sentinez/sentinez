@@ -33,6 +33,11 @@ export enum Senz {
   SENZ_OTLP_INTERNAL_ENDPOINT = 13,
   /** SENZ_OTLP_EXTERNAL_ENDPOINT - OTLP/gRPC collector of the edge traffic logs; unset: not exported */
   SENZ_OTLP_EXTERNAL_ENDPOINT = 14,
+  /**
+   * SENZ_KAFKA_BROKERS - Kafka brokers (comma-separated) the edge traffic events are produced to
+   * directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
+   */
+  SENZ_KAFKA_BROKERS = 15,
   UNRECOGNIZED = -1,
 }
 
@@ -83,6 +88,9 @@ export function senzFromJSON(object: any): Senz {
     case 14:
     case "SENZ_OTLP_EXTERNAL_ENDPOINT":
       return Senz.SENZ_OTLP_EXTERNAL_ENDPOINT;
+    case 15:
+    case "SENZ_KAFKA_BROKERS":
+      return Senz.SENZ_KAFKA_BROKERS;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -122,6 +130,8 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_OTLP_INTERNAL_ENDPOINT";
     case Senz.SENZ_OTLP_EXTERNAL_ENDPOINT:
       return "SENZ_OTLP_EXTERNAL_ENDPOINT";
+    case Senz.SENZ_KAFKA_BROKERS:
+      return "SENZ_KAFKA_BROKERS";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

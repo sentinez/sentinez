@@ -19,7 +19,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/variable"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
@@ -135,7 +135,7 @@ func (r *Router) Match(ctx szhttp.Context) (string, error) {
 			ctx.SetPath(remainingPath.Bytes())
 
 			// Set default proxy routing headers
-			ctx.SetHeader(bytestr.HeaderXForwardedPrefix, locationBytes)
+			ctx.SetHeader(szbytestr.HeaderXForwardedPrefix, locationBytes)
 
 			// Add custom headers from config
 			for hk, hv := range route.GetProxySetHeaders() {

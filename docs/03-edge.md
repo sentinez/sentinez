@@ -162,7 +162,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
-([core/szcmn/render](../staging/src/github.com/sentinez/core/szcmn/render/))
+([core/internal/render](../staging/src/github.com/sentinez/core/internal/render/))
 that include the `X-Request-ID`; if rendering fails they fall back to plain
 text.
 

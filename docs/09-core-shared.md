@@ -24,9 +24,11 @@ In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 OTLP: system logs go to `SENZ_OTLP_INTERNAL_ENDPOINT` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
 down after every app has stopped. The edge traffic logs (func chain `LOG`
-node) use their own provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`, owned by the
-edge server and flushed in its `Shutdown`; unset, they are not exported
-either. An `https://` endpoint uses TLS.
+node) go straight to Kafka when `SENZ_KAFKA_BROKERS` is set (raw proto
+events, one topic per log type, see `shared/szkafka`), otherwise through their
+own OTLP provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by
+the edge server and flushed in its `Shutdown`. With neither set they are not
+exported. An `https://` endpoint uses TLS.
 
 ## 9.2 `core/szhttp` and `core/szhttp/chains`
 
@@ -48,7 +50,7 @@ either. An `https://` endpoint uses TLS.
   `*Chain` (`Handle`, `Close` cleaning up in reverse). The legacy
   `ChainNode`/`Node` API is unused.
 - `core/szhttp/variable`: nginx-style variables for proxy headers.
-- `core/szhttp/httpconst`, `core/szcmn/bytestr`: header/value constants (as
+- `core/szhttp/httpconst`, `core/szbytestr`: header/value constants (as
   `string` and `[]byte`).
 
 ## 9.3 `core/szgrpc`
@@ -67,15 +69,16 @@ either. An `https://` endpoint uses TLS.
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
 | `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/szcmn/console` | ASCII banner (`go-figure`) printed once at startup |
-| `core/szcmn/render` | `templ` templates for the 400/403/404/429/500 pages |
-| `core/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
-| `core/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-coreszstoragedbx) |
-| `core/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
+| `core/internal/console` | ASCII banner (`go-figure`) printed once at startup |
+| `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
+| `shared/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
+| `shared/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-sharedszstoragedbx) |
+| `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
-| `core/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `core/szqueue` | Empty `Queue{}` (for the waiting room) |
-| `core/szsdklog` | `NewProvider(conf)`: OTLP `LoggerProvider` for `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when unset |
+| `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `shared/szqueue` | Empty `Queue{}` (for the waiting room) |
+| `shared/szsdklog` | `New(conf)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set |
+| `shared/szkafka` | `NewProducer(Config)`: `szlog.EventExporter` producing each event (vtproto bytes) to the `shared/sztopic` topic of its `LogType`, metadata in `sz-kind`/`sz-level`/`sz-msg`/`sz-service` headers; never blocks, counts drops (`Dropped`) |
 
 ## 9.5 `shared`
 

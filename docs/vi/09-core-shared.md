@@ -23,10 +23,11 @@ khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
 OTLP: log hệ thống đẩy về `SENZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
-mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) dùng
-provider riêng trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, do edge server sở hữu và
-flush trong `Shutdown`; không đặt thì cũng không push. Endpoint `https://`
-dùng TLS.
+mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) được
+đẩy thẳng vào Kafka khi đặt `SENZ_KAFKA_BROKERS` (event proto thô, mỗi log
+type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP riêng trên
+`SENZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong
+`Shutdown`. Không đặt biến nào thì không push. Endpoint `https://` dùng TLS.
 
 ## 9.2 `core/szhttp` và `core/szhttp/chains`
 
@@ -47,7 +48,7 @@ dùng TLS.
   `Close` cleanup theo thứ tự ngược). API cũ `ChainNode`/`Node` không còn
   được dùng.
 - `core/szhttp/variable`: biến kiểu nginx cho header proxy.
-- `core/szhttp/httpconst`, `core/szcmn/bytestr`: hằng header/giá trị (dạng string
+- `core/szhttp/httpconst`, `core/szbytestr`: hằng header/giá trị (dạng string
   và `[]byte`).
 
 ## 9.3 `core/szgrpc`
@@ -66,15 +67,16 @@ dùng TLS.
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
 | `core/szcmn` | `NormalizeEdgeSetting` (Lite → runtime) |
-| `core/szcmn/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
-| `core/szcmn/render` | Template `templ` cho trang 400/403/404/429/500 |
-| `core/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
-| `core/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-coreszstoragedbx) |
-| `core/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
+| `core/internal/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
+| `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
+| `shared/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
+| `shared/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-sharedszstoragedbx) |
+| `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
-| `core/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `core/szqueue` | `Queue{}` rỗng (cho waiting room) |
-| `core/szsdklog` | `NewProvider(conf)`: OTLP `LoggerProvider` cho `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt |
+| `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `shared/szqueue` | `Queue{}` rỗng (cho waiting room) |
+| `shared/szsdklog` | `New(conf)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào |
+| `shared/szkafka` | `NewProducer(Config)`: `szlog.EventExporter` đẩy mỗi event (bytes vtproto) vào topic `shared/sztopic` theo `LogType`, metadata ở header `sz-kind`/`sz-level`/`sz-msg`/`sz-service`; không bao giờ block, đếm số bị drop (`Dropped`) |
 
 ## 9.5 `shared`
 

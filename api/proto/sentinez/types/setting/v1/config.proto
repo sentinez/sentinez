@@ -39,6 +39,9 @@ enum Senz {
   SENZ_OTLP_INTERNAL_ENDPOINT = 13;
   // OTLP/gRPC collector of the edge traffic logs; unset: not exported
   SENZ_OTLP_EXTERNAL_ENDPOINT = 14;
+  // Kafka brokers (comma-separated) the edge traffic events are produced to
+  // directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
+  SENZ_KAFKA_BROKERS = 15;
 }
 
 message Config {

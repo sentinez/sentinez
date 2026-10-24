@@ -110,6 +110,7 @@ They are loaded by `shared/szconfig.LoadEnv` (using `godotenv`) and read with
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Static admin account |
 | `SENZ_OTLP_INTERNAL_ENDPOINT` | all | OTLP/gRPC collector of the system logs; unset: not exported |
 | `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | OTLP/gRPC collector of the edge traffic logs (func chain `LOG` node); unset: not exported |
+| `SENZ_KAFKA_BROKERS` | edge | Kafka brokers (comma-separated) the edge traffic events are produced to directly, as raw protos (`shared/szkafka`); takes precedence over `SENZ_OTLP_EXTERNAL_ENDPOINT` |
 
 Some services (edge, dataplane, realtime) load only a specific list of
 variables; the others load the whole `Senz` enum.
@@ -159,7 +160,7 @@ Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 |---|---|
 | Go + gateway + validate + senz + OpenAPI | `cd api/proto/sentinez/<domain>/v1 && ./generate.sh` |
 | TypeScript for the UI | `cd api && buf generate` (`ts-proto` plugin → `ui/packages/proto/ts-proto`) |
-| Error page templates | `cd staging/.../core/szcmn/render && templ generate` |
+| Error page templates | `cd staging/.../core/internal/render && templ generate` |
 | CRS rules → Go | `bash hack/ruleparser.sh` (needs `szruleparser` on PATH) |
 | eBPF → Go | `cd staging/.../bpf/sentinez && go generate .` |
 | Copy third-party protos | `bash hack/copy_proto3pt.sh` |

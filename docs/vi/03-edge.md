@@ -157,7 +157,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chai
 | 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
-([core/szcmn/render](../../staging/src/github.com/sentinez/core/szcmn/render/))
+([core/internal/render](../../staging/src/github.com/sentinez/core/internal/render/))
 kèm `X-Request-ID`; nếu render lỗi thì fallback text thuần.
 
 ## 3.5 Cấu hình `proxy.yaml`

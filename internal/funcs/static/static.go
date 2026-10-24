@@ -20,7 +20,7 @@ import (
 
 	"github.com/sentinez/core/szhttp/chains"
 
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/bytesconv"
 )
@@ -48,7 +48,7 @@ func (*Static) Handle(ctx szhttp.Context, next chains.Handler) error {
 
 	if isStaticAsset(bytesconv.B2s(ctx.Path())) {
 		ctx.SetResponseHeader(
-			bytestr.HeaderCacheControl,
+			szbytestr.HeaderCacheControl,
 			[]byte("public, max-age=3600, immutable"),
 		)
 	}

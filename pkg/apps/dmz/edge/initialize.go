@@ -29,7 +29,7 @@ func (s *Server) initialize() error {
 	s.memstore.LoadServer(s.server)
 
 	chain, err := http.NewHandler(s.memstore,
-		option.WithLogger(s.logExporter),
+		option.WithExporter(s.logExporter),
 		option.WithHostname(s.conf.Get(settingpb.Senz_SENZ_HOSTNAME)),
 	)
 	if err != nil {

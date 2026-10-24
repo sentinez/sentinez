@@ -43,7 +43,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - `EdgeService.EvaluateRuleset` đánh giá
   `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
 - SecRule action ngoài `BLOCK` chưa thực thi; toán tử `GT/GTE/LT/LTE` chưa cài.
-- Waiting room (`ROM`), `core/szqueue`, `shared/sztopic`, `core/szstorage/{keyval,
+- Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/shared/bytesconv"
 )
@@ -41,7 +41,7 @@ func ParseProxyVal(ctx szhttp.Context, val string) (string, error) {
 	case VarRequestURI:
 		return bytesconv.B2s(ctx.URI()), nil
 	case VarProxyAddXForwardedFor:
-		xff := ctx.Header(bytestr.HeaderXForwardedFor)
+		xff := ctx.Header(szbytestr.HeaderXForwardedFor)
 		ip := ctx.RequestIP()
 		if xff == nil {
 			return bytesconv.B2s(ip), nil

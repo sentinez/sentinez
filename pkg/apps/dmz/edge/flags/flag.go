@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/sentinez/core/szrunner"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szflag"
@@ -51,7 +52,7 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().Engine, settingpb.XFlag_Engine,
 			szflag.Get().GetEngine(), "HTTP server engine")
 
-		szflag.Parse(edgepb.GetMetaEdge())
+		szflag.Parse(szrunner.Banner(edgepb.GetMetaEdge()))
 	})
 
 	if err := szflag.Validate(szflag.Get()); err != nil {

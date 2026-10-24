@@ -15,7 +15,7 @@
 package logging
 
 import (
-	"github.com/sentinez/core/szcmn/bytestr"
+	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -64,7 +64,7 @@ func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 	event.Method = string(ctx.Method())
 	event.Status = int32(ctx.StatusCode())
 	event.Protocol = ctx.Protocol()
-	event.UserAgent = string(ctx.Header(bytestr.HeaderUserAgent))
+	event.UserAgent = string(ctx.Header(szbytestr.HeaderUserAgent))
 	event.Queries = string(ctx.QueryStr())
 
 	if l.log.V(szlog.LevelInfo.Int()) {

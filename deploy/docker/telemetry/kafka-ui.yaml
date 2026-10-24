@@ -1,7 +1,7 @@
-# kafbat/kafka-ui (https://github.com/kafbat/kafka-ui): decode the OTLP
-# protobuf messages the collector writes, so they show as JSON. The kafka
-# exporter's otlp_proto encoding is wire-compatible with LogsData /
-# TracesData / MetricsData.
+# kafbat/kafka-ui (https://github.com/kafbat/kafka-ui): decode the protobuf
+# messages, so they show as JSON. The collector's otlp_proto encoding is
+# wire-compatible with LogsData / TracesData / MetricsData; the edge
+# (shared/szkafka) writes the raw event protos, with metadata in sz-* headers.
 kafka:
   clusters:
     - name: sentinez
@@ -13,5 +13,14 @@ kafka:
             protobufFilesDir: /protofiles
             protobufMessageNameByTopic:
               otlp_logs: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.ingress.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.rulesets.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.secrule.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.ratelimit.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.cdnrule.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.ingress: sentinez.types.net.http.v1.RequestEvent
+              sentinez.event.http.rulesets: sentinez.types.coreruleset.v1.CoreRuleEvent
+              sentinez.event.http.secrule: sentinez.types.secrule.v1.RuleEvent
+              sentinez.event.http.ratelimit: sentinez.types.secrule.v1.RuleEvent
               otlp_spans: opentelemetry.proto.trace.v1.TracesData
               otlp_metrics: opentelemetry.proto.metrics.v1.MetricsData

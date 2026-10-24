@@ -19,8 +19,8 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/core/szstorage/dbx"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szsync"
 )
 

@@ -22,10 +22,10 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/core/sztracer"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
+	"github.com/sentinez/shared/sztracer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

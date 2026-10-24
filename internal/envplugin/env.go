@@ -44,8 +44,8 @@ func (e *Env) Hostname() string {
 }
 
 // Logger returns an event logger of kind, named and leveled by the
-// options and exported through their OTLP provider.
+// options and exported through their exporter.
 func (e *Env) Logger(kind typepb.LogType) szlog.LogCloser {
 	return szlog.NewLogCloser(
-		e.opts.Named, kind, e.opts.Level, e.opts.OTLP())
+		e.opts.Named, kind, e.opts.Level, e.opts.Export())
 }

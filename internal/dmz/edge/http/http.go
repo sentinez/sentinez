@@ -22,7 +22,7 @@ import (
 )
 
 // NewHandler builds the edge chain reading ms; opts configure every
-// plugin (see option.WithLogger, option.WithHostname). The chain is
+// plugin (see option.WithExporter, option.WithHostname). The chain is
 // closed by the caller once it stops serving.
 func NewHandler(
 	ms *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {

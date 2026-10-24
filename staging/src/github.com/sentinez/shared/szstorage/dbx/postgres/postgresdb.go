@@ -23,13 +23,13 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
-	"github.com/sentinez/core/szstorage/dbx"
-	"github.com/sentinez/core/szstorage/dbx/query"
-	"github.com/sentinez/core/szstorage/storageutils"
-	"github.com/sentinez/core/szstorage/storageutils/table"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx/query"
+	"github.com/sentinez/shared/szstorage/storageutils"
+	"github.com/sentinez/shared/szstorage/storageutils/table"
 )
 
 var _ dbx.Database[typepb.Empty] = (*postgres[typepb.Empty])(nil)

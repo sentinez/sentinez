@@ -116,7 +116,7 @@ func newTestChain(tb testing.TB) *chains.Chain {
 		&logging.Logging{},
 		&secure.DomainBased{},
 		&secure.SecRule{},
-		&secure.WAF{},
+		&secure.Rulesets{},
 		&routing.Mock{},
 	)
 	require.NoError(tb, err)

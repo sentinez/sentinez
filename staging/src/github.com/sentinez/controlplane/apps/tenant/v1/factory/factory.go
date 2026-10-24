@@ -23,9 +23,9 @@ import (
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
-	"github.com/sentinez/core/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
 func NewDefaultHandler(ctx context.Context,

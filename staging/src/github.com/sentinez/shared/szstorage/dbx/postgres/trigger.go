@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sentinez/core/szstorage/dbx"
-	"github.com/sentinez/core/szstorage/dbx/stmt"
+	"github.com/sentinez/shared/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx/stmt"
 )
 
 func syncOption(ctx context.Context,

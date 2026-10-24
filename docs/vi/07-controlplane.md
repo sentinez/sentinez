@@ -16,9 +16,9 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Lớp lưu trữ (`core/szstorage/dbx`)
+## 7.1 Lớp lưu trữ (`shared/szstorage/dbx`)
 
-[core/szstorage/dbx](../../staging/src/github.com/sentinez/core/szstorage/dbx/):
+[shared/szstorage/dbx](../../staging/src/github.com/sentinez/shared/szstorage/dbx/):
 
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`

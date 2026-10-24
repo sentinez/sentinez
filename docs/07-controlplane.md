@@ -16,9 +16,9 @@ holds the domain services. Every domain follows the same layout:
 Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Storage layer (`core/szstorage/dbx`)
+## 7.1 Storage layer (`shared/szstorage/dbx`)
 
-[core/szstorage/dbx](../staging/src/github.com/sentinez/core/szstorage/dbx/):
+[shared/szstorage/dbx](../staging/src/github.com/sentinez/shared/szstorage/dbx/):
 
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `query.Query`

@@ -35,35 +35,35 @@ import (
 const WAFId = "WAF"
 
 var (
-	_ chains.Plugin                      = (*WAF)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*WAF)(nil)
+	_ chains.Plugin                      = (*Rulesets)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*Rulesets)(nil)
 )
 
-type WAF struct {
+type Rulesets struct {
 	log   szlog.LogCloser
 	store *rulesets.Rulesets
 }
 
-func (*WAF) ID() string { return WAFId }
+func (*Rulesets) ID() string { return WAFId }
 
-func (w *WAF) Provision(env *envplugin.Env) error {
-	w.store = env.Store().Rulesets()
-	w.log = env.Logger(typepb.LogType_LOG_TYPE_WAF)
+func (rs *Rulesets) Provision(env *envplugin.Env) error {
+	rs.store = env.Store().Rulesets()
+	rs.log = env.Logger(typepb.LogType_LOG_TYPE_WAF)
 	return nil
 }
 
 // nolint:funlen
-func (w *WAF) Handle(ctx szhttp.Context, next chains.Handler) error {
+func (rs *Rulesets) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit WAF")
 
-	waf, ok := w.store.LoadContext(ctx)
+	waf, ok := rs.store.LoadContext(ctx)
 	if !ok {
 		return next.Handle(ctx)
 	}
 
 	ruleset := szcrs.NewRulesets(ctx, waf)
 	defer func() {
-		ruleset.Final(func() { w.capture(ctx, ruleset) })
+		ruleset.Final(func() { rs.capture(ctx, ruleset) })
 		ruleset.Release()
 	}()
 
@@ -89,7 +89,7 @@ func (w *WAF) Handle(ctx szhttp.Context, next chains.Handler) error {
 }
 
 // nolint:funlen
-func (w *WAF) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
+func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 
 	interruption, matched, isInterrupted := ruleset.Matched()
 	if !isInterrupted {
@@ -135,5 +135,5 @@ func (w *WAF) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 
-	w.log.Info("rulesets: matched", event, event)
+	rs.log.Info("rulesets: matched", event, event)
 }

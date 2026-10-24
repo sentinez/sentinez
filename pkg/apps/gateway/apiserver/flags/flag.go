@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szflag"
@@ -43,7 +44,7 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().CertKeyFile, settingpb.XFlag_CertKeyFile,
 			szflag.Get().GetCertKeyFile(), "TLS certificate key")
 
-		szflag.Parse(apiserver.GetMetaApiserver())
+		szflag.Parse(szrunner.Banner(apiserver.GetMetaApiserver()))
 	})
 
 	if err := szflag.Validate(szflag.Get()); err != nil {

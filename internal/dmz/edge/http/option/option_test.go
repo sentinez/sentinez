@@ -17,10 +17,11 @@ package option
 import (
 	"testing"
 
+	"github.com/sentinez/shared/szsdklog"
+
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/szlog"
 	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/otel/sdk/log"
 )
 
 func TestNewDefaults(t *testing.T) {
@@ -33,7 +34,7 @@ func TestNewDefaults(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	provider := log.NewLoggerProvider()
+	exporter := &szsdklog.Exporter{}
 	tests := []struct {
 		name     string
 		giveOpts []Option
@@ -44,13 +45,13 @@ func TestNew(t *testing.T) {
 			giveOpts: []Option{
 				WithNamed("edge-test"),
 				WithLevel(szlog.LevelError),
-				WithLogger(provider),
+				WithExporter(exporter),
 				WithHostname("is.s6z.io.vn"),
 			},
 			want: Options{
 				Named:    "edge-test",
 				Level:    szlog.LevelError,
-				Logger:   provider,
+				Exporter: exporter,
 				Hostname: "is.s6z.io.vn",
 			},
 		},

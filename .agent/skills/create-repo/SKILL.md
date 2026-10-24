@@ -20,8 +20,8 @@ Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
 - Protobuf models from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1`
 - `github.com/sentinez/core/szcmn/tables` for table definitions (add the new table constant there)
-- `github.com/sentinez/core/szstorage/dbx` and `github.com/sentinez/core/szstorage/dbx/postgres` for database interactions
-- `github.com/sentinez/core/szstorage/storageutils/table`
+- `github.com/sentinez/shared/szstorage/dbx` and `github.com/sentinez/shared/szstorage/dbx/postgres` for database interactions
+- `github.com/sentinez/shared/szstorage/storageutils/table`
 - `github.com/sentinez/shared/szrand` for ID generation (`szrand.NewId`)
 
 ## 2. Define the Interface

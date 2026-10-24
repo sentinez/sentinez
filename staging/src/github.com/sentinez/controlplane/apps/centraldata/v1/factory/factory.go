@@ -19,9 +19,9 @@ import (
 
 	centraldatahdl "github.com/sentinez/controlplane/apps/centraldata/v1/handler"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	"github.com/sentinez/core/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
 func NewDefaultService(_ context.Context,

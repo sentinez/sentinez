@@ -19,14 +19,14 @@ package option
 import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/shared/szlog"
-	"go.opentelemetry.io/otel/sdk/log"
+	"github.com/sentinez/shared/szsdklog"
 )
 
 // Options is the resolved configuration of a chain node.
 type Options struct {
 	Named    string
 	Level    szlog.Level
-	Logger   *log.LoggerProvider
+	Exporter *szsdklog.Exporter
 	Hostname string
 }
 
@@ -49,14 +49,10 @@ func New(opts ...Option) Options {
 	return o
 }
 
-// OTLP returns the szlog option exporting records through Logger; with a
-// nil Logger the records are not exported.
-func (o Options) OTLP() szlog.Option {
-	if o.Logger == nil {
-		return szlog.WithoutOTLP()
-	}
-
-	return szlog.WithOTLPProvider(o.Logger)
+// Export returns the szlog option exporting records through Exporter;
+// with a nil Exporter the records are not exported.
+func (o Options) Export() szlog.Option {
+	return o.Exporter.Option()
 }
 
 type namedOption string
@@ -81,17 +77,17 @@ func WithLevel(level szlog.Level) Option {
 	return levelOption(level)
 }
 
-type loggerOption struct {
-	provider *log.LoggerProvider
+type exporterOption struct {
+	exporter *szsdklog.Exporter
 }
 
-func (l loggerOption) apply(o *Options) {
-	o.Logger = l.provider
+func (e exporterOption) apply(o *Options) {
+	o.Exporter = e.exporter
 }
 
-// WithLogger exports the node's records through provider.
-func WithLogger(provider *log.LoggerProvider) Option {
-	return loggerOption{provider: provider}
+// WithExporter exports the node's records through exporter.
+func WithExporter(exporter *szsdklog.Exporter) Option {
+	return exporterOption{exporter: exporter}
 }
 
 type hostnameOption string
