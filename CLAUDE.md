@@ -44,6 +44,8 @@ make lint.core | lint.shared | lint.controlplane | lint.proto
 make fmt.proto               # buf format
 ```
 
+The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
+
 Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — run tests inside each module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 
 Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` for protobuf (`cd api && buf generate`).
