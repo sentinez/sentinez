@@ -26,15 +26,32 @@ import (
 func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
 	szlog.Infof("SNI: %s", chi.ServerName)
 
-	conn, ok := chi.Conn.(*network.StdConn)
-	if ok {
-		fingerprint := ja4plus.JA4(chi)
-		szlog.Debugf("transport: generate fingerprint %s", fingerprint)
-
-		ja4.Set(conn.Id, fingerprint)
-
-		szlog.Infof("transport: found fingerprint %s", fingerprint)
+	connId, isQuic := fingerprintKey(chi)
+	if connId == "" {
+		return nil, nil
 	}
 
+	fingerprint := ja4plus.JA4(chi)
+	if isQuic && len(fingerprint) > 0 {
+		// ja4plus reads "udp" as DTLS ('d'); JA4 marks QUIC with 'q'.
+		fingerprint = "q" + fingerprint[1:]
+	}
+	szlog.Debugf("transport: generate fingerprint %s", fingerprint)
+
+	ja4.Set(connId, fingerprint)
+
 	return nil, nil
+}
+
+// fingerprintKey returns the id the fingerprint is stored under: the
+// StdConn id for TCP, the id QuicListener put on the handshake context for
+// QUIC.
+func fingerprintKey(chi *tls.ClientHelloInfo) (connId string, isQuic bool) {
+	if conn, ok := chi.Conn.(*network.StdConn); ok {
+		return conn.Id, false
+	}
+
+	connId = network.ConnId(chi.Context())
+
+	return connId, connId != ""
 }

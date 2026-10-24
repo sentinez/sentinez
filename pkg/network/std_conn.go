@@ -15,19 +15,14 @@
 package network
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"net"
 
 	"github.com/sentinez/shared/szstore/ja4"
 )
 
 func newStdConn(conn net.Conn) *StdConn {
-	id := make([]byte, 8)
-	_, _ = rand.Read(id)
-
 	return &StdConn{
-		Id:   hex.EncodeToString(id),
+		Id:   newConnId(),
 		Conn: conn,
 	}
 }

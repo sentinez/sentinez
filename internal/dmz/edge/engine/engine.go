@@ -34,6 +34,8 @@ func Standard(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
 }
 
 func Quic(conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
-	return quichttpx.NewServer(conf),
-		szhttp.WithOnStdConnect(transport.OnStandardConnect)
+	return quichttpx.NewServer(conf), func(opt *szhttp.Option) {
+		szhttp.WithOnStdConnect(transport.OnStandardConnect)(opt)
+		szhttp.WithOnQuicConnect(transport.OnQuicConnect)(opt)
+	}
 }

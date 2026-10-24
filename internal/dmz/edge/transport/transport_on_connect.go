@@ -20,6 +20,7 @@ import (
 	"net"
 	"reflect"
 
+	"github.com/quic-go/quic-go"
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	"github.com/sentinez/core/szcontext"
 	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
@@ -75,5 +76,20 @@ func OnStandardConnect(ctx context.Context, conn net.Conn) context.Context {
 	return szcontext.WithTransportValue(ctx, &netpb.Transport{
 		ConnId:     netConn.Id,
 		ServerName: tlsConn.ConnectionState().ServerName,
+	})
+}
+
+func OnQuicConnect(ctx context.Context, conn *quic.Conn) context.Context {
+	connId := network.ConnId(conn.Context())
+	if connId == "" {
+		szlog.Debug("transport: quic connection without id")
+		return ctx
+	}
+
+	szlog.Debugf("transport: connection id: %s", connId)
+
+	return szcontext.WithTransportValue(ctx, &netpb.Transport{
+		ConnId:     connId,
+		ServerName: conn.ConnectionState().TLS.ServerName,
 	})
 }
