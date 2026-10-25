@@ -153,9 +153,6 @@ chỉ hai flag có rule sinh sẵn:
 | `ReqAppAttackRCE` (932) | có | có |
 | `ReqAppAttackSQLI` (942) | có | dùng lại bản v4.16.0 |
 
-Kết quả cũng được ghi ra file `WAF.conf.lock` ở thư mục làm việc (dùng để
-xem directive cuối cùng).
-
 `szcrs.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
 `*.data` nhúng trong [sentinez.go](../../sentinez.go) (`WAF4160()`,
 `WAF4170()`).

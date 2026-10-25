@@ -46,7 +46,6 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
-- `network.QuicTransporter` có sẵn nhưng chưa được dùng.
 - Tính duy nhất trong IAM (mỗi email một user, mỗi user một account cho mỗi
   provider, username của `LOCAL`) chỉ được service kiểm tra trước khi
   insert; bảng không có unique index (`dbx.Index` chỉ một cột, không
@@ -59,25 +58,3 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
 - Session passkey và registration đang chờ nằm trong bộ nhớ tiến trình: mất
   khi restart và không dùng chung giữa các bản sao apiserver.
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` khai báo nhưng chưa dùng.
-
-## 12.4 Vấn đề nhỏ / vệ sinh code
-
-- Tiền tố ID không khớp giữa code và ràng buộc proto: repo sinh
-  `senz.security.sec_rules.<uuid>` nhưng proto yêu cầu `senz.security.secrules.`;
-  user `senz.iam.users.` nhưng `GetUserRequest/UpdateUserRequest/
-  DeleteUserRequest` yêu cầu `senz.users.`. Hiện không lộ vì gRPC server chưa
-  bật validate request.
-- `szhttp.Forbidden/NotFound/...` dùng một `sync.Mutex` toàn cục khi render,
-  tuần tự hoá mọi response lỗi.
-- `preflightHandler` set `Access-Control-Max-Age` sau `WriteHeader` (không có
-  tác dụng); `extendHeader` của grpc-gateway set header `Server` sau khi
-  handler đã ghi response.
-- `GenerateRulesets` ghi `WAF.conf.lock` vào thư mục làm việc mỗi lần tạo WAF.
-- Đường dẫn mặc định cũ: `--env_file` của greeter (`./cmd/mesh/greeter/v1/.env`)
-  và realtime (`./cmd/realtime/.env`); `hack/mkcert-local.sh` chuyển cert vào
-  `./cmd/edge/v1/`.
-- `tenant` repo `scan` bỏ qua `rows.Err()`; `UpdateResource` không cập nhật
-  `resource_setting`.
-- `LoadRateLimiter` dùng `szlog.Fatalf` khi parse duration lỗi (dừng cả edge).
-- CI chỉ lint/test module root; module staging chỉ được lint qua `make lint`
-  local.

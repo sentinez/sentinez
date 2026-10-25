@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1
 	buf.build/go/protovalidate v1.4.0
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/bytedance/sonic v1.15.3
@@ -39,7 +40,6 @@ require (
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1 // indirect
 	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.3 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect

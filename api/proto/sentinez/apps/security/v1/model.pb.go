@@ -433,7 +433,7 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\xbf\x03\n" +
 	"\aSecRule\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x121\n" +
-	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.security.secrules.R\x02id\x12\x12\n" +
+	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz-security-secrules-R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
 	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x12\x16\n" +
@@ -445,7 +445,7 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	" \x01(\tR\vexprPreview:\x06\xca\xf3\x18\x02\b\x01\"\x8b\x05\n" +
 	"\tRateLimit\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x123\n" +
-	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz.security.ratelimits.R\x02id\x12\x12\n" +
+	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz-security-ratelimits-R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
 	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x12\x16\n" +
@@ -464,10 +464,10 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xff\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x02\n" +
 	"\vCoreRuleset\x126\n" +
-	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x124\n" +
-	"\x02id\x18\x02 \x01(\tB$\xbaH!\xc8\x01\x01r\x1c:\x1asenz.security.coreruleset.R\x02id\x12\x12\n" +
+	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x125\n" +
+	"\x02id\x18\x02 \x01(\tB%\xbaH\"\xc8\x01\x01r\x1d:\x1bsenz-security-corerulesets-R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12D\n" +
 	"\acontent\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\acontent:\x06\xca\xf3\x18\x02\b\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"

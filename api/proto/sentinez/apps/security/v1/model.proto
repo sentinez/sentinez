@@ -33,7 +33,7 @@ message SecRule {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.security.secrules." }
+    string: { prefix: "senz-security-secrules-" }
   }];
 
   string name = 3;
@@ -53,7 +53,7 @@ message RateLimit {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.security.ratelimits." }
+    string: { prefix: "senz-security-ratelimits-" }
   }];
 
   string name = 3;
@@ -92,7 +92,7 @@ message CoreRuleset {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.security.coreruleset." }
+    string: { prefix: "senz-security-corerulesets-" }
   }];
 
   string name = 3;

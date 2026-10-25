@@ -137,21 +137,21 @@ func (rsc *Resources) Update(
 	}
 
 	if req.GetResourceSetting() != nil {
-		reqData := req.GetResourceSetting()
-
-		if old.GetResourceSetting() == nil {
-			old.ResourceSetting = &tenantpb.ResourceSetting{
-				Server: &edgepb.Server{},
-			}
-		}
-
 		updating := old.GetResourceSetting()
-
-		if reqData.GetServer().GetName() != "" {
-			updating.Server.Name = reqData.GetServer().GetName()
+		if updating == nil {
+			updating = &tenantpb.ResourceSetting{}
 		}
-		if reqData.GetServer().GetLocations() != nil {
-			updating.Server.Locations = reqData.GetServer().GetLocations()
+		// A stored setting may lack a server block.
+		if updating.GetServer() == nil {
+			updating.Server = &edgepb.Server{}
+		}
+
+		srv := req.GetResourceSetting().GetServer()
+		if srv.GetName() != "" {
+			updating.Server.Name = srv.GetName()
+		}
+		if srv.GetLocations() != nil {
+			updating.Server.Locations = srv.GetLocations()
 		}
 
 		st, _ := protox.Marshal(updating)
@@ -224,7 +224,7 @@ func scan(rows dbx.Rows) ([]*tenantpb.Resource, error) {
 		resources = append(resources, resource)
 	}
 
-	return resources, nil
+	return resources, rows.Err()
 }
 
 func scanOne(row dbx.Row) (*tenantpb.Resource, error) {

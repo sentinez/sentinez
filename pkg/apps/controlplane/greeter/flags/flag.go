@@ -31,7 +31,7 @@ var _onceGRPCService sync.Once
 // ParseFlag flag args for grpc service
 func Parse() (*settingpb.Flag, error) {
 	_onceGRPCService.Do(func() {
-		szflag.Get().EnvFile = "./cmd/mesh/greeter/v1/.env"
+		szflag.Get().EnvFile = "./cmd/szgreeter/v1/.env"
 
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variables config file")

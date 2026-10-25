@@ -35,12 +35,12 @@ message Resource {
   
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenant.resources." }
+    string: { prefix: "senz-tenant-resources-" }
   }];
 
   string tenant_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenants." }
+    string: { prefix: "senz-tenants-" }
   }];
 
   ResourceSetting resource_setting = 4;
@@ -59,7 +59,7 @@ message Tenant {
   
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenants." }
+    string: { prefix: "senz-tenants-" }
   }];
 
   string name = 3;
@@ -74,17 +74,17 @@ message Member {
   
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenant.members." }
+    string: { prefix: "senz-tenant-members-" }
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.iam.users." }
+    string: { prefix: "senz-iam-users-" }
   }];
 
   string tenant_id = 4 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.tenants." }
+    string: { prefix: "senz-tenants-" }
   }];
   
   repeated sentinez.types.v1.Role roles = 5 [(buf.validate.field).repeated.unique = true];

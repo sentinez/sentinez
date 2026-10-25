@@ -101,10 +101,10 @@ var File_sentinez_apps_analytic_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_analytic_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/analytic/v1/model.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xa4\x01\n" +
+	"%sentinez/apps/analytic/v1/model.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xa6\x01\n" +
 	"\bActivity\x126\n" +
-	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x121\n" +
-	"\x02id\x18\x02 \x01(\tB!\xbaH\x1e\xc8\x01\x01r\x19:\x17senz.analytic.activity.R\x02id\x12%\n" +
+	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x123\n" +
+	"\x02id\x18\x02 \x01(\tB#\xbaH \xc8\x01\x01r\x1b:\x19senz-analytic-activities-R\x02id\x12%\n" +
 	"\x0eunique_visitor\x18\a \x03(\rR\runiqueVisitor:\x06\xca\xf3\x18\x02\b\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpbb\x06proto3"
 
 var (

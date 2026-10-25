@@ -111,12 +111,9 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
 	methods := []string{"GET", "HEAD", "POST", "PUT", "DELETE"}
 	w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
-
-	// Fix: Add status code to avoid error
-	w.WriteHeader(http.StatusNoContent)
-
-	// Fix: Add Max-Age to optimize
+	// Headers set after WriteHeader are dropped, so cache the preflight first.
 	w.Header().Set("Access-Control-Max-Age", "86400")
+	w.WriteHeader(http.StatusNoContent)
 
 	grpclog.Infof("Preflight request for %s", r.URL.Path)
 }

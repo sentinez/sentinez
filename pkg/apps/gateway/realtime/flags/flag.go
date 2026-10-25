@@ -31,7 +31,7 @@ var _onceWS sync.Once
 // ParseFlag flag args for apiserver service
 func Parse() (*settingpb.Flag, error) {
 	_onceWS.Do(func() {
-		szflag.Get().EnvFile = "./cmd/realtime/.env"
+		szflag.Get().EnvFile = "./cmd/szrealtime/.env"
 
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variables config file")
