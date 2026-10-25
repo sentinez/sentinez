@@ -66,8 +66,8 @@ Edge yêu cầu
 `SENZ_HOSTNAME` khớp domain gốc: request tới `badcheese.<SENZ_HOSTNAME>` sẽ
 dùng cấu hình `server.name: badcheese`. Edge còn mở pprof ở `:6060`.
 
-> `hack/mkcert-local.sh` đang `mv *.pem ./cmd/edge/v1/` (đường dẫn cũ). Hãy
-> chuyển file sang `cmd/szedge/v1/` hoặc truyền flag cert thủ công.
+> `hack/mkcert-local.sh` đặt cert vào `cmd/szedge/v1/`; truyền chúng qua
+> `--cert_file`/`--cert_key_file`.
 
 ### Dataplane (eBPF)
 

@@ -160,9 +160,6 @@ concatenates, in order:
 | `ReqAppAttackRCE` (932) | yes | yes |
 | `ReqAppAttackSQLI` (942) | yes | reuses the v4.16.0 rules |
 
-The result is also written to `WAF.conf.lock` in the working directory (handy
-for inspecting the final directives).
-
 `szcrs.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
 set of `*.data` files embedded in [sentinez.go](../sentinez.go) (`WAF4160()`,
 `WAF4170()`).

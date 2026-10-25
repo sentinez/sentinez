@@ -68,8 +68,8 @@ make sz.edge.run
 `badcheese.<SENZ_HOSTNAME>` uses the config with `server.name: badcheese`.
 The edge also opens pprof on `:6060`.
 
-> `hack/mkcert-local.sh` runs `mv *.pem ./cmd/edge/v1/` (an old path). Move
-> the files to `cmd/szedge/v1/` or pass the cert flags yourself.
+> `hack/mkcert-local.sh` puts the certs in `cmd/szedge/v1/`; pass them with
+> `--cert_file`/`--cert_key_file`.
 
 ### Dataplane (eBPF)
 

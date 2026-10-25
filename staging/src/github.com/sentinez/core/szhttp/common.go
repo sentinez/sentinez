@@ -16,14 +16,11 @@ package szhttp
 
 import (
 	"net/http"
-	"sync"
 
 	"github.com/a-h/templ"
 	"github.com/sentinez/core/internal/render"
 	"github.com/sentinez/core/szbytestr"
 )
-
-var _mu sync.Mutex
 
 // ForbiddenPage returns the HTML 403 page for the request requestId.
 func ForbiddenPage(requestId string) templ.Component {
@@ -31,70 +28,42 @@ func ForbiddenPage(requestId string) templ.Component {
 }
 
 func Forbidden(ctx Context) error {
-	_mu.Lock()
-	defer _mu.Unlock()
-
-	err := ctx.Render(http.StatusForbidden, render.Forbidden(ctx.RequestId()))
-	if err != nil {
-		ctx.ResetResponse()
-		return ctx.String(http.StatusForbidden, szbytestr.AccessDenied)
-	}
-
-	return nil
+	return renderPage(ctx, http.StatusForbidden, render.Forbidden,
+		szbytestr.AccessDenied)
 }
 
 func BadRequest(ctx Context) error {
-	_mu.Lock()
-	defer _mu.Unlock()
-
-	err := ctx.Render(
-		http.StatusBadRequest, render.BadRequest(ctx.RequestId()),
-	)
-	if err != nil {
-		ctx.ResetResponse()
-		return ctx.String(http.StatusBadRequest, szbytestr.BadRequest)
-	}
-
-	return nil
+	return renderPage(ctx, http.StatusBadRequest, render.BadRequest,
+		szbytestr.BadRequest)
 }
 
 func InternalServerError(ctx Context) error {
-	_mu.Lock()
-	defer _mu.Unlock()
-
-	err := ctx.Render(
-		http.StatusInternalServerError, render.InternalError(ctx.RequestId()))
-	if err != nil {
-		ctx.ResetResponse()
-		return ctx.String(
-			http.StatusInternalServerError, szbytestr.InternalServerError)
-	}
-
-	return nil
+	return renderPage(ctx, http.StatusInternalServerError,
+		render.InternalError, szbytestr.InternalServerError)
 }
 
 func NotFound(ctx Context) error {
-	_mu.Lock()
-	defer _mu.Unlock()
-
-	err := ctx.Render(http.StatusNotFound, render.NotFound(ctx.RequestId()))
-	if err != nil {
-		ctx.ResetResponse()
-		return ctx.String(http.StatusNotFound, szbytestr.NotFound)
-	}
-
-	return nil
+	return renderPage(ctx, http.StatusNotFound, render.NotFound,
+		szbytestr.NotFound)
 }
 
 func TooManyRequests(ctx Context) error {
-	_mu.Lock()
-	defer _mu.Unlock()
+	return renderPage(ctx, http.StatusTooManyRequests,
+		render.TooManyRequests, szbytestr.TooManyRequests)
+}
 
-	err := ctx.Render(http.StatusTooManyRequests,
-		render.TooManyRequests(ctx.RequestId()))
+// renderPage writes the HTML error page, or fallback as plain text when the
+// page cannot be rendered.
+func renderPage(
+	ctx Context,
+	statusCode int,
+	page func(requestId string) templ.Component,
+	fallback []byte,
+) error {
+	err := ctx.Render(statusCode, page(ctx.RequestId()))
 	if err != nil {
 		ctx.ResetResponse()
-		return ctx.String(http.StatusTooManyRequests, szbytestr.TooManyRequests)
+		return ctx.String(statusCode, fallback)
 	}
 
 	return nil

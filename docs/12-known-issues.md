@@ -48,7 +48,6 @@ have not been reproduced. Remove an entry once it is fixed.
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
-- `network.QuicTransporter` exists but nothing uses it.
 - IAM uniqueness (one user per email, one account per provider per user,
   `LOCAL` usernames) is only checked in the service before inserting; the
   tables have no unique index (`dbx.Index` is single-column, non-unique), so
@@ -61,27 +60,3 @@ have not been reproduced. Remove an entry once it is fixed.
 - Passkey sessions and pending registrations are kept in process memory:
   they are lost on restart and not shared between apiserver replicas.
 - `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` are declared but unused.
-
-## 12.4 Minor issues / code hygiene
-
-- ID prefixes don't match between code and proto constraints: the repo
-  generates `senz.security.sec_rules.<uuid>` but the proto requires
-  `senz.security.secrules.`; users get `senz.iam.users.` but
-  `GetUserRequest/UpdateUserRequest/DeleteUserRequest` require `senz.users.`.
-  Not visible today because the gRPC server doesn't validate requests.
-- `szhttp.Forbidden/NotFound/...` render under one global `sync.Mutex`,
-  serializing every error response.
-- `preflightHandler` sets `Access-Control-Max-Age` after `WriteHeader` (no
-  effect); the grpc-gateway `extendHeader` sets the `Server` header after
-  the handler has already written the response.
-- `GenerateRulesets` writes `WAF.conf.lock` to the working directory every
-  time a WAF is built.
-- Stale default paths: greeter `--env_file` (`./cmd/mesh/greeter/v1/.env`)
-  and realtime (`./cmd/realtime/.env`); `hack/mkcert-local.sh` moves certs
-  into `./cmd/edge/v1/`.
-- The tenant repo's `scan` ignores `rows.Err()`; `UpdateResource` does not
-  update `resource_setting`.
-- `LoadRateLimiter` calls `szlog.Fatalf` on a bad duration (kills the whole
-  edge).
-- CI only lints/tests the root module; staging modules are only linted
-  locally via `make lint`.

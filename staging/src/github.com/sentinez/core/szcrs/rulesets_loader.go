@@ -17,7 +17,6 @@ package szcrs
 import (
 	"bytes"
 	"encoding/base64"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -103,14 +102,6 @@ func (rl *RulesetsLoader) Loaded(id uint32) bool {
 }
 
 func (rl *RulesetsLoader) Export() string {
-	if rl.buf.Len() == 0 {
-		return ""
-	}
-
-	if err := os.WriteFile("WAF.conf.lock", rl.buf.Bytes(), 0644); err != nil {
-		return ""
-	}
-
 	return rl.buf.String()
 }
 
