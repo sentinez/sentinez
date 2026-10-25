@@ -2,5 +2,6 @@
 
 .PHONY: test.cover
 
+# test.cover runs every Go module, as CI does.
 test.cover:
-	@cd $(SZ_ROOT) && go test ./... -cover
+	@cd $(SZ_ROOT) && bash ./hack/gotest.sh -cover

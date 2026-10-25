@@ -38,7 +38,7 @@ make sz.greeter.run
 make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane, greeter, centraldata
 make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata)
 make compose.up / compose.down
-make test.cover              # go test ./... -cover  (root module only)
+make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
 make lint                    # golangci-lint across root + core/shared/controlplane/httphz, plus buf lint
 make lint.core | lint.shared | lint.controlplane | lint.proto
 make fmt.proto               # buf format
@@ -46,7 +46,7 @@ make fmt.proto               # buf format
 
 The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
 
-Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — run tests inside each module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
+Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — `make test.cover` loops over them (module list in `hack/gomodules.sh`, shared with `hack/golint.sh` and CI); for one package run tests inside its module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 
 Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` for protobuf (`cd api && buf generate`).
 
@@ -97,4 +97,4 @@ Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-styl
 - Services are bootstrapped through `core/szrunner`: `szrunner.New(conf, scope)` then `r.Run(ctx, szrunner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
 - Logging goes through `shared/szlog` (zap). OTLP log export lives in `shared/szlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/szrunner/runner.go` on branch `feat/OTLP`.
 - Commit style: conventional commits (`chore:`, `refactor:`, `feat:`), PR number suffix on main.
-- CI (`.github/workflows`): `ci_lint`, `ci_test` (`go test ./...`), `ci_sync_repo`.
+- CI (`.github/workflows`): `ci_lint`, `ci_test` (`hack/gotest.sh`, every module), `ci_sync_repo`.

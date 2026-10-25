@@ -22,13 +22,13 @@ error_exit() {
   exit 1
 }
 
-commands=(
-  "go mod tidy && golangci-lint run"
-)
+# shellcheck source=hack/gomodules.sh
+source "$(dirname "$0")/gomodules.sh"
 
-for cmd in "${commands[@]}"; do
-  echo "Executing: $cmd"
-  eval "$cmd" || error_exit "Command failed: $cmd"
+for mod in "${GO_MODULES[@]}"; do
+  echo "Linting: $mod"
+  (cd "$mod" && go mod tidy && golangci-lint run) ||
+    error_exit "lint failed: $mod"
 done
 
-echo "All commands executed successfully."
+echo "All modules linted."
