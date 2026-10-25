@@ -49,7 +49,7 @@ export interface ApiOptions {
 // ─── Sample data (used only when USE_SAMPLE is true) ─────────────────────────
 
 // Tenant that owns every sample resource
-export const SAMPLE_TENANT_ID = 'senz.tenant.console.sample';
+export const SAMPLE_TENANT_ID = 'senz-tenants-console-sample';
 
 const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ server, protocol });
 
@@ -57,7 +57,7 @@ const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ serve
 export const SAMPLE_RESOURCES: Resource[] = [
   {
     metadata: { createdAt: '2026-09-01T08:00:00Z', updatedAt: '2026-10-05T10:30:00Z' },
-    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000001',
+    id: 'senz-tenant-resources-0199a6f0-4c1e-7a2b-9d3e-000000000001',
     tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'badcheese.s6z.io.vn',
     resourceName: 'badcheese',
@@ -86,7 +86,7 @@ export const SAMPLE_RESOURCES: Resource[] = [
   },
   {
     metadata: { createdAt: '2026-09-12T02:15:00Z', updatedAt: '2026-09-28T14:00:00Z' },
-    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000002',
+    id: 'senz-tenant-resources-0199a6f0-4c1e-7a2b-9d3e-000000000002',
     tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'shop.example.com',
     resourceName: 'shop',
@@ -108,7 +108,7 @@ export const SAMPLE_RESOURCES: Resource[] = [
   },
   {
     metadata: { createdAt: '2026-10-01T09:45:00Z', updatedAt: '2026-10-01T09:45:00Z' },
-    id: 'senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-000000000003',
+    id: 'senz-tenant-resources-0199a6f0-4c1e-7a2b-9d3e-000000000003',
     tenantId: SAMPLE_TENANT_ID,
     resourceDomain: 'staging.example.com',
     resourceName: 'staging',
@@ -125,7 +125,7 @@ const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
       createdAt: new Date(`2026-08-${day}T00:00:00Z`),
       updatedAt: new Date(`2026-09-${day}T00:00:00Z`),
     },
-    id: `senz.tenant.resources.0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
+    id: `senz-tenant-resources-0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
     tenantId: SAMPLE_TENANT_ID,
     resourceDomain: `site${n}.example.com`,
     resourceName: `site${n}`,
@@ -146,7 +146,7 @@ export const SAMPLE_TENANTS: Tenant[] = [
   },
   {
     metadata: { createdAt: '2026-09-15T06:10:00Z', updatedAt: '2026-09-15T06:10:00Z' },
-    id: 'senz.tenants.0199a6f0-4c1e-7a2b-9d3e-200000000002',
+    id: 'senz-tenants-0199a6f0-4c1e-7a2b-9d3e-200000000002',
     name: 'Playground',
     description: '',
     plan: 'PLAN_FREE',
@@ -170,7 +170,7 @@ const sampleMember = (n: number, userId: string, tenantId: string, roles: string
   const createdAt = new Date(Date.UTC(2026, 8, 2 + n, 8)).toISOString();
   return Member.fromJSON({
     metadata: { createdAt, updatedAt: createdAt },
-    id: `senz.tenant.members.0199a6f0-4c1e-7a2b-9d3e-3000000000${String(n).padStart(2, '0')}`,
+    id: `senz-tenant-members-0199a6f0-4c1e-7a2b-9d3e-3000000000${String(n).padStart(2, '0')}`,
     userId,
     tenantId,
     roles,
@@ -180,7 +180,7 @@ const sampleMember = (n: number, userId: string, tenantId: string, roles: string
 // The sample tenant has 2 pages of members; the last 3 users belong to no
 // tenant so they can be invited, and Playground shares a few with it
 const tenantUsers = ALL_SAMPLE_USERS.slice(0, -3);
-const PLAYGROUND_TENANT_ID = 'senz.tenants.0199a6f0-4c1e-7a2b-9d3e-200000000002';
+const PLAYGROUND_TENANT_ID = 'senz-tenants-0199a6f0-4c1e-7a2b-9d3e-200000000002';
 
 export const SAMPLE_MEMBERS: Member[] = [
   ...tenantUsers.map((user, i) =>
@@ -301,7 +301,7 @@ export async function createResource(
     const now = new Date();
     const created: Resource = {
       ...req,
-      id: `senz.tenant.resources.${crypto.randomUUID()}`,
+      id: `senz-tenant-resources-${crypto.randomUUID()}`,
       tenantId: SAMPLE_TENANT_ID,
       metadata: { createdAt: now, updatedAt: now },
     };
@@ -416,7 +416,7 @@ export async function createMember(
     const now = new Date();
     const created = Member.fromPartial({
       ...req,
-      id: `senz.tenant.members.${crypto.randomUUID()}`,
+      id: `senz-tenant-members-${crypto.randomUUID()}`,
       metadata: { createdAt: now, updatedAt: now },
     });
     sampleMemberStore = [...sampleMemberStore, created];
@@ -517,7 +517,7 @@ export async function createTenant(
     const now = new Date();
     const created = Tenant.fromPartial({
       ...req,
-      id: `senz.tenants.${crypto.randomUUID()}`,
+      id: `senz-tenants-${crypto.randomUUID()}`,
       metadata: { createdAt: now, updatedAt: now },
     });
     sampleTenantStore = [...sampleTenantStore, created];

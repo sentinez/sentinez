@@ -27,10 +27,10 @@ const sampleActivity = (n: number, resource: string, createdAt: string): Activit
   owner: {
     createdAt: new Date(createdAt),
     updatedAt: new Date(createdAt),
-    resourceId: `senz.tenant.resources.${resource}`,
+    resourceId: `senz-tenant-resources-${resource}`,
     tenantId: SAMPLE_TENANT_ID,
   },
-  id: `senz.analytic.activity.sample-${n}`,
+  id: `senz-analytic-activities-sample-${n}`,
   uniqueVisitor: visitorSeries(n),
 });
 

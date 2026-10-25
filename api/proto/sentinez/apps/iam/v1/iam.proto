@@ -300,7 +300,7 @@ message StatusResponse {
 message UpdateUserRequest {
   string id = 1 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
-    string: { prefix: "senz.iam.users." }
+    string: { prefix: "senz-iam-users-" }
   }];
   
   string full_name = 10 [(buf.validate.field).required = true];
@@ -313,7 +313,7 @@ message UpdateUserResponse {
 message GetUserRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz.iam.users." }
+    string: { prefix: "senz-iam-users-" }
   }];
 }
 
@@ -346,7 +346,7 @@ message ListAccountsResponse {
 }
 
 message DeleteUserRequest {
-  string id = 1 [(buf.validate.field).string.prefix = "senz.users."];
+  string id = 1 [(buf.validate.field).string.prefix = "senz-iam-users-"];
 }
 
 message DeleteUserResponse {}

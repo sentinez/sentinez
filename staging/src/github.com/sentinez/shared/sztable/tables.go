@@ -27,7 +27,7 @@ const (
 
 const (
 	AnalyticActivities   = "analytic.activities"
-	AnalyticSecRules     = "analytic.secrules."
+	AnalyticSecRules     = "analytic.secrules"
 	AnalyticCoreRulesets = "analytic.corerulesets"
 	AnalyticRateLimiter  = "analytic.ratelimiters"
 )

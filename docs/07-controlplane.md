@@ -37,7 +37,8 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
   `postgres.WithTx(ss, db)` returns a `Database[T]` bound to the
   transaction; repositories expose `WithTX(ss)`.
 - Record IDs: `szrand.NewId(table.NewPrimaryKey(name))` =
-  `senz.<name>.<uuid>`.
+  `senz-<name>-<uuid>`, with the dots of the table name turned into `-`
+  (`senz-iam-users-<uuid>`); proto `id` prefix rules must match.
 
 Table names ([core/szcmn/tables](../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,

@@ -29,9 +29,11 @@ func NewTable(appConf *settingpb.Config, tableName string) string {
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 
+// NewPrimaryKey returns the ID prefix of tableName rows, e.g.
+// "senz-iam-users-" for "iam.users".
 func NewPrimaryKey(tableName string) string {
-	key := fmt.Sprintf("%s_%s_", strings.ToLower(core.Code), tableName)
-	return strings.ReplaceAll(key, ".", "_")
+	key := fmt.Sprintf("%s-%s-", strings.ToLower(core.Code), tableName)
+	return strings.ReplaceAll(key, ".", "-")
 }
 
 func IsValidTableName(tableName string) bool {

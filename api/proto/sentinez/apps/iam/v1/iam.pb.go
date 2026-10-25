@@ -1474,13 +1474,13 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x03msg\x18\x01 \x01(\tR\x03msg\x124\n" +
 	"\acontext\x18\x02 \x01(\v2\x1a.sentinez.types.v1.ContextR\acontext\"c\n" +
 	"\x11UpdateUserRequest\x12)\n" +
-	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xd8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\x12#\n" +
+	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xd8\x01\x01r\x11:\x0fsenz-iam-users-R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\"D\n" +
 	"\x12UpdateUserResponse\x12.\n" +
 	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\";\n" +
 	"\x0eGetUserRequest\x12)\n" +
-	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz.iam.users.R\x02id\"A\n" +
+	"\x02id\x18\x01 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz-iam-users-R\x02id\"A\n" +
 	"\x0fGetUserResponse\x12.\n" +
 	"\x04user\x18\x01 \x01(\v2\x1a.sentinez.apps.iam.v1.UserR\x04user\"j\n" +
 	"\x10ListUsersRequest\x12,\n" +
@@ -1500,9 +1500,9 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x06emails\x18\r \x03(\tR\x06emails\"o\n" +
 	"\x14ListAccountsResponse\x12A\n" +
 	"\baccounts\x18\x01 \x03(\v2%.sentinez.apps.iam.v1.AccountResponseR\baccounts\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"7\n" +
-	"\x11DeleteUserRequest\x12\"\n" +
-	"\x02id\x18\x01 \x01(\tB\x12\xbaH\x0fr\r:\vsenz.users.R\x02id\"\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\";\n" +
+	"\x11DeleteUserRequest\x12&\n" +
+	"\x02id\x18\x01 \x01(\tB\x16\xbaH\x13r\x11:\x0fsenz-iam-users-R\x02id\"\x14\n" +
 	"\x12DeleteUserResponse2\xc6\x0f\n" +
 	"\x1fIdentityAccessManagementService\x12a\n" +
 	"\n" +
