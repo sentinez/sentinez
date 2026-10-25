@@ -21,6 +21,7 @@ import (
 	"net/url"
 
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 )
@@ -34,6 +35,7 @@ func NewReverseProxy(
 
 	client := httputil.NewSingleHostReverseProxy(urlParsed)
 	client.Transport = trans
+	client.ModifyResponse = stripAltSvc
 
 	return &ReverseProxy{
 		client: client,
@@ -66,6 +68,13 @@ func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 		ResponseWriter: nctx.Response(),
 		ctx:            nctx,
 	}, nctx.Request())
+}
+
+// stripAltSvc drops the upstream's Alt-Svc: it describes the upstream, not
+// the proxy, so clients must only see the one the proxy itself sets.
+func stripAltSvc(resp *http.Response) error {
+	resp.Header.Del(httpconst.HeaderAltSvc)
+	return nil
 }
 
 // recordWriter mirrors what the upstream sends into the context, so later

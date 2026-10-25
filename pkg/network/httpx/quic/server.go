@@ -65,9 +65,9 @@ type Server struct {
 
 // AcceptReverse implements [szhttp.Server].
 func (s *Server) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
-	// QUIC is only terminated at the edge; upstreams are plain TCP
-	// backends (HTTP/1.1 or HTTP/2), so dialing them over HTTP/3 hangs.
-	return httpx.NewReverseProxy(target, network.StandardTransporter())
+	// Dialing HTTP/3 blindly hangs on TCP-only upstreams, so start on TCP
+	// and switch only once the upstream advertises h3 via Alt-Svc.
+	return httpx.NewReverseProxy(target, network.NewAltSvcTransport())
 }
 
 func (s *Server) Use(
