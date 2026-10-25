@@ -48,8 +48,7 @@ have not been reproduced. Remove an entry once it is fixed.
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
-- `network.QuicTransporter` and the `onQuicAccept` listener hook exist but
-  nothing uses them (no option sets `onQuicAccept`).
+- `network.QuicTransporter` exists but nothing uses it.
 - IAM uniqueness (one user per email, one account per provider per user,
   `LOCAL` usernames) is only checked in the service before inserting; the
   tables have no unique index (`dbx.Index` is single-column, non-unique), so

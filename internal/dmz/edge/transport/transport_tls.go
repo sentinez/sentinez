@@ -16,6 +16,7 @@ package transport
 
 import (
 	"crypto/tls"
+	"net"
 
 	"github.com/exaring/ja4plus"
 	"github.com/sentinez/sentinez/pkg/network"
@@ -24,18 +25,14 @@ import (
 )
 
 func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
-	szlog.Infof("SNI: %s", chi.ServerName)
+	szlog.Debugf("SNI: %s", chi.ServerName)
 
-	connId, isQuic := fingerprintKey(chi)
+	connId := network.HelloConnId(chi)
 	if connId == "" {
 		return nil, nil
 	}
 
-	fingerprint := ja4plus.JA4(chi)
-	if isQuic && len(fingerprint) > 0 {
-		// ja4plus reads "udp" as DTLS ('d'); JA4 marks QUIC with 'q'.
-		fingerprint = "q" + fingerprint[1:]
-	}
+	fingerprint := ja4plus.JA4(ja4Hello(chi))
 	szlog.Debugf("transport: generate fingerprint %s", fingerprint)
 
 	ja4.Set(connId, fingerprint)
@@ -43,15 +40,24 @@ func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
 	return nil, nil
 }
 
-// fingerprintKey returns the id the fingerprint is stored under: the
-// StdConn id for TCP, the id QuicListener put on the handshake context for
-// QUIC.
-func fingerprintKey(chi *tls.ClientHelloInfo) (connId string, isQuic bool) {
-	if conn, ok := chi.Conn.(*network.StdConn); ok {
-		return conn.Id, false
+// ja4Hello relabels QUIC handshakes for ja4plus, which reads the protocol
+// from LocalAddr().Network(): quic-go reports "udp", read as DTLS ('d'),
+// while JA4 marks QUIC with 'q' for "quic". The edge serves no DTLS.
+func ja4Hello(chi *tls.ClientHelloInfo) *tls.ClientHelloInfo {
+	if chi.Conn == nil || chi.Conn.LocalAddr().Network() != "udp" {
+		return chi
 	}
 
-	connId = network.ConnId(chi.Context())
+	hello := *chi
+	hello.Conn = quicConn{chi.Conn}
 
-	return connId, connId != ""
+	return &hello
 }
+
+type quicConn struct{ net.Conn }
+
+func (c quicConn) LocalAddr() net.Addr { return quicAddr{c.Conn.LocalAddr()} }
+
+type quicAddr struct{ net.Addr }
+
+func (quicAddr) Network() string { return "quic" }

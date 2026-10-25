@@ -17,6 +17,7 @@ package network
 import (
 	"context"
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/hex"
 )
 
@@ -25,13 +26,19 @@ type connIdKey struct{}
 // ConnId returns the connection id that the QUIC listener put on the
 // connection context, or "" when ctx has none.
 func ConnId(ctx context.Context) string {
-	if ctx == nil {
-		return ""
-	}
-
 	id, _ := ctx.Value(connIdKey{}).(string)
 
 	return id
+}
+
+// HelloConnId returns the id of the connection a TLS handshake runs on:
+// StdConn.Id for TCP, the context id for QUIC, or "" for neither.
+func HelloConnId(chi *tls.ClientHelloInfo) string {
+	if conn, ok := chi.Conn.(*StdConn); ok {
+		return conn.Id
+	}
+
+	return ConnId(chi.Context())
 }
 
 func withConnId(ctx context.Context, id string) context.Context {

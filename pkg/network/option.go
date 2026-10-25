@@ -24,9 +24,8 @@ import (
 type Network string
 
 type Option struct {
-	network      string
-	onStdAccept  func(conn net.Conn) error
-	onQuicAccept func(conn *quic.Conn) error
+	network     string
+	onStdAccept func(conn net.Conn) error
 
 	tlsConf  *tls.Config
 	quicConf *quic.Config

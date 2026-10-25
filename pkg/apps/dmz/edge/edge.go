@@ -138,7 +138,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 // Returns:
 //   - error: Any error that occurred during startup or serving.
 func (s *Server) Start() error {
-	server, opt := newServer(s.conf)
+	server, engineOpts := newServer(s.conf)
 	s.server = server
 
 	if err := s.initialize(); err != nil {
@@ -177,7 +177,7 @@ func (s *Server) Start() error {
 		szhttp.WithQuicListener(quicLis),
 	}
 
-	return s.server.ListenAndServe(addr, append(opts, opt)...)
+	return s.server.ListenAndServe(addr, append(opts, engineOpts...)...)
 }
 
 // newTLSConfig loads the certificate up front: the QUIC listener clones the
@@ -203,7 +203,7 @@ func newTLSConfig(certFile, keyFile string) (*tls.Config, error) {
 }
 
 func newServer(
-	conf *settingpb.Config) (szhttp.Server, szhttp.ServerOption) {
+	conf *settingpb.Config) (szhttp.Server, []szhttp.ServerOption) {
 
 	// set engine for edge server
 	switch conf.GetFlag().GetEngine() {

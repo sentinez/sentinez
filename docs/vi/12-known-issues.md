@@ -46,8 +46,7 @@ code, chưa được chạy thử. Khi sửa xong, hãy xoá mục tương ứng
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - Mỗi namespace chỉ giữ một CDN rule; một limiter.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
-- `network.QuicTransporter` và hook `onQuicAccept` của listener có sẵn nhưng
-  chưa được dùng (không có option nào set `onQuicAccept`).
+- `network.QuicTransporter` có sẵn nhưng chưa được dùng.
 - Tính duy nhất trong IAM (mỗi email một user, mỗi user một account cho mỗi
   provider, username của `LOCAL`) chỉ được service kiểm tra trước khi
   insert; bảng không có unique index (`dbx.Index` chỉ một cột, không

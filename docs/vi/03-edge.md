@@ -95,7 +95,7 @@ ID:
 | | TCP (HTTP/1.1, HTTP/2) | QUIC (HTTP/3) |
 |---|---|---|
 | Tạo ID | `network.StdListener.Accept`, dạng `*network.StdConn{Id}` | `quic.Transport.ConnContext` trong `network.QuicListen`, gắn vào context của kết nối |
-| `TLSConfig` đọc ID từ | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
+| `TLSConfig` đọc ID bằng `network.HelloConnId(chi)`, từ | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
 | Hook connect | `OnStandardConnect` / `OnHertzConnect` (`WithOnStdConnect`) bóc lớp `TLSConn → tls.Conn → network.StdConn` | `OnQuicConnect` (`WithOnQuicConnect`) đọc `network.ConnId(conn.Context())` |
 | Ký tự đầu JA4 | `t` | `q` |
 | Xoá khỏi cache | `network.StdConn.Close` | `context.AfterFunc` khi quic-go huỷ context của kết nối (đóng kết nối hoặc handshake lỗi) |
@@ -108,16 +108,17 @@ ID là 8 byte ngẫu nhiên dạng hex (`network.newConnId`).
   `quic.ListenAddr`) để đặt được `ConnContext`. quic-go dẫn xuất context
   truyền cho `crypto/tls` (`tls.ClientHelloInfo.Context`) và context trả về
   từ `quic.Conn.Context` từ context mà `ConnContext` trả về, nên handshake và
-  các request thấy cùng một ID. `QuicListener.Close` đóng listener, transport
-  và UDP socket.
+  các request thấy cùng một ID. `QuicListener.Close` đóng transport (kéo theo
+  listener) và UDP socket, vì quic-go không đóng socket mà nó không tự tạo.
 - ID do server sinh, không phải QUIC Connection ID. quic-go chỉ đưa Destination
   Connection ID gốc (do client chọn) cho `Tracer` của qlog, mà callback này
   không sửa được context. Client cũng có thể cố tình dùng lại một DCID để ghi
   đè mục của kết nối khác. ID tự sinh không phụ thuộc địa chỉ client, nên vẫn
   giữ nguyên khi kết nối migrate.
 - `ja4plus` (v0.0.3) chọn ký tự giao thức theo `LocalAddr().Network()`; với
-  QUIC giá trị này là `"udp"` nên nó ghi `d` (DTLS). `TLSConfig` đổi thành
-  `q` như spec JA4 yêu cầu cho QUIC.
+  QUIC giá trị này là `"udp"` nên nó ghi `d` (DTLS). Với handshake `"udp"`,
+  `TLSConfig` đưa cho `ja4plus` một bản sao `ClientHelloInfo` có conn báo
+  `"quic"`, nên nó ghi `q` như spec JA4 yêu cầu. Edge không phục vụ DTLS.
 - Test: [transport_quic_test.go](../../internal/dmz/edge/transport/transport_quic_test.go)
   chạy handshake QUIC thật và kiểm tra fingerprint `q13…`, SNI và việc xoá
   mục sau khi đóng kết nối.

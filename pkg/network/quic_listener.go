@@ -39,22 +39,16 @@ func QuicListen(addr string, opts ...NetworkOption) (*QuicListener, error) {
 	// Advertise the "h3" ALPN, otherwise HTTP/3 clients fail the handshake.
 	tlsConf := http3.ConfigureTLSConfig(ql.opt.tlsConf)
 
-	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	pc, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		return nil, fmt.Errorf("quic listen: %w", err)
 	}
 
-	udpConn, err := net.ListenUDP("udp", udpAddr)
-	if err != nil {
-		return nil, fmt.Errorf("quic listen: %w", err)
-	}
-
-	ql.udp = udpConn
-	ql.tr = &quic.Transport{Conn: udpConn, ConnContext: onQuicConnContext}
+	ql.tr = &quic.Transport{Conn: pc, ConnContext: onQuicConnContext}
 
 	lis, err := ql.tr.Listen(tlsConf, ql.opt.quicConf)
 	if err != nil {
-		return nil, errors.Join(err, ql.tr.Close(), udpConn.Close())
+		return nil, errors.Join(err, ql.Close())
 	}
 
 	ql.QUICListener = lis
@@ -67,28 +61,13 @@ func QuicListen(addr string, opts ...NetworkOption) (*QuicListener, error) {
 type QuicListener struct {
 	http3.QUICListener
 	tr  *quic.Transport
-	udp *net.UDPConn
 	opt Option
 }
 
-func (l *QuicListener) Accept(ctx context.Context) (*quic.Conn, error) {
-	conn, err := l.QUICListener.Accept(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if l.opt.onQuicAccept != nil {
-		if err := l.opt.onQuicAccept(conn); err != nil {
-			return nil, err
-		}
-	}
-
-	return conn, nil
-}
-
-// Close stops the listener, then the transport and its UDP socket.
+// Close stops the transport, which also closes the listener, and its UDP
+// socket: quic-go only closes sockets it created itself.
 func (l *QuicListener) Close() error {
-	return errors.Join(l.QUICListener.Close(), l.tr.Close(), l.udp.Close())
+	return errors.Join(l.tr.Close(), l.tr.Conn.Close())
 }
 
 // onQuicConnContext tags the connection context with a fresh id. The same
