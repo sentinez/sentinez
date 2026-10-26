@@ -199,6 +199,7 @@ export enum ActionType {
   ACTION_TYPE_REDIRECT = 4,
   ACTION_TYPE_SET_TAG = 5,
   ACTION_TYPE_ROUTE_TO = 6,
+  ACTION_TYPE_CHALLENGE = 7,
   UNRECOGNIZED = -1,
 }
 
@@ -225,6 +226,9 @@ export function actionTypeFromJSON(object: any): ActionType {
     case 6:
     case "ACTION_TYPE_ROUTE_TO":
       return ActionType.ACTION_TYPE_ROUTE_TO;
+    case 7:
+    case "ACTION_TYPE_CHALLENGE":
+      return ActionType.ACTION_TYPE_CHALLENGE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -248,6 +252,8 @@ export function actionTypeToJSON(object: ActionType): string {
       return "ACTION_TYPE_SET_TAG";
     case ActionType.ACTION_TYPE_ROUTE_TO:
       return "ACTION_TYPE_ROUTE_TO";
+    case ActionType.ACTION_TYPE_CHALLENGE:
+      return "ACTION_TYPE_CHALLENGE";
     case ActionType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

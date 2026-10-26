@@ -18,6 +18,7 @@ import (
 	"context"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -31,7 +32,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const _testSlot = int64(29_000_000)
+const (
+	_testSlot = int64(29_000_000)
+	_testJA4  = "t13d1516h2_8daaf6152771_02713d6af862"
+)
 
 var (
 	_hex64   = regexp.MustCompile(`^[0-9a-f]{64}$`)
@@ -53,7 +57,7 @@ func newFixture() *fixture {
 		challenge: newChallenge(0),
 		ip:        "203.0.113.7",
 		ua:        "Mozilla/5.0",
-		ja4:       "t13d1516h2_8daaf6152771_02713d6af862",
+		ja4:       _testJA4,
 		connId:    "abc123",
 	}
 }
@@ -112,12 +116,6 @@ func TestChallengeMakeSlot(t *testing.T) {
 		f.challenge.Make(f.request(), _testSlot+1))
 }
 
-func TestChallengeMakeNilTransport(t *testing.T) {
-	req := httpreq.NewRequestContext(context.Background(), &httppb.Request{})
-
-	assert.Regexp(t, _hex64, newChallenge(0).Make(req, _testSlot))
-}
-
 func TestChallengeCheck(t *testing.T) {
 	f := newFixture()
 	challenge := f.challenge.Make(f.request(), _testSlot)
@@ -145,6 +143,43 @@ func TestChallengeCheck(t *testing.T) {
 	}
 }
 
+func TestChallengeVerify(t *testing.T) {
+	const difficulty = 2
+	f := newFixture()
+	f.challenge = newChallenge(difficulty)
+	slot := f.challenge.CurrentSlot()
+	current := f.challenge.Make(f.request(), slot)
+	previous := f.challenge.Make(f.request(), slot-1)
+	stale := f.challenge.Make(f.request(), slot-2)
+	other := newFixture()
+	other.ip = "198.51.100.1"
+
+	tests := []struct {
+		name          string
+		giveReq       szhttp.Request
+		giveChallenge string
+		giveSolved    bool
+		want          bool
+	}{
+		{"current window", f.request(), current, true, true},
+		{"previous window", f.request(), previous, true, true},
+		{"stale window", f.request(), stale, true, false},
+		{"unsolved", f.request(), current, false, false},
+		{"other client", other.request(), current, true, false},
+		{"forged", f.request(), strings.Repeat("0", 64), true, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			nonce := firstNonce(tt.giveChallenge, difficulty, tt.giveSolved)
+
+			got := f.challenge.Verify(tt.giveReq, tt.giveChallenge, nonce)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func TestChallengeSignPass(t *testing.T) {
 	f := newFixture()
 	exp := time.Now().Add(time.Minute).Unix()
@@ -158,6 +193,19 @@ func TestChallengeSignPass(t *testing.T) {
 	assert.NotEqual(t, f.challenge.Make(f.request(), exp), m[2])
 }
 
+func TestChallengeIssuePass(t *testing.T) {
+	f := newFixture()
+
+	got := f.challenge.IssuePass(f.request(), time.Hour)
+
+	assert.Equal(t, _passCookie, got.Name)
+	assert.Equal(t, 3600, got.MaxAge)
+	assert.True(t, got.HttpOnly)
+
+	f.cookie = got.Name + "=" + got.Value
+	assert.True(t, f.challenge.ValidPass(f.request()))
+}
+
 func TestChallengeValidPass(t *testing.T) {
 	f := newFixture()
 	now := time.Now().Unix()
@@ -169,16 +217,16 @@ func TestChallengeValidPass(t *testing.T) {
 		giveCookie string
 		want       bool
 	}{
-		{"valid pass", _powPass + "=" + valid, true},
-		{"valid among others", "a=b; " + _powPass + "=" + valid, true},
+		{"valid pass", _passCookie + "=" + valid, true},
+		{"valid among others", "a=b; " + _passCookie + "=" + valid, true},
 		{"no cookie header", "", false},
 		{"other cookie only", "foo=bar", false},
-		{"expired", _powPass + "=" + expired, false},
-		{"tampered signature", _powPass + "=" + tamper(valid), false},
-		{"no separator", _powPass + "=12345", false},
-		{"non-numeric exp", _powPass + "=abc.deadbeef", false},
-		{"non-hex signature", _powPass + "=9999999999.zz", false},
-		{"malformed header", _powPass, false},
+		{"expired", _passCookie + "=" + expired, false},
+		{"tampered signature", _passCookie + "=" + tamper(valid), false},
+		{"no separator", _passCookie + "=12345", false},
+		{"non-numeric exp", _passCookie + "=abc.deadbeef", false},
+		{"non-hex signature", _passCookie + "=9999999999.zz", false},
+		{"malformed header", _passCookie, false},
 	}
 
 	for _, tt := range tests {
@@ -200,9 +248,29 @@ func TestChallengeValidPassBinding(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture()
 			tt.giveMutate(f)
-			f.cookie = _powPass + "=" + pass
+			f.cookie = _passCookie + "=" + pass
 
 			assert.Equal(t, tt.wantSame, f.challenge.ValidPass(f.request()))
+		})
+	}
+}
+
+func TestAppendJA4(t *testing.T) {
+	tests := []struct {
+		give string
+		want string
+	}{
+		{_testJA4, "13d1516_8daaf6152771_02713d6af862"},
+		{"q13d0312h3_55b375c5d22e_06cda9e17597",
+			"13d0312_55b375c5d22e_06cda9e17597"},
+		{"", ""},
+		{"q13d", "q13d"},
+		{"t13d1516h2x8daaf6152771", "t13d1516h2x8daaf6152771"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			assert.Equal(t, tt.want, string(appendJA4(nil, tt.give)))
 		})
 	}
 }
@@ -213,14 +281,28 @@ type bindingTest struct {
 	wantSame   bool
 }
 
-// bindingTests lists client changes that Make and SignPass must notice.
+// ja4Of returns a mutation setting the fixture JA4 to ja4.
+func ja4Of(ja4 string) func(*fixture) {
+	return func(f *fixture) { f.ja4 = ja4 }
+}
+
+// bindingTests lists client changes and whether Make and SignPass ignore
+// them.
 func bindingTests() []bindingTest {
 	return []bindingTest{
 		{name: "unchanged", giveMutate: func(*fixture) {}, wantSame: true},
 		{name: "ip", giveMutate: func(f *fixture) { f.ip = "198.51.100.1" }},
 		{name: "user agent", giveMutate: func(f *fixture) { f.ua = "curl" }},
-		{name: "conn id", giveMutate: func(f *fixture) { f.connId = "other" }},
-		{name: "ja4", giveMutate: func(f *fixture) { f.ja4 = "q13d" }},
+		{
+			name:       "conn id",
+			giveMutate: func(f *fixture) { f.connId = "other" },
+			wantSame:   true,
+		},
+		{"ja4 transport", ja4Of("q" + _testJA4[1:]), true},
+		{"ja4 alpn", ja4Of(_testJA4[:8] + "h1" + _testJA4[10:]), true},
+		{"ja4 tls version", ja4Of("t12" + _testJA4[3:]), false},
+		{"ja4 ciphers", ja4Of(_testJA4[:11] + "0" + _testJA4[12:]), false},
+		{"ja4 malformed", ja4Of("q13d"), false},
 		{
 			name: "secret",
 			giveMutate: func(f *fixture) {
@@ -231,11 +313,7 @@ func bindingTests() []bindingTest {
 }
 
 func newChallenge(difficulty int) *Challenge {
-	return &Challenge{
-		secret:     []byte("test-secret"),
-		difficulty: difficulty,
-		windowTime: time.Minute,
-	}
+	return New([]byte("test-secret"), difficulty, time.Minute)
 }
 
 func header(k, v string) *httppb.RequestHeader {

@@ -1,16 +1,16 @@
 package render
 
 // logo renders the Sentinéz mark inline so error pages need no asset fetch.
-templ logo() {
+templ logo(size string) {
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 1040 1040"
-		width="120"
-		height="120"
+		width={ size }
+		height={ size }
 		role="img"
 		aria-label="Logo"
 		class="sz-logo"
-		style="flex-shrink: 0; margin-right: 2rem;"
+		style="flex-shrink: 0;"
 	>
 		<style>
 			/* The transparent stroke fills the gaps so the wave never drops

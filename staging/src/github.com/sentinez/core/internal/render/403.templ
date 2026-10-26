@@ -1,16 +1,9 @@
 package render
 
-templ forbidden(requestId string) {
-	<div style="display: flex; align-items: center; padding: 2rem;">
-		@logo()
-		<div>
-			<h1>403 Forbidden</h1>
-			<p>You do not have permission to access this resource.</p>
-			<pre>X-Request-ID { requestId } </pre>
-		</div>
-	</div>
-}
-
 templ Forbidden(requestId string) {
-	@View("403 | sentinez", forbidden(requestId))
+	@View("403 | sentinez", errorPage(
+		"403 Forbidden",
+		"You do not have permission to access this resource.",
+		requestId,
+	))
 }

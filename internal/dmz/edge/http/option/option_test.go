@@ -43,16 +43,16 @@ func TestNew(t *testing.T) {
 		{
 			name: "all options",
 			giveOpts: []Option{
-				WithNamed("edge-test"),
-				WithLevel(szlog.LevelError),
+				WithNamed("edge-test"), WithLevel(szlog.LevelError),
 				WithExporter(exporter),
-				WithHostname("is.s6z.io.vn"),
+				WithHostname("is.s6z.io.vn"), WithSecretKey("c2VjcmV0"),
 			},
 			want: Options{
-				Named:    "edge-test",
-				Level:    szlog.LevelError,
-				Exporter: exporter,
-				Hostname: "is.s6z.io.vn",
+				Named:     "edge-test",
+				Level:     szlog.LevelError,
+				Exporter:  exporter,
+				Hostname:  "is.s6z.io.vn",
+				SecretKey: "c2VjcmV0",
 			},
 		},
 		{

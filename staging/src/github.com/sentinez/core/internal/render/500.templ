@@ -1,16 +1,9 @@
 package render
 
-templ internalError(requestId string) {
-	<div style="display: flex; align-items: center; padding: 2rem;">
-		@logo()
-		<div>
-			<h1>500 Internal Server Error</h1>
-			<p>Sorry, something went wrong on our server. Please try again later.</p>
-			<pre>X-Request-ID { requestId } </pre>
-		</div>
-	</div>
-}
-
 templ InternalError(requestId string) {
-	@View("500 | sentinez", internalError(requestId))
+	@View("500 | sentinez", errorPage(
+		"500 Internal Server Error",
+		"Sorry, something went wrong on our server. Please try again later.",
+		requestId,
+	))
 }

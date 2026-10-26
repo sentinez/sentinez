@@ -52,6 +52,20 @@ func TooManyRequests(ctx Context) error {
 		render.TooManyRequests, szbytestr.TooManyRequests)
 }
 
+// Challenge writes the proof-of-work page: the client solves challenge at
+// difficulty (see szcrypto/pow) and posts the nonce to action.
+func Challenge(
+	ctx Context, challenge string, difficulty int, action string,
+) error {
+	ctx.SetResponseHeader(szbytestr.HeaderCacheControl, szbytestr.ValueNoStore)
+
+	page := func(requestId string) templ.Component {
+		return render.Challenge(requestId, challenge, difficulty, action)
+	}
+
+	return renderPage(ctx, http.StatusForbidden, page, szbytestr.AccessDenied)
+}
+
 // renderPage writes the HTML error page, or fallback as plain text when the
 // page cannot be rendered.
 func renderPage(

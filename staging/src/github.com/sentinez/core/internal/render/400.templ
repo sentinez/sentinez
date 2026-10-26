@@ -1,16 +1,9 @@
 package render
 
-templ badRequest(requestId string) {
-	<div style="display: flex; align-items: center; padding: 2rem;">
-		@logo()
-		<div>
-			<h1>400 Bad Request</h1>
-			<p>Your browser sent a request that this server could not understand</p>
-			<pre>X-Request-ID { requestId } </pre>
-		</div>
-	</div>
-}
-
 templ BadRequest(requestId string) {
-	@View("403 | sentinez", badRequest(requestId))
+	@View("400 | sentinez", errorPage(
+		"400 Bad Request",
+		"Your browser sent a request that this server could not understand",
+		requestId,
+	))
 }

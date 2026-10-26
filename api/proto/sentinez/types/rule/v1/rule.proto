@@ -82,6 +82,7 @@ enum ActionType {
   ACTION_TYPE_REDIRECT = 4;
   ACTION_TYPE_SET_TAG = 5;
   ACTION_TYPE_ROUTE_TO = 6;
+  ACTION_TYPE_CHALLENGE = 7;
 }
 
 // A complete rule definition

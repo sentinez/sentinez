@@ -196,6 +196,7 @@ const (
 	ActionType_ACTION_TYPE_REDIRECT      ActionType = 4
 	ActionType_ACTION_TYPE_SET_TAG       ActionType = 5
 	ActionType_ACTION_TYPE_ROUTE_TO      ActionType = 6
+	ActionType_ACTION_TYPE_CHALLENGE     ActionType = 7
 )
 
 // Enum value maps for ActionType.
@@ -208,6 +209,7 @@ var (
 		4: "ACTION_TYPE_REDIRECT",
 		5: "ACTION_TYPE_SET_TAG",
 		6: "ACTION_TYPE_ROUTE_TO",
+		7: "ACTION_TYPE_CHALLENGE",
 	}
 	ActionType_value = map[string]int32{
 		"ACTION_TYPE_UNSPECIFIED":   0,
@@ -217,6 +219,7 @@ var (
 		"ACTION_TYPE_REDIRECT":      4,
 		"ACTION_TYPE_SET_TAG":       5,
 		"ACTION_TYPE_ROUTE_TO":      6,
+		"ACTION_TYPE_CHALLENGE":     7,
 	}
 )
 
@@ -998,7 +1001,7 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\vOPERATOR_LT\x10\n" +
 	"\x12\x10\n" +
 	"\fOPERATOR_LTE\x10\v\x12\x13\n" +
-	"\x0fOPERATOR_NOT_IN\x10\f*\xc1\x01\n" +
+	"\x0fOPERATOR_NOT_IN\x10\f*\xdc\x01\n" +
 	"\n" +
 	"ActionType\x12\x1b\n" +
 	"\x17ACTION_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -1007,7 +1010,8 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x19ACTION_TYPE_MODIFY_HEADER\x10\x03\x12\x18\n" +
 	"\x14ACTION_TYPE_REDIRECT\x10\x04\x12\x17\n" +
 	"\x13ACTION_TYPE_SET_TAG\x10\x05\x12\x18\n" +
-	"\x14ACTION_TYPE_ROUTE_TO\x10\x06*\x82\x01\n" +
+	"\x14ACTION_TYPE_ROUTE_TO\x10\x06\x12\x19\n" +
+	"\x15ACTION_TYPE_CHALLENGE\x10\a*\x82\x01\n" +
 	"\vRuleService\x12\x1c\n" +
 	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19RULE_SERVICE_WAF_RULESETS\x10\x01\x12\x19\n" +

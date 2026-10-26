@@ -28,6 +28,8 @@ type Options struct {
 	Level    szlog.Level
 	Exporter *szsdklog.Exporter
 	Hostname string
+	// SecretKey is base64 encoded (SENZ_SECRET_KEY).
+	SecretKey string
 }
 
 // Option configures a chain node.
@@ -99,4 +101,14 @@ func (h hostnameOption) apply(o *Options) {
 // WithHostname sets the root domain tenants are served under.
 func WithHostname(hostname string) Option {
 	return hostnameOption(hostname)
+}
+
+type secretKeyOption string
+
+func (k secretKeyOption) apply(o *Options) {
+	o.SecretKey = string(k)
+}
+
+func WithSecretKey(key string) Option {
+	return secretKeyOption(key)
 }

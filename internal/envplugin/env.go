@@ -43,6 +43,11 @@ func (e *Env) Hostname() string {
 	return e.opts.Hostname
 }
 
+// SecretKey returns the base64 encoded SENZ_SECRET_KEY.
+func (e *Env) SecretKey() string {
+	return e.opts.SecretKey
+}
+
 // Logger returns an event logger of kind, named and leveled by the
 // options and exported through their exporter.
 func (e *Env) Logger(kind typepb.LogType) szlog.LogCloser {
