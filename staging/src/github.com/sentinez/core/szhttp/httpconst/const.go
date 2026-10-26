@@ -30,6 +30,7 @@ const (
 	HeaderAltSvc           = "Alt-Svc"
 	HeaderSetCookie        = "Set-Cookie"
 	HeaderCookie           = "Cookie"
+	HeaderLocation         = "Location"
 	HeaderETag             = "ETag"
 	HeaderIfNoneMatch      = "If-None-Match"
 	HeaderContentLength    = "Content-Length"
@@ -45,7 +46,17 @@ const (
 	ValueAppJSON             = "application/json; charset=utf-8"
 	ValueNoSniff             = "nosniff"
 	ValueAllowGetHead        = "GET, HEAD"
+	ValueNoStore             = "no-store"
 
 	SchemeSecure   = "https"
 	SchemeInsecure = "http"
+
+	// PathSystemPrefix is reserved for the paths the edge answers itself
+	// (public images, challenge); they are never cached.
+	PathSystemPrefix = "/.sentinez/"
 )
+
+// SystemPath returns the system path name under PathSystemPrefix.
+func SystemPath(name string) string {
+	return PathSystemPrefix + name
+}

@@ -61,7 +61,13 @@ func (c *Cache) Provision(env *envplugin.Env) error {
 	return nil
 }
 
+// Handle serves and stores the responses the active CDN rule matches.
+// System paths are answered by the edge itself and never cached.
 func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
+	if bytes.HasPrefix(ctx.Path(), szbytestr.PathSystemPrefix) {
+		return next.Handle(ctx)
+	}
+
 	eval, rule := c.store.LoadContext(ctx)
 	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return next.Handle(ctx)
