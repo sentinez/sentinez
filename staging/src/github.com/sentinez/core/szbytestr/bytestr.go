@@ -53,6 +53,7 @@ var (
 	HeaderContentLength    = []byte(httpconst.HeaderContentLength)
 	HeaderAllow            = []byte(httpconst.HeaderAllow)
 	HeaderXContentTypeOpts = []byte(httpconst.HeaderXContentTypeOpts)
+	HeaderCookie           = []byte(httpconst.HeaderCookie)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)
 	ValueTextPlain = []byte(httpconst.ValueTextPlain)

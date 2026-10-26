@@ -29,6 +29,7 @@ const (
 	HeaderAcceptEncoding   = "Accept-Encoding"
 	HeaderAltSvc           = "Alt-Svc"
 	HeaderSetCookie        = "Set-Cookie"
+	HeaderCookie           = "Cookie"
 	HeaderETag             = "ETag"
 	HeaderIfNoneMatch      = "If-None-Match"
 	HeaderContentLength    = "Content-Length"

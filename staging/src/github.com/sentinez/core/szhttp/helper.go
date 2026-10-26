@@ -13,3 +13,27 @@
 // limitations under the License.
 
 package szhttp
+
+import (
+	"net/http"
+
+	"github.com/sentinez/core/szbytestr"
+	"github.com/sentinez/shared/bytesconv"
+)
+
+// Cookie returns the value of the named request cookie.
+func Cookie(req Request, name string) (string, bool) {
+	header := bytesconv.B2s(req.Header(szbytestr.HeaderCookie))
+	cookies, err := http.ParseCookie(header)
+	if err != nil {
+		return "", false
+	}
+
+	for _, c := range cookies {
+		if c.Name == name {
+			return c.Value, true
+		}
+	}
+
+	return "", false
+}
