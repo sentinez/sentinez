@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -105,5 +106,24 @@ func TestNormalizeEdgeSettingLimiterDurations(t *testing.T) {
 				t.Errorf("durations = %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestNormalizeEdgeSettingCDN(t *testing.T) {
+	cdn := &cdnpb.CDN{Rule: &cdnpb.RuleLite{
+		Id: "c1", Name: "static", Status: "STATUS_ACTIVE", Priority: 10,
+	}}
+
+	NormalizeEdgeSetting(&edgepb.Setting{
+		Delivery: &edgepb.Delivery{Cdn: []*cdnpb.CDN{cdn}},
+	})
+
+	got := cdn.GetRuleRuntime()
+	if got.GetPriority() != 10 {
+		t.Errorf("priority = %d, want 10", got.GetPriority())
+	}
+
+	if got.GetStatus() != typepb.Status_STATUS_ACTIVE {
+		t.Errorf("status = %v, want active", got.GetStatus())
 	}
 }

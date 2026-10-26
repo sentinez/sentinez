@@ -168,13 +168,7 @@ func (m *MemStore) LoadServer(server szhttp.Server) {
 
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
-		for _, cdn := range s.GetDelivery().GetCdn() {
-			if cdn.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
-				continue
-			}
-
-			m.cdnRules.Store(s.GetServer().GetName(), cdn)
-		}
+		m.cdnRules.Store(s.GetServer().GetName(), s.GetDelivery())
 	}
 
 	return nil

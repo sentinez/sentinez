@@ -50,6 +50,7 @@ func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
 		Description: cdn.GetDescription(),
 		Expr:        toExpr(cdn.GetExpr()),
 		Status:      toStatus(cdn.GetStatus()),
+		Priority:    cdn.GetPriority(),
 	}
 }
 

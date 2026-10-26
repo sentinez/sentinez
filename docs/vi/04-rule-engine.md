@@ -55,7 +55,9 @@ Ghi chú:
 
 - `MATCHES` dùng `regexp` của Go, regex được cache toàn cục theo pattern
   (`sync.Map`). Pattern lỗi → không khớp.
-- `GT/GTE/LT/LTE` có trong enum nhưng **chưa được cài đặt** (luôn không khớp).
+- `GT/GTE/LT/LTE` so sánh hai vế như số (`strconv.ParseFloat`) trên các
+  nguồn dạng chuỗi (`PATH`, `BODY`, `HOST`, `METHOD`, `JA4`, giá trị một
+  `HEADER` hoặc `QUERY`). Vế nào không phải số thì không khớp.
 - Source không xác định → không khớp (`bypass = false`).
 - Trong YAML, `value` luôn là chuỗi (bản Lite) nên các toán tử list
   (`IN`/`NOT_IN`) chỉ dùng được khi tạo `Expression` trực tiếp (vd. qua API).
@@ -68,9 +70,54 @@ status, priority}`. Ở edge
 
 - Chỉ giữ rule `STATUS_ACTIVE`.
 - Sắp xếp **priority giảm dần**, ổn định (cùng priority giữ thứ tự khai báo).
-- Node `RUL` duyệt chuỗi; rule khớp đầu tiên có `ACTION_TYPE_BLOCK` → `403`.
-  Các action khác (`LOG`, `MODIFY_HEADER`, `REDIRECT`, `SET_TAG`, `ROUTE_TO`)
-  hiện chỉ được log debug, chưa thực thi.
+- Node `RUL`
+  ([internal/handlers/secure](../../internal/handlers/secure/action.go))
+  duyệt chuỗi theo thứ tự trên và giữ mọi rule khớp:
+  - Action **kết thúc** dừng request; action mạnh nhất trong các rule khớp
+    thắng, `BLOCK` > `CHALLENGE` > `REDIRECT`, bằng nhau thì rule priority
+    cao hơn thắng. `BLOCK` dừng việc duyệt; `CHALLENGE` và `REDIRECT` thì
+    không, nên một `BLOCK` phía sau vẫn áp dụng cho client đã có pass.
+  - Action **không kết thúc** của mọi rule khớp đều được áp dụng, trước
+    action kết thúc. Khi nhiều rule đặt cùng header, tag hay route, rule
+    priority cao hơn thắng.
+  - Mỗi request log một event `secrule: matched`, mang action kết thúc
+    (nếu không có thì action của rule priority cao nhất) và các tag.
+
+Các action và `params` (`Action.params`, kiểu `Struct`; số và boolean được
+đổi thành chuỗi):
+
+| Action | `params` | Tác dụng |
+|---|---|---|
+| `BLOCK` | — | Trang `403` |
+| `CHALLENGE` | — | Trang proof-of-work cho tới khi client có cookie `pow-pass` |
+| `REDIRECT` | `location` (bắt buộc), `status` (301, 302, 303, 307, 308; mặc định 302) | Chuyển hướng client. Không có `location` dùng được thì rule bị bỏ qua |
+| `LOG` | — | Chỉ ghi event |
+| `MODIFY_HEADER` | header → giá trị | Đặt header của request gửi lên upstream. `proxySetHeaders` của location chạy sau và thắng nếu trùng header |
+| `SET_TAG` | key → giá trị | Thêm vào `ContextExtra.tags` và event |
+| `ROUTE_TO` | `location` | Proxy tới mục `server.locations` có `location` đó thay vì prefix dài nhất; location không tồn tại thì quay về khớp prefix |
+
+```yaml
+sec_rules:
+  - ingress:
+      name: "Chuyển link cũ sang shop mới"
+      status: STATUS_ACTIVE
+      expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_PATH, operator: OPERATOR_PREFIX, value: "/old-shop"}}]}]}
+      action:
+        type: ACTION_TYPE_REDIRECT
+        params: {location: "/shop", status: 301}
+  - ingress:
+      name: "Gắn tag trang phân trang sâu"
+      status: STATUS_ACTIVE
+      expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_QUERY, key: "page", operator: OPERATOR_GT, value: "100"}}]}]}
+      action:
+        type: ACTION_TYPE_SET_TAG
+        params: {deep_paging: true}
+```
+
+Control plane lưu giá trị action dạng `ActionValue{str_value, map_value}`
+(console: một giá trị cho `REDIRECT`/`ROUTE_TO`, các dòng key/value cho
+`MODIFY_HEADER`/`SET_TAG`); chưa có kênh đồng bộ xuống edge, nên edge chỉ đọc
+`params` từ `proxy.yaml`.
 
 Có ba dạng SecRule trong proto:
 
@@ -83,9 +130,13 @@ Có ba dạng SecRule trong proto:
 ## 4.4 CDN rule
 
 `types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` nằm trong
-`setting.delivery.cdn`. Mỗi namespace giữ **một** CDN rule active (rule sau
-ghi đè rule trước). Node `CDN` chỉ cache khi rule active và expression khớp.
-Cache là `patrickmn/go-cache` TTL 1h.
+`setting.delivery.cdn`. Như SecRule, mỗi namespace giữ một **chuỗi** CDN
+rule
+([internal/memory/cdnrules](../../internal/memory/cdnrules/cdnrules.go)):
+chỉ rule `STATUS_ACTIVE`, sắp xếp **priority giảm dần**, ổn định (cùng
+priority giữ thứ tự khai báo). Node `CDN` cache request khi có ít nhất một
+rule khớp, thử theo thứ tự đó. Đường dẫn hệ thống (`/.sentinez/`) không bao
+giờ được cache. Cache là `patrickmn/go-cache` TTL 1h.
 
 - Key: `method + scheme + host + path + query + Accept-Encoding` (body được
   lưu nguyên dạng upstream đã nén, ví dụ gzip hoặc br).
@@ -95,6 +146,20 @@ Cache là `patrickmn/go-cache` TTL 1h.
   `no-cache`.
 - Không lưu `Alt-Svc`, vì server tự thêm header này vào mọi response.
 - Khi hit, status code được ghi trước body.
+
+```yaml
+delivery:
+  cdn:
+    - rule:
+        name: "Ảnh tĩnh"
+        status: STATUS_ACTIVE
+        priority: 10
+        expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_PATH, operator: OPERATOR_PREFIX, value: "/static/"}}]}]}
+    - rule:
+        name: "Trang GET còn lại"
+        status: STATUS_ACTIVE
+        expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_METHOD, operator: OPERATOR_EQ, value: "GET"}}]}]}
+```
 
 ## 4.5 Rate limiter
 
