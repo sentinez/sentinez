@@ -17,11 +17,13 @@ package network
 import (
 	"context"
 	"crypto/tls"
+	"io"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/quic-go/quic-go"
@@ -79,7 +81,8 @@ func NewAltSvcTransport() *AltSvcTransport {
 // RoundTrip implements [http.RoundTripper].
 func (t *AltSvcTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.Scheme == httpconst.SchemeSecure && t.h3Ready() {
-		resp, err := t.h3.RoundTrip(req)
+		h3req, body := trackBody(req)
+		resp, err := t.h3.RoundTrip(h3req)
 		if err == nil {
 			return t.learn(resp), nil
 		}
@@ -87,7 +90,7 @@ func (t *AltSvcTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		t.markBroken()
 
 		// The body may be partly consumed; only replay what can be rewound.
-		if req, err = rewind(req, err); err != nil {
+		if req, err = rewind(req, body, err); err != nil {
 			return nil, err
 		}
 	}
@@ -212,10 +215,47 @@ func parseAltSvcEntry(entry string) (string, time.Duration, bool) {
 	return authority, maxAge, maxAge > 0
 }
 
-// rewind returns a request whose body can be sent again, or cause when the
-// body cannot be replayed.
-func rewind(req *http.Request, cause error) (*http.Request, error) {
+// trackedBody records whether a body was read, and leaves closing it to
+// the caller of RoundTrip, so an unread body can still be sent over TCP.
+type trackedBody struct {
+	io.Reader
+
+	read atomic.Bool
+}
+
+func (b *trackedBody) Read(p []byte) (int, error) {
+	n, err := b.Reader.Read(p)
+	if n > 0 {
+		b.read.Store(true)
+	}
+
+	return n, err
+}
+
+func (*trackedBody) Close() error { return nil }
+
+// trackBody returns req with its body tracked, or req and nil when it has
+// no body.
+func trackBody(req *http.Request) (*http.Request, *trackedBody) {
 	if req.Body == nil || req.Body == http.NoBody {
+		return req, nil
+	}
+
+	body := &trackedBody{Reader: req.Body}
+	tracked := req.WithContext(req.Context())
+	tracked.Body = body
+
+	return tracked, body
+}
+
+// rewind returns a request whose body can be sent again, or cause when the
+// body cannot be replayed. A body HTTP/3 never read is sent as is: an
+// HTTP/3 server gives a GET an open body of unknown length (-1), which
+// httputil.ReverseProxy forwards.
+func rewind(
+	req *http.Request, body *trackedBody, cause error,
+) (*http.Request, error) {
+	if body == nil || !body.read.Load() {
 		return req, nil
 	}
 
@@ -223,13 +263,13 @@ func rewind(req *http.Request, cause error) (*http.Request, error) {
 		return nil, cause
 	}
 
-	body, err := req.GetBody()
+	replay, err := req.GetBody()
 	if err != nil {
 		return nil, cause
 	}
 
 	req = req.Clone(req.Context())
-	req.Body = body
+	req.Body = replay
 
 	return req, nil
 }

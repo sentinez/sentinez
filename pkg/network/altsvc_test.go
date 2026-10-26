@@ -33,12 +33,24 @@ type fakeTransport struct {
 	calls  int
 	altSvc string
 	err    error
+	// readBody reads one byte of the request body before failing.
+	readBody bool
+	// gotBody is the request body of the last successful call.
+	gotBody string
 }
 
-func (f *fakeTransport) RoundTrip(*http.Request) (*http.Response, error) {
+func (f *fakeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	f.calls++
 	if f.err != nil {
+		if f.readBody {
+			_, _ = req.Body.Read(make([]byte, 1))
+		}
 		return nil, f.err
+	}
+
+	if req.Body != nil {
+		body, _ := io.ReadAll(req.Body)
+		f.gotBody = string(body)
 	}
 
 	resp := &http.Response{StatusCode: http.StatusOK, Header: http.Header{}}
@@ -134,17 +146,27 @@ func TestAltSvcTransportFallsBackWhenH3Fails(t *testing.T) {
 
 func TestAltSvcTransportDoesNotReplayStreamedBody(t *testing.T) {
 	tcp := &fakeTransport{altSvc: `h3=":443"`}
+	h3 := &fakeTransport{err: errH3Down, readBody: true}
+	tr := newTestTransport(tcp, h3)
+	roundTrip(t, tr, "https://up.example/")
+
+	_, err := tr.RoundTrip(newStreamRequest(t, "payload"))
+	require.ErrorIs(t, err, errH3Down)
+	assert.Equal(t, 1, tcp.calls)
+}
+
+// An HTTP/3 GET reaches the proxy with an open body of unknown length; a
+// failed handshake never reads it, so it goes over TCP unchanged.
+func TestAltSvcTransportReplaysUnreadStreamedBody(t *testing.T) {
+	tcp := &fakeTransport{altSvc: `h3=":443"`}
 	h3 := &fakeTransport{err: errH3Down}
 	tr := newTestTransport(tcp, h3)
 	roundTrip(t, tr, "https://up.example/")
 
-	req, err := http.NewRequest(http.MethodPost, "https://up.example/", nil)
+	_, err := tr.RoundTrip(newStreamRequest(t, "payload"))
 	require.NoError(t, err)
-	req.Body = io.NopCloser(strings.NewReader("payload"))
-
-	_, err = tr.RoundTrip(req)
-	require.ErrorIs(t, err, errH3Down)
-	assert.Equal(t, 1, tcp.calls)
+	assert.Equal(t, 2, tcp.calls)
+	assert.Equal(t, "payload", tcp.gotBody)
 }
 
 func TestAltSvcTransportClearDropsH3(t *testing.T) {
@@ -172,4 +194,17 @@ func roundTrip(t *testing.T, tr http.RoundTripper, url string) {
 
 	_, err = tr.RoundTrip(req)
 	require.NoError(t, err)
+}
+
+// newStreamRequest returns a request whose body cannot be rewound, as
+// httputil.ReverseProxy forwards a client's.
+func newStreamRequest(t *testing.T, body string) *http.Request {
+	t.Helper()
+
+	req, err := http.NewRequest(http.MethodPost, "https://up.example/", nil)
+	require.NoError(t, err)
+	req.Body = io.NopCloser(strings.NewReader(body))
+	req.ContentLength = -1
+
+	return req
 }
