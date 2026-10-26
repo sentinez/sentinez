@@ -22,6 +22,7 @@ import (
 	"github.com/sentinez/core/szhttp/httpreq"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -159,5 +160,43 @@ func TestMatchSourceTLS(t *testing.T) {
 	ruleTlsFalse := newRule(rulepb.FieldSource_FIELD_SOURCE_TLS, rulepb.Operator_OPERATOR_EQ, "false")
 	if matchSourceTLS(ctx, ruleTlsFalse.Condition) != false {
 		t.Errorf("expected false for matching false")
+	}
+}
+
+func TestMatchNumber(t *testing.T) {
+	const (
+		gt  = rulepb.Operator_OPERATOR_GT
+		gte = rulepb.Operator_OPERATOR_GTE
+		lt  = rulepb.Operator_OPERATOR_LT
+		lte = rulepb.Operator_OPERATOR_LTE
+	)
+
+	tests := []struct {
+		name    string
+		giveOp  rulepb.Operator
+		giveSrc string
+		giveDes string
+		want    bool
+	}{
+		{"gt", gt, "10", "9", true},
+		{"gt equal", gt, "10", "10", false},
+		{"gte equal", gte, "10", "10", true},
+		{"lt", lt, "2.5", "3", true},
+		{"lte equal", lte, "3", "3", true},
+		{"lte above", lte, "4", "3", false},
+		{"negative", lt, "-1", "0", true},
+		{"src not a number", gt, "abc", "1", false},
+		{"des not a number", gt, "1", "abc", false},
+		{"empty src", lt, "", "1", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := matchString(tt.giveOp, tt.giveSrc, tt.giveDes)
+			gotBytes := matchBytes(tt.giveOp, []byte(tt.giveSrc), tt.giveDes)
+
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.want, gotBytes)
+		})
 	}
 }
