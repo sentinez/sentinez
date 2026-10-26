@@ -1,16 +1,9 @@
 package render
 
-templ notFound(requestId string) {
-	<div style="display: flex; align-items: center; padding: 2rem;">
-		@logo()
-		<div>
-			<h1>404 Not Found</h1>
-			<p>The page you are looking for could not be found.</p>
-			<pre>X-Request-ID { requestId } </pre>
-		</div>
-	</div>
-}
-
 templ NotFound(requestId string) {
-	@View("404 | sentinez", notFound(requestId))
+	@View("404 | sentinez", errorPage(
+		"404 Not Found",
+		"The page you are looking for could not be found.",
+		requestId,
+	))
 }

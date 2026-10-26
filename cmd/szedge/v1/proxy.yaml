@@ -233,6 +233,30 @@ setting:
           action:
             type: ACTION_TYPE_BLOCK
 
+      # Proof-of-work challenge: the client ticks a checkbox and its
+      # browser solves a hash puzzle, then a pass cookie lets it
+      # through for an hour. Only GETs are challenged, since the
+      # client is sent back with a GET and a POST body would be lost.
+      - ingress:
+          name: "Challenge GET /login"
+          status: STATUS_ACTIVE
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_PATH
+                    key: "/login"
+                    operator: OPERATOR_EQ
+                    value: "/login"
+
+                - condition:
+                    source: FIELD_SOURCE_METHOD
+                    key: "GET"
+                    operator: OPERATOR_EQ
+                    value: "GET"
+          action:
+            type: ACTION_TYPE_CHALLENGE
+
     limiters:
       - timeWindow: 5s
         maxRequests: 5000
@@ -269,6 +293,14 @@ setting:
                     key: "GET"
                     operator: OPERATOR_EQ
                     value: "GET"
+
+                # Never cache the challenged page: the cache runs
+                # before the sec_rules and would skip the challenge.
+                - condition:
+                    source: FIELD_SOURCE_PATH
+                    key: "/login"
+                    operator: OPERATOR_NE
+                    value: "/login"
 
 
   # ----------------------------------------------------------

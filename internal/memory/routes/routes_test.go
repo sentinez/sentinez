@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"testing"
 
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -67,4 +68,38 @@ func TestJoinRewrite(t *testing.T) {
 			assert.Equal(t, tt.want, buf.String())
 		})
 	}
+}
+
+func TestPick(t *testing.T) {
+	// Sorted longest first, as Store keeps them.
+	routes := []*edgepb.Location{
+		{Location: "/local"}, {Location: "/api"}, {Location: "/"},
+	}
+
+	tests := []struct {
+		name         string
+		giveLocation string
+		givePath     string
+		want         string
+	}{
+		{"longest prefix", "", "/api/users", "/api"},
+		{"root fallback", "", "/login", "/"},
+		{"route to", "/local", "/login", "/local"},
+		{"route to overrides prefix", "/", "/api/users", "/"},
+		{"unknown route to falls back", "/nope", "/api/x", "/api"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := pick(routes, tt.giveLocation, []byte(tt.givePath))
+
+			assert.Equal(t, tt.want, got.GetLocation())
+		})
+	}
+}
+
+func TestPickNone(t *testing.T) {
+	routes := []*edgepb.Location{{Location: "/api"}}
+
+	assert.Nil(t, pick(routes, "", []byte("/web")))
 }

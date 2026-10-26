@@ -27,6 +27,18 @@ export interface ContextExtra {
   rulesetsMatchedIds: string[];
   rulesetsMatchedNames: string[];
   rulesetsMatchedSeverity: string[];
+  /** Tags set by the SecRule SET_TAG actions the request matched. */
+  tags: { [key: string]: string };
+  /**
+   * Location (server.locations[].location) a SecRule ROUTE_TO action
+   * sends the request to, instead of the longest matching prefix.
+   */
+  routeLocation: string;
+}
+
+export interface ContextExtra_TagsEntry {
+  key: string;
+  value: string;
 }
 
 function createBaseContext(): Context {
@@ -160,6 +172,8 @@ function createBaseContextExtra(): ContextExtra {
     rulesetsMatchedIds: [],
     rulesetsMatchedNames: [],
     rulesetsMatchedSeverity: [],
+    tags: {},
+    routeLocation: "",
   };
 }
 
@@ -182,6 +196,12 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     }
     for (const v of message.rulesetsMatchedSeverity) {
       writer.uint32(114).string(v!);
+    }
+    globalThis.Object.entries(message.tags).forEach(([key, value]: [string, string]) => {
+      ContextExtra_TagsEntry.encode({ key: key as any, value }, writer.uint32(122).fork()).join();
+    });
+    if (message.routeLocation !== "") {
+      writer.uint32(130).string(message.routeLocation);
     }
     return writer;
   },
@@ -247,6 +267,25 @@ export const ContextExtra: MessageFns<ContextExtra> = {
             message.rulesetsMatchedSeverity.push(reader.string());
             continue;
           }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            const entry15 = ContextExtra_TagsEntry.decode(reader, reader.uint32());
+            if (entry15.value !== undefined) {
+              message.tags[entry15.key] = entry15.value;
+            }
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.routeLocation = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -287,6 +326,25 @@ export const ContextExtra: MessageFns<ContextExtra> = {
         : globalThis.Array.isArray(object?.rulesets_matched_severity)
         ? object.rulesets_matched_severity.map((e: any) => globalThis.String(e))
         : [],
+      tags: isObject(object.tags)
+        ? (globalThis.Object.entries(object.tags) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : {},
+      routeLocation: isSet(object.routeLocation)
+        ? globalThis.String(object.routeLocation)
+        : isSet(object.route_location)
+        ? globalThis.String(object.route_location)
+        : "",
     };
   },
 
@@ -310,6 +368,18 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.rulesetsMatchedSeverity?.length) {
       obj.rulesetsMatchedSeverity = message.rulesetsMatchedSeverity;
     }
+    if (message.tags) {
+      const entries = globalThis.Object.entries(message.tags) as [string, string][];
+      if (entries.length > 0) {
+        obj.tags = {};
+        entries.forEach(([k, v]) => {
+          obj.tags[k] = v;
+        });
+      }
+    }
+    if (message.routeLocation !== "") {
+      obj.routeLocation = message.routeLocation;
+    }
     return obj;
   },
 
@@ -324,6 +394,101 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     message.rulesetsMatchedIds = object.rulesetsMatchedIds?.map((e) => e) || [];
     message.rulesetsMatchedNames = object.rulesetsMatchedNames?.map((e) => e) || [];
     message.rulesetsMatchedSeverity = object.rulesetsMatchedSeverity?.map((e) => e) || [];
+    message.tags = (globalThis.Object.entries(object.tags ?? {}) as [string, string][]).reduce(
+      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
+        if (value !== undefined) {
+          acc[key] = globalThis.String(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    message.routeLocation = object.routeLocation ?? "";
+    return message;
+  },
+};
+
+function createBaseContextExtra_TagsEntry(): ContextExtra_TagsEntry {
+  return { key: "", value: "" };
+}
+
+export const ContextExtra_TagsEntry: MessageFns<ContextExtra_TagsEntry> = {
+  encode(message: ContextExtra_TagsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ContextExtra_TagsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseContextExtra_TagsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ContextExtra_TagsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: ContextExtra_TagsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ContextExtra_TagsEntry>, I>>(base?: I): ContextExtra_TagsEntry {
+    return ContextExtra_TagsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ContextExtra_TagsEntry>, I>>(object: I): ContextExtra_TagsEntry {
+    const message = createBaseContextExtra_TagsEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -339,6 +504,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

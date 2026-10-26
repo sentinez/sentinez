@@ -1,17 +1,30 @@
 package render
 
 // logo renders the Sentinéz mark inline so error pages need no asset fetch.
-templ logo() {
+templ logo(size string) {
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 1040 1040"
-		width="120"
-		height="120"
+		width={ size }
+		height={ size }
 		role="img"
 		aria-label="Logo"
-		style="flex-shrink: 0; margin-right: 2rem;"
+		class="sz-logo"
+		style="flex-shrink: 0;"
 	>
-		<g fill="#0504AA">
+		<style>
+			/* The transparent stroke fills the gaps so the wave never drops
+			   between bars. */
+			.sz-logo rect {
+				fill: #0504AA;
+				stroke: transparent;
+				stroke-width: 40;
+			}
+			@media (prefers-reduced-motion: reduce) {
+				.sz-logo rect:hover { fill: #6B6AF2; }
+			}
+		</style>
+		<g>
 			<rect x="120" y="120" width="80" height="800"></rect>
 			<rect x="240" y="280" width="80" height="600"></rect>
 			<rect x="360" y="360" width="80" height="480"></rect>
@@ -21,4 +34,22 @@ templ logo() {
 			<rect x="840" y="120" width="80" height="800"></rect>
 		</g>
 	</svg>
+	<script>
+		// Each bar entered starts a wave spreading out from it. The keyframes
+		// leave both ends implicit so a new wave blends from whatever an
+		// earlier one is still showing instead of cutting it off.
+		for (const logo of document.querySelectorAll('.sz-logo')) {
+			const bars = [...logo.querySelectorAll('rect')];
+			const still = matchMedia('(prefers-reduced-motion: reduce)');
+			bars.forEach((bar, h) => bar.addEventListener('pointerenter', () => {
+				if (still.matches) {
+					return;
+				}
+				bars.forEach((b, i) => b.animate(
+					[{ fill: '#6B6AF2', offset: 0.5 }],
+					{ duration: 600, delay: Math.abs(i - h) * 60, easing: 'ease-in-out' },
+				));
+			}));
+		}
+	</script>
 }

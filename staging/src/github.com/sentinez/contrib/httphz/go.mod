@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/a-h/templ v0.3.1020
+	github.com/a-h/templ v0.3.1070
 	github.com/cloudwego/gopkg v0.2.0
 	github.com/cloudwego/hertz v0.10.5
 	github.com/hertz-contrib/http2 v0.1.8
@@ -31,7 +31,7 @@ require (
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/cloudwego/netpoll v0.7.3 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
+	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect

@@ -15,12 +15,9 @@
 package network
 
 import (
-	"crypto/tls"
 	"net"
 	"net/http"
 	"time"
-
-	"github.com/quic-go/quic-go/http3"
 )
 
 func StandardTransporter() http.RoundTripper {
@@ -36,15 +33,6 @@ func StandardTransporter() http.RoundTripper {
 	}).DialContext
 
 	return transport
-}
-
-func QuicTransporter(serverName string) http.RoundTripper {
-	return &http3.Transport{
-		TLSClientConfig: &tls.Config{
-			MinVersion: tls.VersionTLS13,
-			ServerName: serverName,
-		},
-	}
 }
 
 func GetInterface(name string) (*net.Interface, error) {

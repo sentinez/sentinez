@@ -53,11 +53,16 @@ var (
 	HeaderContentLength    = []byte(httpconst.HeaderContentLength)
 	HeaderAllow            = []byte(httpconst.HeaderAllow)
 	HeaderXContentTypeOpts = []byte(httpconst.HeaderXContentTypeOpts)
+	HeaderCookie           = []byte(httpconst.HeaderCookie)
+	HeaderLocation         = []byte(httpconst.HeaderLocation)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)
 	ValueTextPlain = []byte(httpconst.ValueTextPlain)
 	ValueTextHTML  = []byte(httpconst.ValueTextHTML)
 	ValueNoSniff   = []byte(httpconst.ValueNoSniff)
+	ValueNoStore   = []byte(httpconst.ValueNoStore)
 
 	ValueAllowGetHead = []byte(httpconst.ValueAllowGetHead)
+
+	PathSystemPrefix = []byte(httpconst.PathSystemPrefix)
 )

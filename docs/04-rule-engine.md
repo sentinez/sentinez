@@ -56,8 +56,9 @@ Notes:
 
 - `MATCHES` uses Go `regexp`; compiled regexes are cached globally by pattern
   (`sync.Map`). An invalid pattern never matches.
-- `GT/GTE/LT/LTE` exist in the enum but are **not implemented** (never
-  match).
+- `GT/GTE/LT/LTE` compare both sides as numbers (`strconv.ParseFloat`) on
+  the string sources (`PATH`, `BODY`, `HOST`, `METHOD`, `JA4`, a `HEADER`
+  or `QUERY` value). A side that is not a number never matches.
 - Unknown sources never match (`bypass = false`).
 - In YAML, `value` is always a string (Lite form), so list operators
   (`IN`/`NOT_IN`) are only usable when building an `Expression` directly
@@ -72,10 +73,54 @@ status, priority}`. At the edge
 - Only `STATUS_ACTIVE` rules are kept.
 - Rules are sorted by **descending priority**, stable (equal priorities keep
   declaration order).
-- The `RUL` node walks the chain; the first matching rule with
-  `ACTION_TYPE_BLOCK` → `403`. Other actions (`LOG`, `MODIFY_HEADER`,
-  `REDIRECT`, `SET_TAG`, `ROUTE_TO`) are only debug-logged for now and not
-  executed.
+- The `RUL` node
+  ([internal/handlers/secure](../internal/handlers/secure/action.go))
+  walks the chain in that order and keeps every matching rule:
+  - **Terminal** actions end the request; the strongest one matched wins,
+    `BLOCK` > `CHALLENGE` > `REDIRECT`, ties going to the higher priority.
+    `BLOCK` stops the scan; `CHALLENGE` and `REDIRECT` do not, so a later
+    `BLOCK` still applies to a client holding a challenge pass.
+  - **Non-terminal** actions of every matched rule are applied, before the
+    terminal one. When rules set the same header, tag or route, the higher
+    priority wins.
+  - One `secrule: matched` event is logged per request, with the terminal
+    action (else the highest priority one) and the tags.
+
+Actions and their `params` (`Action.params`, a `Struct`; numbers and
+booleans are formatted as strings):
+
+| Action | `params` | Effect |
+|---|---|---|
+| `BLOCK` | — | `403` page |
+| `CHALLENGE` | — | Proof-of-work page until the client holds a `pow-pass` cookie |
+| `REDIRECT` | `location` (required), `status` (301, 302, 303, 307, 308; default 302) | Redirects the client. Without a usable `location` the rule is ignored |
+| `LOG` | — | Only the matched event |
+| `MODIFY_HEADER` | header → value | Sets request headers sent upstream. A location's `proxySetHeaders` are applied later and win on the same header |
+| `SET_TAG` | key → value | Adds to `ContextExtra.tags` and the matched event |
+| `ROUTE_TO` | `location` | Proxies to the `server.locations` entry with that `location` instead of the longest matching prefix; an unknown one falls back to prefix matching |
+
+```yaml
+sec_rules:
+  - ingress:
+      name: "Send old links to the new shop"
+      status: STATUS_ACTIVE
+      expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_PATH, operator: OPERATOR_PREFIX, value: "/old-shop"}}]}]}
+      action:
+        type: ACTION_TYPE_REDIRECT
+        params: {location: "/shop", status: 301}
+  - ingress:
+      name: "Tag and route large pages"
+      status: STATUS_ACTIVE
+      expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_QUERY, key: "page", operator: OPERATOR_GT, value: "100"}}]}]}
+      action:
+        type: ACTION_TYPE_SET_TAG
+        params: {deep_paging: true}
+```
+
+The control plane stores the action value as `ActionValue{str_value,
+map_value}` (console: one value for `REDIRECT`/`ROUTE_TO`, key/value rows for
+`MODIFY_HEADER`/`SET_TAG`); there is no sync to the edge yet, so the edge
+only reads `params` from `proxy.yaml`.
 
 There are three SecRule shapes in the protos:
 
@@ -88,10 +133,13 @@ There are three SecRule shapes in the protos:
 ## 4.4 CDN rules
 
 `types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` lives in
-`setting.delivery.cdn`. Each namespace keeps **one** active CDN rule (a
-later rule overwrites an earlier one). The `CDN` node only caches when the
-rule is active and its expression matches. The cache is
-`patrickmn/go-cache` with a 1h TTL.
+`setting.delivery.cdn`. As for SecRules, each namespace keeps a **chain**
+of CDN rules
+([internal/memory/cdnrules](../internal/memory/cdnrules/cdnrules.go)): only
+`STATUS_ACTIVE` rules, sorted by **descending priority**, stable (equal
+priorities keep declaration order). The `CDN` node caches a request when at
+least one rule matches, tried in that order. System paths (`/.sentinez/`)
+are never cached. The cache is `patrickmn/go-cache` with a 1h TTL.
 
 - Key: `method + scheme + host + path + query + Accept-Encoding` (the body
   is stored as encoded by the upstream, e.g. gzip or br).
@@ -101,6 +149,20 @@ rule is active and its expression matches. The cache is
   `private` or `no-cache`.
 - `Alt-Svc` is not stored, since the server adds it to every response.
 - On a hit the status code is written before the body.
+
+```yaml
+delivery:
+  cdn:
+    - rule:
+        name: "Static assets"
+        status: STATUS_ACTIVE
+        priority: 10
+        expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_PATH, operator: OPERATOR_PREFIX, value: "/static/"}}]}]}
+    - rule:
+        name: "Other GET pages"
+        status: STATUS_ACTIVE
+        expr: {orCondition: [{rules: [{condition: {source: FIELD_SOURCE_METHOD, operator: OPERATOR_EQ, value: "GET"}}]}]}
+```
 
 ## 4.5 Rate limiter
 

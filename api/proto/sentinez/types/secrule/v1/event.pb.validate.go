@@ -74,6 +74,8 @@ func (m *RuleEvent) Validate() error {
 
 	// no validation rules for RequestId
 
+	// no validation rules for Tags
+
 	return nil
 }
 

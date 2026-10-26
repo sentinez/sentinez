@@ -1,23 +1,22 @@
 # 12. Known issues
 
-This list was compiled while reading the code at commit `47e5f876`. Each
-entry gives the location and the consequence so it can be turned into an
-issue. Entries marked *(needs verification)* are inferred from the code and
-have not been reproduced. Remove an entry once it is fixed.
+This list was compiled while reading the code at commit `47e5f876` and
+reviewed again at `d64307d3`. Each entry gives the location and the
+consequence so it can be turned into an issue. Entries marked *(needs
+verification)* are inferred from the code and have not been reproduced.
+Remove an entry once it is fixed.
 
 ## 12.1 Logic bugs (affect behavior)
 
 | # | Location | Problem | Consequence |
 |---|---|---|---|
-| 2 | [controlplane/security/v1/repos/secrule/secrule.go](../staging/src/github.com/sentinez/controlplane/security/v1/repos/secrule/secrule.go) `Update` | Only updates `name`, `description`, `expr`, `status` | Changing `priority`/`action` through the API is not persisted |
+| 2 | [controlplane/apps/security/v1/repos/secrule/secrule.go](../staging/src/github.com/sentinez/controlplane/apps/security/v1/repos/secrule/secrule.go) `Update` | Only updates `name`, `description`, `expr`, `status` | Changing `priority`/`action` through the API is not persisted |
 | 3 | [pkg/cluster/cluster.go](../pkg/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; after 1024 `Put`s the caller goroutine blocks |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` mutates a field of a shared proxy | The WebSocket target grows with every request, and there is a data race |
 | 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
 | 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
-| 10 | [internal/memory/memory.go](../internal/memory/memory.go) `LoadRulesets` | Ignores the contents of `rulesets[]`; always CRS v4.16.0 + the RCE flag; the status check is commented out | The rule version/groups cannot be configured; SQLi (942) is never enabled |
 | 11 | [internal/handlers/logging/logging.go](../internal/handlers/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
-| 12 | [internal/bpf/security.go](../internal/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
-| 13 | [shared/szeventq/eventq.go](../staging/src/github.com/sentinez/shared/szeventq/eventq.go) `Close`, `CloseAll` | Type-asserts to `chan string` / `chan any` instead of `chan T` | Panics for any other `T` (no callers yet) |
+| 12 | [internal/dmz/dataplane/bpf/security.go](../internal/dmz/dataplane/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
 
 ## 12.2 Security
 
@@ -42,11 +41,8 @@ have not been reproduced. Remove an entry once it is fixed.
   but is not enabled.
 - `EdgeService.EvaluateRuleset` evaluates
   an empty `Expression` (always matches) and ignores `ruleset_id`.
-- SecRule actions other than `BLOCK` are not executed; operators
-  `GT/GTE/LT/LTE` are not implemented.
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
-- Only one CDN rule and one limiter per namespace.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - IAM uniqueness (one user per email, one account per provider per user,
   `LOCAL` usernames) is only checked in the service before inserting; the

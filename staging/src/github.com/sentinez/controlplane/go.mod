@@ -28,7 +28,7 @@ require (
 	buf.build/go/protovalidate v1.4.0 // indirect
 	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.3 // indirect
-	github.com/a-h/templ v0.3.1020 // indirect
+	github.com/a-h/templ v0.3.1070 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
@@ -39,7 +39,7 @@ require (
 	github.com/cloudresty/ulid v1.2.1 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
-	github.com/fatih/color v1.16.0 // indirect
+	github.com/fatih/color v1.19.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -66,8 +66,8 @@ require (
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect

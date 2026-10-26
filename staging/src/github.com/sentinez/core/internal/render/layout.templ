@@ -28,3 +28,16 @@ templ View(title string, body templ.Component) {
 		@content(title, body)
 	</html>
 }
+
+// errorPage lays out an error page: the logo beside heading, msg and the
+// request id.
+templ errorPage(heading, msg, requestId string) {
+	<div style="display: flex; align-items: center; padding: 2rem;">
+		@logo("120")
+		<div style="margin-left: 2rem;">
+			<h1>{ heading }</h1>
+			<p>{ msg }</p>
+			<pre>X-Request-ID { requestId } </pre>
+		</div>
+	</div>
+}

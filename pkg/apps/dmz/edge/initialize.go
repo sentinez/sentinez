@@ -31,6 +31,7 @@ func (s *Server) initialize() error {
 	chain, err := http.NewHandler(s.memstore,
 		option.WithExporter(s.logExporter),
 		option.WithHostname(s.conf.Get(settingpb.Senz_SENZ_HOSTNAME)),
+		option.WithSecretKey(s.conf.Get(settingpb.Senz_SENZ_SECRET_KEY)),
 	)
 	if err != nil {
 		return fmt.Errorf("build chain: %w", err)

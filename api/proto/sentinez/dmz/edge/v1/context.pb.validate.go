@@ -147,6 +147,10 @@ func (m *ContextExtra) Validate() error {
 
 	// no validation rules for Namespace
 
+	// no validation rules for Tags
+
+	// no validation rules for RouteLocation
+
 	return nil
 }
 

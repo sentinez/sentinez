@@ -29,13 +29,14 @@ import (
 
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/sentinez"
 	"github.com/sentinez/sentinez/internal/envplugin"
 )
 
 // PublicPrefix is the path the embedded images are served under, e.g.
 // _logo/sentinez/1/1.png is served at /cdn/sentinez/public/sentinez/1/1.png.
-const PublicPrefix = "/cdn/sentinez/public/"
+var PublicPrefix = httpconst.SystemPath("public/")
 
 // _publicRoot is the directory sentinez.Logo embeds; paths inside the
 // embed.FS keep it as their prefix.

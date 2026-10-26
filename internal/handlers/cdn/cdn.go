@@ -25,7 +25,6 @@ import (
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/core/szrule"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
@@ -61,13 +60,15 @@ func (c *Cache) Provision(env *envplugin.Env) error {
 	return nil
 }
 
+// Handle serves and stores the responses any active CDN rule of the
+// namespace matches, tried in priority order. System paths are answered
+// by the edge itself and never cached.
 func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
-	eval, rule := c.store.LoadContext(ctx)
-	if rule.GetRuleRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
+	if bytes.HasPrefix(ctx.Path(), szbytestr.PathSystemPrefix) {
 		return next.Handle(ctx)
 	}
 
-	if !eval(ctx, nil) {
+	if !matchAny(ctx, c.store.LoadContext(ctx)) {
 		return next.Handle(ctx)
 	}
 
@@ -77,11 +78,23 @@ func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
 		c.buf.Put(keyBuf)
 	}()
 
-	return c.caching(ctx, next, eval, keyBuf.String())
+	return c.caching(ctx, next, keyBuf.String())
 }
 
-func (c *Cache) caching(ctx szhttp.Context, next chains.Handler,
-	eval szrule.EvalFunc, key string) error {
+// matchAny reports whether a rule of chain matches ctx.
+func matchAny(ctx szhttp.Context, chain []cdnrules.Entry) bool {
+	for _, e := range chain {
+		if e.Eval(ctx, nil) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Cache) caching(
+	ctx szhttp.Context, next chains.Handler, key string,
+) error {
 
 	resp, ok := c.cached.Get(key)
 	if !ok {
@@ -89,7 +102,7 @@ func (c *Cache) caching(ctx szhttp.Context, next chains.Handler,
 			return err
 		}
 
-		c.setCache(ctx, eval, key)
+		c.setCache(ctx, key)
 		return nil
 	}
 
@@ -127,12 +140,7 @@ func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	return keyBuffer
 }
 
-func (c *Cache) setCache(
-	ctx szhttp.Context, ef szrule.EvalFunc, key string) {
-	if ef == nil {
-		return
-	}
-
+func (c *Cache) setCache(ctx szhttp.Context, key string) {
 	headers := ctx.ResponseHeader()
 	if !cacheable(ctx, headers) {
 		return

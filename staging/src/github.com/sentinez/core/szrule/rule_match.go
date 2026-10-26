@@ -17,6 +17,7 @@ package szrule
 import (
 	"bytes"
 	"net/netip"
+	"strconv"
 	"strings"
 
 	chttp "github.com/sentinez/core/szhttp"
@@ -44,6 +45,9 @@ func matchString(op rulepb.Operator, src, des string) bool {
 		return strings.HasSuffix(src, des)
 	case rulepb.Operator_OPERATOR_MATCHES:
 		return matchRegex(des, bytesconv.S2b(src))
+	case rulepb.Operator_OPERATOR_GT, rulepb.Operator_OPERATOR_GTE,
+		rulepb.Operator_OPERATOR_LT, rulepb.Operator_OPERATOR_LTE:
+		return matchNumber(op, src, des)
 	default:
 		return _unmatched
 	}
@@ -63,6 +67,36 @@ func matchBytes(op rulepb.Operator, src []byte, des string) bool {
 		return bytes.HasSuffix(src, bytesconv.S2b(des))
 	case rulepb.Operator_OPERATOR_MATCHES:
 		return matchRegex(des, src)
+	case rulepb.Operator_OPERATOR_GT, rulepb.Operator_OPERATOR_GTE,
+		rulepb.Operator_OPERATOR_LT, rulepb.Operator_OPERATOR_LTE:
+		return matchNumber(op, bytesconv.B2s(src), des)
+	default:
+		return _unmatched
+	}
+}
+
+// matchNumber compares src to des as numbers for GT, GTE, LT and LTE. A
+// side that is not a number never matches.
+func matchNumber(op rulepb.Operator, src, des string) bool {
+	a, err := strconv.ParseFloat(src, 64)
+	if err != nil {
+		return _unmatched
+	}
+
+	b, err := strconv.ParseFloat(des, 64)
+	if err != nil {
+		return _unmatched
+	}
+
+	switch op {
+	case rulepb.Operator_OPERATOR_GT:
+		return a > b
+	case rulepb.Operator_OPERATOR_GTE:
+		return a >= b
+	case rulepb.Operator_OPERATOR_LT:
+		return a < b
+	case rulepb.Operator_OPERATOR_LTE:
+		return a <= b
 	default:
 		return _unmatched
 	}

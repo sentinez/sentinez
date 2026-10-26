@@ -38,4 +38,7 @@ message RuleEvent {
   string request_query = 12;
   string request_ip = 13;
   string request_id = 14;
+
+  // Tags set by the SET_TAG actions of the matched rules.
+  map<string, string> tags = 15;
 }

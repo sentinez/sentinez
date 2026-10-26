@@ -30,7 +30,7 @@ import (
 
 // New builds the edge chain: the plugins, in request order, provision
 // themselves from mem and opts (see option.WithLevel, option.WithExporter,
-// option.WithHostname).
+// option.WithHostname, option.WithSecretKey).
 func New(mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
 	return chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)
 }
