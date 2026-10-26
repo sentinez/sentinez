@@ -41,7 +41,12 @@ const (
 	_block     = rulepb.ActionType_ACTION_TYPE_BLOCK
 	_challenge = rulepb.ActionType_ACTION_TYPE_CHALLENGE
 	_log       = rulepb.ActionType_ACTION_TYPE_LOG
-	_none      = rulepb.ActionType_ACTION_TYPE_UNSPECIFIED
+	_redirect  = rulepb.ActionType_ACTION_TYPE_REDIRECT
+	_tag       = rulepb.ActionType_ACTION_TYPE_SET_TAG
+
+	_modifyHeader = rulepb.ActionType_ACTION_TYPE_MODIFY_HEADER
+	_routeTo      = rulepb.ActionType_ACTION_TYPE_ROUTE_TO
+	_none         = rulepb.ActionType_ACTION_TYPE_UNSPECIFIED
 )
 
 // rule is one chain entry: its action and whether it matches.
@@ -50,25 +55,28 @@ type rule struct {
 	match  bool
 }
 
-func TestMatchAction(t *testing.T) {
+func TestEvaluate(t *testing.T) {
 	tests := []struct {
 		name      string
 		giveRules []rule
 		want      rulepb.ActionType
+		wantActs  []rulepb.ActionType
 	}{
-		{"no rules", nil, _none},
-		{"no match", []rule{{_block, false}}, _none},
-		{"last match", []rule{{_log, true}, {_log, true}}, _log},
-		{"block wins", []rule{{_log, true}, {_block, true}, {_log, true}},
-			_block},
-		{"challenge kept", []rule{{_challenge, true}, {_log, true}},
-			_challenge},
+		{"no rules", nil, _none, nil},
+		{"no match", []rule{{_block, false}}, _none, nil},
+		{"non-terminal only", []rule{{_log, true}, {_tag, true}}, _none,
+			[]rulepb.ActionType{_log, _tag}},
+		{"block stops scan", []rule{{_log, true}, {_block, true}, {_tag, true}},
+			_block, []rulepb.ActionType{_log}},
+		{"challenge keeps scanning", []rule{{_challenge, true}, {_log, true}},
+			_challenge, []rulepb.ActionType{_log}},
 		{"block after challenge", []rule{{_challenge, true}, {_block, true}},
-			_block},
-		{"challenge after log", []rule{{_log, true}, {_challenge, true}},
-			_challenge},
+			_block, nil},
+		{"challenge beats redirect",
+			[]rule{{_redirect, true}, {_challenge, true}},
+			_challenge, nil},
 		{"unmatched block", []rule{{_challenge, true}, {_block, false}},
-			_challenge},
+			_challenge, nil},
 	}
 
 	for _, tt := range tests {
@@ -76,9 +84,10 @@ func TestMatchAction(t *testing.T) {
 			ctx := newTestContext(http.MethodGet, "/", "", nil)
 			mr := &rulepb.MatchedRules{}
 
-			got := matchAction(ctx, chainOf(tt.giveRules), mr)
+			got, acts := evaluate(ctx, chainOf(tt.giveRules), mr, nil)
 
 			assert.Equal(t, tt.want, got.GetType())
+			assert.Equal(t, tt.wantActs, typesOf(acts))
 		})
 	}
 }
@@ -194,6 +203,15 @@ func chainOf(rules []rule) []secrules.Entry {
 	}
 
 	return chain
+}
+
+func typesOf(acts []*rulepb.Action) []rulepb.ActionType {
+	var types []rulepb.ActionType
+	for _, a := range acts {
+		types = append(types, a.GetType())
+	}
+
+	return types
 }
 
 func newTestSecRule() *SecRule {

@@ -16,6 +16,7 @@ package secure
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -63,10 +64,12 @@ func (sr *SecRule) Provision(env *envplugin.Env) error {
 	return nil
 }
 
-// Handle runs the active rules of the namespace in priority order and
-// applies the action matchAction picks: block ends the chain, challenge
-// serves the proof-of-work page until the client holds a pass. A solved
-// challenge posted to ChallengePath is answered here, before any rule.
+// Handle runs the active rules of the namespace in priority order (see
+// evaluate). Every matched non-terminal action is applied (headers, tags,
+// route), then the terminal one decides: block ends the chain, challenge
+// serves the proof-of-work page until the client holds a pass, redirect
+// sends the client elsewhere. A solved challenge posted to ChallengePath
+// is answered here, before any rule.
 func (sr *SecRule) Handle(ctx szhttp.Context, next chains.Handler) error {
 	if challenge.IsVerify(ctx) {
 		return sr.verify(ctx)
@@ -80,18 +83,31 @@ func (sr *SecRule) Handle(ctx szhttp.Context, next chains.Handler) error {
 	matched := matchedrule.Acquire()
 	defer func() { _ = matched.Close() }()
 
-	action := matchAction(ctx, chain, matched.MatchedRules)
-	if action == nil {
+	var buf [_maxActions]*rulepb.Action
+	terminal, acts := evaluate(ctx, chain, matched.MatchedRules, buf[:0])
+	if terminal == nil && len(acts) == 0 {
 		return next.Handle(ctx)
 	}
 
-	sr.logMatched(ctx, action, matched.MatchedRules)
+	applyActions(ctx, acts)
+	sr.logMatched(ctx, loggedAction(terminal, acts), matched.MatchedRules)
 
-	switch action.GetType() {
+	return sr.enforce(ctx, terminal, next)
+}
+
+// enforce ends the request as terminal says, or passes it on.
+func (sr *SecRule) enforce(
+	ctx szhttp.Context, terminal *rulepb.Action, next chains.Handler,
+) error {
+	switch terminal.GetType() {
 	case rulepb.ActionType_ACTION_TYPE_BLOCK:
 		return szhttp.Forbidden(ctx)
 	case rulepb.ActionType_ACTION_TYPE_CHALLENGE:
 		return sr.challenge(ctx, next)
+	case rulepb.ActionType_ACTION_TYPE_REDIRECT:
+		if done, err := redirect(ctx, terminal); done {
+			return err
+		}
 	}
 
 	return next.Handle(ctx)
@@ -114,36 +130,10 @@ func (sr *SecRule) logMatched(
 	event.RequestPath = bytesconv.B2s(ctx.URI())
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+	event.Tags = maps.Clone(ctx.X().GetTags())
 
 	// Info releases the event back to the pool.
 	sr.log.Info("secrule: matched", event, event)
-}
-
-// matchAction returns the action of the first matching rule with a
-// terminal action (block), else of the first matching challenge, else of
-// the last matching rule. A challenge does not stop the scan, so a later
-// block still applies to clients holding a pass. A rule that does not
-// match has no say: nil when no rule matches.
-func matchAction(
-	ctx szhttp.Context, chain []secrules.Entry, mr *rulepb.MatchedRules,
-) *rulepb.Action {
-	var action *rulepb.Action
-
-	for _, e := range chain {
-		if !e.Eval(ctx, mr) {
-			continue
-		}
-
-		next := e.Rule.GetAction()
-		switch {
-		case next.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK:
-			return next
-		case action.GetType() != rulepb.ActionType_ACTION_TYPE_CHALLENGE:
-			action = next
-		}
-	}
-
-	return action
 }
 
 // challenge lets a client holding a valid pass through, and serves the

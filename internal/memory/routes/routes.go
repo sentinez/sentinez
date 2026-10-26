@@ -99,8 +99,10 @@ func (r *Router) Store(server *edgepb.Server) {
 }
 
 // nolint:funlen
+// Match picks the route of the request and rewrites it for the upstream:
+// the location a SecRule ROUTE_TO action chose (ContextExtra.route_location)
+// when the namespace has it, else the longest location prefixing the path.
 func (r *Router) Match(ctx szhttp.Context) (string, error) {
-
 	namespace := ctx.X().GetNamespace()
 	path := ctx.Path()
 
@@ -109,53 +111,77 @@ func (r *Router) Match(ctx szhttp.Context) (string, error) {
 		return "", szerror.F("not found: %s", path)
 	}
 
-	for _, route := range routes {
-		locationBytes := bytesconv.S2b(route.GetLocation())
-		rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
+	route := pick(routes, ctx.X().GetRouteLocation(), path)
+	if route == nil {
+		return "", szerror.F("not found: %s", path)
+	}
 
-		if matchLocation(path, locationBytes) {
-			szlog.Debugf(
-				"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-				namespace, route.GetProxyRewrite(), route.GetProxyPass(),
-				route.GetLocation(),
-			)
+	szlog.Debugf(
+		"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
+		namespace, route.GetProxyRewrite(), route.GetProxyPass(),
+		route.GetLocation(),
+	)
 
-			// path = /api/v1/users, location = /api, rewrite = /v1
-			// remainingPath = /v1 + /v1/users = /v1/v1/users
+	return forward(ctx, route)
+}
 
-			remainingPath := _buffer.Get()
-			defer func() {
-				remainingPath.Reset()
-				_buffer.Put(remainingPath)
-			}()
-
-			joinRewrite(remainingPath, rewriteBytes,
-				bytes.TrimPrefix(path, locationBytes))
-
-			ctx.SetPath(remainingPath.Bytes())
-
-			// Set default proxy routing headers
-			ctx.SetHeader(szbytestr.HeaderXForwardedPrefix, locationBytes)
-
-			// Add custom headers from config
-			for hk, hv := range route.GetProxySetHeaders() {
-				val, err := variable.ParseProxyVal(ctx, hv)
-				if err != nil {
-					return "", err
-				}
-
-				ctx.SetHeader(bytesconv.S2b(hk), bytesconv.S2b(val))
+// pick returns the route named location, else the longest one prefixing
+// path (routes are sorted longest first), or nil.
+func pick(
+	routes []*edgepb.Location, location string, path []byte,
+) *edgepb.Location {
+	if location != "" {
+		for _, route := range routes {
+			if route.GetLocation() == location {
+				return route
 			}
-
-			return route.GetProxyPass()[0].GetServer(), nil
 		}
 	}
 
-	return "", szerror.F("not found: %s", path)
+	for _, route := range routes {
+		if matchLocation(path, bytesconv.S2b(route.GetLocation())) {
+			return route
+		}
+	}
+
+	return nil
 }
 
-// matchLocation reports whether path is under location on a segment
-// boundary, so "/api" matches "/api" and "/api/x" but not "/apix".
+// forward rewrites the request path and headers for route and returns its
+// upstream server.
+func forward(ctx szhttp.Context, route *edgepb.Location) (string, error) {
+	locationBytes := bytesconv.S2b(route.GetLocation())
+	rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
+
+	// path = /api/v1/users, location = /api, rewrite = /v1
+	// remainingPath = /v1 + /v1/users = /v1/v1/users
+	remainingPath := _buffer.Get()
+	defer func() {
+		remainingPath.Reset()
+		_buffer.Put(remainingPath)
+	}()
+
+	joinRewrite(remainingPath, rewriteBytes,
+		bytes.TrimPrefix(ctx.Path(), locationBytes))
+
+	ctx.SetPath(remainingPath.Bytes())
+
+	// Set default proxy routing headers
+	ctx.SetHeader(szbytestr.HeaderXForwardedPrefix, locationBytes)
+
+	// Add custom headers from config
+	for hk, hv := range route.GetProxySetHeaders() {
+		val, err := variable.ParseProxyVal(ctx, hv)
+		if err != nil {
+			return "", err
+		}
+
+		ctx.SetHeader(bytesconv.S2b(hk), bytesconv.S2b(val))
+	}
+
+	return route.GetProxyPass()[0].GetServer(), nil
+}
+
 func matchLocation(path, location []byte) bool {
 	if !bytes.HasPrefix(path, location) {
 		return false

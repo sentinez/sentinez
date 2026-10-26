@@ -114,8 +114,13 @@ type ContextExtra struct {
 	RulesetsMatchedIds      []string               `protobuf:"bytes,12,rep,name=rulesets_matched_ids,json=rulesetsMatchedIds,proto3" json:"rulesets_matched_ids,omitempty"`
 	RulesetsMatchedNames    []string               `protobuf:"bytes,13,rep,name=rulesets_matched_names,json=rulesetsMatchedNames,proto3" json:"rulesets_matched_names,omitempty"`
 	RulesetsMatchedSeverity []string               `protobuf:"bytes,14,rep,name=rulesets_matched_severity,json=rulesetsMatchedSeverity,proto3" json:"rulesets_matched_severity,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Tags set by the SecRule SET_TAG actions the request matched.
+	Tags map[string]string `protobuf:"bytes,15,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Location (server.locations[].location) a SecRule ROUTE_TO action
+	// sends the request to, instead of the longest matching prefix.
+	RouteLocation string `protobuf:"bytes,16,opt,name=route_location,json=routeLocation,proto3" json:"route_location,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ContextExtra) Reset() {
@@ -190,6 +195,20 @@ func (x *ContextExtra) GetRulesetsMatchedSeverity() []string {
 	return nil
 }
 
+func (x *ContextExtra) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *ContextExtra) GetRouteLocation() string {
+	if x != nil {
+		return x.RouteLocation
+	}
+	return ""
+}
+
 var File_sentinez_dmz_edge_v1_context_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
@@ -200,7 +219,7 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\ttransport\x18\x02 \x01(\v2 .sentinez.types.net.v1.TransportR\ttransport\x12=\n" +
 	"\arequest\x18\x03 \x01(\v2#.sentinez.types.net.http.v1.RequestR\arequest\x120\n" +
 	"\x01x\x18\n" +
-	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xb6\x02\n" +
+	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xd8\x03\n" +
 	"\fContextExtra\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12/\n" +
 	"\x14sec_rule_matched_ids\x18\n" +
@@ -208,7 +227,12 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\x16sec_rule_matched_names\x18\v \x03(\tR\x13secRuleMatchedNames\x120\n" +
 	"\x14rulesets_matched_ids\x18\f \x03(\tR\x12rulesetsMatchedIds\x124\n" +
 	"\x16rulesets_matched_names\x18\r \x03(\tR\x14rulesetsMatchedNames\x12:\n" +
-	"\x19rulesets_matched_severity\x18\x0e \x03(\tR\x17rulesetsMatchedSeverityBDZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"
+	"\x19rulesets_matched_severity\x18\x0e \x03(\tR\x17rulesetsMatchedSeverity\x12@\n" +
+	"\x04tags\x18\x0f \x03(\v2,.sentinez.dmz.edge.v1.ContextExtra.TagsEntryR\x04tags\x12%\n" +
+	"\x0eroute_location\x18\x10 \x01(\tR\rrouteLocation\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01BDZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"
 
 var (
 	file_sentinez_dmz_edge_v1_context_proto_rawDescOnce sync.Once
@@ -222,24 +246,26 @@ func file_sentinez_dmz_edge_v1_context_proto_rawDescGZIP() []byte {
 	return file_sentinez_dmz_edge_v1_context_proto_rawDescData
 }
 
-var file_sentinez_dmz_edge_v1_context_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_dmz_edge_v1_context_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_dmz_edge_v1_context_proto_goTypes = []any{
 	(*Context)(nil),      // 0: sentinez.dmz.edge.v1.Context
 	(*ContextExtra)(nil), // 1: sentinez.dmz.edge.v1.ContextExtra
-	(*Metadata)(nil),     // 2: sentinez.dmz.edge.v1.Metadata
-	(*v1.Transport)(nil), // 3: sentinez.types.net.v1.Transport
-	(*v11.Request)(nil),  // 4: sentinez.types.net.http.v1.Request
+	nil,                  // 2: sentinez.dmz.edge.v1.ContextExtra.TagsEntry
+	(*Metadata)(nil),     // 3: sentinez.dmz.edge.v1.Metadata
+	(*v1.Transport)(nil), // 4: sentinez.types.net.v1.Transport
+	(*v11.Request)(nil),  // 5: sentinez.types.net.http.v1.Request
 }
 var file_sentinez_dmz_edge_v1_context_proto_depIdxs = []int32{
-	2, // 0: sentinez.dmz.edge.v1.Context.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
-	3, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.types.net.v1.Transport
-	4, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.types.net.http.v1.Request
+	3, // 0: sentinez.dmz.edge.v1.Context.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
+	4, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.types.net.v1.Transport
+	5, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.types.net.http.v1.Request
 	1, // 3: sentinez.dmz.edge.v1.Context.x:type_name -> sentinez.dmz.edge.v1.ContextExtra
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 4: sentinez.dmz.edge.v1.ContextExtra.tags:type_name -> sentinez.dmz.edge.v1.ContextExtra.TagsEntry
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_context_proto_init() }
@@ -254,7 +280,7 @@ func file_sentinez_dmz_edge_v1_context_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_context_proto_rawDesc), len(file_sentinez_dmz_edge_v1_context_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -25,6 +25,13 @@ export interface RuleEvent {
   requestQuery: string;
   requestIp: string;
   requestId: string;
+  /** Tags set by the SET_TAG actions of the matched rules. */
+  tags: { [key: string]: string };
+}
+
+export interface RuleEvent_TagsEntry {
+  key: string;
+  value: string;
 }
 
 function createBaseRuleEvent(): RuleEvent {
@@ -42,6 +49,7 @@ function createBaseRuleEvent(): RuleEvent {
     requestQuery: "",
     requestIp: "",
     requestId: "",
+    tags: {},
   };
 }
 
@@ -86,6 +94,9 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     if (message.requestId !== "") {
       writer.uint32(114).string(message.requestId);
     }
+    globalThis.Object.entries(message.tags).forEach(([key, value]: [string, string]) => {
+      RuleEvent_TagsEntry.encode({ key: key as any, value }, writer.uint32(122).fork()).join();
+    });
     return writer;
   },
 
@@ -206,6 +217,17 @@ export const RuleEvent: MessageFns<RuleEvent> = {
             message.requestId = reader.string();
             continue;
           }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            const entry15 = RuleEvent_TagsEntry.decode(reader, reader.uint32());
+            if (entry15.value !== undefined) {
+              message.tags[entry15.key] = entry15.value;
+            }
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -269,6 +291,20 @@ export const RuleEvent: MessageFns<RuleEvent> = {
         : isSet(object.request_id)
         ? globalThis.String(object.request_id)
         : "",
+      tags: isObject(object.tags)
+        ? (globalThis.Object.entries(object.tags) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : {},
     };
   },
 
@@ -313,6 +349,15 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     if (message.requestId !== "") {
       obj.requestId = message.requestId;
     }
+    if (message.tags) {
+      const entries = globalThis.Object.entries(message.tags) as [string, string][];
+      if (entries.length > 0) {
+        obj.tags = {};
+        entries.forEach(([k, v]) => {
+          obj.tags[k] = v;
+        });
+      }
+    }
     return obj;
   },
 
@@ -336,6 +381,100 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     message.requestQuery = object.requestQuery ?? "";
     message.requestIp = object.requestIp ?? "";
     message.requestId = object.requestId ?? "";
+    message.tags = (globalThis.Object.entries(object.tags ?? {}) as [string, string][]).reduce(
+      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
+        if (value !== undefined) {
+          acc[key] = globalThis.String(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBaseRuleEvent_TagsEntry(): RuleEvent_TagsEntry {
+  return { key: "", value: "" };
+}
+
+export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
+  encode(message: RuleEvent_TagsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RuleEvent_TagsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRuleEvent_TagsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): RuleEvent_TagsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: RuleEvent_TagsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RuleEvent_TagsEntry>, I>>(base?: I): RuleEvent_TagsEntry {
+    return RuleEvent_TagsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RuleEvent_TagsEntry>, I>>(object: I): RuleEvent_TagsEntry {
+    const message = createBaseRuleEvent_TagsEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -361,6 +500,10 @@ function longToNumber(int64: { toString(): string }): number {
     throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

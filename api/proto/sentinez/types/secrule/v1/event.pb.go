@@ -52,8 +52,10 @@ type RuleEvent struct {
 	RequestQuery      string                 `protobuf:"bytes,12,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
 	RequestIp         string                 `protobuf:"bytes,13,opt,name=request_ip,json=requestIp,proto3" json:"request_ip,omitempty"`
 	RequestId         string                 `protobuf:"bytes,14,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Tags set by the SET_TAG actions of the matched rules.
+	Tags          map[string]string `protobuf:"bytes,15,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RuleEvent) Reset() {
@@ -177,11 +179,18 @@ func (x *RuleEvent) GetRequestId() string {
 	return ""
 }
 
+func (x *RuleEvent) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
 var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf4\x03\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf1\x04\n" +
 	"\tRuleEvent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
 	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
@@ -199,7 +208,11 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"request_ip\x18\r \x01(\tR\trequestIp\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x0e \x01(\tR\trequestId:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
+	"request_id\x18\x0e \x01(\tR\trequestId\x12B\n" +
+	"\x04tags\x18\x0f \x03(\v2..sentinez.types.secrule.v1.RuleEvent.TagsEntryR\x04tags\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
 
 var (
 	file_sentinez_types_secrule_v1_event_proto_rawDescOnce sync.Once
@@ -213,20 +226,22 @@ func file_sentinez_types_secrule_v1_event_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_secrule_v1_event_proto_rawDescData
 }
 
-var file_sentinez_types_secrule_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_types_secrule_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_secrule_v1_event_proto_goTypes = []any{
 	(*RuleEvent)(nil),   // 0: sentinez.types.secrule.v1.RuleEvent
-	(*v1.Action)(nil),   // 1: sentinez.types.rule.v1.Action
-	(v1.RuleService)(0), // 2: sentinez.types.rule.v1.RuleService
+	nil,                 // 1: sentinez.types.secrule.v1.RuleEvent.TagsEntry
+	(*v1.Action)(nil),   // 2: sentinez.types.rule.v1.Action
+	(v1.RuleService)(0), // 3: sentinez.types.rule.v1.RuleService
 }
 var file_sentinez_types_secrule_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.secrule.v1.RuleEvent.action:type_name -> sentinez.types.rule.v1.Action
-	2, // 1: sentinez.types.secrule.v1.RuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: sentinez.types.secrule.v1.RuleEvent.action:type_name -> sentinez.types.rule.v1.Action
+	3, // 1: sentinez.types.secrule.v1.RuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
+	1, // 2: sentinez.types.secrule.v1.RuleEvent.tags:type_name -> sentinez.types.secrule.v1.RuleEvent.TagsEntry
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_secrule_v1_event_proto_init() }
@@ -240,7 +255,7 @@ func file_sentinez_types_secrule_v1_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_secrule_v1_event_proto_rawDesc), len(file_sentinez_types_secrule_v1_event_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

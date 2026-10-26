@@ -37,4 +37,10 @@ message ContextExtra {
   repeated string rulesets_matched_ids = 12;
   repeated string rulesets_matched_names = 13;
   repeated string rulesets_matched_severity = 14;
+
+  // Tags set by the SecRule SET_TAG actions the request matched.
+  map<string, string> tags = 15;
+  // Location (server.locations[].location) a SecRule ROUTE_TO action
+  // sends the request to, instead of the longest matching prefix.
+  string route_location = 16;
 }
