@@ -105,7 +105,7 @@ func (c *RequestContext) SetBody(b []byte) {
 }
 
 func (c *RequestContext) SetRequestIP(ip []byte) {
-	c.req.ClientIp = bytesconv.B2s(ip)
+	c.req.ClientIp = bytesconv.B2s(szhttp.StripPort(ip))
 }
 
 func (c *RequestContext) SetHeader(key, value []byte) {
@@ -252,7 +252,7 @@ func (c *RequestContext) Context() context.Context {
 }
 
 func (c *RequestContext) RequestIP() []byte {
-	return bytesconv.S2b(c.req.GetClientIp())
+	return szhttp.StripPort(bytesconv.S2b(c.req.GetClientIp()))
 }
 
 func (c *RequestContext) Scheme() string {

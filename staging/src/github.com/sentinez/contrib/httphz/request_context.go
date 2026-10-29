@@ -219,7 +219,7 @@ func (c *Context) Host() []byte {
 }
 
 func (c *Context) RequestIP() []byte {
-	return []byte(c.req.ClientIP())
+	return szhttp.StripPort([]byte(c.req.ClientIP()))
 }
 
 func (c *Context) JA4() string {

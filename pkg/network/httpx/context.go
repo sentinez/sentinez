@@ -20,10 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -179,23 +177,22 @@ func (c *Context) Body() []byte {
 
 // RequestIP implements szhttp.Context.
 func (c *Context) RequestIP() []byte {
-	// 1. X-Forwarded-For
+	// 1. X-Forwarded-For: the client is the first hop
 	if xff := c.Header(szbytestr.HeaderXForwardedFor); len(xff) > 0 {
-		ips := strings.Split(string(xff), ",")
-		return []byte(strings.TrimSpace(ips[0]))
+		if i := bytes.IndexByte(xff, ','); i >= 0 {
+			xff = xff[:i]
+		}
+
+		return szhttp.StripPort(bytes.TrimSpace(xff))
 	}
 
 	// 2. X-Real-IP
 	if xrip := c.Header(szbytestr.HeaderXRealIP); len(xrip) > 0 {
-		return xrip
+		return szhttp.StripPort(bytes.TrimSpace(xrip))
 	}
 
 	// 3. Fallback: RemoteAddr
-	host, _, err := net.SplitHostPort(c.req.RemoteAddr)
-	if err != nil {
-		return []byte(c.req.RemoteAddr)
-	}
-	return []byte(host)
+	return szhttp.StripPort([]byte(c.req.RemoteAddr))
 }
 
 // File implements szhttp.Context.
