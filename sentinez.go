@@ -39,6 +39,10 @@ var (
 
 	//go:embed deploy/ruleroot/v4-17-0/*.data
 	_fsWAF4170 embed.FS
+
+	// the directory holds a README, so it builds without the databases
+	//go:embed deploy/geoip
+	_fsGeoIP embed.FS
 )
 
 func WAF4160() fs.FS {
@@ -48,5 +52,11 @@ func WAF4160() fs.FS {
 
 func WAF4170() fs.FS {
 	sub, _ := fs.Sub(_fsWAF4170, "deploy/ruleroot/v4-17-0")
+	return sub
+}
+
+// GeoIP returns the GeoLite2 databases of deploy/geoip compiled in.
+func GeoIP() fs.FS {
+	sub, _ := fs.Sub(_fsGeoIP, "deploy/geoip")
 	return sub
 }

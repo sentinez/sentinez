@@ -83,3 +83,5 @@ _volume/
 .vscode/
 
 _audit
+# GeoLite2 databases compiled into the edge (sentinez.GeoIP)
+deploy/geoip/*.mmdb

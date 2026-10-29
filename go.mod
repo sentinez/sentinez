@@ -20,6 +20,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
 	github.com/olric-data/olric v0.7.4
+	github.com/oschwald/maxminddb-golang/v2 v2.3.0
 	github.com/quic-go/quic-go v0.63.0
 	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
