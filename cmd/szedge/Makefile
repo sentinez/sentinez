@@ -1,12 +1,13 @@
 # Targets for cmd/szedge; included by the root Makefile.
-# Override the binary name with SENTINEZ_OUT and the image with TAG.
+# Override the binary name with SENTINEZ_OUT and the image with TAG; EE=1
+# builds the enterprise features of pkg/ee in (hack/make/ee.mk).
 SZEDGE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 .PHONY: sz.edge.build sz.edge.run sz.edge.image.build
 
 sz.edge.build: SENTINEZ_OUT ?= edge
 sz.edge.build:
-	@go build -ldflags="-s -w" -o $(SZEDGE_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZEDGE_DIR)/v1
+	@go build -tags "$(SZ_GOTAGS)" -ldflags="-s -w" -o $(SZEDGE_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZEDGE_DIR)/v1
 	@echo "[DONE]  senz: sz.edge.v1 ... ok"
 
 sz.edge.run: SENTINEZ_OUT ?= edge
@@ -20,4 +21,5 @@ sz.edge.run: sz.edge.build
 
 sz.edge.image.build: TAG ?= sentinez/edge
 sz.edge.image.build:
-	@docker buildx build -f $(SZEDGE_DIR)/v1/Dockerfile -t $(TAG):latest $(SZEDGE_DIR)/../..
+	@docker buildx build --build-arg SZ_GOTAGS="$(SZ_GOTAGS)" \
+		-f $(SZEDGE_DIR)/v1/Dockerfile -t $(TAG):latest $(SZEDGE_DIR)/../..

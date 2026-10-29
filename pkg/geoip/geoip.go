@@ -15,7 +15,7 @@
 // Package geoip fills the client location of the logs that ask for it
 // from the MaxMind GeoLite2 databases (GeoLite2-Country.mmdb,
 // GeoLite2-City.mmdb, GeoLite2-ASN.mmdb) of a file system, e.g. the
-// ones of deploy/geoip compiled in, sentinez.GeoIP. Without them the
+// ones the enterprise build compiles in, ee.GeoIP. Without them the
 // lookups are no-ops.
 package geoip
 

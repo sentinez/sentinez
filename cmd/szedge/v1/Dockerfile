@@ -30,7 +30,9 @@ WORKDIR /src
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 RUN go mod tidy
-RUN go build -ldflags="-s -w" -o /bin/main ./cmd/szedge/v1
+# enterprise builds pkg/ee in (make sz.edge.image.build EE=1)
+ARG SZ_GOTAGS=""
+RUN go build -tags "$SZ_GOTAGS" -ldflags="-s -w" -o /bin/main ./cmd/szedge/v1
 
 # Clean up
 RUN go clean -modcache
