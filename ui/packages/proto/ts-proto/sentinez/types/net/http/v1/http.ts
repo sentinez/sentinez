@@ -34,7 +34,6 @@ export interface Request {
   remoteAddress: string;
   status: number;
   userAgent: Uint8Array;
-  rayId: string;
   asn: number;
   country: string;
   contentType: Uint8Array;
@@ -63,7 +62,6 @@ export interface RequestEvent {
   remoteAddress: string;
   status: number;
   userAgent: string;
-  rayId: string;
   asn: number;
   country: string;
   contentType: string;
@@ -267,7 +265,6 @@ function createBaseRequest(): Request {
     remoteAddress: "",
     status: 0,
     userAgent: new Uint8Array(0),
-    rayId: "",
     asn: 0,
     country: "",
     contentType: new Uint8Array(0),
@@ -317,9 +314,6 @@ export const Request: MessageFns<Request> = {
     }
     if (message.userAgent.length !== 0) {
       writer.uint32(106).bytes(message.userAgent);
-    }
-    if (message.rayId !== "") {
-      writer.uint32(114).string(message.rayId);
     }
     if (message.asn !== 0) {
       writer.uint32(120).int64(message.asn);
@@ -459,14 +453,6 @@ export const Request: MessageFns<Request> = {
             message.userAgent = reader.bytes();
             continue;
           }
-          case 14: {
-            if (tag !== 114) {
-              break;
-            }
-
-            message.rayId = reader.string();
-            continue;
-          }
           case 15: {
             if (tag !== 120) {
               break;
@@ -554,11 +540,6 @@ export const Request: MessageFns<Request> = {
         : isSet(object.user_agent)
         ? bytesFromBase64(object.user_agent)
         : new Uint8Array(0),
-      rayId: isSet(object.rayId)
-        ? globalThis.String(object.rayId)
-        : isSet(object.ray_id)
-        ? globalThis.String(object.ray_id)
-        : "",
       asn: isSet(object.asn) ? globalThis.Number(object.asn) : 0,
       country: isSet(object.country) ? globalThis.String(object.country) : "",
       contentType: isSet(object.contentType)
@@ -617,9 +598,6 @@ export const Request: MessageFns<Request> = {
     if (message.userAgent.length !== 0) {
       obj.userAgent = base64FromBytes(message.userAgent);
     }
-    if (message.rayId !== "") {
-      obj.rayId = message.rayId;
-    }
     if (message.asn !== 0) {
       obj.asn = Math.round(message.asn);
     }
@@ -659,7 +637,6 @@ export const Request: MessageFns<Request> = {
     message.remoteAddress = object.remoteAddress ?? "";
     message.status = object.status ?? 0;
     message.userAgent = object.userAgent ?? new Uint8Array(0);
-    message.rayId = object.rayId ?? "";
     message.asn = object.asn ?? 0;
     message.country = object.country ?? "";
     message.contentType = object.contentType ?? new Uint8Array(0);
@@ -821,7 +798,6 @@ function createBaseRequestEvent(): RequestEvent {
     remoteAddress: "",
     status: 0,
     userAgent: "",
-    rayId: "",
     asn: 0,
     country: "",
     contentType: "",
@@ -865,9 +841,6 @@ export const RequestEvent: MessageFns<RequestEvent> = {
     }
     if (message.userAgent !== "") {
       writer.uint32(98).string(message.userAgent);
-    }
-    if (message.rayId !== "") {
-      writer.uint32(106).string(message.rayId);
     }
     if (message.asn !== 0) {
       writer.uint32(112).int64(message.asn);
@@ -997,14 +970,6 @@ export const RequestEvent: MessageFns<RequestEvent> = {
             message.userAgent = reader.string();
             continue;
           }
-          case 13: {
-            if (tag !== 106) {
-              break;
-            }
-
-            message.rayId = reader.string();
-            continue;
-          }
           case 14: {
             if (tag !== 112) {
               break;
@@ -1112,11 +1077,6 @@ export const RequestEvent: MessageFns<RequestEvent> = {
         : isSet(object.user_agent)
         ? globalThis.String(object.user_agent)
         : "",
-      rayId: isSet(object.rayId)
-        ? globalThis.String(object.rayId)
-        : isSet(object.ray_id)
-        ? globalThis.String(object.ray_id)
-        : "",
       asn: isSet(object.asn) ? globalThis.Number(object.asn) : 0,
       country: isSet(object.country) ? globalThis.String(object.country) : "",
       contentType: isSet(object.contentType)
@@ -1181,9 +1141,6 @@ export const RequestEvent: MessageFns<RequestEvent> = {
     if (message.userAgent !== "") {
       obj.userAgent = message.userAgent;
     }
-    if (message.rayId !== "") {
-      obj.rayId = message.rayId;
-    }
     if (message.asn !== 0) {
       obj.asn = Math.round(message.asn);
     }
@@ -1237,7 +1194,6 @@ export const RequestEvent: MessageFns<RequestEvent> = {
     message.remoteAddress = object.remoteAddress ?? "";
     message.status = object.status ?? 0;
     message.userAgent = object.userAgent ?? "";
-    message.rayId = object.rayId ?? "";
     message.asn = object.asn ?? 0;
     message.country = object.country ?? "";
     message.contentType = object.contentType ?? "";

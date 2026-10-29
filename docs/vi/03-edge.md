@@ -172,7 +172,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chai
 | 2 | `DMA` | `secure.DomainBased` | Host phải có dạng `<ns>.<SENZ_HOSTNAME>` (một cấp, bỏ port). Sai → `403`. Gán `X().Namespace = ns` |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 5 | `LMT` | `secure.Limiter` | `limiter.Allow(IP)`; vượt → `429` |
+| 5 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
 | 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
@@ -289,8 +289,8 @@ Ghi chú:
 - Phần "Lite" (`SecRuleLite`, `cdn.RuleLite`, `ExpressionLite`) dùng chuỗi
   cho `source/operator/status/value`. `NormalizeEdgeSetting` chuyển sang bản
   runtime (`SecRule`, `cdn.Rule`, `Expression`) với enum thật, `value` thành
-  `structpb.Value` dạng string, và sinh ID `senz.rule.<nanoid>` /
-  `senz.cond.<nanoid>`.
+  `structpb.Value` dạng string, và sinh ID `srule_<uuid>` /
+  `cond_<nanoid>`.
 - Biến hỗ trợ trong `proxySetHeaders`
   ([core/szhttp/variable](../../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,

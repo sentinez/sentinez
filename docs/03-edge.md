@@ -179,7 +179,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 2 | `DMA` | `secure.DomainBased` | Host must be `<ns>.<SENZ_HOSTNAME>` (single level, port stripped). Otherwise → `403`. Sets `X().Namespace = ns` |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 5 | `LMT` | `secure.Limiter` | `limiter.Allow(IP)`; exceeded → `429` |
+| 5 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
 | 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
@@ -299,7 +299,7 @@ Notes:
   strings for `source/operator/status/value`. `NormalizeEdgeSetting` converts
   them to the runtime types (`SecRule`, `cdn.Rule`, `Expression`) with real
   enums, turns `value` into a string `structpb.Value`, and generates IDs
-  `senz.rule.<nanoid>` / `senz.cond.<nanoid>`.
+  `srule_<uuid>` / `cond_<nanoid>`.
 - Variables supported in `proxySetHeaders`
   ([core/szhttp/variable](../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,

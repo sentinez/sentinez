@@ -16,7 +16,6 @@ package secure
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/sentinez/core/szhttp/chains"
 
@@ -100,16 +99,13 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 		ruleIds    []int32
 		severities []string
 		msgs       []string
-		score      int
 	)
 
 	for _, rule := range matched {
-		if rule.Rule().ID() == interruption.RuleID {
-			score, _ = strconv.Atoi(rule.Data())
+		if rule.Rule().ID() == interruption.RuleID ||
+			szcrs.IsFrameworkRule(rule.Rule().ID()) {
 			continue
 		}
-
-		rule.Rule().Accuracy()
 
 		if rule.Message() != "" {
 			ruleIds = append(ruleIds, int32(rule.Rule().ID()))
@@ -118,13 +114,12 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 		}
 	}
 
+	inbound, outbound := ruleset.AnomalyScore()
 	event := coreruleset.Acquire()
-
-	event.Id = ruleset.GetTxId()
 	event.MatchedRuleIds = ruleIds
 	event.Severities = severities
 	event.Messages = msgs
-	event.TotalScore = int32(score)
+	event.TotalScore = int32(inbound + outbound)
 	event.Service = rulepb.RuleService_RULE_SERVICE_WAF_RULESETS
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
@@ -134,6 +129,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.RequestPath = bytesconv.B2s(ctx.URI())
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+	event.RequestScheme = ctx.Scheme()
 
 	rs.log.Info("rulesets: matched", event, event)
 }

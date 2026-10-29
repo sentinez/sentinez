@@ -16,10 +16,12 @@ syntax = "proto3";
 
 package sentinez.types.net.http.v1;
 
+import "buf/validate/validate.proto";
+
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppb";
 
 message Event {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
   string method = 2;
   string scheme = 3;
   string host = 4;
@@ -31,7 +33,6 @@ message Event {
   string remote_address = 10;
   int32 status = 11;
   string user_agent = 12;
-  string ray_id = 13;
   int64 asn = 14;
   string country = 15;
   string content_type = 16;

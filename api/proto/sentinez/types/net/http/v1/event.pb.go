@@ -21,6 +21,7 @@
 package httppb
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -48,7 +49,6 @@ type Event struct {
 	RemoteAddress string                 `protobuf:"bytes,10,opt,name=remote_address,json=remoteAddress,proto3" json:"remote_address,omitempty"`
 	Status        int32                  `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`
 	UserAgent     string                 `protobuf:"bytes,12,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	RayId         string                 `protobuf:"bytes,13,opt,name=ray_id,json=rayId,proto3" json:"ray_id,omitempty"`
 	Asn           int64                  `protobuf:"varint,14,opt,name=asn,proto3" json:"asn,omitempty"`
 	Country       string                 `protobuf:"bytes,15,opt,name=country,proto3" json:"country,omitempty"`
 	ContentType   string                 `protobuf:"bytes,16,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
@@ -166,13 +166,6 @@ func (x *Event) GetUserAgent() string {
 	return ""
 }
 
-func (x *Event) GetRayId() string {
-	if x != nil {
-		return x.RayId
-	}
-	return ""
-}
-
 func (x *Event) GetAsn() int64 {
 	if x != nil {
 		return x.Asn
@@ -219,9 +212,9 @@ var File_sentinez_types_net_http_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\"\xe0\x03\n" +
-	"\x05Event\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\"\xff\x03\n" +
+	"\x05Event\x12D\n" +
+	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12\x16\n" +
 	"\x06scheme\x18\x03 \x01(\tR\x06scheme\x12\x12\n" +
 	"\x04host\x18\x04 \x01(\tR\x04host\x12\x12\n" +
@@ -233,8 +226,7 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	" \x01(\tR\rremoteAddress\x12\x16\n" +
 	"\x06status\x18\v \x01(\x05R\x06status\x12\x1d\n" +
 	"\n" +
-	"user_agent\x18\f \x01(\tR\tuserAgent\x12\x15\n" +
-	"\x06ray_id\x18\r \x01(\tR\x05rayId\x12\x10\n" +
+	"user_agent\x18\f \x01(\tR\tuserAgent\x12\x10\n" +
 	"\x03asn\x18\x0e \x01(\x03R\x03asn\x12\x18\n" +
 	"\acountry\x18\x0f \x01(\tR\acountry\x12!\n" +
 	"\fcontent_type\x18\x10 \x01(\tR\vcontentType\x12\x1c\n" +

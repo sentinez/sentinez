@@ -199,7 +199,7 @@ func TestChain(t *testing.T) {
 		},
 	}
 
-	eval := NewEval(rg.GetExpr())
+	eval := NewEval("", rg.GetExpr())
 	matched := &rulepb.MatchedRules{}
 	if ok := eval(newContext(), matched); ok {
 		t.Logf("rule engine matched !!!")
@@ -305,7 +305,7 @@ func TestChainVariants_WithMockRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			eval := NewEval(tt.rg.GetExpr())
+			eval := NewEval("", tt.rg.GetExpr())
 			if ok := eval(ctx, matched); ok != tt.expect {
 				t.Errorf("expected %v, got %v", tt.expect, ok)
 			} else {
@@ -398,7 +398,7 @@ func BenchmarkEvalSecRule_Simple(b *testing.B) {
 			},
 		},
 	}
-	eval := NewEval(rg.GetExpr())
+	eval := NewEval("", rg.GetExpr())
 
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
@@ -443,7 +443,7 @@ func BenchmarkEvalSecRule_Complex(b *testing.B) {
 		},
 	}
 
-	eval := NewEval(rg.GetExpr())
+	eval := NewEval("", rg.GetExpr())
 	ctx := newContext()
 	matched := &rulepb.MatchedRules{}
 
@@ -486,7 +486,7 @@ func BenchmarkEvalSecRule_Complex_Parallel(b *testing.B) {
 		},
 	}
 
-	eval := NewEval(rg.GetExpr())
+	eval := NewEval("", rg.GetExpr())
 
 	ctx := newContext()
 

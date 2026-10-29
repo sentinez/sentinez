@@ -77,29 +77,29 @@ services:
     networks:
       - sentinez-telemetry
 
-  sentinez.telemetry.otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.115.1
-    container_name: sentinez.telemetry.otel-collector
-    hostname: sentinez.telemetry.otel-collector
-    restart: unless-stopped
+  # sentinez.telemetry.otel-collector:
+  #   image: otel/opentelemetry-collector-contrib:0.115.1
+  #   container_name: sentinez.telemetry.otel-collector
+  #   hostname: sentinez.telemetry.otel-collector
+  #   restart: unless-stopped
 
-    command:
-      - --config=/etc/otelcol-contrib/config.yaml
+  #   command:
+  #     - --config=/etc/otelcol-contrib/config.yaml
 
-    volumes:
-      - ./otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+  #   volumes:
+  #     - ./otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
 
-    ports:
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
-      - "13133:13133" # health check
+  #   ports:
+  #     - "4317:4317" # OTLP gRPC
+  #     - "4318:4318" # OTLP HTTP
+  #     - "13133:13133" # health check
 
-    depends_on:
-      sentinez.telemetry.kafka-init:
-        condition: service_completed_successfully
+  #   depends_on:
+  #     sentinez.telemetry.kafka-init:
+  #       condition: service_completed_successfully
 
-    networks:
-      - sentinez-telemetry
+  #   networks:
+  #     - sentinez-telemetry
 
   # Web UI to browse topics and messages: http://localhost:8088
   sentinez.telemetry.kafka-ui:

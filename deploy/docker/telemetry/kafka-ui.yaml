@@ -18,7 +18,7 @@ kafka:
               sentinez.event.http.secrule.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.ratelimit.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.cdnrule.otlp: opentelemetry.proto.logs.v1.LogsData
-              sentinez.event.http.ingress: sentinez.types.net.http.v1.RequestEvent
+              sentinez.event.http.ingress: sentinez.types.net.http.v1.Event
               sentinez.event.http.rulesets: sentinez.types.coreruleset.v1.CoreRuleEvent
               sentinez.event.http.secrule: sentinez.types.secrule.v1.RuleEvent
               sentinez.event.http.ratelimit: sentinez.types.secrule.v1.RuleEvent

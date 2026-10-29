@@ -19,29 +19,32 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
-func buildEval(
-	expr *rulepb.Expression,
-	match MatchedFunc,
-) func(ctx chttp.Request, mr *rulepb.MatchedRules) bool {
+func buildEval(id string, expr *rulepb.Expression) EvalFunc {
+	// expr is fixed once built: render it once, not on every match
+	name := ExprString(expr)
 
 	return func(ctx chttp.Request, mr *rulepb.MatchedRules) bool {
-		return execOrCond(expr.GetOrCondition(), match, ctx, mr)
+		if !execOrCond(ctx, expr.GetOrCondition()) {
+			return false
+		}
+
+		if mr != nil {
+			mr.Ids = append(mr.Ids, id)
+			mr.Names = append(mr.Names, name)
+		}
+
+		return true
 	}
 }
 
-func execOrCond(
-	orCond []*rulepb.AndCondition,
-	match MatchedFunc,
-	ctx chttp.Request,
-	mr *rulepb.MatchedRules,
-) bool {
+func execOrCond(ctx chttp.Request, orCond []*rulepb.AndCondition) bool {
 	if orCond == nil {
 		return true
 	}
 
 	for _, andCond := range orCond {
-		if execAndCond(andCond, match, ctx, mr) &&
-			execOrCond(andCond.GetOrCondition(), match, ctx, mr) {
+		if execAndCond(ctx, andCond) &&
+			execOrCond(ctx, andCond.GetOrCondition()) {
 			return true
 		}
 	}
@@ -49,40 +52,16 @@ func execOrCond(
 	return false
 }
 
-func execAndCond(
-	andCond *rulepb.AndCondition,
-	match MatchedFunc,
-	ctx chttp.Request,
-	mr *rulepb.MatchedRules,
-) bool {
+func execAndCond(ctx chttp.Request, andCond *rulepb.AndCondition) bool {
 	if andCond == nil {
 		return true
 	}
 
-	var (
-		isMatchAnd = true
-		ids        []string
-		names      []string
-	)
-
 	for _, rule := range andCond.GetRules() {
-		id, name, isMatched := match(ctx, rule)
-		if !isMatched {
-			isMatchAnd = false
-			break
+		if !eval(ctx, rule) {
+			return false
 		}
-
-		ids = append(ids, id)
-		names = append(names, name)
 	}
 
-	if isMatchAnd {
-		if mr != nil {
-			mr.Ids = append(mr.Ids, ids...)
-			mr.Names = append(mr.Names, names...)
-		}
-		return true
-	}
-
-	return false
+	return true
 }

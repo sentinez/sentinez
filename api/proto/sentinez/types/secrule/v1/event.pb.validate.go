@@ -66,6 +66,8 @@ func (m *RuleEvent) Validate() error {
 
 	// no validation rules for RequestDomain
 
+	// no validation rules for RequestScheme
+
 	// no validation rules for RequestPath
 
 	// no validation rules for RequestQuery

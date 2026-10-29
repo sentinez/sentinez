@@ -68,7 +68,7 @@ func (rc *Rule) Store(namespace string, delivery *edgepb.Delivery) {
 		szlog.Debugf("cdn rule: load config: %s", val)
 
 		chain = append(chain, Entry{
-			Eval: szrule.NewEval(rule.GetExpr()),
+			Eval: szrule.NewEval(rule.GetId(), rule.GetExpr()),
 			Rule: rule,
 		})
 	}

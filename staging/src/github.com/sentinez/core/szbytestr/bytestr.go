@@ -54,6 +54,8 @@ var (
 	HeaderAllow            = []byte(httpconst.HeaderAllow)
 	HeaderXContentTypeOpts = []byte(httpconst.HeaderXContentTypeOpts)
 	HeaderCookie           = []byte(httpconst.HeaderCookie)
+	HeaderAuthorization    = []byte(httpconst.HeaderAuthorization)
+	HeaderProxyAuth        = []byte(httpconst.HeaderProxyAuth)
 	HeaderLocation         = []byte(httpconst.HeaderLocation)
 
 	ValueAppJSON   = []byte(httpconst.ValueAppJSON)

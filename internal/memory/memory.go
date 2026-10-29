@@ -44,6 +44,8 @@ var (
 	_store  *MemStore
 	_lock   sync.Mutex
 	_shared *cluster.Cluster
+
+	errLimiterNoExpr = errors.New("missing ingress expr")
 )
 
 func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
@@ -217,7 +219,12 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 	limiters := s.GetSecurity().GetLimiters()
 	entries := make([]ratelimiter.Entry, 0, len(limiters))
 
-	for _, l := range limiters {
+	for i, l := range limiters {
+		// a nil expr matches every request: a limiter must say what it counts
+		if len(l.GetIngressRuntime().GetExpr().GetOrCondition()) == 0 {
+			return fmt.Errorf("rate limiter %d: %w", i, errLimiterNoExpr)
+		}
+
 		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			szlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
 			continue
@@ -272,7 +279,7 @@ func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
 	rule := l.GetIngressRuntime()
 
 	return ratelimiter.Entry{
-		Eval:    szrule.NewEval(rule.GetExpr()),
+		Eval:    szrule.NewEval(rule.GetId(), rule.GetExpr()),
 		Rule:    rule,
 		Limiter: szlimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
 	}, nil

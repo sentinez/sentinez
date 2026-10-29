@@ -112,6 +112,8 @@ export interface Setting {
 
 /** Metadata used for observability and debugging: */
 export interface Metadata {
+  tenantId: string;
+  resourceId: string;
 }
 
 /** Server defines where the request goes and how the edge processes it: */
@@ -371,11 +373,17 @@ export const Setting: MessageFns<Setting> = {
 };
 
 function createBaseMetadata(): Metadata {
-  return {};
+  return { tenantId: "", resourceId: "" };
 }
 
 export const Metadata: MessageFns<Metadata> = {
-  encode(_: Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tenantId !== "") {
+      writer.uint32(10).string(message.tenantId);
+    }
+    if (message.resourceId !== "") {
+      writer.uint32(18).string(message.resourceId);
+    }
     return writer;
   },
 
@@ -392,6 +400,22 @@ export const Metadata: MessageFns<Metadata> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -404,20 +428,39 @@ export const Metadata: MessageFns<Metadata> = {
     }
   },
 
-  fromJSON(_: any): Metadata {
-    return {};
+  fromJSON(object: any): Metadata {
+    return {
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+    };
   },
 
-  toJSON(_: Metadata): unknown {
+  toJSON(message: Metadata): unknown {
     const obj: any = {};
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<Metadata>, I>>(base?: I): Metadata {
     return Metadata.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(_: I): Metadata {
+  fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata {
     const message = createBaseMetadata();
+    message.tenantId = object.tenantId ?? "";
+    message.resourceId = object.resourceId ?? "";
     return message;
   },
 };

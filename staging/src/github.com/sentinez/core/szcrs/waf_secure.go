@@ -15,11 +15,20 @@
 package szcrs
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/corazawaf/coraza/v3"
+	"github.com/corazawaf/coraza/v3/collection"
+	"github.com/corazawaf/coraza/v3/experimental/plugins/plugintypes"
 	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/core/szhttp"
+)
+
+// TX variables CRS sums the anomaly scores of the matched rules in.
+const (
+	_txInboundScore  = "blocking_inbound_anomaly_score"
+	_txOutboundScore = "blocking_outbound_anomaly_score"
 )
 
 var (
@@ -101,6 +110,23 @@ func (rs *Rulesets) Matched() (*types.Interruption, []types.MatchedRule, bool) {
 	return rs.tx.Interruption(), rs.tx.MatchedRules(), true
 }
 
+// AnomalyScore returns the inbound and outbound anomaly scores CRS sums up
+// in its blocking evaluation (REQUEST-949, RESPONSE-959) of the transaction.
+func (rs *Rulesets) AnomalyScore() (inbound, outbound int) {
+	if rs == nil {
+		return 0, 0
+	}
+
+	state, ok := rs.tx.(plugintypes.TransactionState)
+	if !ok {
+		return 0, 0
+	}
+
+	vars := state.Variables().TX()
+
+	return txInt(vars, _txInboundScore), txInt(vars, _txOutboundScore)
+}
+
 func (rs *Rulesets) GetTxId() string {
 	if rs == nil {
 		return ""
@@ -124,4 +150,27 @@ func (rs *Rulesets) IsRuleEngineOff() bool {
 	}
 
 	return rs.tx.IsRuleEngineOff()
+}
+
+// IsFrameworkRule reports whether id is a CRS rule that detects nothing:
+// the setup and initialization rules, and the blocking evaluation and
+// correlation rules concluding on the anomaly score.
+func IsFrameworkRule(id int) bool {
+	switch id / 1000 {
+	case 900, 901, 949, 959, 980:
+		return true
+	default:
+		return false
+	}
+}
+
+func txInt(vars collection.Map, key string) int {
+	values := vars.Get(key)
+	if len(values) == 0 {
+		return 0
+	}
+
+	n, _ := strconv.Atoi(values[0])
+
+	return n
 }

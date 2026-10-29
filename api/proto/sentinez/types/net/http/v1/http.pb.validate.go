@@ -226,8 +226,6 @@ func (m *Request) Validate() error {
 
 	// no validation rules for UserAgent
 
-	// no validation rules for RayId
-
 	// no validation rules for Asn
 
 	// no validation rules for Country
@@ -493,8 +491,6 @@ func (m *RequestEvent) Validate() error {
 	// no validation rules for Status
 
 	// no validation rules for UserAgent
-
-	// no validation rules for RayId
 
 	// no validation rules for Asn
 

@@ -21,6 +21,7 @@ export interface RuleEvent {
   action?: Action | undefined;
   service: RuleService;
   requestDomain: string;
+  requestScheme: string;
   requestPath: string;
   requestQuery: string;
   requestIp: string;
@@ -45,6 +46,7 @@ function createBaseRuleEvent(): RuleEvent {
     action: undefined,
     service: 0,
     requestDomain: "",
+    requestScheme: "",
     requestPath: "",
     requestQuery: "",
     requestIp: "",
@@ -82,20 +84,23 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     if (message.requestDomain !== "") {
       writer.uint32(82).string(message.requestDomain);
     }
+    if (message.requestScheme !== "") {
+      writer.uint32(90).string(message.requestScheme);
+    }
     if (message.requestPath !== "") {
-      writer.uint32(90).string(message.requestPath);
+      writer.uint32(98).string(message.requestPath);
     }
     if (message.requestQuery !== "") {
-      writer.uint32(98).string(message.requestQuery);
+      writer.uint32(106).string(message.requestQuery);
     }
     if (message.requestIp !== "") {
-      writer.uint32(106).string(message.requestIp);
+      writer.uint32(114).string(message.requestIp);
     }
     if (message.requestId !== "") {
-      writer.uint32(114).string(message.requestId);
+      writer.uint32(122).string(message.requestId);
     }
     globalThis.Object.entries(message.tags).forEach(([key, value]: [string, string]) => {
-      RuleEvent_TagsEntry.encode({ key: key as any, value }, writer.uint32(122).fork()).join();
+      RuleEvent_TagsEntry.encode({ key: key as any, value }, writer.uint32(162).fork()).join();
     });
     return writer;
   },
@@ -190,7 +195,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            message.requestPath = reader.string();
+            message.requestScheme = reader.string();
             continue;
           }
           case 12: {
@@ -198,7 +203,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            message.requestQuery = reader.string();
+            message.requestPath = reader.string();
             continue;
           }
           case 13: {
@@ -206,7 +211,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            message.requestIp = reader.string();
+            message.requestQuery = reader.string();
             continue;
           }
           case 14: {
@@ -214,7 +219,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            message.requestId = reader.string();
+            message.requestIp = reader.string();
             continue;
           }
           case 15: {
@@ -222,9 +227,17 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            const entry15 = RuleEvent_TagsEntry.decode(reader, reader.uint32());
-            if (entry15.value !== undefined) {
-              message.tags[entry15.key] = entry15.value;
+            message.requestId = reader.string();
+            continue;
+          }
+          case 20: {
+            if (tag !== 162) {
+              break;
+            }
+
+            const entry20 = RuleEvent_TagsEntry.decode(reader, reader.uint32());
+            if (entry20.value !== undefined) {
+              message.tags[entry20.key] = entry20.value;
             }
             continue;
           }
@@ -270,6 +283,11 @@ export const RuleEvent: MessageFns<RuleEvent> = {
         ? globalThis.String(object.requestDomain)
         : isSet(object.request_domain)
         ? globalThis.String(object.request_domain)
+        : "",
+      requestScheme: isSet(object.requestScheme)
+        ? globalThis.String(object.requestScheme)
+        : isSet(object.request_scheme)
+        ? globalThis.String(object.request_scheme)
         : "",
       requestPath: isSet(object.requestPath)
         ? globalThis.String(object.requestPath)
@@ -337,6 +355,9 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     if (message.requestDomain !== "") {
       obj.requestDomain = message.requestDomain;
     }
+    if (message.requestScheme !== "") {
+      obj.requestScheme = message.requestScheme;
+    }
     if (message.requestPath !== "") {
       obj.requestPath = message.requestPath;
     }
@@ -377,6 +398,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
       : undefined;
     message.service = object.service ?? 0;
     message.requestDomain = object.requestDomain ?? "";
+    message.requestScheme = object.requestScheme ?? "";
     message.requestPath = object.requestPath ?? "";
     message.requestQuery = object.requestQuery ?? "";
     message.requestIp = object.requestIp ?? "";
