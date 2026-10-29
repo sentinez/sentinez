@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	_memberId = "senz-tenant-members-1"
-	_userId   = "senz-iam-users-1"
-	_tenantId = "senz-tenants-1"
+	_memberId = "mem_1"
+	_userId   = "user_1"
+	_tenantId = "tnt_1"
 )
 
 func TestCreateMember(t *testing.T) {

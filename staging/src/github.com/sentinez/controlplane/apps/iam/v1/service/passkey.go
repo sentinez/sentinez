@@ -28,6 +28,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szprotobuf/protox"
 	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -162,7 +163,7 @@ func (srv *IAMService) PasskeyRegisterChallenge(ctx context.Context,
 
 	options, sid, err := srv.beginRegistration(&passkey.Registration{
 		Email:  email,
-		Handle: szrand.NewId(""),
+		Handle: szrand.NewUUID(szprefix.None),
 	})
 	if err != nil {
 		return nil, err
@@ -217,7 +218,7 @@ func (srv *IAMService) linkRegistration(ctx context.Context,
 	reg := &passkey.Registration{
 		UserId: user.GetId(),
 		Email:  user.GetEmail(),
-		Handle: szrand.NewId(""),
+		Handle: szrand.NewUUID(szprefix.None),
 	}
 	if acc != nil {
 		// every passkey of a user shares the handle of its account

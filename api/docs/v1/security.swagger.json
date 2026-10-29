@@ -1128,12 +1128,6 @@
     "rulev1Rule": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "expr": {
-          "type": "string"
-        },
         "condition": {
           "$ref": "#/definitions/v1Condition",
           "title": "@gotags: yaml:\"condition\""

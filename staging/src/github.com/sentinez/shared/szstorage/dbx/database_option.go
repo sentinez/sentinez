@@ -14,6 +14,8 @@
 
 package dbx
 
+import "github.com/sentinez/shared/sztable"
+
 func WithColumns(m ColumnM) Option {
 	return func(o *Table) {
 		if o == nil {
@@ -24,13 +26,13 @@ func WithColumns(m ColumnM) Option {
 	}
 }
 
-func WithTable(name string) Option {
+func WithTable(table sztable.Table) Option {
 	return func(o *Table) {
 		if o == nil {
 			return
 		}
 
-		o.Table = name
+		o.Table = table.String()
 	}
 }
 

@@ -24,10 +24,11 @@ import (
 	"strings"
 
 	"github.com/corazawaf/libinjection-go"
-	"github.com/google/uuid"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
+	"github.com/sentinez/shared/szrand"
 )
 
 const (
@@ -223,7 +224,7 @@ func detect(input string) (string, bool) {
 func forbidden(w http.ResponseWriter, r *http.Request, v violation) {
 	id := r.Header.Get(httpconst.HeaderXRequestId)
 	if id == "" {
-		id = uuid.NewString()
+		id = szrand.NewULID(szprefix.Request)
 	}
 
 	szlog.Warnf("deny http request: %s in %s method=%s path=%s id=%s",

@@ -23,10 +23,10 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/szstorage/storageutils/table"
 	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -145,7 +145,7 @@ func (m *Members) total(
 func (m *Members) Create(ctx context.Context,
 	member *tenantpb.Member) (*tenantpb.Member, error) {
 
-	member.Id = szrand.NewId(table.NewPrimaryKey(sztable.TenantMembers))
+	member.Id = szrand.NewUUID(szprefix.Member)
 	query := postgres.InsertBuilder(m.storage, postgres.M{
 		tenantpb.Member_Id:       member.GetId(),
 		tenantpb.Member_UserId:   member.GetUserId(),

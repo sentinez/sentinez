@@ -59,6 +59,8 @@ const (
 	// Kafka brokers (comma-separated) the edge traffic events are produced to
 	// directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
 	Senz_SENZ_KAFKA_BROKERS Senz = 15
+	// zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
+	Senz_SENZ_ZONE Senz = 16
 )
 
 // Enum value maps for Senz.
@@ -80,6 +82,7 @@ var (
 		13: "SENZ_OTLP_INTERNAL_ENDPOINT",
 		14: "SENZ_OTLP_EXTERNAL_ENDPOINT",
 		15: "SENZ_KAFKA_BROKERS",
+		16: "SENZ_ZONE",
 	}
 	Senz_value = map[string]int32{
 		"SENZ_UNSPECIFIED":            0,
@@ -98,6 +101,7 @@ var (
 		"SENZ_OTLP_INTERNAL_ENDPOINT": 13,
 		"SENZ_OTLP_EXTERNAL_ENDPOINT": 14,
 		"SENZ_KAFKA_BROKERS":          15,
+		"SENZ_ZONE":                   16,
 	}
 )
 
@@ -199,7 +203,7 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2*.sentinez.types.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\x90\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\x9f\x03\n" +
 	"\x04Senz\x12\x14\n" +
 	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
@@ -217,7 +221,8 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x13SENZ_ADMIN_PASSWORD\x10\f\x12\x1f\n" +
 	"\x1bSENZ_OTLP_INTERNAL_ENDPOINT\x10\r\x12\x1f\n" +
 	"\x1bSENZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x16\n" +
-	"\x12SENZ_KAFKA_BROKERS\x10\x0fBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\x12SENZ_KAFKA_BROKERS\x10\x0f\x12\r\n" +
+	"\tSENZ_ZONE\x10\x10BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_config_proto_rawDescOnce sync.Once

@@ -30,12 +30,12 @@ message Account {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-accounts-" }
+    string: { prefix: "acct_" }
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-users-" }
+    string: { prefix: "user_" }
   }];
 
   // username only support for local provider
@@ -58,12 +58,12 @@ message AccountResponse {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-accounts-" }
+    string: { prefix: "acct_" }
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-users-" }
+    string: { prefix: "user_" }
   }];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
@@ -86,7 +86,7 @@ message User {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-users-" }
+    string: { prefix: "user_" }
   }];
 
   string full_name = 10 [(buf.validate.field).required = true];

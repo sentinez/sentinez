@@ -28,7 +28,6 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
@@ -37,6 +36,7 @@ import (
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstore/ja4"
 	"github.com/sentinez/shared/szsync"
@@ -77,7 +77,7 @@ var _upgrade = websocket.Upgrader{
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	szlog.Debug("http context: connection: new context")
 	hctx := _ctxPool.Get()
-	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.SetRequestId(szrand.NewULID(szprefix.Request))
 
 	hctx.req = req
 	hctx.resp = resp

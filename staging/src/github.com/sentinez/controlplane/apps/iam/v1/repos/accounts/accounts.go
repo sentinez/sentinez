@@ -24,10 +24,10 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/szstorage/storageutils/table"
 	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -227,7 +227,7 @@ func (acc *Accounts) getOne(ctx context.Context,
 func (acc *Accounts) Create(ctx context.Context,
 	account *AccountX) (*AccountX, error) {
 
-	account.Id = szrand.NewId(table.NewPrimaryKey(sztable.IAMAccounts))
+	account.Id = szrand.NewUUID(szprefix.Account)
 
 	if account.GetUsername() == "" {
 		account.Username = account.GetEmail()

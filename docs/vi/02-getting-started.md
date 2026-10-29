@@ -109,6 +109,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_OTLP_INTERNAL_ENDPOINT` | tất cả | Collector OTLP/gRPC cho log hệ thống; không đặt thì không push |
 | `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `LOG` trong func chains); không đặt thì không push |
 | `SENZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`shared/szkafka`); được ưu tiên hơn `SENZ_OTLP_EXTERNAL_ENDPOINT` |
+| `SENZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-crevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone |
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
 service khác nạp toàn bộ enum `Senz`.

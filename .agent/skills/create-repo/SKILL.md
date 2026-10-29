@@ -21,8 +21,8 @@ Use standard imports, especially:
 - Protobuf models from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1`
 - `github.com/sentinez/core/szcmn/tables` for table definitions (add the new table constant there)
 - `github.com/sentinez/shared/szstorage/dbx` and `github.com/sentinez/shared/szstorage/dbx/postgres` for database interactions
-- `github.com/sentinez/shared/szstorage/storageutils/table`
-- `github.com/sentinez/shared/szrand` for ID generation (`szrand.NewId`)
+- `github.com/sentinez/shared/szprefix` for ID prefixes (add the new entity's prefix there: a-z, 2 to 5 chars, unique)
+- `github.com/sentinez/shared/szrand` for ID generation (`szrand.NewUUID`)
 
 ## 2. Define the Interface
 
@@ -121,7 +121,7 @@ func (r *<ModelNamePlural>) List(ctx context.Context, req *<domain>pb.List<Model
 Generate a new ID and insert.
 ```go
 func (r *<ModelNamePlural>) Create(ctx context.Context, model *<domain>pb.<ModelName>) (*<domain>pb.<ModelName>, error) {
-	model.Id = rand.NewId(table.NewPrimaryKey(tables.<ModelNamePlural>))
+	model.Id = szrand.NewUUID(szprefix.<ModelName>.Key())
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		<domain>pb.<ModelName>_Id: model.GetId(),
 		// Set other fields...

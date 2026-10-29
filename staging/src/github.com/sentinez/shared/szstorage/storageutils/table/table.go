@@ -23,21 +23,16 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
+const _envPattern = `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`
+
 func NewTable(appConf *settingpb.Config, tableName string) string {
 	tableName = fmt.Sprintf("%s.%s.%s",
 		appConf.GetFlag().GetEnvMode(), core.BaseName, tableName)
 	return strings.ReplaceAll(tableName, ".", "_")
 }
 
-// NewPrimaryKey returns the ID prefix of tableName rows, e.g.
-// "senz-iam-users-" for "iam.users".
-func NewPrimaryKey(tableName string) string {
-	key := fmt.Sprintf("%s-%s-", strings.ToLower(core.Code), tableName)
-	return strings.ReplaceAll(key, ".", "-")
-}
-
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(core.EnvPattern, tableName)
+	matched, err := regexp.MatchString(_envPattern, tableName)
 	if err != nil {
 		fmt.Println("Regex error:", err)
 		return false

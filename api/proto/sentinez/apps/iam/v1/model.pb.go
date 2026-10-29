@@ -360,29 +360,29 @@ var File_sentinez_apps_iam_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_iam_v1_model_proto_rawDesc = "" +
 	"\n" +
-	" sentinez/apps/iam/v1/model.proto\x12\x14sentinez.apps.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"\xba\x03\n" +
+	" sentinez/apps/iam/v1/model.proto\x12\x14sentinez.apps.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1dsentinez/types/v1/known.proto\"\xa3\x03\n" +
 	"\aAccount\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
-	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz-iam-accounts-R\x02id\x122\n" +
-	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz-iam-users-R\x06userId\x12@\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12\x1f\n" +
+	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05acct_R\x02id\x12(\n" +
+	"\auser_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12#\n" +
 	"\rpassword_hash\x18\v \x01(\tR\fpasswordHash\x12\x1d\n" +
 	"\x05email\x18\f \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12 \n" +
 	"\vcredentials\x18\x14 \x03(\tR\vcredentials\x12:\n" +
 	"\bprovider\x18\x15 \x01(\x0e2\x1e.sentinez.apps.iam.v1.ProviderR\bprovider\x12(\n" +
-	"\x10provider_user_id\x18\x16 \x01(\tR\x0eproviderUserId:\x06\xca\xf3\x18\x02\b\x01\"\xc9\x02\n" +
+	"\x10provider_user_id\x18\x16 \x01(\tR\x0eproviderUserId:\x06\xca\xf3\x18\x02\b\x01\"\xb2\x02\n" +
 	"\x0fAccountResponse\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12,\n" +
-	"\x02id\x18\x02 \x01(\tB\x1c\xbaH\x19\xc8\x01\x01r\x14:\x12senz-iam-accounts-R\x02id\x122\n" +
-	"\auser_id\x18\x03 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz-iam-users-R\x06userId\x12@\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12\x1f\n" +
+	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05acct_R\x02id\x12(\n" +
+	"\auser_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x12@\n" +
 	"\busername\x18\n" +
 	" \x01(\tB$\xbaH!r\x1f2\x1d^[a-zA-Z][a-zA-Z0-9._]{2,29}$R\busername\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12:\n" +
-	"\bprovider\x18\f \x01(\x0e2\x1e.sentinez.apps.iam.v1.ProviderR\bprovider\"\xfc\x01\n" +
+	"\bprovider\x18\f \x01(\x0e2\x1e.sentinez.apps.iam.v1.ProviderR\bprovider\"\xf2\x01\n" +
 	"\x04User\x127\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12)\n" +
-	"\x02id\x18\x02 \x01(\tB\x19\xbaH\x16\xc8\x01\x01r\x11:\x0fsenz-iam-users-R\x02id\x12#\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataR\bmetadata\x12\x1f\n" +
+	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x02id\x12#\n" +
 	"\tfull_name\x18\n" +
 	" \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\bfullName\x12\x1d\n" +
 	"\x05email\x18\v \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12D\n" +

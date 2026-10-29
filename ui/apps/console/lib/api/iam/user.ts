@@ -28,21 +28,21 @@ export interface ApiOptions {
 export const SAMPLE_USERS: User[] = [
   {
     metadata: { createdAt: '2026-08-20T03:00:00Z', updatedAt: '2026-08-20T03:00:00Z' },
-    id: 'senz-iam-users-0199a6f0-4c1e-7a2b-9d3e-400000000001',
+    id: 'user_0199a6f0-4c1e-7a2b-9d3e-400000000001',
     fullName: 'Alice Nguyen',
     email: 'alice@example.com',
     controlPlane: 'CONTROL_PLANE_PORTAL',
   },
   {
     metadata: { createdAt: '2026-08-25T09:30:00Z', updatedAt: '2026-09-10T11:00:00Z' },
-    id: 'senz-iam-users-0199a6f0-4c1e-7a2b-9d3e-400000000002',
+    id: 'user_0199a6f0-4c1e-7a2b-9d3e-400000000002',
     fullName: 'Bob Tran',
     email: 'bob@example.com',
     controlPlane: 'CONTROL_PLANE_PORTAL',
   },
   {
     metadata: { createdAt: '2026-09-02T08:00:00Z', updatedAt: '2026-09-02T08:00:00Z' },
-    id: 'senz-iam-users-0199a6f0-4c1e-7a2b-9d3e-400000000003',
+    id: 'user_0199a6f0-4c1e-7a2b-9d3e-400000000003',
     fullName: 'Carol Le',
     email: 'carol@example.com',
     controlPlane: 'CONTROL_PLANE_PORTAL',
@@ -75,7 +75,7 @@ const generatedUsers: User[] = SAMPLE_NAMES.map((fullName, i) => {
   const at = new Date(Date.UTC(2026, 8, 1 + i, 8));
   return User.fromPartial({
     metadata: { createdAt: at, updatedAt: at },
-    id: `senz-iam-users-0199a6f0-4c1e-7a2b-9d3e-4000000000${n}`,
+    id: `user_0199a6f0-4c1e-7a2b-9d3e-4000000000${n}`,
     fullName,
     // "Duc Pham" -> duc@example.com
     email: `${fullName.slice(0, fullName.indexOf(' ')).toLowerCase()}@example.com`,

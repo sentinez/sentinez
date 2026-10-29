@@ -18,13 +18,12 @@ import (
 	"io"
 
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szsync"
 )
 
 var (
-	_prefix = ""
-
 	_ io.Closer = (*CoreRuleEvent)(nil)
 
 	_pool = szsync.NewPoolCtr(func() *CoreRuleEvent {
@@ -44,7 +43,7 @@ func (re *CoreRuleEvent) Close() error {
 
 func Acquire() *CoreRuleEvent {
 	obj := _pool.Get()
-	obj.Id = szrand.NewId(_prefix)
+	obj.Id = szrand.NewULID(szprefix.CoreRulesetEvent)
 
 	return obj
 }

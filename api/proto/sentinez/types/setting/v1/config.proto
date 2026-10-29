@@ -42,6 +42,8 @@ enum Senz {
   // Kafka brokers (comma-separated) the edge traffic events are produced to
   // directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
   SENZ_KAFKA_BROKERS = 15;
+  // zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
+  SENZ_ZONE = 16;
 }
 
 message Config {
