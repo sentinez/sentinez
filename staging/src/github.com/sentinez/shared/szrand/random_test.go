@@ -61,7 +61,7 @@ func TestLoadZone(t *testing.T) {
 		giveZone string
 		want     string
 	}{
-		{name: "set", giveZone: "SGN", want: "SGN-"},
+		{name: "set", giveZone: "SGN", want: "sgn-"},
 		{name: "unset", giveZone: "", want: ""},
 	}
 
