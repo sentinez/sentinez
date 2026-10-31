@@ -12,7 +12,7 @@ replace (
 )
 
 require (
-	github.com/a-h/templ v0.3.1070
+	github.com/a-h/templ v0.3.1100
 	github.com/cilium/ebpf v0.22.0
 	github.com/corazawaf/coraza/v3 v3.8.1
 	github.com/corazawaf/libinjection-go v0.3.3
