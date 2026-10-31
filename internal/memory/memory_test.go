@@ -84,8 +84,8 @@ func newRateLimit(
 		IngressRuntime: &secrulepb.SecRule{
 			Id: id, Status: status, Expr: expr,
 		},
-		TimeWindow:     "1s",
-		Timeout:        "1s",
-		MaxRequests:    limit,
+		TimeWindow:  "1s",
+		Timeout:     "1s",
+		MaxRequests: limit,
 	}
 }
