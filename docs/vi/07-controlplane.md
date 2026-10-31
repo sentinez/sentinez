@@ -36,9 +36,11 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 - Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
   `postgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
   cung cấp `WithTX(ss)`.
-- ID bản ghi: `szrand.NewId(table.NewPrimaryKey(name))` =
-  `senz-<name>-<uuid>`, dấu chấm trong tên bảng đổi thành `-`
-  (`senz-iam-users-<uuid>`); rule prefix `id` trong proto phải khớp.
+- ID bản ghi: `szrand.NewUUID(szprefix.<Entity>.Key())` =
+  `<prefix>_<uuid>` (`user_<uuid>`), mỗi bảng một prefix trong
+  [shared/szprefix](../../staging/src/github.com/sentinez/shared/szprefix/prefix.go)
+  (a-z, 2 đến 5 ký tự, không đổi sau khi công khai); rule prefix `id` trong
+  proto phải khớp.
 
 Tên bảng ([core/szcmn/tables](../../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,

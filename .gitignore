@@ -83,3 +83,9 @@ _volume/
 .vscode/
 
 _audit
+# Enterprise features: the private repository is checked out in scale/
+# (make scale.checkout), its URL set in scale.local.mk; only the stubs are public.
+/hack/make/scale.local.mk
+/scale/*
+!/scale/pkg_import.go
+!/scale/*_oss.go

@@ -371,8 +371,6 @@ export interface Action {
 
 /** A complete rule definition */
 export interface Rule {
-  id: string;
-  expr: string;
   /** @gotags: yaml:"condition" */
   condition?: Condition | undefined;
 }
@@ -650,19 +648,13 @@ export const Action: MessageFns<Action> = {
 };
 
 function createBaseRule(): Rule {
-  return { id: "", expr: "", condition: undefined };
+  return { condition: undefined };
 }
 
 export const Rule: MessageFns<Rule> = {
   encode(message: Rule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.expr !== "") {
-      writer.uint32(18).string(message.expr);
-    }
     if (message.condition !== undefined) {
-      Condition.encode(message.condition, writer.uint32(26).fork()).join();
+      Condition.encode(message.condition, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -685,22 +677,6 @@ export const Rule: MessageFns<Rule> = {
               break;
             }
 
-            message.id = reader.string();
-            continue;
-          }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.expr = reader.string();
-            continue;
-          }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
             message.condition = Condition.decode(reader, reader.uint32());
             continue;
           }
@@ -717,21 +693,11 @@ export const Rule: MessageFns<Rule> = {
   },
 
   fromJSON(object: any): Rule {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      expr: isSet(object.expr) ? globalThis.String(object.expr) : "",
-      condition: isSet(object.condition) ? Condition.fromJSON(object.condition) : undefined,
-    };
+    return { condition: isSet(object.condition) ? Condition.fromJSON(object.condition) : undefined };
   },
 
   toJSON(message: Rule): unknown {
     const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.expr !== "") {
-      obj.expr = message.expr;
-    }
     if (message.condition !== undefined) {
       obj.condition = Condition.toJSON(message.condition);
     }
@@ -743,8 +709,6 @@ export const Rule: MessageFns<Rule> = {
   },
   fromPartial<I extends Exact<DeepPartial<Rule>, I>>(object: I): Rule {
     const message = createBaseRule();
-    message.id = object.id ?? "";
-    message.expr = object.expr ?? "";
     message.condition = (object.condition !== undefined && object.condition !== null)
       ? Condition.fromPartial(object.condition)
       : undefined;

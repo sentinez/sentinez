@@ -15,17 +15,17 @@
 package szrand
 
 import (
-	"bytes"
-	"crypto/rand"
-	"fmt"
+	crand "crypto/rand"
 	"math/big"
+	"os"
+	"strings"
 	"sync"
 
-	"github.com/cloudresty/ulid"
 	"github.com/google/uuid"
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/rs/xid"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/oklog/ulid/v2"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/shared/szprefix"
 )
 
 const _charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -35,7 +35,7 @@ func RandomString(n int) (string, error) {
 	result := make([]byte, n)
 	charsetLen := int64(len(_charset))
 	for i := range n {
-		idxBig, err := rand.Int(rand.Reader, big.NewInt(charsetLen))
+		idxBig, err := crand.Int(crand.Reader, big.NewInt(charsetLen))
 		if err != nil {
 			return "", err
 		}
@@ -44,63 +44,41 @@ func RandomString(n int) (string, error) {
 	return string(result), nil
 }
 
-var _bufPool = sync.Pool{
-	New: func() any {
-		buf := bytes.NewBuffer([]byte{})
-		buf.Grow(4096)
-		return buf
-	},
+// _zone is "<SENZ_ZONE>-", the zone the service is deployed in, prefixing
+// every generated id ("" when unset). It is read on the first New*Id call,
+// once the env file is loaded.
+var _zone = sync.OnceValue(loadZone)
+
+// NewUUID returns a prefixed, never zoned UUID: the primary key of a
+// record, matched by the proto id prefix rules.
+func NewUUID(p szprefix.Prefix) string {
+	return p.Key() + uuid.NewString()
 }
 
-// getBuffer returns an empty buffer from the pool.
-func getBuffer() *bytes.Buffer {
-	buf, ok := _bufPool.Get().(*bytes.Buffer)
-	if !ok {
-		return &bytes.Buffer{}
-	}
-	buf.Reset()
-
-	return buf
-}
-
-// NewId generates a new UUID and returns it as a string.
-func NewId(prefix string) string {
-	id := uuid.New()
-	return fmt.Sprintf("%s%s", prefix, id.String())
-}
-
-func NewNanoId(prefix string) string {
+// NewNanoId returns a zoned, prefixed nanoid.
+func NewNanoId(p szprefix.Prefix) string {
 	id, _ := gonanoid.New()
-	return fmt.Sprintf("%s%s", prefix, id)
+	return zoned(p, id)
 }
 
-func NewXId(prefix []byte) string {
-	guid := xid.New()
-	guid.Bytes()
-
-	buf := getBuffer()
-
-	buf.Write(prefix)
-	buf.Write(bytesconv.S2b(guid.String()))
-
-	// Copy: the buffer goes back to the pool and is overwritten later.
-	res := buf.String()
-	_bufPool.Put(buf)
-
-	return res
+// NewULID returns a zoned, prefixed ULID, sortable by creation time to the
+// millisecond: the id of requests and the events raised while handling
+// them. Entropy comes from crypto/rand, which is lock-free and never fails,
+// unlike ulid.Make, whose monotonic reader takes one global mutex per id.
+func NewULID(p szprefix.Prefix) string {
+	id, _ := ulid.New(ulid.Now(), crand.Reader)
+	return zoned(p, id.String())
 }
 
-func NewTimeId(prefix []byte, unixtime uint64) string {
-	ulidStr, _ := ulid.NewTime(unixtime)
+func zoned(p szprefix.Prefix, id string) string {
+	return _zone() + p.Key() + id
+}
 
-	buf := getBuffer()
+func loadZone() string {
+	zone := os.Getenv(settingpb.Senz_SENZ_ZONE.String())
+	if zone == "" {
+		return ""
+	}
 
-	buf.Write(prefix)
-	buf.WriteString(ulidStr)
-
-	// Copy: the buffer goes back to the pool and is overwritten later.
-	res := buf.String()
-	_bufPool.Put(buf)
-
-	return res
+	return strings.ToLower(zone) + "-"
 }

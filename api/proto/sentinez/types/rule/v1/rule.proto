@@ -87,9 +87,7 @@ enum ActionType {
 
 // A complete rule definition
 message Rule {
-  string id = 1;
-  string expr = 2;
-  Condition condition = 3;  // @gotags: yaml:"condition"
+  Condition condition = 1;  // @gotags: yaml:"condition"
 }
 
 message AndCondition {

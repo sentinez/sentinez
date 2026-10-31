@@ -24,10 +24,10 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/szstorage/storageutils/table"
 	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -150,7 +150,7 @@ func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
 func (t *Tenants) Create(ctx context.Context,
 	tenant *tenantpb.Tenant) (*tenantpb.Tenant, error) {
 
-	tenant.Id = szrand.NewId(table.NewPrimaryKey(sztable.Tenants))
+	tenant.Id = szrand.NewUUID(szprefix.Tenant)
 	query := postgres.InsertBuilder(t.storage, postgres.M{
 		tenantpb.Tenant_Id:          tenant.GetId(),
 		tenantpb.Tenant_Name:        tenant.GetName(),

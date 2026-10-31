@@ -29,7 +29,7 @@ message Activity {
   
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-analytic-activities-" }
+    string: { prefix: "actv_" }
   }];
 
   repeated uint32 unique_visitor = 7;

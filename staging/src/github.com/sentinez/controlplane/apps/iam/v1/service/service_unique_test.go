@@ -41,7 +41,7 @@ type lookup struct {
 
 func existing(email string) lookup {
 	return lookup{acc: &accrepos.AccountX{Account: &iampb.Account{
-		Id: "senz-iam-accounts-1", Email: email, UserId: "senz-iam-users-1",
+		Id: "acct_1", Email: email, UserId: "user_1",
 	}}}
 }
 
@@ -161,7 +161,7 @@ func TestCreateAccount_EmailOwnedByUser(t *testing.T) {
 		"bob": _missing, "bob@x.io": _missing,
 	})
 	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
-		Return(&iampb.User{Id: "senz-iam-users-1"}, nil)
+		Return(&iampb.User{Id: "user_1"}, nil)
 
 	resp, err := svc.CreateAccount(context.Background(),
 		&iampb.CreateAccountRequest{
@@ -175,7 +175,7 @@ func TestCreateAccount_EmailOwnedByUser(t *testing.T) {
 func TestCreateUser_EmailTaken(t *testing.T) {
 	svc, userRepo := newTestService(t, nil)
 	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
-		Return(&iampb.User{Id: "senz-iam-users-1"}, nil)
+		Return(&iampb.User{Id: "user_1"}, nil)
 
 	resp, err := svc.CreateUser(context.Background(),
 		&iampb.CreateUserRequest{Email: "bob@x.io", FullName: "Bob"})
@@ -189,30 +189,30 @@ func TestCreateUser_EmailFree(t *testing.T) {
 	userRepo.On("GetByEmail", mock.Anything, "bob@x.io").
 		Return(nil, szerror.ErrNotFound)
 	userRepo.On("Create", mock.Anything, mock.Anything).
-		Return(&iampb.User{Id: "senz-iam-users-2"}, nil)
+		Return(&iampb.User{Id: "user_2"}, nil)
 
 	resp, err := svc.CreateUser(context.Background(),
 		&iampb.CreateUserRequest{Email: "bob@x.io", FullName: "Bob"})
 
 	require.NoError(t, err)
-	assert.Equal(t, "senz-iam-users-2", resp.GetUserId())
+	assert.Equal(t, "user_2", resp.GetUserId())
 }
 
 func TestUpdateUser_RenamesSignedInUser(t *testing.T) {
 	svc, userRepo := newTestService(t, nil)
 	user := &iampb.User{
-		Id: "senz-iam-users-2", FullName: "Bob", Email: "bob@x.io",
+		Id: "user_2", FullName: "Bob", Email: "bob@x.io",
 	}
-	userRepo.On("Get", mock.Anything, "senz-iam-users-2").Return(user, nil)
+	userRepo.On("Get", mock.Anything, "user_2").Return(user, nil)
 	// only the id and the name reach the store
 	userRepo.On("Update", mock.Anything, mock.MatchedBy(
 		func(u *iampb.User) bool {
-			return u.GetId() == "senz-iam-users-2" &&
+			return u.GetId() == "user_2" &&
 				u.GetFullName() == "Robert" && u.GetEmail() == ""
 		},
 	)).Return(nil)
 
-	resp, err := svc.UpdateUser(signedIn(t, "senz-iam-users-2"),
+	resp, err := svc.UpdateUser(signedIn(t, "user_2"),
 		&iampb.UpdateUserRequest{FullName: " Robert "})
 
 	require.NoError(t, err)
@@ -235,7 +235,7 @@ func TestUpdateUser_Rejected(t *testing.T) {
 		},
 		{
 			name:     "blank name",
-			giveCtx:  signedIn(t, "senz-iam-users-2"),
+			giveCtx:  signedIn(t, "user_2"),
 			giveName: "  ",
 			wantCode: codes.InvalidArgument,
 		},

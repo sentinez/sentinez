@@ -17,6 +17,17 @@ package sentinez
 import (
 	"embed"
 	"io/fs"
+	"runtime"
+)
+
+const (
+	// Package is filled at linking time
+	Package = "github.com/sentinez/sentinez"
+)
+
+var (
+	// GoVersion is Go tree's version.
+	GoVersion = runtime.Version()
 )
 
 var (

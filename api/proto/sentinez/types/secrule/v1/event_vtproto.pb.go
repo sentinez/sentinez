@@ -66,7 +66,9 @@ func (m *RuleEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 			i = protohelpers.EncodeVarint(dAtA, i, uint64(baseI-i))
 			i--
-			dAtA[i] = 0x7a
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xa2
 		}
 	}
 	if len(m.RequestId) > 0 {
@@ -74,26 +76,33 @@ func (m *RuleEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.RequestId)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestId)))
 		i--
-		dAtA[i] = 0x72
+		dAtA[i] = 0x7a
 	}
 	if len(m.RequestIp) > 0 {
 		i -= len(m.RequestIp)
 		copy(dAtA[i:], m.RequestIp)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestIp)))
 		i--
-		dAtA[i] = 0x6a
+		dAtA[i] = 0x72
 	}
 	if len(m.RequestQuery) > 0 {
 		i -= len(m.RequestQuery)
 		copy(dAtA[i:], m.RequestQuery)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestQuery)))
 		i--
-		dAtA[i] = 0x62
+		dAtA[i] = 0x6a
 	}
 	if len(m.RequestPath) > 0 {
 		i -= len(m.RequestPath)
 		copy(dAtA[i:], m.RequestPath)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestPath)))
+		i--
+		dAtA[i] = 0x62
+	}
+	if len(m.RequestScheme) > 0 {
+		i -= len(m.RequestScheme)
+		copy(dAtA[i:], m.RequestScheme)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RequestScheme)))
 		i--
 		dAtA[i] = 0x5a
 	}
@@ -228,6 +237,10 @@ func (m *RuleEvent) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
+	l = len(m.RequestScheme)
+	if l > 0 {
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
 	l = len(m.RequestPath)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
@@ -249,7 +262,7 @@ func (m *RuleEvent) SizeVT() (n int) {
 			_ = k
 			_ = v
 			mapEntrySize := 1 + len(k) + protohelpers.SizeOfVarint(uint64(len(k))) + 1 + len(v) + protohelpers.SizeOfVarint(uint64(len(v)))
-			n += mapEntrySize + 1 + protohelpers.SizeOfVarint(uint64(mapEntrySize))
+			n += mapEntrySize + 2 + protohelpers.SizeOfVarint(uint64(mapEntrySize))
 		}
 	}
 	n += len(m.unknownFields)
@@ -561,6 +574,38 @@ func (m *RuleEvent) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 11:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RequestScheme", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RequestScheme = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RequestPath", wireType)
 			}
 			var stringLen uint64
@@ -591,7 +636,7 @@ func (m *RuleEvent) UnmarshalVT(dAtA []byte) error {
 			}
 			m.RequestPath = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 12:
+		case 13:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RequestQuery", wireType)
 			}
@@ -623,7 +668,7 @@ func (m *RuleEvent) UnmarshalVT(dAtA []byte) error {
 			}
 			m.RequestQuery = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 13:
+		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RequestIp", wireType)
 			}
@@ -655,7 +700,7 @@ func (m *RuleEvent) UnmarshalVT(dAtA []byte) error {
 			}
 			m.RequestIp = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 14:
+		case 15:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RequestId", wireType)
 			}
@@ -687,7 +732,7 @@ func (m *RuleEvent) UnmarshalVT(dAtA []byte) error {
 			}
 			m.RequestId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 15:
+		case 20:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Tags", wireType)
 			}

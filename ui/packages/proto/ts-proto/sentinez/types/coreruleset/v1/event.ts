@@ -30,6 +30,7 @@ export interface CoreRuleEvent {
   service: RuleService;
   requestIp: string;
   requestDomain: string;
+  requestScheme: string;
   requestPath: string;
   requestQuery: string;
   requestId: string;
@@ -49,6 +50,7 @@ function createBaseCoreRuleEvent(): CoreRuleEvent {
     service: 0,
     requestIp: "",
     requestDomain: "",
+    requestScheme: "",
     requestPath: "",
     requestQuery: "",
     requestId: "",
@@ -93,17 +95,20 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     if (message.requestDomain !== "") {
       writer.uint32(90).string(message.requestDomain);
     }
+    if (message.requestScheme !== "") {
+      writer.uint32(98).string(message.requestScheme);
+    }
     if (message.requestPath !== "") {
-      writer.uint32(98).string(message.requestPath);
+      writer.uint32(106).string(message.requestPath);
     }
     if (message.requestQuery !== "") {
-      writer.uint32(106).string(message.requestQuery);
+      writer.uint32(114).string(message.requestQuery);
     }
     if (message.requestId !== "") {
-      writer.uint32(114).string(message.requestId);
+      writer.uint32(122).string(message.requestId);
     }
     if (message.behavior !== 0) {
-      writer.uint32(120).int32(message.behavior);
+      writer.uint32(160).int32(message.behavior);
     }
     return writer;
   },
@@ -224,7 +229,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
               break;
             }
 
-            message.requestPath = reader.string();
+            message.requestScheme = reader.string();
             continue;
           }
           case 13: {
@@ -232,7 +237,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
               break;
             }
 
-            message.requestQuery = reader.string();
+            message.requestPath = reader.string();
             continue;
           }
           case 14: {
@@ -240,11 +245,19 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
               break;
             }
 
-            message.requestId = reader.string();
+            message.requestQuery = reader.string();
             continue;
           }
           case 15: {
-            if (tag !== 120) {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.requestId = reader.string();
+            continue;
+          }
+          case 20: {
+            if (tag !== 160) {
               break;
             }
 
@@ -306,6 +319,11 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
         : isSet(object.request_domain)
         ? globalThis.String(object.request_domain)
         : "",
+      requestScheme: isSet(object.requestScheme)
+        ? globalThis.String(object.requestScheme)
+        : isSet(object.request_scheme)
+        ? globalThis.String(object.request_scheme)
+        : "",
       requestPath: isSet(object.requestPath)
         ? globalThis.String(object.requestPath)
         : isSet(object.request_path)
@@ -360,6 +378,9 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     if (message.requestDomain !== "") {
       obj.requestDomain = message.requestDomain;
     }
+    if (message.requestScheme !== "") {
+      obj.requestScheme = message.requestScheme;
+    }
     if (message.requestPath !== "") {
       obj.requestPath = message.requestPath;
     }
@@ -391,6 +412,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     message.service = object.service ?? 0;
     message.requestIp = object.requestIp ?? "";
     message.requestDomain = object.requestDomain ?? "";
+    message.requestScheme = object.requestScheme ?? "";
     message.requestPath = object.requestPath ?? "";
     message.requestQuery = object.requestQuery ?? "";
     message.requestId = object.requestId ?? "";

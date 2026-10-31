@@ -21,6 +21,7 @@
 package secrulepb
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -48,12 +49,13 @@ type RuleEvent struct {
 	Action            *v1.Action             `protobuf:"bytes,7,opt,name=action,proto3" json:"action,omitempty"`
 	Service           v1.RuleService         `protobuf:"varint,8,opt,name=service,proto3,enum=sentinez.types.rule.v1.RuleService" json:"service,omitempty"`
 	RequestDomain     string                 `protobuf:"bytes,10,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
-	RequestPath       string                 `protobuf:"bytes,11,opt,name=request_path,json=requestPath,proto3" json:"request_path,omitempty"`
-	RequestQuery      string                 `protobuf:"bytes,12,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
-	RequestIp         string                 `protobuf:"bytes,13,opt,name=request_ip,json=requestIp,proto3" json:"request_ip,omitempty"`
-	RequestId         string                 `protobuf:"bytes,14,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	RequestScheme     string                 `protobuf:"bytes,11,opt,name=request_scheme,json=requestScheme,proto3" json:"request_scheme,omitempty"`
+	RequestPath       string                 `protobuf:"bytes,12,opt,name=request_path,json=requestPath,proto3" json:"request_path,omitempty"`
+	RequestQuery      string                 `protobuf:"bytes,13,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
+	RequestIp         string                 `protobuf:"bytes,14,opt,name=request_ip,json=requestIp,proto3" json:"request_ip,omitempty"`
+	RequestId         string                 `protobuf:"bytes,15,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	// Tags set by the SET_TAG actions of the matched rules.
-	Tags          map[string]string `protobuf:"bytes,15,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Tags          map[string]string `protobuf:"bytes,20,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -151,6 +153,13 @@ func (x *RuleEvent) GetRequestDomain() string {
 	return ""
 }
 
+func (x *RuleEvent) GetRequestScheme() string {
+	if x != nil {
+		return x.RequestScheme
+	}
+	return ""
+}
+
 func (x *RuleEvent) GetRequestPath() string {
 	if x != nil {
 		return x.RequestPath
@@ -190,9 +199,9 @@ var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf1\x04\n" +
-	"\tRuleEvent\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x86\x06\n" +
+	"\tRuleEvent\x12F\n" +
+	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12.\n" +
 	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
 	"\bmessages\x18\x03 \x03(\tR\bmessages\x12\x1f\n" +
 	"\vresource_id\x18\x04 \x01(\tR\n" +
@@ -202,14 +211,15 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\x06action\x18\a \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x12=\n" +
 	"\aservice\x18\b \x01(\x0e2#.sentinez.types.rule.v1.RuleServiceR\aservice\x12%\n" +
 	"\x0erequest_domain\x18\n" +
-	" \x01(\tR\rrequestDomain\x12!\n" +
-	"\frequest_path\x18\v \x01(\tR\vrequestPath\x12#\n" +
-	"\rrequest_query\x18\f \x01(\tR\frequestQuery\x12\x1d\n" +
+	" \x01(\tR\rrequestDomain\x12%\n" +
+	"\x0erequest_scheme\x18\v \x01(\tR\rrequestScheme\x12!\n" +
+	"\frequest_path\x18\f \x01(\tR\vrequestPath\x12#\n" +
+	"\rrequest_query\x18\r \x01(\tR\frequestQuery\x12\x1d\n" +
 	"\n" +
-	"request_ip\x18\r \x01(\tR\trequestIp\x12\x1d\n" +
+	"request_ip\x18\x0e \x01(\tR\trequestIp\x12S\n" +
 	"\n" +
-	"request_id\x18\x0e \x01(\tR\trequestId\x12B\n" +
-	"\x04tags\x18\x0f \x03(\v2..sentinez.types.secrule.v1.RuleEvent.TagsEntryR\x04tags\x1a7\n" +
+	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12B\n" +
+	"\x04tags\x18\x14 \x03(\v2..sentinez.types.secrule.v1.RuleEvent.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"

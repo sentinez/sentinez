@@ -489,9 +489,7 @@ func (x *Action) GetParams() *structpb.Struct {
 // A complete rule definition
 type Rule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Expr          string                 `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
-	Condition     *Condition             `protobuf:"bytes,3,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
+	Condition     *Condition             `protobuf:"bytes,1,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -524,20 +522,6 @@ func (x *Rule) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Rule.ProtoReflect.Descriptor instead.
 func (*Rule) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *Rule) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *Rule) GetExpr() string {
-	if x != nil {
-		return x.Expr
-	}
-	return ""
 }
 
 func (x *Rule) GetCondition() *Condition {
@@ -947,11 +931,9 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x05value\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\x05value\"q\n" +
 	"\x06Action\x126\n" +
 	"\x04type\x18\x01 \x01(\x0e2\".sentinez.types.rule.v1.ActionTypeR\x04type\x12/\n" +
-	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"k\n" +
-	"\x04Rule\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04expr\x18\x02 \x01(\tR\x04expr\x12?\n" +
-	"\tcondition\x18\x03 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\x8b\x01\n" +
+	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"G\n" +
+	"\x04Rule\x12?\n" +
+	"\tcondition\x18\x01 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\x8b\x01\n" +
 	"\fAndCondition\x122\n" +
 	"\x05rules\x18\x01 \x03(\v2\x1c.sentinez.types.rule.v1.RuleR\x05rules\x12G\n" +
 	"\for_condition\x18\x02 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\"\x97\x01\n" +

@@ -21,6 +21,7 @@
 package corerulesetpb
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -50,10 +51,11 @@ type CoreRuleEvent struct {
 	Service        v1.RuleService         `protobuf:"varint,9,opt,name=service,proto3,enum=sentinez.types.rule.v1.RuleService" json:"service,omitempty"`
 	RequestIp      string                 `protobuf:"bytes,10,opt,name=request_ip,json=requestIp,proto3" json:"request_ip,omitempty"`
 	RequestDomain  string                 `protobuf:"bytes,11,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
-	RequestPath    string                 `protobuf:"bytes,12,opt,name=request_path,json=requestPath,proto3" json:"request_path,omitempty"`
-	RequestQuery   string                 `protobuf:"bytes,13,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
-	RequestId      string                 `protobuf:"bytes,14,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Behavior       v1.RuleBehavior        `protobuf:"varint,15,opt,name=behavior,proto3,enum=sentinez.types.rule.v1.RuleBehavior" json:"behavior,omitempty"`
+	RequestScheme  string                 `protobuf:"bytes,12,opt,name=request_scheme,json=requestScheme,proto3" json:"request_scheme,omitempty"`
+	RequestPath    string                 `protobuf:"bytes,13,opt,name=request_path,json=requestPath,proto3" json:"request_path,omitempty"`
+	RequestQuery   string                 `protobuf:"bytes,14,opt,name=request_query,json=requestQuery,proto3" json:"request_query,omitempty"`
+	RequestId      string                 `protobuf:"bytes,15,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Behavior       v1.RuleBehavior        `protobuf:"varint,20,opt,name=behavior,proto3,enum=sentinez.types.rule.v1.RuleBehavior" json:"behavior,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -165,6 +167,13 @@ func (x *CoreRuleEvent) GetRequestDomain() string {
 	return ""
 }
 
+func (x *CoreRuleEvent) GetRequestScheme() string {
+	if x != nil {
+		return x.RequestScheme
+	}
+	return ""
+}
+
 func (x *CoreRuleEvent) GetRequestPath() string {
 	if x != nil {
 		return x.RequestPath
@@ -197,9 +206,9 @@ var File_sentinez_types_coreruleset_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xbd\x04\n" +
-	"\rCoreRuleEvent\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12(\n" +
+	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd2\x05\n" +
+	"\rCoreRuleEvent\x12F\n" +
+	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?crevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
 	"\n" +
 	"severities\x18\x03 \x03(\tR\n" +
@@ -215,12 +224,13 @@ const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"request_ip\x18\n" +
 	" \x01(\tR\trequestIp\x12%\n" +
-	"\x0erequest_domain\x18\v \x01(\tR\rrequestDomain\x12!\n" +
-	"\frequest_path\x18\f \x01(\tR\vrequestPath\x12#\n" +
-	"\rrequest_query\x18\r \x01(\tR\frequestQuery\x12\x1d\n" +
+	"\x0erequest_domain\x18\v \x01(\tR\rrequestDomain\x12%\n" +
+	"\x0erequest_scheme\x18\f \x01(\tR\rrequestScheme\x12!\n" +
+	"\frequest_path\x18\r \x01(\tR\vrequestPath\x12#\n" +
+	"\rrequest_query\x18\x0e \x01(\tR\frequestQuery\x12S\n" +
 	"\n" +
-	"request_id\x18\x0e \x01(\tR\trequestId\x12@\n" +
-	"\bbehavior\x18\x0f \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\x06\xca\xf3\x18\x02\b\x01BTZRgithub.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpbb\x06proto3"
+	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12@\n" +
+	"\bbehavior\x18\x14 \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\x06\xca\xf3\x18\x02\b\x01BTZRgithub.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpbb\x06proto3"
 
 var (
 	file_sentinez_types_coreruleset_v1_event_proto_rawDescOnce sync.Once

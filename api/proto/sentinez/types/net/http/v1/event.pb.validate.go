@@ -62,8 +62,6 @@ func (m *Event) Validate() error {
 
 	// no validation rules for UserAgent
 
-	// no validation rules for RayId
-
 	// no validation rules for Asn
 
 	// no validation rules for Country

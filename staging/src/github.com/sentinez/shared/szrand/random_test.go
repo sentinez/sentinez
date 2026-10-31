@@ -25,24 +25,23 @@ import (
 // overwrite them in place.
 func TestIdStableAfterNextCall(t *testing.T) {
 	tests := []struct {
-		name    string
 		give    func() string
 		wantPfx string
 	}{
 		{
-			name:    "xid",
-			give:    func() string { return NewXId([]byte("senz:req:")) },
-			wantPfx: "senz:req:",
-		},
-		{
-			name:    "time id",
-			give:    func() string { return NewTimeId([]byte("senz:t:"), 1) },
+			give:    func() string { return NewUUID("senz:u:") },
+			wantPfx: "senz:u:",
+		}, {
+			give:    func() string { return NewNanoId("senz:n:") },
+			wantPfx: "senz:n:",
+		}, {
+			give:    func() string { return NewULID("senz:t:") },
 			wantPfx: "senz:t:",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.wantPfx, func(t *testing.T) {
 			first := tt.give()
 			snapshot := strings.Clone(first)
 
@@ -52,6 +51,25 @@ func TestIdStableAfterNextCall(t *testing.T) {
 
 			assert.Equal(t, snapshot, first)
 			assert.True(t, strings.HasPrefix(first, tt.wantPfx))
+		})
+	}
+}
+
+func TestLoadZone(t *testing.T) {
+	tests := []struct {
+		name     string
+		giveZone string
+		want     string
+	}{
+		{name: "set", giveZone: "SGN", want: "sgn-"},
+		{name: "unset", giveZone: "", want: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("SENZ_ZONE", tt.giveZone)
+
+			assert.Equal(t, tt.want, loadZone())
 		})
 	}
 }

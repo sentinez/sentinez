@@ -20,15 +20,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/websocket"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
@@ -37,6 +34,7 @@ import (
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstore/ja4"
 	"github.com/sentinez/shared/szsync"
@@ -77,7 +75,7 @@ var _upgrade = websocket.Upgrader{
 func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	szlog.Debug("http context: connection: new context")
 	hctx := _ctxPool.Get()
-	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.SetRequestId(szrand.NewULID(szprefix.Request))
 
 	hctx.req = req
 	hctx.resp = resp
@@ -179,23 +177,22 @@ func (c *Context) Body() []byte {
 
 // RequestIP implements szhttp.Context.
 func (c *Context) RequestIP() []byte {
-	// 1. X-Forwarded-For
+	// 1. X-Forwarded-For: the client is the first hop
 	if xff := c.Header(szbytestr.HeaderXForwardedFor); len(xff) > 0 {
-		ips := strings.Split(string(xff), ",")
-		return []byte(strings.TrimSpace(ips[0]))
+		if i := bytes.IndexByte(xff, ','); i >= 0 {
+			xff = xff[:i]
+		}
+
+		return szhttp.StripPort(bytes.TrimSpace(xff))
 	}
 
 	// 2. X-Real-IP
 	if xrip := c.Header(szbytestr.HeaderXRealIP); len(xrip) > 0 {
-		return xrip
+		return szhttp.StripPort(bytes.TrimSpace(xrip))
 	}
 
 	// 3. Fallback: RemoteAddr
-	host, _, err := net.SplitHostPort(c.req.RemoteAddr)
-	if err != nil {
-		return []byte(c.req.RemoteAddr)
-	}
-	return []byte(host)
+	return szhttp.StripPort([]byte(c.req.RemoteAddr))
 }
 
 // File implements szhttp.Context.

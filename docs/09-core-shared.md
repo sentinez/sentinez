@@ -90,7 +90,7 @@ exported. An `https://` endpoint uses TLS.
 | `szerror` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
 | `szperms` | `Allow(XMethod, ControlPlane)` |
 | `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `szrand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — all with prefixes; results are copied out of the pooled buffer |
+| `szrand` | `RandomString` (crypto/rand), `NewUUID` (record keys, never zoned), `NewNanoId`, `NewULID` (request/event ids) — each takes a `szprefix.Prefix` and joins it with `szprefix.Separator` |
 | `bytesconv` | Fork of fasthttp/Hertz: zero-copy `B2s`/`S2b`, character tables, number parsing |
 | `szjson` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
 | `szprotobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |

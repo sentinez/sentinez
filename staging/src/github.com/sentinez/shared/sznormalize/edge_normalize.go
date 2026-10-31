@@ -21,16 +21,12 @@ import (
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-const (
-	_condPrefix = "senz.cond."
-	_rulePrefix = "senz.secrule."
-
-	_defaultLimiterDuration = "5s"
-)
+const _defaultLimiterDuration = "5s"
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
 	normalizeEdgeDelivery(edge.GetDelivery())
@@ -65,7 +61,7 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 }
 
 func normalizeLimiter(lim *edgepb.RateLimit) {
-	lim.IngressRuntime = toLimiterRule(lim.GetIngress())
+	lim.IngressRuntime = toSecRule(lim.GetIngress())
 
 	if lim.GetTimeWindow() == "" {
 		lim.TimeWindow = _defaultLimiterDuration
@@ -76,16 +72,6 @@ func normalizeLimiter(lim *edgepb.RateLimit) {
 	}
 }
 
-// toLimiterRule builds the runtime rule of a rate limiter. A limiter
-// declared without ingress applies to the whole server, so it is active.
-func toLimiterRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
-	if rgLite == nil {
-		return &secrulepb.SecRule{Status: typepb.Status_STATUS_ACTIVE}
-	}
-
-	return toSecRule(rgLite)
-}
-
 func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 	if rgLite == nil {
 		return nil
@@ -94,7 +80,7 @@ func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 	szlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
 
 	return &secrulepb.SecRule{
-		Id:          rgLite.GetId(),
+		Id:          szrand.NewUUID(szprefix.SecRule),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
 		Expr:        toExpr(rgLite.GetExpr()),
@@ -179,7 +165,7 @@ func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
 	}
 
 	return &rulepb.Condition{
-		Id:       szrand.NewNanoId(_condPrefix),
+		Id:       szrand.NewNanoId(szprefix.Condition),
 		Key:      cond.GetKey(),
 		Operator: toOperator(cond.GetOperator()),
 		Value:    structpb.NewStringValue(cond.GetValue()),
@@ -193,7 +179,6 @@ func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
 	}
 
 	return &rulepb.Rule{
-		Id:        szrand.NewNanoId(_rulePrefix),
 		Condition: toCondition(rule.GetCondition()),
 	}
 }

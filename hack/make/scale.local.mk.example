@@ -1,0 +1,2 @@
+# Local enterprise settings, never committed (hack/make/scale.mk).
+SCALE_REPO := ""

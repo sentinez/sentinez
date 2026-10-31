@@ -21,6 +21,7 @@
 package httppb
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -155,7 +156,6 @@ type Request struct {
 	RemoteAddress string                 `protobuf:"bytes,11,opt,name=remote_address,json=remoteAddress,proto3" json:"remote_address,omitempty"`
 	Status        int32                  `protobuf:"varint,12,opt,name=status,proto3" json:"status,omitempty"`
 	UserAgent     []byte                 `protobuf:"bytes,13,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	RayId         string                 `protobuf:"bytes,14,opt,name=ray_id,json=rayId,proto3" json:"ray_id,omitempty"`
 	Asn           int64                  `protobuf:"varint,15,opt,name=asn,proto3" json:"asn,omitempty"`
 	Country       string                 `protobuf:"bytes,16,opt,name=country,proto3" json:"country,omitempty"`
 	ContentType   []byte                 `protobuf:"bytes,17,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
@@ -285,13 +285,6 @@ func (x *Request) GetUserAgent() []byte {
 		return x.UserAgent
 	}
 	return nil
-}
-
-func (x *Request) GetRayId() string {
-	if x != nil {
-		return x.RayId
-	}
-	return ""
 }
 
 func (x *Request) GetAsn() int64 {
@@ -437,7 +430,6 @@ type RequestEvent struct {
 	RemoteAddress string                  `protobuf:"bytes,10,opt,name=remote_address,json=remoteAddress,proto3" json:"remote_address,omitempty"`
 	Status        int32                   `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`
 	UserAgent     string                  `protobuf:"bytes,12,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	RayId         string                  `protobuf:"bytes,13,opt,name=ray_id,json=rayId,proto3" json:"ray_id,omitempty"`
 	Asn           int64                   `protobuf:"varint,14,opt,name=asn,proto3" json:"asn,omitempty"`
 	Country       string                  `protobuf:"bytes,15,opt,name=country,proto3" json:"country,omitempty"`
 	ContentType   string                  `protobuf:"bytes,16,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
@@ -555,13 +547,6 @@ func (x *RequestEvent) GetUserAgent() string {
 	return ""
 }
 
-func (x *RequestEvent) GetRayId() string {
-	if x != nil {
-		return x.RayId
-	}
-	return ""
-}
-
 func (x *RequestEvent) GetAsn() int64 {
 	if x != nil {
 		return x.Asn
@@ -608,15 +593,15 @@ var File_sentinez_types_net_http_v1_http_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_net_http_v1_http_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/net/http/v1/http.proto\x12\x1asentinez.types.net.http.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n" +
+	"%sentinez/types/net/http/v1/http.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n" +
 	"\rRequestHeader\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\fR\x03key\x12\x16\n" +
 	"\x06values\x18\x02 \x03(\fR\x06values\"8\n" +
 	"\fRequestQuery\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\fR\x03key\x12\x16\n" +
-	"\x06values\x18\x02 \x03(\fR\x06values\"\xf9\x04\n" +
-	"\aRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06values\x18\x02 \x03(\fR\x06values\"\x98\x05\n" +
+	"\aRequest\x12D\n" +
+	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12\x16\n" +
 	"\x06scheme\x18\x03 \x01(\tR\x06scheme\x12\x12\n" +
 	"\x04host\x18\x04 \x01(\tR\x04host\x12\x12\n" +
@@ -630,8 +615,7 @@ const file_sentinez_types_net_http_v1_http_proto_rawDesc = "" +
 	"\x0eremote_address\x18\v \x01(\tR\rremoteAddress\x12\x16\n" +
 	"\x06status\x18\f \x01(\x05R\x06status\x12\x1d\n" +
 	"\n" +
-	"user_agent\x18\r \x01(\fR\tuserAgent\x12\x15\n" +
-	"\x06ray_id\x18\x0e \x01(\tR\x05rayId\x12\x10\n" +
+	"user_agent\x18\r \x01(\fR\tuserAgent\x12\x10\n" +
 	"\x03asn\x18\x0f \x01(\x03R\x03asn\x12\x18\n" +
 	"\acountry\x18\x10 \x01(\tR\acountry\x12!\n" +
 	"\fcontent_type\x18\x11 \x01(\fR\vcontentType\x128\n" +
@@ -642,9 +626,9 @@ const file_sentinez_types_net_http_v1_http_proto_rawDesc = "" +
 	"\x06values\x18\x01 \x03(\tR\x06values\"$\n" +
 	"\n" +
 	"QueryValue\x12\x16\n" +
-	"\x06values\x18\x01 \x03(\tR\x06values\"\x9e\x06\n" +
-	"\fRequestEvent\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06values\x18\x01 \x03(\tR\x06values\"\xbd\x06\n" +
+	"\fRequestEvent\x12D\n" +
+	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12\x16\n" +
 	"\x06scheme\x18\x03 \x01(\tR\x06scheme\x12\x12\n" +
 	"\x04host\x18\x04 \x01(\tR\x04host\x12\x12\n" +
@@ -656,8 +640,7 @@ const file_sentinez_types_net_http_v1_http_proto_rawDesc = "" +
 	" \x01(\tR\rremoteAddress\x12\x16\n" +
 	"\x06status\x18\v \x01(\x05R\x06status\x12\x1d\n" +
 	"\n" +
-	"user_agent\x18\f \x01(\tR\tuserAgent\x12\x15\n" +
-	"\x06ray_id\x18\r \x01(\tR\x05rayId\x12\x10\n" +
+	"user_agent\x18\f \x01(\tR\tuserAgent\x12\x10\n" +
 	"\x03asn\x18\x0e \x01(\x03R\x03asn\x12\x18\n" +
 	"\acountry\x18\x0f \x01(\tR\acountry\x12!\n" +
 	"\fcontent_type\x18\x10 \x01(\tR\vcontentType\x12\x1c\n" +

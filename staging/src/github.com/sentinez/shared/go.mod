@@ -12,15 +12,14 @@ require (
 	buf.build/go/protovalidate v1.4.0
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/bytedance/sonic v1.15.3
-	github.com/cloudresty/ulid v1.2.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/matoous/go-nanoid/v2 v2.1.0
+	github.com/oklog/ulid/v2 v2.1.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/rs/xid v1.6.0
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/spf13/pflag v1.0.10

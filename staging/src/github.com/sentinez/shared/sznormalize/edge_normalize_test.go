@@ -30,10 +30,6 @@ func TestNormalizeEdgeSettingLimiters(t *testing.T) {
 		wantStatus  typepb.Status
 	}{
 		{
-			name:       "no ingress applies to all",
-			wantStatus: typepb.Status_STATUS_ACTIVE,
-		},
-		{
 			name:        "active ingress",
 			giveIngress: &secrulepb.SecRuleLite{Status: "STATUS_ACTIVE"},
 			wantStatus:  typepb.Status_STATUS_ACTIVE,
@@ -55,7 +51,17 @@ func TestNormalizeEdgeSettingLimiters(t *testing.T) {
 			if got.GetStatus() != tt.wantStatus {
 				t.Errorf("status = %v, want %v", got.GetStatus(), tt.wantStatus)
 			}
+
+			if got.GetId() == "" {
+				t.Error("id is empty")
+			}
 		})
+	}
+}
+
+func TestNormalizeEdgeSettingLimiterNoIngress(t *testing.T) {
+	if got := normalizeLimiterRule(nil); got != nil {
+		t.Errorf("IngressRuntime = %v, want nil", got)
 	}
 }
 

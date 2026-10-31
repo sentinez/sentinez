@@ -42,7 +42,7 @@ import (
 )
 
 const (
-	_bobId    = "senz-iam-users-bob"
+	_bobId    = "user_bob"
 	_bobEmail = "bob@x.io"
 )
 
@@ -94,7 +94,7 @@ func signedIn(t *testing.T, userId string) context.Context {
 func passkeyAccountOf(userId, handle string,
 	credentials ...string) *accrepos.AccountX {
 	return &accrepos.AccountX{Account: &iampb.Account{
-		Id:             "senz-iam-accounts-pk",
+		Id:             "acct_pk",
 		UserId:         userId,
 		Provider:       iampb.Provider_PROVIDER_PASSKEY,
 		ProviderUserId: handle,
@@ -248,7 +248,7 @@ func TestAuthorizeLink(t *testing.T) {
 		},
 		{
 			name:     "link by another user",
-			giveCtx:  signedIn(t, "senz-iam-users-eve"),
+			giveCtx:  signedIn(t, "user_eve"),
 			giveReg:  &passkey.Registration{UserId: _bobId},
 			wantCode: codes.PermissionDenied,
 		},

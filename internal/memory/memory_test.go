@@ -15,9 +15,11 @@
 package memory
 
 import (
+	"errors"
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
@@ -53,13 +55,37 @@ func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 	}
 }
 
+func TestLoadRateLimiterRequiresExpr(t *testing.T) {
+	m := &MemStore{limiter: ratelimiter.New()}
+	err := m.LoadRateLimiter(&edgepb.Setting{
+		Server: &edgepb.Server{Name: "no-expr-limiter"},
+		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{{
+			IngressRuntime: &secrulepb.SecRule{
+				Id: "a", Status: typepb.Status_STATUS_ACTIVE,
+			},
+			TimeWindow: "1s",
+			Timeout:    "1s",
+		}}},
+	})
+
+	if !errors.Is(err, errLimiterNoExpr) {
+		t.Fatalf("LoadRateLimiter: %v, want %v", err, errLimiterNoExpr)
+	}
+}
+
 func newRateLimit(
 	id string, status typepb.Status, limit int64,
 ) *edgepb.RateLimit {
+	expr := &rulepb.Expression{
+		OrCondition: []*rulepb.AndCondition{{}},
+	}
+
 	return &edgepb.RateLimit{
-		IngressRuntime: &secrulepb.SecRule{Id: id, Status: status},
-		TimeWindow:     "1s",
-		Timeout:        "1s",
-		MaxRequests:    limit,
+		IngressRuntime: &secrulepb.SecRule{
+			Id: id, Status: status, Expr: expr,
+		},
+		TimeWindow:  "1s",
+		Timeout:     "1s",
+		MaxRequests: limit,
 	}
 }

@@ -246,7 +246,7 @@ service TenantService {
 message GetResourceRequest {
   string id = 1 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
-    string: { prefix: "senz-tenant-resources-" }
+    string: { prefix: "rsrc_" }
   }];
   bool default = 2;
 }
@@ -267,7 +267,7 @@ message GetResourceResponse {
 message DeleteResourceRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-resources-" }
+    string: { prefix: "rsrc_" }
   }];
 }
 
@@ -276,7 +276,7 @@ message DeleteResourceResponse {}
 message UpdateResourceRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-resources-" }
+    string: { prefix: "rsrc_" }
   }];
   string resource_domain = 2
       [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
@@ -298,7 +298,7 @@ message CreateResourceRequest {
   
   string tenant_id = 5 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
 }
 
@@ -327,7 +327,7 @@ message ListResourceRequest {
   repeated string tenant_ids = 6 [(buf.validate.field) = {
     repeated: {
       unique: true
-      items: { string: { prefix: "senz-tenants-" } }
+      items: { string: { prefix: "tnt_" } }
     }
   }];
 }
@@ -346,7 +346,7 @@ message StatusRequest {}
 message GetMemberRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-members-" }
+    string: { prefix: "mem_" }
   }];
 }
 
@@ -357,7 +357,7 @@ message GetMemberResponse {
 message DeleteMemberRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-members-" }
+    string: { prefix: "mem_" }
   }];
 }
 
@@ -366,7 +366,7 @@ message DeleteMemberResponse {}
 message UpdateMemberRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-members-" }
+    string: { prefix: "mem_" }
   }];
   // roles replaces the whole role set of the member.
   repeated sentinez.types.v1.Role roles = 2 [(buf.validate.field) = {
@@ -383,11 +383,11 @@ message UpdateMemberResponse {}
 message CreateMemberRequest {
   string user_id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-iam-users-" }
+    string: { prefix: "user_" }
   }];
   string tenant_id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
   repeated sentinez.types.v1.Role roles = 3 [(buf.validate.field) = {
     repeated: {
@@ -407,13 +407,13 @@ message ListMemberRequest {
   repeated string tenant_ids = 2 [(buf.validate.field) = {
     repeated: {
       unique: true
-      items: { string: { prefix: "senz-tenants-" } }
+      items: { string: { prefix: "tnt_" } }
     }
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
-    string: { prefix: "senz-iam-users-" }
+    string: { prefix: "user_" }
   }];
 }
 
@@ -425,7 +425,7 @@ message ListMemberResponse {
 message GetTenantRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
 }
 
@@ -436,7 +436,7 @@ message GetTenantResponse {
 message DeleteTenantRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
 }
 
@@ -445,7 +445,7 @@ message DeleteTenantResponse {}
 message UpdateTenantRequest {
   string id = 1 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
   sentinez.types.v1.Plan plan = 2 [(buf.validate.field) = {
     required: true

@@ -14,26 +14,32 @@
 
 package sztable
 
+type Table string
+
+func (t Table) String() string {
+	return string(t)
+}
+
 const (
-	IAMUsers    = "iam.users"
-	IAMAccounts = "iam.accounts"
+	IAMUsers    Table = "iam.users"
+	IAMAccounts Table = "iam.accounts"
 )
 
 const (
-	Tenants         = "tenants"
-	TenantResources = "tenant.resources"
-	TenantMembers   = "tenant.members"
+	Tenants         Table = "tenants"
+	TenantResources Table = "tenant.resources"
+	TenantMembers   Table = "tenant.members"
 )
 
 const (
-	AnalyticActivities   = "analytic.activities"
-	AnalyticSecRules     = "analytic.secrules"
-	AnalyticCoreRulesets = "analytic.corerulesets"
-	AnalyticRateLimiter  = "analytic.ratelimiters"
+	AnalyticActivities   Table = "analytic.activities"
+	AnalyticSecRules     Table = "analytic.secrules"
+	AnalyticCoreRulesets Table = "analytic.corerulesets"
+	AnalyticRateLimiter  Table = "analytic.ratelimiters"
 )
 
 const (
-	SecuritySecRules     = "security.secrules"
-	SecurityRateLimits   = "security.ratelimits"
-	SecurityCoreRulesets = "security.corerulesets"
+	SecuritySecRules     Table = "security.secrules"
+	SecurityRateLimits   Table = "security.ratelimits"
+	SecurityCoreRulesets Table = "security.corerulesets"
 )

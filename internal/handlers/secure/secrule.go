@@ -117,12 +117,28 @@ func (sr *SecRule) enforce(
 func (sr *SecRule) logMatched(
 	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
 ) {
+	event := newRuleEvent(ctx,
+		rulepb.RuleService_RULE_SERVICE_SEC_RULE, action, mr)
+	event.Tags = maps.Clone(ctx.X().GetTags())
+
+	// Info releases the event back to the pool.
+	sr.log.Info("secrule: matched", event, event)
+}
+
+// newRuleEvent returns the event of the request ctx, matched by the rules
+// of mr in service, with action; the caller logs it, releasing it.
+func newRuleEvent(
+	ctx szhttp.Context,
+	service rulepb.RuleService,
+	action *rulepb.Action,
+	mr *rulepb.MatchedRules,
+) *secrule.RuleEvent {
 	event := secrule.Acquire()
 
 	event.Action = action
 	event.MatchedSecruleIds = append(event.MatchedSecruleIds, mr.GetIds()...)
 	event.Messages = append(event.Messages, mr.GetNames()...)
-	event.Service = rulepb.RuleService_RULE_SERVICE_SEC_RULE
+	event.Service = service
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
 	event.RequestId = ctx.RequestId()
@@ -130,10 +146,9 @@ func (sr *SecRule) logMatched(
 	event.RequestPath = bytesconv.B2s(ctx.URI())
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
-	event.Tags = maps.Clone(ctx.X().GetTags())
+	event.RequestScheme = ctx.Scheme()
 
-	// Info releases the event back to the pool.
-	sr.log.Info("secrule: matched", event, event)
+	return event
 }
 
 // challenge lets a client holding a valid pass through, and serves the

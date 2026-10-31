@@ -222,6 +222,8 @@ func (x *Setting) GetDelivery() *Delivery {
 // Metadata used for observability and debugging:
 type Metadata struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -254,6 +256,20 @@ func (x *Metadata) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Metadata.ProtoReflect.Descriptor instead.
 func (*Metadata) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Metadata) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *Metadata) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
 }
 
 // Server defines where the request goes and how the edge processes it:
@@ -755,9 +771,11 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\bsecurity\x18\x03 \x01(\v2\x1e.sentinez.dmz.edge.v1.SecurityR\bsecurity\x12M\n" +
 	"\x0ftraffic_control\x18\x04 \x01(\v2$.sentinez.dmz.edge.v1.TrafficControlR\x0etrafficControl\x12:\n" +
 	"\bpersonal\x18\x05 \x01(\v2\x1e.sentinez.dmz.edge.v1.PersonalR\bpersonal\x12:\n" +
-	"\bdelivery\x18\x06 \x01(\v2\x1e.sentinez.dmz.edge.v1.DeliveryR\bdelivery\"\n" +
-	"\n" +
-	"\bMetadata\"q\n" +
+	"\bdelivery\x18\x06 \x01(\v2\x1e.sentinez.dmz.edge.v1.DeliveryR\bdelivery\"H\n" +
+	"\bMetadata\x12\x1b\n" +
+	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1f\n" +
+	"\vresource_id\x18\x02 \x01(\tR\n" +
+	"resourceId\"q\n" +
 	"\x06Server\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12<\n" +
 	"\tlocations\x18\x02 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\"\x9d\x03\n" +

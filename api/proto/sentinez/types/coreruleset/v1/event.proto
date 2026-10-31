@@ -16,6 +16,7 @@ syntax = "proto3";
 
 package sentinez.types.coreruleset.v1;
 
+import "buf/validate/validate.proto";
 import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/options.proto";
 
@@ -24,7 +25,7 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/corer
 message CoreRuleEvent {
   option (sentinez.types.v1.x_message).database_model = true;
 
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?crevt_[0-9A-HJKMNP-TV-Z]{26}$"];
 
   repeated int32 matched_rule_ids = 2;
   repeated string severities = 3;
@@ -35,11 +36,12 @@ message CoreRuleEvent {
   string tenant_id = 8;
   sentinez.types.rule.v1.RuleService service = 9;
 
-
   string request_ip = 10;
   string request_domain = 11;
-  string request_path = 12;
-  string request_query = 13;
-  string request_id = 14;
-  sentinez.types.rule.v1.RuleBehavior behavior = 15;
+  string request_scheme = 12;
+  string request_path = 13;
+  string request_query = 14;
+  string request_id = 15 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
+
+  sentinez.types.rule.v1.RuleBehavior behavior = 20;
 }

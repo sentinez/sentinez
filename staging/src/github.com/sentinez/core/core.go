@@ -14,15 +14,7 @@
 
 package core
 
-import (
-	"runtime"
-	"strings"
-)
-
 const (
-
-	// Package is filled at linking time
-	Package = "github.com/sentinez/sentinez"
 
 	// Version holds the complete version number. Filled in at linking time.
 	Version = "v0.0.1-beta"
@@ -33,17 +25,5 @@ const (
 	// Code is the code of the project.
 	Code = "SENZ"
 
-	// PrefixXRequestId is prefix of request id
-	PrefixXRequestId = "SENZREQ_" // senzreq_
-
 	BaseName = "sentinez"
-
-	EnvPattern = `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`
-)
-
-var (
-	// GoVersion is Go tree's version.
-	GoVersion = runtime.Version()
-
-	PrefixXRequestIdBytes = []byte(strings.ToLower(PrefixXRequestId))
 )

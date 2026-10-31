@@ -22,13 +22,13 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstore/ja4"
 	"github.com/sentinez/shared/szsync"
@@ -52,7 +52,7 @@ var (
 
 func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 	hctx := _ctxPool.Get()
-	hctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
+	hctx.SetRequestId(szrand.NewULID(szprefix.Request))
 	hctx.req = c
 	hctx.ctx = ctx
 
@@ -219,7 +219,7 @@ func (c *Context) Host() []byte {
 }
 
 func (c *Context) RequestIP() []byte {
-	return []byte(c.req.ClientIP())
+	return szhttp.StripPort([]byte(c.req.ClientIP()))
 }
 
 func (c *Context) JA4() string {

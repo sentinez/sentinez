@@ -15,6 +15,7 @@
 package ratelimiter
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/sentinez/core/szhttp"
@@ -51,8 +52,13 @@ type Limiter struct {
 	space *szsync.Map[string, []Entry]
 }
 
-// Store replaces the limiters of serverName.
+// Store replaces the limiters of serverName, ordered by priority like the
+// secrules: a higher priority value runs first, ties keep their order.
 func (lim *Limiter) Store(serverName string, entries []Entry) {
+	sort.SliceStable(entries, func(i, j int) bool {
+		return entries[i].Rule.GetPriority() > entries[j].Rule.GetPriority()
+	})
+
 	if len(entries) == 0 {
 		lim.space.Delete(serverName)
 		return

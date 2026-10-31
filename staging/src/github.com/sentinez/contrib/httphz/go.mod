@@ -27,7 +27,6 @@ require (
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudresty/ulid v1.2.1 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/cloudwego/netpoll v0.7.3 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
@@ -40,11 +39,11 @@ require (
 	github.com/hertz-contrib/websocket v0.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
+	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.63.0 // indirect
-	github.com/rs/xid v1.6.0 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

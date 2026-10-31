@@ -22,8 +22,6 @@ import (
 	"github.com/sentinez/sentinez/internal/envplugin"
 	memlimiter "github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
-	"github.com/sentinez/sentinez/pkg/pools/secrule"
-	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 )
 
@@ -48,15 +46,22 @@ func (l *Limiter) Provision(env *envplugin.Env) error {
 	return nil
 }
 
-// Handle counts the request against every limiter whose expression matches
-// it, keyed by client IP. The request is rejected by the first limiter
-// over its limit.
+// Handle runs the limiters of the namespace in priority order, like the
+// secrules: each one whose expression matches counts the request, keyed by
+// client IP, and the first one over its limit rejects it.
 func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
-	key := string(ctx.RequestIP())
+	chain := l.store.LoadContext(ctx)
+	if len(chain) == 0 {
+		return next.Handle(ctx)
+	}
 
-	for _, e := range l.store.LoadContext(ctx) {
-		if e.Eval(ctx, nil) && !e.Limiter.Allow(key) {
-			l.logExceeded(ctx, e)
+	matched := matchedrule.Acquire()
+	defer func() { _ = matched.Close() }()
+
+	key := string(ctx.RequestIP())
+	for _, e := range chain {
+		if e.Eval(ctx, matched.MatchedRules) && !e.Limiter.Allow(key) {
+			l.logExceeded(ctx, e.Rule.GetAction(), matched.MatchedRules)
 			return szhttp.TooManyRequests(ctx)
 		}
 	}
@@ -64,31 +69,13 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	return next.Handle(ctx)
 }
 
-// logExceeded emits a rate limit event for the request rejected by e: the
-// limiter rule first, then the conditions of its expression that matched.
-func (l *Limiter) logExceeded(ctx szhttp.Context, e memlimiter.Entry) {
-	// Eval again to collect the matched conditions, only on rejection so
-	// that the common path stays allocation free.
-	mr := matchedrule.Acquire()
-	defer func() { _ = mr.Close() }()
-
-	e.Eval(ctx, mr.MatchedRules)
-
-	event := secrule.Acquire()
-
-	event.Action = e.Rule.GetAction()
-	event.MatchedSecruleIds = append(event.MatchedSecruleIds, e.Rule.GetId())
-	event.MatchedSecruleIds = append(event.MatchedSecruleIds, mr.GetIds()...)
-	event.Messages = append(event.Messages, e.Rule.GetName())
-	event.Messages = append(event.Messages, mr.GetNames()...)
-	event.Service = rulepb.RuleService_RULE_SERVICE_RATE_LIMIT
-	event.MatchedTime = ctx.RequestTime().UnixMilli()
-
-	event.RequestId = ctx.RequestId()
-	event.RequestDomain = bytesconv.B2s(ctx.Host())
-	event.RequestPath = bytesconv.B2s(ctx.URI())
-	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
-	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+// logExceeded emits a rate limit event for the request rejected with
+// action, listing the limiters matched by mr, the rejecting one last.
+func (l *Limiter) logExceeded(
+	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
+) {
+	event := newRuleEvent(ctx,
+		rulepb.RuleService_RULE_SERVICE_RATE_LIMIT, action, mr)
 
 	// Info releases the event back to the pool.
 	l.log.Info("ratelimiter: exceeded", event, event)

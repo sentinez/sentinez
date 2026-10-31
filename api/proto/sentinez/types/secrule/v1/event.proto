@@ -16,6 +16,7 @@ syntax = "proto3";
 
 package sentinez.types.secrule.v1;
 
+import "buf/validate/validate.proto";
 import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/options.proto";
 
@@ -24,7 +25,7 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/secru
 message RuleEvent {
   option (sentinez.types.v1.x_message).database_model = true;
 
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$"];
   repeated string matched_secrule_ids = 2;
   repeated string messages = 3;
   string resource_id = 4;
@@ -34,11 +35,12 @@ message RuleEvent {
   sentinez.types.rule.v1.RuleService service = 8;
 
   string request_domain = 10;
-  string request_path = 11;
-  string request_query = 12;
-  string request_ip = 13;
-  string request_id = 14;
+  string request_scheme = 11;
+  string request_path = 12;
+  string request_query = 13;
+  string request_ip = 14;
+  string request_id = 15 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
 
   // Tags set by the SET_TAG actions of the matched rules.
-  map<string, string> tags = 15;
+  map<string, string> tags = 20;
 }

@@ -38,6 +38,8 @@ export enum Senz {
    * directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
    */
   SENZ_KAFKA_BROKERS = 15,
+  /** SENZ_ZONE - zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids */
+  SENZ_ZONE = 16,
   UNRECOGNIZED = -1,
 }
 
@@ -91,6 +93,9 @@ export function senzFromJSON(object: any): Senz {
     case 15:
     case "SENZ_KAFKA_BROKERS":
       return Senz.SENZ_KAFKA_BROKERS;
+    case 16:
+    case "SENZ_ZONE":
+      return Senz.SENZ_ZONE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -132,6 +137,8 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_OTLP_EXTERNAL_ENDPOINT";
     case Senz.SENZ_KAFKA_BROKERS:
       return "SENZ_KAFKA_BROKERS";
+    case Senz.SENZ_ZONE:
+      return "SENZ_ZONE";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

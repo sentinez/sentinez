@@ -15,9 +15,9 @@
 package trace
 
 import (
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 )
 
@@ -36,7 +36,7 @@ func (*Tracer) ID() string { return TracerId }
 // context that has none, so a request never gets a second id.
 func (*Tracer) Handle(ctx szhttp.Context, next chains.Handler) error {
 	if ctx.RequestId() == "" {
-		ctx.SetRequestId(szrand.NewXId(core.PrefixXRequestIdBytes))
+		ctx.SetRequestId(szrand.NewULID(szprefix.Request))
 	}
 
 	return next.Handle(ctx)

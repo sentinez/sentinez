@@ -198,10 +198,6 @@ func (m *Rule) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Id
-
-	// no validation rules for Expr
-
 	if v, ok := interface{}(m.GetCondition()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleValidationError{

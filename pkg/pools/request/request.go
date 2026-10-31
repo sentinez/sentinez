@@ -18,11 +18,14 @@ import (
 	"io"
 
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/shared/szsync"
 )
 
 var (
-	_ io.Closer = (*RequestEvent)(nil)
+	_ io.Closer           = (*RequestEvent)(nil)
+	_ geoip.CountrySetter = (*RequestEvent)(nil)
+	_ geoip.AsnSetter     = (*RequestEvent)(nil)
 
 	_pool = szsync.NewPoolCtr(func() *RequestEvent {
 		return &RequestEvent{Event: &httppb.Event{}}
@@ -37,6 +40,16 @@ func (re *RequestEvent) Close() error {
 	Release(re)
 
 	return nil
+}
+
+// SetCountry asks geoip.DB.Fill for the client country.
+func (re *RequestEvent) SetCountry(isoCode string) {
+	re.Country = isoCode
+}
+
+// SetAsn asks geoip.DB.Fill for the client autonomous system.
+func (re *RequestEvent) SetAsn(number int64) {
+	re.Asn = number
 }
 
 func Acquire() *RequestEvent {

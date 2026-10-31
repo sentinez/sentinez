@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package table_test
+package szprefix_test
 
 import (
 	"strings"
@@ -23,8 +23,6 @@ import (
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	"github.com/sentinez/shared/szstorage/storageutils/table"
-	"github.com/sentinez/shared/sztable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
@@ -32,18 +30,12 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
-// TestProtoIdPrefixesMatchTables keeps every buf.validate string prefix in
-// the sentinez protos equal to an ID prefix the repos generate.
-func TestProtoIdPrefixesMatchTables(t *testing.T) {
-	keys := make(map[string]struct{})
-	for _, name := range []string{
-		sztable.IAMUsers, sztable.IAMAccounts,
-		sztable.Tenants, sztable.TenantResources, sztable.TenantMembers,
-		sztable.AnalyticActivities,
-		sztable.SecuritySecRules, sztable.SecurityRateLimits,
-		sztable.SecurityCoreRulesets,
-	} {
-		keys[table.NewPrimaryKey(name)] = struct{}{}
+// TestProtoIdPrefixesKnown keeps every buf.validate string prefix in the
+// sentinez protos equal to the Key of a szprefix prefix.
+func TestProtoIdPrefixesKnown(t *testing.T) {
+	keys := make(map[string]struct{}, len(_all))
+	for _, p := range _all {
+		keys[p.Key()] = struct{}{}
 	}
 
 	prefixes := protoPrefixes()

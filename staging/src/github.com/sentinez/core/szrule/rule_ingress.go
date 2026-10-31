@@ -19,25 +19,12 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
-type MatchedFunc func(ctx chttp.Request,
-	rule *rulepb.Rule) (id string, name string, ok bool)
-
 type EvalFunc func(ctx chttp.Request, mr *rulepb.MatchedRules) bool
 
-func NewEval(expr *rulepb.Expression) EvalFunc {
-	return buildEval(expr, match)
+func NewEval(id string, expr *rulepb.Expression) EvalFunc {
+	return buildEval(id, expr)
 }
 
 func eval(ctx chttp.Request, rule *rulepb.Rule) bool {
 	return accept(ctx, rule.GetCondition())
-}
-
-func match(ctx chttp.Request,
-	rule *rulepb.Rule) (id string, name string, ok bool) {
-
-	if ok = eval(ctx, rule); !ok {
-		return "", "", false
-	}
-
-	return rule.GetId(), rule.GetExpr(), true
 }

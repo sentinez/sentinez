@@ -257,9 +257,22 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
+    # Like sec_rules, every limiter needs an ingress expr: it only counts
+    # the requests the expr matches (the edge refuses to start without).
     limiters:
-      - timeWindow: 5s
-        maxRequests: 5000
+      - ingress:
+          name: "Rate limit every path"
+          status: STATUS_ACTIVE
+          expr:
+            orCondition:
+              - rules:
+                - condition:
+                    source: FIELD_SOURCE_PATH
+                    key: "/"
+                    operator: OPERATOR_PREFIX
+                    value: "/"
+        timeWindow: 5s
+        maxRequests: 100
         timeout: 5s
 
   # ----------------------------------------------------------

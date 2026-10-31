@@ -88,7 +88,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `szerror` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
 | `szperms` | `Allow(XMethod, ControlPlane)` |
 | `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
-| `szrand` | `RandomString` (crypto/rand), `NewId` (UUID), `NewNanoId`, `NewXId`, `NewTimeId` (ULID) — đều có prefix; kết quả được sao chép ra khỏi buffer trong pool |
+| `szrand` | `RandomString` (crypto/rand), `NewUUID` (khoá bản ghi, không gắn zone), `NewNanoId`, `NewULID` (id request/event) — đều nhận `szprefix.Prefix` và nối bằng `szprefix.Separator` |
 | `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
 | `szjson` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
 | `szprotobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |

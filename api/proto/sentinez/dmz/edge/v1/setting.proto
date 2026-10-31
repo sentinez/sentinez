@@ -35,7 +35,10 @@ message Setting {
 }
 
 // Metadata used for observability and debugging:
-message Metadata {}
+message Metadata {
+  string tenant_id = 1;
+  string resource_id = 2;
+}
 
 // Server defines where the request goes and how the edge processes it:
 message Server {

@@ -21,7 +21,6 @@ export interface Event {
   remoteAddress: string;
   status: number;
   userAgent: string;
-  rayId: string;
   asn: number;
   country: string;
   contentType: string;
@@ -44,7 +43,6 @@ function createBaseEvent(): Event {
     remoteAddress: "",
     status: 0,
     userAgent: "",
-    rayId: "",
     asn: 0,
     country: "",
     contentType: "",
@@ -88,9 +86,6 @@ export const Event: MessageFns<Event> = {
     }
     if (message.userAgent !== "") {
       writer.uint32(98).string(message.userAgent);
-    }
-    if (message.rayId !== "") {
-      writer.uint32(106).string(message.rayId);
     }
     if (message.asn !== 0) {
       writer.uint32(112).int64(message.asn);
@@ -214,14 +209,6 @@ export const Event: MessageFns<Event> = {
             message.userAgent = reader.string();
             continue;
           }
-          case 13: {
-            if (tag !== 106) {
-              break;
-            }
-
-            message.rayId = reader.string();
-            continue;
-          }
           case 14: {
             if (tag !== 112) {
               break;
@@ -303,11 +290,6 @@ export const Event: MessageFns<Event> = {
         : isSet(object.user_agent)
         ? globalThis.String(object.user_agent)
         : "",
-      rayId: isSet(object.rayId)
-        ? globalThis.String(object.rayId)
-        : isSet(object.ray_id)
-        ? globalThis.String(object.ray_id)
-        : "",
       asn: isSet(object.asn) ? globalThis.Number(object.asn) : 0,
       country: isSet(object.country) ? globalThis.String(object.country) : "",
       contentType: isSet(object.contentType)
@@ -360,9 +342,6 @@ export const Event: MessageFns<Event> = {
     if (message.userAgent !== "") {
       obj.userAgent = message.userAgent;
     }
-    if (message.rayId !== "") {
-      obj.rayId = message.rayId;
-    }
     if (message.asn !== 0) {
       obj.asn = Math.round(message.asn);
     }
@@ -400,7 +379,6 @@ export const Event: MessageFns<Event> = {
     message.remoteAddress = object.remoteAddress ?? "";
     message.status = object.status ?? 0;
     message.userAgent = object.userAgent ?? "";
-    message.rayId = object.rayId ?? "";
     message.asn = object.asn ?? 0;
     message.country = object.country ?? "";
     message.contentType = object.contentType ?? "";

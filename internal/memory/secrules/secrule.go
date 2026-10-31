@@ -66,7 +66,7 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 		szlog.Debugf("rule: load config: %s", val)
 
 		chain = append(chain, Entry{
-			Eval: szrule.NewEval(r.GetExpr()),
+			Eval: szrule.NewEval(r.GetId(), r.GetExpr()),
 			Rule: r,
 		})
 	}

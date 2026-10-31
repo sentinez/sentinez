@@ -43,11 +43,11 @@ message Owner {
   
   string resource_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenant-resources-" }
+    string: { prefix: "rsrc_" }
   }];
 
   string tenant_id = 4 [(buf.validate.field) = {
     required: true
-    string: { prefix: "senz-tenants-" }
+    string: { prefix: "tnt_" }
   }];
 }

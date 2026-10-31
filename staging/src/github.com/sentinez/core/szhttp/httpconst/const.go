@@ -30,6 +30,8 @@ const (
 	HeaderAltSvc           = "Alt-Svc"
 	HeaderSetCookie        = "Set-Cookie"
 	HeaderCookie           = "Cookie"
+	HeaderAuthorization    = "Authorization"
+	HeaderProxyAuth        = "Proxy-Authorization"
 	HeaderLocation         = "Location"
 	HeaderETag             = "ETag"
 	HeaderIfNoneMatch      = "If-None-Match"

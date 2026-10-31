@@ -24,10 +24,10 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szprefix"
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/szstorage/storageutils/table"
 	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -155,7 +155,7 @@ func (r *CoreRuleset) Create(ctx context.Context,
 		return nil, err
 	}
 
-	model.Id = szrand.NewId(table.NewPrimaryKey(sztable.SecurityCoreRulesets))
+	model.Id = szrand.NewUUID(szprefix.CoreRuleset)
 	owner := model.GetOwner()
 	query := postgres.InsertBuilder(r.storage, postgres.M{
 		securitypb.CoreRuleset_Id:              model.GetId(),
