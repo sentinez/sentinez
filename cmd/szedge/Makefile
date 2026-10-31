@@ -1,6 +1,6 @@
 # Targets for cmd/szedge; included by the root Makefile.
-# Override the binary name with SENTINEZ_OUT and the image with TAG; EE=1
-# builds the enterprise features of pkg/ee in (hack/make/ee.mk).
+# Override the binary name with SENTINEZ_OUT and the image with TAG; SCALE=1
+# builds the enterprise features of scale/ in (hack/make/scale.mk).
 SZEDGE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 .PHONY: sz.edge.build sz.edge.run sz.edge.image.build

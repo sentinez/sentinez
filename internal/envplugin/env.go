@@ -20,14 +20,14 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
-	"github.com/sentinez/sentinez/pkg/ee"
 	"github.com/sentinez/sentinez/pkg/geoip"
+	"github.com/sentinez/sentinez/scale"
 	"github.com/sentinez/shared/szlog"
 )
 
 // _geoip loads the compiled-in databases once: the chains share them.
 var _geoip = sync.OnceValues(func() (*geoip.DB, error) {
-	return geoip.New(ee.GeoIP())
+	return geoip.New(scale.GeoIP())
 })
 
 // Env holds what plugins provision themselves from: the options are
@@ -65,7 +65,7 @@ func (e *Env) Logger(kind typepb.LogType) szlog.LogCloser {
 }
 
 // GeoIP returns the GeoLite2 databases compiled into the binary, none
-// outside the enterprise build (ee.GeoIP).
+// outside the enterprise build (scale.GeoIP).
 func (*Env) GeoIP() (*geoip.DB, error) {
 	return _geoip()
 }

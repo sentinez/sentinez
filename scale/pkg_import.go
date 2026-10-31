@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !enterprise
-
-package ee
-
-import (
-	"embed"
-	"io/fs"
-)
-
-// _noGeoIP holds no file: every geoip lookup is a no-op.
-var _noGeoIP embed.FS
-
-// GeoIP returns no GeoLite2 database: they ship with the enterprise build.
-func GeoIP() fs.FS {
-	return _noGeoIP
-}
+// Package scale holds the enterprise features. Only this file and the
+// *_oss.go stubs live in this repository: the rest is the private scale
+// repository, checked out here by make scale.checkout and built with the
+// enterprise tag (make ... SCALE=1). Without it the stubs keep the build
+// working with the features off.
+package scale

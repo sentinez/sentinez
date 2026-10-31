@@ -12,9 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package ee holds the enterprise features. Only this file and the
-// *_oss.go stubs live in this repository: the rest is a private
-// repository, checked out here by make ee.checkout and built with the
-// enterprise tag (make ... EE=1). Without it the stubs
-// keep the build working with the features off.
-package ee
+//go:build !enterprise
+
+package scale
+
+import (
+	"embed"
+	"io/fs"
+)
+
+// _noGeoIP holds no file: every geoip lookup is a no-op.
+var _noGeoIP embed.FS
+
+// GeoIP returns no GeoLite2 database: they ship with the enterprise build.
+func GeoIP() fs.FS {
+	return _noGeoIP
+}

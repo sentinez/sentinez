@@ -83,9 +83,9 @@ _volume/
 .vscode/
 
 _audit
-# Enterprise features: the private repository is checked out in pkg/ee
-# (make ee.checkout), its URL set in ee.local.mk; only the stubs are public.
-/hack/make/ee.local.mk
-/pkg/ee/*
-!/pkg/ee/pkg_import.go
-!/pkg/ee/*_oss.go
+# Enterprise features: the private repository is checked out in scale/
+# (make scale.checkout), its URL set in scale.local.mk; only the stubs are public.
+/hack/make/scale.local.mk
+/scale/*
+!/scale/pkg_import.go
+!/scale/*_oss.go

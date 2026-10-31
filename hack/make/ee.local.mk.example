@@ -1,2 +1,0 @@
-# Local enterprise settings, never committed (hack/make/ee.mk).
-EE_REPO := ""

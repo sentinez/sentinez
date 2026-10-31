@@ -10,7 +10,8 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 |---|---|
 | `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
 | `internal/` | Root-module private code: `dmz` (edge/dataplane), `handlers` (edge HTTP chain plugins, listed in `handlers/handlers.go` and linked by `core/szhttp/chains.Build`), `envplugin` (`Env` the plugins provision themselves from), `bpf`, `memory`, `defaults` (fallback listen addresses) |
-| `pkg/` | Root-module shared packages: `ee` (enterprise features, see below), `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `cluster` (embedded Olric) |
+| `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `cluster` (embedded Olric) |
+| `scale/` | Enterprise features (package `scale`): private nested repo checked out over the public stubs, see below |
 | `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szgrpc/grpcgateway`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szcontext`, `szbytestr` (header/value byte constants); private `internal/{console,render}` (startup banner, error-page templ templates) |
@@ -42,15 +43,15 @@ make test.cover              # go test ./... -cover in every module (hack/gotest
 make lint                    # golangci-lint across root + core/shared/controlplane/httphz, plus buf lint
 make lint.core | lint.shared | lint.controlplane | lint.proto
 make fmt.proto               # buf format
-make ee.checkout             # clone the private ee repo (EE_REPO) into pkg/ee
-make sz.edge.build EE=1      # build with the enterprise tag (SZ_GOTAGS)
+make scale.checkout          # clone the private scale repo (SCALE_REPO) into scale/
+make sz.edge.build SCALE=1   # build with the enterprise tag (SZ_GOTAGS)
 ```
 
 The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
 
 Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — `make test.cover` loops over them (module list in `hack/gomodules.sh`, shared with `hack/golint.sh` and CI); for one package run tests inside its module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 
-Enterprise features live in a private repo whose URL is never committed (`EE_REPO`, from the env or the gitignored `hack/make/ee.local.mk`), checked out as `pkg/ee` (a nested git repo, gitignored here) inside the root module, so it may import `internal/`. Its files are `//go:build enterprise`; each exported function has a public `pkg/ee/*_oss.go` stub (`//go:build !enterprise`), the only tracked files besides `pkg_import.go`. Add the stub with every new ee function, or the OSS build breaks, then `make ee.track` (git skips new files under the nested repo until they are in the index).
+Enterprise features live in a private repo whose URL is never committed (`SCALE_REPO`, from the env or the gitignored `hack/make/scale.local.mk`), checked out as `scale/` (a nested git repo, gitignored here) inside the root module, so it may import `internal/`. Its files are `//go:build enterprise`; each exported function has a public `scale/*_oss.go` stub (`//go:build !enterprise`), the only tracked files besides `pkg_import.go`. Add the stub with every new scale function, or the OSS build breaks, then `make scale.track` (git skips new files under the nested repo until they are in the index).
 
 Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` for protobuf (`cd api && buf generate`).
 
