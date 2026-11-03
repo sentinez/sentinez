@@ -31,11 +31,11 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
  │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
  └─ leader
      ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, e.PublishStatus(version)))  // zone leader, see 3.8
+     └─ Serve(e.Run(ctx, e.PublishStatus()))  // zone leader, see 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
- ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map + DMap
+ ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
@@ -355,7 +355,7 @@ A reverse proxy is created once per `upstream.server` in
 
 | Store | Type | Contents |
 |---|---|---|
-| `settings.Setting` | `Map[string,*edgepb.Setting]` + `cluster.DMap` | Original Settings; also written to the Olric DMap `sentinez.dmz.edge.setting` |
+| `settings.Setting` | `Map[string,*edgepb.Setting]` | Original Settings, local to the edge |
 | `routes.Router` | `Map[string,[]*Location]` | Sorted locations |
 | `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | Compiled `Entry{Eval, Rule}`, active only, sorted by priority |
@@ -376,8 +376,9 @@ All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
   While the cluster is not ready, `Put` pushes into a channel buffered at
   1024 entries; the `wait()` goroutine waits for `dictReady`, creates the
   DMap and drains the queue.
-- It is only used to distribute `Setting`s for now; nothing reads them back
-  (`Get`) from other nodes yet.
+- Nothing uses a `DMap` any more: the edges no longer write their `Setting`
+  to it. Olric has no compare-and-swap, so it must not hold state a leader
+  writes; that goes to Consul, where the writes are fenced (see below).
 
 ### Zone leader election
 
@@ -440,20 +441,29 @@ does, for Consul KV:
   leader), then
   writes with a CAS on the `ModifyIndex` it read, so the check and the write
   are atomic. A CAS lost to another writer is retried a few times (`_casRetries`).
-- Olric is not fenced: it has no compare-and-swap, so a token check there
-  could still be raced.
+- Olric is not fenced: it has no compare-and-swap (only `Put` `NX`/`XX`,
+  `GetPut`, `Incr` and an approximate `Lock`), so a token check there could
+  still be raced. Shared state the leader writes lives in Consul instead.
 
-**Zone status.** `Elector.PublishStatus(version)`
-([status.go](../pkg/cluster/leader/status.go)) is the `Task` the edge runs:
-while it leads, the node writes the zone record to
-`sentinez/dmz/edge/zone/<zone>` at once, then every 10s, through
-`PutFenced` with `term.Index`:
+**Zone records.** The leader keeps its zone under
+`sentinez/dmz/edge/zone/<zone>/` ([zone.go](../pkg/cluster/leader/zone.go)),
+every write through `PutFenced` with `term.Index`:
+
+- `Elector.PublishStatus()` ([status.go](../pkg/cluster/leader/status.go))
+  writes `<zone>/status` at once, then every 10s. It is the `Task` the edge
+  runs.
+- `Elector.Publish(name, value)` writes `<zone>/<name>` once per term,
+  retried every 10s until written, for zone-wide records to come.
+- `leader.All(tasks...)` ([task.go](../pkg/cluster/leader/task.go)) runs
+  several tasks in one term; the first failure cancels the others and ends
+  the term.
+
+The `status` record:
 
 | Field | Value |
 |---|---|
 | `zone` | Lowercased `SENZ_ZONE` |
 | `node`, `term` | The leader and its `term.Index` |
-| `version` | `edgeyaml.Version`: the first 12 hex characters of the SHA-256 of the setting (deterministic proto encoding); edges share a version iff they run the same setting |
 | `updated_at` | UTC time of the write; a record older than ~10s means no leader is writing |
 
 A fenced write (`ErrFenced`) ends the term: a newer leader wrote the record,
@@ -462,9 +472,8 @@ unreachable) are logged and retried at the next tick. A standalone edge has
 no Consul, so `PublishStatus` returns `nil` and it only leads.
 
 **Wiring.** [cmd/szedge/v1/server/leader.go](../cmd/szedge/v1/server/leader.go)
-runs it as its own szrunner app (`Inject(leader.New)`, then `Serve` loads
-the setting to compute its version and runs `e.Run(ctx,
-e.PublishStatus(version))`). Each app has its own fx container, so the `Elector` is not reachable
+runs it as its own szrunner app (`Inject(leader.New)`,
+`Serve(e.Run(ctx, e.PublishStatus()))`). Each app has its own fx container, so the `Elector` is not reachable
 from the `edgeServer`/`grpcServer` apps; zone-wide work goes in the `Task`.
 
 **Deploy.** [deploy/docker/cluster/docker-compose.yaml](../deploy/docker/cluster/docker-compose.yaml)

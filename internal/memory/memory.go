@@ -64,7 +64,7 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 	_shared.Start()
 
 	_store = &MemStore{
-		setting:      settings.New(_shared),
+		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
 		reverseProxy: reverseproxy.New(),
 		route:        routes.New(),

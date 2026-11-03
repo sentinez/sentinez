@@ -31,11 +31,11 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
  │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
  └─ leader
      ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, e.PublishStatus(version)))  // leader theo zone, xem 3.8
+     └─ Serve(e.Run(ctx, e.PublishStatus()))  // leader theo zone, xem 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
- ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map + DMap
+ ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
@@ -345,7 +345,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 
 | Kho | Kiểu | Nội dung |
 |---|---|---|
-| `settings.Setting` | `Map[string,*edgepb.Setting]` + `cluster.DMap` | Setting gốc; ghi vào Olric DMap `sentinez.dmz.edge.setting` |
+| `settings.Setting` | `Map[string,*edgepb.Setting]` | Setting gốc, chỉ nằm trên edge |
 | `routes.Router` | `Map[string,[]*Location]` | Location đã sắp xếp |
 | `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | `Entry{Eval, Rule}` đã compile, lọc active, sort theo priority |
@@ -365,7 +365,9 @@ Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 - `DMap[T]` là wrapper generic lưu proto đã `proto.Marshal`. Khi cluster chưa
   sẵn sàng, `Put` đẩy vào channel đệm 1024 phần tử; goroutine `wait()` đợi
   `dictReady` rồi tạo DMap và xả hàng đợi.
-- Hiện chỉ dùng để phát tán `Setting`; chưa có chỗ đọc lại (`Get`) từ node khác.
+- Không còn chỗ nào dùng `DMap`: các edge không ghi `Setting` vào đó nữa.
+  Olric không có compare-and-swap, nên không được giữ state do leader ghi;
+  state đó nằm ở Consul, nơi việc ghi có fencing (xem bên dưới).
 
 ### Bầu leader theo zone
 
@@ -426,20 +428,28 @@ nhất đã thấy. Riêng elector không thể tự đảm bảo điều này;
   đang lưu lớn hơn token của người ghi (bằng nhau là cùng một leader), rồi
   ghi bằng CAS trên `ModifyIndex` vừa đọc, nên kiểm tra và ghi là nguyên tử.
   CAS thua một người ghi khác thì thử lại vài lần (`_casRetries`).
-- Olric không có fencing: nó không có compare-and-swap, nên kiểm tra token
-  trên đó vẫn có thể bị race.
+- Olric không có fencing: nó không có compare-and-swap (chỉ có `Put`
+  `NX`/`XX`, `GetPut`, `Incr` và `Lock` gần đúng), nên kiểm tra token trên đó
+  vẫn có thể bị race. State dùng chung do leader ghi nằm ở Consul.
 
-**Zone status.** `Elector.PublishStatus(version)`
-([status.go](../../pkg/cluster/leader/status.go)) là `Task` edge chạy:
-trong khi làm leader, node ghi bản ghi của zone vào
-`sentinez/dmz/edge/zone/<zone>` ngay lập tức, rồi mỗi 10s, qua `PutFenced`
-với `term.Index`:
+**Bản ghi của zone.** Leader giữ zone của nó dưới
+`sentinez/dmz/edge/zone/<zone>/` ([zone.go](../../pkg/cluster/leader/zone.go)),
+mọi lần ghi đều qua `PutFenced` với `term.Index`:
+
+- `Elector.PublishStatus()` ([status.go](../../pkg/cluster/leader/status.go))
+  ghi `<zone>/status` ngay lập tức, rồi mỗi 10s. Đây là `Task` edge chạy.
+- `Elector.Publish(name, value)` ghi `<zone>/<name>` mỗi term một lần, thử
+  lại mỗi 10s tới khi ghi được, dành cho các bản ghi zone-wide sau này.
+- `leader.All(tasks...)` ([task.go](../../pkg/cluster/leader/task.go)) chạy
+  nhiều task trong một term; task đầu tiên lỗi sẽ huỷ các task còn lại và
+  kết thúc term.
+
+Bản ghi `status`:
 
 | Trường | Giá trị |
 |---|---|
 | `zone` | `SENZ_ZONE` viết thường |
 | `node`, `term` | Leader và `term.Index` của nó |
-| `version` | `edgeyaml.Version`: 12 ký tự hex đầu của SHA-256 của setting (mã hoá proto tất định); hai edge cùng version khi và chỉ khi chạy cùng setting |
 | `updated_at` | Thời điểm ghi (UTC); bản ghi cũ hơn ~10s nghĩa là không có leader nào đang ghi |
 
 Ghi bị fence (`ErrFenced`) thì kết thúc term: đã có leader mới hơn ghi bản
@@ -448,9 +458,8 @@ Consul) được log và thử lại ở tick sau. Edge standalone không có Co
 `PublishStatus` trả `nil`, node chỉ giữ quyền leader.
 
 **Wiring.** [cmd/szedge/v1/server/leader.go](../../cmd/szedge/v1/server/leader.go)
-chạy elector như một szrunner app riêng (`Inject(leader.New)`, rồi `Serve`
-nạp setting để tính version và chạy `e.Run(ctx,
-e.PublishStatus(version))`). Mỗi app có container fx riêng, nên app
+chạy elector như một szrunner app riêng (`Inject(leader.New)`,
+`Serve(e.Run(ctx, e.PublishStatus()))`). Mỗi app có container fx riêng, nên app
 `edgeServer`/`grpcServer` không truy cập được `Elector`; việc cần làm cho cả
 zone phải đặt trong `Task`.
 

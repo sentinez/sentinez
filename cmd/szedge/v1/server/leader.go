@@ -18,38 +18,15 @@ import (
 	"context"
 
 	"github.com/sentinez/core/szrunner"
-	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
-	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/cluster/leader"
 )
 
 // Leader campaigns for the leadership of the edge zone and, while it
-// leads, keeps the zone Status in Consul (leader.PublishStatus) with the
-// version of the setting it runs.
+// leads, keeps the zone Status in Consul (leader.PublishStatus).
 func Leader(c *szrunner.Context[leader.Elector]) {
 	c.Inject(leader.New)
 
 	c.Serve(func(ctx context.Context, e *leader.Elector) error {
-		version, err := settingVersion()
-		if err != nil {
-			return err
-		}
-
-		return e.Run(ctx, e.PublishStatus(version))
+		return e.Run(ctx, e.PublishStatus())
 	})
-}
-
-// settingVersion returns the version of the setting this edge runs.
-func settingVersion() (string, error) {
-	conf, err := config.Config()
-	if err != nil {
-		return "", err
-	}
-
-	setting, err := edgeyaml.LoadSetting(conf)
-	if err != nil {
-		return "", err
-	}
-
-	return edgeyaml.Version(setting)
 }

@@ -11,7 +11,7 @@ Remove an entry once it is fixed.
 | # | Location | Problem | Consequence |
 |---|---|---|---|
 | 2 | [controlplane/apps/security/v1/repos/secrule/secrule.go](../staging/src/github.com/sentinez/controlplane/apps/security/v1/repos/secrule/secrule.go) `Update` | Only updates `name`, `description`, `expr`, `status` | Changing `priority`/`action` through the API is not persisted |
-| 3 | [pkg/cluster/cluster.go](../pkg/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; after 1024 `Put`s the caller goroutine blocks |
+| 3 | [pkg/cluster/cluster.go](../pkg/cluster/cluster.go) `newConfig` | When both membership and discovery addresses are valid, the function `return conf` before setting `conf.Started` | `dictReady` is never signaled → DMaps are never created; a `Put` would block after 1024 entries (no caller uses a DMap any more) |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` mutates a field of a shared proxy | The WebSocket target grows with every request, and there is a data race |
 | 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
 | 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
@@ -39,9 +39,10 @@ Remove an entry once it is fixed.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.
-- The zone leader only publishes the zone status
-  (`sentinez/dmz/edge/zone/<zone>`); no other zone-wide work runs in its
-  `Task` yet. Olric writes are not fenced (no compare-and-swap).
+- The zone leader only writes the zone status
+  (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
+  `leader.All` are ready for more zone-wide records, but none exists yet.
+  Nothing reads the status either.
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.

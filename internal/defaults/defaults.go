@@ -26,7 +26,3 @@ const (
 	DataplaneAddress = "0.0.0.0:9001"
 	GreeterAddress   = "0.0.0.0:9001"
 )
-
-const (
-	NamespaceSetting = "sentinez.dmz.edge.setting"
-)

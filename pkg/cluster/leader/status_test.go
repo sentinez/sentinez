@@ -35,9 +35,9 @@ type fakeStore struct {
 }
 
 type fakePut struct {
-	key    string
-	token  uint64
-	status *Status
+	key   string
+	token uint64
+	value any
 }
 
 func (s *fakeStore) PutFenced(
@@ -46,8 +46,7 @@ func (s *fakeStore) PutFenced(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	status, _ := value.(*Status)
-	s.puts = append(s.puts, fakePut{key: key, token: token, status: status})
+	s.puts = append(s.puts, fakePut{key: key, token: token, value: value})
 
 	if len(s.errs) == 0 {
 		return nil
@@ -66,10 +65,10 @@ func (s *fakeStore) count() int {
 	return len(s.puts)
 }
 
-func newStatusElector(store *fakeStore) *Elector {
+func newZoneElector(store *fakeStore) *Elector {
 	e := newElector(&fakeBackend{})
-	e.status = newStatusTarget(store, "sgn")
-	e.status.interval = time.Millisecond
+	e.zone = newZoneStore(store, "sgn")
+	e.zone.interval = time.Millisecond
 
 	return e
 }
@@ -89,7 +88,7 @@ func runTask(task Task, term Term) (stop func() error) {
 
 func TestPublishStatusWritesEveryInterval(t *testing.T) {
 	store := &fakeStore{}
-	task := newStatusElector(store).PublishStatus("v1")
+	task := newZoneElector(store).PublishStatus()
 
 	stop := runTask(task, Term{Index: 7, Node: "edge-01"})
 	require.Eventually(t, func() bool { return store.count() >= 2 },
@@ -97,17 +96,18 @@ func TestPublishStatusWritesEveryInterval(t *testing.T) {
 	require.NoError(t, stop())
 
 	got := store.puts[0]
-	assert.Equal(t, "sentinez/dmz/edge/zone/sgn", got.key)
+	assert.Equal(t, "sentinez/dmz/edge/zone/sgn/status", got.key)
 	assert.Equal(t, uint64(7), got.token)
-	assert.Equal(t, "sgn", got.status.Zone)
-	assert.Equal(t, "edge-01", got.status.Node)
-	assert.Equal(t, uint64(7), got.status.Term)
-	assert.Equal(t, "v1", got.status.Version)
+	require.IsType(t, &Status{}, got.value)
+	status := got.value.(*Status)
+	assert.Equal(t, "sgn", status.Zone)
+	assert.Equal(t, "edge-01", status.Node)
+	assert.Equal(t, uint64(7), status.Term)
 }
 
 func TestPublishStatusFencedEndsTerm(t *testing.T) {
 	store := &fakeStore{errs: []error{consul.ErrFenced}}
-	task := newStatusElector(store).PublishStatus("v1")
+	task := newZoneElector(store).PublishStatus()
 
 	// the first write is fenced: the task returns before the deadline
 	ctx, cancel := context.WithTimeout(context.Background(), _waitFor)
@@ -118,7 +118,7 @@ func TestPublishStatusFencedEndsTerm(t *testing.T) {
 
 func TestPublishStatusRetriesOtherErrors(t *testing.T) {
 	store := &fakeStore{errs: []error{errors.New("consul down")}}
-	task := newStatusElector(store).PublishStatus("v1")
+	task := newZoneElector(store).PublishStatus()
 
 	stop := runTask(task, Term{Index: 3})
 	require.Eventually(t, func() bool { return store.count() >= 2 },
@@ -130,5 +130,5 @@ func TestPublishStatusRetriesOtherErrors(t *testing.T) {
 func TestPublishStatusStandalone(t *testing.T) {
 	e := newElector(&standalone{node: "edge-01"})
 
-	assert.Nil(t, e.PublishStatus("v1"))
+	assert.Nil(t, e.PublishStatus())
 }

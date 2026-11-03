@@ -76,7 +76,7 @@ func New(conf *settingpb.Config) (*Elector, error) {
 		key:    _keyPrefix + zone,
 		node:   node,
 	})
-	e.status = newStatusTarget(client, zone)
+	e.zone = newZoneStore(client, zone)
 
 	return e, nil
 }
