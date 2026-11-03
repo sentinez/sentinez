@@ -71,11 +71,14 @@ func New(conf *settingpb.Config) (*Elector, error) {
 		return nil, fmt.Errorf("leader: consul: %w", err)
 	}
 
-	return newElector(&consulBackend{
+	e := newElector(&consulBackend{
 		client: client,
 		key:    _keyPrefix + zone,
 		node:   node,
-	}), nil
+	})
+	e.status = newStatusTarget(client, zone)
+
+	return e, nil
 }
 
 // nodeId names this process: the hostname alone is not unique when

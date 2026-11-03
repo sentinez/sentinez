@@ -31,7 +31,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
  │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
  └─ leader
      ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, nil))  // zone leader election, see 3.8
+     └─ Serve(e.Run(ctx, e.PublishStatus(version)))  // zone leader, see 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
@@ -429,11 +429,42 @@ Failover:
 **Fencing.** A deposed leader can still act for a moment (GC pause,
 partition) before it sees `Lost()`. Every write the leader makes to shared
 state must carry `term.Index`, and the store must reject an index lower than
-the highest it has seen. The elector cannot enforce this on its own.
+the highest it has seen. The elector cannot enforce this on its own;
+`consul.Client.PutFenced` ([api/client/consul/fenced.go](../api/client/consul/fenced.go))
+does, for Consul KV:
+
+- The value is stored as JSON `{"token": <term.Index>, "value": ...}`
+  (`consul.Fenced[T]`, read back with `consul.GetFenced[T]`).
+- Each write reads the key (consistent read), fails with `consul.ErrFenced`
+  if the stored token is higher than the writer's (equal is the same
+  leader), then
+  writes with a CAS on the `ModifyIndex` it read, so the check and the write
+  are atomic. A CAS lost to another writer is retried a few times (`_casRetries`).
+- Olric is not fenced: it has no compare-and-swap, so a token check there
+  could still be raced.
+
+**Zone status.** `Elector.PublishStatus(version)`
+([status.go](../pkg/cluster/leader/status.go)) is the `Task` the edge runs:
+while it leads, the node writes the zone record to
+`sentinez/dmz/edge/zone/<zone>` at once, then every 10s, through
+`PutFenced` with `term.Index`:
+
+| Field | Value |
+|---|---|
+| `zone` | Lowercased `SENZ_ZONE` |
+| `node`, `term` | The leader and its `term.Index` |
+| `version` | `edgeyaml.Version`: the first 12 hex characters of the SHA-256 of the setting (deterministic proto encoding); edges share a version iff they run the same setting |
+| `updated_at` | UTC time of the write; a record older than ~10s means no leader is writing |
+
+A fenced write (`ErrFenced`) ends the term: a newer leader wrote the record,
+so the node gives up the lock and campaigns again. Other errors (Consul
+unreachable) are logged and retried at the next tick. A standalone edge has
+no Consul, so `PublishStatus` returns `nil` and it only leads.
 
 **Wiring.** [cmd/szedge/v1/server/leader.go](../cmd/szedge/v1/server/leader.go)
-runs it as its own szrunner app (`Inject(leader.New)`, `Serve(e.Run(ctx,
-nil))`). Each app has its own fx container, so the `Elector` is not reachable
+runs it as its own szrunner app (`Inject(leader.New)`, then `Serve` loads
+the setting to compute its version and runs `e.Run(ctx,
+e.PublishStatus(version))`). Each app has its own fx container, so the `Elector` is not reachable
 from the `edgeServer`/`grpcServer` apps; zone-wide work goes in the `Task`.
 
 **Deploy.** [deploy/docker/cluster/docker-compose.yaml](../deploy/docker/cluster/docker-compose.yaml)

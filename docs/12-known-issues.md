@@ -39,9 +39,9 @@ Remove an entry once it is fixed.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.
-- The zone leader election runs with no `Task` (`Run(ctx, nil)`), so the
-  leader does nothing yet, and no store checks the `term.Index` fencing
-  token.
+- The zone leader only publishes the zone status
+  (`sentinez/dmz/edge/zone/<zone>`); no other zone-wide work runs in its
+  `Task` yet. Olric writes are not fenced (no compare-and-swap).
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.

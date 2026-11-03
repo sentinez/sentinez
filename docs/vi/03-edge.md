@@ -31,7 +31,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
  │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
  └─ leader
      ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, nil))  // bầu leader theo zone, xem 3.8
+     └─ Serve(e.Run(ctx, e.PublishStatus(version)))  // leader theo zone, xem 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
@@ -416,11 +416,41 @@ Chuyển leader:
 **Fencing.** Leader cũ vẫn có thể hành động thêm một lúc (GC pause, mạng bị
 chia cắt) trước khi thấy `Lost()`. Mọi lần leader ghi state dùng chung phải
 gửi kèm `term.Index`, và nơi lưu trữ phải từ chối index nhỏ hơn index lớn
-nhất đã thấy. Riêng elector không thể tự đảm bảo điều này.
+nhất đã thấy. Riêng elector không thể tự đảm bảo điều này;
+`consul.Client.PutFenced` ([api/client/consul/fenced.go](../../api/client/consul/fenced.go))
+đảm bảo việc đó trên Consul KV:
+
+- Giá trị được lưu dạng JSON `{"token": <term.Index>, "value": ...}`
+  (`consul.Fenced[T]`, đọc lại bằng `consul.GetFenced[T]`).
+- Mỗi lần ghi đọc key (consistent read), trả `consul.ErrFenced` nếu token
+  đang lưu lớn hơn token của người ghi (bằng nhau là cùng một leader), rồi
+  ghi bằng CAS trên `ModifyIndex` vừa đọc, nên kiểm tra và ghi là nguyên tử.
+  CAS thua một người ghi khác thì thử lại vài lần (`_casRetries`).
+- Olric không có fencing: nó không có compare-and-swap, nên kiểm tra token
+  trên đó vẫn có thể bị race.
+
+**Zone status.** `Elector.PublishStatus(version)`
+([status.go](../../pkg/cluster/leader/status.go)) là `Task` edge chạy:
+trong khi làm leader, node ghi bản ghi của zone vào
+`sentinez/dmz/edge/zone/<zone>` ngay lập tức, rồi mỗi 10s, qua `PutFenced`
+với `term.Index`:
+
+| Trường | Giá trị |
+|---|---|
+| `zone` | `SENZ_ZONE` viết thường |
+| `node`, `term` | Leader và `term.Index` của nó |
+| `version` | `edgeyaml.Version`: 12 ký tự hex đầu của SHA-256 của setting (mã hoá proto tất định); hai edge cùng version khi và chỉ khi chạy cùng setting |
+| `updated_at` | Thời điểm ghi (UTC); bản ghi cũ hơn ~10s nghĩa là không có leader nào đang ghi |
+
+Ghi bị fence (`ErrFenced`) thì kết thúc term: đã có leader mới hơn ghi bản
+ghi, nên node nhả lock rồi tranh cử lại. Lỗi khác (không kết nối được
+Consul) được log và thử lại ở tick sau. Edge standalone không có Consul nên
+`PublishStatus` trả `nil`, node chỉ giữ quyền leader.
 
 **Wiring.** [cmd/szedge/v1/server/leader.go](../../cmd/szedge/v1/server/leader.go)
-chạy elector như một szrunner app riêng (`Inject(leader.New)`,
-`Serve(e.Run(ctx, nil))`). Mỗi app có container fx riêng, nên app
+chạy elector như một szrunner app riêng (`Inject(leader.New)`, rồi `Serve`
+nạp setting để tính version và chạy `e.Run(ctx,
+e.PublishStatus(version))`). Mỗi app có container fx riêng, nên app
 `edgeServer`/`grpcServer` không truy cập được `Elector`; việc cần làm cho cả
 zone phải đặt trong `Task`.
 

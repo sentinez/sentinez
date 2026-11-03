@@ -38,9 +38,9 @@ xoá mục tương ứng.
 - `szcentraldata`: `main()` rỗng. `AnalyticService` không được mount vào
   apiserver. Discovery Consul (`WithDiscorvery`, `VisitToEndpoint`) có code
   nhưng chưa bật.
-- Bầu leader theo zone đang chạy không có `Task` (`Run(ctx, nil)`), nên
-  leader chưa làm gì, và chưa nơi lưu trữ nào kiểm tra fencing token
-  `term.Index`.
+- Leader theo zone mới chỉ ghi zone status
+  (`sentinez/dmz/edge/zone/<zone>`); chưa có việc zone-wide nào khác trong
+  `Task`. Ghi vào Olric không có fencing (không có compare-and-swap).
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.

@@ -61,6 +61,8 @@ type Elector struct {
 	backend    backend
 	retryDelay time.Duration
 	current    atomic.Pointer[Term]
+	// status is where PublishStatus writes, nil when standalone
+	status *statusTarget
 }
 
 func newElector(b backend) *Elector {
