@@ -23,12 +23,18 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, plus
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` taking a `query.Query`
   (squirrel's `ToSql()` interface).
-- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `postgres.New[T](ctx, conf, schema)`, where `schema` is a `dbx.Schema`
+  (table, typed columns, indexes) from
+  [controlplane/pkg/schema](../staging/src/github.com/sentinez/controlplane/pkg/schema/)
+  (`schema.Tenants()`, ...; `schema.All()` lists them all):
   - The real table name is `<mode>.sentinez.<name>` with `.` replaced by `_`,
     e.g. `dev_sentinez_iam_users`; it must match
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
-  - Creates the table (`id TEXT PK, created_at, updated_at`) and adds missing
-    columns — it **never drops or retypes columns**.
+  - Creates the table (`id TEXT PK, created_at, updated_at`), adds missing
+    columns in order, then the indexes, in one round trip — it **never
+    drops or retypes columns**.
+  - The same schema builds a go-memdb table (`dbx.MemDBSchema`): centraldata
+    keeps every controlplane table in memory this way.
   - Uses one global `pgxpool.Pool` from `SENZ_POSTGRES_URI`.
 - Helpers: `SelectBuilder` (+ paging `LIMIT/OFFSET ORDER BY created_at DESC`
   when `page.index` and `page.size` are > 0), `InsertBuilder`
@@ -42,7 +48,7 @@ Scaffolding for each layer lives in `.agent/skills/` (`create-service`,
   (a-z, 2 to 5 chars, never changed once public); proto `id` prefix rules
   must match.
 
-Table names ([core/szcmn/tables](../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
+Table names ([shared/sztable](../staging/src/github.com/sentinez/shared/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 

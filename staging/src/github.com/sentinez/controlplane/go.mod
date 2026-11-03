@@ -12,6 +12,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-webauthn/webauthn v0.17.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/hashicorp/go-memdb v1.3.5
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6

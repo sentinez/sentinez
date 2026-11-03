@@ -19,7 +19,7 @@ The repository should be placed in an appropriate package under `repos/<model_pl
 Use standard imports, especially:
 - `github.com/Masterminds/squirrel` for query building
 - Protobuf models from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1`
-- `github.com/sentinez/core/szcmn/tables` for table definitions (add the new table constant there)
+- `github.com/sentinez/shared/sztable` for table names (add the new table constant there) and `github.com/sentinez/controlplane/pkg/schema` for its `dbx.Schema`
 - `github.com/sentinez/shared/szstorage/dbx` and `github.com/sentinez/shared/szstorage/dbx/postgres` for database interactions
 - `github.com/sentinez/shared/szprefix` for ID prefixes (add the new entity's prefix there: a-z, 2 to 5 chars, unique)
 - `github.com/sentinez/shared/szrand` for ID generation (`szrand.NewUUID`)
@@ -52,12 +52,7 @@ type <ModelNamePlural> struct {
 
 func New(ctx context.Context, appConf *settingpb.Config) (I<ModelName>, error) {
 	storage, err := postgres.New[<domain>pb.<ModelName>](ctx, appConf,
-		dbx.WithTable(tables.<ModelNamePlural>),
-		dbx.WithColumns(dbx.ColumnM{
-			<domain>pb.<ModelName>_Id:          postgres.String,
-			// Map other protobuf fields to postgres types...
-		}),
-	)
+		schema.<ModelNamePlural>())
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +60,23 @@ func New(ctx context.Context, appConf *settingpb.Config) (I<ModelName>, error) {
 	return &<ModelNamePlural>{
 		storage: storage,
 	}, nil
+}
+```
+
+The table is declared in `github.com/sentinez/controlplane/pkg/schema/<domain>.go`, one function per table named after its `sztable` constant, and listed in `schema.All()` (centraldata builds its go-memdb tables from it):
+
+```go
+// <ModelNamePlural> the schema of the sztable.<ModelNamePlural> table.
+func <ModelNamePlural>() dbx.Schema {
+	return dbx.Schema{
+		Table: sztable.<ModelNamePlural>,
+		Columns: []dbx.Column{
+			{Name: <domain>pb.<ModelName>_Id, Type: dbx.Text},
+			// Other protobuf fields with their dbx types, in order;
+			// MemIndex: true also indexes the column in go-memdb.
+		},
+		// Indexes: []dbx.Index{{Column: ..., Method: dbx.GIN}},
+	}
 }
 ```
 

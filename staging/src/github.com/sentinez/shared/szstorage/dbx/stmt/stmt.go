@@ -46,9 +46,8 @@ func CreateTable(tableName string) string {
 	return fmt.Sprintf(_createSchemaStmt, tableName)
 }
 
-func AddColumn(tableName string,
-	columnName string, columnType dbx.ColumnType) string {
-	return fmt.Sprintf(_addColumnStmt, tableName, columnName, columnType)
+func AddColumn(tableName string, column dbx.Column) string {
+	return fmt.Sprintf(_addColumnStmt, tableName, column.Name, column.Type)
 }
 
 func CreateIndex(tableName string, index dbx.Index) string {

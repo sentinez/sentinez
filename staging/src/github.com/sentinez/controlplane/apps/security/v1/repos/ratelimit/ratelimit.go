@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -27,7 +28,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -48,22 +48,7 @@ var _ IRateLimit = (*RateLimit)(nil)
 // New creates a RateLimit repository backed by Postgres.
 func New(ctx context.Context, appConf *settingpb.Config) (IRateLimit, error) {
 	storage, err := postgres.New[securitypb.RateLimit](ctx, appConf,
-		dbx.WithTable(sztable.SecurityRateLimits),
-		dbx.WithColumns(dbx.ColumnM{
-			securitypb.RateLimit_Id:              postgres.String,
-			securitypb.RateLimit_Name:            postgres.String,
-			securitypb.RateLimit_Description:     postgres.String,
-			securitypb.RateLimit_Expr:            postgres.JSONB,
-			securitypb.RateLimit_Status:          postgres.Int4,
-			securitypb.RateLimit_Priority:        postgres.Int4,
-			securitypb.RateLimit_Action:          postgres.String,
-			securitypb.RateLimit_TimeWindow:      postgres.String,
-			securitypb.RateLimit_MaxRequests:     postgres.Int8,
-			securitypb.RateLimit_Timeout:         postgres.String,
-			securitypb.RateLimit_OwnerResourceId: postgres.String,
-			securitypb.RateLimit_OwnerTenantId:   postgres.String,
-		}),
-	)
+		schema.SecurityRateLimits())
 	if err != nil {
 		return nil, err
 	}

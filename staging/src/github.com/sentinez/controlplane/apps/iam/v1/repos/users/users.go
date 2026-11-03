@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -28,7 +29,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -53,14 +53,7 @@ type IUser interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IUser, error) {
 	storage, err := postgres.New[iampb.User](ctx, appConf,
-		dbx.WithTable(sztable.IAMUsers),
-		dbx.WithColumns(dbx.ColumnM{
-			iampb.User_Id:           postgres.String,
-			iampb.User_Email:        postgres.String,
-			iampb.User_FullName:     postgres.String,
-			iampb.User_ControlPlane: postgres.Int4,
-		}),
-	)
+		schema.IAMUsers())
 	if err != nil {
 		return nil, err
 	}

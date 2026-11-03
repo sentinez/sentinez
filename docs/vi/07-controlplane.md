@@ -23,12 +23,18 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
   (interface `ToSql()` của squirrel).
-- `postgres.New[T](ctx, conf, WithTable(name), WithColumns(cols))`:
+- `postgres.New[T](ctx, conf, schema)`, với `schema` là một `dbx.Schema`
+  (bảng, cột có kiểu, index) lấy từ
+  [controlplane/pkg/schema](../../staging/src/github.com/sentinez/controlplane/pkg/schema/)
+  (`schema.Tenants()`, ...; `schema.All()` liệt kê tất cả):
   - Tên bảng thật = `<mode>.sentinez.<name>` thay `.` bằng `_`, ví dụ
     `dev_sentinez_iam_users`; phải khớp regex
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
-  - Tự tạo bảng (`id TEXT PK, created_at, updated_at`) và thêm cột còn thiếu
-    — **không xoá/đổi kiểu cột**.
+  - Tự tạo bảng (`id TEXT PK, created_at, updated_at`), thêm cột còn thiếu
+    theo thứ tự rồi tạo index, trong một round trip — **không xoá/đổi kiểu
+    cột**.
+  - Cùng schema đó dựng được bảng go-memdb (`dbx.MemDBSchema`): centraldata
+    giữ mọi bảng controlplane trong bộ nhớ theo cách này.
   - Dùng một `pgxpool.Pool` toàn cục từ `SENZ_POSTGRES_URI`.
 - Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY created_at DESC`
   khi `page.index` và `page.size` > 0), `InsertBuilder` (`RETURNING id`),
@@ -42,7 +48,7 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
   (a-z, 2 đến 5 ký tự, không đổi sau khi công khai); rule prefix `id` trong
   proto phải khớp.
 
-Tên bảng ([core/szcmn/tables](../../staging/src/github.com/sentinez/core/szcmn/tables/tables.go)):
+Tên bảng ([shared/sztable](../../staging/src/github.com/sentinez/shared/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`.
 

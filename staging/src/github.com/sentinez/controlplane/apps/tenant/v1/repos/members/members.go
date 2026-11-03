@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -27,7 +28,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -47,14 +47,7 @@ type IMember interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IMember, error) {
 	storage, err := postgres.New[tenantpb.Member](ctx, appConf,
-		dbx.WithTable(sztable.TenantMembers),
-		dbx.WithColumns(dbx.ColumnM{
-			tenantpb.Member_Id:       postgres.String,
-			tenantpb.Member_UserId:   postgres.String,
-			tenantpb.Member_TenantId: postgres.String,
-			tenantpb.Member_Roles:    postgres.IntArr,
-		}),
-	)
+		schema.TenantMembers())
 	if err != nil {
 		return nil, err
 	}

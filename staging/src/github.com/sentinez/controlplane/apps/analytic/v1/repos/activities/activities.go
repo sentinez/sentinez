@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -27,7 +28,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -49,14 +49,7 @@ type IActivity interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (IActivity, error) {
 	storage, err := postgres.New[analyticpb.Activity](ctx, appConf,
-		dbx.WithTable(sztable.AnalyticActivities),
-		dbx.WithColumns(dbx.ColumnM{
-			analyticpb.Activity_Id:              postgres.String,
-			analyticpb.Activity_OwnerResourceId: postgres.String,
-			analyticpb.Activity_OwnerTenantId:   postgres.String,
-			analyticpb.Activity_UniqueVisitor:   postgres.IntArr,
-		}),
-	)
+		schema.AnalyticActivities())
 	if err != nil {
 		return nil, err
 	}
