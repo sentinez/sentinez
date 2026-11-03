@@ -38,8 +38,9 @@ xoá mục tương ứng.
 - `szcentraldata`: `main()` rỗng. `AnalyticService` không được mount vào
   apiserver. Discovery Consul (`WithDiscorvery`, `VisitToEndpoint`) có code
   nhưng chưa bật.
-- `EdgeService.EvaluateRuleset` đánh giá
-  `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
+- Bầu leader theo zone đang chạy không có `Task` (`Run(ctx, nil)`), nên
+  leader chưa làm gì, và chưa nơi lưu trữ nào kiểm tra fencing token
+  `term.Index`.
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.

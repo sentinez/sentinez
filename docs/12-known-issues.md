@@ -39,8 +39,9 @@ Remove an entry once it is fixed.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.
-- `EdgeService.EvaluateRuleset` evaluates
-  an empty `Expression` (always matches) and ignores `ruleset_id`.
+- The zone leader election runs with no `Task` (`Run(ctx, nil)`), so the
+  leader does nothing yet, and no store checks the `term.Index` fencing
+  token.
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.

@@ -14,6 +14,7 @@ Relevant source:
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [pkg/cluster/](../pkg/cluster/) | Embedded Olric + generic `DMap[T]` |
+| [pkg/cluster/leader/](../pkg/cluster/leader/) | Zone leader election (Consul session lock) |
 | [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../pkg/network/) | TCP (`StdListener`/`StdConn`, with IDs) and QUIC (`QuicListener`) listeners, `net/http` transport |
 | [pkg/network/httpx/](../pkg/network/httpx/) | Shared `net/http` `Context` + `ReverseProxy`; servers in `std/` (`stdhttpx`) and `quic/` (`quichttpx`) |
@@ -21,13 +22,16 @@ Relevant source:
 ## 3.1 Startup
 
 ```
-main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(pprof))
+main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(leader), NewApp(pprof))
  ├─ edgeServer
  │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)
- └─ grpcServer
-     ├─ Inject(config.Config, edge.NewService)
-     └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
+ ├─ grpcServer
+ │   ├─ Inject(config.Config, edge.NewService)
+ │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
+ └─ leader
+     ├─ Inject(config.Config, leader.New)
+     └─ Serve(e.Run(ctx, nil))  // zone leader election, see 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
@@ -142,7 +146,7 @@ There are three implementations:
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge in `Quic` (HTTP/3 and TCP) and `Standard` modes, realtime |
-| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Evaluating rules against an `httppb.Request` (gRPC `EvaluateRuleset`) |
+| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Evaluating rules against an `httppb.Request` (only tests use it now) |
 
 Contexts come from a `sync.Pool` and are returned in `Close()`.
 
@@ -365,9 +369,9 @@ All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 [pkg/cluster](../pkg/cluster/):
 
-- `NewCluster` creates Olric with the `local` config. If both
-  `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS` are set, it sets
-  `Peers` and binds memberlist to the discovery address.
+- `NewCluster` creates Olric with the `local` config. If the config is
+  `Clustered()` (both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS`
+  are set), it sets `Peers` and binds memberlist to the discovery address.
 - `DMap[T]` is a generic wrapper that stores `proto.Marshal`-ed messages.
   While the cluster is not ready, `Put` pushes into a channel buffered at
   1024 entries; the `wait()` goroutine waits for `dictReady`, creates the
@@ -375,13 +379,76 @@ All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 - It is only used to distribute `Setting`s for now; nothing reads them back
   (`Get`) from other nodes yet.
 
+### Zone leader election
+
+[pkg/cluster/leader](../pkg/cluster/leader/) elects the one edge that leads
+its zone (`SENZ_ZONE`). Olric is not used for this: its own docs call its
+locks approximate (a lock lives on one partition owner, with no replica or
+quorum by default and no monotonic token), so they cannot guarantee a single
+leader. The election goes through a Consul session lock instead, which
+Consul serves from its Raft log.
+
+| Configuration | Behavior |
+|---|---|
+| `SENZ_CONSUL_URI` + `SENZ_ZONE` | Campaigns on the Consul key `sentinez/dmz/edge/leader/<zone>`; the zone is lowercased like the `szrand` id prefix, so `SGN` and `sgn` share one key |
+| `conf.Clustered()` without `SENZ_CONSUL_URI` | Startup fails (`errNoConsul`): a cluster never runs without an election |
+| `SENZ_CONSUL_URI` without `SENZ_ZONE` | Startup fails (`errNoZone`) |
+| Neither | Standalone: the node leads at once (term 1) and never loses |
+
+`conf.Clustered()` ([config.go](../api/proto/sentinez/types/setting/v1/config.go))
+is true when both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS` are
+set; `cluster.newConfig` uses the same check to join peers.
+
+A term:
+
+1. `consul.Client.Acquire` ([api/client/consul/lock.go](../api/client/consul/lock.go))
+   creates a session (TTL 15s, renewed by its holder) and blocks until it
+   holds the key. Each wait on a held lock is capped at 2s, so a follower
+   notices shutdown well within the runner's 15s stop timeout.
+2. The winner reads the `LockIndex` of the key with a consistent read: it
+   becomes `Term.Index`, which grows each time the lock changes hands. The
+   lock value is the node id (`<hostname>-<6 random chars>`); it is compared
+   so the index belongs to this node.
+3. `Elector.Run(ctx, task)` publishes the term (`Elector.Leader()` returns
+   it) and runs `task(ctx, term)`.
+4. The term ends when the lock is lost (`Lost()` closed, after 3 monitor
+   retries), the task returns an error, or `ctx` ends. The elector clears
+   `Leader()` **before** canceling the task's `ctx`, waits for the task,
+   releases the lock, then campaigns again (after 5s if the term failed).
+
+A task returning `nil` keeps the leadership until it is lost;
+`Run(ctx, nil)` only holds it.
+
+Failover:
+
+- Graceful stop: the lock is released and another node leads within
+  milliseconds.
+- Crash or lost link to Consul: the session expires after its TTL, then
+  Consul's lock-delay (15s) applies, so the zone has no leader for about 30s.
+
+**Fencing.** A deposed leader can still act for a moment (GC pause,
+partition) before it sees `Lost()`. Every write the leader makes to shared
+state must carry `term.Index`, and the store must reject an index lower than
+the highest it has seen. The elector cannot enforce this on its own.
+
+**Wiring.** [cmd/szedge/v1/server/leader.go](../cmd/szedge/v1/server/leader.go)
+runs it as its own szrunner app (`Inject(leader.New)`, `Serve(e.Run(ctx,
+nil))`). Each app has its own fx container, so the `Elector` is not reachable
+from the `edgeServer`/`grpcServer` apps; zone-wide work goes in the `Task`.
+
+**Deploy.** [deploy/docker/cluster/docker-compose.yaml](../deploy/docker/cluster/docker-compose.yaml)
+runs two edges in zone `SGN` with a dev-mode Consul. Run 3 or 5 Consul
+servers in production: without a Consul quorum no zone can elect a leader.
+
 ## 3.9 EdgeService gRPC
 
-`edgepb.EdgeService` has `Status` and `EvaluateRuleset`
-([internal/dmz/edge/api/api.go](../internal/dmz/edge/api/api.go)), packaged
-as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). `main` starts it as
-the `grpcServer` app on `defaults.EdgeAddress`; `EvaluateRuleset` evaluates an
-empty `Expression`.
+`edgepb.EdgeService` only has `Status`, which returns `OK`
+([internal/dmz/edge/api.go](../internal/dmz/edge/api.go), package `edge`).
+It is packaged as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`), and
+`main` starts it as the `grpcServer` app on `defaults.EdgeAddress`. The
+`EvalCoreRuleset` RPC (replaying a request against a CRS setting) was removed
+together with `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` are
+empty packages for now.
 
 ## 3.10 Choosing the engine
 

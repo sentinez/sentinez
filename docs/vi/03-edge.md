@@ -14,6 +14,7 @@ Mã nguồn liên quan:
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
 | [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `DMap[T]` generic |
+| [pkg/cluster/leader/](../../pkg/cluster/leader/) | Bầu leader theo zone (session lock của Consul) |
 | [contrib/httphz](../../staging/src/github.com/sentinez/contrib/httphz/) | Server Hertz + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../../pkg/network/) | Listener TCP (`StdListener`/`StdConn`, có ID) và QUIC (`QuicListener`), transport `net/http` |
 | [pkg/network/httpx/](../../pkg/network/httpx/) | `Context` + `ReverseProxy` `net/http` dùng chung; server ở `std/` (`stdhttpx`) và `quic/` (`quichttpx`) |
@@ -21,13 +22,16 @@ Mã nguồn liên quan:
 ## 3.1 Khởi động
 
 ```
-main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(pprof))
+main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(leader), NewApp(pprof))
  ├─ edgeServer
  │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
  │   └─ Serve(server.Start)
- └─ grpcServer
-     ├─ Inject(config.Config, edge.NewService)
-     └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
+ ├─ grpcServer
+ │   ├─ Inject(config.Config, edge.NewService)
+ │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
+ └─ leader
+     ├─ Inject(config.Config, leader.New)
+     └─ Serve(e.Run(ctx, nil))  // bầu leader theo zone, xem 3.8
 
 edge.NewServer(conf, setting)
  ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
@@ -136,7 +140,7 @@ Có ba cài đặt:
 |---|---|---|
 | `httphz.Context` | `contrib/httphz/request_context.go` | Edge (Hertz) |
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge chế độ `Quic` (HTTP/3 và TCP) và `Standard`, realtime |
-| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Đánh giá rule trên `httppb.Request` (gRPC `EvaluateRuleset`) |
+| `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Đánh giá rule trên `httppb.Request` (hiện chỉ test dùng) |
 
 Context được lấy từ `sync.Pool` và trả lại trong `Close()`.
 
@@ -355,21 +359,84 @@ Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 
 [pkg/cluster](../../pkg/cluster/):
 
-- `NewCluster` tạo Olric với config `local`. Nếu có cả
-  `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS` thì đặt `Peers` và bind
-  memberlist theo discovery address.
+- `NewCluster` tạo Olric với config `local`. Nếu config là `Clustered()`
+  (có cả `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS`) thì đặt `Peers`
+  và bind memberlist theo discovery address.
 - `DMap[T]` là wrapper generic lưu proto đã `proto.Marshal`. Khi cluster chưa
   sẵn sàng, `Put` đẩy vào channel đệm 1024 phần tử; goroutine `wait()` đợi
   `dictReady` rồi tạo DMap và xả hàng đợi.
 - Hiện chỉ dùng để phát tán `Setting`; chưa có chỗ đọc lại (`Get`) từ node khác.
 
+### Bầu leader theo zone
+
+[pkg/cluster/leader](../../pkg/cluster/leader/) bầu ra một edge duy nhất làm
+leader cho zone của nó (`SENZ_ZONE`). Không dùng Olric cho việc này: chính
+docs của Olric gọi lock của nó là "approximate" (lock nằm trên một partition
+owner, mặc định không có replica, không có quorum và không có token tăng
+dần), nên không đảm bảo được chỉ có một leader. Việc bầu chọn đi qua session
+lock của Consul, được Consul ghi qua Raft log.
+
+| Cấu hình | Hành vi |
+|---|---|
+| `SENZ_CONSUL_URI` + `SENZ_ZONE` | Tranh lock trên key Consul `sentinez/dmz/edge/leader/<zone>`; zone được lowercase giống tiền tố id của `szrand`, nên `SGN` và `sgn` dùng chung một key |
+| `conf.Clustered()` mà thiếu `SENZ_CONSUL_URI` | Khởi động thất bại (`errNoConsul`): cluster không bao giờ chạy mà không có bầu chọn |
+| `SENZ_CONSUL_URI` mà thiếu `SENZ_ZONE` | Khởi động thất bại (`errNoZone`) |
+| Không có cả hai | Standalone: node làm leader ngay (term 1) và không bao giờ mất |
+
+`conf.Clustered()` ([config.go](../../api/proto/sentinez/types/setting/v1/config.go))
+trả về true khi có cả `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS`;
+`cluster.newConfig` dùng cùng điều kiện này để join peer.
+
+Một term diễn ra như sau:
+
+1. `consul.Client.Acquire` ([api/client/consul/lock.go](../../api/client/consul/lock.go))
+   tạo một session (TTL 15s, do node giữ lock gia hạn) và chờ tới khi giữ
+   được key. Mỗi lần chờ một lock đang bị giữ tối đa 2s, nên follower nhận
+   ra shutdown sớm, trong giới hạn stop timeout 15s của runner.
+2. Node thắng đọc `LockIndex` của key bằng consistent read: đó là
+   `Term.Index`, tăng mỗi lần lock đổi chủ. Giá trị của lock là node id
+   (`<hostname>-<6 ký tự ngẫu nhiên>`), được so sánh để chắc index thuộc về
+   node này.
+3. `Elector.Run(ctx, task)` công bố term (`Elector.Leader()` trả về nó) và
+   chạy `task(ctx, term)`.
+4. Term kết thúc khi mất lock (`Lost()` bị đóng, sau 3 lần monitor thử lại),
+   khi task trả về lỗi, hoặc khi `ctx` kết thúc. Elector xoá `Leader()`
+   **trước** khi cancel `ctx` của task, chờ task dừng, nhả lock rồi tranh
+   lại (chờ 5s nếu term thất bại).
+
+Task trả về `nil` thì vẫn giữ quyền leader cho tới khi mất lock;
+`Run(ctx, nil)` chỉ giữ quyền leader.
+
+Chuyển leader:
+
+- Dừng bình thường: lock được nhả, node khác lên leader trong vài mili giây.
+- Leader chết hoặc mất kết nối Consul: session hết hạn sau TTL, rồi tới
+  lock-delay của Consul (15s), nên zone không có leader khoảng 30s.
+
+**Fencing.** Leader cũ vẫn có thể hành động thêm một lúc (GC pause, mạng bị
+chia cắt) trước khi thấy `Lost()`. Mọi lần leader ghi state dùng chung phải
+gửi kèm `term.Index`, và nơi lưu trữ phải từ chối index nhỏ hơn index lớn
+nhất đã thấy. Riêng elector không thể tự đảm bảo điều này.
+
+**Wiring.** [cmd/szedge/v1/server/leader.go](../../cmd/szedge/v1/server/leader.go)
+chạy elector như một szrunner app riêng (`Inject(leader.New)`,
+`Serve(e.Run(ctx, nil))`). Mỗi app có container fx riêng, nên app
+`edgeServer`/`grpcServer` không truy cập được `Elector`; việc cần làm cho cả
+zone phải đặt trong `Task`.
+
+**Deploy.** [deploy/docker/cluster/docker-compose.yaml](../../deploy/docker/cluster/docker-compose.yaml)
+chạy hai edge trong zone `SGN` cùng một Consul ở dev mode. Production cần 3
+hoặc 5 server Consul: nếu Consul không đạt quorum thì không zone nào bầu
+được leader.
+
 ## 3.9 gRPC EdgeService
 
-`edgepb.EdgeService` có `Status` và `EvaluateRuleset`
-([internal/dmz/edge/api/api.go](../../internal/dmz/edge/api/api.go)), đóng gói
-trong `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`). `main` khởi chạy nó
-qua app `grpcServer` trên `defaults.EdgeAddress`; `EvaluateRuleset` đang đánh
-giá một `Expression` rỗng.
+`edgepb.EdgeService` chỉ còn `Status`, trả về `OK`
+([internal/dmz/edge/api.go](../../internal/dmz/edge/api.go), package `edge`).
+Nó được đóng gói trong `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`), và
+`main` khởi chạy nó qua app `grpcServer` trên `defaults.EdgeAddress`. RPC
+`EvalCoreRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
+`szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` hiện là package rỗng.
 
 ## 3.10 Chọn engine
 

@@ -50,6 +50,8 @@ func load() (*settingpb.Config, error) {
 		settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT,
 		settingpb.Senz_SENZ_OTLP_EXTERNAL_ENDPOINT,
 		settingpb.Senz_SENZ_KAFKA_BROKERS,
+		settingpb.Senz_SENZ_CONSUL_URI,
+		settingpb.Senz_SENZ_ZONE,
 	)
 	if err != nil {
 		return nil, err

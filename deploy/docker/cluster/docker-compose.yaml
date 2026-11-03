@@ -1,12 +1,27 @@
 services:
+  # dev-mode single server: run 3 or 5 Consul servers in production, so
+  # the leader lock survives the loss of one.
+  sentinez.consul:
+    image: hashicorp/consul:1.20
+    container_name: sentinez.consul
+    command: agent -dev -client=0.0.0.0
+    networks:
+      - sentinez-net
+    ports:
+      - "8500:8500"
+
   sentinez.dmz.edge.01:
     image: sentinez/edge:latest
     container_name: sentinez.dmz.edge.01
     env_file:
       - ../../../cmd/szedge/v1/.env
     environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez-edge-02:7777
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez.dmz.edge.02:7777
       - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
+      - SENZ_CONSUL_URI=sentinez.consul:8500
+      - SENZ_ZONE=SGN
+    depends_on:
+      - sentinez.consul
     networks:
       - sentinez-net
     ports:
@@ -18,13 +33,16 @@ services:
     container_name: sentinez.dmz.edge.02
     env_file:
       - ../../../cmd/szedge/v1/.env
+    environment:
+      - SENZ_MEMBERSHIP_ADDRESS=sentinez.dmz.edge.01:7777
+      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
+      - SENZ_CONSUL_URI=sentinez.consul:8500
+      - SENZ_ZONE=SGN
+    depends_on:
+      - sentinez.consul
+      - sentinez.dmz.edge.01
     networks:
       - sentinez-net
-    environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez-edge-01:7777
-      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
-    depends_on:
-      - sentinez-edge-01
     ports:
       - "8443:8443"
       - "8443:8443/udp"

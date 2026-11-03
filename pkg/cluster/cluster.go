@@ -40,7 +40,7 @@ func newConfig(appConf *settingpb.Config) *config.Config {
 	discovery := appConf.Get(settingpb.Senz_SENZ_DISCOVERY_ADDRESS)
 
 	conf := config.New("local")
-	if len(membership) != 0 && len(discovery) != 0 {
+	if appConf.Clustered() {
 		conf.Peers = []string{membership}
 
 		host, port, err := net.SplitHostPort(discovery)
