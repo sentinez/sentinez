@@ -1,0 +1,3 @@
+cmd/szcentraldata/v1 directory is where you start the centraldata version 1
+
+go run cmd/szcentraldata/v1/main.go

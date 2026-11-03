@@ -1,4 +1,4 @@
-// Copyright 2025 Sentinéz Labs.
+// Copyright 2026 Duc-Hung Ho.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package main provides the entry point for the centraldata service.
 package main
 
-func main() {
+import (
+	"context"
 
+	"github.com/sentinez/controlplane/apps/centraldata/v1"
+	"github.com/sentinez/core"
+	"github.com/sentinez/core/szgrpc"
+	"github.com/sentinez/core/szrunner"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
+	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/config"
+	"github.com/sentinez/shared/szlog"
+)
+
+func main() {
+	if err := run(); err != nil {
+		szlog.Fatal(err)
+	}
+}
+
+func run() error {
+	r, err := szrunner.New(config.Config, core.Code)
+	if err != nil {
+		return err
+	}
+
+	return r.Run(context.Background(), szrunner.NewApp(app))
+}
+
+func app(c *szrunner.Context[centraldata.CentralData]) {
+	c.Inject(centraldata.NewService)
+
+	c.Serve(func(_ context.Context, server *centraldata.CentralData) error {
+		conf, err := config.Config()
+		if err != nil {
+			return err
+		}
+
+		return server.Start(szgrpc.WithAddress(conf.GetDefault(
+			settingpb.Senz_SENZ_ADDRESS, defaults.CentralDataAddress)))
+	})
+
+	c.OnStop(func(ctx context.Context, server *centraldata.CentralData) error {
+		return server.Shutdown(ctx)
+	})
 }

@@ -12,38 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package centraldatasvc implements the centraldata business logic.
 package centraldatasvc
 
 import (
 	"context"
 
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
+	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
-var _ pb.CentralDataServiceServer = (*CentralDataService)(nil)
-
+// CentralDataService holds the centraldata dependencies.
 type CentralDataService struct {
 	config *settingpb.Config
-	tx     *postgres.Tx
+	memory *memrepo.Memory
 }
 
+// New creates a CentralDataService keeping its data in memory.
 func New(config *settingpb.Config,
-	tx *postgres.Tx,
-) *CentralDataService {
+	memory *memrepo.Memory) *CentralDataService {
 
 	return &CentralDataService{
 		config: config,
-		tx:     tx,
+		memory: memory,
 	}
 }
 
-func (srv *CentralDataService) Status(ctx context.Context,
-	req *pb.StatusRequest) (*pb.StatusResponse, error) {
-
-	_ = ctx
-	_ = req
-
-	return &pb.StatusResponse{Msg: "OK"}, nil
+// Status reports the service health.
+func (srv *CentralDataService) Status(_ context.Context,
+	_ *centraldatapb.StatusRequest,
+) (*centraldatapb.StatusResponse, error) {
+	return &centraldatapb.StatusResponse{Msg: "ok"}, nil
 }

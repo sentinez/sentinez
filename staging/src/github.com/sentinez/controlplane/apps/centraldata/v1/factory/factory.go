@@ -12,30 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package centraldatafac builds centraldata services and handlers.
 package centraldatafac
 
 import (
-	"context"
-
 	centraldatahdl "github.com/sentinez/controlplane/apps/centraldata/v1/handler"
+	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
-func NewDefaultService(_ context.Context,
-	appConf *settingpb.Config) *centraldatasvc.CentralDataService {
+// NewDefaultService returns the centraldata service backed by memory.
+func NewDefaultService(
+	conf *settingpb.Config,
+) (*centraldatasvc.CentralDataService, error) {
+	memory, err := memrepo.New()
+	if err != nil {
+		return nil, err
+	}
 
-	tx := postgres.NewTX(appConf)
-
-	return centraldatasvc.New(appConf, tx)
+	return centraldatasvc.New(conf, memory), nil
 }
 
-func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
-) pb.CentralDataServiceServer {
+// NewDefaultHandler returns the default centraldata handler.
+func NewDefaultHandler(
+	conf *settingpb.Config,
+) (centraldatapb.CentralDataServiceServer, error) {
+	service, err := NewDefaultService(conf)
+	if err != nil {
+		return nil, err
+	}
 
-	service := NewDefaultService(ctx, appConf)
-
-	return centraldatahdl.New(service)
+	return centraldatahdl.New(service), nil
 }
