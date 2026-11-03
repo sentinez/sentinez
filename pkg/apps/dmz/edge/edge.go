@@ -26,7 +26,6 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	edgeapi "github.com/sentinez/sentinez/internal/dmz/edge/api"
 	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"
@@ -82,7 +81,6 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		memstore:    mem,
 		conf:        conf,
 		logExporter: logExporter,
-		service:     edgeapi.New(),
 	}, nil
 }
 
@@ -98,7 +96,6 @@ type Server struct {
 	setting     *edgepb.Setting
 	memstore    *memory.MemStore
 	chain       *chains.Chain
-	service     *edgeapi.EdgeService
 	logExporter *szsdklog.Exporter
 }
 
