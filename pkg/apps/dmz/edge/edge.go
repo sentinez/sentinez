@@ -32,7 +32,6 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/sznormalize"
 	"github.com/sentinez/shared/szsdklog"
 )
 
@@ -63,8 +62,6 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	sznormalize.NormalizeEdgeSetting(localSetting)
 
 	mem, err := memory.NewMemStore(conf)
 	if err != nil {

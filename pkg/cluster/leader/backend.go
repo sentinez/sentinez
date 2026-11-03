@@ -18,20 +18,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/sentinez/sentinez/api/client/consul"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szrand"
 )
 
 const (
 	_keyPrefix  = "sentinez/dmz/edge/leader/"
 	_sessionTTL = 15 * time.Second
-	_nodeIdLen  = 6
 )
 
 var (
@@ -44,7 +42,7 @@ var (
 // elected through a Consul lock on its zone; a lone edge without
 // SENZ_CONSUL_URI always leads.
 func New(conf *settingpb.Config) (*Elector, error) {
-	node, err := nodeId()
+	node, err := cluster.NodeId()
 	if err != nil {
 		return nil, err
 	}
@@ -79,22 +77,6 @@ func New(conf *settingpb.Config) (*Elector, error) {
 	e.zone = newZoneStore(client, zone)
 
 	return e, nil
-}
-
-// nodeId names this process: the hostname alone is not unique when
-// several edges share a host.
-func nodeId() (string, error) {
-	host, err := os.Hostname()
-	if err != nil {
-		return "", fmt.Errorf("leader: hostname: %w", err)
-	}
-
-	suffix, err := szrand.RandomString(_nodeIdLen)
-	if err != nil {
-		return "", fmt.Errorf("leader: node id: %w", err)
-	}
-
-	return host + "-" + suffix, nil
 }
 
 // consulBackend elects through a Consul lock: Consul serves it from its

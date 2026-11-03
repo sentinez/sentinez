@@ -13,7 +13,7 @@ Mã nguồn liên quan:
 | [internal/handlers/](../../internal/handlers/) | Các plugin của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
-| [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `DMap[T]` generic |
+| [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `SyncMap[T]` (memory đồng bộ giữa các edge) |
 | [pkg/cluster/leader/](../../pkg/cluster/leader/) | Bầu leader theo zone (session lock của Consul) |
 | [contrib/httphz](../../staging/src/github.com/sentinez/contrib/httphz/) | Server Hertz + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../../pkg/network/) | Listener TCP (`StdListener`/`StdConn`, có ID) và QUIC (`QuicListener`), transport `net/http` |
@@ -33,9 +33,9 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
      ├─ Inject(config.Config, leader.New)
      └─ Serve(e.Run(ctx, e.PublishStatus()))  // leader theo zone, xem 3.8
 
-edge.NewServer(conf, setting)
- ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime proto
- ├─ memory.NewMemStore(setting)             // singleton, lưu Setting vào map
+edge.NewServer(conf)
+ ├─ edgeyaml.LoadSetting(conf)              // setting *Lite thô của proxy.yaml
+ ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + SyncMap setting
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
@@ -43,8 +43,9 @@ edge.NewServer(conf, setting)
 
 Server.Start()
  ├─ initialize()
- │   ├─ mem.Start(conf)        → cluster.Start: olric.New + db.Start (goroutine)
- │   ├─ mem.LoadServer(server) → với mỗi Setting: route, reverse proxy, CDN, SecRule, limiter, WAF
+ │   ├─ mem.Sync(ctx, server, setting)  // 30s: đợi Olric, nạp setting của cluster,
+ │   │                                  // chia sẻ setting này; mỗi thay đổi dựng lại route,
+ │   │                                  // reverse proxy, CDN, SecRule, limiter, WAF
  │   └─ server.Handle(http.Init(conf, mem).Handle)
  ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
  ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
@@ -345,7 +346,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 
 | Kho | Kiểu | Nội dung |
 |---|---|---|
-| `settings.Setting` | `Map[string,*edgepb.Setting]` | Setting gốc, chỉ nằm trên edge |
+| `settings.Setting` | `Map[string,*edgepb.Setting]` | Setting đã normalize theo namespace, dựng lại từ setting được đồng bộ (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Location đã sắp xếp |
 | `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | `Entry{Eval, Rule}` đã compile, lọc active, sort theo priority |
@@ -362,12 +363,80 @@ Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 - `NewCluster` tạo Olric với config `local`. Nếu config là `Clustered()`
   (có cả `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS`) thì đặt `Peers`
   và bind memberlist theo discovery address.
-- `DMap[T]` là wrapper generic lưu proto đã `proto.Marshal`. Khi cluster chưa
-  sẵn sàng, `Put` đẩy vào channel đệm 1024 phần tử; goroutine `wait()` đợi
-  `dictReady` rồi tạo DMap và xả hàng đợi.
-- Không còn chỗ nào dùng `DMap`: các edge không ghi `Setting` vào đó nữa.
-  Olric không có compare-and-swap, nên không được giữ state do leader ghi;
+- Olric không có compare-and-swap, nên không được giữ state do leader ghi;
   state đó nằm ở Consul, nơi việc ghi có fencing (xem bên dưới).
+- `Cluster.Ready()` được đóng khi Olric nhận kết nối, dù chạy cluster hay
+  không, và `Cluster.Node()` là tên của process (`<hostname>-<6 ký tự>`).
+
+### Đồng bộ memory giữa các edge
+
+`cluster.SyncMap[T]` ([syncmap.go](../../pkg/cluster/syncmap.go),
+[syncmap_run.go](../../pkg/cluster/syncmap_run.go)) giữ một map giá trị proto
+giống nhau trên mọi edge của cluster, mà không đưa Olric vào đường đi của
+request. Đo trên một node, `Get` của Olric embedded mất ~500 ns so với ~20 ns
+của `Load` trên `sync.Map` (~1,3 µs so với 2 ns khi đọc song song một key
+nóng), và key do node khác giữ còn tốn thêm một round trip mạng.
+
+| Thao tác | Việc nó làm |
+|---|---|
+| `Load`, `Range` | Chỉ đọc `szsync.Map` local: không lock, không bao giờ qua Olric |
+| `Store(ctx, key, v)`, `Delete(ctx, key)` | Áp dụng local, `Put` record vào DMap `<name>`, rồi `Publish` nó lên kênh PubSub Olric `sentinez.sync.<name>` |
+| `Start(ctx)` | Đợi `Cluster.Ready()`, subscribe, rồi nạp toàn bộ DMap (`Scan` + `Get`) |
+| mỗi 30s | Đối soát: lấy các record trong DMap mới hơn bản local, ghi lại các bản local mà DMap thiếu hoặc giữ bản cũ hơn |
+| `Close()` | Dừng đồng bộ; giá trị local vẫn giữ |
+
+- **Thứ tự.** Mỗi lần ghi là một record `{version, origin, deleted,
+  payload}`. `version` lấy từ hybrid logical clock: nano giây theo đồng hồ
+  thật, không bao giờ lùi và luôn vượt mọi version node đã áp dụng, nên lần
+  ghi tiếp theo của một node luôn xếp sau những gì nó đã thấy dù đồng hồ
+  lệch. Hoà thì so `origin` (tên node). Record chỉ được áp dụng nếu mới hơn:
+  người ghi sau cùng thắng, và mọi node hội tụ về cùng một giá trị.
+- **Mất message.** PubSub của Olric là at most once: node không đang
+  subscribe (restart, mạng chia cắt) sẽ lỡ message. `Start` subscribe trước
+  rồi mới nạp nên không mất lần ghi nào ở giữa, phần còn lại do đối soát
+  định kỳ vá trong vòng 30s.
+- **Ghi đồng thời.** Hai node cùng ghi một key có thể để lại record cũ hơn
+  trong DMap (hai `Put` tranh nhau); lần đối soát của node giữ bản mới hơn sẽ
+  ghi đè lại.
+- **Xoá** là tombstone: giữ 24h trong DMap (`EX`) và ở local, để giá trị cũ
+  không quay lại.
+- **Ghi trước `Start`** chỉ ở local; lần nạp đầu tiên sẽ chia sẻ chúng.
+
+Không dùng cho: bộ đếm (hai lần tăng cùng lúc sẽ mất một: dùng `Incr` của
+Olric), và state cần thứ tự chặt giữa các node (đồng hồ lệch quá giới hạn
+của HLC có thể đảo thứ tự hai lần ghi đồng thời): state đó nằm ở Consul có
+fencing.
+
+`OnChange(fn(key, prev, next))` báo mỗi lần một key đổi giá trị trên node,
+dù do ghi tại đó, nhận về hay đối soát; `prev`/`next` là `nil` khi key chưa
+có hoặc không còn giá trị. Các lần gọi tuần tự theo đúng thứ tự áp dụng.
+
+### Setting giữa các edge
+
+Các store hot path (route, reverse proxy, CDN, SecRule, limiter, WAF) giữ
+giá trị đã compile, không gửi qua mạng được (`coraza.WAF`, proxy kèm
+transport, limiter kèm bộ đếm). Vì vậy các edge đồng bộ **nguồn** là
+`edgepb.Setting` thô, và mỗi node tự compile store của mình từ đó
+([internal/memory/sync.go](../../internal/memory/sync.go)):
+
+- `MemStore` giữ một `SyncMap` `sentinez.dmz.edge.settings` key theo
+  `metadata.resource_id`, id của domain resource. Setting không có id chỉ
+  được nạp trên edge của nó, kèm cảnh báo.
+- `MemStore.Sync(ctx, server, local...)` khởi động map (đợi Olric, nạp
+  setting của cluster), rồi chia sẻ `local`. `SyncMap.Store` bỏ qua giá trị
+  bằng giá trị đang giữ (cùng mã hoá tất định), nên restart không làm mọi
+  edge dựng lại nó.
+- Mỗi lần thay đổi (`OnChange`), node normalize một bản sao
+  (`sznormalize.NormalizeEdgeSetting`) rồi dựng lại store của namespace
+  (`server.name`) mà request vẫn dùng để định tuyến. Namespace đổi tên hoặc
+  resource bị xoá thì được gỡ trước.
+- Một namespace thuộc về một resource: resource thứ hai nhận cùng namespace
+  sẽ không được nạp (có log), và không gỡ được namespace đó.
+- Request vẫn chỉ đọc các `szsync.Map` local (~20 ns); Olric không bao giờ
+  nằm trên đường đi của request.
+
+Bộ đếm rate limiter và JA4 fingerprint không được đồng bộ: mỗi edge giới
+hạn phần traffic của nó, và một kết nối TLS chỉ đến một edge.
 
 ### Bầu leader theo zone
 

@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"sync"
 
@@ -26,20 +27,26 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/szrand"
 )
+
+const _nodeIdLen = 6
 
 var (
-	_dict      *Cluster
-	_once      sync.Once
-	_dictReady = make(chan bool, 1)
-	_newErr    error
+	_dict   *Cluster
+	_once   sync.Once
+	_newErr error
 )
 
-func newConfig(appConf *settingpb.Config) *config.Config {
+// newConfig is the Olric config of appConf; started is called once the
+// node accepts connections, clustered or not.
+func newConfig(appConf *settingpb.Config, started func()) *config.Config {
 	membership := appConf.Get(settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS)
 	discovery := appConf.Get(settingpb.Senz_SENZ_DISCOVERY_ADDRESS)
 
 	conf := config.New("local")
+	conf.Started = started
+
 	if appConf.Clustered() {
 		conf.Peers = []string{membership}
 
@@ -57,46 +64,53 @@ func newConfig(appConf *settingpb.Config) *config.Config {
 		conf.MemberlistConfig.BindPort = defaults.DiscoveryPort
 	}
 
-	conf.Started = func() {
-		_dictReady <- true
-		szlog.Infof("cluster:olric: ready to accept connection")
-	}
-
 	return conf
 }
 
 func NewCluster(appConf *settingpb.Config) (*Cluster, error) {
-	_once.Do(func() {
-		db, err := olric.New(newConfig(appConf))
-		if err != nil {
-			_newErr = fmt.Errorf("cluster: new olric: %w", err)
-			return
-		}
-
-		_dict = &Cluster{
-			db:     db,
-			client: db.NewEmbeddedClient(),
-			done:   make(chan struct{}),
-		}
-	})
+	_once.Do(func() { _dict, _newErr = newCluster(appConf) })
 
 	return _dict, _newErr
+}
+
+func newCluster(appConf *settingpb.Config) (*Cluster, error) {
+	node, err := NodeId()
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Cluster{
+		node:  node,
+		ready: make(chan struct{}),
+		done:  make(chan struct{}),
+	}
+
+	db, err := olric.New(newConfig(appConf, c.markReady))
+	if err != nil {
+		return nil, fmt.Errorf("cluster: new olric: %w", err)
+	}
+
+	c.db = db
+	c.client = db.NewEmbeddedClient()
+
+	return c, nil
 }
 
 type Cluster struct {
 	db     *olric.Olric
 	client *olric.EmbeddedClient
-	done   chan struct{}
+	// node names this process in the cluster
+	node      string
+	ready     chan struct{}
+	readyOnce sync.Once
+	done      chan struct{}
 }
 
-func (c *Cluster) NewDMap[T any](name string) *DMap[T] {
-	m := &DMap[T]{
-		name: name,
-		temp: make(chan objKV[T], _defaultChanBufferSize),
-	}
-	go m.wait()
-	return m
-}
+// Ready is closed once the node accepts connections.
+func (c *Cluster) Ready() <-chan struct{} { return c.ready }
+
+// Node names this process in the cluster.
+func (c *Cluster) Node() string { return c.node }
 
 // Start serves the cluster in the background until Shutdown is called.
 func (c *Cluster) Start() {
@@ -107,6 +121,30 @@ func (c *Cluster) Start() {
 			szlog.Errorf("cluster: start: %v", err)
 		}
 	}()
+}
+
+// markReady closes Ready, once: Olric may report started again.
+func (c *Cluster) markReady() {
+	c.readyOnce.Do(func() {
+		close(c.ready)
+		szlog.Infof("cluster:olric: ready to accept connection")
+	})
+}
+
+// NodeId returns a new name for this process: the hostname alone is not
+// unique when several edges share a host.
+func NodeId() (string, error) {
+	host, err := os.Hostname()
+	if err != nil {
+		return "", fmt.Errorf("cluster: hostname: %w", err)
+	}
+
+	suffix, err := szrand.RandomString(_nodeIdLen)
+	if err != nil {
+		return "", fmt.Errorf("cluster: node id: %w", err)
+	}
+
+	return host + "-" + suffix, nil
 }
 
 // Shutdown stops the cluster and waits for Start to return or ctx to end.

@@ -115,3 +115,12 @@ func crsMap(version corerulesetpb.Version) (fs.FS, error) {
 
 	return nil, fmt.Errorf("waf: coreruleset version invalid")
 }
+
+// Delete removes what namespace holds.
+func (rs *Rulesets) Delete(namespace string) {
+	if rs == nil {
+		return
+	}
+
+	rs.space.Delete(namespace)
+}

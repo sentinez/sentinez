@@ -134,7 +134,7 @@ when `level >= verbosity`.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pools for `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/cluster` | Embedded Olric + generic `DMap[T]`, see [03-edge.md](03-edge.md#38-cluster-olric) |
+| `pkg/cluster` | Embedded Olric; `SyncMap[T]` syncs a local map between edges, see [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Zone leader election through a Consul session lock; the leader keeps the zone status in Consul KV with fenced writes (`api/client/consul` `PutFenced`), see [03-edge.md](03-edge.md#zone-leader-election) |
 
 ## 9.7 `contrib/httphz`

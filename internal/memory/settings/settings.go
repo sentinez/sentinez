@@ -27,8 +27,8 @@ var (
 	_inst *Setting
 )
 
-// New returns the settings of this edge, by namespace. They stay local:
-// the zone leader publishes its setting to Consul (leader.Publish).
+// New returns the settings of this edge, by namespace, as synced between
+// the edges (memory.MemStore.Sync).
 func New() *Setting {
 	_once.Do(func() {
 		_inst = &Setting{
@@ -43,15 +43,14 @@ type Setting struct {
 	setting *szsync.Map[string, *edgepb.Setting]
 }
 
-func (s *Setting) Store(st *edgepb.Setting) error {
-	ns := st.GetServer().GetName()
-	if _, ok := s.setting.Load(ns); ok {
-		return szerror.F("mem:setting:store:namespace %s already exists", ns)
-	}
+// Store sets the setting of its namespace, replacing the previous one.
+func (s *Setting) Store(st *edgepb.Setting) {
+	s.setting.Store(st.GetServer().GetName(), st)
+}
 
-	s.setting.Store(ns, st)
-
-	return nil
+// Delete removes the setting of namespace.
+func (s *Setting) Delete(namespace string) {
+	s.setting.Delete(namespace)
 }
 
 func (s *Setting) Load(namespace string) (*edgepb.Setting, error) {

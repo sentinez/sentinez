@@ -13,7 +13,7 @@ Relevant source:
 | [internal/handlers/](../internal/handlers/) | Middleware chain plugins |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
-| [pkg/cluster/](../pkg/cluster/) | Embedded Olric + generic `DMap[T]` |
+| [pkg/cluster/](../pkg/cluster/) | Embedded Olric + `SyncMap[T]` (memory synced between edges) |
 | [pkg/cluster/leader/](../pkg/cluster/leader/) | Zone leader election (Consul session lock) |
 | [contrib/httphz](../staging/src/github.com/sentinez/contrib/httphz/) | Hertz server + `szhttp.Context` + reverse proxy |
 | [pkg/network/](../pkg/network/) | TCP (`StdListener`/`StdConn`, with IDs) and QUIC (`QuicListener`) listeners, `net/http` transport |
@@ -33,9 +33,9 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
      ├─ Inject(config.Config, leader.New)
      └─ Serve(e.Run(ctx, e.PublishStatus()))  // zone leader, see 3.8
 
-edge.NewServer(conf, setting)
- ├─ sznormalize.NormalizeEdgeSetting(setting)   // *Lite (YAML) → runtime protos
- ├─ memory.NewMemStore(setting)             // singleton; stores Setting in a map
+edge.NewServer(conf)
+ ├─ edgeyaml.LoadSetting(conf)              // raw *Lite setting of proxy.yaml
+ ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + settings SyncMap
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
@@ -43,8 +43,9 @@ edge.NewServer(conf, setting)
 
 Server.Start()
  ├─ initialize()
- │   ├─ mem.Start(conf)        → cluster.Start: olric.New + db.Start (goroutine)
- │   ├─ mem.LoadServer(server) → for each Setting: routes, reverse proxies, CDN, SecRule, limiter, WAF
+ │   ├─ mem.Sync(ctx, server, setting)  // 30s: wait for Olric, load the cluster's settings,
+ │   │                                  // share this one; each change rebuilds routes,
+ │   │                                  // reverse proxies, CDN, SecRule, limiter, WAF
  │   └─ server.Handle(http.Init(conf, mem).Handle)
  ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
  ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
@@ -355,7 +356,7 @@ A reverse proxy is created once per `upstream.server` in
 
 | Store | Type | Contents |
 |---|---|---|
-| `settings.Setting` | `Map[string,*edgepb.Setting]` | Original Settings, local to the edge |
+| `settings.Setting` | `Map[string,*edgepb.Setting]` | Normalized Settings by namespace, rebuilt from the synced settings (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Sorted locations |
 | `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
 | `secrules.SecRule` | `Map[string,[]Entry]` | Compiled `Entry{Eval, Rule}`, active only, sorted by priority |
@@ -372,13 +373,82 @@ All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 - `NewCluster` creates Olric with the `local` config. If the config is
   `Clustered()` (both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS`
   are set), it sets `Peers` and binds memberlist to the discovery address.
-- `DMap[T]` is a generic wrapper that stores `proto.Marshal`-ed messages.
-  While the cluster is not ready, `Put` pushes into a channel buffered at
-  1024 entries; the `wait()` goroutine waits for `dictReady`, creates the
-  DMap and drains the queue.
-- Nothing uses a `DMap` any more: the edges no longer write their `Setting`
-  to it. Olric has no compare-and-swap, so it must not hold state a leader
+- Olric has no compare-and-swap, so it must not hold state a leader
   writes; that goes to Consul, where the writes are fenced (see below).
+- `Cluster.Ready()` is closed once Olric accepts connections, clustered or
+  not, and `Cluster.Node()` names the process (`<hostname>-<6 chars>`).
+
+### Syncing memory between edges
+
+`cluster.SyncMap[T]` ([syncmap.go](../pkg/cluster/syncmap.go),
+[syncmap_run.go](../pkg/cluster/syncmap_run.go)) keeps a map of proto
+values the same on every edge of the cluster, without putting Olric on the
+request path. Measured on one node, an embedded Olric `Get` takes ~500 ns
+against ~20 ns for a `sync.Map` `Load` (~1.3 µs against 2 ns on a hot key
+read in parallel), and a key owned by another node costs a network round
+trip on top.
+
+| Operation | What it does |
+|---|---|
+| `Load`, `Range` | Read the local `szsync.Map` only: lock-free, never Olric |
+| `Store(ctx, key, v)`, `Delete(ctx, key)` | Apply locally, `Put` the record in the DMap `<name>`, then `Publish` it on the Olric PubSub channel `sentinez.sync.<name>` |
+| `Start(ctx)` | Wait for `Cluster.Ready()`, subscribe, then load the whole DMap (`Scan` + `Get`) |
+| every 30s | Reconcile: take the DMap records newer than the local ones, write back the local ones the DMap lacks or holds older |
+| `Close()` | Stop syncing; the local values stay |
+
+- **Ordering.** Each write is a record `{version, origin, deleted,
+  payload}`. `version` comes from a hybrid logical clock: wall nanoseconds
+  that never go back and move past every version the node applied, so a
+  node's next write orders after what it saw even with clock drift. Ties
+  break on `origin` (the node). A record applies only if it is newer:
+  last writer wins, and every node converges to the same value.
+- **Lost messages.** Olric PubSub is at most once: a node that is not
+  subscribed (restart, partition) misses the message. `Start` subscribes
+  before it loads, so nothing written in between is lost, and the periodic
+  reconcile repairs the rest, within 30s.
+- **Concurrent writes.** Two nodes writing a key at once may leave the
+  older record in the DMap (the `Put`s race); the reconcile of the node that
+  holds the newer one writes it back.
+- **Deletes** are tombstones: kept 24h in the DMap (`EX`) and locally, so an
+  older value cannot come back.
+- **Writes before `Start`** stay local; the first load shares them.
+
+What it is not for: counters (two increments at once lose one: use
+Olric `Incr` instead), and state that must be strictly ordered across nodes
+(clock drift beyond the HLC bound can reorder concurrent writes): that goes
+to Consul with fencing.
+
+`OnChange(fn(key, prev, next))` reports each change of a key on the node,
+whether written there, received or reconciled; `prev`/`next` is `nil` when
+the key had or has no value. Calls are serialized in the order changes
+apply.
+
+### Settings between edges
+
+The hot-path stores (routes, reverse proxies, CDN, SecRule, limiter, WAF)
+hold compiled values that cannot cross the network (`coraza.WAF`, proxies
+with their transports, limiters with their counters). So the edges sync
+the **source**, the raw `edgepb.Setting`, and each node compiles its own
+stores from it ([internal/memory/sync.go](../internal/memory/sync.go)):
+
+- `MemStore` holds a `SyncMap` `sentinez.dmz.edge.settings` keyed by
+  `metadata.resource_id`, the id of the domain resource. A setting without
+  one is loaded on its edge only, with a warning.
+- `MemStore.Sync(ctx, server, local...)` starts the map (waits for Olric,
+  loads the cluster's settings), then shares `local`. `SyncMap.Store`
+  skips a value equal to the one it holds (same deterministic encoding), so
+  a restart does not make every edge rebuild it.
+- On each change (`OnChange`), the node normalizes a copy
+  (`sznormalize.NormalizeEdgeSetting`) and rebuilds the stores of its
+  namespace (`server.name`), which requests still route by. A namespace
+  that changed name, or a deleted resource, is unloaded first.
+- A namespace belongs to one resource: a second resource claiming it is
+  not loaded (logged), and cannot unload it.
+- Requests keep reading the local `szsync.Map`s (~20 ns); Olric is never on
+  the request path.
+
+Rate-limiter counters and JA4 fingerprints are not synced: each edge limits
+its own share of the traffic, and a TLS connection only lands on one edge.
 
 ### Zone leader election
 
