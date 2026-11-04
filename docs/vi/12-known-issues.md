@@ -10,7 +10,6 @@ xoá mục tương ứng.
 | # | Vị trí | Vấn đề | Hậu quả |
 |---|---|---|---|
 | 2 | [controlplane/apps/security/v1/repos/secrule/secrule.go](../../staging/src/github.com/sentinez/controlplane/apps/security/v1/repos/secrule/secrule.go) `Update` | Chỉ cập nhật `name`, `description`, `expr`, `status` | Sửa `priority`/`action` qua API không được lưu |
-| 3 | [pkg/cluster/cluster.go](../../pkg/cluster/cluster.go) `newConfig` | Khi có cả membership và discovery address hợp lệ, hàm `return conf` trước khi gán `conf.Started` | `dictReady` không bao giờ được báo → DMap không khởi tạo; sau 1024 lần `Put`, goroutine gọi sẽ bị block |
 | 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` sửa trường của proxy dùng chung | Target WebSocket dài thêm sau mỗi request, có data race |
 | 8 | [contrib/httphz/server.go](../../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | Vòng `fn = s.chains[i](fn)` nằm **trong** handler, gán lại biến capture | Mỗi request bọc thêm middleware một lần nữa (hiện chưa lộ vì edge không gọi `Use`) |
 | 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy` | Location không có upstream gây panic; không cân bằng tải |
@@ -38,8 +37,13 @@ xoá mục tương ứng.
 - `szcentraldata`: `main()` rỗng. `AnalyticService` không được mount vào
   apiserver. Discovery Consul (`WithDiscorvery`, `VisitToEndpoint`) có code
   nhưng chưa bật.
-- `EdgeService.EvaluateRuleset` đánh giá
-  `Expression` rỗng (luôn khớp) và bỏ qua `ruleset_id`.
+- Leader theo zone mới chỉ ghi zone status
+  (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` và
+  `leader.All` đã sẵn cho các bản ghi zone-wide khác nhưng chưa có bản ghi
+  nào. Cũng chưa có gì đọc status.
+- Gỡ một namespace (resource bị xoá, `server.name` đổi tên) vẫn giữ các
+  reverse proxy của nó: chúng được key theo upstream và dùng chung giữa các
+  namespace, không có đếm tham chiếu.
 - Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.

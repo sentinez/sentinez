@@ -35,6 +35,9 @@ Common pattern: a `golang:1.27.1-alpine` stage (CGO off, `go mod tidy`,
 
 Redis, TimescaleDB and NATS are defined but commented out. There are also
 `deploy/docker/{cluster,mesh}/docker-compose.yaml` for multi-node scenarios.
+`cluster/` runs two edges (`sentinez.dmz.edge.01`/`02`) that join each other's
+Olric on port 7777 in zone `SGN`, plus a dev-mode `sentinez.consul` for the
+zone leader election ([3.8](03-edge.md#zone-leader-election)).
 
 ## 11.3 Other configs in `deploy/`
 

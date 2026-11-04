@@ -59,7 +59,7 @@ func (rs *Rulesets) Store(
 		return nil
 	}
 
-	waf, err := NewWAF(setting)
+	waf, err := newWAF(setting)
 	if err != nil {
 		return err
 	}
@@ -94,9 +94,9 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 	return rs.Load(ctx.X().GetNamespace())
 }
 
-// NewWAF builds the coraza.WAF of setting from the embedded CRS of its
+// newWAF builds the coraza.WAF of setting from the embedded CRS of its
 // version.
-func NewWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
+func newWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
 	rootFs, err := crsMap(setting.GetVersion())
 	if err != nil {
 		return nil, err
@@ -114,4 +114,13 @@ func crsMap(version corerulesetpb.Version) (fs.FS, error) {
 	}
 
 	return nil, fmt.Errorf("waf: coreruleset version invalid")
+}
+
+// Delete removes what namespace holds.
+func (rs *Rulesets) Delete(namespace string) {
+	if rs == nil {
+		return
+	}
+
+	rs.space.Delete(namespace)
 }

@@ -97,3 +97,8 @@ func (sr *SecRule) LoadContext(ctx szhttp.Context) []Entry {
 
 	return sr.Load(ctx.X().GetNamespace())
 }
+
+// Delete removes what namespace holds.
+func (sr *SecRule) Delete(namespace string) {
+	sr.chains.Delete(namespace)
+}

@@ -20,7 +20,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -34,25 +36,41 @@ type testConfig struct {
 	Enabled bool   `json:"enabled" toml:"enabled"`
 }
 
-// fakeKV serves the subset of the Consul KV HTTP API the client uses.
+// fakeKV serves the subset of the Consul KV HTTP API the client uses,
+// with the ModifyIndex of each key and ?cas= writes.
 type fakeKV struct {
-	mu   sync.Mutex
-	data map[string][]byte
+	mu    sync.Mutex
+	data  map[string][]byte
+	index map[string]uint64
+	last  uint64
+	// casMiss fails that many CAS writes, as if another writer won
+	casMiss int
 }
 
 type kvPair struct {
-	Key   string `json:"Key"`
-	Value []byte `json:"Value"`
+	Key         string `json:"Key"`
+	Value       []byte `json:"Value"`
+	ModifyIndex uint64 `json:"ModifyIndex"`
 }
 
 func newTestClient(t *testing.T) *Client {
 	t.Helper()
-	srv := httptest.NewServer(&fakeKV{data: make(map[string][]byte)})
+	c, _ := newTestKV(t)
+	return c
+}
+
+func newTestKV(t *testing.T) (*Client, *fakeKV) {
+	t.Helper()
+	kv := &fakeKV{
+		data:  make(map[string][]byte),
+		index: make(map[string]uint64),
+	}
+	srv := httptest.NewServer(kv)
 	t.Cleanup(srv.Close)
 
 	c, err := New(strings.TrimPrefix(srv.URL, "http://"))
 	require.NoError(t, err)
-	return c
+	return c, kv
 }
 
 func (f *fakeKV) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -63,8 +81,8 @@ func (f *fakeKV) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		body, _ := io.ReadAll(r.Body)
-		f.data[key] = body
-		_, _ = w.Write([]byte("true"))
+		ok := f.put(key, body, r.URL.Query())
+		_, _ = w.Write([]byte(strconv.FormatBool(ok)))
 	case http.MethodDelete:
 		delete(f.data, key)
 		_, _ = w.Write([]byte("true"))
@@ -73,11 +91,32 @@ func (f *fakeKV) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// put stores body under key, unless ?cas= does not match its index.
+func (f *fakeKV) put(key string, body []byte, query url.Values) bool {
+	if query.Has("cas") {
+		if f.casMiss > 0 {
+			f.casMiss--
+			return false
+		}
+
+		cas, _ := strconv.ParseUint(query.Get("cas"), 10, 64)
+		if cas != f.index[key] {
+			return false
+		}
+	}
+
+	f.last++
+	f.data[key] = body
+	f.index[key] = f.last
+	return true
+}
+
 func (f *fakeKV) serveGet(w http.ResponseWriter, key string, recurse bool) {
 	var pairs []kvPair
 	for k, v := range f.data {
 		if k == key || (recurse && strings.HasPrefix(k, key)) {
-			pairs = append(pairs, kvPair{Key: k, Value: v})
+			pairs = append(pairs,
+				kvPair{Key: k, Value: v, ModifyIndex: f.index[k]})
 		}
 	}
 	if len(pairs) == 0 {

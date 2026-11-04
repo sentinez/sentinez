@@ -102,14 +102,14 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_CLIENT_ORIGIN` | IAM | Origin được phép cho WebAuthn (URL console) |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |
 | `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` | — | Khai báo nhưng chưa dùng |
-| `SENZ_CONSUL_URI` | gateway, gRPC | Consul cho service discovery |
-| `SENZ_MEMBERSHIP_ADDRESS` | edge | Peer Olric để join cluster |
+| `SENZ_CONSUL_URI` | gateway, gRPC, edge | Consul cho service discovery; ở edge dùng để bầu leader theo zone ([3.8](03-edge.md#bầu-leader-theo-zone)), bắt buộc khi edge chạy cụm |
+| `SENZ_MEMBERSHIP_ADDRESS` | edge | Peer Olric để join cluster; đi cùng `SENZ_DISCOVERY_ADDRESS` thì edge được tính là chạy cụm |
 | `SENZ_DISCOVERY_ADDRESS` | edge | `host:port` bind memberlist (mặc định `0.0.0.0:3322`) |
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Tài khoản admin tĩnh |
 | `SENZ_OTLP_INTERNAL_ENDPOINT` | tất cả | Collector OTLP/gRPC cho log hệ thống; không đặt thì không push |
 | `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `LOG` trong func chains); không đặt thì không push |
 | `SENZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`shared/szkafka`); được ưu tiên hơn `SENZ_OTLP_EXTERNAL_ENDPOINT` |
-| `SENZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-crevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone |
+| `SENZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-crevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone. Cũng là zone mà edge tranh quyền leader; bắt buộc khi có `SENZ_CONSUL_URI` |
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
 service khác nạp toàn bộ enum `Senz`.
