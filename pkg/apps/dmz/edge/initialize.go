@@ -15,18 +15,27 @@
 package edge
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 )
 
-func (s *Server) initialize() error {
+// _syncTimeout bounds the wait for the cluster and the first load of the
+// settings it holds.
+const _syncTimeout = 30 * time.Second
 
-	// init cache repository
-	s.memstore.LoadSetting(s.setting)
-	s.memstore.LoadServer(s.server)
+func (s *Server) initialize() error {
+	ctx, cancel := context.WithTimeout(context.Background(), _syncTimeout)
+	defer cancel()
+
+	// load the settings of the cluster, share this edge's
+	if err := s.memstore.Sync(ctx, s.server, s.setting); err != nil {
+		return fmt.Errorf("sync settings: %w", err)
+	}
 
 	chain, err := http.NewHandler(s.memstore,
 		option.WithExporter(s.logExporter),

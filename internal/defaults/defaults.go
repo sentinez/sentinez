@@ -28,7 +28,3 @@ const (
 	CollectorAddress   = "0.0.0.0:9002"
 	CentralDataAddress = "0.0.0.0:9003"
 )
-
-const (
-	NamespaceSetting = "sentinez.dmz.edge.setting"
-)

@@ -15,12 +15,9 @@
 package settings
 
 import (
-	"context"
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/sentinez/shared/szerror"
 	"github.com/sentinez/shared/szsync"
 )
@@ -30,11 +27,12 @@ var (
 	_inst *Setting
 )
 
-func New(shared *cluster.Cluster) *Setting {
+// New returns the settings of this edge, by namespace, as synced between
+// the edges (memory.MemStore.Sync).
+func New() *Setting {
 	_once.Do(func() {
 		_inst = &Setting{
 			setting: szsync.NewMap[string, *edgepb.Setting](),
-			dmap:    shared.NewDMap[edgepb.Setting](defaults.NamespaceSetting),
 		}
 	})
 
@@ -42,19 +40,17 @@ func New(shared *cluster.Cluster) *Setting {
 }
 
 type Setting struct {
-	dmap    *cluster.DMap[edgepb.Setting]
 	setting *szsync.Map[string, *edgepb.Setting]
 }
 
-func (s *Setting) Store(st *edgepb.Setting) error {
-	ns := st.GetServer().GetName()
-	if _, ok := s.setting.Load(ns); ok {
-		return szerror.F("mem:setting:store:namespace %s already exists", ns)
-	}
+// Store sets the setting of its namespace, replacing the previous one.
+func (s *Setting) Store(st *edgepb.Setting) {
+	s.setting.Store(st.GetServer().GetName(), st)
+}
 
-	s.setting.Store(ns, st)
-
-	return s.dmap.Put(context.Background(), ns, st)
+// Delete removes the setting of namespace.
+func (s *Setting) Delete(namespace string) {
+	s.setting.Delete(namespace)
 }
 
 func (s *Setting) Load(namespace string) (*edgepb.Setting, error) {

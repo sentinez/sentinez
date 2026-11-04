@@ -34,6 +34,9 @@ Mẫu chung: stage `golang:1.27.1-alpine` (CGO tắt, `go mod tidy`, `go build
 
 Redis, TimescaleDB, NATS có sẵn nhưng đang comment. Ngoài ra còn
 `deploy/docker/{cluster,mesh}/docker-compose.yaml` cho các kịch bản nhiều node.
+`cluster/` chạy hai edge (`sentinez.dmz.edge.01`/`02`) join Olric của nhau qua
+cổng 7777 trong zone `SGN`, cùng một `sentinez.consul` ở dev mode để bầu
+leader theo zone ([3.8](03-edge.md#bầu-leader-theo-zone)).
 
 ## 11.3 Các cấu hình khác trong `deploy/`
 

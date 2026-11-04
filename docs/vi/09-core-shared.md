@@ -131,7 +131,8 @@ khi `level >= verbosity`.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/cluster` | Olric embedded + `DMap[T]` generic, xem [03-edge.md](03-edge.md#38-cluster-olric) |
+| `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge, xem [03-edge.md](03-edge.md#38-cluster-olric) |
+| `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`api/client/consul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |
 
 ## 9.7 `contrib/httphz`
 

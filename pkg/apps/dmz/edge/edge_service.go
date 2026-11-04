@@ -19,7 +19,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	edgeapi "github.com/sentinez/sentinez/internal/dmz/edge/api"
+	"github.com/sentinez/sentinez/internal/dmz/edge"
 )
 
 //
@@ -41,14 +41,14 @@ import (
 func NewService(conf *settingpb.Config) *Service {
 	return &Service{
 		Server:      szgrpc.New(),
-		EdgeService: edgeapi.New(),
+		EdgeService: edge.New(),
 		conf:        conf,
 	}
 }
 
 type Service struct {
 	*szgrpc.Server
-	*edgeapi.EdgeService
+	*edge.EdgeService
 	conf *settingpb.Config
 }
 

@@ -56,15 +56,20 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 		return _store, nil
 	}
 
-	_shared, err := cluster.NewCluster(conf)
+	shared, err := cluster.NewCluster(conf)
 	if err != nil {
 		return nil, err
 	}
 
+	// assigned, not declared: Shutdown stops the global cluster
+	_shared = shared
+
 	_shared.Start()
 
 	_store = &MemStore{
-		setting:      settings.New(_shared),
+		synced:       newSettingSync(shared),
+		owners:       make(map[string]string),
+		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
 		reverseProxy: reverseproxy.New(),
 		route:        routes.New(),
@@ -77,6 +82,14 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 }
 
 type MemStore struct {
+	// synced holds the settings of every edge of the cluster, by
+	// resource id; each change rebuilds the stores below (sync.go)
+	synced *settingSync
+	server szhttp.Server
+	// owners maps a namespace to the resource id that holds it
+	ownersMu sync.Mutex
+	owners   map[string]string
+
 	setting      *settings.Setting
 	limiter      *ratelimiter.Limiter
 	reverseProxy *reverseproxy.ReverseProxy
@@ -89,6 +102,10 @@ type MemStore struct {
 func (m *MemStore) Shutdown(ctx context.Context) error {
 	if _shared == nil {
 		return nil
+	}
+
+	if err := m.synced.Close(); err != nil {
+		szlog.Warnf("edge: close settings sync: %v", err)
 	}
 
 	return _shared.Shutdown(ctx)
@@ -150,38 +167,12 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 	return m.cdnRules
 }
 
-func (m *MemStore) LoadServer(server szhttp.Server) {
-	m.setting.Visit(func(s *edgepb.Setting) bool {
-		err := errors.Join(
-			m.LoadRouter(s),
-			m.LoadReverseProxy(server, s),
-			m.LoadCDNRule(s),
-			m.LoadSecRule(s),
-			m.LoadRateLimiter(s),
-			m.LoadRulesets(s),
-		)
-		if err != nil {
-			szlog.Errorf("edge: load '%s': %v", s.GetServer().GetName(), err)
-		}
-
-		return true
-	})
-}
-
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
 		m.cdnRules.Store(s.GetServer().GetName(), s.GetDelivery())
 	}
 
 	return nil
-}
-
-func (m *MemStore) LoadSetting(st ...*edgepb.Setting) {
-	for _, s := range st {
-		if err := m.setting.Store(s); err != nil {
-			szlog.Errorf("edge: %v", err)
-		}
-	}
 }
 
 func (m *MemStore) LoadRouter(s *edgepb.Setting) error {

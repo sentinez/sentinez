@@ -82,3 +82,8 @@ func (lim *Limiter) LoadContext(ctx szhttp.Context) []Entry {
 	szlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
 	return lim.Load(ctx.X().GetNamespace())
 }
+
+// Delete removes what serverName holds.
+func (lim *Limiter) Delete(serverName string) {
+	lim.space.Delete(serverName)
+}

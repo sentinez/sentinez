@@ -51,7 +51,9 @@ type Router struct {
 
 // nolint:funlen
 func (r *Router) Store(server *edgepb.Server) {
+	// an update without locations drops the previous routes
 	if len(server.GetLocations()) == 0 {
+		r.Delete(server.GetName())
 		return
 	}
 
@@ -202,4 +204,9 @@ func joinRewrite(dst *bytes.Buffer, rewrite, rest []byte) {
 
 	dst.Write(rewrite)
 	dst.Write(rest)
+}
+
+// Delete removes what namespace holds.
+func (r *Router) Delete(namespace string) {
+	r.routes.Delete(namespace)
 }

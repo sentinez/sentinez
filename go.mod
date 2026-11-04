@@ -22,6 +22,7 @@ require (
 	github.com/olric-data/olric v0.7.4
 	github.com/oschwald/maxminddb-golang/v2 v2.3.0
 	github.com/quic-go/quic-go v0.63.0
+	github.com/redis/go-redis/v9 v9.8.0
 	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/controlplane v0.0.0-00010101000000-000000000000
@@ -122,7 +123,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	github.com/redis/go-redis/v9 v9.8.0 // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
 	github.com/tidwall/btree v1.8.1 // indirect
