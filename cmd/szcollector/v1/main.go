@@ -19,6 +19,8 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/apps/collector/v1"
+	collectorfac "github.com/sentinez/controlplane/apps/collector/v1/factory"
+	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/core/szrunner"
@@ -40,7 +42,10 @@ func run() error {
 		return err
 	}
 
-	return r.Run(context.Background(), szrunner.NewApp(app))
+	return r.Run(context.Background(),
+		szrunner.NewApp(app),
+		szrunner.NewApp(ingestApp),
+	)
 }
 
 func app(c *szrunner.Context[collector.Collector]) {
@@ -58,5 +63,19 @@ func app(c *szrunner.Context[collector.Collector]) {
 
 	c.OnStop(func(ctx context.Context, server *collector.Collector) error {
 		return server.Shutdown(ctx)
+	})
+}
+
+// ingestApp inserts the edge events of kafka in the analytic tables.
+func ingestApp(c *szrunner.Context[ingest.Ingest]) {
+	c.Inject(collectorfac.NewDefaultIngest)
+
+	c.Serve(func(ctx context.Context, in *ingest.Ingest) error {
+		return in.Run(ctx)
+	})
+
+	c.OnStop(func(_ context.Context, in *ingest.Ingest) error {
+		in.Close()
+		return nil
 	})
 }
