@@ -268,7 +268,7 @@ Rules stored here are **not pushed to the edge yet**.
 
 | Domain | Status |
 |---|---|
-| Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Not registered in the apiserver |
+| Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Runs in-process in the apiserver |
 | Greeter | Sample service: `SayHello` (`GET /greeter/say?name=`) replies with the current time; `Status`. Has its own `szgreeter` binary and also runs in-process in the apiserver |
 | CentralData | Only `Status`; the `szcentraldata` binary has no `main` body |
 | Collector | `Status`, plus the ingest of the edge events from Kafka (below). Binary `szcollector` |

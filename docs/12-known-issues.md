@@ -43,9 +43,8 @@ Remove an entry once it is fixed.
   creates the event topics with 3 partitions and disables topic auto-create,
   so the producer's `DefaultTopicPartitions` (6) never applies in that
   setup.
-- `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
-  apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
-  but is not enabled.
+- `szcentraldata`: empty `main()`. Consul discovery (`WithDiscorvery`,
+  `VisitToEndpoint`) exists but is not enabled.
 - The zone leader only writes the zone status
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
   `leader.All` are ready for more zone-wide records, but none exists yet.

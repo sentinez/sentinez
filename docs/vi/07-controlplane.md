@@ -264,7 +264,7 @@ ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu �
 
 | Domain | Trạng thái |
 |---|---|
-| Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Chưa đăng ký vào apiserver |
+| Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Chạy trong tiến trình apiserver |
 | Greeter | Service mẫu: `SayHello` (`GET /greeter/say?name=`) trả lời kèm thời gian; `Status`. Có binary riêng `szgreeter` và cũng chạy in-process trong apiserver |
 | CentralData | Chỉ có `Status`; binary `szcentraldata` chưa có `main` |
 | Collector | `Status`, cùng phần thu nạp event của edge từ Kafka (bên dưới). Binary `szcollector` |

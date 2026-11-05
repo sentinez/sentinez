@@ -7,8 +7,8 @@
 | [cmd/szapiserver/main.go](../../cmd/szapiserver/main.go) | Inject `config.Config`, `grpcgateway.NewServer`, `apiserver.New` |
 | [pkg/apps/gateway/apiserver/apiserver.go](../../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, đăng ký service |
-| [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Greeter, IAM, Security, Tenant |
-| [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
+| [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Analytic, Greeter, IAM, Security, Tenant |
+| [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
 | [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
@@ -17,14 +17,24 @@
 ```go
 srv.server.Use(middleware.Logging)
 srv.server.Use(middleware.AllowCORS)
+srv.server.Use(middleware.SwaggerDefaultRoot)
+srv.server.Use(middleware.Scope(
+    middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
+))
 handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
+// security, tenant, analytic: xxxfac.NewDefaultHandler(ctx, conf)
+// trả về (handler, error); lỗi khởi tạo repo làm dừng startup.
 srv.Visit(ctx,
     controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
     controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-    controlplane.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
-    controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
+    controlplane.NewSecurity(security),
+    controlplane.NewTenant(tenant),
+    controlplane.NewAnalytic(analytic),
 )
 ```
+
+`Injection` chỉ chạy dưới các prefix của `Scope`; `/security` được bỏ ra vì
+payload SecRule chứa pattern tấn công một cách hợp lệ.
 
 `XServer.ListenAndServe(addr, opts...)` listen trên `SENZ_ADDRESS` (mặc định
 `defaults.APIServerAddress`, `:9000` bên trong `grpcgateway`). Listener và TLS
@@ -38,12 +48,11 @@ chỉ, quảng bá HTTP/3 bằng `Alt-Svc`; không có thì phục vụ HTTP th�
 
 | Phương thức | Cơ chế | Đang dùng |
 |---|---|---|
-| `Accept(ctx, server)` | `RegisterXxxHandlerServer` — gọi handler Go trực tiếp trong cùng tiến trình | **Có** (`Visit`) |
+| `Accept(ctx, server)` | Đăng ký handler Go lên `grpcgateway.NewLocalConn()` trong cùng tiến trình rồi gọi `RegisterXxxHandlerClient`, nên interceptor gRPC (validate) vẫn chạy | **Có** (`Visit`) |
 | `AcceptFromEndpoint(ctx, server, conf)` | Mỗi 10s hỏi Consul (`discovery.Discover(serviceKey)`) rồi `RegisterXxxHandlerFromEndpoint` qua gRPC | Chưa (`VisitToEndpoint` không được gọi) |
 
-Như vậy apiserver hiện là **monolith**: IAM/Tenant/Security/Greeter chạy trong
-tiến trình apiserver và dùng chung pool PostgreSQL. `AnalyticService` có
-handler và OpenAPI nhưng **chưa được đăng ký** vào apiserver.
+Như vậy apiserver hiện là **monolith**: IAM/Tenant/Security/Analytic/Greeter
+chạy trong tiến trình apiserver và dùng chung pool PostgreSQL.
 
 ### Request pipeline HTTP
 

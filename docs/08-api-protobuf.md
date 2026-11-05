@@ -107,7 +107,7 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | DELETE | `/security/secrule/{id}` | `SecurityService.DeleteSecRule` | — |
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
-| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore *(not mounted)* |
+| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
 
 "Declared permission" is the option in the proto; enforcement depends on the
 handler (see

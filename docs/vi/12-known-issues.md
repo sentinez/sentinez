@@ -42,9 +42,8 @@ xoá mục tương ứng.
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong
   môi trường đó.
-- `szcentraldata`: `main()` rỗng. `AnalyticService` không được mount vào
-  apiserver. Discovery Consul (`WithDiscorvery`, `VisitToEndpoint`) có code
-  nhưng chưa bật.
+- `szcentraldata`: `main()` rỗng. Discovery Consul (`WithDiscorvery`,
+  `VisitToEndpoint`) có code nhưng chưa bật.
 - Leader theo zone mới chỉ ghi zone status
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` và
   `leader.All` đã sẵn cho các bản ghi zone-wide khác nhưng chưa có bản ghi

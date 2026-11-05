@@ -107,7 +107,7 @@ header `Authorization: Bearer <JWT>`.
 | DELETE | `/security/secrule/{id}` | `SecurityService.DeleteSecRule` | — |
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
-| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore *(chưa mount)* |
+| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
 
 "Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).

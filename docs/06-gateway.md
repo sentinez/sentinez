@@ -7,8 +7,8 @@
 | [cmd/szapiserver/main.go](../cmd/szapiserver/main.go) | Injects `config.Config`, `grpcgateway.NewServer`, `apiserver.New` |
 | [pkg/apps/gateway/apiserver/apiserver.go](../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, service registration |
-| [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Greeter, IAM, Security, Tenant |
-| [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS` |
+| [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Analytic, Greeter, IAM, Security, Tenant |
+| [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Serves OpenAPI JSON + Swagger UI |
 | [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
@@ -17,14 +17,24 @@
 ```go
 srv.server.Use(middleware.Logging)
 srv.server.Use(middleware.AllowCORS)
+srv.server.Use(middleware.SwaggerDefaultRoot)
+srv.server.Use(middleware.Scope(
+    middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
+))
 handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
+// security, tenant, analytic: xxxfac.NewDefaultHandler(ctx, conf)
+// returns (handler, error); a repo init error aborts startup.
 srv.Visit(ctx,
     controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
     controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-    controlplane.NewSecurity(securityfac.NewDefaultHandler(ctx, conf)),
-    controlplane.NewTenant(tenantfac.NewDefaultHandler(ctx, conf)),
+    controlplane.NewSecurity(security),
+    controlplane.NewTenant(tenant),
+    controlplane.NewAnalytic(analytic),
 )
 ```
+
+`Injection` runs only under the `Scope` prefixes; `/security` is left out
+because SecRule payloads legitimately carry attack patterns.
 
 `XServer.ListenAndServe(addr, opts...)` listens on `SENZ_ADDRESS` (default
 `defaults.APIServerAddress`, `:9000` inside `grpcgateway`). Listeners and TLS
@@ -38,13 +48,11 @@ A `ServiceRegistrar` can attach a service to `runtime.ServeMux` in two ways:
 
 | Method | Mechanism | In use |
 |---|---|---|
-| `Accept(ctx, server)` | `RegisterXxxHandlerServer` — calls the Go handler directly in the same process | **Yes** (`Visit`) |
+| `Accept(ctx, server)` | Registers the Go handler on an in-process `grpcgateway.NewLocalConn()` and calls `RegisterXxxHandlerClient`, so gRPC interceptors (validation) still run | **Yes** (`Visit`) |
 | `AcceptFromEndpoint(ctx, server, conf)` | Every 10s asks Consul (`discovery.Discover(serviceKey)`) and calls `RegisterXxxHandlerFromEndpoint` over gRPC | No (`VisitToEndpoint` is never called) |
 
-So the apiserver is currently a **monolith**: IAM/Tenant/Security/Greeter run
-inside the apiserver process and share one PostgreSQL pool.
-`AnalyticService` has a handler and an OpenAPI spec but is **not registered**
-in the apiserver.
+So the apiserver is currently a **monolith**: IAM/Tenant/Security/Analytic/
+Greeter run inside the apiserver process and share one PostgreSQL pool.
 
 ### HTTP request pipeline
 

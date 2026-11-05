@@ -16,33 +16,38 @@ package analyticfac
 
 import (
 	"context"
+	"fmt"
 
 	analytichdl "github.com/sentinez/controlplane/apps/analytic/v1/handler"
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
+// NewDefaultService initializes the Analytic service.
 func NewDefaultService(ctx context.Context,
-	appConf *settingpb.Config) *analyticsvc.AnalyticService {
-
-	activitiesrepos, err := activitiesrepo.New(ctx, appConf)
+	appConf *settingpb.Config,
+) (*analyticsvc.AnalyticService, error) {
+	activities, err := activitiesrepo.New(ctx, appConf)
 	if err != nil {
-		szlog.Errorf("analyticfac: init activities repo err=%v", err)
+		return nil, fmt.Errorf("activities repo: %w", err)
 	}
 
 	tx := postgres.NewTX(appConf)
 
-	return analyticsvc.New(appConf, tx, activitiesrepos)
+	return analyticsvc.New(appConf, tx, activities), nil
 }
 
-func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
-) pb.AnalyticServiceServer {
+// NewDefaultHandler initializes the Analytic handler with its dependencies.
+func NewDefaultHandler(ctx context.Context,
+	appConf *settingpb.Config,
+) (pb.AnalyticServiceServer, error) {
+	service, err := NewDefaultService(ctx, appConf)
+	if err != nil {
+		return nil, err
+	}
 
-	service := NewDefaultService(ctx, appConf)
-
-	return analytichdl.New(service)
+	return analytichdl.New(service), nil
 }
