@@ -22,7 +22,6 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/sentinez/pkg/pools/request"
@@ -85,9 +84,6 @@ func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 	}
 
 	err := next.Handle(ctx)
-
-	bw, _ := bpf.LookupBandwidth(bytesconv.B2s(ip))
-	szlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
 
 	if event != nil {
 		event.Status = int32(ctx.StatusCode())

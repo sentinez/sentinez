@@ -47,9 +47,9 @@ func NewServer(conf *settingpb.Config) szhttp.Server {
 
 // XServer implements the Server interface.
 type XServer struct {
-	chains  []func(szhttp.RequestHandler) szhttp.RequestHandler
-	handler app.HandlerFunc
-	core    *server.Hertz
+	chains []func(szhttp.RequestHandler) szhttp.RequestHandler
+	fn     szhttp.RequestHandler
+	core   *server.Hertz
 }
 
 // AcceptReverse implements [szhttp.Server].
@@ -63,13 +63,22 @@ func (s *XServer) Use(
 	s.chains = append(s.chains, mdw...)
 }
 
+// Handle implements [szhttp.Server]. The middleware registered with Use
+// is applied when the server starts, so Use may be called before or after
+// Handle.
 func (s *XServer) Handle(fn szhttp.RequestHandler) {
+	s.fn = fn
+}
+
+// buildHandler wraps the request handler with the middleware chain once.
+func (s *XServer) buildHandler() app.HandlerFunc {
+	fn := s.fn
+	for i := len(s.chains) - 1; i >= 0; i-- {
+		fn = s.chains[i](fn)
+	}
+
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
-
-		for i := len(s.chains) - 1; i >= 0; i-- {
-			fn = s.chains[i](fn)
-		}
 
 		if err := fn(inCtx); err != nil {
 			szlog.Errorf("[httpxdmz]: internal err=%v", err)
@@ -80,8 +89,7 @@ func (s *XServer) Handle(fn szhttp.RequestHandler) {
 		_ = inCtx.Close()
 	}
 
-	s.handler = WrapHandler(handler)
-	// s.handler = handler
+	return WrapHandler(handler)
 }
 
 // Shutdown implements platform.Server.
@@ -151,7 +159,7 @@ func (s *XServer) initialize(addr string, opt *szhttp.Option) error {
 	// register http2 server factory
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
-	s.core.NoRoute(s.handler)
+	s.core.NoRoute(s.buildHandler())
 	s.core.Name = core.Name
 
 	return nil

@@ -173,7 +173,10 @@ func (r *SecRule) Update(
 		query = query.Set(securitypb.SecRule_Expr, model.GetExpr())
 	}
 
-	query = query.Set(securitypb.SecRule_Status, model.GetStatus())
+	query = query.
+		Set(securitypb.SecRule_Status, model.GetStatus()).
+		Set(securitypb.SecRule_Priority, model.GetPriority()).
+		Set(securitypb.SecRule_Action, model.GetAction())
 
 	_, err := r.storage.Exec(ctx, query)
 	return err

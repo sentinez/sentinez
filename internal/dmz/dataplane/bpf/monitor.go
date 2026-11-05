@@ -30,7 +30,7 @@ func ipToUint32(ipStr string) (uint32, error) {
 	if ip == nil {
 		return 0, fmt.Errorf("invalid IPv4 address")
 	}
-	return binary.LittleEndian.Uint32(ip), nil
+	return binary.NativeEndian.Uint32(ip), nil
 }
 
 func LookupBandwidth(ip string) (uint64, error) {

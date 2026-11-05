@@ -23,13 +23,15 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 )
 
+// BlockCIDR adds cidr to the XDP blocklist. The key ip is kept in network
+// byte order in memory, as XDP looks it up with the raw saddr.
 func BlockCIDR(cidr string) error {
-	ip, network, err := net.ParseCIDR(cidr)
+	_, network, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return err
 	}
 
-	ip4 := ip.To4()
+	ip4 := network.IP.To4()
 	if ip4 == nil {
 		return fmt.Errorf("only IPv4 CIDR is supported")
 	}
@@ -39,7 +41,7 @@ func BlockCIDR(cidr string) error {
 	return driver.Exec(func(so *sentinezbpf.SenzObjects) error {
 		key := sentinezbpf.SenzIpLpmKey{
 			Prefixlen: uint32(ones),
-			Ip:        binary.BigEndian.Uint32(ip4),
+			Ip:        binary.NativeEndian.Uint32(ip4),
 		}
 
 		return so.Blocklist.Put(key, uint8(1))

@@ -20,6 +20,7 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMatchLocation(t *testing.T) {
@@ -72,9 +73,7 @@ func TestJoinRewrite(t *testing.T) {
 
 func TestPick(t *testing.T) {
 	// Sorted longest first, as Store keeps them.
-	routes := []*edgepb.Location{
-		{Location: "/local"}, {Location: "/api"}, {Location: "/"},
-	}
+	routes := newRoutes("/local", "/api", "/")
 
 	tests := []struct {
 		name         string
@@ -93,13 +92,72 @@ func TestPick(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := pick(routes, tt.giveLocation, []byte(tt.givePath))
 
-			assert.Equal(t, tt.want, got.GetLocation())
+			assert.Equal(t, tt.want, got.loc.GetLocation())
 		})
 	}
 }
 
 func TestPickNone(t *testing.T) {
-	routes := []*edgepb.Location{{Location: "/api"}}
+	routes := newRoutes("/api")
 
 	assert.Nil(t, pick(routes, "", []byte("/web")))
+}
+
+func TestRouteUpstreamRoundRobin(t *testing.T) {
+	r := newRoute(&edgepb.Location{
+		Location: "/",
+		ProxyPass: []*edgepb.Upstream{
+			{Server: "http://a"}, {Server: "http://b"}, {Server: "http://c"},
+		},
+	})
+
+	want := []string{
+		"http://a", "http://b", "http://c", "http://a", "http://b",
+	}
+
+	got := make([]string, 0, len(want))
+	for range want {
+		server, err := r.upstream()
+		require.NoError(t, err)
+		got = append(got, server)
+	}
+
+	assert.Equal(t, want, got)
+}
+
+func TestRouteUpstreamNone(t *testing.T) {
+	r := newRoute(&edgepb.Location{Location: "/api"})
+
+	_, err := r.upstream()
+
+	assert.Error(t, err)
+}
+
+func TestStoreSkipsLocationWithoutUpstream(t *testing.T) {
+	router := New()
+	router.Store(&edgepb.Server{
+		Name: "test-no-upstream",
+		Locations: []*edgepb.Location{
+			{Location: "/api"},
+			{
+				Location:  "/",
+				ProxyPass: []*edgepb.Upstream{{Server: "http://a"}},
+			},
+		},
+	})
+	t.Cleanup(func() { router.Delete("test-no-upstream") })
+
+	routes, ok := router.routes.Load("test-no-upstream")
+	require.True(t, ok)
+	require.Len(t, routes, 1)
+	assert.Equal(t, "/", routes[0].loc.GetLocation())
+}
+
+func newRoutes(locations ...string) []*route {
+	routes := make([]*route, 0, len(locations))
+	for _, loc := range locations {
+		routes = append(routes, newRoute(&edgepb.Location{Location: loc}))
+	}
+
+	return routes
 }
