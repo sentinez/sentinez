@@ -35,6 +35,14 @@ Remove an entry once it is fixed.
 - No sync channel from control plane → edge: SecRules/tenants in the DB do
   not affect the edge; the edge only reads `proxy.yaml` at startup and does
   not reload.
+- The edge does not fill `resource_id`/`tenant_id` in its rule events, so
+  the collector event tables have them empty and `eventfilter.Filter`'s
+  `ResourceIds` matches nothing yet. The event repositories' `Get`/`List`
+  have no caller (no analytic read path yet).
+- [deploy/docker/telemetry/docker-compose.yaml](../deploy/docker/telemetry/docker-compose.yaml)
+  creates the event topics with 3 partitions and disables topic auto-create,
+  so the producer's `DefaultTopicPartitions` (6) never applies in that
+  setup.
 - `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
   apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
   but is not enabled.

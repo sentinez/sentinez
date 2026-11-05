@@ -21,7 +21,7 @@ counterpart in [vi/](vi/)).
 | 4 | [Rule engine & WAF](04-rule-engine.md) | SecRule expressions, operators, CDN rules, Coraza/CRS, rule parser |
 | 5 | [eBPF dataplane](05-dataplane-ebpf.md) | XDP program, BPF maps, dev netns |
 | 6 | [Gateway: API server & realtime](06-gateway.md) | grpc-gateway, middleware, Swagger, WebSocket, service discovery |
-| 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata; DB layer; auth |
+| 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata, collector (Kafka event ingest); DB layer; auth |
 | 8 | [API & Protobuf](08-api-protobuf.md) | Proto layout, custom options, codegen, REST endpoint table |
 | 9 | [Framework & shared libraries](09-core-shared.md) | `core/szrunner`, `core/szhttp`, `szlog`, `config`, `szerror`, ... |
 | 10 | [Web console (UI)](10-ui.md) | pnpm/turbo workspace, console app, API calls |

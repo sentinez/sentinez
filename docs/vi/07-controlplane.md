@@ -37,8 +37,11 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
     giữ mọi bảng controlplane trong bộ nhớ theo cách này.
   - Dùng một `pgxpool.Pool` toàn cục từ `SENZ_POSTGRES_URI`.
 - Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY created_at DESC`
-  khi `page.index` và `page.size` > 0), `InsertBuilder` (`RETURNING id`),
+  khi `page.index` và `page.size` > 0), `LimitOffset` (cùng `LIMIT/OFFSET`
+  đó, thứ tự để caller tự đặt), `InsertBuilder` (`RETURNING id`),
   `UpdateBuilder` (tự set `updated_at`).
+- `Schema.ColumnNames()` trả về tên các cột của schema theo thứ tự, để repo
+  không phải chép lại.
 - Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
   `postgres.WithTx(ss, db)` trả về `Database[T]` chạy trong transaction; repo
   cung cấp `WithTX(ss)`.
@@ -50,7 +53,9 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 
 Tên bảng ([shared/sztable](../../staging/src/github.com/sentinez/shared/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
-`security.sec_rules`.
+`security.sec_rules`, cùng các bảng event của edge `analytic.secrules.events`,
+`analytic.ratelimiters.events`, `analytic.corerulesets.events` (xem
+[Collector](#collector-thu-nạp-event-của-edge)).
 
 Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 `protoc-gen-go-senz` cho message có option `x_message.database_model = true`.
@@ -81,7 +86,7 @@ Phân quyền dựa trên **control plane** (`PORTAL` / `ADMIN`):
 ## 7.3 IAM
 
 Proto: [apps/iam/v1](../../api/proto/sentinez/apps/iam/v1/). Code:
-[iam/v1](../../staging/src/github.com/sentinez/controlplane/iam/v1/) — logic
+[apps/iam/v1](../../staging/src/github.com/sentinez/controlplane/apps/iam/v1/) — logic
 account và user nằm ở `service/service.go`, các luồng WebAuthn ở
 `service/passkey.go`.
 
@@ -262,6 +267,64 @@ ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu �
 | Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Chưa đăng ký vào apiserver |
 | Greeter | Service mẫu: `SayHello` (`GET /greeter/say?name=`) trả lời kèm thời gian; `Status`. Có binary riêng `szgreeter` và cũng chạy in-process trong apiserver |
 | CentralData | Chỉ có `Status`; binary `szcentraldata` chưa có `main` |
+| Collector | `Status`, cùng phần thu nạp event của edge từ Kafka (bên dưới). Binary `szcollector` |
+
+### Collector: thu nạp event của edge
+
+Binary `szcollector` chạy hai app: gRPC server `CollectorService` và
+`ingest` ([apps/collector/v1/ingest](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/ingest/)), app
+này tiêu thụ event traffic của edge từ Kafka rồi insert theo batch vào các
+bảng event analytic.
+
+| Topic | Giá trị record | Bảng | Repository |
+|---|---|---|---|
+| `sentinez.event.http.secrule` | `secrulepb.RuleEvent` | `analytic.secrules.events` | `ruleeventsrepo.NewSecRules` |
+| `sentinez.event.http.ratelimit` | `secrulepb.RuleEvent` | `analytic.ratelimiters.events` | `ruleeventsrepo.NewRateLimits` |
+| `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
+
+Luồng xử lý một batch:
+
+1. `szkafka.Consumer` poll tối đa 1000 record. Consumer group là service
+   key (`sentinez.apps.collector.v1`), nên các replica collector chia nhau
+   partition.
+2. `Ingest.Handle` gom record theo topic và chạy sink của từng topic song
+   song (mỗi topic một bảng).
+3. Sink decode record (`UnmarshalVT`), bỏ record không decode được kèm
+   cảnh báo, và insert tối đa 500 dòng mỗi câu lệnh. Edge gán ULID cho mọi
+   event; event nào thiếu id sẽ nhận `<prefix>_<topic>-<partition>-<offset>`,
+   giống nhau ở mọi lần đọc lại.
+4. Khi cả batch đã insert xong, các record được đánh dấu; offset đã đánh
+   dấu được commit định kỳ, và trước khi partition chuyển đi hoặc consumer
+   đóng.
+
+Mỗi event được ghi ít nhất một lần (at least once). Insert lỗi thì thử lại
+cả batch, chờ tăng dần từ 0.5 s đến 30 s, và trong lúc đó không poll batch
+khác. Repo insert với `ON CONFLICT (id) DO NOTHING`, nên batch bị đọc lại
+không tạo bản ghi trùng.
+
+Các bảng ([pkg/schema/analytic.go](../../staging/src/github.com/sentinez/controlplane/pkg/schema/analytic.go):
+`AnalyticSecRulesEvent`, `AnalyticRateLimiterEvent`,
+`AnalyticCoreRulesetsEvent`) lấy theo các trường của message Kafka: mảng là
+`TEXT[]`/`INTEGER[]`, `action` và `tags` là `JSONB`, enum là `INTEGER`,
+`matched_time` (mili giây) là `BIGINT`, có index `BTREE` trên
+`matched_time` và `resource_id`. Chúng không nằm trong `schema.All()`:
+centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
+`event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1` và
+`types/coreruleset/v1`.
+
+Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/)):
+
+- `Create(ctx, events...)` insert các event (bắt buộc đã có id) trong một
+  câu lệnh; `Get`, `Delete`, `WithTX`.
+- `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds` và theo
+  `matched_time` (`From` tính cả mốc, `To` không tính), phân trang bằng
+  `Page`, sắp theo `matched_time DESC`.
+- Danh sách cột lấy từ `Schema.ColumnNames()` của schema bảng.
+
+Cấu hình: `SENZ_KAFKA_BROKERS` (không đặt: ingest bị tắt kèm cảnh báo,
+gRPC server vẫn chạy) và database của `SENZ_POSTGRES_URI`. Các giới hạn
+giữ bộ nhớ của consumer nằm ở
+[09-core-shared.md](09-core-shared.md#szkafka).
 
 ## 7.7 Mã lỗi
 

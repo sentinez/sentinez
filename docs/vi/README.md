@@ -19,7 +19,7 @@ Tài liệu được viết từ việc đọc trực tiếp source code tại c
 | 4 | [Rule engine & WAF](04-rule-engine.md) | SecRule expression, toán tử, CDN rule, Coraza/CRS, rule parser |
 | 5 | [Dataplane eBPF](05-dataplane-ebpf.md) | Chương trình XDP, BPF map, netns dev |
 | 6 | [Gateway: API server & realtime](06-gateway.md) | grpc-gateway, middleware, Swagger, WebSocket, service discovery |
-| 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata; lớp DB; xác thực |
+| 7 | [Control plane](07-controlplane.md) | IAM, tenant, security, analytic, greeter, centraldata, collector (thu nạp event từ Kafka); lớp DB; xác thực |
 | 8 | [API & Protobuf](08-api-protobuf.md) | Cấu trúc proto, custom option, codegen, bảng REST endpoint |
 | 9 | [Framework & thư viện dùng chung](09-core-shared.md) | `core/szrunner`, `core/szhttp`, `szlog`, `config`, `szerror`, ... |
 | 10 | [Web console (UI)](10-ui.md) | Workspace pnpm/turbo, app console, gọi API |

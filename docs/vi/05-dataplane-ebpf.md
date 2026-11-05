@@ -10,7 +10,7 @@ L3 trước khi tới edge.
 | [bpf/sentinez/senz_security.h](../../staging/src/github.com/sentinez/bpf/sentinez/senz_security.h) | Chặn IP/CIDR bằng LPM trie |
 | `bpf/sentinez/senz_bpfe{l,b}.{go,o}` | Code Go + object sinh bởi `bpf2go` |
 | [internal/dmz/dataplane/](../../internal/dmz/dataplane/) | `Server` (Start/Stop) và `driver` (nạp object, attach XDP) |
-| [internal/bpf/](../../internal/bpf/) | API Go thao tác map: `LookupBandwidth`, `BlockCIDR` |
+| [internal/dmz/dataplane/bpf/](../../internal/dmz/dataplane/bpf/) | API Go thao tác map: `LookupBandwidth`, `BlockCIDR` |
 | [hack/net/dev/Makefile](../../hack/net/dev/Makefile) | Dựng network namespace để thử nghiệm |
 
 ## 5.1 Chương trình XDP
@@ -52,7 +52,7 @@ context đã được khởi tạo.
 gRPC (`DataPlaneService` mới có `Status` trong proto, chưa đăng ký handler).
 `Stop` đóng object/link và `GracefulStop` gRPC.
 
-API trong `internal/bpf`:
+API trong `internal/dmz/dataplane/bpf`:
 
 | Hàm | Mô tả |
 |---|---|

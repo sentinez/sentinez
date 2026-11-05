@@ -77,8 +77,8 @@ exported. An `https://` endpoint uses TLS.
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 | `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `shared/szqueue` | Empty `Queue{}` (for the waiting room) |
-| `shared/szsdklog` | `New(conf)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set |
-| `shared/szkafka` | `NewProducer(Config)`: `szlog.EventExporter` producing each event (vtproto bytes) to the `shared/sztopic` topic of its `LogType`, metadata in `sz-kind`/`sz-level`/`sz-msg`/`sz-service` headers; never blocks, counts drops (`Dropped`) |
+| `shared/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
+| `shared/szkafka` | Kafka producer of the edge events and batch consumer, see [`szkafka`](#szkafka) |
 
 ## 9.5 `shared`
 
@@ -100,7 +100,7 @@ exported. An `https://` endpoint uses TLS.
 | `szeventq` | In-process pub/sub per namespace on channels (no callers yet) |
 | `szstore/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
 | `szcolor` | ANSI colors for console logs |
-| `sztopic` | Empty package |
+| `sztopic` | Topic names of the edge traffic events (`EventHTTPIngress`, `EventHTTPSecRule`, ...) |
 
 ### `szlog`
 
@@ -120,6 +120,57 @@ logger can use its own provider via `WithOTLPProvider(p)`.
 
 Log levels: `debug=0, info=1, warn=2, error=3, fatal=4`; a record is written
 when `level >= verbosity`.
+
+### `szkafka`
+
+[shared/szkafka](../staging/src/github.com/sentinez/shared/szkafka/) talks to Kafka with franz-go.
+
+**Producer** (`NewProducer(Config)`):
+
+- A `szlog.EventExporter` producing each event (vtproto bytes) to the
+  topic of its `LogType` (`DefaultTopics()`), with the metadata in the
+  `sz-kind`/`sz-level`/`sz-msg`/`sz-service` headers. It never blocks and
+  counts the drops (`Dropped`).
+- On creation it creates the missing topics it produces to (kadm, 10 s
+  timeout), with `Partitions` partitions (zero takes
+  `DefaultTopicPartitions` = 6, also the most collector replicas sharing a
+  topic) and `ReplicationFactor` replicas (zero takes the broker default).
+  An existing topic is left as is. A failed creation is only logged: the
+  producer still starts and drops its events until the topics exist.
+- `NewProducer` therefore reaches the brokers at once: with Kafka
+  unreachable, the edge start waits up to 10 s.
+- `ConfigOf(brokers, service, opts...)` builds the `Config`, with
+  `WithTopics(map)` (copied), `WithTopicPartitions(n)`,
+  `WithReplicationFactor(n)`. `Brokers(s)` splits a comma-separated broker
+  list.
+
+**Consumer** (`NewConsumer(ConsumerConfig)`, `Run(ctx, BatchHandler)`,
+`Close()`):
+
+- Consumes the `Topics` in the consumer group `Group`, from the earliest
+  offset when the group has no commit yet.
+- At least once: a batch is committed only after its handler returns nil
+  (`AutoCommitMarks` + `MarkCommitRecords`; the marks are committed
+  periodically, on partition revoke and on `Close`). A handler error
+  retries the same batch, with a backoff from 0.5 s to 30 s, until `ctx`
+  is done; no other batch is polled meanwhile.
+- `Close` commits the marks, leaves the group and closes the client; it can
+  be called more than once.
+
+The limits bound the memory of the fetched records not handled yet,
+however many records wait on the topics; a zero field takes its default:
+
+| `ConsumerConfig` field | Default | franz-go default |
+|---|---|---|
+| `MaxPollRecords` | 1000 | unbounded |
+| `FetchMaxBytes` | 16 MiB | 50 MiB |
+| `FetchMaxPartitionBytes` | 1 MiB | 1 MiB |
+| `MaxConcurrentFetches` | 3 | unbounded (one per broker) |
+| `FetchMaxWait` | 500 ms | 5 s |
+| (broker read limit) | 2 × `FetchMaxBytes` | 100 MiB |
+
+The bound is about `MaxConcurrentFetches × FetchMaxBytes` = 48 MiB of
+compressed data; decompressed (the producer uses zstd) it is larger.
 
 ## 9.6 `pkg/` (root module)
 
