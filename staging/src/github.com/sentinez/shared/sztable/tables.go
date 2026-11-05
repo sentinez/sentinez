@@ -36,6 +36,10 @@ const (
 	AnalyticSecRules     Table = "analytic.secrules"
 	AnalyticCoreRulesets Table = "analytic.corerulesets"
 	AnalyticRateLimiter  Table = "analytic.ratelimiters"
+
+	AnalyticSecRulesEvent     Table = "analytic.secrules.events"
+	AnalyticCoreRulesetsEvent Table = "analytic.corerulesets.events"
+	AnalyticRateLimiterEvent  Table = "analytic.ratelimiters.events"
 )
 
 const (

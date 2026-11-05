@@ -25,6 +25,16 @@ type Schema struct {
 	Indexes []Index
 }
 
+// ColumnNames the names of the columns of s, in order.
+func (s Schema) ColumnNames() []string {
+	names := make([]string, len(s.Columns))
+	for i, column := range s.Columns {
+		names[i] = column.Name
+	}
+
+	return names
+}
+
 // Column a typed column of a Schema; MemIndex also indexes it in the
 // go-memdb table derived by Schema.MemDB.
 type Column struct {
