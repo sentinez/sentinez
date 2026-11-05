@@ -59,13 +59,14 @@ API in `internal/dmz/dataplane/bpf`:
 | Function | Description |
 |---|---|
 | `LookupBandwidth(ip) (uint64, error)` | Sums the per-CPU values of `ip_bandwidth` for an IPv4 address |
-| `BlockCIDR(cidr) error` | Adds an LPM key `{prefixlen, ip}` to `blocklist` (IPv4 only) |
+| `BlockCIDR(cidr) error` | Adds an LPM key `{prefixlen, network ip}` to `blocklist` (IPv4 only) |
 
-Note: `driver` is **in-process** state. The edge calls `LookupBandwidth` in
-the `LOG` node, but the edge never loads the eBPF objects (the dataplane is a
-different process and the maps are not pinned), so it always returns an
-error/0. `BlockCIDR` has no callers yet. See
-[12-known-issues.md](12-known-issues.md).
+Keys hold the IP in network byte order in memory, like the raw `saddr` XDP
+uses (`binary.NativeEndian` over the 4 address bytes).
+
+Note: `driver` is **in-process** state: only the dataplane loads the eBPF
+objects (the maps are not pinned), so these functions only work there. No
+other process calls them, and `BlockCIDR` has no callers yet.
 
 ## 5.3 Development netns setup
 

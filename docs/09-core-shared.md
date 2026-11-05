@@ -33,7 +33,9 @@ exported. An `https://` endpoint uses TLS.
 ## 9.2 `core/szhttp` and `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
-  `Handle(RequestHandler)`, `AcceptReverse(target)`.
+  `Handle(RequestHandler)`, `AcceptReverse(target)`. The Hertz server
+  (`contrib/httphz`) wraps the handler with the `Use` middleware once, when
+  it starts, so `Use` may come before or after `Handle`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).

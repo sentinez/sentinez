@@ -7,14 +7,7 @@ xoá mục tương ứng.
 
 ## 12.1 Lỗi logic (ảnh hưởng hành vi)
 
-| # | Vị trí | Vấn đề | Hậu quả |
-|---|---|---|---|
-| 2 | [controlplane/apps/security/v1/repos/secrule/secrule.go](../../staging/src/github.com/sentinez/controlplane/apps/security/v1/repos/secrule/secrule.go) `Update` | Chỉ cập nhật `name`, `description`, `expr`, `status` | Sửa `priority`/`action` qua API không được lưu |
-| 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` sửa trường của proxy dùng chung | Target WebSocket dài thêm sau mỗi request, có data race |
-| 8 | [contrib/httphz/server.go](../../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | Vòng `fn = s.chains[i](fn)` nằm **trong** handler, gán lại biến capture | Mỗi request bọc thêm middleware một lần nữa (hiện chưa lộ vì edge không gọi `Use`) |
-| 9 | [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go) | Luôn dùng `proxyPass[0]`; không kiểm tra rỗng; bỏ qua `balanceStrategy` | Location không có upstream gây panic; không cân bằng tải |
-| 11 | [internal/handlers/logging/logging.go](../../internal/handlers/logging/logging.go) | Gọi `bpf.LookupBandwidth` mỗi request, nhưng object eBPF chỉ được nạp trong tiến trình dataplane | Luôn lỗi/0, tốn chi phí và log `Infof` ở mọi request |
-| 12 | [internal/dmz/dataplane/bpf/security.go](../../internal/dmz/dataplane/bpf/security.go) `BlockCIDR` | Ghi `ip` bằng `binary.BigEndian.Uint32` trong khi XDP tra bằng `saddr` thô (thứ tự byte mạng trong bộ nhớ) | Trên máy little-endian khoá không khớp, CIDR bị chặn không có tác dụng *(cần xác minh)*. Hàm hiện chưa được gọi |
+Không có.
 
 ## 12.2 Bảo mật
 

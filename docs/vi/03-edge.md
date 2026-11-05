@@ -173,7 +173,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chai
 | Thứ tự | Stage | Plugin | Hành vi |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
-| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`). Có tra bandwidth eBPF theo IP |
+| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`) |
 | 2 | `DMA` | `secure.DomainBased` | Host phải có dạng `<ns>.<SENZ_HOSTNAME>` (một cấp, bỏ port). Sai → `403`. Gán `X().Namespace = ns` |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
@@ -308,14 +308,16 @@ Ghi chú:
 
 [internal/memory/routes/routes.go](../../internal/memory/routes/routes.go):
 
-- `Store(server)`: sao chép location, lọc header hợp lệ, đặt `proxyRewrite`
-  mặc định, **sắp xếp giảm dần theo độ dài `location`** để khớp
-  longest-prefix như nginx.
+- `Store(server)`: sao chép location, bỏ qua (kèm cảnh báo) location không
+  có `proxyPass`, lọc header hợp lệ, đặt `proxyRewrite` mặc định, **sắp xếp
+  giảm dần theo độ dài `location`** để khớp longest-prefix như nginx. Server
+  không còn location nào thì bị gỡ.
 - `Match(ctx)`: lấy route theo namespace, tìm location đầu tiên khớp path
   **theo ranh giới segment** (`/api` khớp `/api` và `/api/x` nhưng không khớp
   `/apix`; location kết thúc bằng `/` khớp mọi path bên dưới), đặt path mới =
   `rewrite + (path − location)` mà không lặp `/` ở chỗ nối, set header, trả về
-  `proxyPass[0].server`.
+  upstream kế tiếp trong `proxyPass` theo **round robin** (mỗi location một
+  bộ đếm atomic; là `balanceStrategy` duy nhất, dùng cả khi không khai báo).
 
 Ví dụ:
 
@@ -333,7 +335,8 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 
 - Hertz (`proxyhz.ReverseProxy`): 2 client (TLS / plain), director viết lại
   URI bằng `JoinURLPath` và set `Host` = host upstream. Request có
-  `Upgrade: websocket` chuyển sang `WSReverseProxy`.
+  `Upgrade: websocket` chuyển sang `WSReverseProxy`, target
+  (`upstream + URI`) được dựng riêng cho từng request.
 - `net/http` (`httpx.ReverseProxy`, dùng cho engine `Quic` và `Standard`):
   `httputil.NewSingleHostReverseProxy` với `http.RoundTripper` truyền vào
   (`network.StandardTransporter()`, dial timeout 30s). Writer được bọc để

@@ -32,7 +32,9 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 ## 9.2 `core/szhttp` và `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
-  `Handle(RequestHandler)`, `AcceptReverse(target)`.
+  `Handle(RequestHandler)`, `AcceptReverse(target)`. Server Hertz
+  (`contrib/httphz`) bọc handler bằng middleware của `Use` một lần khi khởi
+  động, nên gọi `Use` trước hay sau `Handle` đều được.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).

@@ -57,12 +57,14 @@ API trong `internal/dmz/dataplane/bpf`:
 | Hàm | Mô tả |
 |---|---|
 | `LookupBandwidth(ip) (uint64, error)` | Cộng giá trị per-CPU của `ip_bandwidth` cho IPv4 |
-| `BlockCIDR(cidr) error` | Thêm khoá LPM `{prefixlen, ip}` vào `blocklist` (chỉ IPv4) |
+| `BlockCIDR(cidr) error` | Thêm khoá LPM `{prefixlen, ip mạng}` vào `blocklist` (chỉ IPv4) |
 
-Lưu ý: `driver` là trạng thái **trong tiến trình**. Edge gọi
-`LookupBandwidth` trong node `LOG`, nhưng edge không nạp object eBPF (dataplane
-là tiến trình khác, map không được pin) nên luôn trả lỗi/0. `BlockCIDR` hiện
-chưa có nơi gọi. Xem [12-known-issues.md](12-known-issues.md).
+Khoá giữ IP theo thứ tự byte mạng trong bộ nhớ, giống `saddr` thô mà XDP
+dùng (`binary.NativeEndian` trên 4 byte địa chỉ).
+
+Lưu ý: `driver` là trạng thái **trong tiến trình**: chỉ dataplane nạp object
+eBPF (map không được pin), nên các hàm này chỉ dùng được ở đó. Hiện không
+tiến trình nào khác gọi chúng, và `BlockCIDR` chưa có nơi gọi.
 
 ## 5.3 Môi trường netns để phát triển
 
