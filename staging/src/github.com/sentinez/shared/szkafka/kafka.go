@@ -20,6 +20,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -27,6 +29,8 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/sztopic"
+	"github.com/twmb/franz-go/pkg/kadm"
+	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"google.golang.org/protobuf/proto"
 )
@@ -44,7 +48,15 @@ const (
 	HeaderService = "sz-service"
 )
 
-const _linger = 5 * time.Millisecond
+// DefaultTopicPartitions the partitions of the topics a producer creates,
+// also the most collector replicas sharing a topic.
+const DefaultTopicPartitions = 6
+
+const (
+	_linger = 5 * time.Millisecond
+	// _createTimeout bounds the creation of the missing topics.
+	_createTimeout = 10 * time.Second
+)
 
 var (
 	_ szlog.EventExporter = (*Producer)(nil)
@@ -69,11 +81,70 @@ type Config struct {
 	Topics map[typepb.LogType]string
 	// ServiceName is sent as the HeaderService header and the client id.
 	ServiceName string
+	// Partitions of the topics it produces to NewProducer creates when
+	// missing, zero takes DefaultTopicPartitions; an existing topic is left as
+	// is. A failed creation is only logged: the producer still starts,
+	// its records dropped until the topics exist.
+	Partitions int32
+	// ReplicationFactor of the topics created, zero takes the broker
+	// default.
+	ReplicationFactor int16
+}
+
+// ConfigOption sets an optional field of the Config of ConfigOf.
+type ConfigOption interface {
+	apply(cfg *Config)
+}
+
+type topicsOption map[typepb.LogType]string
+
+func (o topicsOption) apply(cfg *Config) {
+	cfg.Topics = o
+}
+
+// WithTopics produces each log type to its topic of topics, see
+// Config.Topics.
+func WithTopics(topics map[typepb.LogType]string) ConfigOption {
+	return topicsOption(maps.Clone(topics))
+}
+
+type partitionsOption int32
+
+func (o partitionsOption) apply(cfg *Config) {
+	cfg.Partitions = int32(o)
+}
+
+// WithTopicPartitions creates the missing topics with n partitions, see
+// Config.Partitions.
+func WithTopicPartitions(n int32) ConfigOption {
+	return partitionsOption(n)
+}
+
+type replicationOption int16
+
+func (o replicationOption) apply(cfg *Config) {
+	cfg.ReplicationFactor = int16(o)
+}
+
+// WithReplicationFactor replicates the topics created n times, see
+// Config.ReplicationFactor.
+func WithReplicationFactor(n int16) ConfigOption {
+	return replicationOption(n)
 }
 
 // ConfigOf returns the config producing to the comma-separated brokers as
-// serviceName, with the default topics.
-func ConfigOf(brokers, serviceName string) Config {
+// serviceName, with the default topics, set by opts.
+func ConfigOf(brokers, serviceName string, opts ...ConfigOption) Config {
+	cfg := Config{Brokers: Brokers(brokers), ServiceName: serviceName}
+	for _, opt := range opts {
+		opt.apply(&cfg)
+	}
+
+	return cfg
+}
+
+// Brokers splits the comma-separated brokers, e.g. "a:9092, b:9092".
+func Brokers(brokers string) []string {
 	var seeds []string
 	for b := range strings.SplitSeq(brokers, ",") {
 		if b = strings.TrimSpace(b); b != "" {
@@ -81,7 +152,7 @@ func ConfigOf(brokers, serviceName string) Config {
 		}
 	}
 
-	return Config{Brokers: seeds, ServiceName: serviceName}
+	return seeds
 }
 
 // DefaultTopics returns the topic of each edge traffic log type.
@@ -111,7 +182,7 @@ type route struct {
 	kind  []byte
 }
 
-// NewProducer builds a Producer; it connects lazily, on the first event.
+// NewProducer builds a Producer, after creating its missing topics.
 // The caller owns it and must Shutdown it to flush pending events.
 func NewProducer(cfg Config) (*Producer, error) {
 	if len(cfg.Brokers) == 0 {
@@ -130,11 +201,16 @@ func NewProducer(cfg Config) (*Producer, error) {
 		return nil, fmt.Errorf("szkafka: new client: %w", err)
 	}
 
-	return &Producer{
+	p := &Producer{
 		client:  client,
 		routes:  routesOf(cfg.Topics),
 		service: []byte(cfg.ServiceName),
-	}, nil
+	}
+	if err := p.createTopics(cfg); err != nil {
+		szlog.Warnf("%v", err)
+	}
+
+	return p, nil
 }
 
 // Export encodes event, then produces it asynchronously.
@@ -221,4 +297,43 @@ func marshal(event proto.Message) ([]byte, error) {
 	}
 
 	return proto.Marshal(event)
+}
+
+// createTopics creates the topics of p missing on the brokers, with the
+// partitions and replication factor of cfg.
+func (p *Producer) createTopics(cfg Config) error {
+	partitions := cfg.Partitions
+	if partitions <= 0 {
+		partitions = DefaultTopicPartitions
+	}
+	replication := cfg.ReplicationFactor
+	if replication <= 0 {
+		replication = -1 // the broker default
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), _createTimeout)
+	defer cancel()
+
+	resps, err := kadm.NewClient(p.client).CreateTopics(ctx,
+		partitions, replication, nil, p.topics()...)
+	if err != nil {
+		return fmt.Errorf("szkafka: create topics: %w", err)
+	}
+	for _, r := range resps.Sorted() {
+		if r.Err != nil && !errors.Is(r.Err, kerr.TopicAlreadyExists) {
+			return fmt.Errorf("szkafka: create topic %s: %w", r.Topic, r.Err)
+		}
+	}
+
+	return nil
+}
+
+// topics the distinct topics p produces to.
+func (p *Producer) topics() []string {
+	topics := make(map[string]struct{}, len(p.routes))
+	for _, r := range p.routes {
+		topics[r.topic] = struct{}{}
+	}
+
+	return slices.Collect(maps.Keys(topics))
 }
