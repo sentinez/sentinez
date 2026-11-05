@@ -71,4 +71,4 @@ Licensed under the [Apache 2.0](LICENSE) license.
 Licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
-> **[© 2025-2026 SENTINEZ](COO.md)** VN/CN/RU/IN/KR/US/JP/AU/FR/MY/NZ/ID/SG/TH/UK/EU
+> **[© 2025-2026 SENTINEZ](COO.md)** VN/CN/RU/IN/KR/US/JP/AU/FR/MY/NZ/ID/SG/TH/UK/EU/DK

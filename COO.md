@@ -1,4 +1,4 @@
-# SENTINEZ
+# SENTINÉZ
 
 SẢN XUẤT TẠI VIỆT NAM  
 越南制造  
@@ -10,10 +10,11 @@ MADE IN VIETNAM
 FABRIQUÉ AU VIETNAM  
 DIBUAT DI VIETNAM  
 BUATAN VIETNAM  
-ผลิตในประเทศเวียดนาม
+ผลิตในประเทศเวียดนาม  
+FREMSTILLET I VIETNAM
 
 --- 
-> **© 2025-2026 SENTINEZ**
+> **© 2025-2026 SENTINÉZ**
 <p align="left">
   <img src="./_logo/sntz.png" width="40"/>
   <img src="./_logo/sntz-black.png" width="40"/>
