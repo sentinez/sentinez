@@ -13,7 +13,7 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 └── repos/<name>/   # truy cập PostgreSQL (interface IXxx + struct)
 ```
 
-Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
+Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
 ## 7.1 Lớp lưu trữ (`shared/szstorage/dbx`)
@@ -54,11 +54,46 @@ Scaffold mẫu cho từng lớp nằm trong `.agent/skills/` (`create-service`,
 Tên bảng ([shared/sztable](../../staging/src/github.com/sentinez/shared/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`, cùng các bảng event của edge `analytic.secrules.events`,
-`analytic.ratelimiters.events`, `analytic.corerulesets.events` (xem
+`analytic.ratelimiters.events`, `analytic.corerulesets.events`,
+`analytic.httpingress.events`, `analytic.httpegress.events` (xem
 [Collector](#collector-thu-nạp-event-của-edge)).
 
 Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 `protoc-gen-go-senz` cho message có option `x_message.database_model = true`.
+
+### TimescaleDB: hypertable và continuous aggregate
+
+[shared/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/shared/szstorage/dbx/timescale/)
+xây trên `postgres.Open`: dùng chung pool và tham gia được transaction của
+`postgres.WithTx`. Cần TimescaleDB (`SENZ_POSTGRES_URI` trỏ vào container
+`sentinez.timescale` mà `hack/timescale-up.sh` bật).
+
+- `timescale.New[T](ctx, conf, timescale.Hypertable{Schema, TimeColumn,
+  ChunkInterval, Retention})` tạo extension `timescaledb`, bảng, các cột
+  còn thiếu, hypertable, index và retention policy, trong một round trip.
+  Bảng thường đã có được chuyển tại chỗ (`migrate_data`, bỏ primary key).
+  - `TimeColumn` dùng để chia partition: cột `TIMESTAMPTZ` (mặc định
+    `created_at`) hoặc `BIGINT` là unix mili giây; với loại sau, hàm
+    `<table>_now()` mà các policy cần được tạo tự động. `ChunkInterval`
+    mặc định 7 ngày; đổi giá trị chỉ áp dụng cho chunk tạo sau đó.
+  - Unique index của hypertable bắt buộc chứa cột thời gian, nên `id` một
+    mình không còn unique: khoá là `(id, <cột thời gian>)`, và insert bỏ
+    qua bản ghi trùng bằng `Hypertable.OnConflictDoNothing()`
+    (`ON CONFLICT (id, <cột thời gian>) DO NOTHING`).
+  - `Retention` xoá các chunk cũ hơn mốc đó (không đặt khi bằng 0).
+- `timescale.NewView[T](ctx, conf, timescale.ViewSchema{...})` tạo
+  continuous aggregate (materialized view) trên một hypertable đã tồn tại:
+  `time_bucket(Bucket, cột thời gian)` đặt tên `bucket`, các cột `GroupBy`,
+  rồi các `Aggregates` (`Expr`, `As`); view được làm mới theo policy
+  `Refresh` (`StartOffset`, `EndOffset`, `Schedule`) và xoá bucket sau
+  `Retention`. `RealTime` cho phép khi query vẫn tổng hợp thêm các bucket
+  chưa được làm mới.
+  - View được tạo `WITH NO DATA`, và backfill một lần, tới
+    `now - Refresh.EndOffset`, khi nó chưa tồn tại. Chế độ real time, policy
+    refresh và retention được áp dụng ở mỗi lần khởi động; đổi định nghĩa
+    (nguồn, bucket, `GroupBy`, `Aggregates`) thì phải dùng tên mới.
+  - Không tạo hay refresh được trong transaction. `View.Refresh(ctx, from,
+    to)` làm mới thủ công một khoảng; `View.CollectRows` để query.
 
 ## 7.2 Xác thực & phân quyền
 
@@ -281,6 +316,8 @@ bảng event analytic.
 | `sentinez.event.http.secrule` | `secrulepb.RuleEvent` | `analytic.secrules.events` | `ruleeventsrepo.NewSecRules` |
 | `sentinez.event.http.ratelimit` | `secrulepb.RuleEvent` | `analytic.ratelimiters.events` | `ruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
+| `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpeventsrepo.New` |
+| `sentinez.event.http.egress` | `httppb.EgressEvent` (mỗi request được proxy tới upstream origin một event, từ handler `logging`) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
 Luồng xử lý một batch:
 
@@ -292,34 +329,104 @@ Luồng xử lý một batch:
 3. Sink decode record (`UnmarshalVT`), bỏ record không decode được kèm
    cảnh báo, và insert tối đa 500 dòng mỗi câu lệnh. Edge gán ULID cho mọi
    event; event nào thiếu id sẽ nhận `<prefix>_<topic>-<partition>-<offset>`,
-   giống nhau ở mọi lần đọc lại.
+   giống nhau ở mọi lần đọc lại. Event được decode vào message lấy từ pool
+   (xem [Pool event](#pool-event)) và trả lại pool khi batch đã insert
+   xong, nên `Create` không được giữ lại event.
 4. Khi cả batch đã insert xong, các record được đánh dấu; offset đã đánh
    dấu được commit định kỳ, và trước khi partition chuyển đi hoặc consumer
    đóng.
 
 Mỗi event được ghi ít nhất một lần (at least once). Insert lỗi thì thử lại
 cả batch, chờ tăng dần từ 0.5 s đến 30 s, và trong lúc đó không poll batch
-khác. Repo insert với `ON CONFLICT (id) DO NOTHING`, nên batch bị đọc lại
-không tạo bản ghi trùng.
+khác. Repo insert với `ON CONFLICT (id, <cột thời gian>) DO NOTHING` (xem
+[TimescaleDB](#timescaledb-hypertable-và-continuous-aggregate)), nên batch
+bị đọc lại không tạo bản ghi trùng.
 
 Các bảng ([pkg/schema/analytic.go](../../staging/src/github.com/sentinez/controlplane/pkg/schema/analytic.go):
 `AnalyticSecRulesEvent`, `AnalyticRateLimiterEvent`,
-`AnalyticCoreRulesetsEvent`) lấy theo các trường của message Kafka: mảng là
-`TEXT[]`/`INTEGER[]`, `action` và `tags` là `JSONB`, enum là `INTEGER`,
-`matched_time` (mili giây) là `BIGINT`, có index `BTREE` trên
-`matched_time` và `resource_id`. Chúng không nằm trong `schema.All()`:
+`AnalyticCoreRulesetsEvent`, `AnalyticHttpIngressEvent`,
+`AnalyticHttpEgressEvent`) lấy theo các trường
+của message Kafka: mảng là `TEXT[]`/`INTEGER[]`, `action` và `tags` là
+`JSONB`, enum là `INTEGER`, `matched_time` (mili giây) là `BIGINT`, có index
+`BTREE` trên `matched_time` và `resource_id`. Bảng ingress có các trường
+scalar của `httppb.IngressEvent` (`status` là `INTEGER`, `asn` và `timestamp` (mili
+giây) là `BIGINT`, còn lại là `TEXT`, header không gồm các header chứa
+credential), có index trên `timestamp` và `resource_id`; `resource_id`/
+`tenant_id` của nó còn trống cho tới khi có stage của edge gọi
+`SetResourceId`/`SetTenantId`. Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
-`event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1` và
-`types/coreruleset/v1`.
+`event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
+`types/coreruleset/v1` và `types/net/http/v1`.
+
+Bảng egress có một dòng cho mỗi request mà edge proxy tới upstream origin
+(`httppb.EgressEvent`): `id` chính là id của event ingress của request đó,
+nên hai bảng nối với nhau qua `id`; tiếp theo là `upstream` (vd
+`http://10.0.0.1:8080`), `method`, `scheme` (của upstream), `path`,
+`queries`, `status` (của origin, 502 khi không kết nối được), `content_type`,
+`content_length` (-1 khi stream), `latency_micros`, `timestamp` (lúc gửi
+request, mili giây), `resource_id`, `tenant_id` và `protocol` (phiên bản
+HTTP client dùng để tới edge). Request do edge tự trả lời (cache, static, bị
+chặn) không có dòng egress.
+
+Mọi bảng event đều là hypertable
+(`schema.EventHypertable(schema, timeColumn)`), chia theo cột thời gian
+(`matched_time`, `timestamp`) thành chunk một ngày, và giữ trong
+`schema.EventRetention`, 30 ngày.
 
 Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/)):
 
 - `Create(ctx, events...)` insert các event (bắt buộc đã có id) trong một
   câu lệnh; `Get`, `Delete`, `WithTX`.
+- `Histogram(ctx, *histogram.Filter)`: số lượng theo bucket thời gian, xem
+  [Histogram](#histogram).
 - `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds` và theo
-  `matched_time` (`From` tính cả mốc, `To` không tính), phân trang bằng
-  `Page`, sắp theo `matched_time DESC`.
+  `matched_time` (`From` tính cả mốc, `To` không tính; event ingress dùng
+  `timestamp`), phân trang bằng `Page`, sắp theo `matched_time DESC`.
 - Danh sách cột lấy từ `Schema.ColumnNames()` của schema bảng.
+
+#### Histogram
+
+[repos/histogram](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/histogram/)
+giữ, cho mỗi bảng event, hai continuous aggregate đếm số dòng theo bucket,
+resource và key, để vẽ chart:
+
+| View | Bucket | Làm mới | Khoảng dùng |
+|---|---|---|---|
+| `<table>_minutely` | 1 phút | mỗi phút, 2 giờ gần nhất tới 1 phút trước | tới một ngày |
+| `<table>_hourly` | 1 giờ | mỗi 30 phút, 3 ngày gần nhất tới 1 giờ trước | tới 30 ngày |
+
+Ví dụ `dev_sentinez_analytic_httpingress_events_minutely`. View chạy real
+time, nên các bucket mới nhất gồm cả những dòng chưa được làm mới, và được
+giữ trong `schema.EventRetention`. Các cột là `bucket` (unix mili giây),
+`resource_id`, `tenant_id`, key và `total`.
+
+Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
+`behavior` với event core ruleset, không có với event secrule và rate limit
+(`Point.Key` bằng 0).
+
+`Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
+cộng `total` qua các tenant và trả về `[]*Point{Time, ResourceId, Key,
+Total}`, cũ nhất trước. `Resolution` là `histogram.Minute` (mặc định) hoặc
+`histogram.Hour`; `From` tính cả mốc, `To` không tính, theo đầu bucket.
+
+#### Pool event
+
+Sink decode vào các message được tái sử dụng
+([controlplane/pkg/pools](../../staging/src/github.com/sentinez/controlplane/pkg/pools/)):
+
+| Package | Message | Sink |
+|---|---|---|
+| `pools/secrule` | `secrulepb.RuleEvent` | secrule, ratelimit |
+| `pools/coreruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
+| `pools/httpingress` | `httppb.IngressEvent` | ingress |
+| `pools/httpegress` | `httppb.EgressEvent` | egress |
+
+Mỗi package có `Pool()`, `Acquire()`, `Release(obj)`, dựa trên pool mà
+vtproto sinh cho message (`<Msg>FromVTPool`, `ReturnToVTPool`, xem
+[8.3](08-api-protobuf.md#83-sinh-code)). `ReturnToVTPool` gọi `ResetVT`, hàm
+này giữ dung lượng của các trường repeated cho lần `UnmarshalVT` sau. Sink
+gom event của một batch vào `pools.Batch` và `defer` `Close` của nó để trả
+tất cả về pool.
 
 Cấu hình: `SENZ_KAFKA_BROKERS` (không đặt: ingest bị tắt kèm cảnh báo,
 gRPC server vẫn chạy) và database của `SENZ_POSTGRES_URI`. Các giới hạn

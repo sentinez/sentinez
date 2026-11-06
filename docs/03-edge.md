@@ -175,12 +175,12 @@ the sub-stores of `MemStore`, the hostname and event loggers
 is wrapped by `handlers.Stage`, which tags errors with the plugin `ID()`
 (`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
 stage that produced them; the stage names are exported constants (e.g.
-`secure.WAFId`). The edge closes the chain (`Chain.Close`) on shutdown.
+`secure.WAFId`). A panic of a plugin is recovered by its `Stage` too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `LOG`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
 
 | Order | Stage | Plugin | Behavior |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
-| 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`) |
+| 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, from the `ctx.X().Upstream*` fields `ROU` sets) |
 | 2 | `DMA` | `secure.DomainBased` | Host must be `<ns>.<SENZ_HOSTNAME>` (single level, port stripped). Otherwise → `403`. Sets `X().Namespace = ns` |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
@@ -188,7 +188,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
 | 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_WAF`) if the transaction was interrupted |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) if the transaction was interrupted |
 | 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates

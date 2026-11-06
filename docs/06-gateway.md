@@ -66,8 +66,8 @@ httpMux:
 ```
 
 - `Logging`: reads the whole body (so it can be logged on error), calls the
-  handler, debug-logs when status ≥ 400, then writes an `httppb.Event` (kind
-  `LOG_TYPE_HTTP`) through `szlog`.
+  handler, debug-logs when status ≥ 400, then writes an `httppb.IngressEvent` (kind
+  `LOG_TYPE_HTTP_INGRESS`) through `szlog`.
 - `AllowCORS`: reflects any `Origin`, sets `Allow-Credentials: true`, returns
   `204` for preflight with methods `GET, HEAD, POST, PUT, DELETE` and headers
   `Content-Type, Accept, Authorization`.

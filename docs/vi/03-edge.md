@@ -167,13 +167,13 @@ sub-store của `MemStore`, hostname và logger sự kiện (`Env.Logger(kind)`)
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
 `handlers.Stage` để gắn `ID()` của plugin vào lỗi
 (`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
-gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chain
+gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plugin cũng được `Stage` của nó bắt: log một lần kèm stage và stack, rồi trả trang `500`, nên các plugin bên ngoài (vd `LOG`) vẫn ghi lại request; `http.ErrAbortHandler`, khi reverse proxy huỷ response, được panic lại cho server. Edge đóng chain
 (`Chain.Close`) khi shutdown.
 
 | Thứ tự | Stage | Plugin | Hành vi |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
-| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.Event` (JSON, kind `LOG_TYPE_HTTP`) |
+| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, lấy từ các trường `ctx.X().Upstream*` do `ROU` ghi) |
 | 2 | `DMA` | `secure.DomainBased` | Host phải có dạng `<ns>.<SENZ_HOSTNAME>` (một cấp, bỏ port). Sai → `403`. Gán `X().Namespace = ns` |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
@@ -181,7 +181,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Edge đóng chai
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
 | 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_WAF`) nếu bị interrupt |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) nếu bị interrupt |
 | 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`

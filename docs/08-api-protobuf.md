@@ -62,7 +62,15 @@ paths `api/proto` and `api/third_party/{googleapis,grpc-gateway,protovalidate}`:
 | `protoc-gen-grpc-gateway` | `*.pb.gw.go` |
 | `protoc-gen-validate` | `*.pb.validate.go` |
 | `protoc-gen-go-senz` | `*_senz.pb.go` |
+| `protoc-gen-go-vtproto` (`features=marshal+unmarshal+size`) | `*_vtproto.pb.go` |
 | `protoc-gen-openapiv2` | `api/docs/v1/<domain>.swagger.json` |
+
+The `pool` vtproto feature is on for the pooled events only, each named by
+a `--go-vtproto_opt=pool=<import path>.<Message>` in its `generate.sh`:
+`secrule.v1.RuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`net.http.v1.IngressEvent` and `rule.v1.MatchedRules`. It generates `ResetVT`
+(`Reset` that keeps the capacity of the repeated fields), and
+`<Msg>FromVTPool`/`ReturnToVTPool` on a pool of the message.
 
 TypeScript for the UI: `cd api && buf generate` with `ts-proto`
 ([api/buf.gen.yaml](../api/buf.gen.yaml)) → `ui/packages/proto/ts-proto`.
@@ -140,15 +148,22 @@ Edge config for one namespace — see
 ### `dmz.edge.v1.Context`
 
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
-ContextExtra{namespace, ...matched ids/names}}` — per-request edge state,
-attached to `szhttp.Context`.
+ContextExtra{namespace, ...matched ids/names, upstream,
+upstream_timestamp, upstream_latency_micros}}` — per-request edge state,
+attached to `szhttp.Context`. The router (`ROU`) sets the three `upstream`
+fields around the reverse proxy call, for the egress log.
 
 ### Log events
 
 | Type | Logger kind | Emitted by |
 |---|---|---|
-| `net.http.v1.Event` | `LOG_TYPE_HTTP` | Edge `LOG` node, apiserver `Logging` middleware |
-| `secrule.v1.Event` | `LOG_TYPE_WAF` | Edge `WAF` node when a transaction is interrupted |
+| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Edge `LOG` node, apiserver `Logging` middleware |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `LOG` node, for a request proxied to its upstream origin; same `id` as its ingress event |
+| `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Edge `WAF` node when a transaction is interrupted |
 
-Events are reused through pools in `pkg/pools/{request,ruleevent}`;
-`LogCloser` returns the object to its pool after logging.
+Events are reused through pools in
+`pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: each wrapper keeps
+its message, and `Release` calls `ResetVT` so the repeated fields keep
+their capacity. `LogCloser` returns the object to its pool after logging.
+The collector has its own pools, see
+[07-controlplane.md](07-controlplane.md#event-pools).

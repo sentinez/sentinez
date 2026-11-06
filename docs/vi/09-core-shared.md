@@ -73,6 +73,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
 | `shared/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
 | `shared/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-sharedszstoragedbx) |
+| `shared/szstorage/dbx/timescale` | Hypertable và continuous aggregate, xem [07-controlplane.md](07-controlplane.md#timescaledb-hypertable-và-continuous-aggregate) |
 | `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 | `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
@@ -100,7 +101,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `szeventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
 | `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
 | `szcolor` | Màu ANSI cho log console |
-| `sztopic` | Tên topic của event traffic edge (`EventHTTPIngress`, `EventHTTPSecRule`, ...) |
+| `sztopic` | Kiểu `Topic` và tên topic của event traffic edge (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
 
 ### `szlog`
 
@@ -182,7 +183,7 @@ nén; sau khi giải nén (producer dùng zstd) sẽ lớn hơn.
 | `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
-| `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
+| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pool cho các event của edge (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.RuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset bằng `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
 | `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge, xem [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`api/client/consul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |

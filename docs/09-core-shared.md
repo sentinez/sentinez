@@ -75,6 +75,7 @@ exported. An `https://` endpoint uses TLS.
 | `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
 | `shared/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
 | `shared/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-sharedszstoragedbx) |
+| `shared/szstorage/dbx/timescale` | Hypertables and continuous aggregates, see [07-controlplane.md](07-controlplane.md#timescaledb-hypertables-and-continuous-aggregates) |
 | `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 | `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
@@ -102,7 +103,7 @@ exported. An `https://` endpoint uses TLS.
 | `szeventq` | In-process pub/sub per namespace on channels (no callers yet) |
 | `szstore/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
 | `szcolor` | ANSI colors for console logs |
-| `sztopic` | Topic names of the edge traffic events (`EventHTTPIngress`, `EventHTTPSecRule`, ...) |
+| `sztopic` | `Topic` type and the topic names of the edge traffic events (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
 
 ### `szlog`
 
@@ -185,7 +186,7 @@ compressed data; decompressed (the producer uses zstd) it is larger.
 | `pkg/network/httpx/std` | `szhttp.Server` on `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
-| `pkg/pools/{request,ruleevent}` | Pools for `httppb.Event`, `secrulepb.Event` |
+| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pools of the edge events (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.RuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset with `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
 | `pkg/cluster` | Embedded Olric; `SyncMap[T]` syncs a local map between edges, see [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Zone leader election through a Consul session lock; the leader keeps the zone status in Consul KV with fenced writes (`api/client/consul` `PutFenced`), see [03-edge.md](03-edge.md#zone-leader-election) |

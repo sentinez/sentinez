@@ -66,7 +66,7 @@ httpMux:
 ```
 
 - `Logging`: đọc toàn bộ body (để log khi lỗi), gọi handler, log debug nếu
-  status ≥ 400, rồi ghi `httppb.Event` (kind `LOG_TYPE_HTTP`) qua `szlog`.
+  status ≥ 400, rồi ghi `httppb.IngressEvent` (kind `LOG_TYPE_HTTP_INGRESS`) qua `szlog`.
 - `AllowCORS`: phản chiếu `Origin` bất kỳ, `Allow-Credentials: true`, trả
   `204` cho preflight với methods `GET, HEAD, POST, PUT, DELETE` và headers
   `Content-Type, Accept, Authorization`.
