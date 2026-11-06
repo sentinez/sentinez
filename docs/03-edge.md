@@ -207,9 +207,11 @@ written as strings. Full example:
 
 ```yaml
 setting:
-  metadata: {}
+  metadata:
+    tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
     name: badcheese              # namespace = subdomain
+    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix to match
         proxyRewrite: /          # replaces the prefix before forwarding (default = location)

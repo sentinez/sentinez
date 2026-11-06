@@ -14,13 +14,14 @@ Không có.
 | # | Vị trí | Vấn đề |
 |---|---|---|
 | S1 | [pkg/apps/gateway/apiserver/middleware/middleware.go](../../pkg/apps/gateway/apiserver/middleware/middleware.go) `AllowCORS` | Phản chiếu mọi `Origin` kèm `Allow-Credentials: true` (code có ghi chú không dùng cho production) |
-| S2 | Handler controlplane | Phân quyền phải tự gọi trong từng handler; chỉ `ListAccounts`, `ListActivities` có kiểm tra. Tenant, Security, `ListUsers`, `DeleteUser`… không yêu cầu token |
+| S2 | Handler controlplane | Phân quyền phải tự gọi trong từng handler (`headers.Allow`); chỉ `ListAccounts`, Tenant và Analytic có kiểm tra. Security, `ListUsers`, `DeleteUser`… không yêu cầu token |
 | S3 | IAM `loginAdmin` | So mật khẩu admin dạng plaintext, không constant-time; admin không có giới hạn đăng nhập sai |
 | S4 | Middleware `Logging` (apiserver) | Đọc toàn bộ body và log ở mức debug khi lỗi — có thể ghi mật khẩu từ `/iam/login` vào log |
 | S5 | [cmd/szedge/v1/server/pprof.go](../../cmd/szedge/v1/server/pprof.go) | pprof luôn mở ở `defaults.PprofAddress` (`0.0.0.0:6060`; compose cũng publish port này) |
 | S6 | [pkg/network/httpx/context.go](../../pkg/network/httpx/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | Image đóng gói cặp cert/key từ thư mục source |
 | S8 | `httpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Quic` và `Standard`, tức mặc định) |
+| S9 | Đọc event của Analytic | Chưa lọc theo tenant: không truyền `resource_ids` thì mọi token hợp lệ đều đọc được event của mọi tenant |
 
 ## 12.3 Chức năng chưa hoàn thiện
 
@@ -29,7 +30,10 @@ Không có.
   reload.
 - Setting không khai báo `metadata.tenantId` / `server.resourceId` dùng
   chung id `tnt_default` / `rsrc_default`, nên event của chúng bị gộp
-  chung trong các bảng event.
+  chung trong các bảng event; setting dùng tenant id mặc định không được
+  sync giữa các edge.
+- Chọn rõ `HISTOGRAM_RESOLUTION_SECOND` mà không có `from` sẽ đọc cả 7 ngày
+  của view giây.
 - [deploy/docker/telemetry/docker-compose.yaml](../../deploy/docker/telemetry/docker-compose.yaml)
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong

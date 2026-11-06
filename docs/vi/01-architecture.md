@@ -148,8 +148,9 @@ Thư mục cấp root:
    `Authorization: Bearer <JWT>`.
 2. grpc-gateway `runtime.ServeMux` chuyển thành lời gọi gRPC **in-process**
    (`RegisterXxxHandlerServer`) tới handler của controlplane.
-3. Handler kiểm tra quyền (`headers.GetAuth` + `perms.Allow`) với một số RPC,
-   rồi gọi service → repository → PostgreSQL.
+3. Handler kiểm tra quyền (`headers.Allow`: `headers.GetAuth` +
+   `perms.Allow`) với một số RPC, rồi gọi service → repository →
+   PostgreSQL.
 
 Hiện tại **chưa có kênh đẩy cấu hình từ control plane xuống edge**: edge đọc
 `proxy.yaml` lúc khởi động; dữ liệu tenant/SecRule trong DB chỉ phục vụ

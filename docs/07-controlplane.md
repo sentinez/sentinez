@@ -103,7 +103,7 @@ of `postgres.WithTx`. It needs TimescaleDB (`SENZ_POSTGRES_URI` on the
 | Package | Purpose |
 |---|---|
 | `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`. `BearerTokenVerifier` strips the `Bearer ` prefix, verifies the HMAC and parses the `Context` back. `HashPassword`/`CheckPasswordHash` use bcrypt |
-| `headers` | `GetAuth(ctx)` reads the `Authorization` metadata and verifies it → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow` |
+| `headers` | `GetAuth(ctx)` reads the `Authorization` metadata and verifies it → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow`; `Allow(ctx, method)` does both |
 | `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); in-memory `Store` (WebAuthn sessions + pending `Registration`s, see 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWTs expire
@@ -115,9 +115,9 @@ Authorization is based on the **control plane** (`PORTAL` / `ADMIN`):
   control_planes: [...]}`; codegen produces `Get<Service><Method>()`.
 - `perms.Allow(method, cp)` allows access if the method is nil, `ignore` is
   set, the list is empty, or `cp` is in the list.
-- Handlers must **call** `headers.GetAuth` + `Check` **themselves** — today
-  only `IAM.ListAccounts` and `Analytic.ListActivities` do. There is no shared
-  gRPC interceptor.
+- Handlers must **call** `headers.Allow(ctx, method)` **themselves** —
+  today `IAM.ListAccounts`, the Tenant handlers and every Analytic RPC do.
+  There is no shared gRPC interceptor.
 
 ## 7.3 IAM
 
@@ -303,7 +303,7 @@ Rules stored here are **not pushed to the edge yet**.
 
 | Domain | Status |
 |---|---|
-| Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Runs in-process in the apiserver |
+| Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), and the reads of the edge events and their histograms (see [Analytic: event reads](#analytic-event-reads)). Runs in-process in the apiserver |
 | Greeter | Sample service: `SayHello` (`GET /greeter/say?name=`) replies with the current time; `Status`. Has its own `szgreeter` binary and also runs in-process in the apiserver |
 | CentralData | Only `Status`; the `szcentraldata` binary has no `main` body |
 | Collector | `Status`, plus the ingest of the edge events from Kafka (below). Binary `szcollector` |
@@ -320,7 +320,7 @@ batches, in the analytic event tables.
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
 | `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
-| `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpeventsrepo.New` |
+| `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpingressrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (one per request proxied to its upstream origin, from the `logging` handler) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
 Flow of a batch:
@@ -392,17 +392,19 @@ Repositories ([apps/collector/v1/repos](../staging/src/github.com/sentinez/contr
 #### Histograms
 
 [repos/histogram](../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/histogram/)
-keeps, for each event table, two continuous aggregates counting its rows
+keeps, for each event table, three continuous aggregates counting its rows
 per bucket, resource and key, for charts:
 
-| View | Bucket | Refreshed | Range |
-|---|---|---|---|
-| `<table>_minutely` | 1 minute | every minute, the last 2 hours up to 1 minute ago | up to a day |
-| `<table>_hourly` | 1 hour | every 30 minutes, the last 3 days up to 1 hour ago | up to 30 days |
+| View | Bucket | Refreshed | Range | Kept |
+|---|---|---|---|---|
+| `<table>_secondly` | 1 second | every 10 seconds, the last 3 minutes up to 1 second ago | a zoom of up to 15 minutes | 7 days |
+| `<table>_minutely` | 1 minute | every minute, the last 2 hours up to 1 minute ago | up to a day | 30 days |
+| `<table>_hourly` | 1 hour | every 30 minutes, the last 3 days up to 1 hour ago | up to 30 days | 30 days |
 
 For example `dev_sentinez_analytic_httpingress_events_minutely`. The views
-are real time, so the latest buckets include the rows not refreshed yet,
-and are kept for `schema.EventRetention`. Their columns are `bucket` (unix
+are real time, so the latest buckets include the rows not refreshed yet;
+the minute and hour views are kept for `schema.EventRetention`, the second
+one for 7 days (`_secondRetention`). Their columns are `bucket` (unix
 milliseconds), `resource_id`, `tenant_id`, the key and `total`.
 
 The key splits the counts further: the http `status` for the ingress and
@@ -411,8 +413,39 @@ and rate limit events (`Point.Key` is 0).
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
 sums the totals over the tenants and returns `[]*Point{Time, ResourceId,
-Key, Total}`, oldest first. `Resolution` is `histogram.Minute` (default) or
-`histogram.Hour`; `From` is inclusive, `To` exclusive, on the bucket start.
+Key, Total}`, oldest first. `Resolution` is `histogram.Second`, `Minute` or
+`Hour`, numbered as the proto `HistogramResolution`. When it is zero the
+range picks it: `Second` for a `From`..`To` (`To` defaulting to now) of up
+to 15 minutes (`_secondSpan`) whose `From` is still within the 7 days of
+the second view, else `Minute`. `From` is inclusive, `To` exclusive, on the
+bucket start.
+
+### Analytic: event reads
+
+The analytic reads the collector tables through
+[apps/analytic/v1/repos/events](../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
+`eventsrepo.Events` holds one read-only `Reader[T]` (`List`, `Histogram`)
+per table, built from the collector repos, so the analytic cannot write
+events. Building it syncs the tables and views, as the collector does.
+
+| RPC | REST | Reads |
+|---|---|---|
+| `ListHttpIngressEvents` | `GET /analytic/events/http-ingress` | `analytic.httpingress.events` |
+| `ListHttpEgressEvents` | `GET /analytic/events/http-egress` | `analytic.httpegress.events` |
+| `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
+| `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
+| `ListCoreRuleEvents` | `GET /analytic/events/coreruleset` | `analytic.corerulesets.events` |
+| `GetEventHistogram` | `GET /analytic/events/histogram` | the views of `kind` |
+
+- A list request has `page`, `resource_ids`, `from` and `to`; the latest
+  events come first. A page holds 50 events when unset, at most 500.
+- `GetEventHistogram` takes `kind` (`EventKind`), `resolution`
+  (`HistogramResolution`, `UNSPECIFIED` picks it by the range, see
+  [Histograms](#histograms)), `resource_ids`, `from` and `to`, and returns
+  `HistogramPoint{time, resource_id, key, total}`, oldest first.
+- Every RPC requires a token (`headers.Allow`, `ignore: true`). The reads
+  are not scoped by tenant: with no `resource_ids` they return the events
+  of every tenant.
 
 #### Event pools
 

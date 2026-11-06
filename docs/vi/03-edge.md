@@ -198,9 +198,11 @@ Ví dụ đầy đủ: [cmd/szedge/v1/proxy.yaml](../../cmd/szedge/v1/proxy.yaml
 
 ```yaml
 setting:
-  metadata: {}
+  metadata:
+    tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
     name: badcheese              # namespace = subdomain
+    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix khớp
         proxyRewrite: /          # thay prefix trước khi forward (mặc định = location)

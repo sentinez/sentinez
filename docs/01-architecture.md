@@ -150,8 +150,9 @@ Top-level directories:
    `Authorization: Bearer <JWT>`.
 2. The grpc-gateway `runtime.ServeMux` turns it into an **in-process** gRPC
    call (`RegisterXxxHandlerServer`) to the control-plane handler.
-3. For some RPCs the handler checks permissions (`headers.GetAuth` +
-   `perms.Allow`), then calls service → repository → PostgreSQL.
+3. For some RPCs the handler checks permissions (`headers.Allow`:
+   `headers.GetAuth` + `perms.Allow`), then calls service → repository →
+   PostgreSQL.
 
 There is currently **no channel that pushes configuration from the control
 plane to the edge**: the edge reads `proxy.yaml` at startup; tenant/SecRule

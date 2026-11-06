@@ -116,6 +116,12 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
 | GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
+| GET | `/analytic/events/http-ingress` | `AnalyticService.ListHttpIngressEvents` | ignore |
+| GET | `/analytic/events/http-egress` | `AnalyticService.ListHttpEgressEvents` | ignore |
+| GET | `/analytic/events/secrule` | `AnalyticService.ListSecRuleEvents` | ignore |
+| GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
+| GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
+| GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 
 "Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).

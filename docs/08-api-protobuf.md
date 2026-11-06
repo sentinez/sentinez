@@ -116,6 +116,12 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
 | GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
+| GET | `/analytic/events/http-ingress` | `AnalyticService.ListHttpIngressEvents` | ignore |
+| GET | `/analytic/events/http-egress` | `AnalyticService.ListHttpEgressEvents` | ignore |
+| GET | `/analytic/events/secrule` | `AnalyticService.ListSecRuleEvents` | ignore |
+| GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
+| GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
+| GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 
 "Declared permission" is the option in the proto; enforcement depends on the
 handler (see
