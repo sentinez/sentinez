@@ -14,4 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-docker compose -f 'deploy/docker/docker-compose.yaml' up -d --build 'sentinez.postgres'
+docker compose -f 'deploy/docker/docker-compose.yaml' up -d --build 'sentinez.timescale'
+docker compose -f 'deploy/docker/docker-compose.yaml' up -d --build 'sentinez.consul'

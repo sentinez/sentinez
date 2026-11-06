@@ -10,7 +10,7 @@ description: A protoc plugin that generates Go helpers for Sentinez services, in
 
 
 ## Style
-Read `.agent/skills/go-style-guide/SKILL.md` (Uber-based; 80 columns, 35-line functions) before changing the plugin. The generator logic lives in `tools/internal/senz/senz.go`; `main.go` only wires it to `protogen`.
+Read `hack/.agent/skills/go-style-guide/SKILL.md` (Uber-based; 80 columns, 35-line functions) before changing the plugin. The generator logic lives in `tools/internal/senz/senz.go`; `main.go` only wires it to `protogen`.
 
 ## Features
 

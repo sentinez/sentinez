@@ -16,7 +16,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szgrpc/grpcgateway`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szcontext`, `szbytestr` (header/value byte constants); private `internal/{console,render}` (startup banner, error-page templ templates) |
 | ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`, `szstorage/dbx/postgres`): `szlog` (zap + OTLP), `szstorage`, `sztracer` (`StageError`), `szqueue`, `sznormalize` (`NormalizeEdgeSetting`: edge `*Lite` YAML → runtime protos), `szsdklog` (edge traffic log exporter), `szkafka` (Kafka producer and batch consumer), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
-| ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, `collector` (ingests the edge events from Kafka into the analytic event tables), plus `pkg/{crypto,headers,passkey}` |
+| ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, `collector` (ingests the edge events from Kafka into the analytic event tables), plus `pkg/{crypto,headers,passkey,pools}` (`pools`: the collector message pools, one package per event) |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
@@ -57,7 +57,7 @@ Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` 
 
 ## Go style guide
 
-Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-style-guide/SKILL.md) (based on the Uber Go Style Guide); read it before writing or reviewing Go. Scaffolding skills are alongside it in `.agent/skills/` (`create-service`, `create-handler`, `create-module`, `create-repo`, `create-factory`). Key points:
+Full rules live in [hack/.agent/skills/go-style-guide/SKILL.md](hack/.agent/skills/go-style-guide/SKILL.md) (based on the Uber Go Style Guide); read it before writing or reviewing Go. Scaffolding skills are alongside it in `hack/.agent/skills/` (`create-service`, `create-handler`, `create-module`, `create-repo`, `create-factory`). Key points:
 
 **Enforced by `.golangci.yaml`** (this wins over the skill's softer 99-char limit): `lll` 80 columns (tab = 4), `funlen` 35 lines per function, plus errcheck, govet, misspell, revive (context-as-argument, error-naming, error-strings, indent-error-flow, superfluous-else, unused-parameter, receiver-naming, etc.), staticcheck; formatted with gofmt + goimports.
 
