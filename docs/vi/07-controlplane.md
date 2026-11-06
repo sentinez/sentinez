@@ -313,8 +313,8 @@ bảng event analytic.
 
 | Topic | Giá trị record | Bảng | Repository |
 |---|---|---|---|
-| `sentinez.event.http.secrule` | `secrulepb.RuleEvent` | `analytic.secrules.events` | `ruleeventsrepo.NewSecRules` |
-| `sentinez.event.http.ratelimit` | `secrulepb.RuleEvent` | `analytic.ratelimiters.events` | `ruleeventsrepo.NewRateLimits` |
+| `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
+| `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
 | `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpeventsrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (mỗi request được proxy tới upstream origin một event, từ handler `logging`) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
@@ -352,8 +352,8 @@ của message Kafka: mảng là `TEXT[]`/`INTEGER[]`, `action` và `tags` là
 scalar của `httppb.IngressEvent` (`status` là `INTEGER`, `asn` và `timestamp` (mili
 giây) là `BIGINT`, còn lại là `TEXT`, header không gồm các header chứa
 credential), có index trên `timestamp` và `resource_id`; `resource_id`/
-`tenant_id` của nó còn trống cho tới khi có stage của edge gọi
-`SetResourceId`/`SetTenantId`. Chúng không nằm trong `schema.All()`:
+`tenant_id` của nó do stage `DomainBased` của edge đặt
+(`SetResourceId`/`SetTenantId`). Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
 `event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
 `types/coreruleset/v1` và `types/net/http/v1`.
@@ -416,7 +416,7 @@ Sink decode vào các message được tái sử dụng
 
 | Package | Message | Sink |
 |---|---|---|
-| `pools/secrule` | `secrulepb.RuleEvent` | secrule, ratelimit |
+| `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
 | `pools/coreruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |

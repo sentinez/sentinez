@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpeventsrepo stores the httppb.IngressEvent records consumed from
+// Package httpingressrepo stores the httppb.IngressEvent records consumed from
 // kafka (sztopic.EventHTTPIngress): one per request of the edge.
-package httpeventsrepo
+package httpingressrepo
 
 import (
 	"context"
@@ -30,7 +30,7 @@ import (
 	"github.com/sentinez/shared/szstorage/dbx/timescale"
 )
 
-var _ IHttpEvent = (*HttpEvents)(nil)
+var _ IHttpIngressEvent = (*HttpIngressEvent)(nil)
 
 // _columns the columns of the table, in the order of values and scanOne.
 var _columns = schema.AnalyticHttpIngressEvent().ColumnNames()
@@ -48,7 +48,7 @@ var _filterColumns = eventfilter.Columns{
 	MatchedTime: httppb.IngressEvent_Timestamp,
 }
 
-type IHttpEvent interface {
+type IHttpIngressEvent interface {
 	// Create inserts the events, which have ids, in one statement; an
 	// event whose id and timestamp are stored already is skipped, so
 	// inserting a batch again is a no-op.
@@ -56,7 +56,7 @@ type IHttpEvent interface {
 	Get(ctx context.Context, id string) (*httppb.IngressEvent, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IHttpEvent
+	WithTX(tx *postgres.TxSession) IHttpIngressEvent
 
 	List(ctx context.Context,
 		filter *eventfilter.Filter) ([]*httppb.IngressEvent, error)
@@ -66,7 +66,7 @@ type IHttpEvent interface {
 		filter *histogram.Filter) ([]*histogram.Point, error)
 }
 
-type HttpEvents struct {
+type HttpIngressEvent struct {
 	storage   dbx.Database[httppb.IngressEvent]
 	histogram *histogram.Histogram
 }
@@ -74,7 +74,7 @@ type HttpEvents struct {
 // New returns the repo of the sztable.AnalyticHttpIngressEvent
 // hypertable, and of its histograms.
 func New(ctx context.Context,
-	appConf *settingpb.Config) (IHttpEvent, error) {
+	appConf *settingpb.Config) (IHttpIngressEvent, error) {
 	storage, err := timescale.New[httppb.IngressEvent](ctx, appConf, _hypertable)
 	if err != nil {
 		return nil, err
@@ -85,17 +85,17 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
-	return &HttpEvents{storage: storage, histogram: hist}, nil
+	return &HttpIngressEvent{storage: storage, histogram: hist}, nil
 }
 
-func (r *HttpEvents) WithTX(tx *postgres.TxSession) IHttpEvent {
-	return &HttpEvents{
+func (r *HttpIngressEvent) WithTX(tx *postgres.TxSession) IHttpIngressEvent {
+	return &HttpIngressEvent{
 		storage:   postgres.WithTx(tx, r.storage),
 		histogram: r.histogram,
 	}
 }
 
-func (r *HttpEvents) Create(ctx context.Context,
+func (r *HttpIngressEvent) Create(ctx context.Context,
 	events ...*httppb.IngressEvent) error {
 	if len(events) == 0 {
 		return nil
@@ -111,29 +111,29 @@ func (r *HttpEvents) Create(ctx context.Context,
 	return err
 }
 
-func (r *HttpEvents) Get(ctx context.Context,
+func (r *HttpIngressEvent) Get(ctx context.Context,
 	id string) (*httppb.IngressEvent, error) {
 	builder := r.selectQuery().Where(sq.Eq{httppb.IngressEvent_Id: id})
 	return r.storage.Select(ctx, builder, scanOne)
 }
 
-func (r *HttpEvents) Delete(ctx context.Context, id string) error {
+func (r *HttpIngressEvent) Delete(ctx context.Context, id string) error {
 	return r.storage.Delete(ctx, id)
 }
 
 // List the events of filter, the latest request first.
-func (r *HttpEvents) List(ctx context.Context,
+func (r *HttpIngressEvent) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*httppb.IngressEvent, error) {
 	builder := filter.Apply(r.selectQuery(), _filterColumns)
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
-func (r *HttpEvents) Histogram(ctx context.Context,
+func (r *HttpIngressEvent) Histogram(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
 	return r.histogram.Points(ctx, filter)
 }
 
-func (r *HttpEvents) selectQuery() sq.SelectBuilder {
+func (r *HttpIngressEvent) selectQuery() sq.SelectBuilder {
 	return sq.Select(_columns...).From(r.storage.Table())
 }
 

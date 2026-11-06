@@ -120,7 +120,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.Severities = severities
 	event.Messages = msgs
 	event.TotalScore = int32(inbound + outbound)
-	event.Service = rulepb.RuleService_RULE_SERVICE_WAF_RULESETS
+	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
@@ -130,6 +130,8 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 	event.RequestScheme = ctx.Scheme()
+	event.ResourceId = ctx.ResourceId()
+	event.TenantId = ctx.TenantId()
 
 	rs.log.Info("rulesets: matched", event, event)
 }

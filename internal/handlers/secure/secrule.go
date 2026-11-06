@@ -117,7 +117,7 @@ func (sr *SecRule) enforce(
 func (sr *SecRule) logMatched(
 	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
 ) {
-	event := newRuleEvent(ctx,
+	event := newSecRuleEvent(ctx,
 		rulepb.RuleService_RULE_SERVICE_SEC_RULE, action, mr)
 	event.Tags = maps.Clone(ctx.X().GetTags())
 
@@ -125,14 +125,14 @@ func (sr *SecRule) logMatched(
 	sr.log.Info("secrule: matched", event, event)
 }
 
-// newRuleEvent returns the event of the request ctx, matched by the rules
+// newSecRuleEvent returns the event of the request ctx, matched by the rules
 // of mr in service, with action; the caller logs it, releasing it.
-func newRuleEvent(
+func newSecRuleEvent(
 	ctx szhttp.Context,
 	service rulepb.RuleService,
 	action *rulepb.Action,
 	mr *rulepb.MatchedRules,
-) *secrule.RuleEvent {
+) *secrule.SecRuleEvent {
 	event := secrule.Acquire()
 
 	event.Action = action
@@ -147,6 +147,8 @@ func newRuleEvent(
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 	event.RequestScheme = ctx.Scheme()
+	event.ResourceId = ctx.ResourceId()
+	event.TenantId = ctx.TenantId()
 
 	return event
 }

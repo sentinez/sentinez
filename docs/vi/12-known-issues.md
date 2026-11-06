@@ -27,10 +27,9 @@ Không có.
 - Không có kênh đồng bộ cấu hình control plane → edge: SecRule/tenant trong
   DB không ảnh hưởng edge; edge chỉ đọc `proxy.yaml` lúc khởi động, không
   reload.
-- Edge chưa điền `resource_id`/`tenant_id` vào các rule event, nên các bảng
-  event của collector để trống hai cột này và `ResourceIds` của
-  `eventfilter.Filter` chưa khớp được gì. `Get`/`List` của các repo event
-  chưa có nơi gọi (chưa có luồng đọc analytic).
+- Setting không khai báo `metadata.tenantId` / `server.resourceId` dùng
+  chung id `tnt_default` / `rsrc_default`, nên event của chúng bị gộp
+  chung trong các bảng event.
 - [deploy/docker/telemetry/docker-compose.yaml](../../deploy/docker/telemetry/docker-compose.yaml)
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong

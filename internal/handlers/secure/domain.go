@@ -21,6 +21,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/shared/bytesconv"
 )
 
@@ -36,12 +37,14 @@ var (
 // subdomains of the Env hostname.
 type DomainBased struct {
 	hostname string
+	settings *settings.Setting
 }
 
 func (*DomainBased) ID() string { return DomainBasedId }
 
 func (d *DomainBased) Provision(env *envplugin.Env) error {
 	d.hostname = env.Hostname()
+	d.settings = env.Store().Setting()
 	return nil
 }
 
@@ -62,8 +65,22 @@ func (d *DomainBased) Handle(
 	}
 
 	xctx.Namespace = ns
+	d.setIds(ctx, ns)
 
 	return next.Handle(ctx)
+}
+
+// setIds puts the tenant and resource id the setting of ns declares into
+// ctx, for the next stages to fill into their logs; ctx keeps the default
+// ids otherwise (defaults.TenantId, defaults.ResourceId).
+func (d *DomainBased) setIds(ctx szhttp.Context, ns string) {
+	st, err := d.settings.Load(ns)
+	if err != nil {
+		return
+	}
+
+	ctx.SetTenantId(st.GetMetadata().GetTenantId())
+	ctx.SetResourceId(st.GetServer().GetResourceId())
 }
 
 func (d *DomainBased) isValidSingleLevelSubdomain(

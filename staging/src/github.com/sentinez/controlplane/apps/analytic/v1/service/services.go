@@ -18,6 +18,7 @@ import (
 	"context"
 
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
+	eventsrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/events"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
@@ -29,17 +30,20 @@ type AnalyticService struct {
 	config     *settingpb.Config
 	tx         *postgres.Tx
 	activities activitiesrepo.IActivity
+	events     *eventsrepo.Events
 }
 
 func New(config *settingpb.Config,
 	tx *postgres.Tx,
 	activities activitiesrepo.IActivity,
+	events *eventsrepo.Events,
 ) *AnalyticService {
 
 	return &AnalyticService{
 		config:     config,
 		tx:         tx,
 		activities: activities,
+		events:     events,
 	}
 }
 

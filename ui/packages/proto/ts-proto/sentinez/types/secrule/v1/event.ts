@@ -10,7 +10,7 @@ import { Action, RuleService, ruleServiceFromJSON, ruleServiceToJSON } from "../
 
 export const protobufPackage = "sentinez.types.secrule.v1";
 
-export interface RuleEvent {
+export interface SecRuleEvent {
   id: string;
   matchedSecruleIds: string[];
   messages: string[];
@@ -30,12 +30,12 @@ export interface RuleEvent {
   tags: { [key: string]: string };
 }
 
-export interface RuleEvent_TagsEntry {
+export interface SecRuleEvent_TagsEntry {
   key: string;
   value: string;
 }
 
-function createBaseRuleEvent(): RuleEvent {
+function createBaseSecRuleEvent(): SecRuleEvent {
   return {
     id: "",
     matchedSecruleIds: [],
@@ -55,8 +55,8 @@ function createBaseRuleEvent(): RuleEvent {
   };
 }
 
-export const RuleEvent: MessageFns<RuleEvent> = {
-  encode(message: RuleEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRuleEvent: MessageFns<SecRuleEvent> = {
+  encode(message: SecRuleEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -100,12 +100,12 @@ export const RuleEvent: MessageFns<RuleEvent> = {
       writer.uint32(122).string(message.requestId);
     }
     globalThis.Object.entries(message.tags).forEach(([key, value]: [string, string]) => {
-      RuleEvent_TagsEntry.encode({ key: key as any, value }, writer.uint32(162).fork()).join();
+      SecRuleEvent_TagsEntry.encode({ key: key as any, value }, writer.uint32(162).fork()).join();
     });
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleEvent {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRuleEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -114,7 +114,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRuleEvent();
+      const message = createBaseSecRuleEvent();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -235,7 +235,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
               break;
             }
 
-            const entry20 = RuleEvent_TagsEntry.decode(reader, reader.uint32());
+            const entry20 = SecRuleEvent_TagsEntry.decode(reader, reader.uint32());
             if (entry20.value !== undefined) {
               message.tags[entry20.key] = entry20.value;
             }
@@ -253,7 +253,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     }
   },
 
-  fromJSON(object: any): RuleEvent {
+  fromJSON(object: any): SecRuleEvent {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       matchedSecruleIds: globalThis.Array.isArray(object?.matchedSecruleIds)
@@ -326,7 +326,7 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     };
   },
 
-  toJSON(message: RuleEvent): unknown {
+  toJSON(message: SecRuleEvent): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -382,11 +382,11 @@ export const RuleEvent: MessageFns<RuleEvent> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleEvent>, I>>(base?: I): RuleEvent {
-    return RuleEvent.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRuleEvent>, I>>(base?: I): SecRuleEvent {
+    return SecRuleEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleEvent>, I>>(object: I): RuleEvent {
-    const message = createBaseRuleEvent();
+  fromPartial<I extends Exact<DeepPartial<SecRuleEvent>, I>>(object: I): SecRuleEvent {
+    const message = createBaseSecRuleEvent();
     message.id = object.id ?? "";
     message.matchedSecruleIds = object.matchedSecruleIds?.map((e) => e) || [];
     message.messages = object.messages?.map((e) => e) || [];
@@ -416,12 +416,12 @@ export const RuleEvent: MessageFns<RuleEvent> = {
   },
 };
 
-function createBaseRuleEvent_TagsEntry(): RuleEvent_TagsEntry {
+function createBaseSecRuleEvent_TagsEntry(): SecRuleEvent_TagsEntry {
   return { key: "", value: "" };
 }
 
-export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
-  encode(message: RuleEvent_TagsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRuleEvent_TagsEntry: MessageFns<SecRuleEvent_TagsEntry> = {
+  encode(message: SecRuleEvent_TagsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
@@ -431,7 +431,7 @@ export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RuleEvent_TagsEntry {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRuleEvent_TagsEntry {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -440,7 +440,7 @@ export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRuleEvent_TagsEntry();
+      const message = createBaseSecRuleEvent_TagsEntry();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -472,14 +472,14 @@ export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
     }
   },
 
-  fromJSON(object: any): RuleEvent_TagsEntry {
+  fromJSON(object: any): SecRuleEvent_TagsEntry {
     return {
       key: isSet(object.key) ? globalThis.String(object.key) : "",
       value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
-  toJSON(message: RuleEvent_TagsEntry): unknown {
+  toJSON(message: SecRuleEvent_TagsEntry): unknown {
     const obj: any = {};
     if (message.key !== "") {
       obj.key = message.key;
@@ -490,11 +490,11 @@ export const RuleEvent_TagsEntry: MessageFns<RuleEvent_TagsEntry> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RuleEvent_TagsEntry>, I>>(base?: I): RuleEvent_TagsEntry {
-    return RuleEvent_TagsEntry.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRuleEvent_TagsEntry>, I>>(base?: I): SecRuleEvent_TagsEntry {
+    return SecRuleEvent_TagsEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RuleEvent_TagsEntry>, I>>(object: I): RuleEvent_TagsEntry {
-    const message = createBaseRuleEvent_TagsEntry();
+  fromPartial<I extends Exact<DeepPartial<SecRuleEvent_TagsEntry>, I>>(object: I): SecRuleEvent_TagsEntry {
+    const message = createBaseSecRuleEvent_TagsEntry();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
     return message;

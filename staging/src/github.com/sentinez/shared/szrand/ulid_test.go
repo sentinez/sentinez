@@ -34,7 +34,7 @@ func eventMsgs() []proto.Message {
 		&httppb.Request{Id: reqId},
 		&httppb.RequestEvent{Id: reqId},
 		&httppb.IngressEvent{Id: reqId},
-		&secrulepb.RuleEvent{
+		&secrulepb.SecRuleEvent{
 			Id:        NewULID(szprefix.SecRuleEvent),
 			RequestId: reqId,
 		},

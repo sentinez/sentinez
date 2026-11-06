@@ -24,8 +24,8 @@ import (
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
-	httpeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpevents"
-	ruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/ruleevents"
+	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
+	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szkafka"
 	"github.com/sentinez/shared/szlog"
@@ -70,11 +70,11 @@ func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
 // newSinks the sink of each topic of an edge event table.
 func newSinks(ctx context.Context,
 	conf *settingpb.Config) (map[sztopic.Topic]ingest.Sink, error) {
-	secRules, err := ruleeventsrepo.NewSecRules(ctx, conf)
+	secRules, err := secruleeventsrepo.NewSecRules(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
-	rateLimits, err := ruleeventsrepo.NewRateLimits(ctx, conf)
+	rateLimits, err := secruleeventsrepo.NewRateLimits(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func newSinks(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	ingress, err := httpeventsrepo.New(ctx, conf)
+	ingress, err := httpingressrepo.New(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -92,8 +92,8 @@ func newSinks(ctx context.Context,
 	}
 
 	return map[sztopic.Topic]ingest.Sink{
-		sztopic.EventHTTPSecRule:   ingest.NewRuleEventSink(secRules.Create),
-		sztopic.EventHTTPRateLimit: ingest.NewRuleEventSink(rateLimits.Create),
+		sztopic.EventHTTPSecRule:   ingest.NewSecRuleEventSink(secRules.Create),
+		sztopic.EventHTTPRateLimit: ingest.NewSecRuleEventSink(rateLimits.Create),
 		sztopic.EventHTTPRulesets:  ingest.NewCoreRuleEventSink(coreRules.Create),
 		sztopic.EventHTTPIngress:   ingest.NewHttpIngressEventSink(ingress.Create),
 		sztopic.EventHTTPEgress:    ingest.NewHttpEgressEventSink(egress.Create),

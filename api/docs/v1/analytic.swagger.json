@@ -79,6 +79,436 @@
           "AnalyticService"
         ]
       }
+    },
+    "/analytic/events/coreruleset": {
+      "get": {
+        "operationId": "AnalyticService_ListCoreRuleEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListCoreRuleEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/histogram": {
+      "get": {
+        "summary": "GetEventHistogram counts the events of a kind per time bucket,\nresource and key.",
+        "operationId": "AnalyticService_GetEventHistogram",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEventHistogramResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "kind",
+            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SEC_RULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_CORE_RULE: Matched core ruleset rules; keyed by the behavior.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "EVENT_KIND_UNSPECIFIED",
+              "EVENT_KIND_HTTP_INGRESS",
+              "EVENT_KIND_HTTP_EGRESS",
+              "EVENT_KIND_SEC_RULE",
+              "EVENT_KIND_RATE_LIMIT",
+              "EVENT_KIND_CORE_RULE"
+            ],
+            "default": "EVENT_KIND_UNSPECIFIED"
+          },
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_SECOND",
+              "HISTOGRAM_RESOLUTION_MINUTE",
+              "HISTOGRAM_RESOLUTION_HOUR"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the start of the buckets, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/http-egress": {
+      "get": {
+        "operationId": "AnalyticService_ListHttpEgressEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListHttpEgressEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/http-ingress": {
+      "get": {
+        "operationId": "AnalyticService_ListHttpIngressEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListHttpIngressEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/ratelimit": {
+      "get": {
+        "operationId": "AnalyticService_ListRateLimitEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRateLimitEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/secrule": {
+      "get": {
+        "operationId": "AnalyticService_ListSecRuleEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSecRuleEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -110,6 +540,44 @@
       },
       "additionalProperties": {}
     },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "v1Action": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1ActionType",
+          "description": "@gotags: yaml:\"type\"",
+          "title": "Example types: \"block\", \"log\", \"modify_header\",\n\"redirect\", \"set_tag\", \"route_to\""
+        },
+        "params": {
+          "type": "object",
+          "description": "@gotags: yaml:\"params\"",
+          "title": "Dynamic parameters, e.g., { \"status\": 403, \"message\": \"Forbidden\" }"
+        }
+      },
+      "title": "An action to execute when a rule matches"
+    },
+    "v1ActionType": {
+      "type": "string",
+      "enum": [
+        "ACTION_TYPE_UNSPECIFIED",
+        "ACTION_TYPE_BLOCK",
+        "ACTION_TYPE_LOG",
+        "ACTION_TYPE_MODIFY_HEADER",
+        "ACTION_TYPE_REDIRECT",
+        "ACTION_TYPE_SET_TAG",
+        "ACTION_TYPE_ROUTE_TO",
+        "ACTION_TYPE_CHALLENGE"
+      ],
+      "default": "ACTION_TYPE_UNSPECIFIED"
+    },
     "v1Activity": {
       "type": "object",
       "properties": {
@@ -128,6 +596,256 @@
         }
       }
     },
+    "v1CoreRuleEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "matchedRuleIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "severities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "totalScore": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "matchedTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "milisec"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "service": {
+          "$ref": "#/definitions/v1RuleService"
+        },
+        "requestIp": {
+          "type": "string"
+        },
+        "requestDomain": {
+          "type": "string"
+        },
+        "requestScheme": {
+          "type": "string"
+        },
+        "requestPath": {
+          "type": "string"
+        },
+        "requestQuery": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "behavior": {
+          "$ref": "#/definitions/v1RuleBehavior"
+        }
+      }
+    },
+    "v1EgressEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "upstream": {
+          "type": "string",
+          "description": "upstream is the origin the request was sent to, e.g.\nhttp://10.0.0.1:8080."
+        },
+        "method": {
+          "type": "string",
+          "description": "method, scheme, path and queries are the request once proxied: the\npath is the client one unless the proxy joined the path of upstream\nto it, the scheme is the one of upstream, http or https."
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "queries": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "status is the one the origin answered, 502 when it was unreachable."
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "contentLength": {
+          "type": "string",
+          "format": "int64",
+          "description": "content_length is the Content-Length the origin answered, -1 when\nit streamed the body without one."
+        },
+        "latencyMicros": {
+          "type": "string",
+          "format": "int64",
+          "description": "latency_micros is the time the proxy took to relay the request and\nthe answer of the origin."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "milisec, when the request was sent"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "protocol": {
+          "type": "string",
+          "description": "protocol is the HTTP version the client used to reach the edge, e.g.\nHTTP/2.0: the one used to reach upstream is not observable."
+        }
+      },
+      "description": "EgressEvent is the leg of a request from the reverse proxy to its\nupstream origin, logged once the origin answered; id is the one of\nthe request IngressEvent."
+    },
+    "v1EventKind": {
+      "type": "string",
+      "enum": [
+        "EVENT_KIND_UNSPECIFIED",
+        "EVENT_KIND_HTTP_INGRESS",
+        "EVENT_KIND_HTTP_EGRESS",
+        "EVENT_KIND_SEC_RULE",
+        "EVENT_KIND_RATE_LIMIT",
+        "EVENT_KIND_CORE_RULE"
+      ],
+      "default": "EVENT_KIND_UNSPECIFIED",
+      "description": "EventKind the table of the events a histogram counts.\n\n - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SEC_RULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_CORE_RULE: Matched core ruleset rules; keyed by the behavior."
+    },
+    "v1GetEventHistogramResponse": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1HistogramPoint"
+          },
+          "description": "Oldest first."
+        }
+      }
+    },
+    "v1HistogramPoint": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "key": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The value of the key of the kind, 0 without."
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "description": "HistogramPoint the events of a resource and key in the bucket starting\nat time."
+    },
+    "v1HistogramResolution": {
+      "type": "string",
+      "enum": [
+        "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+        "HISTOGRAM_RESOLUTION_SECOND",
+        "HISTOGRAM_RESOLUTION_MINUTE",
+        "HISTOGRAM_RESOLUTION_HOUR"
+      ],
+      "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+      "description": "HistogramResolution the time range of the buckets of a histogram.\n\n - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes."
+    },
+    "v1IngressEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "queries": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "string"
+        },
+        "protocol": {
+          "type": "string"
+        },
+        "remoteAddress": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userAgent": {
+          "type": "string"
+        },
+        "asn": {
+          "type": "string",
+          "format": "int64"
+        },
+        "country": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "milisec"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "clientIp": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        }
+      }
+    },
     "v1ListActivitiesResponse": {
       "type": "object",
       "properties": {
@@ -141,6 +859,66 @@
         "total": {
           "type": "string",
           "format": "int64"
+        }
+      }
+    },
+    "v1ListCoreRuleEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CoreRuleEvent"
+          }
+        }
+      }
+    },
+    "v1ListHttpEgressEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EgressEvent"
+          }
+        }
+      }
+    },
+    "v1ListHttpIngressEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1IngressEvent"
+          }
+        }
+      }
+    },
+    "v1ListRateLimitEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SecRuleEvent"
+          }
+        }
+      }
+    },
+    "v1ListSecRuleEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SecRuleEvent"
+          }
         }
       }
     },
@@ -176,6 +954,87 @@
         },
         "total": {
           "type": "boolean"
+        }
+      }
+    },
+    "v1RuleBehavior": {
+      "type": "string",
+      "enum": [
+        "RULE_BEHAVIOR_UNSPECIFIED",
+        "RULE_BEHAVIOR_DENY",
+        "RULE_BEHAVIOR_ALLOW"
+      ],
+      "default": "RULE_BEHAVIOR_UNSPECIFIED"
+    },
+    "v1RuleService": {
+      "type": "string",
+      "enum": [
+        "RULE_SERVICE_UNSPECIFIED",
+        "RULE_SERVICE_CORE_RULESETS",
+        "RULE_SERVICE_SEC_RULE",
+        "RULE_SERVICE_RATE_LIMIT"
+      ],
+      "default": "RULE_SERVICE_UNSPECIFIED"
+    },
+    "v1SecRuleEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "matchedSecruleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "matchedTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "milisec"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "service": {
+          "$ref": "#/definitions/v1RuleService"
+        },
+        "requestDomain": {
+          "type": "string"
+        },
+        "requestScheme": {
+          "type": "string"
+        },
+        "requestPath": {
+          "type": "string"
+        },
+        "requestQuery": {
+          "type": "string"
+        },
+        "requestIp": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags set by the SET_TAG actions of the matched rules."
         }
       }
     },

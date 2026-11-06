@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package ruleeventsrepo stores the secrulepb.RuleEvent records consumed
+// Package secruleeventsrepo stores the secrulepb.SecRuleEvent records consumed
 // from kafka: the secrule matches (sztopic.EventHTTPSecRule) and the rate
 // limit rejections (sztopic.EventHTTPRateLimit), one table each.
-package ruleeventsrepo
+package secruleeventsrepo
 
 import (
 	"context"
@@ -31,36 +31,36 @@ import (
 	"github.com/sentinez/shared/szstorage/dbx/timescale"
 )
 
-var _ IRuleEvent = (*RuleEvents)(nil)
+var _ ISecRuleEvent = (*SecRuleEvents)(nil)
 
 // _columns the columns of a rule event table, both tables sharing them, in
 // the order of values and scanOne.
 var _columns = schema.AnalyticSecRulesEvent().ColumnNames()
 
 var _filterColumns = eventfilter.Columns{
-	ResourceId:  secrulepb.RuleEvent_ResourceId,
-	MatchedTime: secrulepb.RuleEvent_MatchedTime,
+	ResourceId:  secrulepb.SecRuleEvent_ResourceId,
+	MatchedTime: secrulepb.SecRuleEvent_MatchedTime,
 }
 
-type IRuleEvent interface {
+type ISecRuleEvent interface {
 	// Create inserts the events, which have ids, in one statement; an
 	// event whose id and matched time are stored already is skipped, so
 	// inserting a batch again is a no-op.
-	Create(ctx context.Context, events ...*secrulepb.RuleEvent) error
-	Get(ctx context.Context, id string) (*secrulepb.RuleEvent, error)
+	Create(ctx context.Context, events ...*secrulepb.SecRuleEvent) error
+	Get(ctx context.Context, id string) (*secrulepb.SecRuleEvent, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IRuleEvent
+	WithTX(tx *postgres.TxSession) ISecRuleEvent
 
 	List(ctx context.Context,
-		filter *eventfilter.Filter) ([]*secrulepb.RuleEvent, error)
+		filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error)
 	// Histogram counts the events per bucket and resource.
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
 }
 
-type RuleEvents struct {
-	storage   dbx.Database[secrulepb.RuleEvent]
+type SecRuleEvents struct {
+	storage   dbx.Database[secrulepb.SecRuleEvent]
 	histogram *histogram.Histogram
 	// onConflict the conflict clause of Create, of the hypertable.
 	onConflict string
@@ -69,27 +69,27 @@ type RuleEvents struct {
 // NewSecRules returns the repo of the sztable.AnalyticSecRulesEvent
 // hypertable, and of its histograms.
 func NewSecRules(ctx context.Context,
-	appConf *settingpb.Config) (IRuleEvent, error) {
-	return newRuleEvents(ctx, appConf, schema.AnalyticSecRulesEvent())
+	appConf *settingpb.Config) (ISecRuleEvent, error) {
+	return newSecRuleEvents(ctx, appConf, schema.AnalyticSecRulesEvent())
 }
 
 // NewRateLimits returns the repo of the sztable.AnalyticRateLimiterEvent
 // hypertable, and of its histograms.
 func NewRateLimits(ctx context.Context,
-	appConf *settingpb.Config) (IRuleEvent, error) {
-	return newRuleEvents(ctx, appConf, schema.AnalyticRateLimiterEvent())
+	appConf *settingpb.Config) (ISecRuleEvent, error) {
+	return newSecRuleEvents(ctx, appConf, schema.AnalyticRateLimiterEvent())
 }
 
-func (r *RuleEvents) WithTX(tx *postgres.TxSession) IRuleEvent {
-	return &RuleEvents{
+func (r *SecRuleEvents) WithTX(tx *postgres.TxSession) ISecRuleEvent {
+	return &SecRuleEvents{
 		storage:    postgres.WithTx(tx, r.storage),
 		histogram:  r.histogram,
 		onConflict: r.onConflict,
 	}
 }
 
-func (r *RuleEvents) Create(ctx context.Context,
-	events ...*secrulepb.RuleEvent) error {
+func (r *SecRuleEvents) Create(ctx context.Context,
+	events ...*secrulepb.SecRuleEvent) error {
 	if len(events) == 0 {
 		return nil
 	}
@@ -104,34 +104,34 @@ func (r *RuleEvents) Create(ctx context.Context,
 	return err
 }
 
-func (r *RuleEvents) Get(ctx context.Context,
-	id string) (*secrulepb.RuleEvent, error) {
-	builder := r.selectQuery().Where(sq.Eq{secrulepb.RuleEvent_Id: id})
+func (r *SecRuleEvents) Get(ctx context.Context,
+	id string) (*secrulepb.SecRuleEvent, error) {
+	builder := r.selectQuery().Where(sq.Eq{secrulepb.SecRuleEvent_Id: id})
 	return r.storage.Select(ctx, builder, scanOne)
 }
 
-func (r *RuleEvents) Delete(ctx context.Context, id string) error {
+func (r *SecRuleEvents) Delete(ctx context.Context, id string) error {
 	return r.storage.Delete(ctx, id)
 }
 
-func (r *RuleEvents) List(ctx context.Context,
-	filter *eventfilter.Filter) ([]*secrulepb.RuleEvent, error) {
+func (r *SecRuleEvents) List(ctx context.Context,
+	filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error) {
 	builder := filter.Apply(r.selectQuery(), _filterColumns)
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
-func (r *RuleEvents) Histogram(ctx context.Context,
+func (r *SecRuleEvents) Histogram(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
 	return r.histogram.Points(ctx, filter)
 }
 
-// newRuleEvents returns the repo of the hypertable of sch, and of its
+// newSecRuleEvents returns the repo of the hypertable of sch, and of its
 // histograms.
-func newRuleEvents(ctx context.Context, appConf *settingpb.Config,
-	sch dbx.Schema) (IRuleEvent, error) {
-	ht := schema.EventHypertable(sch, secrulepb.RuleEvent_MatchedTime)
+func newSecRuleEvents(ctx context.Context, appConf *settingpb.Config,
+	sch dbx.Schema) (ISecRuleEvent, error) {
+	ht := schema.EventHypertable(sch, secrulepb.SecRuleEvent_MatchedTime)
 
-	storage, err := timescale.New[secrulepb.RuleEvent](ctx, appConf, ht)
+	storage, err := timescale.New[secrulepb.SecRuleEvent](ctx, appConf, ht)
 	if err != nil {
 		return nil, err
 	}
@@ -141,19 +141,19 @@ func newRuleEvents(ctx context.Context, appConf *settingpb.Config,
 		return nil, err
 	}
 
-	return &RuleEvents{
+	return &SecRuleEvents{
 		storage:    storage,
 		histogram:  hist,
 		onConflict: ht.OnConflictDoNothing(),
 	}, nil
 }
 
-func (r *RuleEvents) selectQuery() sq.SelectBuilder {
+func (r *SecRuleEvents) selectQuery() sq.SelectBuilder {
 	return sq.Select(_columns...).From(r.storage.Table())
 }
 
 // values the values of event, in the order of _columns.
-func values(event *secrulepb.RuleEvent) []any {
+func values(event *secrulepb.SecRuleEvent) []any {
 	return []any{
 		event.GetId(),
 		event.GetMatchedSecruleIds(),
@@ -173,8 +173,8 @@ func values(event *secrulepb.RuleEvent) []any {
 	}
 }
 
-func scan(rows dbx.Rows) ([]*secrulepb.RuleEvent, error) {
-	var events []*secrulepb.RuleEvent
+func scan(rows dbx.Rows) ([]*secrulepb.SecRuleEvent, error) {
+	var events []*secrulepb.SecRuleEvent
 	for rows.Next() {
 		event, err := scanOne(rows)
 		if err != nil {
@@ -186,8 +186,8 @@ func scan(rows dbx.Rows) ([]*secrulepb.RuleEvent, error) {
 	return events, rows.Err()
 }
 
-func scanOne(row dbx.Row) (*secrulepb.RuleEvent, error) {
-	var event secrulepb.RuleEvent
+func scanOne(row dbx.Row) (*secrulepb.SecRuleEvent, error) {
+	var event secrulepb.SecRuleEvent
 
 	err := row.Scan(
 		&event.Id,

@@ -56,12 +56,7 @@ func (hdl *AnalyticHandler) ListActivities(ctx context.Context,
 
 	szlog.Debugf("[AnalyticHandler.ListActivities] req = %v", req)
 
-	ss, err := headers.GetAuth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ss.Check(pb.GetAnalyticServiceListActivities())
+	err := headers.Allow(ctx, pb.GetAnalyticServiceListActivities())
 	if err != nil {
 		return nil, err
 	}

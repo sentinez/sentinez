@@ -22,7 +22,7 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepb";
 
-message RuleEvent {
+message SecRuleEvent {
   option (sentinez.types.v1.x_message).database_model = true;
 
   string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$"];

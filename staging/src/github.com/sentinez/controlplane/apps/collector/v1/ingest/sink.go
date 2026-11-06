@@ -53,11 +53,11 @@ type event[E any] interface {
 	GetId() string
 }
 
-// NewRuleEventSink returns the sink of the secrulepb.RuleEvent records,
+// NewSecRuleEventSink returns the sink of the secrulepb.SecRuleEvent records,
 // inserted by create.
-func NewRuleEventSink(create CreateFn[secrulepb.RuleEvent]) Sink {
+func NewSecRuleEventSink(create CreateFn[secrulepb.SecRuleEvent]) Sink {
 	return newSink(secrulepool.Pool(), szprefix.SecRuleEvent, create,
-		func(e *secrulepb.RuleEvent, id string) { e.Id = id })
+		func(e *secrulepb.SecRuleEvent, id string) { e.Id = id })
 }
 
 // NewCoreRuleEventSink returns the sink of the corerulesetpb.CoreRuleEvent

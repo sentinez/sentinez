@@ -27,10 +27,11 @@ setting:
   # versioning, and debugging purposes.
   # ----------------------------------------------------------
   metadata:
-    # version: "v1"                    # Configuration version
-    # owner: "hunghd"                  # Maintainer or tenant identifier
-    # traceId: "abc123"                # Optional trace ID for tracking
-    {}
+    # Id of this proxy.yaml, filled into the logs of its requests as
+    # tenant_id. Also the key the setting is synced between the edges by;
+    # without one, or with the default tnt_default, it stays on this edge
+    # only. Default: tnt_default
+    tenantId: tnt_default
 
   # ----------------------------------------------------------
   # SERVER — ROUTING CONFIGURATION
@@ -40,6 +41,9 @@ setting:
   # ----------------------------------------------------------
   server:
     name: badcheese # Logical namespace grouping related routes
+    # Id of the upstream servers below, filled into the logs of the
+    # requests as resource_id. Default: rsrc_default
+    resourceId: rsrc_default
     locations:
       - location: / # URL prefix to match incoming requests
         proxyRewrite: / # (Optional) rewrite prefix before forwarding

@@ -34,6 +34,16 @@ func (a *Auth) Check(method *typepb.XMethod) error {
 	return szperms.Allow(method, a.GetControlPlane())
 }
 
+// Allow checks the bearer token of ctx against method.
+func Allow(ctx context.Context, method *typepb.XMethod) error {
+	auth, err := GetAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	return auth.Check(method)
+}
+
 func GetAuth(ctx context.Context) (*Auth, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)

@@ -219,11 +219,12 @@ func (x *Setting) GetDelivery() *Delivery {
 	return nil
 }
 
-// Metadata used for observability and debugging:
+// Metadata identifies the setting in the logs of the edge.
 type Metadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Id of this setting (proxy.yaml), filled into the events of its
+	// requests; "tnt_default" when empty.
+	TenantId      string `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty" yaml:"tenantId"` // @gotags: yaml:"tenantId"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -265,18 +266,14 @@ func (x *Metadata) GetTenantId() string {
 	return ""
 }
 
-func (x *Metadata) GetResourceId() string {
-	if x != nil {
-		return x.ResourceId
-	}
-	return ""
-}
-
 // Server defines where the request goes and how the edge processes it:
 type Server struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
-	Locations     []*Location            `protobuf:"bytes,2,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"` // @gotags: yaml:"locations"
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Name      string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
+	Locations []*Location            `protobuf:"bytes,2,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"` // @gotags: yaml:"locations"
+	// Id of the upstream servers of the locations, filled into the events
+	// of the requests; "rsrc_default" when empty.
+	ResourceId    string `protobuf:"bytes,3,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty" yaml:"resourceId"` // @gotags: yaml:"resourceId"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -323,6 +320,13 @@ func (x *Server) GetLocations() []*Location {
 		return x.Locations
 	}
 	return nil
+}
+
+func (x *Server) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
 }
 
 type Location struct {
@@ -771,14 +775,14 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\bsecurity\x18\x03 \x01(\v2\x1e.sentinez.dmz.edge.v1.SecurityR\bsecurity\x12M\n" +
 	"\x0ftraffic_control\x18\x04 \x01(\v2$.sentinez.dmz.edge.v1.TrafficControlR\x0etrafficControl\x12:\n" +
 	"\bpersonal\x18\x05 \x01(\v2\x1e.sentinez.dmz.edge.v1.PersonalR\bpersonal\x12:\n" +
-	"\bdelivery\x18\x06 \x01(\v2\x1e.sentinez.dmz.edge.v1.DeliveryR\bdelivery\"H\n" +
+	"\bdelivery\x18\x06 \x01(\v2\x1e.sentinez.dmz.edge.v1.DeliveryR\bdelivery\":\n" +
 	"\bMetadata\x12\x1b\n" +
-	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1f\n" +
-	"\vresource_id\x18\x02 \x01(\tR\n" +
-	"resourceId\"q\n" +
+	"\ttenant_id\x18\x01 \x01(\tR\btenantIdJ\x04\b\x02\x10\x03R\vresource_id\"\x92\x01\n" +
 	"\x06Server\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12<\n" +
-	"\tlocations\x18\x02 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\"\x9d\x03\n" +
+	"\tlocations\x18\x02 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\x12\x1f\n" +
+	"\vresource_id\x18\x03 \x01(\tR\n" +
+	"resourceId\"\x9d\x03\n" +
 	"\bLocation\x12(\n" +
 	"\blocation\x18\x01 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\blocation\x121\n" +
 	"\rproxy_rewrite\x18\x02 \x01(\tB\f\xbaH\tr\a2\x05^/.*$R\fproxyRewrite\x12=\n" +

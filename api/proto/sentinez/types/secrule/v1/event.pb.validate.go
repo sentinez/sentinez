@@ -37,9 +37,10 @@ var (
 	_ = rulepb.RuleService(0)
 )
 
-// Validate checks the field values on RuleEvent with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *RuleEvent) Validate() error {
+// Validate checks the field values on SecRuleEvent with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *SecRuleEvent) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -54,7 +55,7 @@ func (m *RuleEvent) Validate() error {
 
 	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RuleEventValidationError{
+			return SecRuleEventValidationError{
 				field:  "Action",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -81,9 +82,9 @@ func (m *RuleEvent) Validate() error {
 	return nil
 }
 
-// RuleEventValidationError is the validation error returned by
-// RuleEvent.Validate if the designated constraints aren't met.
-type RuleEventValidationError struct {
+// SecRuleEventValidationError is the validation error returned by
+// SecRuleEvent.Validate if the designated constraints aren't met.
+type SecRuleEventValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -91,22 +92,22 @@ type RuleEventValidationError struct {
 }
 
 // Field function returns field value.
-func (e RuleEventValidationError) Field() string { return e.field }
+func (e SecRuleEventValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RuleEventValidationError) Reason() string { return e.reason }
+func (e SecRuleEventValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RuleEventValidationError) Cause() error { return e.cause }
+func (e SecRuleEventValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RuleEventValidationError) Key() bool { return e.key }
+func (e SecRuleEventValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RuleEventValidationError) ErrorName() string { return "RuleEventValidationError" }
+func (e SecRuleEventValidationError) ErrorName() string { return "SecRuleEventValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RuleEventValidationError) Error() string {
+func (e SecRuleEventValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -118,14 +119,14 @@ func (e RuleEventValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleEvent.%s: %s%s",
+		"invalid %sSecRuleEvent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RuleEventValidationError{}
+var _ error = SecRuleEventValidationError{}
 
 var _ interface {
 	Field() string
@@ -133,4 +134,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RuleEventValidationError{}
+} = SecRuleEventValidationError{}

@@ -59,17 +59,17 @@ func AnalyticActivities() dbx.Schema {
 }
 
 // AnalyticSecRulesEvent the schema of the sztable.AnalyticSecRulesEvent
-// table: the secrulepb.RuleEvent records of the sztopic.EventHTTPSecRule
+// table: the secrulepb.SecRuleEvent records of the sztopic.EventHTTPSecRule
 // topic.
 func AnalyticSecRulesEvent() dbx.Schema {
-	return ruleEvents(sztable.AnalyticSecRulesEvent)
+	return secRuleEvents(sztable.AnalyticSecRulesEvent)
 }
 
 // AnalyticRateLimiterEvent the schema of the
-// sztable.AnalyticRateLimiterEvent table: the secrulepb.RuleEvent records
+// sztable.AnalyticRateLimiterEvent table: the secrulepb.SecRuleEvent records
 // of the sztopic.EventHTTPRateLimit topic.
 func AnalyticRateLimiterEvent() dbx.Schema {
-	return ruleEvents(sztable.AnalyticRateLimiterEvent)
+	return secRuleEvents(sztable.AnalyticRateLimiterEvent)
 }
 
 // AnalyticCoreRulesetsEvent the schema of the
@@ -166,30 +166,30 @@ func AnalyticHttpEgressEvent() dbx.Schema {
 	}
 }
 
-// ruleEvents the schema of a table of secrulepb.RuleEvent.
-func ruleEvents(table sztable.Table) dbx.Schema {
+// secRuleEvents the schema of a table of secrulepb.SecRuleEvent.
+func secRuleEvents(table sztable.Table) dbx.Schema {
 	return dbx.Schema{
 		Table: table,
 		Columns: []dbx.Column{
-			{Name: secrulepb.RuleEvent_Id, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_MatchedSecruleIds, Type: dbx.TextArr},
-			{Name: secrulepb.RuleEvent_Messages, Type: dbx.TextArr},
-			{Name: secrulepb.RuleEvent_ResourceId, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_TenantId, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_MatchedTime, Type: dbx.Int8},
-			{Name: secrulepb.RuleEvent_Action, Type: dbx.JSONB},
-			{Name: secrulepb.RuleEvent_Service, Type: dbx.Int4},
-			{Name: secrulepb.RuleEvent_RequestDomain, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_RequestScheme, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_RequestPath, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_RequestQuery, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_RequestIp, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_RequestId, Type: dbx.Text},
-			{Name: secrulepb.RuleEvent_Tags, Type: dbx.JSONB},
+			{Name: secrulepb.SecRuleEvent_Id, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_MatchedSecruleIds, Type: dbx.TextArr},
+			{Name: secrulepb.SecRuleEvent_Messages, Type: dbx.TextArr},
+			{Name: secrulepb.SecRuleEvent_ResourceId, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_TenantId, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_MatchedTime, Type: dbx.Int8},
+			{Name: secrulepb.SecRuleEvent_Action, Type: dbx.JSONB},
+			{Name: secrulepb.SecRuleEvent_Service, Type: dbx.Int4},
+			{Name: secrulepb.SecRuleEvent_RequestDomain, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_RequestScheme, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_RequestPath, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_RequestQuery, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_RequestIp, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_RequestId, Type: dbx.Text},
+			{Name: secrulepb.SecRuleEvent_Tags, Type: dbx.JSONB},
 		},
 		Indexes: []dbx.Index{
-			{Column: secrulepb.RuleEvent_MatchedTime, Method: dbx.BTree},
-			{Column: secrulepb.RuleEvent_ResourceId, Method: dbx.BTree},
+			{Column: secrulepb.SecRuleEvent_MatchedTime, Method: dbx.BTree},
+			{Column: secrulepb.SecRuleEvent_ResourceId, Method: dbx.BTree},
 		},
 	}
 }

@@ -74,7 +74,7 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 func (l *Limiter) logExceeded(
 	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
 ) {
-	event := newRuleEvent(ctx,
+	event := newSecRuleEvent(ctx,
 		rulepb.RuleService_RULE_SERVICE_RATE_LIMIT, action, mr)
 
 	// Info releases the event back to the pool.

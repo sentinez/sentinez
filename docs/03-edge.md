@@ -436,8 +436,12 @@ the **source**, the raw `edgepb.Setting`, and each node compiles its own
 stores from it ([internal/memory/sync.go](../internal/memory/sync.go)):
 
 - `MemStore` holds a `SyncMap` `sentinez.dmz.edge.settings` keyed by
-  `metadata.resource_id`, the id of the domain resource. A setting without
-  one is loaded on its edge only, with a warning.
+  `metadata.tenant_id`, the id of the `proxy.yaml`. A setting without one is
+  loaded on its edge only, with a warning, and so is one with the default
+  `tnt_default`. `server.resource_id` is the id of its upstream servers.
+  The request context starts with `tnt_default` / `rsrc_default`
+  (`szhttp.NewBaseContext`); `DomainBased` replaces them with the ids the
+  setting declares, so a rejected request is logged with the defaults.
 - `MemStore.Sync(ctx, server, local...)` starts the map (waits for Olric,
   loads the cluster's settings), then shares `local`. `SyncMap.Store`
   skips a value equal to the one it holds (same deterministic encoding), so

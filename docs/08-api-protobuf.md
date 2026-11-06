@@ -67,7 +67,7 @@ paths `api/proto` and `api/third_party/{googleapis,grpc-gateway,protovalidate}`:
 
 The `pool` vtproto feature is on for the pooled events only, each named by
 a `--go-vtproto_opt=pool=<import path>.<Message>` in its `generate.sh`:
-`secrule.v1.RuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`secrule.v1.SecRuleEvent`, `coreruleset.v1.CoreRuleEvent`,
 `net.http.v1.IngressEvent` and `rule.v1.MatchedRules`. It generates `ResetVT`
 (`Reset` that keeps the capacity of the repeated fields), and
 `<Msg>FromVTPool`/`ReturnToVTPool` on a pool of the message.

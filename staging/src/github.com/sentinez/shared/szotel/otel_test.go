@@ -85,7 +85,7 @@ func startCollector(t *testing.T) (*collector, string) {
 	return c, lis.Addr().String()
 }
 
-func newRuleEvent(t *testing.T) *secrulepb.RuleEvent {
+func newSecRuleEvent(t *testing.T) *secrulepb.SecRuleEvent {
 	t.Helper()
 	params, err := structpb.NewStruct(map[string]any{
 		"status":  403,
@@ -94,7 +94,7 @@ func newRuleEvent(t *testing.T) *secrulepb.RuleEvent {
 	})
 	require.NoError(t, err)
 
-	return &secrulepb.RuleEvent{
+	return &secrulepb.SecRuleEvent{
 		Id:                "sr_1",
 		MatchedSecruleIds: []string{"a", "b"},
 		Messages:          []string{"sqli"},
@@ -174,7 +174,7 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 		{
 			name:      "secrule",
 			giveKind:  typepb.LogType_LOG_TYPE_SEC_RULE,
-			giveEvent: newRuleEvent(t),
+			giveEvent: newSecRuleEvent(t),
 		},
 		{
 			name:      "http request event",
@@ -202,7 +202,7 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 
 func TestUnmarshalResetsMessage(t *testing.T) {
 	rec := recordOf(kv("tenant_id", strValue("tn_1")))
-	got := &secrulepb.RuleEvent{Id: "stale"}
+	got := &secrulepb.SecRuleEvent{Id: "stale"}
 
 	require.NoError(t, Unmarshal(rec, got))
 	assert.Empty(t, got.GetId())
@@ -210,7 +210,7 @@ func TestUnmarshalResetsMessage(t *testing.T) {
 }
 
 func TestUnmarshalNoEvent(t *testing.T) {
-	err := Unmarshal(&logspb.LogRecord{}, &secrulepb.RuleEvent{})
+	err := Unmarshal(&logspb.LogRecord{}, &secrulepb.SecRuleEvent{})
 
 	require.ErrorIs(t, err, ErrNoEvent)
 }
@@ -218,14 +218,14 @@ func TestUnmarshalNoEvent(t *testing.T) {
 func TestUnmarshalTypeMismatch(t *testing.T) {
 	rec := recordOf(kv("id", intValue(1)))
 
-	err := Unmarshal(rec, &secrulepb.RuleEvent{})
+	err := Unmarshal(rec, &secrulepb.SecRuleEvent{})
 
 	require.ErrorContains(t, err, "id: want string")
 }
 
 func TestUnmarshalIgnoresUnknownFields(t *testing.T) {
 	rec := recordOf(kv("id", strValue("sr_1")), kv("added", intValue(1)))
-	got := &secrulepb.RuleEvent{}
+	got := &secrulepb.SecRuleEvent{}
 
 	require.NoError(t, Unmarshal(rec, got))
 	assert.Equal(t, "sr_1", got.GetId())

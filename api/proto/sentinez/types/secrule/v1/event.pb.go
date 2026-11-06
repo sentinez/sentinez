@@ -38,7 +38,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RuleEvent struct {
+type SecRuleEvent struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	MatchedSecruleIds []string               `protobuf:"bytes,2,rep,name=matched_secrule_ids,json=matchedSecruleIds,proto3" json:"matched_secrule_ids,omitempty"`
@@ -60,20 +60,20 @@ type RuleEvent struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RuleEvent) Reset() {
-	*x = RuleEvent{}
+func (x *SecRuleEvent) Reset() {
+	*x = SecRuleEvent{}
 	mi := &file_sentinez_types_secrule_v1_event_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RuleEvent) String() string {
+func (x *SecRuleEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RuleEvent) ProtoMessage() {}
+func (*SecRuleEvent) ProtoMessage() {}
 
-func (x *RuleEvent) ProtoReflect() protoreflect.Message {
+func (x *SecRuleEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_secrule_v1_event_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -85,110 +85,110 @@ func (x *RuleEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RuleEvent.ProtoReflect.Descriptor instead.
-func (*RuleEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use SecRuleEvent.ProtoReflect.Descriptor instead.
+func (*SecRuleEvent) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_secrule_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RuleEvent) GetId() string {
+func (x *SecRuleEvent) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetMatchedSecruleIds() []string {
+func (x *SecRuleEvent) GetMatchedSecruleIds() []string {
 	if x != nil {
 		return x.MatchedSecruleIds
 	}
 	return nil
 }
 
-func (x *RuleEvent) GetMessages() []string {
+func (x *SecRuleEvent) GetMessages() []string {
 	if x != nil {
 		return x.Messages
 	}
 	return nil
 }
 
-func (x *RuleEvent) GetResourceId() string {
+func (x *SecRuleEvent) GetResourceId() string {
 	if x != nil {
 		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetTenantId() string {
+func (x *SecRuleEvent) GetTenantId() string {
 	if x != nil {
 		return x.TenantId
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetMatchedTime() int64 {
+func (x *SecRuleEvent) GetMatchedTime() int64 {
 	if x != nil {
 		return x.MatchedTime
 	}
 	return 0
 }
 
-func (x *RuleEvent) GetAction() *v1.Action {
+func (x *SecRuleEvent) GetAction() *v1.Action {
 	if x != nil {
 		return x.Action
 	}
 	return nil
 }
 
-func (x *RuleEvent) GetService() v1.RuleService {
+func (x *SecRuleEvent) GetService() v1.RuleService {
 	if x != nil {
 		return x.Service
 	}
 	return v1.RuleService(0)
 }
 
-func (x *RuleEvent) GetRequestDomain() string {
+func (x *SecRuleEvent) GetRequestDomain() string {
 	if x != nil {
 		return x.RequestDomain
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetRequestScheme() string {
+func (x *SecRuleEvent) GetRequestScheme() string {
 	if x != nil {
 		return x.RequestScheme
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetRequestPath() string {
+func (x *SecRuleEvent) GetRequestPath() string {
 	if x != nil {
 		return x.RequestPath
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetRequestQuery() string {
+func (x *SecRuleEvent) GetRequestQuery() string {
 	if x != nil {
 		return x.RequestQuery
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetRequestIp() string {
+func (x *SecRuleEvent) GetRequestIp() string {
 	if x != nil {
 		return x.RequestIp
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetRequestId() string {
+func (x *SecRuleEvent) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
 	}
 	return ""
 }
 
-func (x *RuleEvent) GetTags() map[string]string {
+func (x *SecRuleEvent) GetTags() map[string]string {
 	if x != nil {
 		return x.Tags
 	}
@@ -199,8 +199,8 @@ var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x86\x06\n" +
-	"\tRuleEvent\x12F\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x8c\x06\n" +
+	"\fSecRuleEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12.\n" +
 	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
 	"\bmessages\x18\x03 \x03(\tR\bmessages\x12\x1f\n" +
@@ -218,8 +218,8 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
 	"request_ip\x18\x0e \x01(\tR\trequestIp\x12S\n" +
 	"\n" +
-	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12B\n" +
-	"\x04tags\x18\x14 \x03(\v2..sentinez.types.secrule.v1.RuleEvent.TagsEntryR\x04tags\x1a7\n" +
+	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12E\n" +
+	"\x04tags\x18\x14 \x03(\v21.sentinez.types.secrule.v1.SecRuleEvent.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
@@ -238,15 +238,15 @@ func file_sentinez_types_secrule_v1_event_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_secrule_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_secrule_v1_event_proto_goTypes = []any{
-	(*RuleEvent)(nil),   // 0: sentinez.types.secrule.v1.RuleEvent
-	nil,                 // 1: sentinez.types.secrule.v1.RuleEvent.TagsEntry
-	(*v1.Action)(nil),   // 2: sentinez.types.rule.v1.Action
-	(v1.RuleService)(0), // 3: sentinez.types.rule.v1.RuleService
+	(*SecRuleEvent)(nil), // 0: sentinez.types.secrule.v1.SecRuleEvent
+	nil,                  // 1: sentinez.types.secrule.v1.SecRuleEvent.TagsEntry
+	(*v1.Action)(nil),    // 2: sentinez.types.rule.v1.Action
+	(v1.RuleService)(0),  // 3: sentinez.types.rule.v1.RuleService
 }
 var file_sentinez_types_secrule_v1_event_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.secrule.v1.RuleEvent.action:type_name -> sentinez.types.rule.v1.Action
-	3, // 1: sentinez.types.secrule.v1.RuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
-	1, // 2: sentinez.types.secrule.v1.RuleEvent.tags:type_name -> sentinez.types.secrule.v1.RuleEvent.TagsEntry
+	2, // 0: sentinez.types.secrule.v1.SecRuleEvent.action:type_name -> sentinez.types.rule.v1.Action
+	3, // 1: sentinez.types.secrule.v1.SecRuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
+	1, // 2: sentinez.types.secrule.v1.SecRuleEvent.tags:type_name -> sentinez.types.secrule.v1.SecRuleEvent.TagsEntry
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

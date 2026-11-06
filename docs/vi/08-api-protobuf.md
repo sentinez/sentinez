@@ -67,7 +67,7 @@ Mỗi thư mục domain có `generate.sh` gọi `protoc` với include
 
 Feature `pool` của vtproto chỉ bật cho các event được pool, mỗi message ghi
 bằng một `--go-vtproto_opt=pool=<import path>.<Message>` trong
-`generate.sh` của nó: `secrule.v1.RuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`generate.sh` của nó: `secrule.v1.SecRuleEvent`, `coreruleset.v1.CoreRuleEvent`,
 `net.http.v1.IngressEvent` và `rule.v1.MatchedRules`. Feature này sinh `ResetVT`
 (`Reset` nhưng giữ dung lượng các trường repeated), cùng
 `<Msg>FromVTPool`/`ReturnToVTPool` trên một pool của message.

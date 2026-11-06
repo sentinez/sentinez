@@ -183,7 +183,7 @@ nén; sau khi giải nén (producer dùng zstd) sẽ lớn hơn.
 | `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
-| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pool cho các event của edge (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.RuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset bằng `ResetVT` |
+| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pool cho các event của edge (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.SecRuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset bằng `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
 | `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge, xem [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`api/client/consul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |

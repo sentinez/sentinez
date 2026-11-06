@@ -77,7 +77,7 @@ func TestProducerThroughLogger(t *testing.T) {
 	p, err := NewProducer(Config{Brokers: brokers, ServiceName: "edge"})
 	require.NoError(t, err)
 
-	want := &secrulepb.RuleEvent{
+	want := &secrulepb.SecRuleEvent{
 		Id:                "sr_1",
 		MatchedSecruleIds: []string{"a", "b"},
 		TenantId:          "tn_1",
@@ -89,7 +89,7 @@ func TestProducerThroughLogger(t *testing.T) {
 	require.NoError(t, p.Shutdown(context.Background()))
 
 	rec := consumeOne(t, brokers, sztopic.EventHTTPSecRule)
-	got := &secrulepb.RuleEvent{}
+	got := &secrulepb.SecRuleEvent{}
 	require.NoError(t, got.UnmarshalVT(rec.Value))
 	assert.True(t, proto.Equal(want, got), "got %v", got)
 	assert.Equal(t, map[string]string{
@@ -110,7 +110,7 @@ func TestProducerDropsUnmappedKind(t *testing.T) {
 	t.Cleanup(func() { _ = p.Shutdown(context.Background()) })
 
 	p.Export(typepb.LogType_LOG_TYPE_HTTP_INGRESS, szlog.LevelInfo, "x",
-		&secrulepb.RuleEvent{})
+		&secrulepb.SecRuleEvent{})
 
 	assert.Equal(t, uint64(1), p.Dropped())
 }

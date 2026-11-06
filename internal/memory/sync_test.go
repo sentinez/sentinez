@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -48,7 +49,7 @@ func newSyncStore() *MemStore {
 
 func newSetting(id, ns string) *edgepb.Setting {
 	return &edgepb.Setting{
-		Metadata: &edgepb.Metadata{ResourceId: id},
+		Metadata: &edgepb.Metadata{TenantId: id},
 		Server:   &edgepb.Server{Name: ns},
 	}
 }
@@ -144,12 +145,23 @@ func TestShareSkipsUnchangedSetting(t *testing.T) {
 	assert.Equal(t, 1, changes)
 }
 
-func TestShareWithoutResourceIdStaysLocal(t *testing.T) {
+func TestShareWithoutTenantIdStaysLocal(t *testing.T) {
 	m := newSyncStore()
 
 	m.share(context.Background(), newSetting("", "sync-local"))
 
 	assert.True(t, loadedNs(m, "sync-local"))
 	_, ok := m.synced.Load("")
+	assert.False(t, ok)
+}
+
+func TestShareDefaultTenantIdStaysLocal(t *testing.T) {
+	m := newSyncStore()
+
+	m.share(context.Background(),
+		newSetting(defaults.TenantId, "sync-default"))
+
+	assert.True(t, loadedNs(m, "sync-default"))
+	_, ok := m.synced.Load(defaults.TenantId)
 	assert.False(t, ok)
 }

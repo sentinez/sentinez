@@ -186,7 +186,7 @@ compressed data; decompressed (the producer uses zstd) it is larger.
 | `pkg/network/httpx/std` | `szhttp.Server` on `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
-| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pools of the edge events (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.RuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset with `ResetVT` |
+| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pools of the edge events (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.SecRuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset with `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
 | `pkg/cluster` | Embedded Olric; `SyncMap[T]` syncs a local map between edges, see [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Zone leader election through a Consul session lock; the leader keeps the zone status in Consul KV with fenced writes (`api/client/consul` `PutFenced`), see [03-edge.md](03-edge.md#zone-leader-election) |

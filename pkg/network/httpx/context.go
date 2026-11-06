@@ -32,6 +32,7 @@ import (
 	"github.com/sentinez/core/szhttp/httpconst"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 	"github.com/sentinez/shared/szprefix"
@@ -49,7 +50,8 @@ var (
 var (
 	_ctxPool = szsync.NewPoolCtr(func() *Context {
 		return &Context{
-			BaseContext: &szhttp.BaseContext{},
+			BaseContext: szhttp.NewBaseContext(
+				defaults.TenantId, defaults.ResourceId),
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},

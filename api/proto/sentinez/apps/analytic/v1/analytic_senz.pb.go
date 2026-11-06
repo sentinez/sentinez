@@ -42,3 +42,39 @@ func GetAnalyticServiceListActivities() *typepb.XMethod {
 		Ignore: true,
 	}
 }
+
+func GetAnalyticServiceListHttpIngressEvents() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceListHttpEgressEvents() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceListSecRuleEvents() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceListRateLimitEvents() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceListCoreRuleEvents() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceGetEventHistogram() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}

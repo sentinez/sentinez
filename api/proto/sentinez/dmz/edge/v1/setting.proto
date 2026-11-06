@@ -34,10 +34,14 @@ message Setting {
   Delivery delivery = 6;      // @gotags: yaml:"delivery"
 }
 
-// Metadata used for observability and debugging:
+// Metadata identifies the setting in the logs of the edge.
 message Metadata {
-  string tenant_id = 1;
-  string resource_id = 2;
+  reserved 2;
+  reserved "resource_id";
+
+  // Id of this setting (proxy.yaml), filled into the events of its
+  // requests; "tnt_default" when empty.
+  string tenant_id = 1;  // @gotags: yaml:"tenantId"
 }
 
 // Server defines where the request goes and how the edge processes it:
@@ -47,6 +51,10 @@ message Server {
   ];  // @gotags: yaml:"name"
 
   repeated Location locations = 2;  // @gotags: yaml:"locations"
+
+  // Id of the upstream servers of the locations, filled into the events
+  // of the requests; "rsrc_default" when empty.
+  string resource_id = 3;  // @gotags: yaml:"resourceId"
 }
 
 message Location {

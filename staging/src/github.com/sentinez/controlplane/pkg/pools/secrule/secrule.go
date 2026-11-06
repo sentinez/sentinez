@@ -20,19 +20,19 @@ import (
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 )
 
-var _pool = pools.New(secrulepb.RuleEventFromVTPool)
+var _pool = pools.New(secrulepb.SecRuleEventFromVTPool)
 
-// Pool returns the pool of the secrulepb.RuleEvent.
-func Pool() *pools.Pool[secrulepb.RuleEvent, *secrulepb.RuleEvent] {
+// Pool returns the pool of the secrulepb.SecRuleEvent.
+func Pool() *pools.Pool[secrulepb.SecRuleEvent, *secrulepb.SecRuleEvent] {
 	return _pool
 }
 
-// Acquire returns a cleared secrulepb.RuleEvent.
-func Acquire() *secrulepb.RuleEvent {
+// Acquire returns a cleared secrulepb.SecRuleEvent.
+func Acquire() *secrulepb.SecRuleEvent {
 	return _pool.Acquire()
 }
 
 // Release resets obj and puts it back in the pool.
-func Release(obj *secrulepb.RuleEvent) {
+func Release(obj *secrulepb.SecRuleEvent) {
 	_pool.Release(obj)
 }

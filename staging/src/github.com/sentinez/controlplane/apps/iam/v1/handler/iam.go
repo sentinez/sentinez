@@ -94,12 +94,8 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	szlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := headers.GetAuth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())
+	err := headers.Allow(ctx,
+		iampb.GetIdentityAccessManagementServiceListUsers())
 	if err != nil {
 		return nil, err
 	}
