@@ -36,7 +36,7 @@ import (
 func newCluster(t *testing.T) []string {
 	t.Helper()
 	cluster, err := kfake.NewCluster(
-		kfake.SeedTopics(1, sztopic.EventHTTPSecRule))
+		kfake.SeedTopics(1, sztopic.EventHTTPSecRule.String()))
 	require.NoError(t, err)
 	t.Cleanup(cluster.Close)
 
@@ -44,10 +44,12 @@ func newCluster(t *testing.T) []string {
 }
 
 // consumeOne reads the first record of topic.
-func consumeOne(t *testing.T, brokers []string, topic string) *kgo.Record {
+func consumeOne(t *testing.T, brokers []string,
+	topic sztopic.Topic) *kgo.Record {
+
 	t.Helper()
 	client, err := kgo.NewClient(kgo.SeedBrokers(brokers...),
-		kgo.ConsumeTopics(topic))
+		kgo.ConsumeTopics(topic.String()))
 	require.NoError(t, err)
 	defer client.Close()
 
@@ -102,12 +104,12 @@ func TestProducerThroughLogger(t *testing.T) {
 func TestProducerDropsUnmappedKind(t *testing.T) {
 	p, err := NewProducer(Config{
 		Brokers: newCluster(t),
-		Topics:  map[typepb.LogType]string{},
+		Topics:  map[typepb.LogType]sztopic.Topic{},
 	})
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = p.Shutdown(context.Background()) })
 
-	p.Export(typepb.LogType_LOG_TYPE_HTTP, szlog.LevelInfo, "x",
+	p.Export(typepb.LogType_LOG_TYPE_HTTP_INGRESS, szlog.LevelInfo, "x",
 		&secrulepb.RuleEvent{})
 
 	assert.Equal(t, uint64(1), p.Dropped())
@@ -149,17 +151,21 @@ func TestConfigOf(t *testing.T) {
 }
 
 func TestConfigOfOptions(t *testing.T) {
-	topics := map[typepb.LogType]string{typepb.LogType_LOG_TYPE_HTTP: "h"}
+	topics := map[typepb.LogType]sztopic.Topic{
+		typepb.LogType_LOG_TYPE_HTTP_INGRESS: "h",
+	}
 
 	cfg := ConfigOf("a:9092", "svc",
 		WithTopics(topics),
 		WithTopicPartitions(3),
 		WithReplicationFactor(2),
 	)
-	topics[typepb.LogType_LOG_TYPE_HTTP] = "changed"
+	topics[typepb.LogType_LOG_TYPE_HTTP_INGRESS] = "changed"
 
 	assert.Equal(t,
-		map[typepb.LogType]string{typepb.LogType_LOG_TYPE_HTTP: "h"},
+		map[typepb.LogType]sztopic.Topic{
+			typepb.LogType_LOG_TYPE_HTTP_INGRESS: "h",
+		},
 		cfg.Topics, "topics copied")
 	assert.Equal(t, int32(3), cfg.Partitions)
 	assert.Equal(t, int16(2), cfg.ReplicationFactor)
@@ -193,7 +199,7 @@ func partitionsOf(t *testing.T, brokers []string) map[string]int {
 
 func TestProducerCreatesTopics(t *testing.T) {
 	cluster, err := kfake.NewCluster(
-		kfake.SeedTopics(1, sztopic.EventHTTPSecRule))
+		kfake.SeedTopics(1, sztopic.EventHTTPSecRule.String()))
 	require.NoError(t, err)
 	t.Cleanup(cluster.Close)
 	brokers := cluster.ListenAddrs()
@@ -203,10 +209,11 @@ func TestProducerCreatesTopics(t *testing.T) {
 	require.NoError(t, p.Shutdown(t.Context()))
 
 	got := partitionsOf(t, brokers)
-	assert.Equal(t, 1, got[sztopic.EventHTTPSecRule], "existing topic kept")
+	assert.Equal(t, 1, got[sztopic.EventHTTPSecRule.String()],
+		"existing topic kept")
 	for _, topic := range DefaultTopics() {
 		if topic != sztopic.EventHTTPSecRule {
-			assert.Equal(t, DefaultTopicPartitions, got[topic], topic)
+			assert.Equal(t, DefaultTopicPartitions, got[topic.String()], topic)
 		}
 	}
 }

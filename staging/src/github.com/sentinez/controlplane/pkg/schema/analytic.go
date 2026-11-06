@@ -15,12 +15,35 @@
 package schema
 
 import (
+	"time"
+
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/sentinez/shared/szstorage/dbx"
+	"github.com/sentinez/shared/szstorage/dbx/timescale"
 	"github.com/sentinez/shared/sztable"
 )
+
+const (
+	// EventRetention how long the events, and their histograms, are kept.
+	EventRetention = 30 * 24 * time.Hour
+
+	_eventChunkInterval = 24 * time.Hour
+)
+
+// EventHypertable the hypertable of the event table s, partitioned by
+// timeColumn, a column of unix milliseconds, kept for EventRetention.
+func EventHypertable(s dbx.Schema,
+	timeColumn string) timescale.Hypertable {
+	return timescale.Hypertable{
+		Schema:        s,
+		TimeColumn:    timeColumn,
+		ChunkInterval: _eventChunkInterval,
+		Retention:     EventRetention,
+	}
+}
 
 // AnalyticActivities the schema of the sztable.AnalyticActivities table.
 func AnalyticActivities() dbx.Schema {
@@ -76,6 +99,69 @@ func AnalyticCoreRulesetsEvent() dbx.Schema {
 		Indexes: []dbx.Index{
 			{Column: crspb.CoreRuleEvent_MatchedTime, Method: dbx.BTree},
 			{Column: crspb.CoreRuleEvent_ResourceId, Method: dbx.BTree},
+		},
+	}
+}
+
+// AnalyticHttpIngressEvent the schema of the
+// sztable.AnalyticHttpIngressEvent table: the httppb.IngressEvent records
+// of the sztopic.EventHTTPIngress topic, one per request of the edge.
+func AnalyticHttpIngressEvent() dbx.Schema {
+	return dbx.Schema{
+		Table: sztable.AnalyticHttpIngressEvent,
+		Columns: []dbx.Column{
+			{Name: httppb.IngressEvent_Id, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Method, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Scheme, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Host, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Path, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Queries, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Headers, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Protocol, Type: dbx.Text},
+			{Name: httppb.IngressEvent_RemoteAddress, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Status, Type: dbx.Int4},
+			{Name: httppb.IngressEvent_UserAgent, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Asn, Type: dbx.Int8},
+			{Name: httppb.IngressEvent_Country, Type: dbx.Text},
+			{Name: httppb.IngressEvent_ContentType, Type: dbx.Text},
+			{Name: httppb.IngressEvent_Timestamp, Type: dbx.Int8},
+			{Name: httppb.IngressEvent_Fingerprint, Type: dbx.Text},
+			{Name: httppb.IngressEvent_ClientIp, Type: dbx.Text},
+			{Name: httppb.IngressEvent_ResourceId, Type: dbx.Text},
+			{Name: httppb.IngressEvent_TenantId, Type: dbx.Text},
+		},
+		Indexes: []dbx.Index{
+			{Column: httppb.IngressEvent_Timestamp, Method: dbx.BTree},
+			{Column: httppb.IngressEvent_ResourceId, Method: dbx.BTree},
+		},
+	}
+}
+
+// AnalyticHttpEgressEvent the schema of the sztable.AnalyticHttpEgressEvent
+// table: the httppb.EgressEvent records of the sztopic.EventHTTPEgress
+// topic, one per request the edge proxied to its upstream origin.
+func AnalyticHttpEgressEvent() dbx.Schema {
+	return dbx.Schema{
+		Table: sztable.AnalyticHttpEgressEvent,
+		Columns: []dbx.Column{
+			{Name: httppb.EgressEvent_Id, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Upstream, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Method, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Scheme, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Path, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Queries, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Status, Type: dbx.Int4},
+			{Name: httppb.EgressEvent_ContentType, Type: dbx.Text},
+			{Name: httppb.EgressEvent_ContentLength, Type: dbx.Int8},
+			{Name: httppb.EgressEvent_LatencyMicros, Type: dbx.Int8},
+			{Name: httppb.EgressEvent_Timestamp, Type: dbx.Int8},
+			{Name: httppb.EgressEvent_ResourceId, Type: dbx.Text},
+			{Name: httppb.EgressEvent_TenantId, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Protocol, Type: dbx.Text},
+		},
+		Indexes: []dbx.Index{
+			{Column: httppb.EgressEvent_Timestamp, Method: dbx.BTree},
+			{Column: httppb.EgressEvent_ResourceId, Method: dbx.BTree},
 		},
 	}
 }

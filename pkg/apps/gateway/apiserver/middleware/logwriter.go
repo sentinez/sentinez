@@ -42,7 +42,7 @@ func (rsp *logResponseWriter) Unwrap() http.ResponseWriter {
 func newLogResponseWriter(w http.ResponseWriter) *logResponseWriter {
 	logging := szlog.NewLogCloser(
 		apiserver.GetMetaApiserverServiceKey(),
-		commonpb.LogType_LOG_TYPE_HTTP,
+		commonpb.LogType_LOG_TYPE_HTTP_INGRESS,
 		szlog.LevelInfo,
 	)
 	return &logResponseWriter{w, http.StatusOK, logging}

@@ -37,9 +37,11 @@ connectors:
     default_pipelines: [logs/default]
     error_mode: ignore
     table:
-      - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP"
+      - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP_INGRESS"
         pipelines: [logs/http]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_WAF"
+      - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP_EGRESS"
+        pipelines: [logs/egress]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_CORE_RULESETS"
         pipelines: [logs/rulesets]
       - statement: route() where attributes["kind"] == "LOG_TYPE_SEC_RULE"
         pipelines: [logs/secrule]
@@ -69,6 +71,9 @@ exporters:
   kafka/logs_http:
     <<: *kafka_logs
     topic: sentinez.event.http.ingress.otlp
+  kafka/logs_egress:
+    <<: *kafka_logs
+    topic: sentinez.event.http.egress.otlp
   kafka/logs_rulesets:
     <<: *kafka_logs
     topic: sentinez.event.http.rulesets.otlp
@@ -134,6 +139,10 @@ service:
       receivers: [routing/logs]
       processors: [batch]
       exporters: [kafka/logs_http]
+    logs/egress:
+      receivers: [routing/logs]
+      processors: [batch]
+      exporters: [kafka/logs_egress]
     logs/rulesets:
       receivers: [routing/logs]
       processors: [batch]

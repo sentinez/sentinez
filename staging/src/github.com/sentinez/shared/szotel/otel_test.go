@@ -178,12 +178,12 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 		},
 		{
 			name:      "http request event",
-			giveKind:  typepb.LogType_LOG_TYPE_HTTP,
+			giveKind:  typepb.LogType_LOG_TYPE_HTTP_INGRESS,
 			giveEvent: newRequestEvent(),
 		},
 		{
 			name:      "http request",
-			giveKind:  typepb.LogType_LOG_TYPE_HTTP,
+			giveKind:  typepb.LogType_LOG_TYPE_HTTP_INGRESS,
 			giveEvent: newRequest(),
 		},
 	}
@@ -252,9 +252,9 @@ func TestKind(t *testing.T) {
 		{
 			name: "waf",
 			giveRec: &logspb.LogRecord{Attributes: []*commonpb.KeyValue{
-				kv(_kindKey, strValue("LOG_TYPE_WAF")),
+				kv(_kindKey, strValue("LOG_TYPE_CORE_RULESETS")),
 			}},
-			wantKind: typepb.LogType_LOG_TYPE_WAF,
+			wantKind: typepb.LogType_LOG_TYPE_CORE_RULESETS,
 		},
 	}
 

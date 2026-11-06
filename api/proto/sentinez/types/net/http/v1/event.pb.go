@@ -22,6 +22,7 @@ package httppb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -36,7 +37,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Event struct {
+type IngressEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Method        string                 `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"`
@@ -55,24 +56,26 @@ type Event struct {
 	Timestamp     int64                  `protobuf:"varint,17,opt,name=timestamp,proto3" json:"timestamp,omitempty"` // milisec
 	Fingerprint   string                 `protobuf:"bytes,18,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	ClientIp      string                 `protobuf:"bytes,19,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,20,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	TenantId      string                 `protobuf:"bytes,21,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Event) Reset() {
-	*x = Event{}
+func (x *IngressEvent) Reset() {
+	*x = IngressEvent{}
 	mi := &file_sentinez_types_net_http_v1_event_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Event) String() string {
+func (x *IngressEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Event) ProtoMessage() {}
+func (*IngressEvent) ProtoMessage() {}
 
-func (x *Event) ProtoReflect() protoreflect.Message {
+func (x *IngressEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_net_http_v1_event_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,126 +87,303 @@ func (x *Event) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Event.ProtoReflect.Descriptor instead.
-func (*Event) Descriptor() ([]byte, []int) {
+// Deprecated: Use IngressEvent.ProtoReflect.Descriptor instead.
+func (*IngressEvent) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_net_http_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Event) GetId() string {
+func (x *IngressEvent) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Event) GetMethod() string {
+func (x *IngressEvent) GetMethod() string {
 	if x != nil {
 		return x.Method
 	}
 	return ""
 }
 
-func (x *Event) GetScheme() string {
+func (x *IngressEvent) GetScheme() string {
 	if x != nil {
 		return x.Scheme
 	}
 	return ""
 }
 
-func (x *Event) GetHost() string {
+func (x *IngressEvent) GetHost() string {
 	if x != nil {
 		return x.Host
 	}
 	return ""
 }
 
-func (x *Event) GetPath() string {
+func (x *IngressEvent) GetPath() string {
 	if x != nil {
 		return x.Path
 	}
 	return ""
 }
 
-func (x *Event) GetQueries() string {
+func (x *IngressEvent) GetQueries() string {
 	if x != nil {
 		return x.Queries
 	}
 	return ""
 }
 
-func (x *Event) GetHeaders() string {
+func (x *IngressEvent) GetHeaders() string {
 	if x != nil {
 		return x.Headers
 	}
 	return ""
 }
 
-func (x *Event) GetProtocol() string {
+func (x *IngressEvent) GetProtocol() string {
 	if x != nil {
 		return x.Protocol
 	}
 	return ""
 }
 
-func (x *Event) GetRemoteAddress() string {
+func (x *IngressEvent) GetRemoteAddress() string {
 	if x != nil {
 		return x.RemoteAddress
 	}
 	return ""
 }
 
-func (x *Event) GetStatus() int32 {
+func (x *IngressEvent) GetStatus() int32 {
 	if x != nil {
 		return x.Status
 	}
 	return 0
 }
 
-func (x *Event) GetUserAgent() string {
+func (x *IngressEvent) GetUserAgent() string {
 	if x != nil {
 		return x.UserAgent
 	}
 	return ""
 }
 
-func (x *Event) GetAsn() int64 {
+func (x *IngressEvent) GetAsn() int64 {
 	if x != nil {
 		return x.Asn
 	}
 	return 0
 }
 
-func (x *Event) GetCountry() string {
+func (x *IngressEvent) GetCountry() string {
 	if x != nil {
 		return x.Country
 	}
 	return ""
 }
 
-func (x *Event) GetContentType() string {
+func (x *IngressEvent) GetContentType() string {
 	if x != nil {
 		return x.ContentType
 	}
 	return ""
 }
 
-func (x *Event) GetTimestamp() int64 {
+func (x *IngressEvent) GetTimestamp() int64 {
 	if x != nil {
 		return x.Timestamp
 	}
 	return 0
 }
 
-func (x *Event) GetFingerprint() string {
+func (x *IngressEvent) GetFingerprint() string {
 	if x != nil {
 		return x.Fingerprint
 	}
 	return ""
 }
 
-func (x *Event) GetClientIp() string {
+func (x *IngressEvent) GetClientIp() string {
 	if x != nil {
 		return x.ClientIp
+	}
+	return ""
+}
+
+func (x *IngressEvent) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *IngressEvent) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+// EgressEvent is the leg of a request from the reverse proxy to its
+// upstream origin, logged once the origin answered; id is the one of
+// the request IngressEvent.
+type EgressEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// upstream is the origin the request was sent to, e.g.
+	// http://10.0.0.1:8080.
+	Upstream string `protobuf:"bytes,2,opt,name=upstream,proto3" json:"upstream,omitempty"`
+	// method, scheme, path and queries are the request once proxied: the
+	// path is the client one unless the proxy joined the path of upstream
+	// to it, the scheme is the one of upstream, http or https.
+	Method  string `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
+	Scheme  string `protobuf:"bytes,4,opt,name=scheme,proto3" json:"scheme,omitempty"`
+	Path    string `protobuf:"bytes,5,opt,name=path,proto3" json:"path,omitempty"`
+	Queries string `protobuf:"bytes,6,opt,name=queries,proto3" json:"queries,omitempty"`
+	// status is the one the origin answered, 502 when it was unreachable.
+	Status      int32  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`
+	ContentType string `protobuf:"bytes,8,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	// content_length is the Content-Length the origin answered, -1 when
+	// it streamed the body without one.
+	ContentLength int64 `protobuf:"varint,9,opt,name=content_length,json=contentLength,proto3" json:"content_length,omitempty"`
+	// latency_micros is the time the proxy took to relay the request and
+	// the answer of the origin.
+	LatencyMicros int64  `protobuf:"varint,10,opt,name=latency_micros,json=latencyMicros,proto3" json:"latency_micros,omitempty"`
+	Timestamp     int64  `protobuf:"varint,11,opt,name=timestamp,proto3" json:"timestamp,omitempty"` // milisec, when the request was sent
+	ResourceId    string `protobuf:"bytes,12,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	TenantId      string `protobuf:"bytes,13,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	// protocol is the HTTP version the client used to reach the edge, e.g.
+	// HTTP/2.0: the one used to reach upstream is not observable.
+	Protocol      string `protobuf:"bytes,14,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EgressEvent) Reset() {
+	*x = EgressEvent{}
+	mi := &file_sentinez_types_net_http_v1_event_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EgressEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EgressEvent) ProtoMessage() {}
+
+func (x *EgressEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_net_http_v1_event_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EgressEvent.ProtoReflect.Descriptor instead.
+func (*EgressEvent) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_net_http_v1_event_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *EgressEvent) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetUpstream() string {
+	if x != nil {
+		return x.Upstream
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetScheme() string {
+	if x != nil {
+		return x.Scheme
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetQueries() string {
+	if x != nil {
+		return x.Queries
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *EgressEvent) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetContentLength() int64 {
+	if x != nil {
+		return x.ContentLength
+	}
+	return 0
+}
+
+func (x *EgressEvent) GetLatencyMicros() int64 {
+	if x != nil {
+		return x.LatencyMicros
+	}
+	return 0
+}
+
+func (x *EgressEvent) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *EgressEvent) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *EgressEvent) GetProtocol() string {
+	if x != nil {
+		return x.Protocol
 	}
 	return ""
 }
@@ -212,8 +392,8 @@ var File_sentinez_types_net_http_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\"\xff\x03\n" +
-	"\x05Event\x12D\n" +
+	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xcc\x04\n" +
+	"\fIngressEvent\x12D\n" +
 	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12\x16\n" +
 	"\x06scheme\x18\x03 \x01(\tR\x06scheme\x12\x12\n" +
@@ -232,7 +412,27 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\fcontent_type\x18\x10 \x01(\tR\vcontentType\x12\x1c\n" +
 	"\ttimestamp\x18\x11 \x01(\x03R\ttimestamp\x12 \n" +
 	"\vfingerprint\x18\x12 \x01(\tR\vfingerprint\x12\x1b\n" +
-	"\tclient_ip\x18\x13 \x01(\tR\bclientIpBJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
+	"\tclient_ip\x18\x13 \x01(\tR\bclientIp\x12\x1f\n" +
+	"\vresource_id\x18\x14 \x01(\tR\n" +
+	"resourceId\x12\x1b\n" +
+	"\ttenant_id\x18\x15 \x01(\tR\btenantId:\x06\xca\xf3\x18\x02\b\x01\"\xd6\x03\n" +
+	"\vEgressEvent\x12D\n" +
+	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x1a\n" +
+	"\bupstream\x18\x02 \x01(\tR\bupstream\x12\x16\n" +
+	"\x06method\x18\x03 \x01(\tR\x06method\x12\x16\n" +
+	"\x06scheme\x18\x04 \x01(\tR\x06scheme\x12\x12\n" +
+	"\x04path\x18\x05 \x01(\tR\x04path\x12\x18\n" +
+	"\aqueries\x18\x06 \x01(\tR\aqueries\x12\x16\n" +
+	"\x06status\x18\a \x01(\x05R\x06status\x12!\n" +
+	"\fcontent_type\x18\b \x01(\tR\vcontentType\x12%\n" +
+	"\x0econtent_length\x18\t \x01(\x03R\rcontentLength\x12%\n" +
+	"\x0elatency_micros\x18\n" +
+	" \x01(\x03R\rlatencyMicros\x12\x1c\n" +
+	"\ttimestamp\x18\v \x01(\x03R\ttimestamp\x12\x1f\n" +
+	"\vresource_id\x18\f \x01(\tR\n" +
+	"resourceId\x12\x1b\n" +
+	"\ttenant_id\x18\r \x01(\tR\btenantId\x12\x1a\n" +
+	"\bprotocol\x18\x0e \x01(\tR\bprotocol:\x06\xca\xf3\x18\x02\b\x01BJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
 
 var (
 	file_sentinez_types_net_http_v1_event_proto_rawDescOnce sync.Once
@@ -246,9 +446,10 @@ func file_sentinez_types_net_http_v1_event_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_net_http_v1_event_proto_rawDescData
 }
 
-var file_sentinez_types_net_http_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_types_net_http_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_net_http_v1_event_proto_goTypes = []any{
-	(*Event)(nil), // 0: sentinez.types.net.http.v1.Event
+	(*IngressEvent)(nil), // 0: sentinez.types.net.http.v1.IngressEvent
+	(*EgressEvent)(nil),  // 1: sentinez.types.net.http.v1.EgressEvent
 }
 var file_sentinez_types_net_http_v1_event_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -269,7 +470,7 @@ func file_sentinez_types_net_http_v1_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_net_http_v1_event_proto_rawDesc), len(file_sentinez_types_net_http_v1_event_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

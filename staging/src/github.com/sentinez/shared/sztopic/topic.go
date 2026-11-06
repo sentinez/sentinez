@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package sztopic names the Kafka topics of sentinez.
 package sztopic
+
+// Topic the name of a Kafka topic.
+type Topic string
+
+func (t Topic) String() string {
+	return string(t)
+}
 
 // Edge traffic events, one topic per log type, produced by shared/szkafka.
 // Each record value is the proto event itself (see szkafka.Header*).
 const (
-	EventHTTPIngress   = "sentinez.event.http.ingress"
-	EventHTTPRulesets  = "sentinez.event.http.rulesets"
-	EventHTTPSecRule   = "sentinez.event.http.secrule"
-	EventHTTPRateLimit = "sentinez.event.http.ratelimit"
-	EventHTTPCDNRule   = "sentinez.event.http.cdnrule"
+	EventHTTPIngress   Topic = "sentinez.event.http.ingress"
+	EventHTTPEgress    Topic = "sentinez.event.http.egress"
+	EventHTTPRulesets  Topic = "sentinez.event.http.rulesets"
+	EventHTTPSecRule   Topic = "sentinez.event.http.secrule"
+	EventHTTPRateLimit Topic = "sentinez.event.http.ratelimit"
+	EventHTTPCDNRule   Topic = "sentinez.event.http.cdnrule"
 )

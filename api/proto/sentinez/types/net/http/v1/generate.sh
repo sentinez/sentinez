@@ -39,6 +39,9 @@ protoc \
   --go-grpc_out="$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
   --grpc-gateway_out="$SENTINEZ_GEN_OUT" \
+  --go-senz_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
-  --go-vtproto_opt=features=marshal+unmarshal+size \
+  --go-vtproto_opt=features=marshal+unmarshal+size+pool \
+  --go-vtproto_opt=pool=github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1.IngressEvent \
+  --go-vtproto_opt=pool=github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1.EgressEvent \
   "$(pwd)"/*.proto

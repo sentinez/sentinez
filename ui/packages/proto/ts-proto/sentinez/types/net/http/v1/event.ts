@@ -9,7 +9,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "sentinez.types.net.http.v1";
 
-export interface Event {
+export interface IngressEvent {
   id: string;
   method: string;
   scheme: string;
@@ -28,9 +28,56 @@ export interface Event {
   timestamp: number;
   fingerprint: string;
   clientIp: string;
+  resourceId: string;
+  tenantId: string;
 }
 
-function createBaseEvent(): Event {
+/**
+ * EgressEvent is the leg of a request from the reverse proxy to its
+ * upstream origin, logged once the origin answered; id is the one of
+ * the request IngressEvent.
+ */
+export interface EgressEvent {
+  id: string;
+  /**
+   * upstream is the origin the request was sent to, e.g.
+   * http://10.0.0.1:8080.
+   */
+  upstream: string;
+  /**
+   * method, scheme, path and queries are the request once proxied: the
+   * path is the client one unless the proxy joined the path of upstream
+   * to it, the scheme is the one of upstream, http or https.
+   */
+  method: string;
+  scheme: string;
+  path: string;
+  queries: string;
+  /** status is the one the origin answered, 502 when it was unreachable. */
+  status: number;
+  contentType: string;
+  /**
+   * content_length is the Content-Length the origin answered, -1 when
+   * it streamed the body without one.
+   */
+  contentLength: number;
+  /**
+   * latency_micros is the time the proxy took to relay the request and
+   * the answer of the origin.
+   */
+  latencyMicros: number;
+  /** milisec, when the request was sent */
+  timestamp: number;
+  resourceId: string;
+  tenantId: string;
+  /**
+   * protocol is the HTTP version the client used to reach the edge, e.g.
+   * HTTP/2.0: the one used to reach upstream is not observable.
+   */
+  protocol: string;
+}
+
+function createBaseIngressEvent(): IngressEvent {
   return {
     id: "",
     method: "",
@@ -49,11 +96,13 @@ function createBaseEvent(): Event {
     timestamp: 0,
     fingerprint: "",
     clientIp: "",
+    resourceId: "",
+    tenantId: "",
   };
 }
 
-export const Event: MessageFns<Event> = {
-  encode(message: Event, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const IngressEvent: MessageFns<IngressEvent> = {
+  encode(message: IngressEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -105,10 +154,16 @@ export const Event: MessageFns<Event> = {
     if (message.clientIp !== "") {
       writer.uint32(154).string(message.clientIp);
     }
+    if (message.resourceId !== "") {
+      writer.uint32(162).string(message.resourceId);
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(170).string(message.tenantId);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Event {
+  decode(input: BinaryReader | Uint8Array, length?: number): IngressEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -117,7 +172,7 @@ export const Event: MessageFns<Event> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseEvent();
+      const message = createBaseIngressEvent();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -257,6 +312,22 @@ export const Event: MessageFns<Event> = {
             message.clientIp = reader.string();
             continue;
           }
+          case 20: {
+            if (tag !== 162) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
+          case 21: {
+            if (tag !== 170) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -269,7 +340,7 @@ export const Event: MessageFns<Event> = {
     }
   },
 
-  fromJSON(object: any): Event {
+  fromJSON(object: any): IngressEvent {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       method: isSet(object.method) ? globalThis.String(object.method) : "",
@@ -304,10 +375,20 @@ export const Event: MessageFns<Event> = {
         : isSet(object.client_ip)
         ? globalThis.String(object.client_ip)
         : "",
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
     };
   },
 
-  toJSON(message: Event): unknown {
+  toJSON(message: IngressEvent): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -360,14 +441,20 @@ export const Event: MessageFns<Event> = {
     if (message.clientIp !== "") {
       obj.clientIp = message.clientIp;
     }
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Event>, I>>(base?: I): Event {
-    return Event.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<IngressEvent>, I>>(base?: I): IngressEvent {
+    return IngressEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Event>, I>>(object: I): Event {
-    const message = createBaseEvent();
+  fromPartial<I extends Exact<DeepPartial<IngressEvent>, I>>(object: I): IngressEvent {
+    const message = createBaseIngressEvent();
     message.id = object.id ?? "";
     message.method = object.method ?? "";
     message.scheme = object.scheme ?? "";
@@ -385,6 +472,320 @@ export const Event: MessageFns<Event> = {
     message.timestamp = object.timestamp ?? 0;
     message.fingerprint = object.fingerprint ?? "";
     message.clientIp = object.clientIp ?? "";
+    message.resourceId = object.resourceId ?? "";
+    message.tenantId = object.tenantId ?? "";
+    return message;
+  },
+};
+
+function createBaseEgressEvent(): EgressEvent {
+  return {
+    id: "",
+    upstream: "",
+    method: "",
+    scheme: "",
+    path: "",
+    queries: "",
+    status: 0,
+    contentType: "",
+    contentLength: 0,
+    latencyMicros: 0,
+    timestamp: 0,
+    resourceId: "",
+    tenantId: "",
+    protocol: "",
+  };
+}
+
+export const EgressEvent: MessageFns<EgressEvent> = {
+  encode(message: EgressEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.upstream !== "") {
+      writer.uint32(18).string(message.upstream);
+    }
+    if (message.method !== "") {
+      writer.uint32(26).string(message.method);
+    }
+    if (message.scheme !== "") {
+      writer.uint32(34).string(message.scheme);
+    }
+    if (message.path !== "") {
+      writer.uint32(42).string(message.path);
+    }
+    if (message.queries !== "") {
+      writer.uint32(50).string(message.queries);
+    }
+    if (message.status !== 0) {
+      writer.uint32(56).int32(message.status);
+    }
+    if (message.contentType !== "") {
+      writer.uint32(66).string(message.contentType);
+    }
+    if (message.contentLength !== 0) {
+      writer.uint32(72).int64(message.contentLength);
+    }
+    if (message.latencyMicros !== 0) {
+      writer.uint32(80).int64(message.latencyMicros);
+    }
+    if (message.timestamp !== 0) {
+      writer.uint32(88).int64(message.timestamp);
+    }
+    if (message.resourceId !== "") {
+      writer.uint32(98).string(message.resourceId);
+    }
+    if (message.tenantId !== "") {
+      writer.uint32(106).string(message.tenantId);
+    }
+    if (message.protocol !== "") {
+      writer.uint32(114).string(message.protocol);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EgressEvent {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEgressEvent();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.upstream = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.method = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.scheme = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.path = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.queries = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.status = reader.int32();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.contentType = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.contentLength = longToNumber(reader.int64());
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.latencyMicros = longToNumber(reader.int64());
+            continue;
+          }
+          case 11: {
+            if (tag !== 88) {
+              break;
+            }
+
+            message.timestamp = longToNumber(reader.int64());
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.tenantId = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.protocol = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): EgressEvent {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      upstream: isSet(object.upstream) ? globalThis.String(object.upstream) : "",
+      method: isSet(object.method) ? globalThis.String(object.method) : "",
+      scheme: isSet(object.scheme) ? globalThis.String(object.scheme) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      queries: isSet(object.queries) ? globalThis.String(object.queries) : "",
+      status: isSet(object.status) ? globalThis.Number(object.status) : 0,
+      contentType: isSet(object.contentType)
+        ? globalThis.String(object.contentType)
+        : isSet(object.content_type)
+        ? globalThis.String(object.content_type)
+        : "",
+      contentLength: isSet(object.contentLength)
+        ? globalThis.Number(object.contentLength)
+        : isSet(object.content_length)
+        ? globalThis.Number(object.content_length)
+        : 0,
+      latencyMicros: isSet(object.latencyMicros)
+        ? globalThis.Number(object.latencyMicros)
+        : isSet(object.latency_micros)
+        ? globalThis.Number(object.latency_micros)
+        : 0,
+      timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0,
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+      tenantId: isSet(object.tenantId)
+        ? globalThis.String(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.String(object.tenant_id)
+        : "",
+      protocol: isSet(object.protocol) ? globalThis.String(object.protocol) : "",
+    };
+  },
+
+  toJSON(message: EgressEvent): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.upstream !== "") {
+      obj.upstream = message.upstream;
+    }
+    if (message.method !== "") {
+      obj.method = message.method;
+    }
+    if (message.scheme !== "") {
+      obj.scheme = message.scheme;
+    }
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    if (message.queries !== "") {
+      obj.queries = message.queries;
+    }
+    if (message.status !== 0) {
+      obj.status = Math.round(message.status);
+    }
+    if (message.contentType !== "") {
+      obj.contentType = message.contentType;
+    }
+    if (message.contentLength !== 0) {
+      obj.contentLength = Math.round(message.contentLength);
+    }
+    if (message.latencyMicros !== 0) {
+      obj.latencyMicros = Math.round(message.latencyMicros);
+    }
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
+    if (message.tenantId !== "") {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.protocol !== "") {
+      obj.protocol = message.protocol;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EgressEvent>, I>>(base?: I): EgressEvent {
+    return EgressEvent.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EgressEvent>, I>>(object: I): EgressEvent {
+    const message = createBaseEgressEvent();
+    message.id = object.id ?? "";
+    message.upstream = object.upstream ?? "";
+    message.method = object.method ?? "";
+    message.scheme = object.scheme ?? "";
+    message.path = object.path ?? "";
+    message.queries = object.queries ?? "";
+    message.status = object.status ?? 0;
+    message.contentType = object.contentType ?? "";
+    message.contentLength = object.contentLength ?? 0;
+    message.latencyMicros = object.latencyMicros ?? 0;
+    message.timestamp = object.timestamp ?? 0;
+    message.resourceId = object.resourceId ?? "";
+    message.tenantId = object.tenantId ?? "";
+    message.protocol = object.protocol ?? "";
     return message;
   },
 };

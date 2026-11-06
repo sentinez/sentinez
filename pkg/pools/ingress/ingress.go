@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package request
+package ingress
 
 import (
 	"io"
@@ -23,40 +23,44 @@ import (
 )
 
 var (
-	_ io.Closer           = (*RequestEvent)(nil)
-	_ geoip.CountrySetter = (*RequestEvent)(nil)
-	_ geoip.AsnSetter     = (*RequestEvent)(nil)
+	_ io.Closer           = (*IngressEvent)(nil)
+	_ geoip.CountrySetter = (*IngressEvent)(nil)
+	_ geoip.AsnSetter     = (*IngressEvent)(nil)
 
-	_pool = szsync.NewPoolCtr(func() *RequestEvent {
-		return &RequestEvent{Event: &httppb.Event{}}
+	_pool = szsync.NewPoolCtr(func() *IngressEvent {
+		return &IngressEvent{IngressEvent: &httppb.IngressEvent{}}
 	})
 )
 
-type RequestEvent struct {
-	*httppb.Event
+// IngressEvent a pooled httppb.IngressEvent, released on Close.
+type IngressEvent struct {
+	*httppb.IngressEvent
 }
 
-func (re *RequestEvent) Close() error {
-	Release(re)
+// Close releases ie to the pool.
+func (ie *IngressEvent) Close() error {
+	Release(ie)
 
 	return nil
 }
 
 // SetCountry asks geoip.DB.Fill for the client country.
-func (re *RequestEvent) SetCountry(isoCode string) {
-	re.Country = isoCode
+func (ie *IngressEvent) SetCountry(isoCode string) {
+	ie.Country = isoCode
 }
 
 // SetAsn asks geoip.DB.Fill for the client autonomous system.
-func (re *RequestEvent) SetAsn(number int64) {
-	re.Asn = number
+func (ie *IngressEvent) SetAsn(number int64) {
+	ie.Asn = number
 }
 
-func Acquire() *RequestEvent {
+// Acquire returns a reset IngressEvent of the pool.
+func Acquire() *IngressEvent {
 	return _pool.Get()
 }
 
-func Release(obj *RequestEvent) {
-	obj.Reset()
+// Release resets obj and puts it back in the pool.
+func Release(obj *IngressEvent) {
+	obj.ResetVT()
 	_pool.Put(obj)
 }

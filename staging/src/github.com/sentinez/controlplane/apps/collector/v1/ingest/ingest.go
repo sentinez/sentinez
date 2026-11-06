@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/sentinez/shared/szkafka"
+	"github.com/sentinez/shared/sztopic"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"golang.org/x/sync/errgroup"
 )
@@ -28,12 +29,14 @@ import (
 // record's topic.
 type Ingest struct {
 	consumer *szkafka.Consumer
-	sinks    map[string]Sink
+	sinks    map[sztopic.Topic]Sink
 }
 
 // New returns the ingest of the topics of sinks; a nil consumer disables
 // it.
-func New(consumer *szkafka.Consumer, sinks map[string]Sink) *Ingest {
+func New(consumer *szkafka.Consumer,
+	sinks map[sztopic.Topic]Sink) *Ingest {
+
 	return &Ingest{consumer: consumer, sinks: sinks}
 }
 
@@ -57,9 +60,10 @@ func (i *Ingest) Close() {
 // its own table, concurrently. An error retries the whole batch: the
 // rows inserted already are sent again but not stored twice.
 func (i *Ingest) Handle(ctx context.Context, records []*kgo.Record) error {
-	byTopic := make(map[string][]*kgo.Record, len(i.sinks))
+	byTopic := make(map[sztopic.Topic][]*kgo.Record, len(i.sinks))
 	for _, r := range records {
-		byTopic[r.Topic] = append(byTopic[r.Topic], r)
+		topic := sztopic.Topic(r.Topic)
+		byTopic[topic] = append(byTopic[topic], r)
 	}
 
 	g, gctx := errgroup.WithContext(ctx)

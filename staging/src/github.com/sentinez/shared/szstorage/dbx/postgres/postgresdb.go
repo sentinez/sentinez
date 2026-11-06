@@ -31,6 +31,7 @@ import (
 	"github.com/sentinez/shared/szstorage/dbx/query"
 	"github.com/sentinez/shared/szstorage/storageutils"
 	"github.com/sentinez/shared/szstorage/storageutils/table"
+	"github.com/sentinez/shared/sztable"
 )
 
 var _ dbx.Database[typepb.Empty] = (*postgres[typepb.Empty])(nil)
@@ -42,14 +43,29 @@ var (
 	_pool   atomic.Pointer[pgxpool.Pool]
 )
 
+// SyncFn creates or migrates the relation tableName through client.
+type SyncFn func(ctx context.Context, client Client, tableName string) error
+
 // New returns the Database of the table described by schema, synced on
 // the way: the table, its missing columns and indexes are created.
 func New[T any](ctx context.Context, conf *settingpb.Config,
 	schema dbx.Schema) (dbx.Database[T], error) {
 
-	tableName := table.NewTable(conf, schema.Table.String())
-	if !table.IsValidTableName(tableName) {
-		return nil, fmt.Errorf("invalid table name: %s", tableName)
+	return Open[T](ctx, conf, schema.Table,
+		func(ctx context.Context, client Client, tableName string) error {
+			return syncSchema(ctx, client, tableName, schema)
+		})
+}
+
+// Open returns the Database of the relation name, on the shared pool,
+// once sync created or migrated it; New with a sync of its own, for
+// the relations a dbx.Schema does not describe (hypertables, views).
+func Open[T any](ctx context.Context, conf *settingpb.Config,
+	name sztable.Table, sync SyncFn) (dbx.Database[T], error) {
+
+	tableName, err := TableName(conf, name)
+	if err != nil {
+		return nil, err
 	}
 
 	pool, err := getConnPool(conf)
@@ -57,11 +73,22 @@ func New[T any](ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	if err := syncSchema(ctx, pool, tableName, schema); err != nil {
+	if err := sync(ctx, pool, tableName); err != nil {
 		return nil, err
 	}
 
 	return &postgres[T]{client: pool, tableName: tableName}, nil
+}
+
+// TableName the name of the relation name in the database of conf: the
+// one Open gives its Database.
+func TableName(conf *settingpb.Config, name sztable.Table) (string, error) {
+	tableName := table.NewTable(conf, name.String())
+	if !table.IsValidTableName(tableName) {
+		return "", fmt.Errorf("invalid table name: %s", tableName)
+	}
+
+	return tableName, nil
 }
 
 type postgres[T any] struct {

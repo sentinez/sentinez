@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/shared/sztopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/twmb/franz-go/pkg/kfake"
@@ -56,7 +57,7 @@ func newTestConsumer(t *testing.T, brokers []string) *Consumer {
 	c, err := NewConsumer(ConsumerConfig{
 		Brokers:        brokers,
 		Group:          "test",
-		Topics:         []string{_testTopic},
+		Topics:         []sztopic.Topic{_testTopic},
 		MaxPollRecords: 2,
 		FetchMaxWait:   50 * time.Millisecond,
 	})
@@ -159,13 +160,13 @@ func TestNewConsumerConfigErrors(t *testing.T) {
 	}{
 		{
 			name:    "no brokers",
-			give:    ConsumerConfig{Group: "g", Topics: []string{"t"}},
+			give:    ConsumerConfig{Group: "g", Topics: []sztopic.Topic{"t"}},
 			wantErr: errNoBrokers,
 		},
 		{
 			name: "no group",
 			give: ConsumerConfig{
-				Brokers: []string{"b"}, Topics: []string{"t"}},
+				Brokers: []string{"b"}, Topics: []sztopic.Topic{"t"}},
 			wantErr: errNoGroup,
 		},
 		{

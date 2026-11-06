@@ -60,7 +60,7 @@ services:
       - /bin/sh
       - -c
       - |
-        for event in ingress rulesets secrule ratelimit cdnrule; do
+        for event in ingress egress rulesets secrule ratelimit cdnrule; do
           topics="$$topics sentinez.event.http.$$event"
           topics="$$topics sentinez.event.http.$$event.otlp"
         done

@@ -43,4 +43,13 @@ message ContextExtra {
   // Location (server.locations[].location) a SecRule ROUTE_TO action
   // sends the request to, instead of the longest matching prefix.
   string route_location = 16;
+
+  // Upstream the origin the reverse proxy sent the request to, e.g.
+  // http://10.0.0.1:8080; empty when the edge answered it itself.
+  string upstream = 17;
+  // UpstreamTimestamp the time the request was sent to Upstream, unix
+  // milliseconds.
+  int64 upstream_timestamp = 18;
+  // UpstreamLatency the time Upstream took to answer, in microseconds.
+  int64 upstream_latency_micros = 19;
 }

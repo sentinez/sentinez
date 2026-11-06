@@ -23,6 +23,8 @@ import (
 
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
+	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
+	httpeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpevents"
 	ruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/ruleevents"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szkafka"
@@ -67,7 +69,7 @@ func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
 
 // newSinks the sink of each topic of an edge event table.
 func newSinks(ctx context.Context,
-	conf *settingpb.Config) (map[string]ingest.Sink, error) {
+	conf *settingpb.Config) (map[sztopic.Topic]ingest.Sink, error) {
 	secRules, err := ruleeventsrepo.NewSecRules(ctx, conf)
 	if err != nil {
 		return nil, err
@@ -80,10 +82,20 @@ func newSinks(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+	ingress, err := httpeventsrepo.New(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+	egress, err := httpegresseventsrepo.New(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
 
-	return map[string]ingest.Sink{
+	return map[sztopic.Topic]ingest.Sink{
 		sztopic.EventHTTPSecRule:   ingest.NewRuleEventSink(secRules.Create),
 		sztopic.EventHTTPRateLimit: ingest.NewRuleEventSink(rateLimits.Create),
 		sztopic.EventHTTPRulesets:  ingest.NewCoreRuleEventSink(coreRules.Create),
+		sztopic.EventHTTPIngress:   ingest.NewHttpIngressEventSink(ingress.Create),
+		sztopic.EventHTTPEgress:    ingest.NewHttpEgressEventSink(egress.Create),
 	}, nil
 }

@@ -19,14 +19,18 @@ import (
 	"errors"
 	"testing"
 
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/sentinez/shared/szprefix"
+	"github.com/sentinez/shared/sztopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/twmb/franz-go/pkg/kgo"
+	"google.golang.org/protobuf/proto"
 )
 
-// fakeCreate records the batches of create, failing with err.
+// fakeCreate records copies of the batches of create, the events going
+// back to the pool after it, failing with err.
 type fakeCreate struct {
 	batches [][]*secrulepb.RuleEvent
 	err     error
@@ -37,9 +41,18 @@ func (f *fakeCreate) create(_ context.Context,
 	if f.err != nil {
 		return f.err
 	}
-	f.batches = append(f.batches, events)
+	f.batches = append(f.batches, clones(events))
 
 	return nil
+}
+
+func clones[M proto.Message](msgs []M) []M {
+	out := make([]M, len(msgs))
+	for i, m := range msgs {
+		out[i], _ = proto.Clone(m).(M)
+	}
+
+	return out
 }
 
 func ruleRecord(t *testing.T, topic string, offset int64,
@@ -71,6 +84,78 @@ func TestRuleEventSinkInsert(t *testing.T) {
 	assert.Equal(t, "/x", got[1].GetRequestPath())
 }
 
+func TestHttpIngressEventSinkInsert(t *testing.T) {
+	var got []*httppb.IngressEvent
+	s := NewHttpIngressEventSink(func(_ context.Context,
+		events ...*httppb.IngressEvent) error {
+		got = append(got, clones(events)...)
+		return nil
+	})
+
+	withId, err := (&httppb.IngressEvent{Id: "req_a", Status: 200}).MarshalVT()
+	require.NoError(t, err)
+	noId, err := (&httppb.IngressEvent{Host: "a.test"}).MarshalVT()
+	require.NoError(t, err)
+
+	records := []*kgo.Record{
+		{Topic: "t", Partition: 1, Offset: 3, Value: withId},
+		{Topic: "t", Value: []byte{0xff}}, // malformed, dropped
+		{Topic: "t", Partition: 1, Offset: 5, Value: noId},
+	}
+	require.NoError(t, s.Insert(t.Context(), records))
+
+	require.Len(t, got, 2)
+	assert.Equal(t, "req_a", got[0].GetId())
+	assert.Equal(t, int32(200), got[0].GetStatus())
+	assert.Equal(t, szprefix.Request.Key()+"t-1-5", got[1].GetId())
+	assert.Equal(t, "a.test", got[1].GetHost())
+}
+
+func TestHttpEgressEventSinkInsert(t *testing.T) {
+	var got []*httppb.EgressEvent
+	s := NewHttpEgressEventSink(func(_ context.Context,
+		events ...*httppb.EgressEvent) error {
+		got = append(got, clones(events)...)
+		return nil
+	})
+
+	withId, err := (&httppb.EgressEvent{Id: "req_a", Status: 502}).
+		MarshalVT()
+	require.NoError(t, err)
+	noId, err := (&httppb.EgressEvent{Upstream: "http://o"}).MarshalVT()
+	require.NoError(t, err)
+
+	records := []*kgo.Record{
+		{Topic: "t", Partition: 1, Offset: 3, Value: withId},
+		{Topic: "t", Value: []byte{0xff}}, // malformed, dropped
+		{Topic: "t", Partition: 1, Offset: 5, Value: noId},
+	}
+	require.NoError(t, s.Insert(t.Context(), records))
+
+	require.Len(t, got, 2)
+	assert.Equal(t, "req_a", got[0].GetId())
+	assert.Equal(t, int32(502), got[0].GetStatus())
+	assert.Equal(t, szprefix.Request.Key()+"t-1-5", got[1].GetId())
+	assert.Equal(t, "http://o", got[1].GetUpstream())
+}
+
+func TestSinkReleasesEvents(t *testing.T) {
+	var kept []*secrulepb.RuleEvent
+	s := NewRuleEventSink(func(_ context.Context,
+		events ...*secrulepb.RuleEvent) error {
+		kept = append(kept, events...)
+		return nil
+	})
+
+	records := []*kgo.Record{
+		ruleRecord(t, "t", 1, &secrulepb.RuleEvent{RequestPath: "/x"}),
+	}
+	require.NoError(t, s.Insert(t.Context(), records))
+
+	require.Len(t, kept, 1)
+	assert.Empty(t, kept[0].GetRequestPath(), "released once inserted")
+}
+
 func TestRuleEventSinkChunks(t *testing.T) {
 	repo := &fakeCreate{}
 	s := NewRuleEventSink(repo.create)
@@ -88,7 +173,7 @@ func TestRuleEventSinkChunks(t *testing.T) {
 
 func TestHandleRoutesTopics(t *testing.T) {
 	secRules, rateLimits := &fakeCreate{}, &fakeCreate{}
-	in := New(nil, map[string]Sink{
+	in := New(nil, map[sztopic.Topic]Sink{
 		"secrule":   NewRuleEventSink(secRules.create),
 		"ratelimit": NewRuleEventSink(rateLimits.create),
 	})
@@ -109,7 +194,7 @@ func TestHandleRoutesTopics(t *testing.T) {
 
 func TestHandleInsertError(t *testing.T) {
 	errInsert := errors.New("db down")
-	in := New(nil, map[string]Sink{
+	in := New(nil, map[sztopic.Topic]Sink{
 		"secrule": NewRuleEventSink(
 			(&fakeCreate{err: errInsert}).create),
 	})

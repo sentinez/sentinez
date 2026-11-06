@@ -40,6 +40,8 @@ const (
 	AnalyticSecRulesEvent     Table = "analytic.secrules.events"
 	AnalyticCoreRulesetsEvent Table = "analytic.corerulesets.events"
 	AnalyticRateLimiterEvent  Table = "analytic.ratelimiters.events"
+	AnalyticHttpIngressEvent  Table = "analytic.httpingress.events"
+	AnalyticHttpEgressEvent   Table = "analytic.httpegress.events"
 )
 
 const (

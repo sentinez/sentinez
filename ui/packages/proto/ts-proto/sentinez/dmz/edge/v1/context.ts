@@ -34,6 +34,18 @@ export interface ContextExtra {
    * sends the request to, instead of the longest matching prefix.
    */
   routeLocation: string;
+  /**
+   * Upstream the origin the reverse proxy sent the request to, e.g.
+   * http://10.0.0.1:8080; empty when the edge answered it itself.
+   */
+  upstream: string;
+  /**
+   * UpstreamTimestamp the time the request was sent to Upstream, unix
+   * milliseconds.
+   */
+  upstreamTimestamp: number;
+  /** UpstreamLatency the time Upstream took to answer, in microseconds. */
+  upstreamLatencyMicros: number;
 }
 
 export interface ContextExtra_TagsEntry {
@@ -174,6 +186,9 @@ function createBaseContextExtra(): ContextExtra {
     rulesetsMatchedSeverity: [],
     tags: {},
     routeLocation: "",
+    upstream: "",
+    upstreamTimestamp: 0,
+    upstreamLatencyMicros: 0,
   };
 }
 
@@ -202,6 +217,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     });
     if (message.routeLocation !== "") {
       writer.uint32(130).string(message.routeLocation);
+    }
+    if (message.upstream !== "") {
+      writer.uint32(138).string(message.upstream);
+    }
+    if (message.upstreamTimestamp !== 0) {
+      writer.uint32(144).int64(message.upstreamTimestamp);
+    }
+    if (message.upstreamLatencyMicros !== 0) {
+      writer.uint32(152).int64(message.upstreamLatencyMicros);
     }
     return writer;
   },
@@ -286,6 +310,30 @@ export const ContextExtra: MessageFns<ContextExtra> = {
             message.routeLocation = reader.string();
             continue;
           }
+          case 17: {
+            if (tag !== 138) {
+              break;
+            }
+
+            message.upstream = reader.string();
+            continue;
+          }
+          case 18: {
+            if (tag !== 144) {
+              break;
+            }
+
+            message.upstreamTimestamp = longToNumber(reader.int64());
+            continue;
+          }
+          case 19: {
+            if (tag !== 152) {
+              break;
+            }
+
+            message.upstreamLatencyMicros = longToNumber(reader.int64());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -345,6 +393,17 @@ export const ContextExtra: MessageFns<ContextExtra> = {
         : isSet(object.route_location)
         ? globalThis.String(object.route_location)
         : "",
+      upstream: isSet(object.upstream) ? globalThis.String(object.upstream) : "",
+      upstreamTimestamp: isSet(object.upstreamTimestamp)
+        ? globalThis.Number(object.upstreamTimestamp)
+        : isSet(object.upstream_timestamp)
+        ? globalThis.Number(object.upstream_timestamp)
+        : 0,
+      upstreamLatencyMicros: isSet(object.upstreamLatencyMicros)
+        ? globalThis.Number(object.upstreamLatencyMicros)
+        : isSet(object.upstream_latency_micros)
+        ? globalThis.Number(object.upstream_latency_micros)
+        : 0,
     };
   },
 
@@ -380,6 +439,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.routeLocation !== "") {
       obj.routeLocation = message.routeLocation;
     }
+    if (message.upstream !== "") {
+      obj.upstream = message.upstream;
+    }
+    if (message.upstreamTimestamp !== 0) {
+      obj.upstreamTimestamp = Math.round(message.upstreamTimestamp);
+    }
+    if (message.upstreamLatencyMicros !== 0) {
+      obj.upstreamLatencyMicros = Math.round(message.upstreamLatencyMicros);
+    }
     return obj;
   },
 
@@ -404,6 +472,9 @@ export const ContextExtra: MessageFns<ContextExtra> = {
       {},
     );
     message.routeLocation = object.routeLocation ?? "";
+    message.upstream = object.upstream ?? "";
+    message.upstreamTimestamp = object.upstreamTimestamp ?? 0;
+    message.upstreamLatencyMicros = object.upstreamLatencyMicros ?? 0;
     return message;
   },
 };
@@ -504,6 +575,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isObject(value: any): boolean {
   return typeof value === "object" && value !== null;

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/shared/sztopic"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -53,7 +54,7 @@ type ConsumerConfig struct {
 	// Group is the consumer group, sharing the partitions of Topics
 	// between the consumers of the group.
 	Group  string
-	Topics []string
+	Topics []sztopic.Topic
 	// ServiceName is sent as the client id.
 	ServiceName string
 
@@ -157,7 +158,7 @@ func consumerOpts(cfg ConsumerConfig) []kgo.Opt {
 		kgo.SeedBrokers(cfg.Brokers...),
 		kgo.ClientID(cfg.ServiceName),
 		kgo.ConsumerGroup(cfg.Group),
-		kgo.ConsumeTopics(cfg.Topics...),
+		kgo.ConsumeTopics(topicNames(cfg.Topics)...),
 		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
 		// commit only the records marked handled; the default revoke
 		// hook commits them before the partitions move.
@@ -193,4 +194,14 @@ func handleRetry(ctx context.Context, handle BatchHandler,
 		}
 		backoff = min(2*backoff, _retryMax)
 	}
+}
+
+// topicNames the names of topics, as kgo takes them.
+func topicNames(topics []sztopic.Topic) []string {
+	names := make([]string, len(topics))
+	for i, topic := range topics {
+		names[i] = topic.String()
+	}
+
+	return names
 }

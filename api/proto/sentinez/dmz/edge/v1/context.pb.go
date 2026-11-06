@@ -119,8 +119,16 @@ type ContextExtra struct {
 	// Location (server.locations[].location) a SecRule ROUTE_TO action
 	// sends the request to, instead of the longest matching prefix.
 	RouteLocation string `protobuf:"bytes,16,opt,name=route_location,json=routeLocation,proto3" json:"route_location,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Upstream the origin the reverse proxy sent the request to, e.g.
+	// http://10.0.0.1:8080; empty when the edge answered it itself.
+	Upstream string `protobuf:"bytes,17,opt,name=upstream,proto3" json:"upstream,omitempty"`
+	// UpstreamTimestamp the time the request was sent to Upstream, unix
+	// milliseconds.
+	UpstreamTimestamp int64 `protobuf:"varint,18,opt,name=upstream_timestamp,json=upstreamTimestamp,proto3" json:"upstream_timestamp,omitempty"`
+	// UpstreamLatency the time Upstream took to answer, in microseconds.
+	UpstreamLatencyMicros int64 `protobuf:"varint,19,opt,name=upstream_latency_micros,json=upstreamLatencyMicros,proto3" json:"upstream_latency_micros,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ContextExtra) Reset() {
@@ -209,6 +217,27 @@ func (x *ContextExtra) GetRouteLocation() string {
 	return ""
 }
 
+func (x *ContextExtra) GetUpstream() string {
+	if x != nil {
+		return x.Upstream
+	}
+	return ""
+}
+
+func (x *ContextExtra) GetUpstreamTimestamp() int64 {
+	if x != nil {
+		return x.UpstreamTimestamp
+	}
+	return 0
+}
+
+func (x *ContextExtra) GetUpstreamLatencyMicros() int64 {
+	if x != nil {
+		return x.UpstreamLatencyMicros
+	}
+	return 0
+}
+
 var File_sentinez_dmz_edge_v1_context_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
@@ -219,7 +248,7 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\ttransport\x18\x02 \x01(\v2 .sentinez.types.net.v1.TransportR\ttransport\x12=\n" +
 	"\arequest\x18\x03 \x01(\v2#.sentinez.types.net.http.v1.RequestR\arequest\x120\n" +
 	"\x01x\x18\n" +
-	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xd8\x03\n" +
+	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xdb\x04\n" +
 	"\fContextExtra\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12/\n" +
 	"\x14sec_rule_matched_ids\x18\n" +
@@ -229,7 +258,10 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\x16rulesets_matched_names\x18\r \x03(\tR\x14rulesetsMatchedNames\x12:\n" +
 	"\x19rulesets_matched_severity\x18\x0e \x03(\tR\x17rulesetsMatchedSeverity\x12@\n" +
 	"\x04tags\x18\x0f \x03(\v2,.sentinez.dmz.edge.v1.ContextExtra.TagsEntryR\x04tags\x12%\n" +
-	"\x0eroute_location\x18\x10 \x01(\tR\rrouteLocation\x1a7\n" +
+	"\x0eroute_location\x18\x10 \x01(\tR\rrouteLocation\x12\x1a\n" +
+	"\bupstream\x18\x11 \x01(\tR\bupstream\x12-\n" +
+	"\x12upstream_timestamp\x18\x12 \x01(\x03R\x11upstreamTimestamp\x126\n" +
+	"\x17upstream_latency_micros\x18\x13 \x01(\x03R\x15upstreamLatencyMicros\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01BDZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"

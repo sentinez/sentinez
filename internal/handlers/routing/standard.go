@@ -15,6 +15,8 @@
 package routing
 
 import (
+	"time"
+
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/envplugin"
@@ -31,8 +33,9 @@ var (
 	_ chains.Provisioner[*envplugin.Env] = (*StandardRouter)(nil)
 )
 
-// StandardRouter proxies the request to the upstream of its route. It
-// ends the chain: next is never called.
+// StandardRouter proxies the request to the upstream of its route,
+// recording the upstream and its latency in ctx.X() for the egress log
+// (logging.Logging). It ends the chain: next is never called.
 type StandardRouter struct {
 	route *routes.Router
 	proxy *reverseproxy.ReverseProxy
@@ -55,8 +58,20 @@ func (r *StandardRouter) Handle(ctx szhttp.Context, _ chains.Handler) error {
 
 	rprx, ok := r.proxy.Load(target)
 	if ok {
-		rprx.Serve(ctx)
+		serve(ctx, target, rprx)
 	}
 
 	return nil
+}
+
+// serve proxies ctx to the upstream target with rprx, recording the leg.
+func serve(ctx szhttp.Context, target string, rprx szhttp.ReverseProxy) {
+	x := ctx.X()
+	start := time.Now()
+	x.Upstream = target
+	x.UpstreamTimestamp = start.UnixMilli()
+
+	rprx.Serve(ctx)
+
+	x.UpstreamLatencyMicros = time.Since(start).Microseconds()
 }

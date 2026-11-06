@@ -79,14 +79,13 @@ func (s *XServer) buildHandler() app.HandlerFunc {
 
 	handler := func(c context.Context, ctx *app.RequestContext) {
 		inCtx := NewContext(c, ctx)
+		defer func() { _ = inCtx.Close() }()
 
 		if err := fn(inCtx); err != nil {
 			szlog.Errorf("[httpxdmz]: internal err=%v", err)
 			_ = inCtx.String(
 				http.StatusInternalServerError, []byte("Internal server error"))
 		}
-
-		_ = inCtx.Close()
 	}
 
 	return WrapHandler(handler)

@@ -237,11 +237,12 @@ export function planToJSON(object: Plan): string {
 
 export enum LogType {
   LOG_TYPE_UNSPECIFIED = 0,
-  LOG_TYPE_HTTP = 1,
-  LOG_TYPE_WAF = 2,
+  LOG_TYPE_HTTP_INGRESS = 1,
+  LOG_TYPE_CORE_RULESETS = 2,
   LOG_TYPE_SEC_RULE = 3,
   LOG_TYPE_RATE_LIMIT = 4,
   LOG_TYPE_CDN_RULE = 5,
+  LOG_TYPE_HTTP_EGRESS = 6,
   UNRECOGNIZED = -1,
 }
 
@@ -251,11 +252,11 @@ export function logTypeFromJSON(object: any): LogType {
     case "LOG_TYPE_UNSPECIFIED":
       return LogType.LOG_TYPE_UNSPECIFIED;
     case 1:
-    case "LOG_TYPE_HTTP":
-      return LogType.LOG_TYPE_HTTP;
+    case "LOG_TYPE_HTTP_INGRESS":
+      return LogType.LOG_TYPE_HTTP_INGRESS;
     case 2:
-    case "LOG_TYPE_WAF":
-      return LogType.LOG_TYPE_WAF;
+    case "LOG_TYPE_CORE_RULESETS":
+      return LogType.LOG_TYPE_CORE_RULESETS;
     case 3:
     case "LOG_TYPE_SEC_RULE":
       return LogType.LOG_TYPE_SEC_RULE;
@@ -265,6 +266,9 @@ export function logTypeFromJSON(object: any): LogType {
     case 5:
     case "LOG_TYPE_CDN_RULE":
       return LogType.LOG_TYPE_CDN_RULE;
+    case 6:
+    case "LOG_TYPE_HTTP_EGRESS":
+      return LogType.LOG_TYPE_HTTP_EGRESS;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -276,16 +280,18 @@ export function logTypeToJSON(object: LogType): string {
   switch (object) {
     case LogType.LOG_TYPE_UNSPECIFIED:
       return "LOG_TYPE_UNSPECIFIED";
-    case LogType.LOG_TYPE_HTTP:
-      return "LOG_TYPE_HTTP";
-    case LogType.LOG_TYPE_WAF:
-      return "LOG_TYPE_WAF";
+    case LogType.LOG_TYPE_HTTP_INGRESS:
+      return "LOG_TYPE_HTTP_INGRESS";
+    case LogType.LOG_TYPE_CORE_RULESETS:
+      return "LOG_TYPE_CORE_RULESETS";
     case LogType.LOG_TYPE_SEC_RULE:
       return "LOG_TYPE_SEC_RULE";
     case LogType.LOG_TYPE_RATE_LIMIT:
       return "LOG_TYPE_RATE_LIMIT";
     case LogType.LOG_TYPE_CDN_RULE:
       return "LOG_TYPE_CDN_RULE";
+    case LogType.LOG_TYPE_HTTP_EGRESS:
+      return "LOG_TYPE_HTTP_EGRESS";
     case LogType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

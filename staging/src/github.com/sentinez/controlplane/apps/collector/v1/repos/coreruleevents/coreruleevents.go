@@ -21,17 +21,27 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
 	"github.com/sentinez/controlplane/pkg/schema"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/shared/szstorage/dbx/timescale"
 )
 
 var _ ICoreRuleEvent = (*CoreRuleEvents)(nil)
 
 // _columns the columns of the table, in the order of values and scanOne.
 var _columns = schema.AnalyticCoreRulesetsEvent().ColumnNames()
+
+var _hypertable = schema.EventHypertable(
+	schema.AnalyticCoreRulesetsEvent(), crspb.CoreRuleEvent_MatchedTime)
+
+var _histogram = histogram.Spec{
+	Source: _hypertable,
+	Key:    crspb.CoreRuleEvent_Behavior,
+}
 
 var _filterColumns = eventfilter.Columns{
 	ResourceId:  crspb.CoreRuleEvent_ResourceId,
@@ -40,8 +50,8 @@ var _filterColumns = eventfilter.Columns{
 
 type ICoreRuleEvent interface {
 	// Create inserts the events, which have ids, in one statement; an
-	// event whose id is stored already is skipped, so inserting a batch
-	// again is a no-op.
+	// event whose id and matched time are stored already is skipped, so
+	// inserting a batch again is a no-op.
 	Create(ctx context.Context, events ...*crspb.CoreRuleEvent) error
 	Get(ctx context.Context, id string) (*crspb.CoreRuleEvent, error)
 	Delete(ctx context.Context, id string) error
@@ -50,27 +60,39 @@ type ICoreRuleEvent interface {
 
 	List(ctx context.Context,
 		filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error)
+	// Histogram counts the events per bucket, resource and behavior
+	// (histogram.Point.Key).
+	Histogram(ctx context.Context,
+		filter *histogram.Filter) ([]*histogram.Point, error)
 }
 
 type CoreRuleEvents struct {
-	storage dbx.Database[crspb.CoreRuleEvent]
+	storage   dbx.Database[crspb.CoreRuleEvent]
+	histogram *histogram.Histogram
 }
 
-// New returns the repo of the sztable.AnalyticCoreRulesetsEvent table.
+// New returns the repo of the sztable.AnalyticCoreRulesetsEvent
+// hypertable, and of its histograms.
 func New(ctx context.Context,
 	appConf *settingpb.Config) (ICoreRuleEvent, error) {
-	storage, err := postgres.New[crspb.CoreRuleEvent](ctx, appConf,
-		schema.AnalyticCoreRulesetsEvent())
+	storage, err := timescale.New[crspb.CoreRuleEvent](ctx, appConf,
+		_hypertable)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CoreRuleEvents{storage: storage}, nil
+	hist, err := histogram.New(ctx, appConf, _histogram)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CoreRuleEvents{storage: storage, histogram: hist}, nil
 }
 
 func (r *CoreRuleEvents) WithTX(tx *postgres.TxSession) ICoreRuleEvent {
 	return &CoreRuleEvents{
-		storage: postgres.WithTx(tx, r.storage),
+		storage:   postgres.WithTx(tx, r.storage),
+		histogram: r.histogram,
 	}
 }
 
@@ -81,7 +103,7 @@ func (r *CoreRuleEvents) Create(ctx context.Context,
 	}
 
 	query := sq.Insert(r.storage.Table()).Columns(_columns...).
-		Suffix("ON CONFLICT (" + crspb.CoreRuleEvent_Id + ") DO NOTHING")
+		Suffix(_hypertable.OnConflictDoNothing())
 	for _, event := range events {
 		query = query.Values(values(event)...)
 	}
@@ -104,6 +126,11 @@ func (r *CoreRuleEvents) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error) {
 	builder := filter.Apply(r.selectQuery(), _filterColumns)
 	return r.storage.CollectRows(ctx, builder, scan)
+}
+
+func (r *CoreRuleEvents) Histogram(ctx context.Context,
+	filter *histogram.Filter) ([]*histogram.Point, error) {
+	return r.histogram.Points(ctx, filter)
 }
 
 func (r *CoreRuleEvents) selectQuery() sq.SelectBuilder {

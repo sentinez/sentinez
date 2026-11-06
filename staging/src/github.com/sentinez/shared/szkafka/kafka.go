@@ -38,7 +38,7 @@ import (
 // Headers of the records a Producer produces. The record value is the
 // event itself, proto-encoded; the record timestamp is when it was logged.
 const (
-	// HeaderKind holds the LogType name, e.g. "LOG_TYPE_HTTP".
+	// HeaderKind holds the LogType name, e.g. "LOG_TYPE_HTTP_INGRESS".
 	HeaderKind = "sz-kind"
 	// HeaderLevel holds the szlog.Level name, e.g. "info".
 	HeaderLevel = "sz-level"
@@ -78,7 +78,7 @@ type Config struct {
 	Brokers []string
 	// Topics maps each log type to its topic; nil uses DefaultTopics.
 	// Events of an unmapped type are dropped.
-	Topics map[typepb.LogType]string
+	Topics map[typepb.LogType]sztopic.Topic
 	// ServiceName is sent as the HeaderService header and the client id.
 	ServiceName string
 	// Partitions of the topics it produces to NewProducer creates when
@@ -96,7 +96,7 @@ type ConfigOption interface {
 	apply(cfg *Config)
 }
 
-type topicsOption map[typepb.LogType]string
+type topicsOption map[typepb.LogType]sztopic.Topic
 
 func (o topicsOption) apply(cfg *Config) {
 	cfg.Topics = o
@@ -104,7 +104,7 @@ func (o topicsOption) apply(cfg *Config) {
 
 // WithTopics produces each log type to its topic of topics, see
 // Config.Topics.
-func WithTopics(topics map[typepb.LogType]string) ConfigOption {
+func WithTopics(topics map[typepb.LogType]sztopic.Topic) ConfigOption {
 	return topicsOption(maps.Clone(topics))
 }
 
@@ -156,13 +156,14 @@ func Brokers(brokers string) []string {
 }
 
 // DefaultTopics returns the topic of each edge traffic log type.
-func DefaultTopics() map[typepb.LogType]string {
-	return map[typepb.LogType]string{
-		typepb.LogType_LOG_TYPE_HTTP:       sztopic.EventHTTPIngress,
-		typepb.LogType_LOG_TYPE_WAF:        sztopic.EventHTTPRulesets,
-		typepb.LogType_LOG_TYPE_SEC_RULE:   sztopic.EventHTTPSecRule,
-		typepb.LogType_LOG_TYPE_RATE_LIMIT: sztopic.EventHTTPRateLimit,
-		typepb.LogType_LOG_TYPE_CDN_RULE:   sztopic.EventHTTPCDNRule,
+func DefaultTopics() map[typepb.LogType]sztopic.Topic {
+	return map[typepb.LogType]sztopic.Topic{
+		typepb.LogType_LOG_TYPE_HTTP_INGRESS:  sztopic.EventHTTPIngress,
+		typepb.LogType_LOG_TYPE_HTTP_EGRESS:   sztopic.EventHTTPEgress,
+		typepb.LogType_LOG_TYPE_CORE_RULESETS: sztopic.EventHTTPRulesets,
+		typepb.LogType_LOG_TYPE_SEC_RULE:      sztopic.EventHTTPSecRule,
+		typepb.LogType_LOG_TYPE_RATE_LIMIT:    sztopic.EventHTTPRateLimit,
+		typepb.LogType_LOG_TYPE_CDN_RULE:      sztopic.EventHTTPCDNRule,
 	}
 }
 
@@ -270,14 +271,19 @@ func (p *Producer) onProduced(_ *kgo.Record, err error) {
 	}
 }
 
-func routesOf(topics map[typepb.LogType]string) map[typepb.LogType]route {
+func routesOf(
+	topics map[typepb.LogType]sztopic.Topic) map[typepb.LogType]route {
+
 	if topics == nil {
 		topics = DefaultTopics()
 	}
 
 	routes := make(map[typepb.LogType]route, len(topics))
 	for kind, topic := range topics {
-		routes[kind] = route{topic: topic, kind: []byte(kind.String())}
+		routes[kind] = route{
+			topic: topic.String(),
+			kind:  []byte(kind.String()),
+		}
 	}
 
 	return routes
