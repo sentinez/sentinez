@@ -22,10 +22,9 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/bpf"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/geoip"
-	"github.com/sentinez/sentinez/pkg/pools/request"
+	"github.com/sentinez/sentinez/pkg/pools/ingress"
 	"github.com/sentinez/shared/bytesconv"
 	"github.com/sentinez/shared/szlog"
 )
@@ -48,12 +47,15 @@ var (
 	}
 )
 
-// Logging logs every request of the chain and exports the records
-// through the Env logger provider; without one they are not exported.
+// Logging logs every request of the chain as it came in (ingress) and,
+// when it was proxied, its leg from the reverse proxy to the upstream
+// origin (egress), then exports the records through the Env logger
+// provider; without one they are not exported.
 // The client location comes from the GeoLite2 databases compiled in.
 type Logging struct {
-	log szlog.LogCloser
-	geo *geoip.DB
+	log    szlog.LogCloser
+	egress szlog.LogCloser
+	geo    *geoip.DB
 }
 
 func (*Logging) ID() string { return LoggingId }
@@ -68,7 +70,8 @@ func (l *Logging) Provision(env *envplugin.Env) error {
 	}
 
 	l.geo = geo
-	l.log = env.Logger(typepb.LogType_LOG_TYPE_HTTP)
+	l.log = env.Logger(typepb.LogType_LOG_TYPE_HTTP_INGRESS)
+	l.egress = env.Logger(typepb.LogType_LOG_TYPE_HTTP_EGRESS)
 	return nil
 }
 
@@ -78,7 +81,7 @@ func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 
 	// the request as the client sent it: the next stages rewrite it, e.g.
 	// the reverse proxy sets the upstream host
-	var event *request.RequestEvent
+	var event *ingress.IngressEvent
 	if l.log.V(szlog.LevelInfo.Int()) {
 		event = newEvent(ctx, ip)
 		l.geo.Fill(bytesconv.B2s(ip), event)
@@ -86,19 +89,24 @@ func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 
 	err := next.Handle(ctx)
 
-	bw, _ := bpf.LookupBandwidth(bytesconv.B2s(ip))
-	szlog.Infof("edge: lookup ip: %s bandwidth: %d", ip, bw)
-
 	if event != nil {
+		// set by the stages of next, e.g. once the route is known
+		event.ResourceId = ctx.ResourceId()
+		event.TenantId = ctx.TenantId()
 		event.Status = int32(ctx.StatusCode())
 		l.log.Info("http: request", event, event)
+	}
+
+	if x := ctx.X(); l.proxied(x) {
+		upstream := newEgressEvent(ctx, x)
+		l.egress.Info("http: upstream", upstream, upstream)
 	}
 
 	return err
 }
 
-func newEvent(ctx szhttp.Context, ip []byte) *request.RequestEvent {
-	event := request.Acquire()
+func newEvent(ctx szhttp.Context, ip []byte) *ingress.IngressEvent {
+	event := ingress.Acquire()
 
 	event.Id = ctx.RequestId()
 	event.Scheme = ctx.Scheme()

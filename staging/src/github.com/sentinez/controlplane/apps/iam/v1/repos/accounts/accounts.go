@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -28,7 +29,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -58,18 +58,7 @@ type IAccount interface {
 func New(ctx context.Context, appConf *settingpb.Config) (IAccount, error) {
 
 	storage, err := postgres.New[AccountX](ctx, appConf,
-		dbx.WithTable(sztable.IAMAccounts),
-		dbx.WithColumns(dbx.ColumnM{
-			iampb.Account_Id:             postgres.String,
-			iampb.Account_Email:          postgres.String,
-			iampb.Account_Username:       postgres.String,
-			iampb.Account_PasswordHash:   postgres.String,
-			iampb.Account_Credentials:    postgres.StringArr,
-			iampb.Account_UserId:         postgres.String,
-			iampb.Account_Provider:       postgres.Int4,
-			iampb.Account_ProviderUserId: postgres.String,
-		}),
-	)
+		schema.IAMAccounts())
 	if err != nil {
 		return nil, err
 	}

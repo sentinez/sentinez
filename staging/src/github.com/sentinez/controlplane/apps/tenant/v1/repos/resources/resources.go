@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -28,22 +29,12 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
 	storage, err := postgres.New[tenantpb.Resource](ctx, appConf,
-		dbx.WithTable(sztable.TenantResources),
-		dbx.WithColumns(dbx.ColumnM{
-			tenantpb.Resource_Id:              postgres.String,
-			tenantpb.Resource_ResourceSetting: postgres.ByteA,
-			tenantpb.Resource_ResourceName:    postgres.String,
-			tenantpb.Resource_ResourceDomain:  postgres.String,
-			tenantpb.Resource_TenantId:        postgres.String,
-			tenantpb.Resource_Status:          postgres.Int4,
-		}),
-	)
+		schema.TenantResources())
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	io "io"
+	sync "sync"
 )
 
 const (
@@ -187,6 +188,30 @@ func (m *RuleEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+var vtprotoPool_RuleEvent = sync.Pool{
+	New: func() interface{} {
+		return &RuleEvent{}
+	},
+}
+
+func (m *RuleEvent) ResetVT() {
+	if m != nil {
+		f0 := m.MatchedSecruleIds[:0]
+		f1 := m.Messages[:0]
+		m.Reset()
+		m.MatchedSecruleIds = f0
+		m.Messages = f1
+	}
+}
+func (m *RuleEvent) ReturnToVTPool() {
+	if m != nil {
+		m.ResetVT()
+		vtprotoPool_RuleEvent.Put(m)
+	}
+}
+func RuleEventFromVTPool() *RuleEvent {
+	return vtprotoPool_RuleEvent.Get().(*RuleEvent)
+}
 func (m *RuleEvent) SizeVT() (n int) {
 	if m == nil {
 		return 0

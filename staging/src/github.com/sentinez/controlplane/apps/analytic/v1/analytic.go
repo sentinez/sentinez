@@ -31,11 +31,14 @@ func GetListener() *bufconn.Listener {
 	return _bufLis
 }
 
-func NewService(ctx context.Context, appConf *settingpb.Config) *Analytic {
-	return &Analytic{
-		Server: szgrpc.New(),
-		hdl:    analyticfac.NewDefaultHandler(ctx, appConf),
+func NewService(ctx context.Context,
+	appConf *settingpb.Config) (*Analytic, error) {
+	hdl, err := analyticfac.NewDefaultHandler(ctx, appConf)
+	if err != nil {
+		return nil, err
 	}
+
+	return &Analytic{Server: szgrpc.New(), hdl: hdl}, nil
 }
 
 type Analytic struct {

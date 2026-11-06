@@ -24,6 +24,7 @@ default: default.print 	\
 	sz.apiserver.build 		\
 	sz.realtime.build      	\
 	sz.greeter.build 		\
+	sz.collector.build 		\
 	sz.centraldata.build
 
 default.print:
@@ -44,6 +45,7 @@ include ./api/Makefile
 include ./cmd/szapiserver/Makefile
 include ./cmd/szrealtime/Makefile
 include ./cmd/szgreeter/Makefile
+include ./cmd/szcollector/Makefile
 include ./cmd/szcentraldata/Makefile
 include ./cmd/szedge/Makefile
 include ./cmd/szdataplane/Makefile

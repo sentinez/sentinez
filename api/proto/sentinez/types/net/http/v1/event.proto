@@ -17,10 +17,13 @@ syntax = "proto3";
 package sentinez.types.net.http.v1;
 
 import "buf/validate/validate.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppb";
 
-message Event {
+message IngressEvent {
+  option (sentinez.types.v1.x_message).database_model = true;
+
   string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
   string method = 2;
   string scheme = 3;
@@ -39,4 +42,41 @@ message Event {
   int64 timestamp = 17; // milisec
   string fingerprint = 18;
   string client_ip = 19;
+  string resource_id = 20;
+  string tenant_id = 21;
+}
+
+// EgressEvent is the leg of a request from the reverse proxy to its
+// upstream origin, logged once the origin answered; id is the one of
+// the request IngressEvent.
+message EgressEvent {
+  option (sentinez.types.v1.x_message).database_model = true;
+
+  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
+  // upstream is the origin the request was sent to, e.g.
+  // http://10.0.0.1:8080.
+  string upstream = 2;
+  // method, scheme, path and queries are the request once proxied: the
+  // path is the client one unless the proxy joined the path of upstream
+  // to it, the scheme is the one of upstream, http or https.
+  string method = 3;
+  string scheme = 4;
+  string path = 5;
+  string queries = 6;
+  // status is the one the origin answered, 502 when it was unreachable.
+  int32 status = 7;
+  string content_type = 8;
+  // content_length is the Content-Length the origin answered, -1 when
+  // it streamed the body without one.
+  int64 content_length = 9;
+  // latency_micros is the time the proxy took to relay the request and
+  // the answer of the origin.
+  int64 latency_micros = 10;
+  int64 timestamp = 11; // milisec, when the request was sent
+  string resource_id = 12;
+  string tenant_id = 13;
+
+  // protocol is the HTTP version the client used to reach the edge, e.g.
+  // HTTP/2.0: the one used to reach upstream is not observable.
+  string protocol = 14;
 }

@@ -44,19 +44,27 @@ type Client interface {
 func Paging(builder squirrel.SelectBuilder,
 	page *typepb.Pages) squirrel.SelectBuilder {
 
-	if page == nil {
-		return builder
-	}
-
 	if page.GetSize() == 0 || page.GetIndex() == 0 {
 		return builder
 	}
 
-	offset := query.GetOffset(int(page.GetIndex()), int(page.GetSize()))
-	return builder.
-		Limit(uint64(page.GetSize())).
-		Offset(uint64(offset)).
+	return LimitOffset(builder, page).
 		OrderBy(fmt.Sprintf("%s DESC", typepb.Metadata_CreatedAt))
+}
+
+// LimitOffset selects the rows of page, all of them when page is nil or
+// has no size or index; unlike Paging it leaves the order to the caller.
+func LimitOffset(builder squirrel.SelectBuilder,
+	page *typepb.Pages) squirrel.SelectBuilder {
+
+	size, index := int(page.GetSize()), int(page.GetIndex())
+	if size == 0 || index == 0 {
+		return builder
+	}
+
+	return builder.
+		Limit(uint64(size)).
+		Offset(uint64(query.GetOffset(index, size)))
 }
 
 func SelectBuilder[T any](db dbx.Database[T],

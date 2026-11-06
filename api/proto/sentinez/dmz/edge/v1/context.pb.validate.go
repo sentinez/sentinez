@@ -151,6 +151,12 @@ func (m *ContextExtra) Validate() error {
 
 	// no validation rules for RouteLocation
 
+	// no validation rules for Upstream
+
+	// no validation rules for UpstreamTimestamp
+
+	// no validation rules for UpstreamLatencyMicros
+
 	return nil
 }
 

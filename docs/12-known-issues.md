@@ -8,14 +8,7 @@ Remove an entry once it is fixed.
 
 ## 12.1 Logic bugs (affect behavior)
 
-| # | Location | Problem | Consequence |
-|---|---|---|---|
-| 2 | [controlplane/apps/security/v1/repos/secrule/secrule.go](../staging/src/github.com/sentinez/controlplane/apps/security/v1/repos/secrule/secrule.go) `Update` | Only updates `name`, `description`, `expr`, `status` | Changing `priority`/`action` through the API is not persisted |
-| 7 | [contrib/httphz/proxy/ws_reverse_proxy.go](../staging/src/github.com/sentinez/contrib/httphz/proxy/ws_reverse_proxy.go) | `p.target += string(uri)` mutates a field of a shared proxy | The WebSocket target grows with every request, and there is a data race |
-| 8 | [contrib/httphz/server.go](../staging/src/github.com/sentinez/contrib/httphz/server.go) `Handle` | The `fn = s.chains[i](fn)` loop runs **inside** the handler and reassigns a captured variable | Each request wraps the middleware once more (not visible yet because the edge never calls `Use`) |
-| 9 | [internal/memory/routes/routes.go](../internal/memory/routes/routes.go) | Always uses `proxyPass[0]`; no empty check; ignores `balanceStrategy` | A location without upstreams panics; no load balancing |
-| 11 | [internal/handlers/logging/logging.go](../internal/handlers/logging/logging.go) | Calls `bpf.LookupBandwidth` on every request, but the eBPF objects are only loaded in the dataplane process | Always an error/0, costs time, and logs at `Infof` on every request |
-| 12 | [internal/dmz/dataplane/bpf/security.go](../internal/dmz/dataplane/bpf/security.go) `BlockCIDR` | Stores `ip` with `binary.BigEndian.Uint32` while XDP looks up with the raw `saddr` (network byte order in memory) | On little-endian hosts the keys don't match, so blocked CIDRs have no effect *(needs verification)*. The function has no callers yet |
+None known.
 
 ## 12.2 Security
 
@@ -35,9 +28,16 @@ Remove an entry once it is fixed.
 - No sync channel from control plane → edge: SecRules/tenants in the DB do
   not affect the edge; the edge only reads `proxy.yaml` at startup and does
   not reload.
-- `szcentraldata`: empty `main()`. `AnalyticService` is not mounted in the
-  apiserver. Consul discovery (`WithDiscorvery`, `VisitToEndpoint`) exists
-  but is not enabled.
+- The edge does not fill `resource_id`/`tenant_id` in its rule events, so
+  the collector event tables have them empty and `eventfilter.Filter`'s
+  `ResourceIds` matches nothing yet. The event repositories' `Get`/`List`
+  have no caller (no analytic read path yet).
+- [deploy/docker/telemetry/docker-compose.yaml](../deploy/docker/telemetry/docker-compose.yaml)
+  creates the event topics with 3 partitions and disables topic auto-create,
+  so the producer's `DefaultTopicPartitions` (6) never applies in that
+  setup.
+- `szcentraldata`: empty `main()`. Consul discovery (`WithDiscorvery`,
+  `VisitToEndpoint`) exists but is not enabled.
 - The zone leader only writes the zone status
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
   `leader.All` are ready for more zone-wide records, but none exists yet.

@@ -11,6 +11,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb1 "google.golang.org/protobuf/types/known/structpb"
 	io "io"
+	sync "sync"
 )
 
 const (
@@ -560,6 +561,30 @@ func (m *MatchedRules) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+var vtprotoPool_MatchedRules = sync.Pool{
+	New: func() interface{} {
+		return &MatchedRules{}
+	},
+}
+
+func (m *MatchedRules) ResetVT() {
+	if m != nil {
+		f0 := m.Ids[:0]
+		f1 := m.Names[:0]
+		m.Reset()
+		m.Ids = f0
+		m.Names = f1
+	}
+}
+func (m *MatchedRules) ReturnToVTPool() {
+	if m != nil {
+		m.ResetVT()
+		vtprotoPool_MatchedRules.Put(m)
+	}
+}
+func MatchedRulesFromVTPool() *MatchedRules {
+	return vtprotoPool_MatchedRules.Get().(*MatchedRules)
+}
 func (m *Condition) SizeVT() (n int) {
 	if m == nil {
 		return 0

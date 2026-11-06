@@ -37,7 +37,7 @@ bằng `SENTINEZ_OUT=...`, đổi tag image bằng `TAG=...`.
 
 ```sh
 make compose.up            # postgres:16 (5432), consul (8500), apiserver, edge
-bash hack/timescale-up.sh  # chỉ bật container sentinez.postgres
+bash hack/timescale-up.sh  # chỉ bật sentinez.timescale (TimescaleDB) và sentinez.consul
 ```
 
 ### API server
@@ -151,7 +151,7 @@ Test hiện có tập trung ở: `core/szlimiter`, `core/szrule`, `core/szmodsec
 Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
 `errcheck`, `govet`, `misspell`, `revive`, `staticcheck`, `gofmt`,
 `goimports`. Style guide đầy đủ ở
-[.agent/skills/go-style-guide/SKILL.md](../../.agent/skills/go-style-guide/SKILL.md).
+[hack/.agent/skills/go-style-guide/SKILL.md](../../hack/.agent/skills/go-style-guide/SKILL.md).
 
 ## 2.6 Sinh code
 

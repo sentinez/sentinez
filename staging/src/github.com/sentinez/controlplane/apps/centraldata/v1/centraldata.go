@@ -12,40 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package centraldata implements the CentralData service server.
 package centraldata
 
 import (
-	"context"
-
 	centraldatafac "github.com/sentinez/controlplane/apps/centraldata/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/sentinez/api/client/local"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-var _bufLis *bufconn.Listener
-
-func GetListener() *bufconn.Listener {
-	return _bufLis
-}
-
-func NewService(ctx context.Context, appConf *settingpb.Config) *CentralData {
-	return &CentralData{
-		Server: szgrpc.New(),
-		hdl:    centraldatafac.NewDefaultHandler(ctx, appConf),
-	}
-}
-
+// CentralData serves CentralDataServiceServer over gRPC.
 type CentralData struct {
 	*szgrpc.Server
-	hdl pb.CentralDataServiceServer
+	hdl  centraldatapb.CentralDataServiceServer
+	conf *settingpb.Config
 }
 
-func (mod *CentralData) Start(_ context.Context) error {
-	pb.RegisterCentralDataServiceServer(mod.AsServer(), mod.hdl)
+// NewService creates the centraldata gRPC server.
+func NewService(conf *settingpb.Config) (*CentralData, error) {
+	hdl, err := centraldatafac.NewDefaultHandler(conf)
+	if err != nil {
+		return nil, err
+	}
 
-	_bufLis = bufconn.Listen(local.BufSize)
-	return mod.BufServe(_bufLis)
+	return &CentralData{
+		Server: szgrpc.New(),
+		hdl:    hdl,
+		conf:   conf,
+	}, nil
+}
+
+// Start serves centraldata, registered in consul; opts are applied after
+// the defaults, e.g. szgrpc.WithAddress.
+func (c *CentralData) Start(opts ...szgrpc.ServerOption) error {
+	centraldatapb.RegisterCentralDataServiceServer(c.AsServer(), c.hdl)
+
+	opts = append([]szgrpc.ServerOption{szgrpc.WithDiscorvery(true)}, opts...)
+
+	return c.Serve(c.conf, opts...)
 }

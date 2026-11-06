@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -28,7 +29,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -60,21 +60,7 @@ func New(
 	ctx context.Context, appConf *settingpb.Config,
 ) (ICoreRuleset, error) {
 	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
-		dbx.WithTable(sztable.SecurityCoreRulesets),
-		dbx.WithColumns(dbx.ColumnM{
-			securitypb.CoreRuleset_Id:              postgres.String,
-			securitypb.CoreRuleset_Name:            postgres.String,
-			securitypb.CoreRuleset_Description:     postgres.String,
-			securitypb.CoreRuleset_Content:         postgres.JSONB,
-			securitypb.CoreRuleset_OwnerResourceId: postgres.String,
-			securitypb.CoreRuleset_OwnerTenantId:   postgres.String,
-		}),
-		// The list filters on content are JSONB containments.
-		dbx.WithIndexes(dbx.Index{
-			Column: securitypb.CoreRuleset_Content,
-			Method: postgres.GIN,
-		}),
-	)
+		schema.SecurityCoreRulesets())
 	if err != nil {
 		return nil, err
 	}

@@ -94,7 +94,7 @@ Commit generated files together with their sources.
 
 We follow the [Uber Go Style Guide](https://github.com/uber-go/guide). The
 project-specific rules are in
-[.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-style-guide/SKILL.md);
+[hack/.agent/skills/go-style-guide/SKILL.md](hack/.agent/skills/go-style-guide/SKILL.md);
 please read it before writing or reviewing Go code.
 
 The following are enforced by [.golangci.yaml](.golangci.yaml):

@@ -19,6 +19,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/controlplane/pkg/schema"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -27,7 +28,6 @@ import (
 	"github.com/sentinez/shared/szrand"
 	"github.com/sentinez/shared/szstorage/dbx"
 	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/sztable"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -45,19 +45,7 @@ type ISecRule interface {
 
 func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
-		dbx.WithTable(sztable.SecuritySecRules),
-		dbx.WithColumns(dbx.ColumnM{
-			securitypb.SecRule_Id:              postgres.String,
-			securitypb.SecRule_Name:            postgres.String,
-			securitypb.SecRule_Description:     postgres.String,
-			securitypb.SecRule_Expr:            postgres.JSONB,
-			securitypb.SecRule_Status:          postgres.Int4,
-			securitypb.SecRule_Priority:        postgres.Int4,
-			securitypb.SecRule_Action:          postgres.JSONB,
-			securitypb.SecRule_OwnerResourceId: postgres.String,
-			securitypb.SecRule_OwnerTenantId:   postgres.String,
-		}),
-	)
+		schema.SecuritySecRules())
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +173,10 @@ func (r *SecRule) Update(
 		query = query.Set(securitypb.SecRule_Expr, model.GetExpr())
 	}
 
-	query = query.Set(securitypb.SecRule_Status, model.GetStatus())
+	query = query.
+		Set(securitypb.SecRule_Status, model.GetStatus()).
+		Set(securitypb.SecRule_Priority, model.GetPriority()).
+		Set(securitypb.SecRule_Action, model.GetAction())
 
 	_, err := r.storage.Exec(ctx, query)
 	return err

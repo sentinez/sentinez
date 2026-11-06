@@ -40,6 +40,8 @@ protoc \
   --go_out="$SENTINEZ_GEN_OUT" \
   --go-grpc_out="$SENTINEZ_GEN_OUT" \
   --validate_out="lang=go,paths=:$SENTINEZ_GEN_OUT" \
+  --go-senz_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
-  --go-vtproto_opt=features=marshal+unmarshal+size \
+  --go-vtproto_opt=features=marshal+unmarshal+size+pool \
+  --go-vtproto_opt=pool=github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1.RuleEvent \
   "$(pwd)"/*.proto || exit 1

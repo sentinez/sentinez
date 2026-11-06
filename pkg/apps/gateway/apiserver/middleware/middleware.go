@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/sentinez/pkg/pools/request"
+	"github.com/sentinez/sentinez/pkg/pools/ingress"
 	"github.com/sentinez/shared/szcolor"
 	"github.com/sentinez/shared/szlog"
 	"google.golang.org/grpc/grpclog"
@@ -62,7 +62,7 @@ func Logging(h http.Handler) http.Handler {
 				string(body))
 		}
 
-		event := request.Acquire()
+		event := ingress.Acquire()
 
 		event.Scheme = r.URL.Scheme
 		event.Host = r.Host

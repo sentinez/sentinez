@@ -54,3 +54,27 @@ func TestCreateIndex(t *testing.T) {
 		})
 	}
 }
+
+func TestAddColumn(t *testing.T) {
+	tests := []struct {
+		name      string
+		giveTable string
+		give      dbx.Column
+		want      string
+	}{
+		{
+			name:      "jsonb",
+			giveTable: "t",
+			give:      dbx.Column{Name: "content", Type: "JSONB"},
+			want:      "ALTER TABLE t ADD COLUMN IF NOT EXISTS content JSONB",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AddColumn(tt.giveTable, tt.give)
+
+			assert.Equal(t, tt.want, strings.Join(strings.Fields(got), " "))
+		})
+	}
+}

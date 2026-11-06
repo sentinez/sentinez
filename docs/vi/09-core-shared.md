@@ -32,7 +32,9 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 ## 9.2 `core/szhttp` và `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
-  `Handle(RequestHandler)`, `AcceptReverse(target)`.
+  `Handle(RequestHandler)`, `AcceptReverse(target)`. Server Hertz
+  (`contrib/httphz`) bọc handler bằng middleware của `Use` một lần khi khởi
+  động, nên gọi `Use` trước hay sau `Handle` đều được.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
   `WithOnStdConnect`, `WithStdListener` (TCP), `WithOnQuicConnect`,
   `WithQuicListener` (`http3.QUICListener`).
@@ -71,12 +73,13 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
 | `shared/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
 | `shared/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-sharedszstoragedbx) |
+| `shared/szstorage/dbx/timescale` | Hypertable và continuous aggregate, xem [07-controlplane.md](07-controlplane.md#timescaledb-hypertable-và-continuous-aggregate) |
 | `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 | `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `shared/szqueue` | `Queue{}` rỗng (cho waiting room) |
-| `shared/szsdklog` | `New(conf)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào |
-| `shared/szkafka` | `NewProducer(Config)`: `szlog.EventExporter` đẩy mỗi event (bytes vtproto) vào topic `shared/sztopic` theo `LogType`, metadata ở header `sz-kind`/`sz-level`/`sz-msg`/`sz-service`; không bao giờ block, đếm số bị drop (`Dropped`) |
+| `shared/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
+| `shared/szkafka` | Producer Kafka cho event của edge và consumer theo batch, xem [`szkafka`](#szkafka) |
 
 ## 9.5 `shared`
 
@@ -98,7 +101,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `szeventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
 | `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
 | `szcolor` | Màu ANSI cho log console |
-| `sztopic` | Package rỗng |
+| `sztopic` | Kiểu `Topic` và tên topic của event traffic edge (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
 
 ### `szlog`
 
@@ -118,6 +121,57 @@ provider riêng cho một logger bằng `WithOTLPProvider(p)`.
 Mức log: `debug=0, info=1, warn=2, error=3, fatal=4`; một bản ghi được ghi
 khi `level >= verbosity`.
 
+### `szkafka`
+
+[shared/szkafka](../../staging/src/github.com/sentinez/shared/szkafka/) làm việc với Kafka qua franz-go.
+
+**Producer** (`NewProducer(Config)`):
+
+- Là một `szlog.EventExporter`, đẩy mỗi event (bytes vtproto) vào topic
+  theo `LogType` (`DefaultTopics()`), metadata ở các header
+  `sz-kind`/`sz-level`/`sz-msg`/`sz-service`. Không bao giờ block, đếm số
+  event bị drop (`Dropped`).
+- Khi khởi tạo, nó tạo các topic còn thiếu mà nó ghi vào (qua kadm, timeout
+  10 s), với `Partitions` partition (0 thì lấy `DefaultTopicPartitions` = 6,
+  cũng là số replica collector tối đa chia nhau một topic) và
+  `ReplicationFactor` bản sao (0 thì lấy mặc định của broker). Topic đã tồn
+  tại được giữ nguyên. Tạo topic lỗi thì chỉ ghi cảnh báo: producer vẫn
+  chạy và drop event cho tới khi topic tồn tại.
+- Vì vậy `NewProducer` kết nối broker ngay: khi Kafka không với tới được,
+  edge khởi động chậm tối đa 10 s.
+- `ConfigOf(brokers, service, opts...)` dựng `Config`, với các option
+  `WithTopics(map)` (map được chép), `WithTopicPartitions(n)`,
+  `WithReplicationFactor(n)`. `Brokers(s)` tách danh sách broker phân cách
+  bằng dấu phẩy.
+
+**Consumer** (`NewConsumer(ConsumerConfig)`, `Run(ctx, BatchHandler)`,
+`Close()`):
+
+- Tiêu thụ các `Topics` trong consumer group `Group`, đọc từ offset sớm
+  nhất khi group chưa commit lần nào.
+- Ghi ít nhất một lần: batch chỉ được commit sau khi handler trả nil
+  (`AutoCommitMarks` + `MarkCommitRecords`; các đánh dấu được commit định
+  kỳ, khi partition bị thu hồi và khi `Close`). Handler lỗi thì thử lại
+  đúng batch đó, chờ tăng dần từ 0.5 s đến 30 s, cho tới khi `ctx` kết
+  thúc; trong lúc đó không poll batch khác.
+- `Close` commit các đánh dấu, rời group và đóng client; gọi nhiều lần vẫn
+  an toàn.
+
+Các giới hạn dưới đây chặn bộ nhớ của các record đã fetch mà chưa xử lý,
+bất kể topic đang tồn bao nhiêu record; trường nào bằng 0 thì lấy mặc định:
+
+| Trường `ConsumerConfig` | Mặc định | Mặc định của franz-go |
+|---|---|---|
+| `MaxPollRecords` | 1000 | không giới hạn |
+| `FetchMaxBytes` | 16 MiB | 50 MiB |
+| `FetchMaxPartitionBytes` | 1 MiB | 1 MiB |
+| `MaxConcurrentFetches` | 3 | không giới hạn (mỗi broker một) |
+| `FetchMaxWait` | 500 ms | 5 s |
+| (giới hạn đọc từ broker) | 2 × `FetchMaxBytes` | 100 MiB |
+
+Mức chặn vào khoảng `MaxConcurrentFetches × FetchMaxBytes` = 48 MiB dữ liệu
+nén; sau khi giải nén (producer dùng zstd) sẽ lớn hơn.
+
 ## 9.6 `pkg/` (root module)
 
 | Gói | Nội dung |
@@ -129,7 +183,7 @@ khi `level >= verbosity`.
 | `pkg/network/httpx/std` | `szhttp.Server` trên `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` phục vụ HTTP/3 (UDP) và HTTP/1.1/2 (TCP) trên cùng địa chỉ, kèm `Alt-Svc` |
 | `pkg/network/wsz` | WebSocket server + client manager |
-| `pkg/pools/{request,ruleevent}` | Pool cho `httppb.Event`, `secrulepb.Event` |
+| `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}` | Pool cho các event của edge (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.RuleEvent`, `corerulesetpb.CoreRuleEvent`, `rulepb.MatchedRules`), reset bằng `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
 | `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge, xem [03-edge.md](03-edge.md#38-cluster-olric) |
 | `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`api/client/consul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |

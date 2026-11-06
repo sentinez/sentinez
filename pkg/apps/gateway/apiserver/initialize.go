@@ -17,6 +17,7 @@ package apiserver
 import (
 	"context"
 
+	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
 	greeterfac "github.com/sentinez/controlplane/apps/greeter/v1/factory"
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
@@ -39,7 +40,7 @@ func (srv *Server) Initialize(
 	// security is left out: SecRule payloads legitimately carry attack
 	// patterns and would be rejected.
 	srv.server.Use(middleware.Scope(
-		middleware.Injection, "/iam", "/tenant", "/greeter",
+		middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
 	))
 
 	// register all custom handlers to the server
@@ -55,7 +56,13 @@ func (srv *Server) Initialize(
 		return err
 	}
 
+	analytic, err := analyticfac.NewDefaultHandler(ctx, conf)
+	if err != nil {
+		return err
+	}
+
 	return srv.Visit(ctx,
+		controlplane.NewAnalytic(analytic),
 		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
 		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
 		controlplane.NewSecurity(security),

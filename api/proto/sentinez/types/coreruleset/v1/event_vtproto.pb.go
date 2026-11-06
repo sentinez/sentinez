@@ -10,6 +10,7 @@ import (
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	io "io"
+	sync "sync"
 )
 
 const (
@@ -176,6 +177,32 @@ func (m *CoreRuleEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+var vtprotoPool_CoreRuleEvent = sync.Pool{
+	New: func() interface{} {
+		return &CoreRuleEvent{}
+	},
+}
+
+func (m *CoreRuleEvent) ResetVT() {
+	if m != nil {
+		f0 := m.MatchedRuleIds[:0]
+		f1 := m.Severities[:0]
+		f2 := m.Messages[:0]
+		m.Reset()
+		m.MatchedRuleIds = f0
+		m.Severities = f1
+		m.Messages = f2
+	}
+}
+func (m *CoreRuleEvent) ReturnToVTPool() {
+	if m != nil {
+		m.ResetVT()
+		vtprotoPool_CoreRuleEvent.Put(m)
+	}
+}
+func CoreRuleEventFromVTPool() *CoreRuleEvent {
+	return vtprotoPool_CoreRuleEvent.Get().(*CoreRuleEvent)
+}
 func (m *CoreRuleEvent) SizeVT() (n int) {
 	if m == nil {
 		return 0
@@ -366,7 +393,7 @@ func (m *CoreRuleEvent) UnmarshalVT(dAtA []byte) error {
 					}
 				}
 				elementCount = count
-				if elementCount != 0 && len(m.MatchedRuleIds) == 0 {
+				if elementCount != 0 && len(m.MatchedRuleIds) == 0 && cap(m.MatchedRuleIds) < elementCount {
 					m.MatchedRuleIds = make([]int32, 0, elementCount)
 				}
 				for iNdEx < postIndex {

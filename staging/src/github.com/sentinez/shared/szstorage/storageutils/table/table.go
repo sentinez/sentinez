@@ -23,7 +23,8 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-const _envPattern = `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`
+var _envRe = regexp.MustCompile(
+	`^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`)
 
 func NewTable(appConf *settingpb.Config, tableName string) string {
 	tableName = fmt.Sprintf("%s.%s.%s",
@@ -32,15 +33,5 @@ func NewTable(appConf *settingpb.Config, tableName string) string {
 }
 
 func IsValidTableName(tableName string) bool {
-	matched, err := regexp.MatchString(_envPattern, tableName)
-	if err != nil {
-		fmt.Println("Regex error:", err)
-		return false
-	}
-
-	if matched {
-		return true
-	}
-
-	return false
+	return _envRe.MatchString(tableName)
 }

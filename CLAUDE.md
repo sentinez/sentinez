@@ -8,15 +8,15 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 
 | Path | Purpose |
 |---|---|
-| `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1` |
-| `internal/` | Root-module private code: `dmz` (edge/dataplane), `handlers` (edge HTTP chain plugins, listed in `handlers/handlers.go` and linked by `core/szhttp/chains.Build`), `envplugin` (`Env` the plugins provision themselves from), `bpf`, `memory`, `defaults` (fallback listen addresses) |
+| `cmd/` | Service entrypoints: `szapiserver`, `szrealtime`, `szedge/v1`, `szdataplane/v1`, `szgreeter/v1`, `szcentraldata/v1`, `szcollector/v1` |
+| `internal/` | Root-module private code: `dmz` (edge/dataplane; the eBPF map API in `dmz/dataplane/bpf`), `handlers` (edge HTTP chain plugins, listed in `handlers/handlers.go` and linked by `core/szhttp/chains.Build`), `envplugin` (`Env` the plugins provision themselves from), `memory`, `defaults` (fallback listen addresses) |
 | `pkg/` | Root-module shared packages: `apps/{gateway,greeter,dmz}` (service wiring: `gateway/{apiserver,realtime}`, `dmz/{edge,dataplane}`), `network`, `pools`, `protocol`, `cluster` (embedded Olric) |
 | `scale/` | Enterprise features (package `scale`): private nested repo checked out over the public stubs, see below |
-| `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
+| `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`; gRPC only: `collector`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szgrpc/grpcgateway`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szcontext`, `szbytestr` (header/value byte constants); private `internal/{console,render}` (startup banner, error-page templ templates) |
-| ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`, `szstorage/dbx/postgres`): `szlog` (zap + OTLP), `szstorage`, `sztracer` (`StageError`), `szqueue`, `sznormalize` (`NormalizeEdgeSetting`: edge `*Lite` YAML → runtime protos), `szsdklog` (edge traffic log exporter), `szkafka` (Kafka producer), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
-| ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, plus `pkg/{crypto,headers,passkey}` |
+| ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`, `szstorage/dbx/postgres`): `szlog` (zap + OTLP), `szstorage`, `sztracer` (`StageError`), `szqueue`, `sznormalize` (`NormalizeEdgeSetting`: edge `*Lite` YAML → runtime protos), `szsdklog` (edge traffic log exporter), `szkafka` (Kafka producer and batch consumer), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
+| ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, `collector` (ingests the edge events from Kafka into the analytic event tables), plus `pkg/{crypto,headers,passkey,pools}` (`pools`: the collector message pools, one package per event) |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
@@ -36,8 +36,8 @@ make sz.realtime.run
 make sz.edge.run             # edge proxy
 make sz.dataplane.run        # runs inside the `gateway` netns (sudo)
 make sz.greeter.run
-make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane, greeter, centraldata
-make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata)
+make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane, greeter, centraldata, collector
+make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata, collector)
 make compose.up / compose.down
 make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
 make lint                    # golangci-lint across root + core/shared/controlplane/httphz, plus buf lint
@@ -57,7 +57,7 @@ Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` 
 
 ## Go style guide
 
-Full rules live in [.agent/skills/go-style-guide/SKILL.md](.agent/skills/go-style-guide/SKILL.md) (based on the Uber Go Style Guide); read it before writing or reviewing Go. Scaffolding skills are alongside it in `.agent/skills/` (`create-service`, `create-handler`, `create-module`, `create-repo`, `create-factory`). Key points:
+Full rules live in [hack/.agent/skills/go-style-guide/SKILL.md](hack/.agent/skills/go-style-guide/SKILL.md) (based on the Uber Go Style Guide); read it before writing or reviewing Go. Scaffolding skills are alongside it in `hack/.agent/skills/` (`create-service`, `create-handler`, `create-module`, `create-repo`, `create-factory`). Key points:
 
 **Enforced by `.golangci.yaml`** (this wins over the skill's softer 99-char limit): `lll` 80 columns (tab = 4), `funlen` 35 lines per function, plus errcheck, govet, misspell, revive (context-as-argument, error-naming, error-strings, indent-error-flow, superfluous-else, unused-parameter, receiver-naming, etc.), staticcheck; formatted with gofmt + goimports.
 

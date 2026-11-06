@@ -25,10 +25,9 @@ import (
 func HandlerFunc(path string, handler szhttp.RequestHandler) {
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		ctx := httpx.NewContext(r, w)
+		defer func() { _ = ctx.Close() }()
 
 		_ = handler(ctx)
-
-		_ = ctx.Close()
 	})
 }
 
@@ -63,10 +62,9 @@ func StandardConverter(handler szhttp.RequestHandler,
 	resp http.ResponseWriter, req *http.Request) {
 
 	ctx := httpx.NewContext(req, resp)
+	defer func() { _ = ctx.Close() }()
 
 	if err := handler(ctx); err != nil {
 		http.Error(resp, err.Error(), ctx.StatusCode())
 	}
-
-	_ = ctx.Close()
 }

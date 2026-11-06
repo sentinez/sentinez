@@ -62,7 +62,15 @@ Mỗi thư mục domain có `generate.sh` gọi `protoc` với include
 | `protoc-gen-grpc-gateway` | `*.pb.gw.go` |
 | `protoc-gen-validate` | `*.pb.validate.go` |
 | `protoc-gen-go-senz` | `*_senz.pb.go` |
+| `protoc-gen-go-vtproto` (`features=marshal+unmarshal+size`) | `*_vtproto.pb.go` |
 | `protoc-gen-openapiv2` | `api/docs/v1/<domain>.swagger.json` |
+
+Feature `pool` của vtproto chỉ bật cho các event được pool, mỗi message ghi
+bằng một `--go-vtproto_opt=pool=<import path>.<Message>` trong
+`generate.sh` của nó: `secrule.v1.RuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`net.http.v1.IngressEvent` và `rule.v1.MatchedRules`. Feature này sinh `ResetVT`
+(`Reset` nhưng giữ dung lượng các trường repeated), cùng
+`<Msg>FromVTPool`/`ReturnToVTPool` trên một pool của message.
 
 TypeScript cho UI: `cd api && buf generate` dùng `ts-proto`
 ([api/buf.gen.yaml](../../api/buf.gen.yaml)) → `ui/packages/proto/ts-proto`.
@@ -107,7 +115,7 @@ header `Authorization: Bearer <JWT>`.
 | DELETE | `/security/secrule/{id}` | `SecurityService.DeleteSecRule` | — |
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
-| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore *(chưa mount)* |
+| GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
 
 "Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).
@@ -138,15 +146,21 @@ Cấu hình edge cho một namespace — xem [03-edge.md](03-edge.md#35-cấu-h�
 ### `dmz.edge.v1.Context`
 
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
-ContextExtra{namespace, ...matched ids/names}}` — trạng thái của một request ở
-edge, gắn với `szhttp.Context`.
+ContextExtra{namespace, ...matched ids/names, upstream,
+upstream_timestamp, upstream_latency_micros}}` — trạng thái của một request ở
+edge, gắn với `szhttp.Context`. Router (`ROU`) ghi ba trường `upstream` quanh
+lời gọi reverse proxy, để log egress dùng.
 
 ### Event log
 
 | Type | Logger kind | Phát bởi |
 |---|---|---|
-| `net.http.v1.Event` | `LOG_TYPE_HTTP` | Node `LOG` ở edge, middleware `Logging` ở apiserver |
-| `secrule.v1.Event` | `LOG_TYPE_WAF` | Node `WAF` khi transaction bị interrupt |
+| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Node `LOG` ở edge, middleware `Logging` ở apiserver |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `LOG` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó |
+| `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Node `WAF` khi transaction bị interrupt |
 
-Event được tái sử dụng qua pool trong `pkg/pools/{request,ruleevent}`;
-`LogCloser` tự trả object về pool sau khi log.
+Event được tái sử dụng qua pool trong
+`pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: mỗi wrapper giữ sẵn
+message của nó, và `Release` gọi `ResetVT` nên các trường repeated giữ
+dung lượng. `LogCloser` tự trả object về pool sau khi log. Collector có
+pool riêng, xem [07-controlplane.md](07-controlplane.md#pool-event).

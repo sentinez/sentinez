@@ -17,6 +17,7 @@ package szkafka
 import (
 	"context"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/sentinez/shared/sztopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/twmb/franz-go/pkg/kadm"
 	"github.com/twmb/franz-go/pkg/kfake"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"google.golang.org/protobuf/proto"
@@ -34,7 +36,7 @@ import (
 func newCluster(t *testing.T) []string {
 	t.Helper()
 	cluster, err := kfake.NewCluster(
-		kfake.SeedTopics(1, sztopic.EventHTTPSecRule))
+		kfake.SeedTopics(1, sztopic.EventHTTPSecRule.String()))
 	require.NoError(t, err)
 	t.Cleanup(cluster.Close)
 
@@ -42,10 +44,12 @@ func newCluster(t *testing.T) []string {
 }
 
 // consumeOne reads the first record of topic.
-func consumeOne(t *testing.T, brokers []string, topic string) *kgo.Record {
+func consumeOne(t *testing.T, brokers []string,
+	topic sztopic.Topic) *kgo.Record {
+
 	t.Helper()
 	client, err := kgo.NewClient(kgo.SeedBrokers(brokers...),
-		kgo.ConsumeTopics(topic))
+		kgo.ConsumeTopics(topic.String()))
 	require.NoError(t, err)
 	defer client.Close()
 
@@ -100,12 +104,12 @@ func TestProducerThroughLogger(t *testing.T) {
 func TestProducerDropsUnmappedKind(t *testing.T) {
 	p, err := NewProducer(Config{
 		Brokers: newCluster(t),
-		Topics:  map[typepb.LogType]string{},
+		Topics:  map[typepb.LogType]sztopic.Topic{},
 	})
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = p.Shutdown(context.Background()) })
 
-	p.Export(typepb.LogType_LOG_TYPE_HTTP, szlog.LevelInfo, "x",
+	p.Export(typepb.LogType_LOG_TYPE_HTTP_INGRESS, szlog.LevelInfo, "x",
 		&secrulepb.RuleEvent{})
 
 	assert.Equal(t, uint64(1), p.Dropped())
@@ -144,4 +148,87 @@ func TestConfigOf(t *testing.T) {
 			assert.Equal(t, "svc", cfg.ServiceName)
 		})
 	}
+}
+
+func TestConfigOfOptions(t *testing.T) {
+	topics := map[typepb.LogType]sztopic.Topic{
+		typepb.LogType_LOG_TYPE_HTTP_INGRESS: "h",
+	}
+
+	cfg := ConfigOf("a:9092", "svc",
+		WithTopics(topics),
+		WithTopicPartitions(3),
+		WithReplicationFactor(2),
+	)
+	topics[typepb.LogType_LOG_TYPE_HTTP_INGRESS] = "changed"
+
+	assert.Equal(t,
+		map[typepb.LogType]sztopic.Topic{
+			typepb.LogType_LOG_TYPE_HTTP_INGRESS: "h",
+		},
+		cfg.Topics, "topics copied")
+	assert.Equal(t, int32(3), cfg.Partitions)
+	assert.Equal(t, int16(2), cfg.ReplicationFactor)
+}
+
+func TestConfigOfNoOptions(t *testing.T) {
+	cfg := ConfigOf("a:9092", "svc")
+
+	assert.Nil(t, cfg.Topics)
+	assert.Zero(t, cfg.Partitions)
+	assert.Zero(t, cfg.ReplicationFactor)
+}
+
+// partitionsOf returns the partitions of each topic of the brokers.
+func partitionsOf(t *testing.T, brokers []string) map[string]int {
+	t.Helper()
+	client, err := kgo.NewClient(kgo.SeedBrokers(brokers...))
+	require.NoError(t, err)
+	defer client.Close()
+
+	details, err := kadm.NewClient(client).ListTopics(t.Context())
+	require.NoError(t, err)
+
+	got := make(map[string]int, len(details))
+	for _, d := range details {
+		got[d.Topic] = len(d.Partitions)
+	}
+
+	return got
+}
+
+func TestProducerCreatesTopics(t *testing.T) {
+	cluster, err := kfake.NewCluster(
+		kfake.SeedTopics(1, sztopic.EventHTTPSecRule.String()))
+	require.NoError(t, err)
+	t.Cleanup(cluster.Close)
+	brokers := cluster.ListenAddrs()
+
+	p, err := NewProducer(Config{Brokers: brokers, ServiceName: "edge"})
+	require.NoError(t, err)
+	require.NoError(t, p.Shutdown(t.Context()))
+
+	got := partitionsOf(t, brokers)
+	assert.Equal(t, 1, got[sztopic.EventHTTPSecRule.String()],
+		"existing topic kept")
+	for _, topic := range DefaultTopics() {
+		if topic != sztopic.EventHTTPSecRule {
+			assert.Equal(t, DefaultTopicPartitions, got[topic.String()], topic)
+		}
+	}
+}
+
+func TestProducerStartsWhenCreateFails(t *testing.T) {
+	cluster, err := kfake.NewCluster(kfake.NumBrokers(1))
+	require.NoError(t, err)
+	t.Cleanup(cluster.Close)
+	brokers := cluster.ListenAddrs()
+
+	// 3 replicas do not fit on 1 broker: every creation fails.
+	p, err := NewProducer(ConfigOf(strings.Join(brokers, ","), "edge",
+		WithReplicationFactor(3)))
+	require.NoError(t, err)
+	require.NoError(t, p.Shutdown(t.Context()))
+
+	assert.Empty(t, partitionsOf(t, brokers))
 }

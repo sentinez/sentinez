@@ -36,10 +36,9 @@ type WSReverseProxy struct {
 }
 
 func (p *WSReverseProxy) Serve(ctx szhttp.Context) {
-
-	uri := ctx.URI()
-	if len(uri) != 0 {
-		p.target += string(uri)
+	target := p.target
+	if uri := ctx.URI(); len(uri) != 0 {
+		target += string(uri)
 	}
 
 	// TODO: forward custom header of sentine-edge
@@ -54,6 +53,6 @@ func (p *WSReverseProxy) Serve(ctx szhttp.Context) {
 		return
 	}
 
-	wsReverseProxy := reverseproxy.NewWSReverseProxy(p.target)
+	wsReverseProxy := reverseproxy.NewWSReverseProxy(target)
 	wsReverseProxy.ServeHTTP(ctx.Context(), rctx)
 }

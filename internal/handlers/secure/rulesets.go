@@ -47,7 +47,7 @@ func (*Rulesets) ID() string { return WAFId }
 
 func (rs *Rulesets) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()
-	rs.log = env.Logger(typepb.LogType_LOG_TYPE_WAF)
+	rs.log = env.Logger(typepb.LogType_LOG_TYPE_CORE_RULESETS)
 	return nil
 }
 

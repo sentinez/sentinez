@@ -17,6 +17,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"runtime/debug"
 	"time"
 
 	"github.com/sentinez/core/szhttp"
@@ -35,6 +36,11 @@ var (
 // is tagged with name and logged once. Because errors unwind from the
 // innermost plugin outwards, the first stage to see an error is the one
 // that produced it.
+//
+// A panic of the plugin is recovered the same way: logged once, with the
+// stage and its stack, by the stage of the plugin that panicked, then the
+// request is answered with a 500 page, so the stages around it, e.g. the
+// logging one, see a request answered with an error status.
 func Stage(name string, h chains.Handler) chains.Handler {
 	return &stage{name: name, node: h}
 }
@@ -44,7 +50,17 @@ type stage struct {
 	node chains.Handler
 }
 
-func (s *stage) Handle(ctx szhttp.Context) error {
+func (s *stage) Handle(ctx szhttp.Context) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = s.recovered(ctx, r)
+		}
+	}()
+
+	return s.handle(ctx)
+}
+
+func (s *stage) handle(ctx szhttp.Context) error {
 	begin := time.Now()
 	err := s.node.Handle(ctx)
 	if err == nil {
@@ -64,6 +80,22 @@ func (s *stage) Handle(ctx szhttp.Context) error {
 		ctx.RequestId(), se.Stage, ctx.StatusCode(), se.Elapsed, err)
 
 	return se
+}
+
+// recovered handles the panic r of the plugin of s: it logs it, then
+// answers the request with a 500 page; the panic handled, only an error
+// writing the page is returned. http.ErrAbortHandler is panicked again:
+// the reverse proxy panics with it to abort a response it cannot finish,
+// and the server, recovering it, closes the connection.
+func (s *stage) recovered(ctx szhttp.Context, r any) error {
+	if r == http.ErrAbortHandler {
+		panic(r)
+	}
+
+	szlog.Errorf("tracer: request %s panicked at stage %q: %v\n%s",
+		ctx.RequestId(), s.name, r, debug.Stack())
+
+	return szhttp.InternalServerError(ctx)
 }
 
 // traceStatus logs a request answered with an error status without an

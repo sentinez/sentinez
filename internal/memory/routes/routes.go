@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"sort"
 	"sync"
+	"sync/atomic"
 
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
@@ -38,7 +39,7 @@ var (
 func New() *Router {
 	_once.Do(func() {
 		_inst = &Router{
-			routes: szsync.NewMap[string, []*edgepb.Location](),
+			routes: szsync.NewMap[string, []*route](),
 		}
 	})
 
@@ -46,7 +47,28 @@ func New() *Router {
 }
 
 type Router struct {
-	routes *szsync.Map[string, []*edgepb.Location]
+	routes *szsync.Map[string, []*route]
+}
+
+// route is a location with its upstream balancing state.
+type route struct {
+	loc  *edgepb.Location
+	next atomic.Uint64
+}
+
+// upstream returns the server of the next upstream of the route following
+// its balance strategy; round robin is the default (and only) one.
+func (r *route) upstream() (string, error) {
+	upstreams := r.loc.GetProxyPass()
+	if len(upstreams) == 0 {
+		return "", szerror.F("no upstream: %s", r.loc.GetLocation())
+	}
+	if len(upstreams) == 1 {
+		return upstreams[0].GetServer(), nil
+	}
+
+	i := (r.next.Add(1) - 1) % uint64(len(upstreams))
+	return upstreams[i].GetServer(), nil
 }
 
 // nolint:funlen
@@ -57,8 +79,14 @@ func (r *Router) Store(server *edgepb.Server) {
 		return
 	}
 
-	var validRoutes []*edgepb.Location
+	var validRoutes []*route
 	for _, routeConfig := range server.GetLocations() {
+		if len(routeConfig.GetProxyPass()) == 0 {
+			szlog.Warnf("no proxyPass in ns=%q location=%q, ignoring",
+				server.GetName(), routeConfig.GetLocation())
+			continue
+		}
+
 		szlog.Debugf(
 			"edge: ns=%s %s -> %s (rewrite: %s)",
 			server.GetName(), routeConfig.GetLocation(),
@@ -69,6 +97,7 @@ func (r *Router) Store(server *edgepb.Server) {
 			Location:        routeConfig.GetLocation(),
 			ProxyPass:       routeConfig.GetProxyPass(),
 			ProxyRewrite:    routeConfig.GetProxyRewrite(),
+			BalanceStrategy: routeConfig.GetBalanceStrategy(),
 			ProxySetHeaders: make(map[string]string),
 		}
 
@@ -87,14 +116,19 @@ func (r *Router) Store(server *edgepb.Server) {
 			route.ProxyRewrite = route.GetLocation()
 		}
 
-		validRoutes = append(validRoutes, route)
+		validRoutes = append(validRoutes, newRoute(route))
+	}
+
+	if len(validRoutes) == 0 {
+		r.Delete(server.GetName())
+		return
 	}
 
 	// sort routes descending by location
 	// length for longest-prefix match (like nginx)
 	sort.Slice(validRoutes, func(i, j int) bool {
-		return len(validRoutes[i].GetLocation()) >
-			len(validRoutes[j].GetLocation())
+		return len(validRoutes[i].loc.GetLocation()) >
+			len(validRoutes[j].loc.GetLocation())
 	})
 
 	r.routes.Store(server.GetName(), validRoutes)
@@ -120,8 +154,8 @@ func (r *Router) Match(ctx szhttp.Context) (string, error) {
 
 	szlog.Debugf(
 		"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-		namespace, route.GetProxyRewrite(), route.GetProxyPass(),
-		route.GetLocation(),
+		namespace, route.loc.GetProxyRewrite(), route.loc.GetProxyPass(),
+		route.loc.GetLocation(),
 	)
 
 	return forward(ctx, route)
@@ -129,19 +163,17 @@ func (r *Router) Match(ctx szhttp.Context) (string, error) {
 
 // pick returns the route named location, else the longest one prefixing
 // path (routes are sorted longest first), or nil.
-func pick(
-	routes []*edgepb.Location, location string, path []byte,
-) *edgepb.Location {
+func pick(routes []*route, location string, path []byte) *route {
 	if location != "" {
 		for _, route := range routes {
-			if route.GetLocation() == location {
+			if route.loc.GetLocation() == location {
 				return route
 			}
 		}
 	}
 
 	for _, route := range routes {
-		if matchLocation(path, bytesconv.S2b(route.GetLocation())) {
+		if matchLocation(path, bytesconv.S2b(route.loc.GetLocation())) {
 			return route
 		}
 	}
@@ -151,7 +183,13 @@ func pick(
 
 // forward rewrites the request path and headers for route and returns its
 // upstream server.
-func forward(ctx szhttp.Context, route *edgepb.Location) (string, error) {
+func forward(ctx szhttp.Context, r *route) (string, error) {
+	upstream, err := r.upstream()
+	if err != nil {
+		return "", err
+	}
+
+	route := r.loc
 	locationBytes := bytesconv.S2b(route.GetLocation())
 	rewriteBytes := bytesconv.S2b(route.GetProxyRewrite())
 
@@ -181,7 +219,11 @@ func forward(ctx szhttp.Context, route *edgepb.Location) (string, error) {
 		ctx.SetHeader(bytesconv.S2b(hk), bytesconv.S2b(val))
 	}
 
-	return route.GetProxyPass()[0].GetServer(), nil
+	return upstream, nil
+}
+
+func newRoute(loc *edgepb.Location) *route {
+	return &route{loc: loc}
 }
 
 func matchLocation(path, location []byte) bool {

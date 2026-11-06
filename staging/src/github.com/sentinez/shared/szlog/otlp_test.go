@@ -49,7 +49,7 @@ func TestLogCloserWithOTLPProvider(t *testing.T) {
 		sdklog.WithProcessor(sdklog.NewSimpleProcessor(exp)),
 	)
 
-	l := NewLogCloser("test", typepb.LogType_LOG_TYPE_HTTP,
+	l := NewLogCloser("test", typepb.LogType_LOG_TYPE_HTTP_INGRESS,
 		LevelInfo, WithOTLPProvider(provider))
 	l.Info("hello", &emptypb.Empty{}, io.NopCloser(nil))
 
@@ -64,7 +64,7 @@ func TestLogCloserWithoutOTLP(t *testing.T) {
 	)
 
 	// WithoutOTLP wins over a provider given alongside it
-	l := NewLogCloser("test", typepb.LogType_LOG_TYPE_HTTP,
+	l := NewLogCloser("test", typepb.LogType_LOG_TYPE_HTTP_INGRESS,
 		LevelInfo, WithOTLPProvider(provider), WithoutOTLP())
 	l.Info("hello", &emptypb.Empty{}, io.NopCloser(nil))
 

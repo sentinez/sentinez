@@ -49,6 +49,6 @@ func Acquire() *CoreRuleEvent {
 }
 
 func Release(obj *CoreRuleEvent) {
-	obj.Reset()
+	obj.ResetVT()
 	_pool.Put(obj)
 }

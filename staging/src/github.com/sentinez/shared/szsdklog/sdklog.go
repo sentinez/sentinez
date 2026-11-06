@@ -36,12 +36,15 @@ type Exporter struct {
 }
 
 // New returns the exporter configured by conf, nil when neither setting is
-// set.
-func New(conf *settingpb.Config) (*Exporter, error) {
+// set; opts configure the kafka producer, e.g. the replication factor of
+// the topics it creates.
+func New(conf *settingpb.Config,
+	opts ...szkafka.ConfigOption) (*Exporter, error) {
 	service := conf.GetMeta().GetServiceKey()
 
 	if brokers := conf.Get(settingpb.Senz_SENZ_KAFKA_BROKERS); brokers != "" {
-		p, err := szkafka.NewProducer(szkafka.ConfigOf(brokers, service))
+		p, err := szkafka.NewProducer(
+			szkafka.ConfigOf(brokers, service, opts...))
 		if err != nil {
 			return nil, fmt.Errorf("edge log: %w", err)
 		}

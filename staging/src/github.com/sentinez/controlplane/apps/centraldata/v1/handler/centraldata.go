@@ -12,40 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package centraldatahdl provides the controller for the centraldata
+// service.
 package centraldatahdl
 
 import (
 	"context"
 
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	"github.com/sentinez/shared/szlog"
 )
 
-var _ pb.CentralDataServiceServer = (*CentralDataHandler)(nil)
+var _ centraldatapb.CentralDataServiceServer = (*CentralDataHandler)(nil)
 
+// CentralDataHandler handles CentralDataService RPCs.
 type CentralDataHandler struct {
+	centraldatapb.UnimplementedCentralDataServiceServer
 	service *centraldatasvc.CentralDataService
 }
 
+// New creates a new CentralData handler.
 func New(
 	service *centraldatasvc.CentralDataService,
-) pb.CentralDataServiceServer {
-	return &CentralDataHandler{
-		service: service,
-	}
+) centraldatapb.CentralDataServiceServer {
+	return &CentralDataHandler{service: service}
 }
 
+// Status is the consul health check.
 func (hdl *CentralDataHandler) Status(ctx context.Context,
-	req *pb.StatusRequest) (*pb.StatusResponse, error) {
+	req *centraldatapb.StatusRequest,
+) (*centraldatapb.StatusResponse, error) {
+	szlog.Debugf("centraldata.Status: req = %v", req)
 
-	szlog.Debugf("[CentralDataHandler.Status] req = %v", req)
-
-	resp, err := hdl.service.Status(ctx, req)
-	if err != nil {
-		szlog.Errorf("[CentralDataHandler.Status] failed: %v", err)
-		return nil, err
-	}
-
-	return resp, nil
+	return hdl.service.Status(ctx, req)
 }

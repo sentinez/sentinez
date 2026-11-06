@@ -37,7 +37,7 @@ with `SENTINEZ_OUT=...`, change the image tag with `TAG=...`.
 
 ```sh
 make compose.up            # postgres:16 (5432), consul (8500), apiserver, edge
-bash hack/timescale-up.sh  # start only the sentinez.postgres container
+bash hack/timescale-up.sh  # start only sentinez.timescale (TimescaleDB) and sentinez.consul
 ```
 
 ### API server
@@ -153,7 +153,7 @@ Existing tests cover: `core/szlimiter`, `core/szrule`, `core/szmodsec/ruleparser
 Lint rules (`.golangci.yaml`): `lll` 80 columns (tab = 4), `funlen` 35 lines,
 `errcheck`, `govet`, `misspell`, `revive`, `staticcheck`, `gofmt`,
 `goimports`. The full style guide is in
-[.agent/skills/go-style-guide/SKILL.md](../.agent/skills/go-style-guide/SKILL.md).
+[hack/.agent/skills/go-style-guide/SKILL.md](../hack/.agent/skills/go-style-guide/SKILL.md).
 
 ## 2.6 Code generation
 
