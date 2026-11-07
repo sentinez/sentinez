@@ -21,9 +21,9 @@ The package name should be `<domain>hdl`.
 Use standard imports, especially:
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` (aliased as `<domain>pb`)
 - The service package from `github.com/sentinez/controlplane/<domain>/v1/service` (aliased as `<domain>svc`)
-- Standard error handling from `github.com/sentinez/shared/szerror`
+- Standard error handling from `github.com/sentinez/pkg/szerror`
 - Request context headers and auth from `github.com/sentinez/controlplane/pkg/headers`
-- Logging from `github.com/sentinez/shared/szlog`
+- Logging from `github.com/sentinez/pkg/szlog`
 
 ## 2. Interface Implementation Assertion
 

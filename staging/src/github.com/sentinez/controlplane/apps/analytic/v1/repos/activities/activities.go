@@ -20,14 +20,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

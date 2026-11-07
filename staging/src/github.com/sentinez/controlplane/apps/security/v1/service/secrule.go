@@ -20,9 +20,9 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
+	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szerror"
 )
 
 var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)

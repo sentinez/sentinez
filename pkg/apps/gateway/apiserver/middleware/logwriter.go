@@ -17,9 +17,9 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	commonpb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szlog"
 )
 
 type logResponseWriter struct {

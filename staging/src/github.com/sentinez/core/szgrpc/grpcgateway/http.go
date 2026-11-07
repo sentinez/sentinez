@@ -31,9 +31,9 @@ import (
 	"github.com/sentinez/core/internal/console"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/szerror"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szerror"
 	"golang.org/x/sync/errgroup"
 )
 

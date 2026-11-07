@@ -21,7 +21,7 @@ GO_MODULES=(
   .
   api
   staging/src/github.com/sentinez/core
-  staging/src/github.com/sentinez/shared
+  staging/src/github.com/sentinez/pkg
   staging/src/github.com/sentinez/controlplane
   staging/src/github.com/sentinez/contrib/httphz
   staging/src/github.com/sentinez/tools

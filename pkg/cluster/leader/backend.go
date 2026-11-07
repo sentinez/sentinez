@@ -21,10 +21,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/api/client/consul"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/shared/szlog"
 )
 
 const (

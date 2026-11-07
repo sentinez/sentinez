@@ -25,8 +25,8 @@ jobs:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh core
 
-  shared:
-    name: sync sentinez/shared
+  pkg:
+    name: sync sentinez/pkg
     runs-on: ubuntu-latest
 
     steps:
@@ -35,10 +35,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync sentinez/shared
+      - name: Sync sentinez/pkg
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
-        run: bash hack/ci/action_sync.sh shared
+        run: bash hack/ci/action_sync.sh pkg
 
   tools:
     name: sync sentinez/tools

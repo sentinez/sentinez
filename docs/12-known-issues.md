@@ -15,23 +15,26 @@ None known.
 | # | Location | Problem |
 |---|---|---|
 | S1 | [pkg/apps/gateway/apiserver/middleware/middleware.go](../pkg/apps/gateway/apiserver/middleware/middleware.go) `AllowCORS` | Reflects any `Origin` together with `Allow-Credentials: true` (the code itself says not to use this in production) |
-| S2 | Control-plane handlers | Authorization must be called in each handler; only `ListAccounts` and `ListActivities` do it. Tenant, Security, `ListUsers`, `DeleteUser`, … require no token |
+| S2 | Control-plane handlers | Authorization must be called in each handler (`headers.Allow`); only `ListAccounts`, Tenant and Analytic do it. Security, `ListUsers`, `DeleteUser`, … require no token |
 | S3 | IAM `loginAdmin` | Compares the admin password in plaintext, not in constant time; no limit on failed admin logins |
 | S4 | apiserver `Logging` middleware | Reads the whole body and debug-logs it on error — can write passwords from `/iam/login` to the logs |
 | S5 | [cmd/szedge/v1/server/pprof.go](../cmd/szedge/v1/server/pprof.go) | pprof is always open on `defaults.PprofAddress` (`0.0.0.0:6060`; compose also publishes this port) |
 | S6 | [pkg/network/httpx/context.go](../pkg/network/httpx/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | The image bakes in the cert/key pair from the source tree |
 | S8 | `httpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Quic` and `Standard` modes, i.e. the default) |
+| S9 | Analytic event reads | Not scoped by tenant: with no `resource_ids`, any valid token reads the events of every tenant |
 
 ## 12.3 Unfinished features
 
 - No sync channel from control plane → edge: SecRules/tenants in the DB do
   not affect the edge; the edge only reads `proxy.yaml` at startup and does
   not reload.
-- The edge does not fill `resource_id`/`tenant_id` in its rule events, so
-  the collector event tables have them empty and `eventfilter.Filter`'s
-  `ResourceIds` matches nothing yet. The event repositories' `Get`/`List`
-  have no caller (no analytic read path yet).
+- Settings that do not declare `metadata.tenantId` / `server.resourceId`
+  share the ids `tnt_default` / `rsrc_default`, so their events are grouped
+  together in the event tables; a setting with the default tenant id is not
+  synced between the edges.
+- An explicit `HISTOGRAM_RESOLUTION_SECOND` with no `from` reads the whole
+  7 days of the second view.
 - [deploy/docker/telemetry/docker-compose.yaml](../deploy/docker/telemetry/docker-compose.yaml)
   creates the event topics with 3 partitions and disables topic auto-create,
   so the producer's `DefaultTopicPartitions` (6) never applies in that
@@ -45,7 +48,7 @@ None known.
 - Unloading a namespace (deleted resource, renamed `server.name`) keeps
   its reverse proxies: they are keyed by upstream and shared between
   namespaces, with no reference count.
-- Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
+- Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - IAM uniqueness (one user per email, one account per provider per user,

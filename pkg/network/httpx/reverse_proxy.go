@@ -22,8 +22,8 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func NewReverseProxy(

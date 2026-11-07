@@ -22,7 +22,7 @@ import (
 
 	"github.com/olric-data/olric"
 	"github.com/redis/go-redis/v9"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // Start waits for the cluster, subscribes to the map, loads what the

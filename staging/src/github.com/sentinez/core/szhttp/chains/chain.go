@@ -16,7 +16,7 @@ package chains
 
 import (
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 type ChainNode interface {

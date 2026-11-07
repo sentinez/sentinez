@@ -24,27 +24,38 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/szstorage/dbx/timescale"
-	"github.com/sentinez/shared/sztable"
 )
 
 const _totalColumn = "total"
 
-// Resolution the time range of the buckets of a histogram.
+// _secondRetention how long the Second buckets are kept: they are many,
+// and only the latest ones are charted.
+const _secondRetention = 7 * 24 * time.Hour
+
+// _secondSpan the longest range charted per Second when the Resolution
+// is not set: a zoom into the minutes (Filter.resolution).
+const _secondSpan = 15 * time.Minute
+
+// Resolution the time range of the buckets of a histogram; numbered as
+// analyticpb.HistogramResolution, so the api converts it as is.
 type Resolution int
 
 const (
+	// Second buckets of a second, for ranges up to _secondSpan.
+	Second Resolution = iota + 1
 	// Minute buckets of a minute, for ranges up to a day.
-	Minute Resolution = iota + 1
+	Minute
 	// Hour buckets of an hour, for ranges up to EventRetention.
 	Hour
 )
 
-// _resolutions the view of each Resolution, in order: its name suffix,
-// bucket and refresh policy. The late events of kafka are counted within
+// _resolutions the view of each Resolution: its name suffix, bucket,
+// refresh policy and retention. The late events of kafka are counted within
 // StartOffset; the latest buckets, not materialized yet, are aggregated
 // on query (RealTime).
 var _resolutions = []struct {
@@ -52,6 +63,7 @@ var _resolutions = []struct {
 	suffix     string
 	bucket     time.Duration
 	refresh    timescale.RefreshPolicy
+	retention  time.Duration
 }{
 	{
 		resolution: Minute,
@@ -62,6 +74,7 @@ var _resolutions = []struct {
 			EndOffset:   time.Minute,
 			Schedule:    time.Minute,
 		},
+		retention: schema.EventRetention,
 	},
 	{
 		resolution: Hour,
@@ -72,6 +85,18 @@ var _resolutions = []struct {
 			EndOffset:   time.Hour,
 			Schedule:    30 * time.Minute,
 		},
+		retention: schema.EventRetention,
+	},
+	{
+		resolution: Second,
+		suffix:     "secondly",
+		bucket:     time.Second,
+		refresh: timescale.RefreshPolicy{
+			StartOffset: 3 * time.Minute,
+			EndOffset:   time.Second,
+			Schedule:    10 * time.Second,
+		},
+		retention: _secondRetention,
 	},
 }
 
@@ -96,7 +121,7 @@ type Point struct {
 // Filter selects the points of a histogram, oldest first; a zero field
 // does not filter.
 type Filter struct {
-	// Resolution Minute when zero.
+	// Resolution picked by the range when zero (Filter.resolution).
 	Resolution  Resolution
 	ResourceIds []string
 	TenantId    string
@@ -134,11 +159,7 @@ func New(ctx context.Context, conf *settingpb.Config,
 func (h *Histogram) Points(ctx context.Context,
 	filter *Filter) ([]*Point, error) {
 
-	resolution := Minute
-	if filter != nil && filter.Resolution != 0 {
-		resolution = filter.Resolution
-	}
-
+	resolution := filter.resolution(time.Now())
 	view, ok := h.views[resolution]
 	if !ok {
 		return nil, fmt.Errorf("histogram: unknown resolution %d",
@@ -149,8 +170,35 @@ func (h *Histogram) Points(ctx context.Context,
 		scan)
 }
 
+// resolution the Resolution of f, nil included: the one set, else Second
+// for a bounded range of up to _secondSpan that the seconds still keep,
+// else Minute.
+func (f *Filter) resolution(now time.Time) Resolution {
+	switch {
+	case f == nil:
+		return Minute
+	case f.Resolution != 0:
+		return f.Resolution
+	case f.From.IsZero():
+		return Minute
+	}
+
+	to := f.To
+	if to.IsZero() {
+		to = now
+	}
+
+	span := to.Sub(f.From)
+	if span <= 0 || span > _secondSpan ||
+		now.Sub(f.From) > _secondRetention {
+		return Minute
+	}
+
+	return Second
+}
+
 // viewSchema the view of spec at _resolutions[i]: the events counted per
-// bucket, resource, tenant and key, kept for EventRetention.
+// bucket, resource, tenant and key, kept for the retention of the resolution.
 func viewSchema(spec Spec, i int) timescale.ViewSchema {
 	res := _resolutions[i]
 	groupBy := []string{typepb.Owner_ResourceId, typepb.Owner_TenantId}
@@ -167,7 +215,7 @@ func viewSchema(spec Spec, i int) timescale.ViewSchema {
 		Aggregates: []timescale.Aggregate{{Expr: "count(*)", As: _totalColumn}},
 		RealTime:   true,
 		Refresh:    res.refresh,
-		Retention:  schema.EventRetention,
+		Retention:  res.retention,
 	}
 }
 

@@ -30,14 +30,15 @@ import (
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szstore/ja4"
+	"github.com/sentinez/pkg/szsync"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
-	"github.com/sentinez/shared/szstore/ja4"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -49,7 +50,8 @@ var (
 var (
 	_ctxPool = szsync.NewPoolCtr(func() *Context {
 		return &Context{
-			BaseContext: &szhttp.BaseContext{},
+			BaseContext: szhttp.NewBaseContext(
+				defaults.TenantId, defaults.ResourceId),
 			ectx: &edgepb.Context{
 				X:       &edgepb.ContextExtra{},
 				Request: &httppb.Request{},

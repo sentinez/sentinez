@@ -272,7 +272,7 @@ func _defaultRepos() []Repo {
 		{"sentinez", "Main repo: services, edge proxy, API server."},
 		{"core", "Runtime framework: runner, HTTP/gRPC, rate " +
 			"limiter, ModSecurity (Coraza), rules, CRS."},
-		{"shared", "Utility libraries: logging, config, errors, " +
+		{"pkg", "Utility libraries: logging, config, errors, " +
 			"event queue, store, cron."},
 		{"controlplane", "Domain services: IAM, tenant, security, " +
 			"analytic, central data."},

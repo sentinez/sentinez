@@ -17,8 +17,8 @@ package securitysvc
 import (
 	"context"
 
+	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"github.com/sentinez/shared/szerror"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset

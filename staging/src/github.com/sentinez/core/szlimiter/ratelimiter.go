@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 )
 
 func NewRateLimiter(timeout time.Duration,

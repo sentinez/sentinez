@@ -4,8 +4,8 @@ go 1.27.1
 
 replace (
 	github.com/sentinez/core => ../core
+	github.com/sentinez/pkg => ../pkg
 	github.com/sentinez/sentinez/api => ../../../../../api
-	github.com/sentinez/shared => ../shared
 )
 
 require (
@@ -16,8 +16,8 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/pashagolub/pgxmock/v2 v2.12.0
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
+	github.com/sentinez/pkg v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/stretchr/testify v1.12.1
 	github.com/twmb/franz-go v1.22.2
 	golang.org/x/crypto v0.57.0

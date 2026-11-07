@@ -33,7 +33,7 @@ counterpart in [vi/](vi/)).
 - File paths are relative to the repository root, e.g.
   [internal/handlers/handlers.go](../internal/handlers/handlers.go).
 - Modules under `staging/src/github.com/sentinez/<name>` are referred to by
-  their import path: `core`, `shared`, `controlplane`, `contrib/httphz`,
+  their import path: `core`, `pkg`, `controlplane`, `contrib/httphz`,
   `bpf`, `tools`.
 - "SecRule" is a user-defined rule (the old name `RuleBased` is retired);
   "rulesets"/"WAF" is the OWASP CRS running on Coraza.

@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/pkg/schema"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/szstorage/dbx/timescale"
-	"github.com/sentinez/shared/sztable"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/sztable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -86,9 +86,20 @@ func TestViewSchema(t *testing.T) {
 		give       int
 		wantName   sztable.Table
 		wantBucket time.Duration
+		wantKeep   time.Duration
 	}{
-		{give: 0, wantName: "a.events.minutely", wantBucket: time.Minute},
-		{give: 1, wantName: "a.events.hourly", wantBucket: time.Hour},
+		{
+			give: 0, wantName: "a.events.minutely",
+			wantBucket: time.Minute, wantKeep: schema.EventRetention,
+		},
+		{
+			give: 1, wantName: "a.events.hourly",
+			wantBucket: time.Hour, wantKeep: schema.EventRetention,
+		},
+		{
+			give: 2, wantName: "a.events.secondly",
+			wantBucket: time.Second, wantKeep: _secondRetention,
+		},
 	}
 
 	for _, tt := range tests {
@@ -101,9 +112,60 @@ func TestViewSchema(t *testing.T) {
 				[]string{"resource_id", "tenant_id", "status"},
 				view.GroupBy)
 			assert.True(t, view.RealTime)
-			assert.Equal(t, schema.EventRetention, view.Retention)
+			assert.Equal(t, tt.wantKeep, view.Retention)
 			assert.Greater(t, view.Refresh.StartOffset,
 				2*tt.wantBucket+view.Refresh.EndOffset)
+		})
+	}
+}
+
+func TestFilterResolution(t *testing.T) {
+	now := time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC)
+
+	tests := []struct {
+		name string
+		give *Filter
+		want Resolution
+	}{
+		{name: "nil", give: nil, want: Minute},
+		{name: "set", give: &Filter{Resolution: Hour}, want: Hour},
+		{name: "unbounded", give: &Filter{}, want: Minute},
+		{
+			name: "zoom",
+			give: &Filter{
+				From: now.Add(-10 * time.Minute),
+				To:   now.Add(-5 * time.Minute),
+			},
+			want: Second,
+		},
+		{
+			name: "zoom until now",
+			give: &Filter{From: now.Add(-time.Minute)},
+			want: Second,
+		},
+		{
+			name: "wide",
+			give: &Filter{From: now.Add(-time.Hour)},
+			want: Minute,
+		},
+		{
+			name: "expired seconds",
+			give: &Filter{
+				From: now.Add(-8 * 24 * time.Hour),
+				To:   now.Add(-8*24*time.Hour + time.Minute),
+			},
+			want: Minute,
+		},
+		{
+			name: "inverted",
+			give: &Filter{From: now, To: now.Add(-time.Minute)},
+			want: Minute,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.give.resolution(now))
 		})
 	}
 }

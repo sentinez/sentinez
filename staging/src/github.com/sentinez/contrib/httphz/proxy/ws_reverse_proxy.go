@@ -21,7 +21,7 @@ import (
 	"github.com/hertz-contrib/reverseproxy"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func NewWSReverseProxy(target string) (*WSReverseProxy, error) {

@@ -21,13 +21,13 @@ import (
 
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
 )
 
 // WAFId is the chain stage name of WAF.
@@ -120,7 +120,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.Severities = severities
 	event.Messages = msgs
 	event.TotalScore = int32(inbound + outbound)
-	event.Service = rulepb.RuleService_RULE_SERVICE_WAF_RULESETS
+	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
@@ -130,6 +130,8 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
 	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
 	event.RequestScheme = ctx.Scheme()
+	event.ResourceId = ctx.ResourceId()
+	event.TenantId = ctx.TenantId()
 
 	rs.log.Info("rulesets: matched", event, event)
 }

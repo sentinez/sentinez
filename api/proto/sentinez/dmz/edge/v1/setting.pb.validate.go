@@ -166,8 +166,6 @@ func (m *Metadata) Validate() error {
 
 	// no validation rules for TenantId
 
-	// no validation rules for ResourceId
-
 	return nil
 }
 
@@ -248,6 +246,8 @@ func (m *Server) Validate() error {
 		}
 
 	}
+
+	// no validation rules for ResourceId
 
 	return nil
 }

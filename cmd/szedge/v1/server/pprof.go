@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/shared/szlog"
 )
 
 const _pprofHeaderTimeout = 10 * time.Second

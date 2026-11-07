@@ -20,10 +20,11 @@ import (
 
 	analytichdl "github.com/sentinez/controlplane/apps/analytic/v1/handler"
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
+	eventsrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/events"
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
 )
 
 // NewDefaultService initializes the Analytic service.
@@ -35,9 +36,14 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("activities repo: %w", err)
 	}
 
+	events, err := eventsrepo.New(ctx, appConf)
+	if err != nil {
+		return nil, fmt.Errorf("events repo: %w", err)
+	}
+
 	tx := postgres.NewTX(appConf)
 
-	return analyticsvc.New(appConf, tx, activities), nil
+	return analyticsvc.New(appConf, tx, activities, events), nil
 }
 
 // NewDefaultHandler initializes the Analytic handler with its dependencies.

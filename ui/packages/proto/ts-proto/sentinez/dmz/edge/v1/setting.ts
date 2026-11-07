@@ -110,10 +110,13 @@ export interface Setting {
   delivery?: Delivery | undefined;
 }
 
-/** Metadata used for observability and debugging: */
+/** Metadata identifies the setting in the logs of the edge. */
 export interface Metadata {
+  /**
+   * Id of this setting (proxy.yaml), filled into the events of its
+   * requests; "tnt_default" when empty.
+   */
   tenantId: string;
-  resourceId: string;
 }
 
 /** Server defines where the request goes and how the edge processes it: */
@@ -122,6 +125,11 @@ export interface Server {
   name: string;
   /** @gotags: yaml:"locations" */
   locations: Location[];
+  /**
+   * Id of the upstream servers of the locations, filled into the events
+   * of the requests; "rsrc_default" when empty.
+   */
+  resourceId: string;
 }
 
 export interface Location {
@@ -373,16 +381,13 @@ export const Setting: MessageFns<Setting> = {
 };
 
 function createBaseMetadata(): Metadata {
-  return { tenantId: "", resourceId: "" };
+  return { tenantId: "" };
 }
 
 export const Metadata: MessageFns<Metadata> = {
   encode(message: Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.tenantId !== "") {
       writer.uint32(10).string(message.tenantId);
-    }
-    if (message.resourceId !== "") {
-      writer.uint32(18).string(message.resourceId);
     }
     return writer;
   },
@@ -408,14 +413,6 @@ export const Metadata: MessageFns<Metadata> = {
             message.tenantId = reader.string();
             continue;
           }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.resourceId = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -435,11 +432,6 @@ export const Metadata: MessageFns<Metadata> = {
         : isSet(object.tenant_id)
         ? globalThis.String(object.tenant_id)
         : "",
-      resourceId: isSet(object.resourceId)
-        ? globalThis.String(object.resourceId)
-        : isSet(object.resource_id)
-        ? globalThis.String(object.resource_id)
-        : "",
     };
   },
 
@@ -447,9 +439,6 @@ export const Metadata: MessageFns<Metadata> = {
     const obj: any = {};
     if (message.tenantId !== "") {
       obj.tenantId = message.tenantId;
-    }
-    if (message.resourceId !== "") {
-      obj.resourceId = message.resourceId;
     }
     return obj;
   },
@@ -460,13 +449,12 @@ export const Metadata: MessageFns<Metadata> = {
   fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata {
     const message = createBaseMetadata();
     message.tenantId = object.tenantId ?? "";
-    message.resourceId = object.resourceId ?? "";
     return message;
   },
 };
 
 function createBaseServer(): Server {
-  return { name: "", locations: [] };
+  return { name: "", locations: [], resourceId: "" };
 }
 
 export const Server: MessageFns<Server> = {
@@ -476,6 +464,9 @@ export const Server: MessageFns<Server> = {
     }
     for (const v of message.locations) {
       Location.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.resourceId !== "") {
+      writer.uint32(26).string(message.resourceId);
     }
     return writer;
   },
@@ -509,6 +500,14 @@ export const Server: MessageFns<Server> = {
             message.locations.push(Location.decode(reader, reader.uint32()));
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -527,6 +526,11 @@ export const Server: MessageFns<Server> = {
       locations: globalThis.Array.isArray(object?.locations)
         ? object.locations.map((e: any) => Location.fromJSON(e))
         : [],
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
     };
   },
 
@@ -538,6 +542,9 @@ export const Server: MessageFns<Server> = {
     if (message.locations?.length) {
       obj.locations = message.locations.map((e) => Location.toJSON(e));
     }
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
     return obj;
   },
 
@@ -548,6 +555,7 @@ export const Server: MessageFns<Server> = {
     const message = createBaseServer();
     message.name = object.name ?? "";
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
+    message.resourceId = object.resourceId ?? "";
     return message;
   },
 };

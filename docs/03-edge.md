@@ -93,7 +93,7 @@ listener (`opt.StdListener`).
 
 Every TLS connection gets an ID before its handshake. `transport.TLSConfig`
 (the `GetConfigForClient` callback) stores the JA4 fingerprint under that ID
-in `shared/szstore/ja4` (in-memory, 24h TTL). The connect hook puts the same
+in `pkg/szstore/ja4` (in-memory, 24h TTL). The connect hook puts the same
 ID into the request context as `netpb.Transport{ConnId, ServerName(SNI)}`, and
 `httpx.NewContext` / `httphz.NewContext` sets
 `Request.Fingerprint = ja4.Get(connId)`. TCP and QUIC only differ in where
@@ -207,9 +207,11 @@ written as strings. Full example:
 
 ```yaml
 setting:
-  metadata: {}
+  metadata:
+    tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
     name: badcheese              # namespace = subdomain
+    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix to match
         proxyRewrite: /          # replaces the prefix before forwarding (default = location)
@@ -368,7 +370,7 @@ A reverse proxy is created once per `upstream.server` in
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | One CDN rule per namespace |
 
-All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
+All maps use `pkg/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 ## 3.8 Cluster (Olric)
 
@@ -436,8 +438,12 @@ the **source**, the raw `edgepb.Setting`, and each node compiles its own
 stores from it ([internal/memory/sync.go](../internal/memory/sync.go)):
 
 - `MemStore` holds a `SyncMap` `sentinez.dmz.edge.settings` keyed by
-  `metadata.resource_id`, the id of the domain resource. A setting without
-  one is loaded on its edge only, with a warning.
+  `metadata.tenant_id`, the id of the `proxy.yaml`. A setting without one is
+  loaded on its edge only, with a warning, and so is one with the default
+  `tnt_default`. `server.resource_id` is the id of its upstream servers.
+  The request context starts with `tnt_default` / `rsrc_default`
+  (`szhttp.NewBaseContext`); `DomainBased` replaces them with the ids the
+  setting declares, so a rejected request is logged with the defaults.
 - `MemStore.Sync(ctx, server, local...)` starts the map (waits for Olric,
   loads the cluster's settings), then shares `local`. `SyncMap.Store`
   skips a value equal to the one it holds (same deterministic encoding), so

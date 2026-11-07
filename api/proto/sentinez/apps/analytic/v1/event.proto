@@ -1,0 +1,144 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.apps.analytic.v1;
+
+import "google/protobuf/timestamp.proto";
+import "sentinez/types/coreruleset/v1/event.proto";
+import "sentinez/types/net/http/v1/event.proto";
+import "sentinez/types/secrule/v1/event.proto";
+import "sentinez/types/v1/model.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpb";
+
+// EventKind the table of the events a histogram counts.
+enum EventKind {
+  EVENT_KIND_UNSPECIFIED = 0;
+  // Requests received by the edge; keyed by the http status.
+  EVENT_KIND_HTTP_INGRESS = 1;
+  // Requests proxied to the origins; keyed by the status of the origin.
+  EVENT_KIND_HTTP_EGRESS = 2;
+  // Matched SecRules; keyed by the action.
+  EVENT_KIND_SEC_RULE = 3;
+  // Exceeded rate limiters; keyed by the action.
+  EVENT_KIND_RATE_LIMIT = 4;
+  // Matched core ruleset rules; keyed by the behavior.
+  EVENT_KIND_CORE_RULE = 5;
+}
+
+// HistogramResolution the time range of the buckets of a histogram.
+enum HistogramResolution {
+  // Picked by the range: seconds for a short zoom within their
+  // retention, else minutes.
+  HISTOGRAM_RESOLUTION_UNSPECIFIED = 0;
+  HISTOGRAM_RESOLUTION_SECOND = 1;
+  HISTOGRAM_RESOLUTION_MINUTE = 2;
+  HISTOGRAM_RESOLUTION_HOUR = 3;
+}
+
+// ListHttpIngressEventsRequest selects the events of a list, the latest first.
+message ListHttpIngressEventsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+// ListHttpEgressEventsRequest selects the events of a list, the latest first.
+message ListHttpEgressEventsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+// ListSecRuleEventsRequest selects the events of a list, the latest first.
+message ListSecRuleEventsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+// ListRateLimitEventsRequest selects the events of a list, the latest first.
+message ListRateLimitEventsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+// ListCoreRuleEventsRequest selects the events of a list, the latest first.
+message ListCoreRuleEventsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+message ListHttpIngressEventsResponse {
+  repeated sentinez.types.net.http.v1.IngressEvent events = 1;
+}
+
+message ListHttpEgressEventsResponse {
+  repeated sentinez.types.net.http.v1.EgressEvent events = 1;
+}
+
+message ListSecRuleEventsResponse {
+  repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
+}
+
+message ListRateLimitEventsResponse {
+  repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
+}
+
+message ListCoreRuleEventsResponse {
+  repeated sentinez.types.coreruleset.v1.CoreRuleEvent events = 1;
+}
+
+message GetEventHistogramRequest {
+  EventKind kind = 1;
+  HistogramResolution resolution = 2;
+  repeated string resource_ids = 3;
+  // Bound the start of the buckets, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to = 5;
+}
+
+// HistogramPoint the events of a resource and key in the bucket starting
+// at time.
+message HistogramPoint {
+  google.protobuf.Timestamp time = 1;
+  string resource_id = 2;
+  // The value of the key of the kind, 0 without.
+  int32 key = 3;
+  int64 total = 4;
+}
+
+message GetEventHistogramResponse {
+  // Oldest first.
+  repeated HistogramPoint points = 1;
+}

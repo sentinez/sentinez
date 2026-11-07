@@ -18,9 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szlog"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szlog"
 )
 
 // ListMember implements tenantpb.TenantServiceServer.
@@ -29,7 +28,7 @@ func (t *Tenant) ListMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.ListMember] req = %v", req)
 
-	if err := allow(ctx, tenantpb.GetTenantServiceListMember()); err != nil {
+	if err := headers.Allow(ctx, tenantpb.GetTenantServiceListMember()); err != nil {
 		return nil, err
 	}
 
@@ -42,7 +41,7 @@ func (t *Tenant) GetMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.GetMember] req = %v", req)
 
-	if err := allow(ctx, tenantpb.GetTenantServiceGetMember()); err != nil {
+	if err := headers.Allow(ctx, tenantpb.GetTenantServiceGetMember()); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +55,7 @@ func (t *Tenant) CreateMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.CreateMember] req = %v", req)
 
-	err := allow(ctx, tenantpb.GetTenantServiceCreateMember())
+	err := headers.Allow(ctx, tenantpb.GetTenantServiceCreateMember())
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,7 @@ func (t *Tenant) UpdateMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.UpdateMember] req = %v", req)
 
-	err := allow(ctx, tenantpb.GetTenantServiceUpdateMember())
+	err := headers.Allow(ctx, tenantpb.GetTenantServiceUpdateMember())
 	if err != nil {
 		return nil, err
 	}
@@ -86,20 +85,10 @@ func (t *Tenant) DeleteMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.DeleteMember] req = %v", req)
 
-	err := allow(ctx, tenantpb.GetTenantServiceDeleteMember())
+	err := headers.Allow(ctx, tenantpb.GetTenantServiceDeleteMember())
 	if err != nil {
 		return nil, err
 	}
 
 	return t.svc.DeleteMember(ctx, req)
-}
-
-// allow checks that the caller is authenticated and may call method.
-func allow(ctx context.Context, method *typepb.XMethod) error {
-	ss, err := headers.GetAuth(ctx)
-	if err != nil {
-		return err
-	}
-
-	return ss.Check(method)
 }

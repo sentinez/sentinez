@@ -26,7 +26,7 @@ import (
 	"github.com/hertz-contrib/reverseproxy"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var _ szhttp.ReverseProxy = (*ReverseProxy)(nil)

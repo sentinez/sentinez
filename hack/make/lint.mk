@@ -2,10 +2,10 @@
 # $(SZ_ROOT). Each staged module is linted in its own directory.
 SZ_STAGING := $(SZ_ROOT)/staging/src/github.com/sentinez
 
-.PHONY: lint lint.go lint.proto lint.tools lint.core lint.shared \
+.PHONY: lint lint.go lint.proto lint.tools lint.core lint.pkg \
 	lint.controlplane lint.contrib.httphz
 
-lint: lint.go lint.proto lint.core lint.shared lint.controlplane \
+lint: lint.go lint.proto lint.core lint.pkg lint.controlplane \
 	lint.contrib.httphz lint.tools
 
 lint.go:
@@ -24,9 +24,9 @@ lint.core:
 	@echo "[LINT] core is linting ..."
 	@cd $(SZ_STAGING)/core && golangci-lint run
 
-lint.shared:
-	@echo "[LINT] shared is linting ..."
-	@cd $(SZ_STAGING)/shared && golangci-lint run
+lint.pkg:
+	@echo "[LINT] pkg is linting ..."
+	@cd $(SZ_STAGING)/pkg && golangci-lint run
 
 lint.controlplane:
 	@echo "[LINT] controlplane is linting ..."

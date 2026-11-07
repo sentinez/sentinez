@@ -20,10 +20,10 @@ import (
 
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/pkg/pools/egress"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
 )
 
 // _unknownLength the content length of a response without

@@ -67,7 +67,7 @@ Mỗi thư mục domain có `generate.sh` gọi `protoc` với include
 
 Feature `pool` của vtproto chỉ bật cho các event được pool, mỗi message ghi
 bằng một `--go-vtproto_opt=pool=<import path>.<Message>` trong
-`generate.sh` của nó: `secrule.v1.RuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`generate.sh` của nó: `secrule.v1.SecRuleEvent`, `coreruleset.v1.CoreRuleEvent`,
 `net.http.v1.IngressEvent` và `rule.v1.MatchedRules`. Feature này sinh `ResetVT`
 (`Reset` nhưng giữ dung lượng các trường repeated), cùng
 `<Msg>FromVTPool`/`ReturnToVTPool` trên một pool của message.
@@ -116,6 +116,12 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/security/secrules` | `SecurityService.ListSecRules` | — |
 | GET | `/security/status` | `SecurityService.Status` | ignore |
 | GET | `/analytic/activities` | `AnalyticService.ListActivities` | ignore |
+| GET | `/analytic/events/http-ingress` | `AnalyticService.ListHttpIngressEvents` | ignore |
+| GET | `/analytic/events/http-egress` | `AnalyticService.ListHttpEgressEvents` | ignore |
+| GET | `/analytic/events/secrule` | `AnalyticService.ListSecRuleEvents` | ignore |
+| GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
+| GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
+| GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 
 "Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).

@@ -15,9 +15,9 @@
 package schema
 
 import (
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/sztable"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/sztable"
 )
 
 // IAMUsers the schema of the sztable.IAMUsers table.

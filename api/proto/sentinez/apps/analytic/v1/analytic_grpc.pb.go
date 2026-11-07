@@ -33,8 +33,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AnalyticService_Status_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/Status"
-	AnalyticService_ListActivities_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/ListActivities"
+	AnalyticService_Status_FullMethodName                = "/sentinez.apps.analytic.v1.AnalyticService/Status"
+	AnalyticService_ListActivities_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListActivities"
+	AnalyticService_ListHttpIngressEvents_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpIngressEvents"
+	AnalyticService_ListHttpEgressEvents_FullMethodName  = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpEgressEvents"
+	AnalyticService_ListSecRuleEvents_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/ListSecRuleEvents"
+	AnalyticService_ListRateLimitEvents_FullMethodName   = "/sentinez.apps.analytic.v1.AnalyticService/ListRateLimitEvents"
+	AnalyticService_ListCoreRuleEvents_FullMethodName    = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
+	AnalyticService_GetEventHistogram_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/GetEventHistogram"
 )
 
 // AnalyticServiceClient is the client API for AnalyticService service.
@@ -46,6 +52,14 @@ type AnalyticServiceClient interface {
 	// Health check Service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	ListActivities(ctx context.Context, in *ListActivitiesRequest, opts ...grpc.CallOption) (*ListActivitiesResponse, error)
+	ListHttpIngressEvents(ctx context.Context, in *ListHttpIngressEventsRequest, opts ...grpc.CallOption) (*ListHttpIngressEventsResponse, error)
+	ListHttpEgressEvents(ctx context.Context, in *ListHttpEgressEventsRequest, opts ...grpc.CallOption) (*ListHttpEgressEventsResponse, error)
+	ListSecRuleEvents(ctx context.Context, in *ListSecRuleEventsRequest, opts ...grpc.CallOption) (*ListSecRuleEventsResponse, error)
+	ListRateLimitEvents(ctx context.Context, in *ListRateLimitEventsRequest, opts ...grpc.CallOption) (*ListRateLimitEventsResponse, error)
+	ListCoreRuleEvents(ctx context.Context, in *ListCoreRuleEventsRequest, opts ...grpc.CallOption) (*ListCoreRuleEventsResponse, error)
+	// GetEventHistogram counts the events of a kind per time bucket,
+	// resource and key.
+	GetEventHistogram(ctx context.Context, in *GetEventHistogramRequest, opts ...grpc.CallOption) (*GetEventHistogramResponse, error)
 }
 
 type analyticServiceClient struct {
@@ -76,6 +90,66 @@ func (c *analyticServiceClient) ListActivities(ctx context.Context, in *ListActi
 	return out, nil
 }
 
+func (c *analyticServiceClient) ListHttpIngressEvents(ctx context.Context, in *ListHttpIngressEventsRequest, opts ...grpc.CallOption) (*ListHttpIngressEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListHttpIngressEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListHttpIngressEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) ListHttpEgressEvents(ctx context.Context, in *ListHttpEgressEventsRequest, opts ...grpc.CallOption) (*ListHttpEgressEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListHttpEgressEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListHttpEgressEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) ListSecRuleEvents(ctx context.Context, in *ListSecRuleEventsRequest, opts ...grpc.CallOption) (*ListSecRuleEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSecRuleEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListSecRuleEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) ListRateLimitEvents(ctx context.Context, in *ListRateLimitEventsRequest, opts ...grpc.CallOption) (*ListRateLimitEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRateLimitEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListRateLimitEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) ListCoreRuleEvents(ctx context.Context, in *ListCoreRuleEventsRequest, opts ...grpc.CallOption) (*ListCoreRuleEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCoreRuleEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListCoreRuleEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) GetEventHistogram(ctx context.Context, in *GetEventHistogramRequest, opts ...grpc.CallOption) (*GetEventHistogramResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventHistogramResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetEventHistogram_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalyticServiceServer is the server API for AnalyticService service.
 // All implementations should embed UnimplementedAnalyticServiceServer
 // for forward compatibility.
@@ -85,6 +159,14 @@ type AnalyticServiceServer interface {
 	// Health check Service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	ListActivities(context.Context, *ListActivitiesRequest) (*ListActivitiesResponse, error)
+	ListHttpIngressEvents(context.Context, *ListHttpIngressEventsRequest) (*ListHttpIngressEventsResponse, error)
+	ListHttpEgressEvents(context.Context, *ListHttpEgressEventsRequest) (*ListHttpEgressEventsResponse, error)
+	ListSecRuleEvents(context.Context, *ListSecRuleEventsRequest) (*ListSecRuleEventsResponse, error)
+	ListRateLimitEvents(context.Context, *ListRateLimitEventsRequest) (*ListRateLimitEventsResponse, error)
+	ListCoreRuleEvents(context.Context, *ListCoreRuleEventsRequest) (*ListCoreRuleEventsResponse, error)
+	// GetEventHistogram counts the events of a kind per time bucket,
+	// resource and key.
+	GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error)
 }
 
 // UnimplementedAnalyticServiceServer should be embedded to have
@@ -99,6 +181,24 @@ func (UnimplementedAnalyticServiceServer) Status(context.Context, *StatusRequest
 }
 func (UnimplementedAnalyticServiceServer) ListActivities(context.Context, *ListActivitiesRequest) (*ListActivitiesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListActivities not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListHttpIngressEvents(context.Context, *ListHttpIngressEventsRequest) (*ListHttpIngressEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListHttpIngressEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListHttpEgressEvents(context.Context, *ListHttpEgressEventsRequest) (*ListHttpEgressEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListHttpEgressEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListSecRuleEvents(context.Context, *ListSecRuleEventsRequest) (*ListSecRuleEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSecRuleEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListRateLimitEvents(context.Context, *ListRateLimitEventsRequest) (*ListRateLimitEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRateLimitEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListCoreRuleEvents(context.Context, *ListCoreRuleEventsRequest) (*ListCoreRuleEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCoreRuleEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEventHistogram not implemented")
 }
 func (UnimplementedAnalyticServiceServer) testEmbeddedByValue() {}
 
@@ -156,6 +256,114 @@ func _AnalyticService_ListActivities_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticService_ListHttpIngressEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListHttpIngressEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListHttpIngressEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListHttpIngressEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListHttpIngressEvents(ctx, req.(*ListHttpIngressEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_ListHttpEgressEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListHttpEgressEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListHttpEgressEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListHttpEgressEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListHttpEgressEvents(ctx, req.(*ListHttpEgressEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_ListSecRuleEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSecRuleEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListSecRuleEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListSecRuleEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListSecRuleEvents(ctx, req.(*ListSecRuleEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_ListRateLimitEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRateLimitEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListRateLimitEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListRateLimitEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListRateLimitEvents(ctx, req.(*ListRateLimitEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_ListCoreRuleEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCoreRuleEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListCoreRuleEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListCoreRuleEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListCoreRuleEvents(ctx, req.(*ListCoreRuleEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_GetEventHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventHistogramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetEventHistogram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetEventHistogram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetEventHistogram(ctx, req.(*GetEventHistogramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalyticService_ServiceDesc is the grpc.ServiceDesc for AnalyticService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +378,30 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListActivities",
 			Handler:    _AnalyticService_ListActivities_Handler,
+		},
+		{
+			MethodName: "ListHttpIngressEvents",
+			Handler:    _AnalyticService_ListHttpIngressEvents_Handler,
+		},
+		{
+			MethodName: "ListHttpEgressEvents",
+			Handler:    _AnalyticService_ListHttpEgressEvents_Handler,
+		},
+		{
+			MethodName: "ListSecRuleEvents",
+			Handler:    _AnalyticService_ListSecRuleEvents_Handler,
+		},
+		{
+			MethodName: "ListRateLimitEvents",
+			Handler:    _AnalyticService_ListRateLimitEvents_Handler,
+		},
+		{
+			MethodName: "ListCoreRuleEvents",
+			Handler:    _AnalyticService_ListCoreRuleEvents_Handler,
+		},
+		{
+			MethodName: "GetEventHistogram",
+			Handler:    _AnalyticService_GetEventHistogram_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

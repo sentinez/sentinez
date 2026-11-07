@@ -17,10 +17,10 @@ package config
 import (
 	"sync"
 
+	"github.com/sentinez/pkg/szconfig"
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/flags"
-	"github.com/sentinez/shared/szconfig"
 )
 
 var (

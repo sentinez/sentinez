@@ -25,6 +25,7 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
+	"github.com/sentinez/pkg/szlog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -37,7 +38,6 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/shared/szlog"
 )
 
 var (

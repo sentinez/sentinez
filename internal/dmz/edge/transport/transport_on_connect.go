@@ -23,9 +23,9 @@ import (
 	"github.com/quic-go/quic-go"
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	"github.com/sentinez/core/szcontext"
+	"github.com/sentinez/pkg/szlog"
 	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/szlog"
 )
 
 func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {

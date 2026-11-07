@@ -21,12 +21,12 @@ import (
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/sentinez/pkg/pools/ingress"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
 )
 
 // LoggingId is the chain stage name of Logging.

@@ -18,9 +18,9 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szperms"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szperms"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -32,6 +32,16 @@ type Auth struct {
 
 func (a *Auth) Check(method *typepb.XMethod) error {
 	return szperms.Allow(method, a.GetControlPlane())
+}
+
+// Allow checks the bearer token of ctx against method.
+func Allow(ctx context.Context, method *typepb.XMethod) error {
+	auth, err := GetAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	return auth.Check(method)
 }
 
 func GetAuth(ctx context.Context) (*Auth, error) {

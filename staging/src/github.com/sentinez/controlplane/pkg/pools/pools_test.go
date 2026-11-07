@@ -44,7 +44,7 @@ func TestBatchCloseResets(t *testing.T) {
 }
 
 func TestReleaseKeepsCapacity(t *testing.T) {
-	p := pools.New(secrulepb.RuleEventFromVTPool)
+	p := pools.New(secrulepb.SecRuleEventFromVTPool)
 
 	e := p.Acquire()
 	e.Messages = make([]string, 3, 8)

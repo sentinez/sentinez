@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
-	"github.com/sentinez/shared/szstorage/cache/mem"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szstorage/cache/mem"
 )
 
 func NewMemoryStorage(ttl time.Duration) Store {

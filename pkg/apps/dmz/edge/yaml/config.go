@@ -21,9 +21,9 @@ import (
 	"os"
 
 	"github.com/goccy/go-yaml"
+	"github.com/sentinez/pkg/szlog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 

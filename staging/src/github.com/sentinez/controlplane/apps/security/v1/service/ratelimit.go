@@ -19,8 +19,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"github.com/sentinez/shared/szerror"
 )
 
 var errNonPositiveDuration = errors.New("must be greater than 0")

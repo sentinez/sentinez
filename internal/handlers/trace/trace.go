@@ -17,8 +17,8 @@ package trace
 import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
 )
 
 // TracerId is the chain stage name of Tracer.

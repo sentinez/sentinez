@@ -19,17 +19,18 @@ import (
 	"errors"
 
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sznormalize"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/sznormalize"
 	"google.golang.org/protobuf/proto"
 )
 
 // _settingsMap names the synced map of the edge settings.
 const _settingsMap = "sentinez.dmz.edge.settings"
 
-// settingSync holds the raw settings of every edge, by resource id.
+// settingSync holds the raw settings of every edge, by tenant id.
 type settingSync = cluster.SyncMap[edgepb.Setting, *edgepb.Setting]
 
 func newSettingSync(c *cluster.Cluster) *settingSync {
@@ -39,7 +40,8 @@ func newSettingSync(c *cluster.Cluster) *settingSync {
 // Sync loads the settings of the cluster and shares local with it, then
 // keeps the hot-path stores in step: every setting a node stores, here
 // or on another edge, is rebuilt here. A setting is synced by its
-// metadata.resource_id; one without stays on this edge only.
+// metadata.tenant_id; one without, or with the default one, stays on
+// this edge only.
 func (m *MemStore) Sync(
 	ctx context.Context, server szhttp.Server, local ...*edgepb.Setting,
 ) error {
@@ -60,10 +62,10 @@ func (m *MemStore) Sync(
 // share stores s in the synced map; the map skips a setting it holds
 // unchanged, so a restart does not make every edge rebuild it.
 func (m *MemStore) share(ctx context.Context, s *edgepb.Setting) {
-	id := s.GetMetadata().GetResourceId()
-	if id == "" {
-		szlog.Warnf("edge: setting %q has no resource id, not synced",
-			s.GetServer().GetName())
+	id := s.GetMetadata().GetTenantId()
+	if id == "" || id == defaults.TenantId {
+		szlog.Warnf("edge: setting %q has no tenant id of its own, "+
+			"not synced", s.GetServer().GetName())
 		m.load("", s)
 
 		return

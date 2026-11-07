@@ -55,7 +55,7 @@ Các module trong `staging/src/github.com/sentinez/<name>` được đồng bộ
 
 - Danh sách đích:
   [staging/publishing/rules.yaml](../../staging/publishing/rules.yaml)
-  (`core`, `shared`, `tools`, `contrib`, `controlplane`, `bpf`) và nhánh
+  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`) và nhánh
   (`staging`, `main`).
 - Workflow [ci_sync_repo.yaml](../../.github/workflows/ci_sync_repo.yaml) được
   **sinh ra** bởi `bash staging/publishing/gen_sync_workflow.sh` — sửa

@@ -20,7 +20,7 @@ import (
 
 	"github.com/cilium/ebpf/link"
 	sentinezbpf "github.com/sentinez/bpf/sentinez"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 var (

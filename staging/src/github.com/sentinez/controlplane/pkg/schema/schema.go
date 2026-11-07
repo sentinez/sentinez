@@ -16,7 +16,7 @@
 // repositories sync them in postgres, centraldata keeps them in go-memdb.
 package schema
 
-import "github.com/sentinez/shared/szstorage/dbx"
+import "github.com/sentinez/pkg/szstorage/dbx"
 
 // All the schemas of every controlplane table.
 func All() []dbx.Schema {

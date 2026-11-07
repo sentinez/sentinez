@@ -20,11 +20,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sentinez/pkg/szcron"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/options"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szcron"
-	"github.com/sentinez/shared/szlog"
 	"github.com/sony/gobreaker"
 )
 

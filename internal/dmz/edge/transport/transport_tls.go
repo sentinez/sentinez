@@ -19,9 +19,9 @@ import (
 	"net"
 
 	"github.com/exaring/ja4plus"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szstore/ja4"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szstore/ja4"
 )
 
 func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {

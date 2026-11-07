@@ -17,6 +17,7 @@ syntax = "proto3";
 package sentinez.apps.analytic.v1;
 
 import "google/api/annotations.proto";
+import "sentinez/apps/analytic/v1/event.proto";
 import "sentinez/apps/analytic/v1/model.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -34,12 +35,40 @@ service AnalyticService {
   rpc Status(StatusRequest) returns (StatusResponse) {}
 
   rpc ListActivities(ListActivitiesRequest) returns (ListActivitiesResponse) {
-    option (google.api.http) = {
-      get: "/analytic/activities"
-    };
-    option (sentinez.types.v1.x_method) = {
-      ignore: true
-    };
+    option (google.api.http) = {get: "/analytic/activities"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  rpc ListHttpIngressEvents(ListHttpIngressEventsRequest) returns (ListHttpIngressEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/http-ingress"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  rpc ListHttpEgressEvents(ListHttpEgressEventsRequest) returns (ListHttpEgressEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/http-egress"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  rpc ListSecRuleEvents(ListSecRuleEventsRequest) returns (ListSecRuleEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/secrule"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  rpc ListRateLimitEvents(ListRateLimitEventsRequest) returns (ListRateLimitEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/ratelimit"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  rpc ListCoreRuleEvents(ListCoreRuleEventsRequest) returns (ListCoreRuleEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/coreruleset"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  // GetEventHistogram counts the events of a kind per time bucket,
+  // resource and key.
+  rpc GetEventHistogram(GetEventHistogramRequest) returns (GetEventHistogramResponse) {
+    option (google.api.http) = {get: "/analytic/events/histogram"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
   }
 }
 

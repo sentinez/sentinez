@@ -14,7 +14,7 @@
 
 package szhttp
 
-import "github.com/sentinez/shared/szatomic"
+import "github.com/sentinez/pkg/szatomic"
 
 var _ RequestContext = (*BaseContext)(nil)
 
@@ -22,6 +22,19 @@ type BaseContext struct {
 	requestId  szatomic.WriteOnce[string]
 	resourceId szatomic.WriteOnce[string]
 	tenantId   szatomic.WriteOnce[string]
+
+	// The ids until set, kept by Reset.
+	defaultResourceId string
+	defaultTenantId   string
+}
+
+// NewBaseContext returns a BaseContext whose TenantId and ResourceId are
+// tenantId and resourceId until they are set.
+func NewBaseContext(tenantId, resourceId string) *BaseContext {
+	return &BaseContext{
+		defaultResourceId: resourceId,
+		defaultTenantId:   tenantId,
+	}
 }
 
 // RequestId implements [RequestContext].
@@ -32,8 +45,11 @@ func (b *BaseContext) RequestId() string {
 
 // ResourceId implements [RequestContext].
 func (b *BaseContext) ResourceId() string {
-	id, _ := b.resourceId.Get()
-	return id
+	if id, ok := b.resourceId.Get(); ok {
+		return id
+	}
+
+	return b.defaultResourceId
 }
 
 // SetRequestId implements [RequestContext].
@@ -41,20 +57,29 @@ func (b *BaseContext) SetRequestId(id string) {
 	_ = b.requestId.Set(id)
 }
 
-// SetResourceId implements [RequestContext].
+// SetResourceId implements [RequestContext]; an empty id keeps the
+// default one.
 func (b *BaseContext) SetResourceId(id string) {
-	_ = b.resourceId.Set(id)
+	if id != "" {
+		_ = b.resourceId.Set(id)
+	}
 }
 
-// SetTenantId implements [RequestContext].
+// SetTenantId implements [RequestContext]; an empty id keeps the default
+// one.
 func (b *BaseContext) SetTenantId(id string) {
-	_ = b.tenantId.Set(id)
+	if id != "" {
+		_ = b.tenantId.Set(id)
+	}
 }
 
 // TenantId implements [RequestContext].
 func (b *BaseContext) TenantId() string {
-	id, _ := b.tenantId.Get()
-	return id
+	if id, ok := b.tenantId.Get(); ok {
+		return id
+	}
+
+	return b.defaultTenantId
 }
 
 func (b *BaseContext) Reset() {

@@ -7,8 +7,8 @@ replace (
 	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
 	github.com/sentinez/controlplane => ./staging/src/github.com/sentinez/controlplane
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
+	github.com/sentinez/pkg => ./staging/src/github.com/sentinez/pkg
 	github.com/sentinez/sentinez/api => ./api
-	github.com/sentinez/shared => ./staging/src/github.com/sentinez/shared
 )
 
 require (
@@ -27,8 +27,8 @@ require (
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
 	github.com/sentinez/controlplane v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
+	github.com/sentinez/pkg v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/shared v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
 	golang.org/x/sync v0.23.0

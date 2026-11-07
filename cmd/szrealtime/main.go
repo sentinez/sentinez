@@ -19,10 +19,10 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/config"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
-	"github.com/sentinez/shared/szlog"
 )
 
 func main() {

@@ -21,9 +21,9 @@ import (
 
 	"github.com/hashicorp/go-memdb"
 	"github.com/sentinez/controlplane/pkg/schema"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/sztable"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/sztable"
 )
 
 // Memory the in-memory store, safe for concurrent use: go-memdb serves

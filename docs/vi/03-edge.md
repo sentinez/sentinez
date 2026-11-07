@@ -91,7 +91,7 @@ handler duy nhất cho mọi path. Chỉ dùng listener TCP (`opt.StdListener`).
 
 Mỗi kết nối TLS được cấp một ID trước khi handshake. `transport.TLSConfig`
 (callback `GetConfigForClient`) lưu JA4 fingerprint theo ID đó vào
-`shared/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
+`pkg/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
 context của request dưới dạng `netpb.Transport{ConnId, ServerName(SNI)}`, và
 `httpx.NewContext` / `httphz.NewContext` gán
 `Request.Fingerprint = ja4.Get(connId)`. TCP và QUIC chỉ khác nhau ở chỗ giữ
@@ -198,9 +198,11 @@ Ví dụ đầy đủ: [cmd/szedge/v1/proxy.yaml](../../cmd/szedge/v1/proxy.yaml
 
 ```yaml
 setting:
-  metadata: {}
+  metadata:
+    tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
     name: badcheese              # namespace = subdomain
+    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix khớp
         proxyRewrite: /          # thay prefix trước khi forward (mặc định = location)
@@ -357,7 +359,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | WAF instance / namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | Một CDN rule / namespace |
 
-Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
+Mọi map dùng `pkg/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 
 ## 3.8 Cluster (Olric)
 
@@ -423,8 +425,12 @@ transport, limiter kèm bộ đếm). Vì vậy các edge đồng bộ **nguồn
 ([internal/memory/sync.go](../../internal/memory/sync.go)):
 
 - `MemStore` giữ một `SyncMap` `sentinez.dmz.edge.settings` key theo
-  `metadata.resource_id`, id của domain resource. Setting không có id chỉ
-  được nạp trên edge của nó, kèm cảnh báo.
+  `metadata.tenant_id`, id của `proxy.yaml`. Setting không có id chỉ được
+  nạp trên edge của nó, kèm cảnh báo; setting dùng `tnt_default` mặc định
+  cũng vậy. `server.resource_id` là id của các upstream server. Context
+  của request khởi tạo với `tnt_default` / `rsrc_default`
+  (`szhttp.NewBaseContext`); `DomainBased` thay bằng id mà setting khai
+  báo, nên request bị chặn sớm vẫn được log với id mặc định.
 - `MemStore.Sync(ctx, server, local...)` khởi động map (đợi Olric, nạp
   setting của cluster), rồi chia sẻ `local`. `SyncMap.Store` bỏ qua giá trị
   bằng giá trị đang giữ (cùng mã hoá tất định), nên restart không làm mọi

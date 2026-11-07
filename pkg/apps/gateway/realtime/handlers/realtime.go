@@ -19,11 +19,11 @@ import (
 	"fmt"
 
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szlog"
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/manager"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szlog"
 )
 
 func Handler(ctx szhttp.Context) error {

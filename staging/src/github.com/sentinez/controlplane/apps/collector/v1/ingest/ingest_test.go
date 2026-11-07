@@ -19,10 +19,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/sztopic"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/sztopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/twmb/franz-go/pkg/kgo"
@@ -32,12 +32,12 @@ import (
 // fakeCreate records copies of the batches of create, the events going
 // back to the pool after it, failing with err.
 type fakeCreate struct {
-	batches [][]*secrulepb.RuleEvent
+	batches [][]*secrulepb.SecRuleEvent
 	err     error
 }
 
 func (f *fakeCreate) create(_ context.Context,
-	events ...*secrulepb.RuleEvent) error {
+	events ...*secrulepb.SecRuleEvent) error {
 	if f.err != nil {
 		return f.err
 	}
@@ -56,7 +56,7 @@ func clones[M proto.Message](msgs []M) []M {
 }
 
 func ruleRecord(t *testing.T, topic string, offset int64,
-	event *secrulepb.RuleEvent) *kgo.Record {
+	event *secrulepb.SecRuleEvent) *kgo.Record {
 	t.Helper()
 	value, err := event.MarshalVT()
 	require.NoError(t, err)
@@ -65,14 +65,14 @@ func ruleRecord(t *testing.T, topic string, offset int64,
 		Value: value}
 }
 
-func TestRuleEventSinkInsert(t *testing.T) {
+func TestSecRuleEventSinkInsert(t *testing.T) {
 	repo := &fakeCreate{}
-	s := NewRuleEventSink(repo.create)
+	s := NewSecRuleEventSink(repo.create)
 
 	records := []*kgo.Record{
-		ruleRecord(t, "t", 7, &secrulepb.RuleEvent{Id: "srevt_a"}),
+		ruleRecord(t, "t", 7, &secrulepb.SecRuleEvent{Id: "srevt_a"}),
 		{Topic: "t", Value: []byte{0xff}}, // malformed, dropped
-		ruleRecord(t, "t", 9, &secrulepb.RuleEvent{RequestPath: "/x"}),
+		ruleRecord(t, "t", 9, &secrulepb.SecRuleEvent{RequestPath: "/x"}),
 	}
 	require.NoError(t, s.Insert(t.Context(), records))
 
@@ -140,15 +140,15 @@ func TestHttpEgressEventSinkInsert(t *testing.T) {
 }
 
 func TestSinkReleasesEvents(t *testing.T) {
-	var kept []*secrulepb.RuleEvent
-	s := NewRuleEventSink(func(_ context.Context,
-		events ...*secrulepb.RuleEvent) error {
+	var kept []*secrulepb.SecRuleEvent
+	s := NewSecRuleEventSink(func(_ context.Context,
+		events ...*secrulepb.SecRuleEvent) error {
 		kept = append(kept, events...)
 		return nil
 	})
 
 	records := []*kgo.Record{
-		ruleRecord(t, "t", 1, &secrulepb.RuleEvent{RequestPath: "/x"}),
+		ruleRecord(t, "t", 1, &secrulepb.SecRuleEvent{RequestPath: "/x"}),
 	}
 	require.NoError(t, s.Insert(t.Context(), records))
 
@@ -156,13 +156,13 @@ func TestSinkReleasesEvents(t *testing.T) {
 	assert.Empty(t, kept[0].GetRequestPath(), "released once inserted")
 }
 
-func TestRuleEventSinkChunks(t *testing.T) {
+func TestSecRuleEventSinkChunks(t *testing.T) {
 	repo := &fakeCreate{}
-	s := NewRuleEventSink(repo.create)
+	s := NewSecRuleEventSink(repo.create)
 
 	records := make([]*kgo.Record, _insertRows+1)
 	for i := range records {
-		records[i] = ruleRecord(t, "t", int64(i), &secrulepb.RuleEvent{})
+		records[i] = ruleRecord(t, "t", int64(i), &secrulepb.SecRuleEvent{})
 	}
 	require.NoError(t, s.Insert(t.Context(), records))
 
@@ -174,15 +174,15 @@ func TestRuleEventSinkChunks(t *testing.T) {
 func TestHandleRoutesTopics(t *testing.T) {
 	secRules, rateLimits := &fakeCreate{}, &fakeCreate{}
 	in := New(nil, map[sztopic.Topic]Sink{
-		"secrule":   NewRuleEventSink(secRules.create),
-		"ratelimit": NewRuleEventSink(rateLimits.create),
+		"secrule":   NewSecRuleEventSink(secRules.create),
+		"ratelimit": NewSecRuleEventSink(rateLimits.create),
 	})
 
 	records := []*kgo.Record{
-		ruleRecord(t, "secrule", 1, &secrulepb.RuleEvent{}),
-		ruleRecord(t, "ratelimit", 2, &secrulepb.RuleEvent{}),
-		ruleRecord(t, "secrule", 3, &secrulepb.RuleEvent{}),
-		ruleRecord(t, "unknown", 4, &secrulepb.RuleEvent{}),
+		ruleRecord(t, "secrule", 1, &secrulepb.SecRuleEvent{}),
+		ruleRecord(t, "ratelimit", 2, &secrulepb.SecRuleEvent{}),
+		ruleRecord(t, "secrule", 3, &secrulepb.SecRuleEvent{}),
+		ruleRecord(t, "unknown", 4, &secrulepb.SecRuleEvent{}),
 	}
 	require.NoError(t, in.Handle(t.Context(), records))
 
@@ -195,12 +195,12 @@ func TestHandleRoutesTopics(t *testing.T) {
 func TestHandleInsertError(t *testing.T) {
 	errInsert := errors.New("db down")
 	in := New(nil, map[sztopic.Topic]Sink{
-		"secrule": NewRuleEventSink(
+		"secrule": NewSecRuleEventSink(
 			(&fakeCreate{err: errInsert}).create),
 	})
 
 	records := []*kgo.Record{
-		ruleRecord(t, "secrule", 1, &secrulepb.RuleEvent{}),
+		ruleRecord(t, "secrule", 1, &secrulepb.SecRuleEvent{}),
 	}
 	require.ErrorIs(t, in.Handle(t.Context(), records), errInsert)
 }

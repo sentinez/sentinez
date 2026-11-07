@@ -17,10 +17,10 @@ package config
 import (
 	"sync"
 
+	"github.com/sentinez/pkg/szconfig"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	edgeflags "github.com/sentinez/sentinez/pkg/apps/dmz/edge/flags"
-	"github.com/sentinez/shared/szconfig"
 )
 
 var (

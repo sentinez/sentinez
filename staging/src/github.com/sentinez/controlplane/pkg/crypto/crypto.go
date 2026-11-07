@@ -20,10 +20,10 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/sentinez/pkg/szconfig"
+	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szconfig"
-	"github.com/sentinez/shared/szlog"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/encoding/prototext"
 )

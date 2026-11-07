@@ -17,8 +17,8 @@ package passkey
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
+	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szlog"
 )
 
 // Registration is a passkey registration that waits for the authenticator

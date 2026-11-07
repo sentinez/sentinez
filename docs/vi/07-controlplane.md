@@ -16,9 +16,9 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Lớp lưu trữ (`shared/szstorage/dbx`)
+## 7.1 Lớp lưu trữ (`pkg/szstorage/dbx`)
 
-[shared/szstorage/dbx](../../staging/src/github.com/sentinez/shared/szstorage/dbx/):
+[pkg/szstorage/dbx](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/):
 
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
@@ -47,11 +47,11 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
   cung cấp `WithTX(ss)`.
 - ID bản ghi: `szrand.NewUUID(szprefix.<Entity>.Key())` =
   `<prefix>_<uuid>` (`user_<uuid>`), mỗi bảng một prefix trong
-  [shared/szprefix](../../staging/src/github.com/sentinez/shared/szprefix/prefix.go)
+  [pkg/szprefix](../../staging/src/github.com/sentinez/pkg/szprefix/prefix.go)
   (a-z, 2 đến 5 ký tự, không đổi sau khi công khai); rule prefix `id` trong
   proto phải khớp.
 
-Tên bảng ([shared/sztable](../../staging/src/github.com/sentinez/shared/sztable/tables.go)):
+Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`, cùng các bảng event của edge `analytic.secrules.events`,
 `analytic.ratelimiters.events`, `analytic.corerulesets.events`,
@@ -63,7 +63,7 @@ Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 
 ### TimescaleDB: hypertable và continuous aggregate
 
-[shared/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/shared/szstorage/dbx/timescale/)
+[pkg/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/)
 xây trên `postgres.Open`: dùng chung pool và tham gia được transaction của
 `postgres.WithTx`. Cần TimescaleDB (`SENZ_POSTGRES_URI` trỏ vào container
 `sentinez.timescale` mà `hack/timescale-up.sh` bật).
@@ -102,7 +102,7 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
 | Gói | Chức năng |
 |---|---|
 | `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC, parse lại `Context`. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
-| `headers` | `GetAuth(ctx)` đọc metadata `Authorization`, verify → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` |
+| `headers` | `GetAuth(ctx)` đọc metadata `Authorization`, verify → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow`; `Allow(ctx, method)` làm cả hai |
 | `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWT hết hạn
@@ -114,9 +114,9 @@ Phân quyền dựa trên **control plane** (`PORTAL` / `ADMIN`):
   control_planes: [...]}`; codegen sinh hàm `Get<Service><Method>()`.
 - `perms.Allow(method, cp)`: cho phép nếu method nil, `ignore`, danh sách rỗng
   hoặc `cp` nằm trong danh sách.
-- Handler phải **tự gọi** `headers.GetAuth` + `Check` — hiện chỉ
-  `IAM.ListAccounts` và `Analytic.ListActivities` làm việc này. Không có
-  interceptor gRPC chung.
+- Handler phải **tự gọi** `headers.Allow(ctx, method)` — hiện
+  `IAM.ListAccounts`, các handler Tenant và mọi RPC của Analytic làm việc
+  này. Không có interceptor gRPC chung.
 
 ## 7.3 IAM
 
@@ -299,7 +299,7 @@ ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu �
 
 | Domain | Trạng thái |
 |---|---|
-| Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`). Chạy trong tiến trình apiserver |
+| Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), cùng các API đọc event của edge và histogram của chúng (xem [Analytic: đọc event](#analytic-đọc-event)). Chạy trong tiến trình apiserver |
 | Greeter | Service mẫu: `SayHello` (`GET /greeter/say?name=`) trả lời kèm thời gian; `Status`. Có binary riêng `szgreeter` và cũng chạy in-process trong apiserver |
 | CentralData | Chỉ có `Status`; binary `szcentraldata` chưa có `main` |
 | Collector | `Status`, cùng phần thu nạp event của edge từ Kafka (bên dưới). Binary `szcollector` |
@@ -313,10 +313,10 @@ bảng event analytic.
 
 | Topic | Giá trị record | Bảng | Repository |
 |---|---|---|---|
-| `sentinez.event.http.secrule` | `secrulepb.RuleEvent` | `analytic.secrules.events` | `ruleeventsrepo.NewSecRules` |
-| `sentinez.event.http.ratelimit` | `secrulepb.RuleEvent` | `analytic.ratelimiters.events` | `ruleeventsrepo.NewRateLimits` |
+| `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
+| `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
-| `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpeventsrepo.New` |
+| `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpingressrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (mỗi request được proxy tới upstream origin một event, từ handler `logging`) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
 Luồng xử lý một batch:
@@ -352,8 +352,8 @@ của message Kafka: mảng là `TEXT[]`/`INTEGER[]`, `action` và `tags` là
 scalar của `httppb.IngressEvent` (`status` là `INTEGER`, `asn` và `timestamp` (mili
 giây) là `BIGINT`, còn lại là `TEXT`, header không gồm các header chứa
 credential), có index trên `timestamp` và `resource_id`; `resource_id`/
-`tenant_id` của nó còn trống cho tới khi có stage của edge gọi
-`SetResourceId`/`SetTenantId`. Chúng không nằm trong `schema.All()`:
+`tenant_id` của nó do stage `DomainBased` của edge đặt
+(`SetResourceId`/`SetTenantId`). Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
 `event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
 `types/coreruleset/v1` và `types/net/http/v1`.
@@ -387,17 +387,19 @@ Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/cont
 #### Histogram
 
 [repos/histogram](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/histogram/)
-giữ, cho mỗi bảng event, hai continuous aggregate đếm số dòng theo bucket,
+giữ, cho mỗi bảng event, ba continuous aggregate đếm số dòng theo bucket,
 resource và key, để vẽ chart:
 
-| View | Bucket | Làm mới | Khoảng dùng |
-|---|---|---|---|
-| `<table>_minutely` | 1 phút | mỗi phút, 2 giờ gần nhất tới 1 phút trước | tới một ngày |
-| `<table>_hourly` | 1 giờ | mỗi 30 phút, 3 ngày gần nhất tới 1 giờ trước | tới 30 ngày |
+| View | Bucket | Làm mới | Khoảng dùng | Giữ |
+|---|---|---|---|---|
+| `<table>_secondly` | 1 giây | mỗi 10 giây, 3 phút gần nhất tới 1 giây trước | zoom tới 15 phút | 7 ngày |
+| `<table>_minutely` | 1 phút | mỗi phút, 2 giờ gần nhất tới 1 phút trước | tới một ngày | 30 ngày |
+| `<table>_hourly` | 1 giờ | mỗi 30 phút, 3 ngày gần nhất tới 1 giờ trước | tới 30 ngày | 30 ngày |
 
 Ví dụ `dev_sentinez_analytic_httpingress_events_minutely`. View chạy real
-time, nên các bucket mới nhất gồm cả những dòng chưa được làm mới, và được
-giữ trong `schema.EventRetention`. Các cột là `bucket` (unix mili giây),
+time, nên các bucket mới nhất gồm cả những dòng chưa được làm mới; view
+phút và giờ được giữ trong `schema.EventRetention`, view giây giữ 7 ngày
+(`_secondRetention`). Các cột là `bucket` (unix mili giây),
 `resource_id`, `tenant_id`, key và `total`.
 
 Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
@@ -406,8 +408,37 @@ Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
 cộng `total` qua các tenant và trả về `[]*Point{Time, ResourceId, Key,
-Total}`, cũ nhất trước. `Resolution` là `histogram.Minute` (mặc định) hoặc
-`histogram.Hour`; `From` tính cả mốc, `To` không tính, theo đầu bucket.
+Total}`, cũ nhất trước. `Resolution` là `histogram.Second`, `Minute` hoặc
+`Hour`, đánh số giống `HistogramResolution` của proto. Khi để 0, khoảng thời
+gian sẽ quyết định: `Second` nếu `From`..`To` (`To` mặc định là hiện tại)
+không quá 15 phút (`_secondSpan`) và `From` còn trong 7 ngày của view giây,
+ngược lại là `Minute`. `From` tính cả mốc, `To` không tính, theo đầu bucket.
+
+### Analytic: đọc event
+
+Analytic đọc các bảng của collector qua
+[apps/analytic/v1/repos/events](../../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
+`eventsrepo.Events` giữ một `Reader[T]` chỉ đọc (`List`, `Histogram`) cho
+mỗi bảng, dựng từ các repo của collector, nên analytic không ghi được
+event. Khi dựng, nó sync bảng và view như collector.
+
+| RPC | REST | Đọc |
+|---|---|---|
+| `ListHttpIngressEvents` | `GET /analytic/events/http-ingress` | `analytic.httpingress.events` |
+| `ListHttpEgressEvents` | `GET /analytic/events/http-egress` | `analytic.httpegress.events` |
+| `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
+| `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
+| `ListCoreRuleEvents` | `GET /analytic/events/coreruleset` | `analytic.corerulesets.events` |
+| `GetEventHistogram` | `GET /analytic/events/histogram` | các view của `kind` |
+
+- Request list có `page`, `resource_ids`, `from` và `to`; event mới nhất
+  trước. Một trang có 50 event khi không truyền, tối đa 500.
+- `GetEventHistogram` nhận `kind` (`EventKind`), `resolution`
+  (`HistogramResolution`, `UNSPECIFIED` thì chọn theo khoảng thời gian, xem
+  [Histogram](#histogram)), `resource_ids`, `from` và `to`, trả về
+  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước.
+- Mọi RPC cần token (`headers.Allow`, `ignore: true`). Việc đọc chưa lọc
+  theo tenant: không truyền `resource_ids` thì trả event của mọi tenant.
 
 #### Pool event
 
@@ -416,7 +447,7 @@ Sink decode vào các message được tái sử dụng
 
 | Package | Message | Sink |
 |---|---|---|
-| `pools/secrule` | `secrulepb.RuleEvent` | secrule, ratelimit |
+| `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
 | `pools/coreruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |
@@ -435,7 +466,7 @@ giữ bộ nhớ của consumer nằm ở
 
 ## 7.7 Mã lỗi
 
-[shared/szerror](../../staging/src/github.com/sentinez/shared/szerror/errors.go)
+[pkg/szerror](../../staging/src/github.com/sentinez/pkg/szerror/errors.go)
 cung cấp gRPC status có định dạng `SENZ-<code>: <ERRORS_...>` và các hàm
 `StatusXxxF(format, ...)` (`NotFound`, `Unauthorized`, `Forbidden`,
 `InvalidData`/`InvalidArgument`, `AlreadyExists`, `Internal`,

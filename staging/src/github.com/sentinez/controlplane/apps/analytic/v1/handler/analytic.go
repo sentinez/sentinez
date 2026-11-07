@@ -19,8 +19,8 @@ import (
 
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szlog"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
-	"github.com/sentinez/shared/szlog"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticHandler)(nil)
@@ -56,12 +56,7 @@ func (hdl *AnalyticHandler) ListActivities(ctx context.Context,
 
 	szlog.Debugf("[AnalyticHandler.ListActivities] req = %v", req)
 
-	ss, err := headers.GetAuth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ss.Check(pb.GetAnalyticServiceListActivities())
+	err := headers.Allow(ctx, pb.GetAnalyticServiceListActivities())
 	if err != nil {
 		return nil, err
 	}

@@ -56,7 +56,7 @@ Modules in `staging/src/github.com/sentinez/<name>` are synced to
 
 - Targets are listed in
   [staging/publishing/rules.yaml](../staging/publishing/rules.yaml)
-  (`core`, `shared`, `tools`, `contrib`, `controlplane`, `bpf`), together
+  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`), together
   with the branches (`staging`, `main`).
 - The workflow [ci_sync_repo.yaml](../.github/workflows/ci_sync_repo.yaml)
   is **generated** by `bash staging/publishing/gen_sync_workflow.sh` — edit

@@ -22,10 +22,10 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpreq"
+	"github.com/sentinez/pkg/szlog"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/szlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

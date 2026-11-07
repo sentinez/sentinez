@@ -25,8 +25,8 @@ import (
 
 	"github.com/olric-data/olric"
 	"github.com/redis/go-redis/v9"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 	"google.golang.org/protobuf/proto"
 )
 

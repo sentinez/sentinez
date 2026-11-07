@@ -20,9 +20,9 @@ import (
 
 	iamsvc "github.com/sentinez/controlplane/apps/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szlog"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/szlog"
 )
 
 var _ iampb.
@@ -94,12 +94,8 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	szlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	ss, err := headers.GetAuth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())
+	err := headers.Allow(ctx,
+		iampb.GetIdentityAccessManagementServiceListUsers())
 	if err != nil {
 		return nil, err
 	}

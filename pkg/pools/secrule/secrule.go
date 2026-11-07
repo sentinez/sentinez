@@ -17,41 +17,41 @@ package secrule
 import (
 	"io"
 
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szsync"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
-	"github.com/sentinez/shared/szsync"
 )
 
 var (
-	_ io.Closer = (*RuleEvent)(nil)
+	_ io.Closer = (*SecRuleEvent)(nil)
 
-	_pool = szsync.NewPoolCtr(func() *RuleEvent {
-		return &RuleEvent{RuleEvent: &secrulepb.RuleEvent{
+	_pool = szsync.NewPoolCtr(func() *SecRuleEvent {
+		return &SecRuleEvent{SecRuleEvent: &secrulepb.SecRuleEvent{
 			Action: &rulepb.Action{},
 		}}
 	})
 )
 
-type RuleEvent struct {
-	*secrulepb.RuleEvent
+type SecRuleEvent struct {
+	*secrulepb.SecRuleEvent
 }
 
-func (re *RuleEvent) Close() error {
+func (re *SecRuleEvent) Close() error {
 	Release(re)
 
 	return nil
 }
 
-func Acquire() *RuleEvent {
+func Acquire() *SecRuleEvent {
 	obj := _pool.Get()
 	obj.Id = szrand.NewULID(szprefix.SecRuleEvent)
 
 	return obj
 }
 
-func Release(obj *RuleEvent) {
+func Release(obj *SecRuleEvent) {
 	obj.ResetVT()
 	_pool.Put(obj)
 }

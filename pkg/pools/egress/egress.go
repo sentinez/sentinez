@@ -19,8 +19,8 @@ package egress
 import (
 	"io"
 
+	"github.com/sentinez/pkg/szsync"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/szsync"
 )
 
 var (

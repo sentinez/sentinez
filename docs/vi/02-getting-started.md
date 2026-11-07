@@ -91,7 +91,7 @@ Console gọi `/api`, server Next.js chuyển tiếp tới `API_BASE_PATH`
 
 Tên biến là các giá trị của enum `Senz` trong
 [types/setting/v1/config.proto](../../api/proto/sentinez/types/setting/v1/config.proto).
-Đọc qua `shared/szconfig.LoadEnv` (dùng `godotenv`), truy cập bằng
+Đọc qua `pkg/szconfig.LoadEnv` (dùng `godotenv`), truy cập bằng
 `conf.Get(settingpb.Senz_...)` hoặc `config.GetEnv(...)`.
 
 | Biến | Dùng ở | Ý nghĩa |
@@ -108,7 +108,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_ADMIN_USERNAME` / `SENZ_ADMIN_PASSWORD` | IAM | Tài khoản admin tĩnh |
 | `SENZ_OTLP_INTERNAL_ENDPOINT` | tất cả | Collector OTLP/gRPC cho log hệ thống; không đặt thì không push |
 | `SENZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `LOG` trong func chains); không đặt thì không push |
-| `SENZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`shared/szkafka`); được ưu tiên hơn `SENZ_OTLP_EXTERNAL_ENDPOINT` |
+| `SENZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`pkg/szkafka`); được ưu tiên hơn `SENZ_OTLP_EXTERNAL_ENDPOINT` |
 | `SENZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-crevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone. Cũng là zone mà edge tranh quyền leader; bắt buộc khi có `SENZ_CONSUL_URI` |
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
@@ -118,7 +118,7 @@ service khác nạp toàn bộ enum `Senz`.
 
 Định nghĩa trong
 [types/setting/v1/flags.proto](../../api/proto/sentinez/types/setting/v1/flags.proto),
-parse bằng `pflag` trong `shared/szflag` và `pkg/apps/**/flags`. Giá trị được
+parse bằng `pflag` trong `pkg/szflag` và `pkg/apps/**/flags`. Giá trị được
 validate bằng protovalidate.
 
 | Flag | Mặc định | Ràng buộc | Service |
@@ -139,13 +139,13 @@ và bật log của fx khi bằng `dev`.
 ```sh
 make test.cover            # go test ./... -cover (CHỈ module root)
 cd staging/src/github.com/sentinez/core && go test ./...    # từng module riêng
-make lint                  # golangci-lint cho root, core, shared, controlplane, httphz, tools + buf lint
+make lint                  # golangci-lint cho root, core, pkg, controlplane, httphz, tools + buf lint
 make fmt.proto             # buf format -w
 ```
 
 Test hiện có tập trung ở: `core/szlimiter`, `core/szrule`, `core/szmodsec/ruleparser`,
 `controlplane/iam` (handler, service với mock), `controlplane/pkg/crypto`,
-`shared/{szconfig,szerror,szperms,szprotobuf,szlog}`, `pkg/apps/dmz/edge`,
+`pkg/{szconfig,szerror,szperms,szprotobuf,szlog}`, `pkg/apps/dmz/edge`,
 `pkg/apps/gateway/apiserver`.
 
 Quy tắc lint (`.golangci.yaml`): `lll` 80 cột (tab = 4), `funlen` 35 dòng,
