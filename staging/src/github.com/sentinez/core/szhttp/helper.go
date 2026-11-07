@@ -18,7 +18,7 @@ import (
 	"net/http"
 
 	"github.com/sentinez/core/szbytestr"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 // Cookie returns the value of the named request cookie.

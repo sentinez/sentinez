@@ -26,9 +26,9 @@ import (
 	"github.com/sentinez/controlplane/pkg/schema"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
-	"github.com/sentinez/shared/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 )
 
 var _ IHttpEgressEvent = (*HttpEgressEvents)(nil)

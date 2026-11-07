@@ -26,7 +26,7 @@ import (
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 func processRequestHandler(ctx szhttp.Context, tx types.Transaction) error {

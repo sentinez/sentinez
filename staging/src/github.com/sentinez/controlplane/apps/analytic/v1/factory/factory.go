@@ -24,7 +24,7 @@ import (
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 // NewDefaultService initializes the Analytic service.

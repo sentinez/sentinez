@@ -20,7 +20,7 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/sentinez/core"
-	"github.com/sentinez/shared/szcolor"
+	"github.com/sentinez/pkg/szcolor"
 )
 
 // var once sync.Once

@@ -33,7 +33,7 @@ import (
 	"github.com/sentinez/core/szhttp/httpconst"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/pkg/szerror"
 	"golang.org/x/sync/errgroup"
 )
 

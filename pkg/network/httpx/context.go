@@ -33,12 +33,12 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
-	"github.com/sentinez/shared/szstore/ja4"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szstore/ja4"
+	"github.com/sentinez/pkg/szsync"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

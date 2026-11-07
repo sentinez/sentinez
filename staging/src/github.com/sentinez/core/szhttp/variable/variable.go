@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 // ParseProxyVal evaluates standard Nginx-like string variables.

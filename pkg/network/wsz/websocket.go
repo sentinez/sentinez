@@ -21,7 +21,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 )
 
 func NewServer(appConf *settingpb.Config) *WebSocket {

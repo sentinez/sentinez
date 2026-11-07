@@ -18,7 +18,7 @@ import (
 	"context"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/pkg/szerror"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset

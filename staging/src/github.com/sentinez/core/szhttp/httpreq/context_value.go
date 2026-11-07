@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 func NewRequestContext(

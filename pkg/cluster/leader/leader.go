@@ -21,7 +21,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 const _retryDelay = 5 * time.Second

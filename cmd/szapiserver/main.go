@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/config"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // This is the sentinez apiserver application, it will automatically

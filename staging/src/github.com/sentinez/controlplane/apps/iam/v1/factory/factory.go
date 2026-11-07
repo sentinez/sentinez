@@ -27,8 +27,8 @@ import (
 	"github.com/sentinez/sentinez/api/client"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 // nolint:funlen

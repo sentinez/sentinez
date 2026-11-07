@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/internal/envplugin"
 	memlimiter "github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // LimiterId is the chain stage name of Limiter.

@@ -24,8 +24,8 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

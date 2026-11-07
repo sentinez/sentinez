@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/pkg/szerror"
 )
 
 var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)

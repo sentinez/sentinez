@@ -22,8 +22,8 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/sztracer"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sztracer"
 )
 
 var (

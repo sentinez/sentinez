@@ -21,7 +21,7 @@ import (
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/flags"
-	"github.com/sentinez/shared/szconfig"
+	"github.com/sentinez/pkg/szconfig"
 )
 
 var (

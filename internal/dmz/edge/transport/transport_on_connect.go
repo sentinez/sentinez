@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/core/szcontext"
 	netpb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/v1"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {

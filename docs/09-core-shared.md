@@ -25,7 +25,7 @@ OTLP: system logs go to `SENZ_OTLP_INTERNAL_ENDPOINT` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
 down after every app has stopped. The edge traffic logs (func chain `LOG`
 node) go straight to Kafka when `SENZ_KAFKA_BROKERS` is set (raw proto
-events, one topic per log type, see `shared/szkafka`), otherwise through their
+events, one topic per log type, see `pkg/szkafka`), otherwise through their
 own OTLP provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by
 the edge server and flushed in its `Shutdown`. With neither set they are not
 exported. An `https://` endpoint uses TLS.
@@ -70,20 +70,20 @@ exported. An `https://` endpoint uses TLS.
 |---|---|
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
-| `shared/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `pkg/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
 | `core/internal/console` | ASCII banner (`go-figure`) printed once at startup |
 | `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
-| `shared/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
-| `shared/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-sharedszstoragedbx) |
-| `shared/szstorage/dbx/timescale` | Hypertables and continuous aggregates, see [07-controlplane.md](07-controlplane.md#timescaledb-hypertables-and-continuous-aggregates) |
-| `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
+| `pkg/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |
+| `pkg/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-pkgszstoragedbx) |
+| `pkg/szstorage/dbx/timescale` | Hypertables and continuous aggregates, see [07-controlplane.md](07-controlplane.md#timescaledb-hypertables-and-continuous-aggregates) |
+| `pkg/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
-| `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `shared/szqueue` | Empty `Queue{}` (for the waiting room) |
-| `shared/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
-| `shared/szkafka` | Kafka producer of the edge events and batch consumer, see [`szkafka`](#szkafka) |
+| `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `pkg/szqueue` | Empty `Queue{}` (for the waiting room) |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
+| `pkg/szkafka` | Kafka producer of the edge events and batch consumer, see [`szkafka`](#szkafka) |
 
-## 9.5 `shared`
+## 9.5 `pkg`
 
 | Package | Contents |
 |---|---|
@@ -98,9 +98,7 @@ exported. An `https://` endpoint uses TLS.
 | `szjson` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
 | `szprotobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |
 | `szprotobuf/protox` | Binary `Marshal`/`Unmarshal`, `Struct(any)` → `structpb.Struct` |
-| `szcopier` | Copies proto/JSON values via marshaling |
 | `szcron` | `Start(ctx, interval, job)`: runs the job immediately, then on a ticker until ctx is cancelled |
-| `szeventq` | In-process pub/sub per namespace on channels (no callers yet) |
 | `szstore/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
 | `szcolor` | ANSI colors for console logs |
 | `sztopic` | `Topic` type and the topic names of the edge traffic events (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
@@ -126,7 +124,7 @@ when `level >= verbosity`.
 
 ### `szkafka`
 
-[shared/szkafka](../staging/src/github.com/sentinez/shared/szkafka/) talks to Kafka with franz-go.
+[pkg/szkafka](../staging/src/github.com/sentinez/pkg/szkafka/) talks to Kafka with franz-go.
 
 **Producer** (`NewProducer(Config)`):
 

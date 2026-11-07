@@ -31,7 +31,7 @@ import (
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/pkg/szerror"
 )
 
 // Reader the read-only view of the repo of an event table: the collector

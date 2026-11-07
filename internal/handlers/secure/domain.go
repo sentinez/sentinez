@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/settings"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 // DomainBasedId is the chain stage name of DomainBased.

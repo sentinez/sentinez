@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/core/szrunner"
 	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szflag"
+	"github.com/sentinez/pkg/szflag"
 	"github.com/spf13/pflag"
 )
 

@@ -22,9 +22,9 @@ import (
 	"github.com/sentinez/core/szrule"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szjson"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szjson"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

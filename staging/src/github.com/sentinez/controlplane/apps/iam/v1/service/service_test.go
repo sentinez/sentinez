@@ -28,8 +28,8 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szconfig"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szconfig"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

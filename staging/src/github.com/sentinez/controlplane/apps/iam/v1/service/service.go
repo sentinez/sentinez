@@ -29,9 +29,9 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

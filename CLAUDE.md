@@ -15,7 +15,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | `api/` | Separate module (`sentinez/api`): protobuf sources under `proto/sentinez/`: `apps/<domain>/v1` (domain services, REST via grpc-gateway: `analytic`, `centraldata`, `greeter`, `iam`, `security`, `tenant`; gRPC only: `collector`), `dmz/{edge,dataplane}/v1` (edge `Setting`/`Context`, dataplane), `gateway/{apiserver,realtime}/v1`, `types/` (shared messages: `v1` known/model/options, `setting/v1`, `rule/v1` expressions & actions, `secrule/v1` SecRule engine & events, `coreruleset/v1`, `cdn/v1`, `net/v1` conn, `net/http/v1` request/event); `docs/v1/*.swagger.json` (generated OpenAPI; no centraldata), `buf.gen.yaml`, generated clients, third_party |
 | `staging/src/github.com/sentinez/` | Separately-versioned modules (published to their own repos): |
 | ↳ `core` | Runtime framework (only top-level packages/folders are `sz`-prefixed; nested ones are not, e.g. `szhttp/chains`, `szgrpc/grpcgateway`): `szrunner`, `szhttp`, `szgrpc`, `szlimiter`, `szmodsec` (Coraza), `szrule`, `szcrs` (rulesets), `szcontext`, `szbytestr` (header/value byte constants); private `internal/{console,render}` (startup banner, error-page templ templates) |
-| ↳ `shared` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`, `szstorage/dbx/postgres`): `szlog` (zap + OTLP), `szstorage`, `sztracer` (`StageError`), `szqueue`, `sznormalize` (`NormalizeEdgeSetting`: edge `*Lite` YAML → runtime protos), `szsdklog` (edge traffic log exporter), `szkafka` (Kafka producer and batch consumer), `szconfig`, `szerror`, `szflag`, `szeventq`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
+| ↳ `pkg` | Utility libs (top-level packages/folders are `sz`-prefixed, except third-party `bytesconv`; nested ones are not, e.g. `szprotobuf/protox`, `szstorage/dbx/postgres`): `szlog` (zap + OTLP), `szstorage`, `sztracer` (`StageError`), `szqueue`, `sznormalize` (`NormalizeEdgeSetting`: edge `*Lite` YAML → runtime protos), `szsdklog` (edge traffic log exporter), `szkafka` (Kafka producer and batch consumer), `szconfig`, `szerror`, `szflag`, `szstore`, `sztopic`, `szjson`, `szperms`, `szcron`, etc. |
 | ↳ `controlplane` | Domain services: `iam`, `tenant`, `security`, `analytic`, `centraldata`, `greeter`, `collector` (ingests the edge events from Kafka into the analytic event tables), plus `pkg/{crypto,headers,passkey,pools}` (`pools`: the collector message pools, one package per event) |
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
@@ -40,8 +40,8 @@ make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane,
 make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata, collector)
 make compose.up / compose.down
 make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
-make lint                    # golangci-lint across root + core/shared/controlplane/httphz, plus buf lint
-make lint.core | lint.shared | lint.controlplane | lint.proto
+make lint                    # golangci-lint across root + core/pkg/controlplane/httphz, plus buf lint
+make lint.core | lint.pkg | lint.controlplane | lint.proto
 make fmt.proto               # buf format
 make scale.checkout          # clone the private scale repo (SCALE_REPO) into scale/
 make sz.edge.build SCALE=1   # build with the enterprise tag (SZ_GOTAGS)
@@ -49,7 +49,7 @@ make sz.edge.build SCALE=1   # build with the enterprise tag (SZ_GOTAGS)
 
 The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
 
-Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — `make test.cover` loops over them (module list in `hack/gomodules.sh`, shared with `hack/golint.sh` and CI); for one package run tests inside its module directory, e.g. `cd staging/src/github.com/sentinez/shared && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
+Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — `make test.cover` loops over them (module list in `hack/gomodules.sh`, shared with `hack/golint.sh` and CI); for one package run tests inside its module directory, e.g. `cd staging/src/github.com/sentinez/pkg && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 
 Enterprise features live in a private repo whose URL is never committed (`SCALE_REPO`, from the env or the gitignored `hack/make/scale.local.mk`), checked out as `scale/` (a nested git repo, gitignored here) inside the root module, so it may import `internal/`. Its files are `//go:build enterprise`; each exported function has a public `scale/*_oss.go` stub (`//go:build !enterprise`), the only tracked files besides `pkg_import.go`. Add the stub with every new scale function, or the OSS build breaks, then `make scale.track` (git skips new files under the nested repo until they are in the index).
 
@@ -100,6 +100,6 @@ Full rules live in [hack/.agent/skills/go-style-guide/SKILL.md](hack/.agent/skil
 - Every Go file starts with the Apache 2.0 license header (`// Copyright 2026 Duc-Hung Ho.`).
 - Lint is golangci-lint per module; CI runs `hack/golint.sh` and `hack/protolint.sh`.
 - Services are bootstrapped through `core/szrunner`: `szrunner.New(conf, scope)` then `r.Run(ctx, szrunner.NewApp(setup)...)` from a `run() error` called by `main()` (only `main` exits), one isolated fx container per app (several apps per binary allowed, e.g. `szedge`). Blocking server loops go in `Context.Serve`, non-blocking setup in `OnStart`. `New` also initialises logging/OTLP.
-- Logging goes through `shared/szlog` (zap). OTLP log export lives in `shared/szlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/szrunner/runner.go` on branch `feat/OTLP`.
+- Logging goes through `pkg/szlog` (zap). OTLP log export lives in `pkg/szlog/otlp.go` (`SetupOTLP`, `OTLPConfig`), wired from `core/szrunner/runner.go` on branch `feat/OTLP`.
 - Commit style: conventional commits (`chore:`, `refactor:`, `feat:`), PR number suffix on main.
 - CI (`.github/workflows`): `ci_lint`, `ci_test` (`hack/gotest.sh`, every module), `ci_sync_repo`.

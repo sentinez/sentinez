@@ -16,8 +16,8 @@ package schema
 
 import (
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/sztable"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/sztable"
 )
 
 // Tenants the schema of the sztable.Tenants table.

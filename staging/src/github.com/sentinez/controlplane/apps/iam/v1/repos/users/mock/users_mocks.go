@@ -9,7 +9,7 @@ import (
 
 	"github.com/sentinez/controlplane/apps/iam/v1/repos/users"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	mock "github.com/stretchr/testify/mock"
 )
 

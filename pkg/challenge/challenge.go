@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/core/szcrypto/pow"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 // ChallengePath receives the solved proof-of-work form of the challenge

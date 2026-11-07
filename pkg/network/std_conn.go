@@ -17,7 +17,7 @@ package network
 import (
 	"net"
 
-	"github.com/sentinez/shared/szstore/ja4"
+	"github.com/sentinez/pkg/szstore/ja4"
 )
 
 func newStdConn(conn net.Conn) *StdConn {

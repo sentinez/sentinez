@@ -24,10 +24,10 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/variable"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

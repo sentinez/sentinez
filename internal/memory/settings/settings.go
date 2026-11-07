@@ -18,8 +18,8 @@ import (
 	"sync"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

@@ -20,7 +20,7 @@ import (
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/flags"
-	"github.com/sentinez/shared/szconfig"
+	"github.com/sentinez/pkg/szconfig"
 )
 
 var (

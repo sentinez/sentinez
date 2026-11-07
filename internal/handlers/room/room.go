@@ -17,7 +17,7 @@ package room
 import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/shared/szqueue"
+	"github.com/sentinez/pkg/szqueue"
 )
 
 // WaitingRoomId is the chain stage name of WaitingRoom.

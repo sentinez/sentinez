@@ -22,7 +22,7 @@ import (
 
 	chttp "github.com/sentinez/core/szhttp"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 )
 
 const (

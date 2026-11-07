@@ -24,7 +24,7 @@ import (
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szerror"
+	"github.com/sentinez/pkg/szerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

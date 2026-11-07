@@ -25,7 +25,7 @@ OTLP: log hệ thống đẩy về `SENZ_OTLP_INTERNAL_ENDPOINT`, không đặt 
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
 mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) được
 đẩy thẳng vào Kafka khi đặt `SENZ_KAFKA_BROKERS` (event proto thô, mỗi log
-type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP riêng trên
+type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng trên
 `SENZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong
 `Shutdown`. Không đặt biến nào thì không push. Endpoint `https://` dùng TLS.
 
@@ -68,20 +68,20 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 |---|---|
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
-| `shared/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `pkg/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
 | `core/internal/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
 | `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
-| `shared/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
-| `shared/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-sharedszstoragedbx) |
-| `shared/szstorage/dbx/timescale` | Hypertable và continuous aggregate, xem [07-controlplane.md](07-controlplane.md#timescaledb-hypertable-và-continuous-aggregate) |
-| `shared/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
+| `pkg/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |
+| `pkg/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-pkgszstoragedbx) |
+| `pkg/szstorage/dbx/timescale` | Hypertable và continuous aggregate, xem [07-controlplane.md](07-controlplane.md#timescaledb-hypertable-và-continuous-aggregate) |
+| `pkg/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
-| `shared/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
-| `shared/szqueue` | `Queue{}` rỗng (cho waiting room) |
-| `shared/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
-| `shared/szkafka` | Producer Kafka cho event của edge và consumer theo batch, xem [`szkafka`](#szkafka) |
+| `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
+| `pkg/szqueue` | `Queue{}` rỗng (cho waiting room) |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
+| `pkg/szkafka` | Producer Kafka cho event của edge và consumer theo batch, xem [`szkafka`](#szkafka) |
 
-## 9.5 `shared`
+## 9.5 `pkg`
 
 | Gói | Nội dung |
 |---|---|
@@ -96,9 +96,7 @@ type một topic, xem `shared/szkafka`), nếu không thì qua provider OTLP ri�
 | `szjson` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
 | `szprotobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
 | `szprotobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |
-| `szcopier` | Sao chép proto/JSON qua marshal |
 | `szcron` | `Start(ctx, interval, job)`: chạy job ngay rồi lặp theo ticker đến khi ctx huỷ |
-| `szeventq` | Pub/sub in-process theo namespace dựa trên channel (chưa có nơi dùng) |
 | `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
 | `szcolor` | Màu ANSI cho log console |
 | `sztopic` | Kiểu `Topic` và tên topic của event traffic edge (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
@@ -123,7 +121,7 @@ khi `level >= verbosity`.
 
 ### `szkafka`
 
-[shared/szkafka](../../staging/src/github.com/sentinez/shared/szkafka/) làm việc với Kafka qua franz-go.
+[pkg/szkafka](../../staging/src/github.com/sentinez/pkg/szkafka/) làm việc với Kafka qua franz-go.
 
 **Producer** (`NewProducer(Config)`):
 

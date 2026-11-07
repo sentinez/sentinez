@@ -17,7 +17,7 @@ package network
 import (
 	"net"
 
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func StdListen(addr string, opts ...NetworkOption) (*StdListener, error) {

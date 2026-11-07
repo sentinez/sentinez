@@ -31,8 +31,8 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szsdklog"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsdklog"
 )
 
 //

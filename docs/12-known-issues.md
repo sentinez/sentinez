@@ -48,7 +48,7 @@ None known.
 - Unloading a namespace (deleted resource, renamed `server.name`) keeps
   its reverse proxies: they are keyed by upstream and shared between
   namespaces, with no reference count.
-- Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
+- Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` are empty packages.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - IAM uniqueness (one user per email, one account per provider per user,

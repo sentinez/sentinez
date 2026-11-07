@@ -21,7 +21,7 @@ import (
 
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 var _ centraldatapb.CentralDataServiceServer = (*CentralDataHandler)(nil)

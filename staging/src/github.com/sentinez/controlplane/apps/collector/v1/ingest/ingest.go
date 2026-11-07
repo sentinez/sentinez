@@ -19,8 +19,8 @@ package ingest
 import (
 	"context"
 
-	"github.com/sentinez/shared/szkafka"
-	"github.com/sentinez/shared/sztopic"
+	"github.com/sentinez/pkg/szkafka"
+	"github.com/sentinez/pkg/sztopic"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"golang.org/x/sync/errgroup"
 )

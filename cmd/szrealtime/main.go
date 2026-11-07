@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/config"
 	wscore "github.com/sentinez/sentinez/pkg/network/wsz"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func main() {

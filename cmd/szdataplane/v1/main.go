@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func main() {

@@ -20,7 +20,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 // Columns the columns of an event table the Filter applies to.

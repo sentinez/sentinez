@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/pkg/schema"
-	"github.com/sentinez/shared/szstorage/dbx"
-	"github.com/sentinez/shared/szstorage/dbx/timescale"
-	"github.com/sentinez/shared/sztable"
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/sztable"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

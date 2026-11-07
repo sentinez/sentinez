@@ -35,9 +35,9 @@ func TestHandlerMeta(t *testing.T) {
 		},
 		{
 			name:     "nested package",
-			givePath: "/shared/szlog?go-get=1",
-			wantImport: `content="go.sentinez.com/shared git ` +
-				`https://github.com/sentinez/shared"`,
+			givePath: "/pkg/szlog?go-get=1",
+			wantImport: `content="go.sentinez.com/pkg git ` +
+				`https://github.com/sentinez/pkg"`,
 		},
 		{
 			name:     "submodule in subdirectory",
@@ -71,8 +71,8 @@ func TestHandlerInfo(t *testing.T) {
 		},
 		{
 			name:     "repo page",
-			givePath: "/shared/szlog",
-			wantText: "go get go.sentinez.com/shared/szlog",
+			givePath: "/pkg/szlog",
+			wantText: "go get go.sentinez.com/pkg/szlog",
 		},
 		{
 			name:     "go-get other than 1",

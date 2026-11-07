@@ -28,10 +28,10 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szstorage/cache/mem"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szstorage/cache/mem"
+	"github.com/sentinez/pkg/szsync"
 )
 
 // CacheId is the chain stage name of Cache.

@@ -25,8 +25,8 @@ import (
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/sentinez/pkg/pools/ingress"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // LoggingId is the chain stage name of Logging.

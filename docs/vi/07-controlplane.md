@@ -16,9 +16,9 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-service`,
 `create-handler`, `create-repo`, `create-factory`, `create-module`).
 
-## 7.1 Lớp lưu trữ (`shared/szstorage/dbx`)
+## 7.1 Lớp lưu trữ (`pkg/szstorage/dbx`)
 
-[shared/szstorage/dbx](../../staging/src/github.com/sentinez/shared/szstorage/dbx/):
+[pkg/szstorage/dbx](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/):
 
 - `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
@@ -47,11 +47,11 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
   cung cấp `WithTX(ss)`.
 - ID bản ghi: `szrand.NewUUID(szprefix.<Entity>.Key())` =
   `<prefix>_<uuid>` (`user_<uuid>`), mỗi bảng một prefix trong
-  [shared/szprefix](../../staging/src/github.com/sentinez/shared/szprefix/prefix.go)
+  [pkg/szprefix](../../staging/src/github.com/sentinez/pkg/szprefix/prefix.go)
   (a-z, 2 đến 5 ký tự, không đổi sau khi công khai); rule prefix `id` trong
   proto phải khớp.
 
-Tên bảng ([shared/sztable](../../staging/src/github.com/sentinez/shared/sztable/tables.go)):
+Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.sec_rules`, cùng các bảng event của edge `analytic.secrules.events`,
 `analytic.ratelimiters.events`, `analytic.corerulesets.events`,
@@ -63,7 +63,7 @@ Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 
 ### TimescaleDB: hypertable và continuous aggregate
 
-[shared/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/shared/szstorage/dbx/timescale/)
+[pkg/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/)
 xây trên `postgres.Open`: dùng chung pool và tham gia được transaction của
 `postgres.WithTx`. Cần TimescaleDB (`SENZ_POSTGRES_URI` trỏ vào container
 `sentinez.timescale` mà `hack/timescale-up.sh` bật).
@@ -466,7 +466,7 @@ giữ bộ nhớ của consumer nằm ở
 
 ## 7.7 Mã lỗi
 
-[shared/szerror](../../staging/src/github.com/sentinez/shared/szerror/errors.go)
+[pkg/szerror](../../staging/src/github.com/sentinez/pkg/szerror/errors.go)
 cung cấp gRPC status có định dạng `SENZ-<code>: <ERRORS_...>` và các hàm
 `StatusXxxF(format, ...)` (`NotFound`, `Unauthorized`, `Forbidden`,
 `InvalidData`/`InvalidArgument`, `AlreadyExists`, `Internal`,

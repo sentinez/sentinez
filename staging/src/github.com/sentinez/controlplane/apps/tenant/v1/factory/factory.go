@@ -25,7 +25,7 @@ import (
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 func NewDefaultHandler(ctx context.Context,

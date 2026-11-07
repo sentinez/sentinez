@@ -31,7 +31,7 @@ Tài liệu được viết từ việc đọc trực tiếp source code tại c
 - Đường dẫn file là tương đối so với gốc repo, ví dụ
   [internal/handlers/handlers.go](../../internal/handlers/handlers.go).
 - Module trong `staging/src/github.com/sentinez/<tên>` được gọi tắt theo
-  import path: `core`, `shared`, `controlplane`, `contrib/httphz`, `bpf`,
+  import path: `core`, `pkg`, `controlplane`, `contrib/httphz`, `bpf`,
   `tools`.
 - "SecRule" là rule tuỳ biến của người dùng (tên cũ `RuleBased` đã bỏ);
   "rulesets"/"WAF" là bộ OWASP CRS chạy trên Coraza.

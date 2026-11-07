@@ -19,7 +19,7 @@ import (
 	"context"
 
 	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 var _ collectorpb.CollectorServiceServer = (*Collector)(nil)

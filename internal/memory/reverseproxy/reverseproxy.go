@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

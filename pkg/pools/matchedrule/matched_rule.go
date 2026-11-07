@@ -18,7 +18,7 @@ import (
 	"io"
 
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 )
 
 var (

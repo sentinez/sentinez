@@ -25,8 +25,8 @@ import (
 
 	"github.com/sentinez/core/szhttp/httpconst"
 	"github.com/sentinez/sentinez/pkg/pools/ingress"
-	"github.com/sentinez/shared/szcolor"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szcolor"
+	"github.com/sentinez/pkg/szlog"
 	"google.golang.org/grpc/grpclog"
 )
 

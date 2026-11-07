@@ -93,7 +93,7 @@ listener (`opt.StdListener`).
 
 Every TLS connection gets an ID before its handshake. `transport.TLSConfig`
 (the `GetConfigForClient` callback) stores the JA4 fingerprint under that ID
-in `shared/szstore/ja4` (in-memory, 24h TTL). The connect hook puts the same
+in `pkg/szstore/ja4` (in-memory, 24h TTL). The connect hook puts the same
 ID into the request context as `netpb.Transport{ConnId, ServerName(SNI)}`, and
 `httpx.NewContext` / `httphz.NewContext` sets
 `Request.Fingerprint = ja4.Get(connId)`. TCP and QUIC only differ in where
@@ -370,7 +370,7 @@ A reverse proxy is created once per `upstream.server` in
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | One CDN rule per namespace |
 
-All maps use `shared/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
+All maps use `pkg/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 
 ## 3.8 Cluster (Olric)
 

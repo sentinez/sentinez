@@ -4,8 +4,8 @@ go 1.27.1
 
 replace (
 	github.com/sentinez/core => ../core
+	github.com/sentinez/pkg => ../pkg
 	github.com/sentinez/sentinez/api => ../../../../../api
-	github.com/sentinez/shared => ../shared
 )
 
 require (

@@ -96,10 +96,10 @@ The repo is **multi-module**, wired with `replace` directives in the root
 |---|---|---|
 | `github.com/sentinez/sentinez` (root) | `/` | all modules below |
 | `github.com/sentinez/sentinez/api` | `api/` | — (protos + clients) |
-| `github.com/sentinez/core` | `staging/.../core` | `api`, `shared` |
-| `github.com/sentinez/shared` | `staging/.../shared` | `api`, `core` (some packages) |
-| `github.com/sentinez/controlplane` | `staging/.../controlplane` | `api`, `core`, `shared` |
-| `github.com/sentinez/contrib/httphz` | `staging/.../contrib/httphz` | `core`, `shared`, Hertz |
+| `github.com/sentinez/core` | `staging/.../core` | `api`, `pkg` |
+| `github.com/sentinez/pkg` | `staging/.../pkg` | `api`, `core` (some packages) |
+| `github.com/sentinez/controlplane` | `staging/.../controlplane` | `api`, `core`, `pkg` |
+| `github.com/sentinez/contrib/httphz` | `staging/.../contrib/httphz` | `core`, `pkg`, Hertz |
 | `github.com/sentinez/bpf` | `staging/.../bpf` | cilium/ebpf |
 | `github.com/sentinez/tools` | `staging/.../tools` | `core`, `api` |
 
@@ -132,7 +132,7 @@ Top-level directories:
    accept is wrapped as a `network.StdConn{Id}`, a QUIC connection gets the
    ID on its context from `quic.Transport.ConnContext`.
 2. TLS ClientHello → `transport.TLSConfig` computes the JA4 fingerprint
-   (`t…` for TCP, `q…` for QUIC) and stores it in `shared/szstore/ja4` keyed
+   (`t…` for TCP, `q…` for QUIC) and stores it in `pkg/szstore/ja4` keyed
    by that ID.
 3. `OnStdConnect` (TCP) or `OnQuicConnect` (HTTP/3) puts
    `netpb.Transport{ConnId, ServerName}` into the `context` (see

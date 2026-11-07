@@ -23,7 +23,7 @@ import (
 	"github.com/goccy/go-yaml"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 

@@ -3,8 +3,8 @@ module github.com/sentinez/core
 go 1.27.1
 
 replace (
+	github.com/sentinez/pkg => ../pkg
 	github.com/sentinez/sentinez/api => ../../../../../api
-	github.com/sentinez/shared => ../shared
 )
 
 require (
@@ -15,8 +15,8 @@ require (
 	github.com/coreruleset/crslang v0.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/quic-go/quic-go v0.63.0
+	github.com/sentinez/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
-	github.com/sentinez/shared v0.0.0-00010101000000-000000000000
 	github.com/sony/gobreaker v1.0.0
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/fx v1.24.0

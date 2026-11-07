@@ -26,8 +26,8 @@ import (
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // WAFId is the chain stage name of WAF.

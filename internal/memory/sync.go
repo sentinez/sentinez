@@ -22,8 +22,8 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/sznormalize"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sznormalize"
 	"google.golang.org/protobuf/proto"
 )
 

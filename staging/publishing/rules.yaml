@@ -6,7 +6,7 @@ branches:
   - main
 rules:
   - destination: core
-  - destination: shared
+  - destination: pkg
   - destination: tools
   - destination: contrib
   - destination: controlplane

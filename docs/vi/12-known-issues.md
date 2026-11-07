@@ -47,7 +47,7 @@ Không có.
 - Gỡ một namespace (resource bị xoá, `server.name` đổi tên) vẫn giữ các
   reverse proxy của nó: chúng được key theo upstream và dùng chung giữa các
   namespace, không có đếm tham chiếu.
-- Waiting room (`ROM`), `shared/szqueue`, `shared/sztopic`, `shared/szstorage/{keyval,
+- Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,
   clickhouse,elastic}`, `eventpub/eventsub` là package rỗng.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - Tính duy nhất trong IAM (mỗi email một user, mỗi user một account cho mỗi

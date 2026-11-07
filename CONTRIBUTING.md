@@ -50,7 +50,7 @@ This is a **multi-module monorepo**. The root [go.mod](go.mod) uses
 - `/pkg`: shared packages of the root module, including service wiring under
   `pkg/apps`.
 - `/staging/src/github.com/sentinez`: separately-versioned modules published
-  to their own repositories (`core`, `shared`, `controlplane`, `bpf`,
+  to their own repositories (`core`, `pkg`, `controlplane`, `bpf`,
   `contrib/httphz`, `tools`).
 - `/ui`: pnpm + turbo workspace for the web console and shared UI packages.
 - `/_submodules`: third-party git submodules.
@@ -76,7 +76,7 @@ Because the modules are separate, `go test ./...` at the root does **not**
 cover the `staging/` modules. Run tests inside each module you touch:
 
 ```sh
-cd staging/src/github.com/sentinez/shared && go test ./...
+cd staging/src/github.com/sentinez/pkg && go test ./...
 ```
 
 After changing dependencies in a staged module, run `go mod tidy` in that
@@ -113,7 +113,7 @@ Run the linters before opening a pull request:
 
 ```sh
 make lint          # all Go modules + protobuf
-make lint.core     # or a single module: lint.shared, lint.controlplane,
+make lint.core     # or a single module: lint.pkg, lint.controlplane,
                    # lint.contrib.httphz, lint.tools, lint.proto
 ```
 

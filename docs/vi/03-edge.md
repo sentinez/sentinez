@@ -91,7 +91,7 @@ handler duy nhất cho mọi path. Chỉ dùng listener TCP (`opt.StdListener`).
 
 Mỗi kết nối TLS được cấp một ID trước khi handshake. `transport.TLSConfig`
 (callback `GetConfigForClient`) lưu JA4 fingerprint theo ID đó vào
-`shared/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
+`pkg/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
 context của request dưới dạng `netpb.Transport{ConnId, ServerName(SNI)}`, và
 `httpx.NewContext` / `httphz.NewContext` gán
 `Request.Fingerprint = ja4.Get(connId)`. TCP và QUIC chỉ khác nhau ở chỗ giữ
@@ -359,7 +359,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | WAF instance / namespace |
 | `cdnrules.Rule` | `Map[string,EvalFunc]` + `Map[string,*cdn.CDN]` | Một CDN rule / namespace |
 
-Mọi map dùng `shared/szsync.Map[K,V]` (bọc `sync.Map` có generic).
+Mọi map dùng `pkg/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 
 ## 3.8 Cluster (Olric)
 

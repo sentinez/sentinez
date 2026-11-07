@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	commonpb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 type logResponseWriter struct {

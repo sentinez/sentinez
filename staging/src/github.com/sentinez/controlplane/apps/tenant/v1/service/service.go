@@ -22,9 +22,9 @@ import (
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)

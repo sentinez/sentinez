@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/shared/sztracer"
+	"github.com/sentinez/pkg/sztracer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

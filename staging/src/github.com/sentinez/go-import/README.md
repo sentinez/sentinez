@@ -17,7 +17,7 @@ inside that repo:
 
 ```
 go.sentinez.com/core/szhttp/chains  ->  https://github.com/sentinez/core
-go.sentinez.com/shared/szlog        ->  https://github.com/sentinez/shared
+go.sentinez.com/pkg/szlog        ->  https://github.com/sentinez/pkg
 go.sentinez.com/contrib/httphz      ->  https://github.com/sentinez/contrib
 ```
 
@@ -31,7 +31,7 @@ go.sentinez.com/contrib/httphz      ->  https://github.com/sentinez/contrib
 
 Only repos in the allowlist (`_defaultRepos` in
 [vanity/vanity.go](vanity/vanity.go)) are served: `sentinez`, `core`,
-`shared`, `controlplane`, `contrib`, `bpf`, `tools`, `mcp`, `go-import`.
+`pkg`, `controlplane`, `contrib`, `bpf`, `tools`, `mcp`, `go-import`.
 
 Check a path with:
 

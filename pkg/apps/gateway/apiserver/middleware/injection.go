@@ -26,9 +26,9 @@ import (
 	"github.com/corazawaf/libinjection-go"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/shared/szlog"
-	"github.com/sentinez/shared/szprefix"
-	"github.com/sentinez/shared/szrand"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
 )
 
 const (

@@ -25,8 +25,8 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szerror"
-	"github.com/sentinez/shared/szstorage/dbx/query"
+	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szstorage/dbx/query"
 )
 
 // ── RuleInfo ───────────────────────────────────────────────────────────

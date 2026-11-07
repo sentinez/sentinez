@@ -33,7 +33,7 @@ import (
 	"github.com/sentinez/sentinez/internal/handlers/trace"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/stretchr/testify/require"
 )
 

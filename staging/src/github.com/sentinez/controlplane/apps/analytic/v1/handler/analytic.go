@@ -20,7 +20,7 @@ import (
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticHandler)(nil)

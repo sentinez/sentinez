@@ -14,7 +14,7 @@
 
 package szhttp
 
-import "github.com/sentinez/shared/szatomic"
+import "github.com/sentinez/pkg/szatomic"
 
 var _ RequestContext = (*BaseContext)(nil)
 

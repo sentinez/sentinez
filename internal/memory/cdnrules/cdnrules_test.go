@@ -20,7 +20,7 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/shared/szsync"
+	"github.com/sentinez/pkg/szsync"
 	"github.com/stretchr/testify/assert"
 )
 

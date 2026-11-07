@@ -32,8 +32,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/challenge"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 	"github.com/sentinez/sentinez/pkg/pools/secrule"
-	"github.com/sentinez/shared/bytesconv"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // SecRuleId is the chain stage name of SecRule.

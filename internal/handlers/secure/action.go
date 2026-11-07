@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/szhttp/variable"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
-	"github.com/sentinez/shared/bytesconv"
+	"github.com/sentinez/pkg/bytesconv"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

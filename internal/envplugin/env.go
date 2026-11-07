@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/sentinez/scale"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 // _geoip loads the compiled-in databases once: the chains share them.

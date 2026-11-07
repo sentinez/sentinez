@@ -19,7 +19,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 func HandlerFunc(path string, handler szhttp.RequestHandler) {

@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/sentinez/sentinez/api/client/consul"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 )
 
 const (

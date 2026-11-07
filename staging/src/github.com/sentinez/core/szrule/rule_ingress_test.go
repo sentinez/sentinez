@@ -25,7 +25,7 @@ import (
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/shared/szlog"
+	"github.com/sentinez/pkg/szlog"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
