@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"sync"
 
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szprotobuf"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/spf13/pflag"
 	"google.golang.org/protobuf/proto"
 )

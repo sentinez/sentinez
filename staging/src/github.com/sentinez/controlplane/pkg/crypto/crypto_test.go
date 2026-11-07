@@ -19,9 +19,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/pkg/szconfig"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/pkg/szconfig"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

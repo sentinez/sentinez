@@ -19,9 +19,9 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szsync"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 var (

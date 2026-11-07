@@ -19,9 +19,9 @@ import (
 	"fmt"
 
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/pkg/szerror"
 )
 
 // ListTenant implements tenantpb.TenantServiceServer.

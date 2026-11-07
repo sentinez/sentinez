@@ -26,10 +26,10 @@ import (
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sztopic"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 // _setupTimeout bounds the sync of the event tables.

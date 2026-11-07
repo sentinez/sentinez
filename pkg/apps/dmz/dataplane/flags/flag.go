@@ -20,9 +20,9 @@ import (
 	"sync"
 
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szflag"
 	dataplanepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/dataplane/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/pkg/szflag"
 	"github.com/spf13/pflag"
 )
 

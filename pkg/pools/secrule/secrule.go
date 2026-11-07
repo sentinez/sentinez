@@ -17,11 +17,11 @@ package secrule
 import (
 	"io"
 
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
-	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
 	"github.com/sentinez/pkg/szsync"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 )
 
 var (

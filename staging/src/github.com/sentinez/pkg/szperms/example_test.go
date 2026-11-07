@@ -17,8 +17,8 @@ package szperms_test
 import (
 	"fmt"
 
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szperms"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 func ExampleAllow_consoleMatch() {

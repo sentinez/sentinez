@@ -17,13 +17,13 @@ package schema
 import (
 	"time"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/sztable"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/pkg/szstorage/dbx"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale"
-	"github.com/sentinez/pkg/sztable"
 )
 
 const (

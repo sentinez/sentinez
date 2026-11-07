@@ -18,9 +18,9 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/pkg/crypto"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szperms"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc/metadata"
 )
 

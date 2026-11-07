@@ -42,12 +42,14 @@ make compose.up / compose.down
 make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
 make lint                    # golangci-lint across root + core/pkg/controlplane/httphz, plus buf lint
 make lint.core | lint.pkg | lint.controlplane | lint.proto
+make fmt                     # fmt.go + fmt.proto
+make fmt.go                  # gofmt -w every tracked .go file (fmt.go.check: list, fail if any)
 make fmt.proto               # buf format
 make scale.checkout          # clone the private scale repo (SCALE_REPO) into scale/
 make sz.edge.build SCALE=1   # build with the enterprise tag (SZ_GOTAGS)
 ```
 
-The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
+The root [Makefile](Makefile) only holds `default` and `include`s: repo-wide targets live in `hack/make/{test,proto,lint,fmt,docker}.mk` (run from `$(SZ_ROOT)`, defined in the root Makefile), service targets in `cmd/sz<name>/Makefile`, `bufgen` in `api/Makefile`.
 
 Because modules are separate, `go test ./...` at the root does **not** cover `staging/` modules — `make test.cover` loops over them (module list in `hack/gomodules.sh`, shared with `hack/golint.sh` and CI); for one package run tests inside its module directory, e.g. `cd staging/src/github.com/sentinez/pkg && go test ./szlog/...`. After changing deps in a staged module, run `go mod tidy` in that module and the root (replace directives keep them in sync).
 

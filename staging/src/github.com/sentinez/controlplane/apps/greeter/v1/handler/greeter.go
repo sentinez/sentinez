@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"time"
 
-	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	"github.com/sentinez/pkg/szlog"
+	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 )
 
 // New creates a new Greeter module.

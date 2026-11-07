@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/pkg/headers"
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/sentinez/pkg/szlog"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 )
 
 // ListMember implements tenantpb.TenantServiceServer.

@@ -24,11 +24,11 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/sztable"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 const _totalColumn = "total"

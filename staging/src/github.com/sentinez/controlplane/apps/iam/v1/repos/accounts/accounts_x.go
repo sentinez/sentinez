@@ -16,9 +16,9 @@ package accrepos
 
 import (
 	"github.com/go-webauthn/webauthn/webauthn"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"github.com/sentinez/pkg/szjson"
 	"github.com/sentinez/pkg/szlog"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"google.golang.org/protobuf/proto"
 )
 

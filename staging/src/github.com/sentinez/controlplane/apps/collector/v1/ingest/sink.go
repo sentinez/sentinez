@@ -25,11 +25,11 @@ import (
 	httpegresspool "github.com/sentinez/controlplane/pkg/pools/httpegress"
 	httpingresspool "github.com/sentinez/controlplane/pkg/pools/httpingress"
 	secrulepool "github.com/sentinez/controlplane/pkg/pools/secrule"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/pkg/szprefix"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 

@@ -18,9 +18,9 @@ import (
 	"testing"
 
 	"github.com/sentinez/controlplane/pkg/schema"
-	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/sztable"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

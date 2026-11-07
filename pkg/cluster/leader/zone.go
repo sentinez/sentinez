@@ -19,8 +19,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/sentinez/sentinez/api/client/consul"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/sentinez/api/client/consul"
 )
 
 const (

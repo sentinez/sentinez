@@ -358,7 +358,7 @@ type Condition struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.types.rule.v1.FieldSource" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                // @gotags: yaml:"key"
+	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                   // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.types.rule.v1.Operator" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
@@ -642,9 +642,9 @@ func (x *AndConditionLite) GetOrCondition() []*AndConditionLite {
 type RuleLite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`                // @gotags: yaml:"name"
 	Condition     *ConditionLite         `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
-	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`     // @gotags: yaml:"actions"
+	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`       // @gotags: yaml:"actions"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -713,7 +713,7 @@ type ConditionLite struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`       // @gotags: yaml:"key"
+	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`          // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator string `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"

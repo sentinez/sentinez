@@ -24,10 +24,10 @@ import (
 
 	"github.com/olric-data/olric"
 	"github.com/olric-data/olric/config"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szrand"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 )
 
 const _nodeIdLen = 6

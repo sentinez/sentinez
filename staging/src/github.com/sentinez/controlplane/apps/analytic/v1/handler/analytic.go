@@ -19,8 +19,8 @@ import (
 
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	"github.com/sentinez/pkg/szlog"
+	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticHandler)(nil)

@@ -18,8 +18,8 @@ package collectorhdl
 import (
 	"context"
 
-	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 	"github.com/sentinez/pkg/szlog"
+	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 )
 
 var _ collectorpb.CollectorServiceServer = (*Collector)(nil)

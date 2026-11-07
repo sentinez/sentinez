@@ -31,8 +31,8 @@ import (
 	proxyhz "github.com/sentinez/contrib/httphz/proxy"
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szlog"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 var (

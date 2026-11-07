@@ -17,9 +17,9 @@ package settings
 import (
 	"sync"
 
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szsync"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
 var (

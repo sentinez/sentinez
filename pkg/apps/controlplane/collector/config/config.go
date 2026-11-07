@@ -18,10 +18,10 @@ package config
 import (
 	"sync"
 
+	"github.com/sentinez/pkg/szconfig"
 	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/collector/flags"
-	"github.com/sentinez/pkg/szconfig"
 )
 
 var (

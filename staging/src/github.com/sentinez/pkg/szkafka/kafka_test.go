@@ -21,10 +21,10 @@ import (
 	"testing"
 	"time"
 
-	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sztopic"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/twmb/franz-go/pkg/kadm"

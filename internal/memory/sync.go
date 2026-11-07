@@ -19,11 +19,11 @@ import (
 	"errors"
 
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sznormalize"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/cluster"
-	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/pkg/sznormalize"
 	"google.golang.org/protobuf/proto"
 )
 

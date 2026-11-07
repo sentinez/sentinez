@@ -23,11 +23,11 @@ import (
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
 	"github.com/sentinez/controlplane/pkg/schema"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 var _ ICoreRuleEvent = (*CoreRuleEvents)(nil)

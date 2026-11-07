@@ -22,11 +22,11 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/query"
 	"github.com/sentinez/pkg/sztable"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 // BucketColumn the column of a View holding the start of its buckets.

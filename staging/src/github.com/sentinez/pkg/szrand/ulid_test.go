@@ -18,10 +18,10 @@ import (
 	"testing"
 
 	"buf.build/go/protovalidate"
+	"github.com/sentinez/pkg/szprefix"
 	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	"github.com/sentinez/pkg/szprefix"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 )

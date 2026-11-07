@@ -21,9 +21,9 @@ import (
 
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/pkg/szlog"
 )
 
 func New(conf *settingpb.Config, server grpcgateway.Server) *Server {

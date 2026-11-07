@@ -17,10 +17,10 @@ package coreruleset
 import (
 	"io"
 
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
 	"github.com/sentinez/pkg/szsync"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
 var (

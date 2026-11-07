@@ -19,8 +19,8 @@ import (
 
 	"github.com/sentinez/pkg/szsdklog"
 
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/pkg/szlog"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
 )
 

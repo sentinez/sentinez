@@ -22,10 +22,10 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/sentinez"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
+	"github.com/sentinez/sentinez"
+	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 )
 
 var (

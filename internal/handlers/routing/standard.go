@@ -19,10 +19,10 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/pkg/szlog"
 )
 
 // StandardRouterId is the chain stage name of StandardRouter.

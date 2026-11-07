@@ -19,8 +19,8 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // Columns the columns of an event table the Filter applies to.

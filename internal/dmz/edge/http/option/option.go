@@ -17,9 +17,9 @@
 package option
 
 import (
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsdklog"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
 // Options is the resolved configuration of a chain node.

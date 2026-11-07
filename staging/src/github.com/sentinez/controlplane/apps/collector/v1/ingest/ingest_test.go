@@ -19,10 +19,10 @@ import (
 	"errors"
 	"testing"
 
-	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
-	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/sztopic"
+	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/twmb/franz-go/pkg/kgo"

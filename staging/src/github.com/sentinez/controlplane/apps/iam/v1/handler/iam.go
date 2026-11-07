@@ -20,9 +20,9 @@ import (
 
 	iamsvc "github.com/sentinez/controlplane/apps/iam/v1/service"
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szlog"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	"github.com/sentinez/pkg/szlog"
 )
 
 var _ iampb.

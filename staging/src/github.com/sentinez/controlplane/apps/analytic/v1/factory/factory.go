@@ -22,9 +22,9 @@ import (
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
 	eventsrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/events"
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 // NewDefaultService initializes the Analytic service.

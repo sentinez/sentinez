@@ -22,10 +22,10 @@ import (
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/config"
-	"github.com/sentinez/pkg/szlog"
 )
 
 func main() {

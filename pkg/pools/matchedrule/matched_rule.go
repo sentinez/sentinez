@@ -17,8 +17,8 @@ package matchedrule
 import (
 	"io"
 
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/pkg/szsync"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 
 var (

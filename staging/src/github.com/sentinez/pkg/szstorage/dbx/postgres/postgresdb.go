@@ -24,14 +24,14 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/query"
 	"github.com/sentinez/pkg/szstorage/storageutils"
 	"github.com/sentinez/pkg/szstorage/storageutils/table"
 	"github.com/sentinez/pkg/sztable"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 var _ dbx.Database[typepb.Empty] = (*postgres[typepb.Empty])(nil)

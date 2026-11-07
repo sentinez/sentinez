@@ -25,12 +25,12 @@ import (
 	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
-	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szprotobuf/protox"
 	"github.com/sentinez/pkg/szrand"
+	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

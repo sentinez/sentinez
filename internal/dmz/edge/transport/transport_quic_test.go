@@ -31,8 +31,8 @@ import (
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
 	"github.com/sentinez/core/szcontext"
-	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/sentinez/pkg/szstore/ja4"
+	"github.com/sentinez/sentinez/pkg/network"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

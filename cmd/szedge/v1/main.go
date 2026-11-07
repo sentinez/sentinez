@@ -20,9 +20,9 @@ import (
 
 	"github.com/sentinez/core"
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/cmd/szedge/v1/server"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge/config"
-	"github.com/sentinez/pkg/szlog"
 )
 
 // main is the entrypoint of the Edge application.

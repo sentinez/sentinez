@@ -25,10 +25,10 @@ import (
 	"strconv"
 	"time"
 
-	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 const _defaultChunkInterval = 7 * 24 * time.Hour

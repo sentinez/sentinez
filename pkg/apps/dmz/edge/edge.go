@@ -23,6 +23,8 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsdklog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -31,8 +33,6 @@ import (
 	"github.com/sentinez/sentinez/internal/memory"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 	"github.com/sentinez/sentinez/pkg/network"
-	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/pkg/szsdklog"
 )
 
 //

@@ -19,9 +19,9 @@ import (
 
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
 	eventsrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/events"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 )
 
 var _ pb.AnalyticServiceServer = (*AnalyticService)(nil)

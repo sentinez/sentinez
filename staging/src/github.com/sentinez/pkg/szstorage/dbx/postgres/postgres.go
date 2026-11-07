@@ -22,9 +22,9 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/query"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 func SelectCoalesce(field string) string {

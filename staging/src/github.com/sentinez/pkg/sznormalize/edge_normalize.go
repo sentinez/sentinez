@@ -15,14 +15,14 @@
 package sznormalize
 
 import (
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/pkg/szprefix"
-	"github.com/sentinez/pkg/szrand"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

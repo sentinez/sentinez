@@ -22,6 +22,7 @@ import (
 
 	"github.com/sentinez/core/szhttp/chains"
 
+	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/handlers"
@@ -33,7 +34,6 @@ import (
 	"github.com/sentinez/sentinez/internal/handlers/trace"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
-	"github.com/sentinez/pkg/szlog"
 	"github.com/stretchr/testify/require"
 )
 

@@ -34,6 +34,7 @@ default.print:
 include ./hack/make/test.mk
 include ./hack/make/proto.mk
 include ./hack/make/lint.mk
+include ./hack/make/fmt.mk
 include ./hack/make/docker.mk
 include ./hack/make/scale.mk
 
