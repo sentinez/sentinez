@@ -7,6 +7,8 @@ package resourcerepo
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -361,6 +363,116 @@ func (_c *MockIResource_Update_Call) Return(err error) *MockIResource_Update_Cal
 }
 
 func (_c *MockIResource_Update_Call) RunAndReturn(run func(ctx context.Context, rs *tenantpb.Resource) error) *MockIResource_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Upsert provides a mock function for the type MockIResource
+func (_mock *MockIResource) Upsert(ctx context.Context, rs *tenantpb.Resource) error {
+	ret := _mock.Called(ctx, rs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Upsert")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *tenantpb.Resource) error); ok {
+		r0 = returnFunc(ctx, rs)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockIResource_Upsert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Upsert'
+type MockIResource_Upsert_Call struct {
+	*mock.Call
+}
+
+// Upsert is a helper method to define mock.On call
+//   - ctx context.Context
+//   - rs *tenantpb.Resource
+func (_e *MockIResource_Expecter) Upsert(ctx any, rs any) *MockIResource_Upsert_Call {
+	return &MockIResource_Upsert_Call{Call: _e.mock.On("Upsert", ctx, rs)}
+}
+
+func (_c *MockIResource_Upsert_Call) Run(run func(ctx context.Context, rs *tenantpb.Resource)) *MockIResource_Upsert_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *tenantpb.Resource
+		if args[1] != nil {
+			arg1 = args[1].(*tenantpb.Resource)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIResource_Upsert_Call) Return(err error) *MockIResource_Upsert_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockIResource_Upsert_Call) RunAndReturn(run func(ctx context.Context, rs *tenantpb.Resource) error) *MockIResource_Upsert_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WithTX provides a mock function for the type MockIResource
+func (_mock *MockIResource) WithTX(tx *postgres.TxSession) resourcerepo.IResource {
+	ret := _mock.Called(tx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WithTX")
+	}
+
+	var r0 resourcerepo.IResource
+	if returnFunc, ok := ret.Get(0).(func(*postgres.TxSession) resourcerepo.IResource); ok {
+		r0 = returnFunc(tx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(resourcerepo.IResource)
+		}
+	}
+	return r0
+}
+
+// MockIResource_WithTX_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WithTX'
+type MockIResource_WithTX_Call struct {
+	*mock.Call
+}
+
+// WithTX is a helper method to define mock.On call
+//   - tx *postgres.TxSession
+func (_e *MockIResource_Expecter) WithTX(tx any) *MockIResource_WithTX_Call {
+	return &MockIResource_WithTX_Call{Call: _e.mock.On("WithTX", tx)}
+}
+
+func (_c *MockIResource_WithTX_Call) Run(run func(tx *postgres.TxSession)) *MockIResource_WithTX_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *postgres.TxSession
+		if args[0] != nil {
+			arg0 = args[0].(*postgres.TxSession)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockIResource_WithTX_Call) Return(iResource resourcerepo.IResource) *MockIResource_WithTX_Call {
+	_c.Call.Return(iResource)
+	return _c
+}
+
+func (_c *MockIResource_WithTX_Call) RunAndReturn(run func(tx *postgres.TxSession) resourcerepo.IResource) *MockIResource_WithTX_Call {
 	_c.Call.Return(run)
 	return _c
 }

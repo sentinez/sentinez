@@ -31,7 +31,14 @@ setting:
     # tenant_id. Also the key the setting is synced between the edges by;
     # without one, or with the default tnt_default, it stays on this edge
     # only. Default: tnt_default
-    tenantId: tnt_default
+    tenantId: tnt_default_admin
+    # Name and plan (PLAN_FREE | PLAN_STANDARD | PLAN_PRO) of the tenant
+    # szapiserver imports this file under. Default name: tenantId
+    tenantName: admin
+    plan: PLAN_PRO
+    # szapiserver stores the server as <server.name>.<hostname>
+    # (resource domain); without one, the resource has no domain.
+    hostname: is.s6z.io.vn
 
   # ----------------------------------------------------------
   # SERVER — ROUTING CONFIGURATION

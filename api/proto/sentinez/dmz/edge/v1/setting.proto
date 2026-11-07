@@ -19,6 +19,7 @@ package sentinez.dmz.edge.v1;
 import "sentinez/types/secrule/v1/engine.proto";
 import "sentinez/types/cdn/v1/rule.proto";
 import "sentinez/types/coreruleset/v1/setting.proto";
+import "sentinez/types/v1/known.proto";
 
 import "buf/validate/validate.proto";
 
@@ -36,12 +37,20 @@ message Setting {
 
 // Metadata identifies the setting in the logs of the edge.
 message Metadata {
-  reserved 2;
-  reserved "resource_id";
-
   // Id of this setting (proxy.yaml), filled into the events of its
   // requests; "tnt_default" when empty.
   string tenant_id = 1;  // @gotags: yaml:"tenantId"
+
+  // Display name of the tenant, the apiserver names the tenant it
+  // imports this setting under with it; tenant_id when empty.
+  string tenant_name = 3;  // @gotags: yaml:"tenantName"
+
+  // Plan of the tenant the apiserver imports this setting under.
+  sentinez.types.v1.Plan plan = 4;  // @gotags: yaml:"plan"
+
+  // Domain the servers of this setting are served under: the apiserver
+  // stores the resource of server.name as <server.name>.<hostname>.
+  string hostname = 5;  // @gotags: yaml:"hostname"
 }
 
 // Server defines where the request goes and how the edge processes it:

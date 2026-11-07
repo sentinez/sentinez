@@ -40,6 +40,7 @@ var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 // nolint
 type ITenant interface {
 	Create(ctx context.Context, tenant *tenantpb.Tenant) (*tenantpb.Tenant, error)
+	Upsert(ctx context.Context, tenant *tenantpb.Tenant) error
 	Update(ctx context.Context, tenant *tenantpb.Tenant) error
 	Get(ctx context.Context, id string) (*tenantpb.Tenant, error)
 	Delete(ctx context.Context, id string) error
@@ -137,6 +138,19 @@ func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
 	}
 
 	return conds
+}
+
+// Upsert inserts tenant under its own id, or updates its name and plan
+// when the id exists; the description is left as it is.
+func (t *Tenants) Upsert(ctx context.Context, tenant *tenantpb.Tenant) error {
+	query := postgres.UpsertBuilder(t.storage, postgres.M{
+		tenantpb.Tenant_Id:   tenant.GetId(),
+		tenantpb.Tenant_Name: tenant.GetName(),
+		tenantpb.Tenant_Plan: tenant.GetPlan(),
+	})
+
+	_, err := t.storage.Insert(ctx, query)
+	return err
 }
 
 // Create implements ITenant.

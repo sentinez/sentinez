@@ -9,6 +9,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CDN } from "../../../types/cdn/v1/rule";
 import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
 import { SecRule as SecRule1, SecRuleLite } from "../../../types/secrule/v1/engine";
+import { Plan, planFromJSON, planToJSON } from "../../../types/v1/known";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 
@@ -117,6 +118,18 @@ export interface Metadata {
    * requests; "tnt_default" when empty.
    */
   tenantId: string;
+  /**
+   * Display name of the tenant, the apiserver names the tenant it
+   * imports this setting under with it; tenant_id when empty.
+   */
+  tenantName: string;
+  /** Plan of the tenant the apiserver imports this setting under. */
+  plan: Plan;
+  /**
+   * Domain the servers of this setting are served under: the apiserver
+   * stores the resource of server.name as <server.name>.<hostname>.
+   */
+  hostname: string;
 }
 
 /** Server defines where the request goes and how the edge processes it: */
@@ -381,13 +394,22 @@ export const Setting: MessageFns<Setting> = {
 };
 
 function createBaseMetadata(): Metadata {
-  return { tenantId: "" };
+  return { tenantId: "", tenantName: "", plan: 0, hostname: "" };
 }
 
 export const Metadata: MessageFns<Metadata> = {
   encode(message: Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.tenantId !== "") {
       writer.uint32(10).string(message.tenantId);
+    }
+    if (message.tenantName !== "") {
+      writer.uint32(26).string(message.tenantName);
+    }
+    if (message.plan !== 0) {
+      writer.uint32(32).int32(message.plan);
+    }
+    if (message.hostname !== "") {
+      writer.uint32(42).string(message.hostname);
     }
     return writer;
   },
@@ -413,6 +435,30 @@ export const Metadata: MessageFns<Metadata> = {
             message.tenantId = reader.string();
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.tenantName = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.plan = reader.int32() as any;
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.hostname = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -432,6 +478,13 @@ export const Metadata: MessageFns<Metadata> = {
         : isSet(object.tenant_id)
         ? globalThis.String(object.tenant_id)
         : "",
+      tenantName: isSet(object.tenantName)
+        ? globalThis.String(object.tenantName)
+        : isSet(object.tenant_name)
+        ? globalThis.String(object.tenant_name)
+        : "",
+      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
+      hostname: isSet(object.hostname) ? globalThis.String(object.hostname) : "",
     };
   },
 
@@ -439,6 +492,15 @@ export const Metadata: MessageFns<Metadata> = {
     const obj: any = {};
     if (message.tenantId !== "") {
       obj.tenantId = message.tenantId;
+    }
+    if (message.tenantName !== "") {
+      obj.tenantName = message.tenantName;
+    }
+    if (message.plan !== 0) {
+      obj.plan = planToJSON(message.plan);
+    }
+    if (message.hostname !== "") {
+      obj.hostname = message.hostname;
     }
     return obj;
   },
@@ -449,6 +511,9 @@ export const Metadata: MessageFns<Metadata> = {
   fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata {
     const message = createBaseMetadata();
     message.tenantId = object.tenantId ?? "";
+    message.tenantName = object.tenantName ?? "";
+    message.plan = object.plan ?? 0;
+    message.hostname = object.hostname ?? "";
     return message;
   },
 };

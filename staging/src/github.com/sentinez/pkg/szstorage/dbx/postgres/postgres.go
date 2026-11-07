@@ -17,6 +17,9 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"maps"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -78,20 +81,43 @@ func SelectBuilder[T any](db dbx.Database[T],
 	return Paging(builder, page)
 }
 
+// _idColumn is the primary key every table has (see dbx/stmt).
+const _idColumn = "id"
+
 func InsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
-	var (
-		columns []string
-		values  []any
-	)
-	for column, value := range mapp {
-		columns = append(columns, column)
-		values = append(values, value)
+	return insertBuilder(db, mapp, slices.Sorted(maps.Keys(mapp))).
+		Suffix("RETURNING " + _idColumn)
+}
+
+// UpsertBuilder inserts the row of mapp, or updates its columns when a row
+// with the same id exists. mapp must hold the id.
+func UpsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
+	columns := slices.Sorted(maps.Keys(mapp))
+	sets := []string{typepb.Metadata_UpdatedAt + " = now() AT TIME ZONE 'UTC'"}
+	for _, column := range columns {
+		if column != _idColumn {
+			sets = append(sets, column+" = EXCLUDED."+column)
+		}
+	}
+
+	return insertBuilder(db, mapp, columns).Suffix(
+		"ON CONFLICT (" + _idColumn + ") DO UPDATE SET " +
+			strings.Join(sets, ", ") + " RETURNING " + _idColumn)
+}
+
+// insertBuilder inserts the row of mapp; columns, its keys sorted, keep
+// the statement the same for the same keys.
+func insertBuilder[T any](db dbx.Database[T], mapp M,
+	columns []string) squirrel.InsertBuilder {
+
+	values := make([]any, 0, len(columns))
+	for _, column := range columns {
+		values = append(values, mapp[column])
 	}
 
 	return squirrel.Insert(db.Table()).
 		Columns(columns...).
 		Values(values...).
-		Suffix("RETURNING id").
 		PlaceholderFormat(squirrel.Dollar)
 }
 

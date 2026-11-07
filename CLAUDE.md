@@ -39,6 +39,7 @@ make sz.greeter.run
 make sz.<svc>.build          # build only: apiserver, realtime, edge, dataplane, greeter, centraldata, collector
 make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centraldata, collector)
 make compose.up / compose.down
+make consul.proxy.put        # put cmd/szedge/v1/proxy.yaml at Consul key sentinez/proxy.yaml (szapiserver imports it at startup)
 make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
 make lint                    # golangci-lint across root + core/pkg/controlplane/httphz, plus buf lint
 make lint.core | lint.pkg | lint.controlplane | lint.proto

@@ -33,12 +33,18 @@ type Config struct {
 	Setting *edgepb.Setting `yaml:"setting"`
 }
 
+// LoadSetting reads the proxy config file named by the proxy_config flag.
 func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 	data, err := os.ReadFile(appConf.GetFlag().GetProxyConfig())
 	if err != nil {
 		return nil, fmt.Errorf("read proxy config: %w", err)
 	}
 
+	return Parse(data)
+}
+
+// Parse decodes the 'setting' block of a proxy config (proxy.yaml).
+func Parse(data []byte) (*edgepb.Setting, error) {
 	var raw map[string]any
 	if err := yaml.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("parse proxy config: %w", err)
