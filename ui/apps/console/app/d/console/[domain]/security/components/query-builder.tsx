@@ -46,8 +46,6 @@ export const createEmptyCondition = (): Condition => ({
 });
 
 export const createEmptyRule = (): Rule => ({
-  id: generateId(),
-  expr: '',
   condition: createEmptyCondition(),
 });
 
@@ -311,7 +309,7 @@ export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuil
         )}
 
         {group.rules.map((rule, ruleIndex) => (
-          <div key={rule.id || ruleIndex} className="flex flex-col gap-1">
+          <div key={rule.condition?.id || ruleIndex} className="flex flex-col gap-1">
             {ruleIndex > 0 && (
               <span className="text-xs font-bold text-muted-foreground px-1" aria-hidden>
                 {t('and')}

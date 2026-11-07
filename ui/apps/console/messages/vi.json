@@ -412,6 +412,7 @@
       "redirect": "Chuyển hướng",
       "setTag": "Gắn tag",
       "routeTo": "Định tuyến tới",
+      "challenge": "Thử thách",
       "unknown": "Không xác định"
     },
     "actionTypeDescription": {
@@ -422,6 +423,7 @@
       "redirect": "Chuyển hướng client tới URL đã cho.",
       "setTag": "Gắn tag vào request để dùng ở các bước sau.",
       "routeTo": "Định tuyến request tới upstream/target đã cho.",
+      "challenge": "Hiển thị thử thách proof-of-work; client được cho qua khi trình duyệt giải xong. Chỉ áp dụng cho request GET.",
       "unknown": ""
     },
     "fieldSource": {

@@ -63,6 +63,9 @@ export default function Loading() {
 - Rows are the proto models from `@sentinez/proto/sentinez/apps/<domain>/v1/model`
   (e.g. `SecRule`, `RateLimit`, `Resource`), as returned by `lib/api`. Columns that
   read nested fields use `id` + `accessorFn`, not `accessorKey`, so the name filter works.
+- The table is `<FixedTable table={table}>` from `@/components/fixed-table`, not a bare
+  `<Table className="table-fixed">`: columns set `size` (px), the one taking the rest
+  `size: 0`, and the table scrolls instead of squeezing that column on narrow screens.
 - The list fetches through `usePagedList`:
   `const res = await listX({ page }, { signal }); return { items: res.xs, total: res.total };`
   and deletes with `deleteX({ id })`.

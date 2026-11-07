@@ -80,6 +80,7 @@ export const ACTION_TYPE_KEY = {
   [ActionType.ACTION_TYPE_REDIRECT]: 'redirect',
   [ActionType.ACTION_TYPE_SET_TAG]: 'setTag',
   [ActionType.ACTION_TYPE_ROUTE_TO]: 'routeTo',
+  [ActionType.ACTION_TYPE_CHALLENGE]: 'challenge',
   [ActionType.UNRECOGNIZED]: 'unknown',
 } as const satisfies Record<ActionType, string>;
 
@@ -95,6 +96,7 @@ export const ACTION_TYPE_BADGE_VARIANT: Record<
   [ActionType.ACTION_TYPE_REDIRECT]: 'outline',
   [ActionType.ACTION_TYPE_SET_TAG]: 'outline',
   [ActionType.ACTION_TYPE_ROUTE_TO]: 'default',
+  [ActionType.ACTION_TYPE_CHALLENGE]: 'secondary',
   [ActionType.UNRECOGNIZED]: 'outline',
 };
 
@@ -121,12 +123,14 @@ export const STATUSES = [
 /** Actions that take no extra value */
 export const ACTIONS_WITHOUT_VALUE: ActionType[] = [
   ActionType.ACTION_TYPE_BLOCK,
+  ActionType.ACTION_TYPE_CHALLENGE,
   ActionType.ACTION_TYPE_LOG,
 ];
 
 /** Selectable actions, in display order */
 export const ACTION_TYPES: ActionType[] = [
   ActionType.ACTION_TYPE_BLOCK,
+  ActionType.ACTION_TYPE_CHALLENGE,
   ActionType.ACTION_TYPE_LOG,
   ActionType.ACTION_TYPE_MODIFY_HEADER,
   ActionType.ACTION_TYPE_REDIRECT,

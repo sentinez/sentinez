@@ -91,11 +91,10 @@ const sampleRule = (
   status,
   expr,
   action: actionTypeToJSON(action),
+  exprPreview: '',
 });
 
 const cond = (source: FieldSource, operator: Operator, value: unknown, key = '') => ({
-  id: Math.random().toString(36).slice(2, 9),
-  expr: '',
   condition: { id: Math.random().toString(36).slice(2, 9), source, key, operator, value },
 });
 
@@ -178,8 +177,6 @@ const generatedExpr = (id: string, path: string): Expression =>
       {
         rules: [
           {
-            id: `${id}-r`,
-            expr: '',
             condition: {
               id: `${id}-c`,
               source: FieldSource.FIELD_SOURCE_PATH,

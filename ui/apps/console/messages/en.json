@@ -412,6 +412,7 @@
       "redirect": "Redirect",
       "setTag": "Set Tag",
       "routeTo": "Route To",
+      "challenge": "Challenge",
       "unknown": "Unknown"
     },
     "actionTypeDescription": {
@@ -422,6 +423,7 @@
       "redirect": "Redirect the client to the given URL.",
       "setTag": "Attach a tag to the request for downstream use.",
       "routeTo": "Route the request to the given upstream/target.",
+      "challenge": "Show a proof-of-work challenge; the client passes once its browser solves it. Only GET requests are challenged.",
       "unknown": ""
     },
     "fieldSource": {
