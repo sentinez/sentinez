@@ -7,22 +7,17 @@ import {
   GetUniqueVisitorHistogramRequest,
   GetUniqueVisitorHistogramResponse,
   type HistogramPoint,
+  HistogramResolution,
   ListVisitorsRequest,
   ListVisitorsResponse,
   type VisitorPoint,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
-import axios from 'axios';
-
-import { API_BASE_PATH } from '@/lib/api/base';
-import { type Pages, paginate, toQuery } from '@/lib/api/pages';
+import { type Pages, paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
-// Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
-const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
+import { type ApiOptions, SAMPLE_IPS, getJSON, sampleBuckets } from './common';
 
-export interface ApiOptions {
-  signal?: AbortSignal;
-}
-
+export { RESOLUTION_BUCKETS, resolutionOfSpan, spanOf, type ApiOptions } from './common';
+export * from './events';
 export type { Pages };
 
 // ---- Sample data, used as fallback when the API call fails ----
@@ -55,18 +50,6 @@ export const SAMPLE_ACTIVITIES: Activity[] = [
   ),
 ];
 
-function withFallback<T>(label: string, fallback: () => T) {
-  return async (call: () => Promise<T>): Promise<T> => {
-    try {
-      return await call();
-    } catch (err: any) {
-      if (!USE_SAMPLE || axios.isCancel(err)) throw err;
-      console.warn(`[analytic] ${label} failed, using sample response:`, err?.message);
-      return fallback();
-    }
-  };
-}
-
 function filterSample(req: Partial<ListActivitiesRequest>): Activity[] {
   return SAMPLE_ACTIVITIES.filter(
     (a) =>
@@ -80,27 +63,16 @@ export async function listActivities(
   req: Partial<ListActivitiesRequest> = {},
   options?: ApiOptions,
 ): Promise<ListActivitiesResponse> {
-  return withFallback<ListActivitiesResponse>('listActivities', () => {
-    const list = filterSample(req);
-    return { activities: paginate(list, req.page), total: list.length };
-  })(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/analytic/activities`, {
-      params: toQuery(ListActivitiesRequest.toJSON(ListActivitiesRequest.fromPartial(req))),
-      // repeat `ids` / `resourceIds` keys (collectionFormat: multi)
-      paramsSerializer: { indexes: null },
-      signal: options?.signal,
-    });
-    return ListActivitiesResponse.fromJSON(resp.data ?? {});
-  });
-}
-
-const HOUR_MILLIS = 60 * 60 * 1000;
-
-// The 24 sample hourly buckets, as the API returns them: those ending with
-// the hour of `to`, else the current one
-function sampleHours(to?: Date): Date[] {
-  const end = Math.floor((to ?? new Date()).getTime() / HOUR_MILLIS) + 1;
-  return Array.from({ length: 24 }, (_, i) => new Date((end - 24 + i) * HOUR_MILLIS));
+  return getJSON(
+    '/analytic/activities',
+    ListActivitiesRequest.fromPartial(req),
+    { req: ListActivitiesRequest, resp: ListActivitiesResponse },
+    () => {
+      const list = filterSample(req);
+      return { activities: paginate(list, req.page), total: list.length };
+    },
+    options,
+  );
 }
 
 // The unique visitor histogram of the sample visitors, so both agree: the
@@ -122,26 +94,19 @@ export async function getUniqueVisitorHistogram(
   options?: ApiOptions,
 ): Promise<GetUniqueVisitorHistogramResponse> {
   const full = GetUniqueVisitorHistogramRequest.fromPartial(req);
-  return withFallback<GetUniqueVisitorHistogramResponse>('getUniqueVisitorHistogram', () => ({
-    points: sampleVisitorPoints(full),
-  }))(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/analytic/visitors/histogram`, {
-      params: toQuery(GetUniqueVisitorHistogramRequest.toJSON(full)),
-      // repeat `resourceIds` keys (collectionFormat: multi)
-      paramsSerializer: { indexes: null },
-      signal: options?.signal,
-    });
-    return GetUniqueVisitorHistogramResponse.fromJSON(resp.data ?? {});
-  });
+  return getJSON(
+    '/analytic/visitors/histogram',
+    full,
+    { req: GetUniqueVisitorHistogramRequest, resp: GetUniqueVisitorHistogramResponse },
+    () => ({ points: sampleVisitorPoints(full) }),
+    options,
+  );
 }
 
-// Sample client ips: the first ones visit every hour, the others now and then
-const SAMPLE_IPS = ['203.0.113.7', '198.51.100.23', '192.0.2.41', '203.0.113.88', '198.51.100.5'];
-
-// Hourly sample visitors of each resource (sampleHours): the most requests
+// Hourly sample visitors of each resource (sampleBuckets): the most requests
 // first in each bucket
 function sampleVisitors(req: ListVisitorsRequest): VisitorPoint[] {
-  return sampleHours(req.to).flatMap((time, i) =>
+  return sampleBuckets(HistogramResolution.HISTOGRAM_RESOLUTION_HOUR, req.to).flatMap((time, i) =>
     req.resourceIds.flatMap((resourceId) =>
       SAMPLE_IPS.slice(0, 2 + (i % 4)).map((clientIp, n) => ({
         time,
@@ -159,15 +124,11 @@ export async function listVisitors(
   options?: ApiOptions,
 ): Promise<ListVisitorsResponse> {
   const full = ListVisitorsRequest.fromPartial(req);
-  return withFallback<ListVisitorsResponse>('listVisitors', () => ({
-    visitors: sampleVisitors(full),
-  }))(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/analytic/visitors`, {
-      params: toQuery(ListVisitorsRequest.toJSON(full)),
-      // repeat `resourceIds` keys (collectionFormat: multi)
-      paramsSerializer: { indexes: null },
-      signal: options?.signal,
-    });
-    return ListVisitorsResponse.fromJSON(resp.data ?? {});
-  });
+  return getJSON(
+    '/analytic/visitors',
+    full,
+    { req: ListVisitorsRequest, resp: ListVisitorsResponse },
+    () => ({ visitors: sampleVisitors(full) }),
+    options,
+  );
 }

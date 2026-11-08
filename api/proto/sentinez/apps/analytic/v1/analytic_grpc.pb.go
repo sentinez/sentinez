@@ -42,6 +42,7 @@ const (
 	AnalyticService_ListCoreRuleEvents_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
 	AnalyticService_GetEventHistogram_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventHistogram"
 	AnalyticService_GetUniqueVisitorHistogram_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/GetUniqueVisitorHistogram"
+	AnalyticService_GetEventTopValues_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventTopValues"
 	AnalyticService_ListVisitors_FullMethodName              = "/sentinez.apps.analytic.v1.AnalyticService/ListVisitors"
 )
 
@@ -65,6 +66,9 @@ type AnalyticServiceClient interface {
 	// GetUniqueVisitorHistogram counts the distinct client ips of the
 	// requests received by the edge per time bucket and resource.
 	GetUniqueVisitorHistogram(ctx context.Context, in *GetUniqueVisitorHistogramRequest, opts ...grpc.CallOption) (*GetUniqueVisitorHistogramResponse, error)
+	// GetEventTopValues counts the most frequent values of fields of the
+	// events of a kind over a time range, and their share of its events.
+	GetEventTopValues(ctx context.Context, in *GetEventTopValuesRequest, opts ...grpc.CallOption) (*GetEventTopValuesResponse, error)
 	// ListVisitors counts the requests received by the edge per time
 	// bucket, resource and client ip.
 	ListVisitors(ctx context.Context, in *ListVisitorsRequest, opts ...grpc.CallOption) (*ListVisitorsResponse, error)
@@ -168,6 +172,16 @@ func (c *analyticServiceClient) GetUniqueVisitorHistogram(ctx context.Context, i
 	return out, nil
 }
 
+func (c *analyticServiceClient) GetEventTopValues(ctx context.Context, in *GetEventTopValuesRequest, opts ...grpc.CallOption) (*GetEventTopValuesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventTopValuesResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetEventTopValues_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *analyticServiceClient) ListVisitors(ctx context.Context, in *ListVisitorsRequest, opts ...grpc.CallOption) (*ListVisitorsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListVisitorsResponse)
@@ -198,6 +212,9 @@ type AnalyticServiceServer interface {
 	// GetUniqueVisitorHistogram counts the distinct client ips of the
 	// requests received by the edge per time bucket and resource.
 	GetUniqueVisitorHistogram(context.Context, *GetUniqueVisitorHistogramRequest) (*GetUniqueVisitorHistogramResponse, error)
+	// GetEventTopValues counts the most frequent values of fields of the
+	// events of a kind over a time range, and their share of its events.
+	GetEventTopValues(context.Context, *GetEventTopValuesRequest) (*GetEventTopValuesResponse, error)
 	// ListVisitors counts the requests received by the edge per time
 	// bucket, resource and client ip.
 	ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error)
@@ -236,6 +253,9 @@ func (UnimplementedAnalyticServiceServer) GetEventHistogram(context.Context, *Ge
 }
 func (UnimplementedAnalyticServiceServer) GetUniqueVisitorHistogram(context.Context, *GetUniqueVisitorHistogramRequest) (*GetUniqueVisitorHistogramResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUniqueVisitorHistogram not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetEventTopValues(context.Context, *GetEventTopValuesRequest) (*GetEventTopValuesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEventTopValues not implemented")
 }
 func (UnimplementedAnalyticServiceServer) ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListVisitors not implemented")
@@ -422,6 +442,24 @@ func _AnalyticService_GetUniqueVisitorHistogram_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticService_GetEventTopValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventTopValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetEventTopValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetEventTopValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetEventTopValues(ctx, req.(*GetEventTopValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AnalyticService_ListVisitors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListVisitorsRequest)
 	if err := dec(in); err != nil {
@@ -482,6 +520,10 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUniqueVisitorHistogram",
 			Handler:    _AnalyticService_GetUniqueVisitorHistogram_Handler,
+		},
+		{
+			MethodName: "GetEventTopValues",
+			Handler:    _AnalyticService_GetEventTopValues_Handler,
 		},
 		{
 			MethodName: "ListVisitors",

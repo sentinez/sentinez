@@ -78,6 +78,13 @@ service AnalyticService {
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
+  // GetEventTopValues counts the most frequent values of fields of the
+  // events of a kind over a time range, and their share of its events.
+  rpc GetEventTopValues(GetEventTopValuesRequest) returns (GetEventTopValuesResponse) {
+    option (google.api.http) = {get: "/analytic/events/top-values"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
   // ListVisitors counts the requests received by the edge per time
   // bucket, resource and client ip.
   rpc ListVisitors(ListVisitorsRequest) returns (ListVisitorsResponse) {

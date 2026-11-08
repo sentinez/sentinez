@@ -22,11 +22,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -45,8 +46,21 @@ var _histogram = histogram.Spec{
 }
 
 var _filterColumns = eventfilter.Columns{
+	RequestId:   httppb.EgressEvent_Id,
 	ResourceId:  httppb.EgressEvent_ResourceId,
 	MatchedTime: httppb.EgressEvent_Timestamp,
+	Fields:      _fields,
+}
+
+// _fields the fields of the events filters match and top values count,
+// in this order.
+var _fields = []eventfilter.Field{
+	eventfilter.Column(httppb.EgressEvent_Upstream),
+	eventfilter.Column(httppb.EgressEvent_Status),
+	eventfilter.Column(httppb.EgressEvent_Method),
+	eventfilter.Column(httppb.EgressEvent_Path),
+	eventfilter.Column(httppb.EgressEvent_ContentType),
+	eventfilter.Column(httppb.EgressEvent_Protocol),
 }
 
 type IHttpEgressEvent interface {
@@ -65,11 +79,13 @@ type IHttpEgressEvent interface {
 	// status of the origin (histogram.Point.Key).
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
+	topvalues.TopValuer
 }
 
 type HttpEgressEvents struct {
 	storage   dbx.Database[httppb.EgressEvent]
 	histogram *histogram.Histogram
+	topValues *topvalues.Reader
 }
 
 // New returns the repo of the sztable.AnalyticHttpEgressEvent
@@ -87,13 +103,24 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
-	return &HttpEgressEvents{storage: storage, histogram: hist}, nil
+	topValues, err := topvalues.Open(ctx, appConf, _hypertable.Schema.Table,
+		_filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HttpEgressEvents{
+		storage:   storage,
+		histogram: hist,
+		topValues: topValues,
+	}, nil
 }
 
 func (r *HttpEgressEvents) WithTX(tx *postgres.TxSession) IHttpEgressEvent {
 	return &HttpEgressEvents{
 		storage:   postgres.WithTx(tx, r.storage),
 		histogram: r.histogram,
+		topValues: r.topValues,
 	}
 }
 
@@ -126,13 +153,23 @@ func (r *HttpEgressEvents) Delete(ctx context.Context, id string) error {
 // List the events of filter, the latest request first.
 func (r *HttpEgressEvents) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*httppb.EgressEvent, error) {
-	builder := filter.Apply(r.selectQuery(), _filterColumns)
+	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
 func (r *HttpEgressEvents) Histogram(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
 	return r.histogram.Points(ctx, filter)
+}
+
+func (r *HttpEgressEvents) TopValues(ctx context.Context,
+	filter *eventfilter.Filter, names []string,
+	limit uint64) (*topvalues.Result, error) {
+	return r.topValues.TopValues(ctx, filter, names, limit)
 }
 
 func (r *HttpEgressEvents) selectQuery() sq.SelectBuilder {

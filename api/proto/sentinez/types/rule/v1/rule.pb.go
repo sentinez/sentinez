@@ -197,6 +197,10 @@ const (
 	ActionType_ACTION_TYPE_SET_TAG       ActionType = 5
 	ActionType_ACTION_TYPE_ROUTE_TO      ActionType = 6
 	ActionType_ACTION_TYPE_CHALLENGE     ActionType = 7
+	// The request was over a rate limiter and answered 429 Too Many
+	// Requests: the action of the rate limit events, set by the edge; not
+	// one a rule is configured with.
+	ActionType_ACTION_TYPE_RATE_LIMIT ActionType = 8
 )
 
 // Enum value maps for ActionType.
@@ -210,6 +214,7 @@ var (
 		5: "ACTION_TYPE_SET_TAG",
 		6: "ACTION_TYPE_ROUTE_TO",
 		7: "ACTION_TYPE_CHALLENGE",
+		8: "ACTION_TYPE_RATE_LIMIT",
 	}
 	ActionType_value = map[string]int32{
 		"ACTION_TYPE_UNSPECIFIED":   0,
@@ -220,6 +225,7 @@ var (
 		"ACTION_TYPE_SET_TAG":       5,
 		"ACTION_TYPE_ROUTE_TO":      6,
 		"ACTION_TYPE_CHALLENGE":     7,
+		"ACTION_TYPE_RATE_LIMIT":    8,
 	}
 )
 
@@ -358,7 +364,7 @@ type Condition struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.types.rule.v1.FieldSource" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                   // @gotags: yaml:"key"
+	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.types.rule.v1.Operator" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
@@ -642,9 +648,9 @@ func (x *AndConditionLite) GetOrCondition() []*AndConditionLite {
 type RuleLite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`                // @gotags: yaml:"name"
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
 	Condition     *ConditionLite         `protobuf:"bytes,4,opt,name=condition,proto3" json:"condition,omitempty" yaml:"condition"` // @gotags: yaml:"condition"
-	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`       // @gotags: yaml:"actions"
+	Actions       []string               `protobuf:"bytes,5,rep,name=actions,proto3" json:"actions,omitempty" yaml:"actions"`     // @gotags: yaml:"actions"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -713,7 +719,7 @@ type ConditionLite struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`          // @gotags: yaml:"key"
+	Key    string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`       // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator string `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
@@ -986,7 +992,7 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\vOPERATOR_LT\x10\n" +
 	"\x12\x10\n" +
 	"\fOPERATOR_LTE\x10\v\x12\x13\n" +
-	"\x0fOPERATOR_NOT_IN\x10\f*\xdc\x01\n" +
+	"\x0fOPERATOR_NOT_IN\x10\f*\xf8\x01\n" +
 	"\n" +
 	"ActionType\x12\x1b\n" +
 	"\x17ACTION_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -996,7 +1002,8 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x14ACTION_TYPE_REDIRECT\x10\x04\x12\x17\n" +
 	"\x13ACTION_TYPE_SET_TAG\x10\x05\x12\x18\n" +
 	"\x14ACTION_TYPE_ROUTE_TO\x10\x06\x12\x19\n" +
-	"\x15ACTION_TYPE_CHALLENGE\x10\a*\x83\x01\n" +
+	"\x15ACTION_TYPE_CHALLENGE\x10\a\x12\x1a\n" +
+	"\x16ACTION_TYPE_RATE_LIMIT\x10\b*\x83\x01\n" +
 	"\vRuleService\x12\x1c\n" +
 	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aRULE_SERVICE_CORE_RULESETS\x10\x01\x12\x19\n" +

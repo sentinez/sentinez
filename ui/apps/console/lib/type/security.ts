@@ -81,6 +81,7 @@ export const ACTION_TYPE_KEY = {
   [ActionType.ACTION_TYPE_SET_TAG]: 'setTag',
   [ActionType.ACTION_TYPE_ROUTE_TO]: 'routeTo',
   [ActionType.ACTION_TYPE_CHALLENGE]: 'challenge',
+  [ActionType.ACTION_TYPE_RATE_LIMIT]: 'rateLimit',
   [ActionType.UNRECOGNIZED]: 'unknown',
 } as const satisfies Record<ActionType, string>;
 
@@ -97,6 +98,7 @@ export const ACTION_TYPE_BADGE_VARIANT: Record<
   [ActionType.ACTION_TYPE_SET_TAG]: 'outline',
   [ActionType.ACTION_TYPE_ROUTE_TO]: 'default',
   [ActionType.ACTION_TYPE_CHALLENGE]: 'secondary',
+  [ActionType.ACTION_TYPE_RATE_LIMIT]: 'destructive',
   [ActionType.UNRECOGNIZED]: 'outline',
 };
 

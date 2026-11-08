@@ -61,6 +61,12 @@ message ListHttpIngressEventsRequest {
   // Bound the time of the events, from inclusive, to exclusive.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 5;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 6;
 }
 
 // ListHttpEgressEventsRequest selects the events of a list, the latest first.
@@ -71,6 +77,12 @@ message ListHttpEgressEventsRequest {
   // Bound the time of the events, from inclusive, to exclusive.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 5;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 6;
 }
 
 // ListSecRuleEventsRequest selects the events of a list, the latest first.
@@ -81,6 +93,12 @@ message ListSecRuleEventsRequest {
   // Bound the time of the events, from inclusive, to exclusive.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 5;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 6;
 }
 
 // ListRateLimitEventsRequest selects the events of a list, the latest first.
@@ -91,6 +109,12 @@ message ListRateLimitEventsRequest {
   // Bound the time of the events, from inclusive, to exclusive.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 5;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 6;
 }
 
 // ListCoreRuleEventsRequest selects the events of a list, the latest first.
@@ -101,6 +125,12 @@ message ListCoreRuleEventsRequest {
   // Bound the time of the events, from inclusive, to exclusive.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 5;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 6;
 }
 
 message ListHttpIngressEventsResponse {
@@ -188,4 +218,56 @@ message VisitorPoint {
 message ListVisitorsResponse {
   // Oldest bucket first, then the client ip of the most requests.
   repeated VisitorPoint visitors = 1;
+}
+
+message GetEventTopValuesRequest {
+  EventKind kind = 1;
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the events, from inclusive, to exclusive: to now
+  // when unset, from the hour before to when unset.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  // The fields to count, in this order, each once, named as in the event
+  // message of the kind (e.g. client_ip): all those of the kind when empty.
+  //   - http ingress: method, status, host, client_ip, country, protocol,
+  //     path, user_agent.
+  //   - http egress: upstream, status, method, path, content_type,
+  //     protocol.
+  //   - sec rule, rate limit: matched_secrule_ids, action (its type, a
+  //     rule.v1.ActionType number), request_ip, request_domain,
+  //     request_path.
+  //   - core rule: matched_rule_ids, severities, behavior, total_score,
+  //     request_ip, request_domain, request_path.
+  // An event counts once per element of a repeated field it holds.
+  repeated string fields = 5;
+  // The values per field: 5 when 0, at most 20.
+  int32 limit = 6;
+  // Field filters, all of them, each "field:value": the events holding
+  // the value in the field, compared as text (an element of a repeated
+  // one). The field is before the first colon, one of those of fields;
+  // the value is the rest, colons and spaces included.
+  repeated string filters = 7;
+}
+
+// FieldValue the events holding a value of a field.
+message FieldValue {
+  string value = 1;
+  int64 total = 2;
+  // total over the events of the range, from 0 to 1.
+  double share = 3;
+}
+
+// FieldTopValues the most frequent values of a field, the most first;
+// the empty values are left out.
+message FieldTopValues {
+  string field = 1;
+  repeated FieldValue values = 2;
+}
+
+message GetEventTopValuesResponse {
+  // The events of the range.
+  int64 total = 1;
+  // One per field of the request, in its order.
+  repeated FieldTopValues fields = 2;
 }

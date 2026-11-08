@@ -142,7 +142,19 @@ export interface ListHttpIngressEventsRequest {
   resourceIds: string[];
   /** Bound the time of the events, from inclusive, to exclusive. */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
 }
 
 /** ListHttpEgressEventsRequest selects the events of a list, the latest first. */
@@ -154,7 +166,19 @@ export interface ListHttpEgressEventsRequest {
   resourceIds: string[];
   /** Bound the time of the events, from inclusive, to exclusive. */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
 }
 
 /** ListSecRuleEventsRequest selects the events of a list, the latest first. */
@@ -166,7 +190,19 @@ export interface ListSecRuleEventsRequest {
   resourceIds: string[];
   /** Bound the time of the events, from inclusive, to exclusive. */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
 }
 
 /** ListRateLimitEventsRequest selects the events of a list, the latest first. */
@@ -178,7 +214,19 @@ export interface ListRateLimitEventsRequest {
   resourceIds: string[];
   /** Bound the time of the events, from inclusive, to exclusive. */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
 }
 
 /** ListCoreRuleEventsRequest selects the events of a list, the latest first. */
@@ -190,7 +238,19 @@ export interface ListCoreRuleEventsRequest {
   resourceIds: string[];
   /** Bound the time of the events, from inclusive, to exclusive. */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
 }
 
 export interface ListHttpIngressEventsResponse {
@@ -294,8 +354,70 @@ export interface ListVisitorsResponse {
   visitors: VisitorPoint[];
 }
 
+export interface GetEventTopValuesRequest {
+  kind: EventKind;
+  /** Resources of the events, any of them; all when empty. */
+  resourceIds: string[];
+  /**
+   * Bound the time of the events, from inclusive, to exclusive: to now
+   * when unset, from the hour before to when unset.
+   */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * The fields to count, in this order, each once, named as in the event
+   * message of the kind (e.g. client_ip): all those of the kind when empty.
+   *   - http ingress: method, status, host, client_ip, country, protocol,
+   *     path, user_agent.
+   *   - http egress: upstream, status, method, path, content_type,
+   *     protocol.
+   *   - sec rule, rate limit: matched_secrule_ids, action (its type, a
+   *     rule.v1.ActionType number), request_ip, request_domain,
+   *     request_path.
+   *   - core rule: matched_rule_ids, severities, behavior, total_score,
+   *     request_ip, request_domain, request_path.
+   * An event counts once per element of a repeated field it holds.
+   */
+  fields: string[];
+  /** The values per field: 5 when 0, at most 20. */
+  limit: number;
+  /**
+   * Field filters, all of them, each "field:value": the events holding
+   * the value in the field, compared as text (an element of a repeated
+   * one). The field is before the first colon, one of those of fields;
+   * the value is the rest, colons and spaces included.
+   */
+  filters: string[];
+}
+
+/** FieldValue the events holding a value of a field. */
+export interface FieldValue {
+  value: string;
+  total: number;
+  /** total over the events of the range, from 0 to 1. */
+  share: number;
+}
+
+/**
+ * FieldTopValues the most frequent values of a field, the most first;
+ * the empty values are left out.
+ */
+export interface FieldTopValues {
+  field: string;
+  values: FieldValue[];
+}
+
+export interface GetEventTopValuesResponse {
+  /** The events of the range. */
+  total: number;
+  /** One per field of the request, in its order. */
+  fields: FieldTopValues[];
+}
+
 function createBaseListHttpIngressEventsRequest(): ListHttpIngressEventsRequest {
-  return { page: undefined, resourceIds: [], from: undefined, to: undefined };
+  return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsRequest> = {
@@ -311,6 +433,12 @@ export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsReque
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(42).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -360,6 +488,22 @@ export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsReque
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -382,6 +526,12 @@ export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsReque
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -399,6 +549,12 @@ export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsReque
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -411,12 +567,14 @@ export const ListHttpIngressEventsRequest: MessageFns<ListHttpIngressEventsReque
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseListHttpEgressEventsRequest(): ListHttpEgressEventsRequest {
-  return { page: undefined, resourceIds: [], from: undefined, to: undefined };
+  return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest> = {
@@ -432,6 +590,12 @@ export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(42).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -481,6 +645,22 @@ export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -503,6 +683,12 @@ export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -520,6 +706,12 @@ export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -532,12 +724,14 @@ export const ListHttpEgressEventsRequest: MessageFns<ListHttpEgressEventsRequest
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseListSecRuleEventsRequest(): ListSecRuleEventsRequest {
-  return { page: undefined, resourceIds: [], from: undefined, to: undefined };
+  return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
@@ -553,6 +747,12 @@ export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(42).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -602,6 +802,22 @@ export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -624,6 +840,12 @@ export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -641,6 +863,12 @@ export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -653,12 +881,14 @@ export const ListSecRuleEventsRequest: MessageFns<ListSecRuleEventsRequest> = {
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseListRateLimitEventsRequest(): ListRateLimitEventsRequest {
-  return { page: undefined, resourceIds: [], from: undefined, to: undefined };
+  return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> = {
@@ -674,6 +904,12 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(42).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -723,6 +959,22 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -745,6 +997,12 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -762,6 +1020,12 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -774,12 +1038,14 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };
 
 function createBaseListCoreRuleEventsRequest(): ListCoreRuleEventsRequest {
-  return { page: undefined, resourceIds: [], from: undefined, to: undefined };
+  return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = {
@@ -795,6 +1061,12 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(42).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(50).string(v!);
     }
     return writer;
   },
@@ -844,6 +1116,22 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -866,6 +1154,12 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -883,6 +1177,12 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -895,6 +1195,8 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };
@@ -2084,6 +2386,446 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
   fromPartial<I extends Exact<DeepPartial<ListVisitorsResponse>, I>>(object: I): ListVisitorsResponse {
     const message = createBaseListVisitorsResponse();
     message.visitors = object.visitors?.map((e) => VisitorPoint.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetEventTopValuesRequest(): GetEventTopValuesRequest {
+  return { kind: 0, resourceIds: [], from: undefined, to: undefined, fields: [], limit: 0, filters: [] };
+}
+
+export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
+  encode(message: GetEventTopValuesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.kind !== 0) {
+      writer.uint32(8).int32(message.kind);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.fields) {
+      writer.uint32(42).string(v!);
+    }
+    if (message.limit !== 0) {
+      writer.uint32(48).int32(message.limit);
+    }
+    for (const v of message.filters) {
+      writer.uint32(58).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEventTopValuesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEventTopValuesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.kind = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.fields.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.limit = reader.int32();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetEventTopValuesRequest {
+    return {
+      kind: isSet(object.kind) ? eventKindFromJSON(object.kind) : 0,
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => globalThis.String(e)) : [],
+      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: GetEventTopValuesRequest): unknown {
+    const obj: any = {};
+    if (message.kind !== 0) {
+      obj.kind = eventKindToJSON(message.kind);
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.fields?.length) {
+      obj.fields = message.fields;
+    }
+    if (message.limit !== 0) {
+      obj.limit = Math.round(message.limit);
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetEventTopValuesRequest>, I>>(base?: I): GetEventTopValuesRequest {
+    return GetEventTopValuesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetEventTopValuesRequest>, I>>(object: I): GetEventTopValuesRequest {
+    const message = createBaseGetEventTopValuesRequest();
+    message.kind = object.kind ?? 0;
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.fields = object.fields?.map((e) => e) || [];
+    message.limit = object.limit ?? 0;
+    message.filters = object.filters?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseFieldValue(): FieldValue {
+  return { value: "", total: 0, share: 0 };
+}
+
+export const FieldValue: MessageFns<FieldValue> = {
+  encode(message: FieldValue, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.value !== "") {
+      writer.uint32(10).string(message.value);
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    if (message.share !== 0) {
+      writer.uint32(25).double(message.share);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FieldValue {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseFieldValue();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 3: {
+            if (tag !== 25) {
+              break;
+            }
+
+            message.share = reader.double();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): FieldValue {
+    return {
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      share: isSet(object.share) ? globalThis.Number(object.share) : 0,
+    };
+  },
+
+  toJSON(message: FieldValue): unknown {
+    const obj: any = {};
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.share !== 0) {
+      obj.share = message.share;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FieldValue>, I>>(base?: I): FieldValue {
+    return FieldValue.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FieldValue>, I>>(object: I): FieldValue {
+    const message = createBaseFieldValue();
+    message.value = object.value ?? "";
+    message.total = object.total ?? 0;
+    message.share = object.share ?? 0;
+    return message;
+  },
+};
+
+function createBaseFieldTopValues(): FieldTopValues {
+  return { field: "", values: [] };
+}
+
+export const FieldTopValues: MessageFns<FieldTopValues> = {
+  encode(message: FieldTopValues, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.field !== "") {
+      writer.uint32(10).string(message.field);
+    }
+    for (const v of message.values) {
+      FieldValue.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FieldTopValues {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseFieldTopValues();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.field = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.values.push(FieldValue.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): FieldTopValues {
+    return {
+      field: isSet(object.field) ? globalThis.String(object.field) : "",
+      values: globalThis.Array.isArray(object?.values) ? object.values.map((e: any) => FieldValue.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: FieldTopValues): unknown {
+    const obj: any = {};
+    if (message.field !== "") {
+      obj.field = message.field;
+    }
+    if (message.values?.length) {
+      obj.values = message.values.map((e) => FieldValue.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FieldTopValues>, I>>(base?: I): FieldTopValues {
+    return FieldTopValues.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FieldTopValues>, I>>(object: I): FieldTopValues {
+    const message = createBaseFieldTopValues();
+    message.field = object.field ?? "";
+    message.values = object.values?.map((e) => FieldValue.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetEventTopValuesResponse(): GetEventTopValuesResponse {
+  return { total: 0, fields: [] };
+}
+
+export const GetEventTopValuesResponse: MessageFns<GetEventTopValuesResponse> = {
+  encode(message: GetEventTopValuesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.fields) {
+      FieldTopValues.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEventTopValuesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEventTopValuesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.fields.push(FieldTopValues.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetEventTopValuesResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => FieldTopValues.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: GetEventTopValuesResponse): unknown {
+    const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.fields?.length) {
+      obj.fields = message.fields.map((e) => FieldTopValues.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetEventTopValuesResponse>, I>>(base?: I): GetEventTopValuesResponse {
+    return GetEventTopValuesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetEventTopValuesResponse>, I>>(object: I): GetEventTopValuesResponse {
+    const message = createBaseGetEventTopValuesResponse();
+    message.total = object.total ?? 0;
+    message.fields = object.fields?.map((e) => FieldTopValues.fromPartial(e)) || [];
     return message;
   },
 };

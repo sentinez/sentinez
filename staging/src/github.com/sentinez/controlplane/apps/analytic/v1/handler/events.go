@@ -117,3 +117,15 @@ func (hdl *AnalyticHandler) ListVisitors(ctx context.Context,
 
 	return hdl.service.ListVisitors(ctx, req)
 }
+
+// GetEventTopValues implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) GetEventTopValues(ctx context.Context,
+	req *pb.GetEventTopValuesRequest,
+) (*pb.GetEventTopValuesResponse, error) {
+	err := headers.Allow(ctx, pb.GetAnalyticServiceGetEventTopValues())
+	if err != nil {
+		return nil, err
+	}
+
+	return hdl.service.GetEventTopValues(ctx, req)
+}

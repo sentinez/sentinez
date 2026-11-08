@@ -7,6 +7,9 @@ import { Table } from '@sentinez/ui/components/table';
 /** Narrowest an auto-width column (`size: 0`) gets before the table scrolls */
 const AUTO_COLUMN_MIN_WIDTH = 200;
 
+/** The width a column takes at least: its size, AUTO_COLUMN_MIN_WIDTH when auto */
+export const columnMinWidth = (size?: number) => size || AUTO_COLUMN_MIN_WIDTH;
+
 interface Props<T> {
   table: TableInstance<T>;
   children: ReactNode;
@@ -22,7 +25,7 @@ interface Props<T> {
 export function FixedTable<T>({ table, children }: Readonly<Props<T>>) {
   const minWidth = table
     .getVisibleLeafColumns()
-    .reduce((width, column) => width + (column.columnDef.size || AUTO_COLUMN_MIN_WIDTH), 0);
+    .reduce((width, column) => width + columnMinWidth(column.columnDef.size), 0);
 
   return (
     <Table className="table-fixed w-full" style={{ minWidth }}>

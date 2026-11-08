@@ -33,6 +33,13 @@ var (
 	_ chains.Provisioner[*envplugin.Env] = (*Limiter)(nil)
 )
 
+// _rateLimited the action of a rate limit event, whatever the limiter is
+// configured with: the request is always answered 429. Read only, it is
+// shared by the events (Release drops it without touching it).
+var _rateLimited = &rulepb.Action{
+	Type: rulepb.ActionType_ACTION_TYPE_RATE_LIMIT,
+}
+
 type Limiter struct {
 	store *memlimiter.Limiter
 	log   szlog.LogCloser
@@ -61,7 +68,7 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	key := string(ctx.RequestIP())
 	for _, e := range chain {
 		if e.Eval(ctx, matched.MatchedRules) && !e.Limiter.Allow(key) {
-			l.logExceeded(ctx, e.Rule.GetAction(), matched.MatchedRules)
+			l.logExceeded(ctx, matched.MatchedRules)
 			return szhttp.TooManyRequests(ctx)
 		}
 	}
@@ -69,13 +76,11 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	return next.Handle(ctx)
 }
 
-// logExceeded emits a rate limit event for the request rejected with
-// action, listing the limiters matched by mr, the rejecting one last.
-func (l *Limiter) logExceeded(
-	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
-) {
+// logExceeded emits a rate limit event for the rejected request, listing
+// the limiters matched by mr, the rejecting one last.
+func (l *Limiter) logExceeded(ctx szhttp.Context, mr *rulepb.MatchedRules) {
 	event := newSecRuleEvent(ctx,
-		rulepb.RuleService_RULE_SERVICE_RATE_LIMIT, action, mr)
+		rulepb.RuleService_RULE_SERVICE_RATE_LIMIT, _rateLimited, mr)
 
 	// Info releases the event back to the pool.
 	l.log.Info("ratelimiter: exceeded", event, event)

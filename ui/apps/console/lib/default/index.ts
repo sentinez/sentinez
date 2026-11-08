@@ -15,6 +15,8 @@ import {
   Globe,
   Settings,
   BadgeCheck,
+  ArrowDownToLine,
+  ArrowUpFromLine,
 } from 'lucide-react';
 import type messages from '@/messages/en.json';
 
@@ -153,9 +155,24 @@ export const dashboard: {
           isActive: true,
           items: [
             {
+              titleKey: 'ingress',
+              url: '/d/console/analytic/logs/ingress',
+              icon: ArrowDownToLine,
+            },
+            {
+              titleKey: 'egress',
+              url: '/d/console/analytic/logs/egress',
+              icon: ArrowUpFromLine,
+            },
+            {
               titleKey: 'secRule',
               url: '/d/console/analytic/logs/sec-rule',
               icon: ShieldCheck,
+            },
+            {
+              titleKey: 'rateLimiter',
+              url: '/d/console/analytic/logs/rate-limiter',
+              icon: Signal,
             },
             {
               titleKey: 'rulesets',

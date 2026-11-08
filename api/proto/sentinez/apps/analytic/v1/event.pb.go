@@ -104,16 +104,20 @@ func (EventKind) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-// HistogramResolution the time range of the buckets of a histogram.
+// HistogramResolution the time range of the buckets of a histogram, and
+// their number.
 type HistogramResolution int32
 
 const (
 	// Picked by the range: seconds for a short zoom within their
 	// retention, else minutes.
 	HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED HistogramResolution = 0
-	HistogramResolution_HISTOGRAM_RESOLUTION_SECOND      HistogramResolution = 1
-	HistogramResolution_HISTOGRAM_RESOLUTION_MINUTE      HistogramResolution = 2
-	HistogramResolution_HISTOGRAM_RESOLUTION_HOUR        HistogramResolution = 3
+	// The last 60 seconds.
+	HistogramResolution_HISTOGRAM_RESOLUTION_SECOND HistogramResolution = 1
+	// The last 60 minutes.
+	HistogramResolution_HISTOGRAM_RESOLUTION_MINUTE HistogramResolution = 2
+	// The last 24 hours.
+	HistogramResolution_HISTOGRAM_RESOLUTION_HOUR HistogramResolution = 3
 )
 
 // Enum value maps for HistogramResolution.
@@ -166,8 +170,14 @@ type ListHttpIngressEventsRequest struct {
 	// Resources of the events, any of them; all when empty.
 	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// Bound the time of the events, from inclusive, to exclusive.
-	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id (an ingress or egress event
+	// id, the request_id of a rule event), any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,5,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters).
+	Filters       []string `protobuf:"bytes,6,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +240,20 @@ func (x *ListHttpIngressEventsRequest) GetTo() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ListHttpIngressEventsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListHttpIngressEventsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
 // ListHttpEgressEventsRequest selects the events of a list, the latest first.
 type ListHttpEgressEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -237,8 +261,14 @@ type ListHttpEgressEventsRequest struct {
 	// Resources of the events, any of them; all when empty.
 	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// Bound the time of the events, from inclusive, to exclusive.
-	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id (an ingress or egress event
+	// id, the request_id of a rule event), any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,5,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters).
+	Filters       []string `protobuf:"bytes,6,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -301,6 +331,20 @@ func (x *ListHttpEgressEventsRequest) GetTo() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ListHttpEgressEventsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListHttpEgressEventsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
 // ListSecRuleEventsRequest selects the events of a list, the latest first.
 type ListSecRuleEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -308,8 +352,14 @@ type ListSecRuleEventsRequest struct {
 	// Resources of the events, any of them; all when empty.
 	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// Bound the time of the events, from inclusive, to exclusive.
-	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id (an ingress or egress event
+	// id, the request_id of a rule event), any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,5,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters).
+	Filters       []string `protobuf:"bytes,6,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -372,6 +422,20 @@ func (x *ListSecRuleEventsRequest) GetTo() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ListSecRuleEventsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListSecRuleEventsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
 // ListRateLimitEventsRequest selects the events of a list, the latest first.
 type ListRateLimitEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -379,8 +443,14 @@ type ListRateLimitEventsRequest struct {
 	// Resources of the events, any of them; all when empty.
 	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// Bound the time of the events, from inclusive, to exclusive.
-	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id (an ingress or egress event
+	// id, the request_id of a rule event), any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,5,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters).
+	Filters       []string `protobuf:"bytes,6,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -443,6 +513,20 @@ func (x *ListRateLimitEventsRequest) GetTo() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ListRateLimitEventsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListRateLimitEventsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
 // ListCoreRuleEventsRequest selects the events of a list, the latest first.
 type ListCoreRuleEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -450,8 +534,14 @@ type ListCoreRuleEventsRequest struct {
 	// Resources of the events, any of them; all when empty.
 	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// Bound the time of the events, from inclusive, to exclusive.
-	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id (an ingress or egress event
+	// id, the request_id of a rule event), any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,5,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters).
+	Filters       []string `protobuf:"bytes,6,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -510,6 +600,20 @@ func (x *ListCoreRuleEventsRequest) GetFrom() *timestamppb.Timestamp {
 func (x *ListCoreRuleEventsRequest) GetTo() *timestamppb.Timestamp {
 	if x != nil {
 		return x.To
+	}
+	return nil
+}
+
+func (x *ListCoreRuleEventsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListCoreRuleEventsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
 	}
 	return nil
 }
@@ -739,7 +843,9 @@ type GetEventHistogramRequest struct {
 	Kind        EventKind              `protobuf:"varint,1,opt,name=kind,proto3,enum=sentinez.apps.analytic.v1.EventKind" json:"kind,omitempty"`
 	Resolution  HistogramResolution    `protobuf:"varint,2,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,3,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	// Bound the start of the buckets, from inclusive, to exclusive.
+	// The buckets end before to (exclusive), else with the current one,
+	// their number that of the resolution; from and to pick the
+	// resolution when unspecified.
 	From          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
 	To            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -884,7 +990,8 @@ func (x *HistogramPoint) GetTotal() int64 {
 
 type GetEventHistogramResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Oldest first.
+	// Oldest first, then per resource and key: one per bucket, a total of
+	// 0 when it has no event; a resource without any has key 0.
 	Points        []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -931,7 +1038,9 @@ type GetUniqueVisitorHistogramRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Resolution  HistogramResolution    `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	// Bound the start of the buckets, from inclusive, to exclusive.
+	// The buckets end before to (exclusive), else with the current one,
+	// their number that of the resolution; from and to pick the
+	// resolution when unspecified.
 	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
 	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -998,8 +1107,8 @@ func (x *GetUniqueVisitorHistogramRequest) GetTo() *timestamppb.Timestamp {
 
 type GetUniqueVisitorHistogramResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Oldest first; the key is 0, the total the number of distinct
-	// client ips of the bucket.
+	// Oldest first, then per resource: one per bucket, the key 0, the total
+	// the number of distinct client ips of the bucket, 0 without.
 	Points        []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1046,7 +1155,9 @@ type ListVisitorsRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Resolution  HistogramResolution    `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	// Bound the start of the buckets, from inclusive, to exclusive.
+	// The buckets end before to (exclusive), else with the current one,
+	// their number that of the resolution; from and to pick the
+	// resolution when unspecified.
 	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
 	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1226,36 +1337,334 @@ func (x *ListVisitorsResponse) GetVisitors() []*VisitorPoint {
 	return nil
 }
 
+type GetEventTopValuesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Kind  EventKind              `protobuf:"varint,1,opt,name=kind,proto3,enum=sentinez.apps.analytic.v1.EventKind" json:"kind,omitempty"`
+	// Resources of the events, any of them; all when empty.
+	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// Bound the time of the events, from inclusive, to exclusive: to now
+	// when unset, from the hour before to when unset.
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// The fields to count, in this order, each once, named as in the event
+	// message of the kind (e.g. client_ip): all those of the kind when empty.
+	//   - http ingress: method, status, host, client_ip, country, protocol,
+	//     path, user_agent.
+	//   - http egress: upstream, status, method, path, content_type,
+	//     protocol.
+	//   - sec rule, rate limit: matched_secrule_ids, action (its type, a
+	//     rule.v1.ActionType number), request_ip, request_domain,
+	//     request_path.
+	//   - core rule: matched_rule_ids, severities, behavior, total_score,
+	//     request_ip, request_domain, request_path.
+	//
+	// An event counts once per element of a repeated field it holds.
+	Fields []string `protobuf:"bytes,5,rep,name=fields,proto3" json:"fields,omitempty"`
+	// The values per field: 5 when 0, at most 20.
+	Limit int32 `protobuf:"varint,6,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Field filters, all of them, each "field:value": the events holding
+	// the value in the field, compared as text (an element of a repeated
+	// one). The field is before the first colon, one of those of fields;
+	// the value is the rest, colons and spaces included.
+	Filters       []string `protobuf:"bytes,7,rep,name=filters,proto3" json:"filters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEventTopValuesRequest) Reset() {
+	*x = GetEventTopValuesRequest{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEventTopValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEventTopValuesRequest) ProtoMessage() {}
+
+func (x *GetEventTopValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEventTopValuesRequest.ProtoReflect.Descriptor instead.
+func (*GetEventTopValuesRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetEventTopValuesRequest) GetKind() EventKind {
+	if x != nil {
+		return x.Kind
+	}
+	return EventKind_EVENT_KIND_UNSPECIFIED
+}
+
+func (x *GetEventTopValuesRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
+	}
+	return nil
+}
+
+func (x *GetEventTopValuesRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetEventTopValuesRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *GetEventTopValuesRequest) GetFields() []string {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+func (x *GetEventTopValuesRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetEventTopValuesRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+// FieldValue the events holding a value of a field.
+type FieldValue struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Total int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	// total over the events of the range, from 0 to 1.
+	Share         float64 `protobuf:"fixed64,3,opt,name=share,proto3" json:"share,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FieldValue) Reset() {
+	*x = FieldValue{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FieldValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FieldValue) ProtoMessage() {}
+
+func (x *FieldValue) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FieldValue.ProtoReflect.Descriptor instead.
+func (*FieldValue) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *FieldValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *FieldValue) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *FieldValue) GetShare() float64 {
+	if x != nil {
+		return x.Share
+	}
+	return 0
+}
+
+// FieldTopValues the most frequent values of a field, the most first;
+// the empty values are left out.
+type FieldTopValues struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Field         string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
+	Values        []*FieldValue          `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FieldTopValues) Reset() {
+	*x = FieldTopValues{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FieldTopValues) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FieldTopValues) ProtoMessage() {}
+
+func (x *FieldTopValues) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FieldTopValues.ProtoReflect.Descriptor instead.
+func (*FieldTopValues) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *FieldTopValues) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *FieldTopValues) GetValues() []*FieldValue {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+type GetEventTopValuesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The events of the range.
+	Total int64 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	// One per field of the request, in its order.
+	Fields        []*FieldTopValues `protobuf:"bytes,2,rep,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEventTopValuesResponse) Reset() {
+	*x = GetEventTopValuesResponse{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEventTopValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEventTopValuesResponse) ProtoMessage() {}
+
+func (x *GetEventTopValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEventTopValuesResponse.ProtoReflect.Descriptor instead.
+func (*GetEventTopValuesResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetEventTopValuesResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *GetEventTopValuesResponse) GetFields() []*FieldTopValues {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
 var File_sentinez_apps_analytic_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/model.proto\"\xcb\x01\n" +
+	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/model.proto\"\x86\x02\n" +
 	"\x1cListHttpIngressEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xca\x01\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x05 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x85\x02\n" +
 	"\x1bListHttpEgressEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xc7\x01\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x05 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x82\x02\n" +
 	"\x18ListSecRuleEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xc9\x01\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x05 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x84\x02\n" +
 	"\x1aListRateLimitEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xc8\x01\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x05 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x83\x02\n" +
 	"\x19ListCoreRuleEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"a\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x05 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"a\n" +
 	"\x1dListHttpIngressEventsResponse\x12@\n" +
 	"\x06events\x18\x01 \x03(\v2(.sentinez.types.net.http.v1.IngressEventR\x06events\"_\n" +
 	"\x1cListHttpEgressEventsResponse\x12?\n" +
@@ -1305,7 +1714,26 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\tclient_ip\x18\x03 \x01(\tR\bclientIp\x12\x14\n" +
 	"\x05total\x18\x04 \x01(\x03R\x05total\"[\n" +
 	"\x14ListVisitorsResponse\x12C\n" +
-	"\bvisitors\x18\x01 \x03(\v2'.sentinez.apps.analytic.v1.VisitorPointR\bvisitors*\xae\x01\n" +
+	"\bvisitors\x18\x01 \x03(\v2'.sentinez.apps.analytic.v1.VisitorPointR\bvisitors\"\x9b\x02\n" +
+	"\x18GetEventTopValuesRequest\x128\n" +
+	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12!\n" +
+	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
+	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x16\n" +
+	"\x06fields\x18\x05 \x03(\tR\x06fields\x12\x14\n" +
+	"\x05limit\x18\x06 \x01(\x05R\x05limit\x12\x18\n" +
+	"\afilters\x18\a \x03(\tR\afilters\"N\n" +
+	"\n" +
+	"FieldValue\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\x12\x14\n" +
+	"\x05share\x18\x03 \x01(\x01R\x05share\"e\n" +
+	"\x0eFieldTopValues\x12\x14\n" +
+	"\x05field\x18\x01 \x01(\tR\x05field\x12=\n" +
+	"\x06values\x18\x02 \x03(\v2%.sentinez.apps.analytic.v1.FieldValueR\x06values\"t\n" +
+	"\x19GetEventTopValuesResponse\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12A\n" +
+	"\x06fields\x18\x02 \x03(\v2).sentinez.apps.analytic.v1.FieldTopValuesR\x06fields*\xae\x01\n" +
 	"\tEventKind\x12\x1a\n" +
 	"\x16EVENT_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17EVENT_KIND_HTTP_INGRESS\x10\x01\x12\x1a\n" +
@@ -1332,7 +1760,7 @@ func file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP() []byte {
 }
 
 var file_sentinez_apps_analytic_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_sentinez_apps_analytic_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_sentinez_apps_analytic_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(EventKind)(0),                            // 0: sentinez.apps.analytic.v1.EventKind
 	(HistogramResolution)(0),                  // 1: sentinez.apps.analytic.v1.HistogramResolution
@@ -1354,54 +1782,63 @@ var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(*ListVisitorsRequest)(nil),               // 17: sentinez.apps.analytic.v1.ListVisitorsRequest
 	(*VisitorPoint)(nil),                      // 18: sentinez.apps.analytic.v1.VisitorPoint
 	(*ListVisitorsResponse)(nil),              // 19: sentinez.apps.analytic.v1.ListVisitorsResponse
-	(*v1.Pages)(nil),                          // 20: sentinez.types.v1.Pages
-	(*timestamppb.Timestamp)(nil),             // 21: google.protobuf.Timestamp
-	(*v11.IngressEvent)(nil),                  // 22: sentinez.types.net.http.v1.IngressEvent
-	(*v11.EgressEvent)(nil),                   // 23: sentinez.types.net.http.v1.EgressEvent
-	(*v12.SecRuleEvent)(nil),                  // 24: sentinez.types.secrule.v1.SecRuleEvent
-	(*v13.CoreRuleEvent)(nil),                 // 25: sentinez.types.coreruleset.v1.CoreRuleEvent
+	(*GetEventTopValuesRequest)(nil),          // 20: sentinez.apps.analytic.v1.GetEventTopValuesRequest
+	(*FieldValue)(nil),                        // 21: sentinez.apps.analytic.v1.FieldValue
+	(*FieldTopValues)(nil),                    // 22: sentinez.apps.analytic.v1.FieldTopValues
+	(*GetEventTopValuesResponse)(nil),         // 23: sentinez.apps.analytic.v1.GetEventTopValuesResponse
+	(*v1.Pages)(nil),                          // 24: sentinez.types.v1.Pages
+	(*timestamppb.Timestamp)(nil),             // 25: google.protobuf.Timestamp
+	(*v11.IngressEvent)(nil),                  // 26: sentinez.types.net.http.v1.IngressEvent
+	(*v11.EgressEvent)(nil),                   // 27: sentinez.types.net.http.v1.EgressEvent
+	(*v12.SecRuleEvent)(nil),                  // 28: sentinez.types.secrule.v1.SecRuleEvent
+	(*v13.CoreRuleEvent)(nil),                 // 29: sentinez.types.coreruleset.v1.CoreRuleEvent
 }
 var file_sentinez_apps_analytic_v1_event_proto_depIdxs = []int32{
-	20, // 0: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	21, // 1: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	20, // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	21, // 4: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	20, // 6: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	21, // 7: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	20, // 9: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	21, // 10: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
-	20, // 12: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	21, // 13: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	22, // 15: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
-	23, // 16: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
-	24, // 17: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	24, // 18: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	25, // 19: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
+	24, // 0: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	25, // 1: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	25, // 4: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 6: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	25, // 7: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 9: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	25, // 10: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 12: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	25, // 13: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	26, // 15: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
+	27, // 16: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
+	28, // 17: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	28, // 18: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	29, // 19: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
 	0,  // 20: sentinez.apps.analytic.v1.GetEventHistogramRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
 	1,  // 21: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	21, // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	21, // 24: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
+	25, // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	25, // 24: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
 	13, // 25: sentinez.apps.analytic.v1.GetEventHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
 	1,  // 26: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	21, // 27: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 28: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	25, // 27: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 28: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
 	13, // 29: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
 	1,  // 30: sentinez.apps.analytic.v1.ListVisitorsRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	21, // 31: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
-	21, // 32: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
-	21, // 33: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
+	25, // 31: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 32: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
+	25, // 33: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
 	18, // 34: sentinez.apps.analytic.v1.ListVisitorsResponse.visitors:type_name -> sentinez.apps.analytic.v1.VisitorPoint
-	35, // [35:35] is the sub-list for method output_type
-	35, // [35:35] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	0,  // 35: sentinez.apps.analytic.v1.GetEventTopValuesRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
+	25, // 36: sentinez.apps.analytic.v1.GetEventTopValuesRequest.from:type_name -> google.protobuf.Timestamp
+	25, // 37: sentinez.apps.analytic.v1.GetEventTopValuesRequest.to:type_name -> google.protobuf.Timestamp
+	21, // 38: sentinez.apps.analytic.v1.FieldTopValues.values:type_name -> sentinez.apps.analytic.v1.FieldValue
+	22, // 39: sentinez.apps.analytic.v1.GetEventTopValuesResponse.fields:type_name -> sentinez.apps.analytic.v1.FieldTopValues
+	40, // [40:40] is the sub-list for method output_type
+	40, // [40:40] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_analytic_v1_event_proto_init() }
@@ -1415,7 +1852,7 @@ func file_sentinez_apps_analytic_v1_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_analytic_v1_event_proto_rawDesc), len(file_sentinez_apps_analytic_v1_event_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   18,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -21,11 +21,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -50,8 +51,23 @@ var _visitors = histogram.ValueSpec{
 }
 
 var _filterColumns = eventfilter.Columns{
+	RequestId:   httppb.IngressEvent_Id,
 	ResourceId:  httppb.IngressEvent_ResourceId,
 	MatchedTime: httppb.IngressEvent_Timestamp,
+	Fields:      _fields,
+}
+
+// _fields the fields of the events filters match and top values count,
+// in this order.
+var _fields = []eventfilter.Field{
+	eventfilter.Column(httppb.IngressEvent_Method),
+	eventfilter.Column(httppb.IngressEvent_Status),
+	eventfilter.Column(httppb.IngressEvent_Host),
+	eventfilter.Column(httppb.IngressEvent_ClientIp),
+	eventfilter.Column(httppb.IngressEvent_Country),
+	eventfilter.Column(httppb.IngressEvent_Protocol),
+	eventfilter.Column(httppb.IngressEvent_Path),
+	eventfilter.Column(httppb.IngressEvent_UserAgent),
 }
 
 type IHttpIngressEvent interface {
@@ -71,6 +87,7 @@ type IHttpIngressEvent interface {
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
 	VisitorReader
+	topvalues.TopValuer
 }
 
 // VisitorReader reads the visitors of the requests: their client ips.
@@ -89,6 +106,7 @@ type HttpIngressEvent struct {
 	storage         dbx.Database[httppb.IngressEvent]
 	histogramStatus *histogram.Histogram
 	visitors        *histogram.Values
+	topValues       *topvalues.Reader
 }
 
 // New returns the repo of the sztable.AnalyticHttpIngressEvent
@@ -110,10 +128,17 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
+	topValues, err := topvalues.Open(ctx, appConf, _hypertable.Schema.Table,
+		_filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return &HttpIngressEvent{
 		storage:         storage,
 		histogramStatus: histStatus,
 		visitors:        visitors,
+		topValues:       topValues,
 	}, nil
 }
 
@@ -122,6 +147,7 @@ func (r *HttpIngressEvent) WithTX(tx *postgres.TxSession) IHttpIngressEvent {
 		storage:         postgres.WithTx(tx, r.storage),
 		histogramStatus: r.histogramStatus,
 		visitors:        r.visitors,
+		topValues:       r.topValues,
 	}
 }
 
@@ -154,7 +180,11 @@ func (r *HttpIngressEvent) Delete(ctx context.Context, id string) error {
 // List the events of filter, the latest request first.
 func (r *HttpIngressEvent) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*httppb.IngressEvent, error) {
-	builder := filter.Apply(r.selectQuery(), _filterColumns)
+	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
@@ -171,6 +201,12 @@ func (r *HttpIngressEvent) UniqueVisitors(ctx context.Context,
 func (r *HttpIngressEvent) Visitors(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
 	return r.visitors.Points(ctx, filter)
+}
+
+func (r *HttpIngressEvent) TopValues(ctx context.Context,
+	filter *eventfilter.Filter, names []string,
+	limit uint64) (*topvalues.Result, error) {
+	return r.topValues.TopValues(ctx, filter, names, limit)
 }
 
 func (r *HttpIngressEvent) selectQuery() sq.SelectBuilder {

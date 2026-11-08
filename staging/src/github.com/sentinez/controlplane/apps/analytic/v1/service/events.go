@@ -16,9 +16,12 @@ package analyticsvc
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -28,7 +31,7 @@ import (
 // ListHttpIngressEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListHttpIngressEvents(ctx context.Context,
 	req *pb.ListHttpIngressEventsRequest) (*pb.ListHttpIngressEventsResponse, error) {
-	events, err := srv.events.HttpIngress.List(ctx, eventFilter(req))
+	events, err := listEvents(ctx, req, srv.events.HttpIngress.List)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +42,7 @@ func (srv *AnalyticService) ListHttpIngressEvents(ctx context.Context,
 // ListHttpEgressEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListHttpEgressEvents(ctx context.Context,
 	req *pb.ListHttpEgressEventsRequest) (*pb.ListHttpEgressEventsResponse, error) {
-	events, err := srv.events.HttpEgress.List(ctx, eventFilter(req))
+	events, err := listEvents(ctx, req, srv.events.HttpEgress.List)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +53,7 @@ func (srv *AnalyticService) ListHttpEgressEvents(ctx context.Context,
 // ListSecRuleEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListSecRuleEvents(ctx context.Context,
 	req *pb.ListSecRuleEventsRequest) (*pb.ListSecRuleEventsResponse, error) {
-	events, err := srv.events.SecRule.List(ctx, eventFilter(req))
+	events, err := listEvents(ctx, req, srv.events.SecRule.List)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +64,7 @@ func (srv *AnalyticService) ListSecRuleEvents(ctx context.Context,
 // ListRateLimitEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListRateLimitEvents(ctx context.Context,
 	req *pb.ListRateLimitEventsRequest) (*pb.ListRateLimitEventsResponse, error) {
-	events, err := srv.events.RateLimit.List(ctx, eventFilter(req))
+	events, err := listEvents(ctx, req, srv.events.RateLimit.List)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +75,7 @@ func (srv *AnalyticService) ListRateLimitEvents(ctx context.Context,
 // ListCoreRuleEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListCoreRuleEvents(ctx context.Context,
 	req *pb.ListCoreRuleEventsRequest) (*pb.ListCoreRuleEventsResponse, error) {
-	events, err := srv.events.CoreRule.List(ctx, eventFilter(req))
+	events, err := listEvents(ctx, req, srv.events.CoreRule.List)
 	if err != nil {
 		return nil, err
 	}
@@ -173,19 +176,47 @@ const (
 // listRequest the filters every list of events has.
 type listRequest interface {
 	GetPage() *typepb.Pages
+	GetFilters() []string
+	GetRequestIds() []string
 	GetResourceIds() []string
 	GetFrom() *timestamppb.Timestamp
 	GetTo() *timestamppb.Timestamp
 }
 
-// eventFilter the filter of the list of req.
-func eventFilter(req listRequest) *eventfilter.Filter {
+// listEvents the events list returns for the filter of req; an unknown
+// field is an invalid argument.
+func listEvents[T any](ctx context.Context, req listRequest,
+	list func(context.Context, *eventfilter.Filter) ([]*T, error),
+) ([]*T, error) {
+	filter, err := eventFilter(req)
+	if err != nil {
+		return nil, err
+	}
+
+	events, err := list(ctx, filter)
+	if err != nil {
+		return nil, fieldError(err)
+	}
+
+	return events, nil
+}
+
+// eventFilter the filter of the list of req; a filter that is not
+// "field:value" is an invalid argument.
+func eventFilter(req listRequest) (*eventfilter.Filter, error) {
+	matches, err := matchesOf(req.GetFilters())
+	if err != nil {
+		return nil, err
+	}
+
 	return &eventfilter.Filter{
+		RequestIds:  req.GetRequestIds(),
 		ResourceIds: req.GetResourceIds(),
+		Matches:     matches,
 		From:        asTime(req.GetFrom()),
 		To:          asTime(req.GetTo()),
 		Page:        eventPage(req.GetPage()),
-	}
+	}, nil
 }
 
 // eventPage page bounded to _maxPageSize events, the first _pageSize
@@ -209,4 +240,36 @@ func asTime(ts *timestamppb.Timestamp) time.Time {
 	}
 
 	return ts.AsTime()
+}
+
+// matchesOf the eventfilter.Match of filters, each "field:value" (the
+// field before the first colon); one without a colon is an invalid
+// argument.
+func matchesOf(filters []string) ([]eventfilter.Match, error) {
+	if len(filters) == 0 {
+		return nil, nil
+	}
+
+	matches := make([]eventfilter.Match, 0, len(filters))
+	for _, f := range filters {
+		field, value, ok := strings.Cut(f, ":")
+		if !ok || field == "" {
+			return nil, szerror.StatusInvalidArgumentF(
+				"invalid filter %q: want field:value", f)
+		}
+		matches = append(matches,
+			eventfilter.Match{Field: field, Value: value})
+	}
+
+	return matches, nil
+}
+
+// fieldError err, an invalid argument when it names a field the events do
+// not have (eventfilter.ErrUnknownField).
+func fieldError(err error) error {
+	if errors.Is(err, eventfilter.ErrUnknownField) {
+		return szerror.StatusInvalidArgumentF("%s", err)
+	}
+
+	return err
 }

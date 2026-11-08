@@ -200,6 +200,12 @@ export enum ActionType {
   ACTION_TYPE_SET_TAG = 5,
   ACTION_TYPE_ROUTE_TO = 6,
   ACTION_TYPE_CHALLENGE = 7,
+  /**
+   * ACTION_TYPE_RATE_LIMIT - The request was over a rate limiter and answered 429 Too Many
+   * Requests: the action of the rate limit events, set by the edge; not
+   * one a rule is configured with.
+   */
+  ACTION_TYPE_RATE_LIMIT = 8,
   UNRECOGNIZED = -1,
 }
 
@@ -229,6 +235,9 @@ export function actionTypeFromJSON(object: any): ActionType {
     case 7:
     case "ACTION_TYPE_CHALLENGE":
       return ActionType.ACTION_TYPE_CHALLENGE;
+    case 8:
+    case "ACTION_TYPE_RATE_LIMIT":
+      return ActionType.ACTION_TYPE_RATE_LIMIT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -254,6 +263,8 @@ export function actionTypeToJSON(object: ActionType): string {
       return "ACTION_TYPE_ROUTE_TO";
     case ActionType.ACTION_TYPE_CHALLENGE:
       return "ACTION_TYPE_CHALLENGE";
+    case ActionType.ACTION_TYPE_RATE_LIMIT:
+      return "ACTION_TYPE_RATE_LIMIT";
     case ActionType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
