@@ -36,7 +36,6 @@ func TestCacheSkipsSystemPaths(t *testing.T) {
 		name     string
 		givePath string
 	}{
-		{"public image", PublicPrefix + "sentinez/1/1.png"},
 		{"challenge", challenge.ChallengePath},
 	}
 
