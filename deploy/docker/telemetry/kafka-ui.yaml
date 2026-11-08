@@ -5,7 +5,7 @@
 kafka:
   clusters:
     - name: sentinez
-      bootstrapServers: sentinez.telemetry.kafka:9092
+      bootstrapServers: sentinez.kafka:9092
       defaultValueSerde: ProtobufFile
       serde:
         - name: ProtobufFile

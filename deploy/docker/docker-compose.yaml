@@ -1,15 +1,15 @@
 services:
-  sentinez.redis:
-    image: redis
-    container_name: sentinez.redis
-    hostname: sentinez.redis
-    ports:
-      - "6379:6379"
-    command: /bin/sh -c "redis-server --requirepass password"
-    volumes:
-      - ./_volume/redis:/data
-    networks:
-      - sentinez-network
+  # sentinez.redis:
+  #   image: redis
+  #   container_name: sentinez.redis
+  #   hostname: sentinez.redis
+  #   ports:
+  #     - "6379:6379"
+  #   command: /bin/sh -c "redis-server --requirepass password"
+  #   volumes:
+  #     - ./volume/redis:/data
+  #   networks:
+  #     - sentinez-network
 
   sentinez.timescale:
     image: timescale/timescaledb:latest-pg16
@@ -18,30 +18,28 @@ services:
     ports:
       - "5432:5432"
     restart: on-failure:3
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: sentinez
+    env_file:
+      - timescale.env
     volumes:
-      - ./_volume/timescale:/var/lib/timescale/data
+      - ./volume/timescale:/var/lib/timescale/data
     networks:
       - sentinez-network
 
-  sentinez.postgres:
-    image: postgres:16
-    container_name: sentinez.postgres
-    hostname: sentinez.postgres
-    ports:
-      - "5432:5432"
-    restart: on-failure:3
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: sentinez
-    volumes:
-      - ./_volume/postgres:/var/lib/postgresql/data
-    networks:
-      - sentinez-network
+  # sentinez.postgres:
+  #   image: postgres:16
+  #   container_name: sentinez.postgres
+  #   hostname: sentinez.postgres
+  #   ports:
+  #     - "5432:5432"
+  #   restart: on-failure:3
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: sentinez
+  #   volumes:
+  #     - ./volume/postgres:/var/lib/postgresql/data
+  #   networks:
+  #     - sentinez-network
 
   sentinez.consul:
     image: hashicorp/consul:latest
@@ -51,9 +49,14 @@ services:
     ports:
       - "8500:8500"   # UI & API
       - "8600:8600/udp" # DNS
-    command: "agent -dev -client=0.0.0.0"
+    # single-node server: -dev keeps everything in memory, so the KV
+    # (sentinez/proxy.yaml) was lost on every restart. The image adds
+    # -data-dir=/consul/data, persisted by the volume below
+    command: >-
+      agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
+      -node=sentinez-consul
     volumes:
-      - ./_volume:/consul/data
+      - ./volume/consul:/consul/data
     networks:
       - sentinez-network
 
@@ -66,21 +69,19 @@ services:
   #     - "8222:8222"  # monitoring port
   #   # command: -js # Enable JetStream
 
-  sentinez.gateway.apiserver:
-    image: sentinez/apiserver:latest
-    hostname: sentinez.gateway.apiserver
-    container_name: sentinez.gateway.apiserver
-    restart: on-failure:3
-    environment:
-      - SENZ_POSTGRES_URI=postgres://root:root@sentinez.postgres:5432/sentinez?sslmode=disable
-    ports:
-      - "8080:8080"
-    networks:
-      - sentinez-network
-    env_file:
-      - ../../cmd/szapiserver/.env
-    depends_on:
-      - sentinez.postgres
+  # sentinez.gateway.apiserver:
+  #   image: sentinez/apiserver:latest
+  #   hostname: sentinez.gateway.apiserver
+  #   container_name: sentinez.gateway.apiserver
+  #   restart: on-failure:3
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - sentinez-network
+  #   env_file:
+  #     - ../../cmd/szapiserver/.env
+  #   depends_on:
+  #     - sentinez.postgres
   
   sentinez.dmz.edge:
     image: sentinez/edge:latest
@@ -92,14 +93,109 @@ services:
       - "7443:7443/udp"
       - "6060:6060" # pprof profile
       # - "8443:8443" # gRPC connection
+    # public resolvers for the upstreams: the daemon's internal DNS is
+    # unreachable off the VPN (container names still resolve via Docker)
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     networks:
       - sentinez-network
     env_file:
       - ../../cmd/szedge/v1/.env
+      - edge.env # later files win: in-network hosts
+    depends_on:
+      sentinez.kafka-init:
+        condition: service_completed_successfully
+
+  # Single-node Kafka (KRaft, no ZooKeeper). The edge produces its traffic
+  # events to it (raw proto, sentinez.event.http.*), the collector consumes
+  # them into the analytic tables.
+  # Docker creates a missing bind-mount dir as root, but Kafka runs as
+  # appuser (1000): hand the data dir over, then exit
+  sentinez.kafka-perms:
+    image: apache/kafka:3.9.0
+    container_name: sentinez.kafka-perms
+    restart: "no"
+    user: "0:0"
+    entrypoint: ["chown", "-R", "1000:1000", "/var/lib/kafka/data"]
+    volumes:
+      - ./volume_kafka_data:/var/lib/kafka/data
+
+  sentinez.kafka:
+    image: apache/kafka:3.9.0
+    container_name: sentinez.kafka
+    hostname: sentinez.kafka
+    restart: unless-stopped
+    ports:
+      - "9094:9094" # clients on the host
+    env_file:
+      - kafka.env
+    volumes:
+      - ./volume_kafka_data:/var/lib/kafka/data
+    depends_on:
+      sentinez.kafka-perms:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    networks:
+      - sentinez-network
+
+  # Creates the event topics, then exits
+  sentinez.kafka-init:
+    image: apache/kafka:3.9.0
+    container_name: sentinez.kafka-init
+    restart: "no"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        for event in ingress egress rulesets secrule ratelimit cdnrule; do
+          topics="$$topics sentinez.event.http.$$event"
+          topics="$$topics sentinez.event.http.$$event.otlp"
+        done
+        for topic in otlp_logs otlp_spans otlp_metrics $$topics; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server sentinez.kafka:9092 \
+            --create --if-not-exists --topic "$$topic" \
+            --partitions 3 --replication-factor 1
+        done
+    depends_on:
+      sentinez.kafka:
+        condition: service_healthy
+    networks:
+      - sentinez-network
+
+  # Ingests the edge events of Kafka into the analytic tables
+  # (make sz.collector.image.build)
+  sentinez.apps.collector:
+    image: sentinez/collector:latest
+    hostname: sentinez.apps.collector
+    container_name: sentinez.apps.collector
+    restart: on-failure:3
+    # no .env inside the image: the env comes from env_file/environment
+    command: ["main", "--env_file="]
+    ports:
+      - "9002:9002" # gRPC
+    env_file:
+      - ../../cmd/szcollector/v1/.env
+      - collector.env # later files win: in-network hosts
+    depends_on:
+      sentinez.timescale:
+        condition: service_started
+      sentinez.kafka-init:
+        condition: service_completed_successfully
+    networks:
+      - sentinez-network
 
 volumes:
-  _volume:
+  volume:
 
 networks:
   sentinez-network:
+    # fixed name so deploy/docker/telemetry can join it as external
+    name: sentinez-network
     driver: bridge
