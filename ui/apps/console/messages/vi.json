@@ -56,6 +56,8 @@
     "rulesets": "Bộ quy tắc",
     "analytic": "Phân tích",
     "logs": "Nhật ký",
+    "ingress": "Ingress",
+    "egress": "Egress",
     "activity": "Hoạt động",
     "setting": "Cài đặt",
     "account": "Tài khoản"
@@ -78,6 +80,7 @@
     "range": "{from}–{to} trên {total}",
     "rowsPerPage": "Số dòng mỗi trang",
     "page": "Trang {page} / {count}",
+    "current": "Trang {page}",
     "first": "Trang đầu",
     "previous": "Trang trước",
     "next": "Trang sau",
@@ -216,6 +219,7 @@
     "name": "Tên",
     "status": "Trạng thái",
     "uniqueVisitor": "Khách truy cập duy nhất",
+    "noVisitorData": "Chưa có dữ liệu",
     "plan": "Gói",
     "copyResourceId": "Sao chép ID tài nguyên",
     "loadFailed": "Không tải được danh sách tài nguyên",
@@ -271,9 +275,14 @@
     "hideJson": "Ẩn JSON",
     "noSettings": "Chưa áp dụng cấu hình nào.",
     "hiddenJson": "Đang ẩn. Nhấn \"Hiện JSON\" để xem cấu hình thô.",
-    "total24h": "Tổng (24h)",
+    "total24h": "Khách duy nhất (24h)",
     "peakHour": "Giờ cao điểm",
-    "visitors": "Khách truy cập duy nhất"
+    "visitors": "Khách truy cập duy nhất",
+    "topVisitors": "Khách truy cập nhiều nhất",
+    "topVisitorsDescription": "{count} IP có nhiều request nhất trong 24 giờ qua",
+    "clientIp": "IP",
+    "requests": "Số request",
+    "lastSeen": "Lần cuối"
   },
   "Delivery": {
     "cdnTitle": "Quy tắc CDN",
@@ -412,6 +421,8 @@
       "redirect": "Chuyển hướng",
       "setTag": "Gắn tag",
       "routeTo": "Định tuyến tới",
+      "challenge": "Thử thách",
+      "rateLimit": "Giới hạn tốc độ",
       "unknown": "Không xác định"
     },
     "actionTypeDescription": {
@@ -422,6 +433,8 @@
       "redirect": "Chuyển hướng client tới URL đã cho.",
       "setTag": "Gắn tag vào request để dùng ở các bước sau.",
       "routeTo": "Định tuyến request tới upstream/target đã cho.",
+      "challenge": "Hiển thị thử thách proof-of-work; client được cho qua khi trình duyệt giải xong. Chỉ áp dụng cho request GET.",
+      "rateLimit": "Bị bộ giới hạn tốc độ từ chối (429 Too Many Requests)",
       "unknown": ""
     },
     "fieldSource": {
@@ -616,5 +629,108 @@
     "scopeSource": "Ngoại lệ và ghi đè không hỗ trợ điều kiện theo body, JA4 hoặc TLS",
     "email": "Nhập địa chỉ email hợp lệ",
     "rolesRequired": "Chọn ít nhất một vai trò"
+  },
+  "Explorer": {
+    "timeRange": "Khoảng thời gian",
+    "range": {
+      "last60s": "60 giây qua",
+      "last60m": "60 phút qua",
+      "last24h": "24 giờ qua"
+    },
+    "quickRanges": "Hay dùng",
+    "absoluteRange": "Khoảng cố định",
+    "startTime": "Giờ bắt đầu",
+    "endTime": "Giờ kết thúc",
+    "apply": "Áp dụng",
+    "invalidRange": "Chọn thời điểm bắt đầu trước thời điểm kết thúc",
+    "histogramClipped": "Biểu đồ chỉ hiển thị 24 giờ cuối của khoảng đã chọn; danh sách vẫn bao trọn khoảng đó.",
+    "hits": "sự kiện",
+    "histogramHint": "Bấm vào một cột để xem các sự kiện của nó, kéo qua nhiều cột để phóng to",
+    "timeZone": "Giờ theo {zone}",
+    "clearBucket": "Bỏ chọn khoảng thời gian",
+    "filterPlaceholder": "Tìm trong các sự kiện đã tải, hoặc một request id",
+    "resetFilters": "Đặt lại bộ lọc",
+    "resetFiltersHint": "Xoá bộ lọc và khoảng thời gian đã chọn trên biểu đồ",
+    "fields": "Trường",
+    "fieldsDescription": "Giá trị phổ biến nhất trong {count} sự kiện của khoảng thời gian",
+    "filterFor": "Lọc theo {field}: {value}",
+    "copyFailed": "Không sao chép được",
+    "time": "Thời gian",
+    "detail": {
+      "table": "Bảng",
+      "json": "JSON",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép"
+    },
+    "viewRequest": "Xem request trong Ingress",
+    "requestId": "Request ID",
+    "removeFilter": "Bỏ bộ lọc {filter}"
+  },
+  "Logs": {
+    "ingress": {
+      "title": "Ingress",
+      "subtitle": "Các request edge nhận được cho tên miền này"
+    },
+    "egress": {
+      "title": "Egress",
+      "subtitle": "Các request edge chuyển tiếp tới origin của tên miền này"
+    },
+    "secRule": {
+      "title": "SecRule",
+      "subtitle": "Các request khớp SecRule của tên miền này"
+    },
+    "rateLimit": {
+      "title": "Giới hạn tốc độ",
+      "subtitle": "Các request bị bộ giới hạn tốc độ của tên miền này từ chối"
+    },
+    "coreRule": {
+      "title": "Bộ quy tắc",
+      "subtitle": "Các request khớp bộ quy tắc lõi (OWASP CRS) của tên miền này"
+    },
+    "series": {
+      "s2xx": "2xx",
+      "s3xx": "3xx",
+      "s4xx": "4xx",
+      "s5xx": "5xx",
+      "other": "Khác",
+      "events": "Sự kiện",
+      "deny": "Chặn",
+      "allow": "Cho phép"
+    },
+    "column": {
+      "status": "Trạng thái",
+      "method": "Phương thức",
+      "scheme": "Scheme",
+      "host": "Host",
+      "path": "Đường dẫn",
+      "protocol": "Giao thức",
+      "clientIp": "IP client",
+      "remoteAddress": "Địa chỉ remote",
+      "country": "Quốc gia",
+      "asn": "ASN",
+      "contentType": "Content type",
+      "userAgent": "User agent",
+      "fingerprint": "Fingerprint",
+      "upstream": "Upstream",
+      "latency": "Độ trễ",
+      "contentLength": "Content length",
+      "action": "Hành động",
+      "secRules": "SecRule",
+      "rateLimiters": "Bộ giới hạn",
+      "rules": "Quy tắc",
+      "severities": "Mức độ",
+      "score": "Điểm",
+      "behavior": "Hành vi",
+      "domain": "Tên miền",
+      "query": "Query",
+      "requestId": "Request ID"
+    },
+    "detail": {
+      "queries": "Tham số query",
+      "headers": "Headers",
+      "messages": "Thông điệp",
+      "tags": "Tags"
+    },
+    "streamed": "stream"
   }
 }

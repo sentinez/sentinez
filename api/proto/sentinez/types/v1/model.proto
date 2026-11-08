@@ -16,9 +16,9 @@ syntax = "proto3";
 
 package sentinez.types.v1;
 
+import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/options.proto";
-import "buf/validate/validate.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepb";
 
@@ -40,14 +40,14 @@ message Owner {
 
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;
-  
+
   string resource_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "rsrc_" }
+    string: {prefix: "rsrc_"}
   }];
 
   string tenant_id = 4 [(buf.validate.field) = {
     required: true
-    string: { prefix: "tnt_" }
+    string: {prefix: "tnt_"}
   }];
 }

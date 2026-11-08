@@ -41,7 +41,6 @@ func plugins() []chains.Plugin {
 		&trace.Tracer{},
 		&logging.Logging{},
 		&secure.DomainBased{},
-		&cdn.Public{},
 		&cdn.Cache{},
 		&secure.Limiter{},
 		&room.WaitingRoom{},

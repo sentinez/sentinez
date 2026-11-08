@@ -28,8 +28,20 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
+// NewDefaultHandler initializes the Tenant handler with its dependencies.
 func NewDefaultHandler(ctx context.Context,
 	conf *settingpb.Config) (tenantpb.TenantServiceServer, error) {
+	service, err := NewDefaultService(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return tenanthandler.New(service), nil
+}
+
+// NewDefaultService initializes the Tenant service.
+func NewDefaultService(ctx context.Context,
+	conf *settingpb.Config) (*tenantsvc.Service, error) {
 	rscrepo, err := resourcerepo.New(ctx, conf)
 	if err != nil {
 		return nil, fmt.Errorf("resource repo: %w", err)
@@ -46,6 +58,5 @@ func NewDefaultHandler(ctx context.Context,
 	}
 
 	tx := postgres.NewTX(conf)
-	tenantsvcer := tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo)
-	return tenanthandler.New(tenantsvcer), nil
+	return tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo), nil
 }

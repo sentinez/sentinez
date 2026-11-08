@@ -43,6 +43,16 @@ type ISecRule interface {
 	List(ctx context.Context, req *securitypb.ListSecRulesRequest) ([]*securitypb.SecRule, int64, error)
 }
 
+// The action column is JSONB while the action is a plain string (the
+// ActionType name): it is stored as a JSON string and read back as text.
+var _selectAction = securitypb.SecRule_Action + " #>> '{}' AS " +
+	securitypb.SecRule_Action
+
+// actionJSON stores action as a JSON string in the action column.
+func actionJSON(action string) sq.Sqlizer {
+	return sq.Expr("to_jsonb(?::text)", action)
+}
+
 func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
 	storage, err := postgres.New[securitypb.SecRule](ctx, appConf,
 		schema.SecuritySecRules())
@@ -130,7 +140,7 @@ func (r *SecRule) Create(ctx context.Context,
 		securitypb.SecRule_Expr:            model.GetExpr(),
 		securitypb.SecRule_Status:          model.GetStatus(),
 		securitypb.SecRule_Priority:        model.GetPriority(),
-		securitypb.SecRule_Action:          model.GetAction(),
+		securitypb.SecRule_Action:          actionJSON(model.GetAction()),
 		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
 		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
@@ -176,7 +186,7 @@ func (r *SecRule) Update(
 	query = query.
 		Set(securitypb.SecRule_Status, model.GetStatus()).
 		Set(securitypb.SecRule_Priority, model.GetPriority()).
-		Set(securitypb.SecRule_Action, model.GetAction())
+		Set(securitypb.SecRule_Action, actionJSON(model.GetAction()))
 
 	_, err := r.storage.Exec(ctx, query)
 	return err
@@ -190,7 +200,7 @@ func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.SecRule_Expr,
 		securitypb.SecRule_Status,
 		securitypb.SecRule_Priority,
-		securitypb.SecRule_Action,
+		_selectAction,
 		postgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
 		postgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
 		typepb.Metadata_CreatedAt,

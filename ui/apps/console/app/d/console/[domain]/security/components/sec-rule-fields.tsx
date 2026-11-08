@@ -110,6 +110,7 @@ export function secRuleOf(f: SecRuleFormValue, id = ''): SecRule {
     expr: f.expr,
     action: actionTypeToJSON(f.action),
     actionValue: actionValueOf(f),
+    exprPreview: '', // filled by the server
   };
 }
 

@@ -21,11 +21,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -44,8 +45,22 @@ var _histogram = histogram.Spec{
 }
 
 var _filterColumns = eventfilter.Columns{
+	RequestId:   crspb.CoreRuleEvent_RequestId,
 	ResourceId:  crspb.CoreRuleEvent_ResourceId,
 	MatchedTime: crspb.CoreRuleEvent_MatchedTime,
+	Fields:      _fields,
+}
+
+// _fields the fields of the events filters match and top values count,
+// in this order.
+var _fields = []eventfilter.Field{
+	eventfilter.ArrayColumn(crspb.CoreRuleEvent_MatchedRuleIds),
+	eventfilter.ArrayColumn(crspb.CoreRuleEvent_Severities),
+	eventfilter.Column(crspb.CoreRuleEvent_Behavior),
+	eventfilter.Column(crspb.CoreRuleEvent_TotalScore),
+	eventfilter.Column(crspb.CoreRuleEvent_RequestIp),
+	eventfilter.Column(crspb.CoreRuleEvent_RequestDomain),
+	eventfilter.Column(crspb.CoreRuleEvent_RequestPath),
 }
 
 type ICoreRuleEvent interface {
@@ -64,11 +79,13 @@ type ICoreRuleEvent interface {
 	// (histogram.Point.Key).
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
+	topvalues.TopValuer
 }
 
 type CoreRuleEvents struct {
 	storage   dbx.Database[crspb.CoreRuleEvent]
 	histogram *histogram.Histogram
+	topValues *topvalues.Reader
 }
 
 // New returns the repo of the sztable.AnalyticCoreRulesetsEvent
@@ -86,13 +103,24 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
-	return &CoreRuleEvents{storage: storage, histogram: hist}, nil
+	topValues, err := topvalues.Open(ctx, appConf, _hypertable.Schema.Table,
+		_filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CoreRuleEvents{
+		storage:   storage,
+		histogram: hist,
+		topValues: topValues,
+	}, nil
 }
 
 func (r *CoreRuleEvents) WithTX(tx *postgres.TxSession) ICoreRuleEvent {
 	return &CoreRuleEvents{
 		storage:   postgres.WithTx(tx, r.storage),
 		histogram: r.histogram,
+		topValues: r.topValues,
 	}
 }
 
@@ -124,13 +152,23 @@ func (r *CoreRuleEvents) Delete(ctx context.Context, id string) error {
 
 func (r *CoreRuleEvents) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error) {
-	builder := filter.Apply(r.selectQuery(), _filterColumns)
+	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
 func (r *CoreRuleEvents) Histogram(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
 	return r.histogram.Points(ctx, filter)
+}
+
+func (r *CoreRuleEvents) TopValues(ctx context.Context,
+	filter *eventfilter.Filter, names []string,
+	limit uint64) (*topvalues.Result, error) {
+	return r.topValues.TopValues(ctx, filter, names, limit)
 }
 
 func (r *CoreRuleEvents) selectQuery() sq.SelectBuilder {

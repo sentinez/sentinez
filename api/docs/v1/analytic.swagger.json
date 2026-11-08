@@ -143,6 +143,28 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -187,7 +209,7 @@
           },
           {
             "name": "resolution",
-            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -211,7 +233,7 @@
           },
           {
             "name": "from",
-            "description": "Bound the start of the buckets, from inclusive, to exclusive.",
+            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -293,6 +315,28 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -363,6 +407,28 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -433,6 +499,28 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -492,6 +580,253 @@
           {
             "name": "from",
             "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/top-values": {
+      "get": {
+        "summary": "GetEventTopValues counts the most frequent values of fields of the\nevents of a kind over a time range, and their share of its events.",
+        "operationId": "AnalyticService_GetEventTopValues",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEventTopValuesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "kind",
+            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SEC_RULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_CORE_RULE: Matched core ruleset rules; keyed by the behavior.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "EVENT_KIND_UNSPECIFIED",
+              "EVENT_KIND_HTTP_INGRESS",
+              "EVENT_KIND_HTTP_EGRESS",
+              "EVENT_KIND_SEC_RULE",
+              "EVENT_KIND_RATE_LIMIT",
+              "EVENT_KIND_CORE_RULE"
+            ],
+            "default": "EVENT_KIND_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive: to now\nwhen unset, from the hour before to when unset.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "fields",
+            "description": "The fields to count, in this order, each once, named as in the event\nmessage of the kind (e.g. client_ip): all those of the kind when empty.\n  - http ingress: method, status, host, client_ip, country, protocol,\n    path, user_agent.\n  - http egress: upstream, status, method, path, content_type,\n    protocol.\n  - sec rule, rate limit: matched_secrule_ids, action (its type, a\n    rule.v1.ActionType number), request_ip, request_domain,\n    request_path.\n  - core rule: matched_rule_ids, severities, behavior, total_score,\n    request_ip, request_domain, request_path.\nAn event counts once per element of a repeated field it holds.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "description": "The values per field: 5 when 0, at most 20.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\": the events holding\nthe value in the field, compared as text (an element of a repeated\none). The field is before the first colon, one of those of fields;\nthe value is the rest, colons and spaces included.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/visitors": {
+      "get": {
+        "summary": "ListVisitors counts the requests received by the edge per time\nbucket, resource and client ip.",
+        "operationId": "AnalyticService_ListVisitors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListVisitorsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_SECOND",
+              "HISTOGRAM_RESOLUTION_MINUTE",
+              "HISTOGRAM_RESOLUTION_HOUR"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/visitors/histogram": {
+      "get": {
+        "summary": "GetUniqueVisitorHistogram counts the distinct client ips of the\nrequests received by the edge per time bucket and resource.",
+        "operationId": "AnalyticService_GetUniqueVisitorHistogram",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUniqueVisitorHistogramResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_SECOND",
+              "HISTOGRAM_RESOLUTION_MINUTE",
+              "HISTOGRAM_RESOLUTION_HOUR"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -574,9 +909,11 @@
         "ACTION_TYPE_REDIRECT",
         "ACTION_TYPE_SET_TAG",
         "ACTION_TYPE_ROUTE_TO",
-        "ACTION_TYPE_CHALLENGE"
+        "ACTION_TYPE_CHALLENGE",
+        "ACTION_TYPE_RATE_LIMIT"
       ],
-      "default": "ACTION_TYPE_UNSPECIFIED"
+      "default": "ACTION_TYPE_UNSPECIFIED",
+      "description": " - ACTION_TYPE_RATE_LIMIT: The request was over a rate limiter and answered 429 Too Many\nRequests: the action of the rate limit events, set by the edge; not\none a rule is configured with."
     },
     "v1Activity": {
       "type": "object",
@@ -734,6 +1071,40 @@
       "default": "EVENT_KIND_UNSPECIFIED",
       "description": "EventKind the table of the events a histogram counts.\n\n - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SEC_RULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_CORE_RULE: Matched core ruleset rules; keyed by the behavior."
     },
+    "v1FieldTopValues": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FieldValue"
+          }
+        }
+      },
+      "description": "FieldTopValues the most frequent values of a field, the most first;\nthe empty values are left out."
+    },
+    "v1FieldValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "share": {
+          "type": "number",
+          "format": "double",
+          "description": "total over the events of the range, from 0 to 1."
+        }
+      },
+      "description": "FieldValue the events holding a value of a field."
+    },
     "v1GetEventHistogramResponse": {
       "type": "object",
       "properties": {
@@ -743,7 +1114,38 @@
             "type": "object",
             "$ref": "#/definitions/v1HistogramPoint"
           },
-          "description": "Oldest first."
+          "description": "Oldest first, then per resource and key: one per bucket, a total of\n0 when it has no event; a resource without any has key 0."
+        }
+      }
+    },
+    "v1GetEventTopValuesResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64",
+          "description": "The events of the range."
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FieldTopValues"
+          },
+          "description": "One per field of the request, in its order."
+        }
+      }
+    },
+    "v1GetUniqueVisitorHistogramResponse": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1HistogramPoint"
+          },
+          "description": "Oldest first, then per resource: one per bucket, the key 0, the total\nthe number of distinct client ips of the bucket, 0 without."
         }
       }
     },
@@ -778,7 +1180,7 @@
         "HISTOGRAM_RESOLUTION_HOUR"
       ],
       "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-      "description": "HistogramResolution the time range of the buckets of a histogram.\n\n - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes."
+      "description": "HistogramResolution the time range of the buckets of a histogram, and\ntheir number.\n\n - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours."
     },
     "v1IngressEvent": {
       "type": "object",
@@ -922,6 +1324,19 @@
         }
       }
     },
+    "v1ListVisitorsResponse": {
+      "type": "object",
+      "properties": {
+        "visitors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1VisitorPoint"
+          },
+          "description": "Oldest bucket first, then the client ip of the most requests."
+        }
+      }
+    },
     "v1Owner": {
       "type": "object",
       "properties": {
@@ -1045,6 +1460,26 @@
           "type": "string"
         }
       }
+    },
+    "v1VisitorPoint": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "clientIp": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "description": "VisitorPoint the requests of a client ip to a resource in the bucket\nstarting at time."
     }
   }
 }

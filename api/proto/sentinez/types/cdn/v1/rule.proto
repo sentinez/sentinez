@@ -15,12 +15,12 @@
 syntax = "proto3";
 
 package sentinez.types.cdn.v1;
-option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1;cdnpb";
 
+import "google/protobuf/timestamp.proto";
 import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/known.proto";
 
-import "google/protobuf/timestamp.proto";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1;cdnpb";
 
 message Rule {
   string id = 1;
@@ -47,5 +47,5 @@ message RuleLite {
 
 message CDN {
   Rule rule_runtime = 1;
-  RuleLite rule = 2;  // @gotags: yaml:"rule"
+  RuleLite rule = 2; // @gotags: yaml:"rule"
 }

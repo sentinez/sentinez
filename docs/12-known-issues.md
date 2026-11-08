@@ -35,7 +35,7 @@ None known.
   synced between the edges.
 - An explicit `HISTOGRAM_RESOLUTION_SECOND` with no `from` reads the whole
   7 days of the second view.
-- [deploy/docker/telemetry/docker-compose.yaml](../deploy/docker/telemetry/docker-compose.yaml)
+- [deploy/docker/docker-compose.yaml](../deploy/docker/docker-compose.yaml)
   creates the event topics with 3 partitions and disables topic auto-create,
   so the producer's `DefaultTopicPartitions` (6) never applies in that
   setup.

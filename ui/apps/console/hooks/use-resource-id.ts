@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useDomain } from '@/hooks/use-domain';
 import { getResourceByDomain } from '@/lib/api/tenant';
 import { useApi } from '@/hooks/use-api';
 
@@ -10,7 +10,7 @@ import { useApi } from '@/hooks/use-api';
  * to it. Empty while loading or when the domain has no resource.
  */
 export function useResourceId() {
-  const { domain = '' } = useParams<{ domain?: string }>();
+  const domain = useDomain();
   const { data, isLoading } = useApi(getResourceByDomain, {
     resourceDomain: decodeURIComponent(domain),
   });

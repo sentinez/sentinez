@@ -26,10 +26,10 @@ message Activity {
   option (sentinez.types.v1.x_message).database_model = true;
 
   sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
-  
+
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "actv_" }
+    string: {prefix: "actv_"}
   }];
 
   repeated uint32 unique_visitor = 7;

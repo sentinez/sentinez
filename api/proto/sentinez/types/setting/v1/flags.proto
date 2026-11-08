@@ -25,10 +25,8 @@ message Flag {
   option (sentinez.types.v1.x_message).export_field = true;
 
   // base
-  string env_mode = 1
-      [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
-  string log_level = 2
-      [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
+  string env_mode = 1 [(buf.validate.field).string.pattern = "^(dev|prod|sandbox)$"];
+  string log_level = 2 [(buf.validate.field).string.pattern = "^(debug|info|warn|error)$"];
 
   // extra
   string env_file = 3;

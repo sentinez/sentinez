@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
   ChartContainer,
@@ -17,92 +8,85 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@sentinez/ui/components/chart';
-import { Card } from '@sentinez/ui/components/card';
+import type { HistogramPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
-export const description = 'A line chart';
+// VisitorBucket the unique visitors of the bucket starting at time (millis)
+export type VisitorBucket = { time: number; visitors: number };
 
-const chartData = [
-  { month: '0', desktop: 1 },
-  { month: '1', desktop: 2 },
-  { month: '2', desktop: 0 },
-  { month: '3', desktop: 3 },
-  { month: '4', desktop: 1 },
-  { month: '5', desktop: 1 },
-  { month: '6', desktop: 3 },
-  { month: '7', desktop: 2 },
-  { month: '8', desktop: 4 },
-  { month: '9', desktop: 12 },
-  { month: '10', desktop: 1 },
-  { month: '11', desktop: 1 },
-  { month: '12', desktop: 1 },
-  { month: '13', desktop: 0 },
-  { month: '14', desktop: 0 },
-  { month: '15', desktop: 1 },
-  { month: '16', desktop: 10 },
-  { month: '17', desktop: 0 },
-  { month: '18', desktop: 0 },
-  { month: '19', desktop: 0 },
-  { month: '20', desktop: 0 },
-  { month: '21', desktop: 0 },
-  { month: '22', desktop: 0 },
-  { month: '23', desktop: 0 },
-];
+// The bucket of a point of the unique visitor histogram
+export const bucketOf = (p: HistogramPoint): VisitorBucket => ({
+  time: p.time?.getTime() ?? 0,
+  visitors: p.total,
+});
 
-const chartConfig = {
-  desktop: {
-    label: 'Desktop',
-    color: 'var(--chart-1)',
-  },
-} satisfies ChartConfig;
+// The start of an hourly bucket, as "14:00"
+export const HOUR_FORMAT = { hour: '2-digit', minute: '2-digit' } as const;
 
-export function UniqueVisitorChart() {
+// The area of the visitors series, shared by both charts
+const VISITOR_AREA = {
+  dataKey: 'visitors',
+  type: 'monotone',
+  stroke: 'var(--color-visitors)',
+  fill: 'var(--color-visitors)',
+  strokeWidth: 2,
+} as const;
+
+function useVisitorConfig() {
+  const t = useTranslations('Resource');
+  return useMemo(
+    () => ({ visitors: { label: t('visitors'), color: 'var(--chart-1)' } }) satisfies ChartConfig,
+    [t],
+  );
+}
+
+// The tooltip label of a bucket: its start, date and time
+function useBucketLabel() {
+  const format = useFormatter();
+  return (_: unknown, payload: readonly { payload?: VisitorBucket }[]) => {
+    const time = payload?.[0]?.payload?.time;
+    return time ? format.dateTime(new Date(time), { dateStyle: 'short', timeStyle: 'short' }) : '';
+  };
+}
+
+// Sparkline of the unique visitors of a resource, oldest bucket first
+export function UniqueVisitorChart({ data }: { data: VisitorBucket[] }) {
+  const t = useTranslations('Domain');
+  const config = useVisitorConfig();
+  const bucketLabel = useBucketLabel();
+  if (data.length === 0) {
+    return <div className="text-xs text-muted-foreground">{t('noVisitorData')}</div>;
+  }
+
   return (
     <div className="w-full h-16 overflow-hidden">
-      <ChartContainer config={chartConfig} className=" h-16 w-full">
-        <AreaChart
-          // accessibilityLayer
-          data={chartData}
-          margin={{ top: 4, bottom: 4, left: 0, right: 0 }}
-        >
-          <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-          <Area
-            dataKey="desktop"
-            // type="monotone"
-            strokeWidth={2}
-            dot={false}
-            // fill="var(--color-desktop)"
-            fillOpacity={0.4}
-            // stroke="var(--color-desktop)"
+      <ChartContainer config={config} className="h-16 w-full">
+        <AreaChart data={data} margin={{ top: 4, bottom: 4, left: 0, right: 0 }}>
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent labelFormatter={bucketLabel} />}
           />
+          <Area {...VISITOR_AREA} dot={false} fillOpacity={0.4} />
         </AreaChart>
       </ChartContainer>
     </div>
   );
 }
 
-// Mock: unique visitors per hour over the last 24h (no analytic API yet)
-const hourlyVisitors = [
-  42, 35, 28, 21, 18, 16, 24, 51, 88, 124, 142, 156, 171, 163, 149, 158, 177, 196, 214, 187, 152,
-  118, 83, 57,
-].map((visitors, hour) => ({ hour: `${String(hour).padStart(2, '0')}:00`, visitors }));
-
-export function ResourceVisitorChart() {
+// ResourceVisitorChart the unique visitors per hour of a resource, oldest
+// first, with the unique visitors of the whole range (total: an ip seen in
+// several hours counted once) and the busiest hour
+export function ResourceVisitorChart({ data, total }: { data: VisitorBucket[]; total: number }) {
   const t = useTranslations('Resource');
   const format = useFormatter();
-  const visitorConfig = useMemo(
-    () =>
-      ({
-        visitors: {
-          label: t('visitors'),
-          color: 'var(--chart-1)',
-        },
-      }) satisfies ChartConfig,
-    [t],
+  const config = useVisitorConfig();
+  const bucketLabel = useBucketLabel();
+  const hourOf = (time: number) => format.dateTime(new Date(time), HOUR_FORMAT);
+  const peak = data.reduce<VisitorBucket | null>(
+    (max, d) => (d.visitors > (max?.visitors ?? 0) ? d : max),
+    null,
   );
-  const total = hourlyVisitors.reduce((sum, d) => sum + d.visitors, 0);
-  const peak = hourlyVisitors.reduce((max, d) => (d.visitors > max.visitors ? d : max));
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,27 +98,32 @@ export function ResourceVisitorChart() {
         <div>
           <div className="text-sm text-muted-foreground">{t('peakHour')}</div>
           <div className="text-2xl font-bold tabular-nums">
-            {peak.hour}{' '}
-            <span className="text-sm font-normal text-muted-foreground">
-              ({format.number(peak.visitors)})
-            </span>
+            {peak ? hourOf(peak.time) : '—'}{' '}
+            {peak && (
+              <span className="text-sm font-normal text-muted-foreground">
+                ({format.number(peak.visitors)})
+              </span>
+            )}
           </div>
         </div>
       </div>
-      <ChartContainer config={visitorConfig} className="h-64 w-full">
-        <AreaChart data={hourlyVisitors} margin={{ top: 8, bottom: 0, left: 0, right: 8 }}>
+      <ChartContainer config={config} className="h-64 w-full">
+        <AreaChart data={data} margin={{ top: 8, bottom: 0, left: 0, right: 8 }}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="hour" tickLine={false} axisLine={false} tickMargin={8} interval={3} />
-          <YAxis tickLine={false} axisLine={false} width={36} />
-          <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-          <Area
-            dataKey="visitors"
-            type="monotone"
-            stroke="var(--color-visitors)"
-            fill="var(--color-visitors)"
-            fillOpacity={0.3}
-            strokeWidth={2}
+          <XAxis
+            dataKey="time"
+            tickFormatter={hourOf}
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            interval={3}
           />
+          <YAxis tickLine={false} axisLine={false} width={36} allowDecimals={false} />
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent indicator="line" labelFormatter={bucketLabel} />}
+          />
+          <Area {...VISITOR_AREA} fillOpacity={0.3} />
         </AreaChart>
       </ChartContainer>
     </div>

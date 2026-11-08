@@ -386,7 +386,7 @@ Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/cont
 
 #### Histogram
 
-[repos/histogram](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/histogram/)
+[pkg/szstorage/dbx/timescale/histogram](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/histogram/)
 giữ, cho mỗi bảng event, ba continuous aggregate đếm số dòng theo bucket,
 resource và key, để vẽ chart:
 

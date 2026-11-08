@@ -408,7 +408,8 @@ export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
   const segments = useMemo(() => pathname.split('/').filter((path) => path !== ''), [pathname]);
 
   return (
-    <SidebarInset>
+    // min-w-0: a wide table scrolls inside the page instead of widening it
+    <SidebarInset className="min-w-0">
       <div className="flex min-h-screen flex-col">
         <PreviewHeader username={user.name} />
         <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">

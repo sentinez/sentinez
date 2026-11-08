@@ -16,95 +16,101 @@ syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
 
-import "sentinez/types/secrule/v1/engine.proto";
+import "buf/validate/validate.proto";
 import "sentinez/types/cdn/v1/rule.proto";
 import "sentinez/types/coreruleset/v1/setting.proto";
-
-import "buf/validate/validate.proto";
+import "sentinez/types/secrule/v1/engine.proto";
+import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 
 // Setting edge setting per user
 message Setting {
-  Metadata metadata = 1;      // @gotags: yaml:"metadata"
-  Server server = 2;          // @gotags: yaml:"server"
-  Security security = 3;      // @gotags: yaml:"security"
-  TrafficControl traffic_control = 4;  // @gotags: yaml:"traffic_control"
-  Personal personal = 5;      // @gotags: yaml:"personal"
-  Delivery delivery = 6;      // @gotags: yaml:"delivery"
+  Metadata metadata = 1; // @gotags: yaml:"metadata"
+  Server server = 2; // @gotags: yaml:"server"
+  Security security = 3; // @gotags: yaml:"security"
+  TrafficControl traffic_control = 4; // @gotags: yaml:"traffic_control"
+  Personal personal = 5; // @gotags: yaml:"personal"
+  Delivery delivery = 6; // @gotags: yaml:"delivery"
 }
 
 // Metadata identifies the setting in the logs of the edge.
 message Metadata {
-  reserved 2;
-  reserved "resource_id";
-
   // Id of this setting (proxy.yaml), filled into the events of its
   // requests; "tnt_default" when empty.
-  string tenant_id = 1;  // @gotags: yaml:"tenantId"
+  string tenant_id = 1; // @gotags: yaml:"tenantId"
+
+  // Display name of the tenant, the apiserver names the tenant it
+  // imports this setting under with it; tenant_id when empty.
+  string tenant_name = 3; // @gotags: yaml:"tenantName"
+
+  // Plan of the tenant the apiserver imports this setting under.
+  sentinez.types.v1.Plan plan = 4; // @gotags: yaml:"plan"
+
+  // Domain the servers of this setting are served under: the apiserver
+  // stores the resource of server.name as <server.name>.<hostname>.
+  string hostname = 5; // @gotags: yaml:"hostname"
 }
 
 // Server defines where the request goes and how the edge processes it:
 message Server {
-  string name = 1 [
-    (buf.validate.field) = { string: { pattern: "^[a-zA-Z0-9-]+" } }
-  ];  // @gotags: yaml:"name"
+  string name = 1 [(buf.validate.field) = {
+    string: {pattern: "^[a-zA-Z0-9-]+"}
+  }]; // @gotags: yaml:"name"
 
-  repeated Location locations = 2;  // @gotags: yaml:"locations"
+  repeated Location locations = 2; // @gotags: yaml:"locations"
 
   // Id of the upstream servers of the locations, filled into the events
   // of the requests; "rsrc_default" when empty.
-  string resource_id = 3;  // @gotags: yaml:"resourceId"
+  string resource_id = 3; // @gotags: yaml:"resourceId"
 }
 
 message Location {
-  string location = 1 [
-    (buf.validate.field) = { string: { pattern: "^/.*$" } }
-  ];  // @gotags: yaml:"location"
+  string location = 1 [(buf.validate.field) = {
+    string: {pattern: "^/.*$"}
+  }]; // @gotags: yaml:"location"
 
-  string proxy_rewrite = 2 [
-    (buf.validate.field) = { string: { pattern: "^/.*$" } }
-  ];  // @gotags: yaml:"proxyRewrite"
+  string proxy_rewrite = 2 [(buf.validate.field) = {
+    string: {pattern: "^/.*$"}
+  }]; // @gotags: yaml:"proxyRewrite"
 
-  repeated Upstream proxy_pass = 3;           // @gotags: yaml:"proxyPass"
-  BalanceStrategy balance_strategy = 4;       // @gotags: yaml:"balanceStrategy"
-  map<string, string> proxy_set_headers = 5;  // @gotags: yaml:"proxySetHeaders"
+  repeated Upstream proxy_pass = 3; // @gotags: yaml:"proxyPass"
+  BalanceStrategy balance_strategy = 4; // @gotags: yaml:"balanceStrategy"
+  map<string, string> proxy_set_headers = 5; // @gotags: yaml:"proxySetHeaders"
 }
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
   sentinez.types.coreruleset.v1.CoreRuleset core_ruleset = 1; // @gotags: yaml:"core_ruleset"
-  repeated SecRule sec_rules = 2;     // @gotags: yaml:"sec_rules"
-  repeated RateLimit limiters = 3;  // @gotags: yaml:"limiters"
+  repeated SecRule sec_rules = 2; // @gotags: yaml:"sec_rules"
+  repeated RateLimit limiters = 3; // @gotags: yaml:"limiters"
 }
 
 message SecRule {
-  sentinez.types.secrule.v1.SecRuleLite ingress = 1;  // @gotags: yaml:"ingress"
-  sentinez.types.secrule.v1.SecRule ingress_runtime = 2;  // @gotags: yaml:"-"
+  sentinez.types.secrule.v1.SecRuleLite ingress = 1; // @gotags: yaml:"ingress"
+  sentinez.types.secrule.v1.SecRule ingress_runtime = 2; // @gotags: yaml:"-"
 }
 
 message RateLimit {
-  sentinez.types.secrule.v1.SecRuleLite ingress = 1;  // @gotags: yaml:"ingress"
-  sentinez.types.secrule.v1.SecRule ingress_runtime = 2;  // @gotags: yaml:"-"
+  sentinez.types.secrule.v1.SecRuleLite ingress = 1; // @gotags: yaml:"ingress"
+  sentinez.types.secrule.v1.SecRule ingress_runtime = 2; // @gotags: yaml:"-"
 
   string time_window = 11 [(buf.validate.field) = {
-    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
-  }];  //@gotags: yaml:"timeWindow"
+    string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}
+  }]; //@gotags: yaml:"timeWindow"
 
-  int64 max_requests = 12;  //@gotags: yaml:"maxRequests"
+  int64 max_requests = 12; //@gotags: yaml:"maxRequests"
 
   string timeout = 13 [(buf.validate.field) = {
-    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
-  }];  //@gotags: yaml:"timeout"
+    string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}
+  }]; //@gotags: yaml:"timeout"
 }
 
 // Controller for systems using a virtual waiting room or throttling:
-message TrafficControl {
-
-}
+message TrafficControl {}
 
 message Delivery {
-  repeated sentinez.types.cdn.v1.CDN cdn = 1;  // @gotags: yaml:"cdn"
+  repeated sentinez.types.cdn.v1.CDN cdn = 1; // @gotags: yaml:"cdn"
 }
 
 // Personal defines where the request goes and how the edge processes it
@@ -112,12 +118,10 @@ message Personal {}
 
 message Upstream {
   string server = 1 [(buf.validate.field) = {
-    string: {
-      pattern: "^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}))$"
-    }
-  }];  // @gotags: yaml:"server"
+    string: {pattern: "^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}))$"}
+  }]; // @gotags: yaml:"server"
 
-  ProxyProtocol protocol = 2;  // @gotags: yaml:"protocol"
+  ProxyProtocol protocol = 2; // @gotags: yaml:"protocol"
 }
 
 enum BalanceStrategy {

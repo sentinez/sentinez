@@ -52,7 +52,7 @@ connectors:
 
 exporters:
   kafka/logs: &kafka_logs
-    brokers: [sentinez.telemetry.kafka:9092]
+    brokers: [sentinez.kafka:9092]
     protocol_version: 3.9.0
     topic: otlp_logs
     encoding: otlp_proto
@@ -88,7 +88,7 @@ exporters:
     topic: sentinez.event.http.cdnrule.otlp
 
   kafka/traces:
-    brokers: [sentinez.telemetry.kafka:9092]
+    brokers: [sentinez.kafka:9092]
     protocol_version: 3.9.0
     topic: otlp_spans
     encoding: otlp_proto
@@ -103,7 +103,7 @@ exporters:
       enabled: true
 
   kafka/metrics:
-    brokers: [sentinez.telemetry.kafka:9092]
+    brokers: [sentinez.kafka:9092]
     protocol_version: 3.9.0
     topic: otlp_metrics
     encoding: otlp_proto

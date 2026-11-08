@@ -16,11 +16,13 @@ package analyticsvc
 
 import (
 	"testing"
+	"time"
 
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestResolutionMatchesProto(t *testing.T) {
@@ -68,4 +70,53 @@ func TestEventPage(t *testing.T) {
 			assert.Equal(t, tt.want.GetIndex(), got.GetIndex())
 		})
 	}
+}
+
+func TestHistogramFilter(t *testing.T) {
+	from := time.UnixMilli(1000).UTC()
+
+	tests := []struct {
+		name string
+		give histogramRequest
+		want *histogram.Filter
+	}{
+		{
+			name: "event histogram",
+			give: &pb.GetEventHistogramRequest{
+				Resolution:  pb.HistogramResolution_HISTOGRAM_RESOLUTION_HOUR,
+				ResourceIds: []string{"r1"},
+				From:        timestamppb.New(from),
+			},
+			want: &histogram.Filter{
+				Resolution:  histogram.Hour,
+				ResourceIds: []string{"r1"},
+				From:        from,
+			},
+		},
+		{
+			name: "visitors",
+			give: &pb.ListVisitorsRequest{},
+			want: &histogram.Filter{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, histogramFilter(tt.give))
+		})
+	}
+}
+
+func TestHistogramPoints(t *testing.T) {
+	at := time.UnixMilli(1000).UTC()
+
+	got := histogramPoints([]*histogram.Point{
+		{Time: at, ResourceId: "r1", Key: 200, Total: 3},
+	})
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, at, got[0].GetTime().AsTime())
+	assert.Equal(t, "r1", got[0].GetResourceId())
+	assert.Equal(t, int32(200), got[0].GetKey())
+	assert.Equal(t, int64(3), got[0].GetTotal())
 }

@@ -78,3 +78,21 @@ func GetAnalyticServiceGetEventHistogram() *typepb.XMethod {
 		Ignore: true,
 	}
 }
+
+func GetAnalyticServiceGetUniqueVisitorHistogram() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceGetEventTopValues() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}
+
+func GetAnalyticServiceListVisitors() *typepb.XMethod {
+	return &typepb.XMethod{
+		Ignore: true,
+	}
+}

@@ -31,8 +31,6 @@ var (
 )
 
 var (
-	//go:embed _logo
-	Logo embed.FS
 
 	//go:embed deploy/ruleroot/v4-16-0/*.data
 	_fsWAF4160 embed.FS

@@ -57,6 +57,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
 
 docker-compose.secret.yaml
 
@@ -79,6 +80,7 @@ next-env.d.ts
 # local volume
 volume/
 _volume/
+volume*
 
 .vscode/
 

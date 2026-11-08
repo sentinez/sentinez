@@ -24,7 +24,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var _cols = Columns{ResourceId: "resource_id", MatchedTime: "matched_time"}
+var _cols = Columns{
+	RequestId:   "request_id",
+	ResourceId:  "resource_id",
+	MatchedTime: "matched_time",
+	Fields: []Field{
+		Column("status"),
+		ArrayColumn("rule_ids"),
+		{Name: "action", Expr: "action->>'type'"},
+	},
+}
 
 func TestApply(t *testing.T) {
 	from := time.UnixMilli(1000)
@@ -43,15 +52,17 @@ func TestApply(t *testing.T) {
 		{
 			name: "every field",
 			give: &Filter{
+				RequestIds:  []string{"req_1"},
 				ResourceIds: []string{"r1", "r2"},
 				From:        from,
 				To:          to,
 				Page:        &typepb.Pages{Size: 10, Index: 3},
 			},
-			wantSQL: "SELECT id FROM t WHERE resource_id IN (?,?) " +
+			wantSQL: "SELECT id FROM t WHERE request_id IN (?) " +
+				"AND resource_id IN (?,?) " +
 				"AND matched_time >= ? AND matched_time < ? " +
 				"ORDER BY matched_time DESC LIMIT 10 OFFSET 20",
-			wantArgs: []any{"r1", "r2", int64(1000), int64(2000)},
+			wantArgs: []any{"req_1", "r1", "r2", int64(1000), int64(2000)},
 		},
 		{
 			name:    "page without index",
@@ -62,7 +73,8 @@ func TestApply(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := tt.give.Apply(sq.Select("id").From("t"), _cols)
+			b, err := tt.give.Apply(sq.Select("id").From("t"), _cols)
+			require.NoError(t, err)
 
 			gotSQL, gotArgs, err := b.ToSql()
 			require.NoError(t, err)
@@ -70,4 +82,48 @@ func TestApply(t *testing.T) {
 			assert.Equal(t, tt.wantArgs, gotArgs)
 		})
 	}
+}
+
+func TestWhereSkipsOrderAndPage(t *testing.T) {
+	give := &Filter{
+		ResourceIds: []string{"r1"},
+		From:        time.UnixMilli(1000),
+		Page:        &typepb.Pages{Size: 10, Index: 3},
+	}
+
+	b, err := give.Where(sq.Select("id").From("t"), _cols)
+	require.NoError(t, err)
+
+	gotSQL, gotArgs, err := b.ToSql()
+	require.NoError(t, err)
+	assert.Equal(t,
+		"SELECT id FROM t WHERE resource_id IN (?) AND matched_time >= ?",
+		gotSQL)
+	assert.Equal(t, []any{"r1", int64(1000)}, gotArgs)
+}
+
+func TestWhereMatches(t *testing.T) {
+	give := &Filter{Matches: []Match{
+		{Field: "status", Value: "429"},
+		{Field: "rule_ids", Value: "941100"},
+		{Field: "action", Value: "8"},
+	}}
+
+	b, err := give.Where(sq.Select("id").From("t"), _cols)
+	require.NoError(t, err)
+
+	gotSQL, gotArgs, err := b.ToSql()
+	require.NoError(t, err)
+	assert.Equal(t, "SELECT id FROM t WHERE (status)::TEXT = ? "+
+		"AND ? = ANY((rule_ids)::TEXT[]) "+
+		"AND (action->>'type')::TEXT = ?", gotSQL)
+	assert.Equal(t, []any{"429", "941100", "8"}, gotArgs)
+}
+
+func TestWhereRejectsUnknownField(t *testing.T) {
+	give := &Filter{Matches: []Match{{Field: "headers", Value: "x"}}}
+
+	_, err := give.Where(sq.Select("id").From("t"), _cols)
+
+	assert.ErrorIs(t, err, ErrUnknownField)
 }

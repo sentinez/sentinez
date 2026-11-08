@@ -17,7 +17,7 @@ import { ResourceSetting } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { Loader2 } from 'lucide-react';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Button } from '@sentinez/ui/components/button';
-import { ResourceVisitorChart } from './chart';
+import { ResourceVisitors } from './resource-visitors';
 import { useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import BadgeStatus from '@/components/badge-status';
@@ -121,15 +121,7 @@ export function ResourceView({ domain }: Props) {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('uniqueVisitors')}</CardTitle>
-          <CardDescription>{t('uniqueVisitorsDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResourceVisitorChart />
-        </CardContent>
-      </Card>
+      <ResourceVisitors resourceId={resource.id} />
 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">

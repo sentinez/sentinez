@@ -17,9 +17,9 @@ syntax = "proto3";
 package sentinez.apps.iam.v1;
 
 import "buf/validate/validate.proto";
+import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
-import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampb";
 
@@ -30,12 +30,12 @@ message Account {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "acct_" }
+    string: {prefix: "acct_"}
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "user_" }
+    string: {prefix: "user_"}
   }];
 
   // username only support for local provider
@@ -58,16 +58,16 @@ message AccountResponse {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "acct_" }
+    string: {prefix: "acct_"}
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "user_" }
+    string: {prefix: "user_"}
   }];
 
   string username = 10 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  
+
   string email = 11 [(buf.validate.field).string.email = true];
 
   Provider provider = 12;
@@ -86,11 +86,11 @@ message User {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "user_" }
+    string: {prefix: "user_"}
   }];
 
   string full_name = 10 [(buf.validate.field).required = true];
-  
+
   string email = 11 [(buf.validate.field).string.email = true];
 
   sentinez.types.v1.ControlPlane control_plane = 13;

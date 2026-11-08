@@ -22,11 +22,12 @@ import (
 
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
@@ -39,14 +40,28 @@ import (
 type Reader[T any] interface {
 	// List the events of filter, the latest first.
 	List(ctx context.Context, filter *eventfilter.Filter) ([]*T, error)
+	kindReader
+}
+
+// kindReader what the analytic reads of the table of a kind of events,
+// whatever its event type.
+type kindReader interface {
 	// Histogram counts the events per bucket, resource and key.
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
+	topvalues.TopValuer
+}
+
+// IngressReader the Reader of the requests received by the edge, and of
+// their visitors: the client ips.
+type IngressReader interface {
+	Reader[httppb.IngressEvent]
+	httpingressrepo.VisitorReader
 }
 
 // Events the readers of every event table.
 type Events struct {
-	HttpIngress Reader[httppb.IngressEvent]
+	HttpIngress IngressReader
 	HttpEgress  Reader[httppb.EgressEvent]
 	SecRule     Reader[secrulepb.SecRuleEvent]
 	RateLimit   Reader[secrulepb.SecRuleEvent]
@@ -93,17 +108,40 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 // table: the http status, the status of the origin or the behavior.
 func (e *Events) Histogram(ctx context.Context, kind analyticpb.EventKind,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
+	reader, err := e.reader(kind)
+	if err != nil {
+		return nil, err
+	}
+
+	return reader.Histogram(ctx, filter)
+}
+
+// TopValues the top values of the fields of names of the events of kind
+// (see topvalues.TopValuer).
+func (e *Events) TopValues(ctx context.Context, kind analyticpb.EventKind,
+	filter *eventfilter.Filter, names []string,
+	limit uint64) (*topvalues.Result, error) {
+	reader, err := e.reader(kind)
+	if err != nil {
+		return nil, err
+	}
+
+	return reader.TopValues(ctx, filter, names, limit)
+}
+
+// reader the reader of the table of kind.
+func (e *Events) reader(kind analyticpb.EventKind) (kindReader, error) {
 	switch kind {
 	case analyticpb.EventKind_EVENT_KIND_HTTP_INGRESS:
-		return e.HttpIngress.Histogram(ctx, filter)
+		return e.HttpIngress, nil
 	case analyticpb.EventKind_EVENT_KIND_HTTP_EGRESS:
-		return e.HttpEgress.Histogram(ctx, filter)
+		return e.HttpEgress, nil
 	case analyticpb.EventKind_EVENT_KIND_SEC_RULE:
-		return e.SecRule.Histogram(ctx, filter)
+		return e.SecRule, nil
 	case analyticpb.EventKind_EVENT_KIND_RATE_LIMIT:
-		return e.RateLimit.Histogram(ctx, filter)
+		return e.RateLimit, nil
 	case analyticpb.EventKind_EVENT_KIND_CORE_RULE:
-		return e.CoreRule.Histogram(ctx, filter)
+		return e.CoreRule, nil
 	default:
 		return nil, szerror.StatusInvalidArgumentF(
 			"invalid event kind %s", kind)

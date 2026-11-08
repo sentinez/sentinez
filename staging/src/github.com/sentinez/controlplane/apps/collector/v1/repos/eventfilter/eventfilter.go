@@ -25,26 +25,65 @@ import (
 
 // Columns the columns of an event table the Filter applies to.
 type Columns struct {
+	// RequestId the request id of the events: the id of an http event.
+	RequestId   string
 	ResourceId  string
 	MatchedTime string
+	// Fields those a Match may filter, and their top values count, in
+	// this order.
+	Fields []Field
 }
 
 // Filter selects the events of a list, latest matched first; a zero
 // field does not filter.
 type Filter struct {
+	RequestIds  []string
 	ResourceIds []string
+	// Matches all of them, on fields of the Columns.
+	Matches []Match
 	// From and To bound the matched time, From inclusive, To exclusive.
 	From time.Time
 	To   time.Time
 	Page *typepb.Pages
 }
 
-// Apply adds the conditions, order and paging of f, nil included, to b.
-func (f *Filter) Apply(b sq.SelectBuilder, cols Columns) sq.SelectBuilder {
-	if f == nil {
-		return b.OrderBy(cols.MatchedTime + " DESC")
+// Apply adds the conditions, order and paging of f, nil included, to b;
+// a Match of a field cols does not have is an ErrUnknownField.
+func (f *Filter) Apply(b sq.SelectBuilder,
+	cols Columns) (sq.SelectBuilder, error) {
+	b, err := f.Where(b, cols)
+	if err != nil {
+		return b, err
 	}
 
+	b = b.OrderBy(cols.MatchedTime + " DESC")
+	if f == nil {
+		return b, nil
+	}
+
+	return postgres.LimitOffset(b, f.Page), nil
+}
+
+// Where adds the conditions of f, nil included, to b: its requests,
+// resources, matches and time range, not its page; a Match of a field cols
+// does not have is an ErrUnknownField.
+func (f *Filter) Where(b sq.SelectBuilder,
+	cols Columns) (sq.SelectBuilder, error) {
+	if f == nil {
+		return b, nil
+	}
+
+	for _, m := range f.Matches {
+		field, err := cols.Field(m.Field)
+		if err != nil {
+			return b, err
+		}
+		b = b.Where(m.condition(field))
+	}
+
+	if len(f.RequestIds) > 0 {
+		b = b.Where(sq.Eq{cols.RequestId: f.RequestIds})
+	}
 	if len(f.ResourceIds) > 0 {
 		b = b.Where(sq.Eq{cols.ResourceId: f.ResourceIds})
 	}
@@ -55,5 +94,5 @@ func (f *Filter) Apply(b sq.SelectBuilder, cols Columns) sq.SelectBuilder {
 		b = b.Where(sq.Lt{cols.MatchedTime: f.To.UnixMilli()})
 	}
 
-	return postgres.LimitOffset(b.OrderBy(cols.MatchedTime+" DESC"), f.Page)
+	return b, nil
 }

@@ -1186,3 +1186,755 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEventHistogramResponseValidationError{}
+
+// Validate checks the field values on GetUniqueVisitorHistogramRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *GetUniqueVisitorHistogramRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Resolution
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUniqueVisitorHistogramRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUniqueVisitorHistogramRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetUniqueVisitorHistogramRequestValidationError is the validation error
+// returned by GetUniqueVisitorHistogramRequest.Validate if the designated
+// constraints aren't met.
+type GetUniqueVisitorHistogramRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUniqueVisitorHistogramRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUniqueVisitorHistogramRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUniqueVisitorHistogramRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUniqueVisitorHistogramRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUniqueVisitorHistogramRequestValidationError) ErrorName() string {
+	return "GetUniqueVisitorHistogramRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUniqueVisitorHistogramRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUniqueVisitorHistogramRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUniqueVisitorHistogramRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUniqueVisitorHistogramRequestValidationError{}
+
+// Validate checks the field values on GetUniqueVisitorHistogramResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *GetUniqueVisitorHistogramResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetPoints() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetUniqueVisitorHistogramResponseValidationError{
+					field:  fmt.Sprintf("Points[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// GetUniqueVisitorHistogramResponseValidationError is the validation error
+// returned by GetUniqueVisitorHistogramResponse.Validate if the designated
+// constraints aren't met.
+type GetUniqueVisitorHistogramResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUniqueVisitorHistogramResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUniqueVisitorHistogramResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUniqueVisitorHistogramResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUniqueVisitorHistogramResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUniqueVisitorHistogramResponseValidationError) ErrorName() string {
+	return "GetUniqueVisitorHistogramResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUniqueVisitorHistogramResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUniqueVisitorHistogramResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUniqueVisitorHistogramResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUniqueVisitorHistogramResponseValidationError{}
+
+// Validate checks the field values on ListVisitorsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListVisitorsRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Resolution
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListVisitorsRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListVisitorsRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// ListVisitorsRequestValidationError is the validation error returned by
+// ListVisitorsRequest.Validate if the designated constraints aren't met.
+type ListVisitorsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListVisitorsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListVisitorsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListVisitorsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListVisitorsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListVisitorsRequestValidationError) ErrorName() string {
+	return "ListVisitorsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListVisitorsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListVisitorsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListVisitorsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListVisitorsRequestValidationError{}
+
+// Validate checks the field values on VisitorPoint with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *VisitorPoint) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return VisitorPointValidationError{
+				field:  "Time",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ResourceId
+
+	// no validation rules for ClientIp
+
+	// no validation rules for Total
+
+	return nil
+}
+
+// VisitorPointValidationError is the validation error returned by
+// VisitorPoint.Validate if the designated constraints aren't met.
+type VisitorPointValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e VisitorPointValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e VisitorPointValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e VisitorPointValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e VisitorPointValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e VisitorPointValidationError) ErrorName() string { return "VisitorPointValidationError" }
+
+// Error satisfies the builtin error interface
+func (e VisitorPointValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sVisitorPoint.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = VisitorPointValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = VisitorPointValidationError{}
+
+// Validate checks the field values on ListVisitorsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListVisitorsResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetVisitors() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListVisitorsResponseValidationError{
+					field:  fmt.Sprintf("Visitors[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ListVisitorsResponseValidationError is the validation error returned by
+// ListVisitorsResponse.Validate if the designated constraints aren't met.
+type ListVisitorsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListVisitorsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListVisitorsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListVisitorsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListVisitorsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListVisitorsResponseValidationError) ErrorName() string {
+	return "ListVisitorsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListVisitorsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListVisitorsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListVisitorsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListVisitorsResponseValidationError{}
+
+// Validate checks the field values on GetEventTopValuesRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetEventTopValuesRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Kind
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEventTopValuesRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEventTopValuesRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Limit
+
+	return nil
+}
+
+// GetEventTopValuesRequestValidationError is the validation error returned by
+// GetEventTopValuesRequest.Validate if the designated constraints aren't met.
+type GetEventTopValuesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetEventTopValuesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetEventTopValuesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetEventTopValuesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetEventTopValuesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetEventTopValuesRequestValidationError) ErrorName() string {
+	return "GetEventTopValuesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetEventTopValuesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetEventTopValuesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetEventTopValuesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetEventTopValuesRequestValidationError{}
+
+// Validate checks the field values on FieldValue with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *FieldValue) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Value
+
+	// no validation rules for Total
+
+	// no validation rules for Share
+
+	return nil
+}
+
+// FieldValueValidationError is the validation error returned by
+// FieldValue.Validate if the designated constraints aren't met.
+type FieldValueValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FieldValueValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FieldValueValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FieldValueValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FieldValueValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FieldValueValidationError) ErrorName() string { return "FieldValueValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FieldValueValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFieldValue.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FieldValueValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FieldValueValidationError{}
+
+// Validate checks the field values on FieldTopValues with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *FieldTopValues) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Field
+
+	for idx, item := range m.GetValues() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return FieldTopValuesValidationError{
+					field:  fmt.Sprintf("Values[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// FieldTopValuesValidationError is the validation error returned by
+// FieldTopValues.Validate if the designated constraints aren't met.
+type FieldTopValuesValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FieldTopValuesValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FieldTopValuesValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FieldTopValuesValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FieldTopValuesValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FieldTopValuesValidationError) ErrorName() string { return "FieldTopValuesValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FieldTopValuesValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFieldTopValues.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FieldTopValuesValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FieldTopValuesValidationError{}
+
+// Validate checks the field values on GetEventTopValuesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetEventTopValuesResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Total
+
+	for idx, item := range m.GetFields() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetEventTopValuesResponseValidationError{
+					field:  fmt.Sprintf("Fields[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// GetEventTopValuesResponseValidationError is the validation error returned by
+// GetEventTopValuesResponse.Validate if the designated constraints aren't met.
+type GetEventTopValuesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetEventTopValuesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetEventTopValuesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetEventTopValuesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetEventTopValuesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetEventTopValuesResponseValidationError) ErrorName() string {
+	return "GetEventTopValuesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetEventTopValuesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetEventTopValuesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetEventTopValuesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetEventTopValuesResponseValidationError{}

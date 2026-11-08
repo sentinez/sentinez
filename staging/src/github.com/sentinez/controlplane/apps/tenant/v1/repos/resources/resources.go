@@ -50,9 +50,12 @@ var _ IResource = (*Resources)(nil)
 type IResource interface {
 	List(ctx context.Context, req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error)
 	Create(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
+	Upsert(ctx context.Context, rs *tenantpb.Resource) error
 	Update(ctx context.Context, rs *tenantpb.Resource) error
 	Get(ctx context.Context, id string) (*tenantpb.Resource, error)
 	Delete(ctx context.Context, id string) error
+
+	WithTX(tx *postgres.TxSession) IResource
 }
 
 type Resources struct {
@@ -81,28 +84,56 @@ func (rsc *Resources) List(ctx context.Context,
 	return resp, nil
 }
 
+// WithTX returns the repository running its queries in tx.
+func (rsc *Resources) WithTX(tx *postgres.TxSession) IResource {
+	return &Resources{storage: postgres.WithTx(tx, rsc.storage)}
+}
+
+// Upsert inserts rs under its own id, or replaces the stored row when the
+// id exists.
+func (rsc *Resources) Upsert(ctx context.Context, rs *tenantpb.Resource) error {
+	row, err := resourceRow(rs)
+	if err != nil {
+		return err
+	}
+
+	_, err = rsc.storage.Insert(ctx, postgres.UpsertBuilder(rsc.storage, row))
+	return err
+}
+
 func (rsc *Resources) Create(
 	ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error) {
 
 	rs.Id = szrand.NewUUID(szprefix.TenantResource)
 
-	st, _ := protox.Marshal(rs.GetResourceSetting())
+	row, err := resourceRow(rs)
+	if err != nil {
+		return nil, err
+	}
 
-	query := postgres.InsertBuilder(rsc.storage, postgres.M{
+	_, err = rsc.storage.Insert(ctx, postgres.InsertBuilder(rsc.storage, row))
+	if err != nil {
+		return nil, err
+	}
+
+	return rs, nil
+}
+
+// resourceRow is the stored columns of rs.
+func resourceRow(rs *tenantpb.Resource) (postgres.M, error) {
+	st, err := protox.Marshal(rs.GetResourceSetting())
+	if err != nil {
+		return nil, err
+	}
+
+	return postgres.M{
 		tenantpb.Resource_Id:              rs.GetId(),
 		tenantpb.Resource_TenantId:        rs.GetTenantId(),
 		tenantpb.Resource_Status:          rs.GetStatus(),
 		tenantpb.Resource_ResourceDomain:  rs.GetResourceDomain(),
 		tenantpb.Resource_ResourceName:    rs.GetResourceName(),
 		tenantpb.Resource_ResourceSetting: st,
-	})
-
-	_, err := rsc.storage.Insert(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-
-	return rs, nil
+	}, nil
 }
 
 // nolint

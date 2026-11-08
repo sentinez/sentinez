@@ -21,7 +21,10 @@ import (
 	greeterfac "github.com/sentinez/controlplane/apps/greeter/v1/factory"
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
+	securityhdl "github.com/sentinez/controlplane/apps/security/v1/handler"
 	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
+	tenanthdl "github.com/sentinez/controlplane/apps/tenant/v1/handler"
+	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/controlplane/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/handlers"
@@ -46,14 +49,19 @@ func (srv *Server) Initialize(
 	// register all custom handlers to the server
 	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
 
-	security, err := securityfac.NewDefaultHandler(ctx, conf)
+	security, err := securityfac.NewDefaultService(ctx, conf)
 	if err != nil {
 		return err
 	}
 
-	tenant, err := tenantfac.NewDefaultHandler(ctx, conf)
+	tenant, err := tenantfac.NewDefaultService(ctx, conf)
 	if err != nil {
 		return err
+	}
+
+	// Consul down or a bad proxy.yaml must not stop the API.
+	if err := importProxy(ctx, conf, tenant, security); err != nil {
+		szlog.Warnf("proxy import: %v", err)
 	}
 
 	analytic, err := analyticfac.NewDefaultHandler(ctx, conf)
@@ -65,7 +73,7 @@ func (srv *Server) Initialize(
 		controlplane.NewAnalytic(analytic),
 		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
 		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-		controlplane.NewSecurity(security),
-		controlplane.NewTenant(tenant),
+		controlplane.NewSecurity(securityhdl.New(security)),
+		controlplane.NewTenant(tenanthdl.New(tenant)),
 	)
 }

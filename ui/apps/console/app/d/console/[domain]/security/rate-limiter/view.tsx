@@ -13,7 +13,6 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -50,6 +49,7 @@ import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
+import { FixedTable } from '@/components/fixed-table';
 import { useCallback, useMemo, useState } from 'react';
 
 type RateLimiterTranslator = ReturnType<typeof useTranslations<'RateLimiter'>>;
@@ -276,7 +276,7 @@ export default function View() {
             </DropdownMenu>
           </div>
           <div className="overflow-hidden rounded-md">
-            <Table className="table-fixed w-full">
+            <FixedTable table={table}>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id} className="max-h-fit">
@@ -320,7 +320,7 @@ export default function View() {
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+            </FixedTable>
           </div>
           <TablePagination table={table} total={total} />
         </div>

@@ -34,7 +34,7 @@ Không có.
   sync giữa các edge.
 - Chọn rõ `HISTOGRAM_RESOLUTION_SECOND` mà không có `from` sẽ đọc cả 7 ngày
   của view giây.
-- [deploy/docker/telemetry/docker-compose.yaml](../../deploy/docker/telemetry/docker-compose.yaml)
+- [deploy/docker/docker-compose.yaml](../../deploy/docker/docker-compose.yaml)
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong
   môi trường đó.

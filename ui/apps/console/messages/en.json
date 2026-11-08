@@ -56,6 +56,8 @@
     "rulesets": "Rulesets",
     "analytic": "Analytic",
     "logs": "Logs",
+    "ingress": "Ingress",
+    "egress": "Egress",
     "activity": "Activity",
     "setting": "Settings",
     "account": "Account"
@@ -78,6 +80,7 @@
     "range": "{from}–{to} of {total}",
     "rowsPerPage": "Rows per page",
     "page": "Page {page} of {count}",
+    "current": "Page {page}",
     "first": "First page",
     "previous": "Previous page",
     "next": "Next page",
@@ -216,6 +219,7 @@
     "name": "Name",
     "status": "Status",
     "uniqueVisitor": "Unique Visitor",
+    "noVisitorData": "No data",
     "plan": "Plan",
     "copyResourceId": "Copy resource ID",
     "loadFailed": "Failed to load resources",
@@ -271,9 +275,14 @@
     "hideJson": "Hide JSON",
     "noSettings": "No settings applied.",
     "hiddenJson": "Hidden. Click \"Show JSON\" to view the raw setting.",
-    "total24h": "Total (24h)",
+    "total24h": "Unique visitors (24h)",
     "peakHour": "Peak hour",
-    "visitors": "Unique visitors"
+    "visitors": "Unique visitors",
+    "topVisitors": "Top visitors",
+    "topVisitorsDescription": "The {count} client IPs with the most requests over the last 24 hours",
+    "clientIp": "Client IP",
+    "requests": "Requests",
+    "lastSeen": "Last seen"
   },
   "Delivery": {
     "cdnTitle": "CDN Rule",
@@ -412,6 +421,8 @@
       "redirect": "Redirect",
       "setTag": "Set Tag",
       "routeTo": "Route To",
+      "challenge": "Challenge",
+      "rateLimit": "Rate limit",
       "unknown": "Unknown"
     },
     "actionTypeDescription": {
@@ -422,6 +433,8 @@
       "redirect": "Redirect the client to the given URL.",
       "setTag": "Attach a tag to the request for downstream use.",
       "routeTo": "Route the request to the given upstream/target.",
+      "challenge": "Show a proof-of-work challenge; the client passes once its browser solves it. Only GET requests are challenged.",
+      "rateLimit": "Rejected by a rate limiter (429 Too Many Requests)",
       "unknown": ""
     },
     "fieldSource": {
@@ -616,5 +629,108 @@
     "scopeSource": "Conditions on body, JA4 or TLS are not supported for exclusions and overrides",
     "email": "Enter a valid email address",
     "rolesRequired": "Select at least one role"
+  },
+  "Explorer": {
+    "timeRange": "Time range",
+    "range": {
+      "last60s": "Last 60 seconds",
+      "last60m": "Last 60 minutes",
+      "last24h": "Last 24 hours"
+    },
+    "quickRanges": "Commonly used",
+    "absoluteRange": "Absolute range",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "apply": "Apply",
+    "invalidRange": "Pick a start before the end",
+    "histogramClipped": "The histogram shows the last 24 hours of the range; the list covers all of it.",
+    "hits": "events",
+    "histogramHint": "Click a bar to show its events, drag over bars to zoom in",
+    "timeZone": "Times in {zone}",
+    "clearBucket": "Clear the time selection",
+    "filterPlaceholder": "Search the loaded events, or a request id",
+    "resetFilters": "Reset filters",
+    "resetFiltersHint": "Clear the filter and the time selection",
+    "fields": "Fields",
+    "fieldsDescription": "Top values of the {count} events in the time range",
+    "filterFor": "Filter for {field}: {value}",
+    "copyFailed": "Failed to copy",
+    "time": "Time",
+    "detail": {
+      "table": "Table",
+      "json": "JSON",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "viewRequest": "View the request in Ingress",
+    "requestId": "Request ID",
+    "removeFilter": "Remove the filter {filter}"
+  },
+  "Logs": {
+    "ingress": {
+      "title": "Ingress",
+      "subtitle": "Requests received by the edge for this domain"
+    },
+    "egress": {
+      "title": "Egress",
+      "subtitle": "Requests the edge proxied to the origins of this domain"
+    },
+    "secRule": {
+      "title": "SecRule",
+      "subtitle": "Requests that matched the SecRules of this domain"
+    },
+    "rateLimit": {
+      "title": "Rate limiter",
+      "subtitle": "Requests rejected by the rate limiters of this domain"
+    },
+    "coreRule": {
+      "title": "Rulesets",
+      "subtitle": "Requests that matched the core rulesets (OWASP CRS) of this domain"
+    },
+    "series": {
+      "s2xx": "2xx",
+      "s3xx": "3xx",
+      "s4xx": "4xx",
+      "s5xx": "5xx",
+      "other": "Other",
+      "events": "Events",
+      "deny": "Deny",
+      "allow": "Allow"
+    },
+    "column": {
+      "status": "Status",
+      "method": "Method",
+      "scheme": "Scheme",
+      "host": "Host",
+      "path": "Path",
+      "protocol": "Protocol",
+      "clientIp": "Client IP",
+      "remoteAddress": "Remote address",
+      "country": "Country",
+      "asn": "ASN",
+      "contentType": "Content type",
+      "userAgent": "User agent",
+      "fingerprint": "Fingerprint",
+      "upstream": "Upstream",
+      "latency": "Latency",
+      "contentLength": "Content length",
+      "action": "Action",
+      "secRules": "SecRules",
+      "rateLimiters": "Rate limiters",
+      "rules": "Rules",
+      "severities": "Severities",
+      "score": "Score",
+      "behavior": "Behavior",
+      "domain": "Domain",
+      "query": "Query",
+      "requestId": "Request ID"
+    },
+    "detail": {
+      "queries": "Query params",
+      "headers": "Headers",
+      "messages": "Messages",
+      "tags": "Tags"
+    },
+    "streamed": "streamed"
   }
 }

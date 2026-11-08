@@ -22,11 +22,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -38,8 +39,24 @@ var _ ISecRuleEvent = (*SecRuleEvents)(nil)
 var _columns = schema.AnalyticSecRulesEvent().ColumnNames()
 
 var _filterColumns = eventfilter.Columns{
+	RequestId:   secrulepb.SecRuleEvent_RequestId,
 	ResourceId:  secrulepb.SecRuleEvent_ResourceId,
 	MatchedTime: secrulepb.SecRuleEvent_MatchedTime,
+	Fields:      _fields,
+}
+
+// _fields the fields of the events filters match and top values count,
+// in this order; the
+// action is its type, a rule.v1.ActionType number.
+var _fields = []eventfilter.Field{
+	eventfilter.ArrayColumn(secrulepb.SecRuleEvent_MatchedSecruleIds),
+	{
+		Name: secrulepb.SecRuleEvent_Action,
+		Expr: secrulepb.SecRuleEvent_Action + "->>'type'",
+	},
+	eventfilter.Column(secrulepb.SecRuleEvent_RequestIp),
+	eventfilter.Column(secrulepb.SecRuleEvent_RequestDomain),
+	eventfilter.Column(secrulepb.SecRuleEvent_RequestPath),
 }
 
 type ISecRuleEvent interface {
@@ -57,11 +74,13 @@ type ISecRuleEvent interface {
 	// Histogram counts the events per bucket and resource.
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
+	topvalues.TopValuer
 }
 
 type SecRuleEvents struct {
 	storage   dbx.Database[secrulepb.SecRuleEvent]
 	histogram *histogram.Histogram
+	topValues *topvalues.Reader
 	// onConflict the conflict clause of Create, of the hypertable.
 	onConflict string
 }
@@ -84,6 +103,7 @@ func (r *SecRuleEvents) WithTX(tx *postgres.TxSession) ISecRuleEvent {
 	return &SecRuleEvents{
 		storage:    postgres.WithTx(tx, r.storage),
 		histogram:  r.histogram,
+		topValues:  r.topValues,
 		onConflict: r.onConflict,
 	}
 }
@@ -116,7 +136,11 @@ func (r *SecRuleEvents) Delete(ctx context.Context, id string) error {
 
 func (r *SecRuleEvents) List(ctx context.Context,
 	filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error) {
-	builder := filter.Apply(r.selectQuery(), _filterColumns)
+	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return r.storage.CollectRows(ctx, builder, scan)
 }
 
@@ -141,11 +165,23 @@ func newSecRuleEvents(ctx context.Context, appConf *settingpb.Config,
 		return nil, err
 	}
 
+	topValues, err := topvalues.Open(ctx, appConf, sch.Table, _filterColumns)
+	if err != nil {
+		return nil, err
+	}
+
 	return &SecRuleEvents{
 		storage:    storage,
 		histogram:  hist,
+		topValues:  topValues,
 		onConflict: ht.OnConflictDoNothing(),
 	}, nil
+}
+
+func (r *SecRuleEvents) TopValues(ctx context.Context,
+	filter *eventfilter.Filter, names []string,
+	limit uint64) (*topvalues.Result, error) {
+	return r.topValues.TopValues(ctx, filter, names, limit)
 }
 
 func (r *SecRuleEvents) selectQuery() sq.SelectBuilder {
