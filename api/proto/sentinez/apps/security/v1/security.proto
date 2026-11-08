@@ -28,14 +28,21 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: { title: "Security Service" version: "1.0" }
+  info: {
+    title: "Security Service"
+    version: "1.0"
+  }
   schemes: HTTP
   schemes: HTTPS
   consumes: "application/json"
   security_definitions: {
     security: {
       key: "ApiKeyAuth"
-      value: { type: TYPE_API_KEY in: IN_HEADER name: "Authorization" }
+      value: {
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization"
+      }
     }
   }
   security: {
@@ -53,10 +60,8 @@ option (sentinez.types.v1.x_meta) = {
 
 // SecurityService handles CRUD operations for WAF rule expressions and rules
 service SecurityService {
-
   // CreateSecRule creates a new WAF rule based
-  rpc CreateSecRule(CreateSecRuleRequest)
-      returns (CreateSecRuleResponse) {
+  rpc CreateSecRule(CreateSecRuleRequest) returns (CreateSecRuleResponse) {
     option (google.api.http) = {
       post: "/security/secrule"
       body: "*"
@@ -65,14 +70,11 @@ service SecurityService {
 
   // GetSecRule retrieves a WAF rule based by ID
   rpc GetSecRule(GetSecRuleRequest) returns (GetSecRuleResponse) {
-    option (google.api.http) = {
-      get: "/security/secrule/{id}"
-    };
+    option (google.api.http) = {get: "/security/secrule/{id}"};
   }
 
   // UpdateSecRule updates an existing WAF rule based
-  rpc UpdateSecRule(UpdateSecRuleRequest)
-      returns (UpdateSecRuleResponse) {
+  rpc UpdateSecRule(UpdateSecRuleRequest) returns (UpdateSecRuleResponse) {
     option (google.api.http) = {
       put: "/security/secrule/{id}"
       body: "*"
@@ -80,25 +82,19 @@ service SecurityService {
   }
 
   // DeleteSecRule removes a WAF rule based by ID
-  rpc DeleteSecRule(DeleteSecRuleRequest)
-      returns (DeleteSecRuleResponse) {
-    option (google.api.http) = {
-      delete: "/security/secrule/{id}"
-    };
+  rpc DeleteSecRule(DeleteSecRuleRequest) returns (DeleteSecRuleResponse) {
+    option (google.api.http) = {delete: "/security/secrule/{id}"};
   }
 
   // ListSecRules lists WAF rule baseds with optional filters
   rpc ListSecRules(ListSecRulesRequest) returns (ListSecRulesResponse) {
-    option (google.api.http) = {
-      get: "/security/secrules"
-    };
+    option (google.api.http) = {get: "/security/secrules"};
   }
 
   // ── RateLimit ─────────────────────────────────────────────────────────────
 
   // CreateRateLimit creates a new rate limit rule
-  rpc CreateRateLimit(CreateRateLimitRequest)
-      returns (CreateRateLimitResponse) {
+  rpc CreateRateLimit(CreateRateLimitRequest) returns (CreateRateLimitResponse) {
     option (google.api.http) = {
       post: "/security/ratelimit"
       body: "*"
@@ -107,14 +103,11 @@ service SecurityService {
 
   // GetRateLimit retrieves a rate limit rule by ID
   rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse) {
-    option (google.api.http) = {
-      get: "/security/ratelimit/{id}"
-    };
+    option (google.api.http) = {get: "/security/ratelimit/{id}"};
   }
 
   // UpdateRateLimit updates an existing rate limit rule
-  rpc UpdateRateLimit(UpdateRateLimitRequest)
-      returns (UpdateRateLimitResponse) {
+  rpc UpdateRateLimit(UpdateRateLimitRequest) returns (UpdateRateLimitResponse) {
     option (google.api.http) = {
       put: "/security/ratelimit/{id}"
       body: "*"
@@ -122,26 +115,19 @@ service SecurityService {
   }
 
   // DeleteRateLimit removes a rate limit rule by ID
-  rpc DeleteRateLimit(DeleteRateLimitRequest)
-      returns (DeleteRateLimitResponse) {
-    option (google.api.http) = {
-      delete: "/security/ratelimit/{id}"
-    };
+  rpc DeleteRateLimit(DeleteRateLimitRequest) returns (DeleteRateLimitResponse) {
+    option (google.api.http) = {delete: "/security/ratelimit/{id}"};
   }
 
   // ListRateLimits lists rate limit rules with optional filters
-  rpc ListRateLimits(ListRateLimitsRequest)
-      returns (ListRateLimitsResponse) {
-    option (google.api.http) = {
-      get: "/security/ratelimits"
-    };
+  rpc ListRateLimits(ListRateLimitsRequest) returns (ListRateLimitsResponse) {
+    option (google.api.http) = {get: "/security/ratelimits"};
   }
 
   // ── CoreRuleset ───────────────────────────────────────────────────────────
 
   // CreateCoreRuleset creates a new OWASP CRS configuration
-  rpc CreateCoreRuleset(CreateCoreRulesetRequest)
-      returns (CreateCoreRulesetResponse) {
+  rpc CreateCoreRuleset(CreateCoreRulesetRequest) returns (CreateCoreRulesetResponse) {
     option (google.api.http) = {
       post: "/security/coreruleset"
       body: "*"
@@ -149,16 +135,12 @@ service SecurityService {
   }
 
   // GetCoreRuleset retrieves an OWASP CRS configuration by ID
-  rpc GetCoreRuleset(GetCoreRulesetRequest)
-      returns (GetCoreRulesetResponse) {
-    option (google.api.http) = {
-      get: "/security/coreruleset/{id}"
-    };
+  rpc GetCoreRuleset(GetCoreRulesetRequest) returns (GetCoreRulesetResponse) {
+    option (google.api.http) = {get: "/security/coreruleset/{id}"};
   }
 
   // UpdateCoreRuleset updates an existing OWASP CRS configuration
-  rpc UpdateCoreRuleset(UpdateCoreRulesetRequest)
-      returns (UpdateCoreRulesetResponse) {
+  rpc UpdateCoreRuleset(UpdateCoreRulesetRequest) returns (UpdateCoreRulesetResponse) {
     option (google.api.http) = {
       put: "/security/coreruleset/{id}"
       body: "*"
@@ -166,59 +148,43 @@ service SecurityService {
   }
 
   // DeleteCoreRuleset removes an OWASP CRS configuration by ID
-  rpc DeleteCoreRuleset(DeleteCoreRulesetRequest)
-      returns (DeleteCoreRulesetResponse) {
-    option (google.api.http) = {
-      delete: "/security/coreruleset/{id}"
-    };
+  rpc DeleteCoreRuleset(DeleteCoreRulesetRequest) returns (DeleteCoreRulesetResponse) {
+    option (google.api.http) = {delete: "/security/coreruleset/{id}"};
   }
 
   // ListCoreRulesets lists OWASP CRS configurations, filtered by their
   // name or by the fields of their content
-  rpc ListCoreRulesets(ListCoreRulesetsRequest)
-      returns (ListCoreRulesetsResponse) {
-    option (google.api.http) = {
-      get: "/security/corerulesets"
-    };
+  rpc ListCoreRulesets(ListCoreRulesetsRequest) returns (ListCoreRulesetsResponse) {
+    option (google.api.http) = {get: "/security/corerulesets"};
   }
 
   // ── RuleInfo (OWASP CRS rule catalog) ─────────────────────────────────────
 
   // GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
   rpc GetRuleInfo(GetRuleInfoRequest) returns (GetRuleInfoResponse) {
-    option (google.api.http) = {
-      get: "/security/crs/rules/{id}"
-    };
+    option (google.api.http) = {get: "/security/crs/rules/{id}"};
   }
 
   // ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
   // can exclude or override, with their tags
   rpc ListRuleInfos(ListRuleInfosRequest) returns (ListRuleInfosResponse) {
-    option (google.api.http) = {
-      get: "/security/crs/rules"
-    };
+    option (google.api.http) = {get: "/security/crs/rules"};
   }
 
   // ListRuleTags lists the tags carried by the rules of the OWASP CRS
   // catalog: the values a CoreRuleset can exclude, or ListRuleInfos can
   // filter by
   rpc ListRuleTags(ListRuleTagsRequest) returns (ListRuleTagsResponse) {
-    option (google.api.http) = {
-      get: "/security/crs/tags"
-    };
+    option (google.api.http) = {get: "/security/crs/tags"};
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
 
   // Status returns the health status of the security service
   rpc Status(StatusRequest) returns (StatusResponse) {
-    option (google.api.http) = {
-      get: "/security/status"
-    };
+    option (google.api.http) = {get: "/security/status"};
 
-    option (sentinez.types.v1.x_method) = {
-      ignore: true
-    };
+    option (sentinez.types.v1.x_method) = {ignore: true};
   }
 }
 
@@ -370,7 +336,7 @@ message ListCoreRulesetsRequest {
   repeated sentinez.types.v1.Status statuses = 22;
 
   // content.paranoia_level, 0 = any.
-  uint32 paranoia_level = 23 [(buf.validate.field).uint32 = { lte: 4 }];
+  uint32 paranoia_level = 23 [(buf.validate.field).uint32 = {lte: 4}];
 
   // Rule groups all listed in content.categories.
   repeated sentinez.types.coreruleset.v1.Category categories = 24;
@@ -393,7 +359,10 @@ message ListCoreRulesetsResponse {
 // ── RuleInfo Messages ────────────────────────────────────────────────────
 
 message GetRuleInfoRequest {
-  uint32 id = 1 [(buf.validate.field).uint32 = { gte: 900000, lte: 999999 }];
+  uint32 id = 1 [(buf.validate.field).uint32 = {
+    gte: 900000
+    lte: 999999
+  }];
 
   // CRS version of the catalog, unspecified = latest supported.
   sentinez.types.coreruleset.v1.Version version = 2;

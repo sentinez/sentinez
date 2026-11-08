@@ -16,8 +16,8 @@ syntax = "proto3";
 
 package sentinez.types.secrule.v1;
 
-import "sentinez/types/v1/known.proto";
 import "sentinez/types/rule/v1/rule.proto";
+import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepb";
 

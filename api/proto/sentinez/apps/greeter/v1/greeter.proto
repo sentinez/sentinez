@@ -24,14 +24,21 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1;greeterpb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: { title: "Greeter Service" version: "1.0" }
+  info: {
+    title: "Greeter Service"
+    version: "1.0"
+  }
   schemes: HTTP
   schemes: HTTPS
   consumes: "application/json"
   security_definitions: {
     security: {
       key: "ApiKeyAuth"
-      value: { type: TYPE_API_KEY in: IN_HEADER name: "Authorization" }
+      value: {
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization"
+      }
     }
   }
   security: {
@@ -51,24 +58,16 @@ option (sentinez.types.v1.x_meta) = {
 service GreeterService {
   // Example method
   rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
-    option (google.api.http) = {
-      get: "/greeter/say"
-    };
+    option (google.api.http) = {get: "/greeter/say"};
 
-    option (sentinez.types.v1.x_method) = {
-      ignore: true
-    };
+    option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
   // Health check api
   rpc Status(StatusRequest) returns (StatusResponse) {
-    option (google.api.http) = {
-      get: "/greeter/status"
-    };
+    option (google.api.http) = {get: "/greeter/status"};
 
-    option (sentinez.types.v1.x_method) = {
-      ignore: true
-    };
+    option (sentinez.types.v1.x_method) = {ignore: true};
   }
 }
 

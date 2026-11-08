@@ -15,11 +15,12 @@
 syntax = "proto3";
 
 package sentinez.dmz.edge.v1;
-option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 
 import "sentinez/dmz/edge/v1/setting.proto";
 import "sentinez/types/net/http/v1/http.proto";
 import "sentinez/types/net/v1/conn.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepb";
 
 // Context helps the edge identify which user is connected
 message Context {
@@ -31,7 +32,7 @@ message Context {
 
 message ContextExtra {
   string namespace = 1;
-  
+
   repeated string sec_rule_matched_ids = 10;
   repeated string sec_rule_matched_names = 11;
   repeated string rulesets_matched_ids = 12;

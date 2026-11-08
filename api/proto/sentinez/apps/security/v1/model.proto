@@ -17,12 +17,11 @@ syntax = "proto3";
 package sentinez.apps.security.v1;
 
 import "buf/validate/validate.proto";
+import "sentinez/types/coreruleset/v1/setting.proto";
+import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
-import "sentinez/types/rule/v1/rule.proto";
-import "sentinez/types/coreruleset/v1/setting.proto";
-
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 
@@ -33,7 +32,7 @@ message SecRule {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "srule_" }
+    string: {prefix: "srule_"}
   }];
 
   string name = 3;
@@ -53,7 +52,7 @@ message RateLimit {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "rlim_" }
+    string: {prefix: "rlim_"}
   }];
 
   string name = 3;
@@ -66,7 +65,7 @@ message RateLimit {
 
   // Counting window, as a Go duration string (e.g. "10s", "1m").
   string time_window = 10 [(buf.validate.field) = {
-    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
+    string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}
   }];
 
   // Maximum number of requests allowed within time_window.
@@ -74,7 +73,7 @@ message RateLimit {
 
   // Block duration once the limit is exceeded, as a Go duration string.
   string timeout = 12 [(buf.validate.field) = {
-    string: { pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$" }
+    string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}
   }];
 
   string expr_preview = 13;
@@ -92,7 +91,7 @@ message CoreRuleset {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "crs_" }
+    string: {prefix: "crs_"}
   }];
 
   string name = 3;

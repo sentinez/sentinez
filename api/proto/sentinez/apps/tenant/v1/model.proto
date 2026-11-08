@@ -32,23 +32,23 @@ message Resource {
   option (sentinez.types.v1.x_message).database_model = true;
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
-  
+
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "rsrc_" }
+    string: {prefix: "rsrc_"}
   }];
 
   string tenant_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "tnt_" }
+    string: {prefix: "tnt_"}
   }];
 
   ResourceSetting resource_setting = 4;
 
   string resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  
+
   string resource_name = 6 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  
+
   sentinez.types.v1.Status status = 7;
 }
 
@@ -56,10 +56,10 @@ message Tenant {
   option (sentinez.types.v1.x_message).database_model = true;
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
-  
+
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "tnt_" }
+    string: {prefix: "tnt_"}
   }];
 
   string name = 3;
@@ -71,21 +71,21 @@ message Tenant {
 message Member {
   option (sentinez.types.v1.x_message).database_model = true;
   sentinez.types.v1.Metadata metadata = 1;
-  
+
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: { prefix: "mem_" }
+    string: {prefix: "mem_"}
   }];
 
   string user_id = 3 [(buf.validate.field) = {
     required: true
-    string: { prefix: "user_" }
+    string: {prefix: "user_"}
   }];
 
   string tenant_id = 4 [(buf.validate.field) = {
     required: true
-    string: { prefix: "tnt_" }
+    string: {prefix: "tnt_"}
   }];
-  
+
   repeated sentinez.types.v1.Role roles = 5 [(buf.validate.field).repeated.unique = true];
 }

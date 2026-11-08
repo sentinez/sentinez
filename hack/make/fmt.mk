@@ -1,7 +1,9 @@
 # Go formatting; included by the root Makefile, run from $(SZ_ROOT).
-# Covers every tracked .go file of all modules (git submodules excluded).
-SZ_GOFILES = $(shell cd $(SZ_ROOT) && git ls-files '*.go' \
-	':!:_submodules/**')
+# Covers every tracked or new (not ignored) .go file of all modules, git
+# submodules excluded; files deleted from the worktree are skipped.
+SZ_GOFILES = $(shell cd $(SZ_ROOT) && git ls-files --cached --others \
+	--exclude-standard '*.go' ':!:_submodules/**' | \
+	while read -r f; do [ -f "$$f" ] && echo "$$f"; done)
 
 .PHONY: fmt fmt.go fmt.go.check
 
